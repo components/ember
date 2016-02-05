@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0+12b8ade8
+ * @version   2.3.0+75739d3f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -30398,6 +30398,53 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 1, 'should have invoked observer');
   });
 
+  _emberMetalTestsProps_helper.testBoth('before observer watching multiple properties via brace expansion should fire when properties change', function (get, set) {
+    var obj = {};
+    var count = 0;
+
+    _emberMetalMixin.mixin(obj, {
+      fooAndBarWatcher: _emberMetalMixin._beforeObserver('{foo,bar}', function () {
+        count++;
+      })
+    });
+
+    set(obj, 'foo', 'foo');
+    equal(count, 1, 'observer specified via brace expansion invoked on property change');
+
+    set(obj, 'bar', 'bar');
+    equal(count, 2, 'observer specified via brace expansion invoked on property change');
+
+    set(obj, 'baz', 'baz');
+    equal(count, 2, 'observer not invoked on unspecified property');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('before observer watching multiple properties via brace expansion should fire when dependent property changes', function (get, set) {
+    var obj = { baz: 'Initial' };
+    var count = 0;
+
+    _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.computed(function () {
+      return get(this, 'bar').toLowerCase();
+    }).property('bar'));
+
+    _emberMetalProperties.defineProperty(obj, 'bar', _emberMetalComputed.computed(function () {
+      return get(this, 'baz').toUpperCase();
+    }).property('baz'));
+
+    _emberMetalMixin.mixin(obj, {
+      fooAndBarWatcher: _emberMetalMixin._beforeObserver('{foo,bar}', function () {
+        count++;
+      })
+    });
+
+    get(obj, 'foo');
+    set(obj, 'baz', 'Baz');
+    // fire once for foo, once for bar
+    equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
+
+    set(obj, 'quux', 'Quux');
+    equal(count, 2, 'observer not fired on unspecified property');
+  });
+
   _emberMetalTestsProps_helper.testBoth('_addBeforeObserver should propagate through prototype', function (get, set) {
     var obj = { foo: 'foo', count: 0 };
     var obj2;
@@ -47071,6 +47118,138 @@ enifed('ember-runtime/tests/system/array_proxy/suite_test', ['exports', 'ember-r
 
   }).run();
 });
+enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['exports', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer', 'ember-metal/properties', 'ember-metal/watching', 'ember-metal/computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver, _emberMetalProperties, _emberMetalWatching, _emberMetalComputed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
+  'use strict';
+
+  function sortedListenersFor(obj, eventName) {
+    return _emberMetalEvents.listenersFor(obj, eventName).sort(function (listener1, listener2) {
+      return listener1[1] > listener2[1] ? -1 : 1;
+    });
+  }
+
+  QUnit.module('ArrayProxy - watching and listening');
+
+  QUnit.test('setting \'content\' adds listeners correctly', function () {
+    var content = _emberRuntimeSystemNative_array.A();
+    var proxy = _emberRuntimeSystemArray_proxy.default.create();
+
+    deepEqual(sortedListenersFor(content, '@array:before'), []);
+    deepEqual(sortedListenersFor(content, '@array:change'), []);
+
+    proxy.set('content', content);
+
+    deepEqual(sortedListenersFor(content, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
+    deepEqual(sortedListenersFor(content, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+  });
+
+  QUnit.test('changing \'content\' adds and removes listeners correctly', function () {
+    var content1 = _emberRuntimeSystemNative_array.A();
+    var content2 = _emberRuntimeSystemNative_array.A();
+    var proxy = _emberRuntimeSystemArray_proxy.default.create({ content: content1 });
+
+    deepEqual(sortedListenersFor(content1, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
+    deepEqual(sortedListenersFor(content1, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+
+    proxy.set('content', content2);
+
+    deepEqual(sortedListenersFor(content1, '@array:before'), []);
+    deepEqual(sortedListenersFor(content1, '@array:change'), []);
+    deepEqual(sortedListenersFor(content2, '@array:before'), [[proxy, 'contentArrayWillChange'], [proxy, 'arrangedContentArrayWillChange']]);
+    deepEqual(sortedListenersFor(content2, '@array:change'), [[proxy, 'contentArrayDidChange'], [proxy, 'arrangedContentArrayDidChange']]);
+  });
+
+  QUnit.test('regression test for https://github.com/emberjs/ember.js/issues/12475', function () {
+    var item1a = { id: 1 };
+    var item1b = { id: 2 };
+    var item1c = { id: 3 };
+    var content1 = _emberRuntimeSystemNative_array.A([item1a, item1b, item1c]);
+
+    var proxy = _emberRuntimeSystemArray_proxy.default.create({ content: content1 });
+    var obj = { proxy: proxy };
+
+    _emberMetalProperties.defineProperty(obj, 'ids', _emberMetalComputed.default('proxy.@each.id', function () {
+      return _emberMetalProperty_get.get(this, 'proxy').mapBy('id');
+    }));
+
+    // These manually added observers are to simulate the observers added by the
+    // rendering process in a template like:
+    //
+    // {{#each items as |item|}}
+    //   {{item.id}}
+    // {{/each}}
+    _emberMetalObserver.addObserver(item1a, 'id', function () {});
+    _emberMetalObserver.addObserver(item1b, 'id', function () {});
+    _emberMetalObserver.addObserver(item1c, 'id', function () {});
+
+    // The EachProxy has not yet been consumed. Only the manually added
+    // observers are watching.
+    equal(_emberMetalWatching.watcherCount(item1a, 'id'), 1);
+    equal(_emberMetalWatching.watcherCount(item1b, 'id'), 1);
+    equal(_emberMetalWatching.watcherCount(item1c, 'id'), 1);
+
+    // Consume the each proxy. This causes the EachProxy to add two observers
+    // per item: one for "before" events and one for "after" events.
+    deepEqual(_emberMetalProperty_get.get(obj, 'ids'), [1, 2, 3]);
+
+    // For each item, the two each proxy observers and one manual added observer
+    // are watching.
+    equal(_emberMetalWatching.watcherCount(item1a, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item1b, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item1c, 'id'), 3);
+
+    // This should be a no-op because observers do not fire if the value
+    // 1. is an object and 2. is the same as the old value.
+    proxy.set('content', content1);
+
+    equal(_emberMetalWatching.watcherCount(item1a, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item1b, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item1c, 'id'), 3);
+
+    // This is repeated to catch the regression. It should still be a no-op.
+    proxy.set('content', content1);
+
+    equal(_emberMetalWatching.watcherCount(item1a, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item1b, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item1c, 'id'), 3);
+
+    // Set the content to a new array with completely different items and
+    // repeat the process.
+    var item2a = { id: 4 };
+    var item2b = { id: 5 };
+    var item2c = { id: 6 };
+    var content2 = _emberRuntimeSystemNative_array.A([item2a, item2b, item2c]);
+
+    _emberMetalObserver.addObserver(item2a, 'id', function () {});
+    _emberMetalObserver.addObserver(item2b, 'id', function () {});
+    _emberMetalObserver.addObserver(item2c, 'id', function () {});
+
+    proxy.set('content', content2);
+
+    deepEqual(_emberMetalProperty_get.get(obj, 'ids'), [4, 5, 6]);
+
+    equal(_emberMetalWatching.watcherCount(item2a, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item2b, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item2c, 'id'), 3);
+
+    // Ensure that the observers added by the EachProxy on all items in the
+    // first content array have been torn down.
+    equal(_emberMetalWatching.watcherCount(item1a, 'id'), 1);
+    equal(_emberMetalWatching.watcherCount(item1b, 'id'), 1);
+    equal(_emberMetalWatching.watcherCount(item1c, 'id'), 1);
+
+    proxy.set('content', content2);
+
+    equal(_emberMetalWatching.watcherCount(item2a, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item2b, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item2c, 'id'), 3);
+
+    proxy.set('content', content2);
+
+    equal(_emberMetalWatching.watcherCount(item2a, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item2b, 'id'), 3);
+    equal(_emberMetalWatching.watcherCount(item2c, 'id'), 3);
+  });
+});
 enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime/system/core_object'], function (exports, _emberRuntimeSystemCore_object) {
   'use strict';
 
@@ -49600,7 +49779,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0+12b8ade8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0+75739d3f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
