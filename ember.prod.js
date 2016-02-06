@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+98750484
+ * @version   2.5.0-canary+ddd1afbd
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+98750484
+ * @version   2.5.0-canary+ddd1afbd
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -27627,7 +27627,7 @@ enifed("ember-glimmer/ember-template-compiler/system/template", ["exports"], fun
     return JSON.parse(templateSpec);
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/property_get', 'ember-glimmer/helpers/concat'], function (exports, _glimmerRuntime, _emberMetalProperty_get, _emberGlimmerHelpersConcat) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/property_get', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/concat'], function (exports, _glimmerRuntime, _emberMetalProperty_get, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersConcat) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -27695,6 +27695,22 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     concat: _emberGlimmerHelpersConcat.default
   };
 
+  var EmberConditionalReference = (function (_ConditionalReference) {
+    _inherits(EmberConditionalReference, _ConditionalReference);
+
+    function EmberConditionalReference() {
+      _classCallCheck(this, EmberConditionalReference);
+
+      _ConditionalReference.apply(this, arguments);
+    }
+
+    EmberConditionalReference.prototype.toBool = function toBool(predicate) {
+      return _emberGlimmerHelpersIfUnless.toBool(predicate);
+    };
+
+    return EmberConditionalReference;
+  })(_glimmerRuntime.ConditionalReference);
+
   var _default = (function (_Environment) {
     _inherits(_default, _Environment);
 
@@ -27718,6 +27734,10 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
 
     _default.prototype.rootReferenceFor = function rootReferenceFor(value) {
       return new RootReference(value);
+    };
+
+    _default.prototype.toConditionalReference = function toConditionalReference(reference) {
+      return new EmberConditionalReference(reference);
     };
 
     return _default;
@@ -27873,6 +27893,35 @@ enifed('ember-glimmer/helpers/concat', ['exports'], function (exports) {
 
   function concat(args) {
     return args.join('');
+  }
+});
+enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-runtime/utils', 'ember-metal/property_get'], function (exports, _emberRuntimeUtils, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.toBool = toBool;
+
+  function toBool(predicate) {
+    if (!predicate) {
+      return false;
+    }
+
+    if (predicate === true) {
+      return true;
+    }
+
+    if (typeof predicate === 'object') {
+      var isTruthy = _emberMetalProperty_get.get(predicate, 'isTruthy');
+
+      if (typeof isTruthy === 'boolean') {
+        return isTruthy;
+      }
+    }
+
+    if (_emberRuntimeUtils.isArray(predicate)) {
+      return _emberMetalProperty_get.get(predicate, 'length') !== 0;
+    }
+
+    return true;
   }
 });
 enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
@@ -31090,7 +31139,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+98750484';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+ddd1afbd';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -36692,7 +36741,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+98750484
+    @version 2.5.0-canary+ddd1afbd
     @public
   */
 
@@ -36734,11 +36783,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+98750484'
+    @default '2.5.0-canary+ddd1afbd'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+98750484';
+  Ember.VERSION = '2.5.0-canary+ddd1afbd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -50573,7 +50622,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+98750484';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+ddd1afbd';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -51073,7 +51122,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+98750484';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+ddd1afbd';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -59950,7 +59999,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+98750484',
+        revision: 'Ember@2.5.0-canary+ddd1afbd',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -64017,7 +64066,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+98750484';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+ddd1afbd';
 
   /**
   @module ember
