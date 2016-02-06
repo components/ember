@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+ddd1afbd
+ * @version   2.5.0-canary+7bc331df
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16121,7 +16121,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('fivetwosixfour');
     };
 
-    _class.prototype['@htmlbars it can be used as input for other helpers'] = function htmlbarsItCanBeUsedAsInputForOtherHelpers() {
+    _class.prototype['@test it can be used as input for other helpers'] = function testItCanBeUsedAsInputForOtherHelpers() {
       var _this3 = this;
 
       this.registerHelper('x-eq', function (_ref) {
@@ -16152,6 +16152,52 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
 
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: custom helpers', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can resolve custom helpers'] = function testItCanResolveCustomHelpers() {
+      this.registerHelper('hello-world', function () {
+        return 'hello world';
+      });
+
+      this.render('{{hello-world}}');
+
+      this.assertText('hello world');
+    };
+
+    _class.prototype['@htmlbars it can resolve custom class-based helpers'] = function htmlbarsItCanResolveCustomClassBasedHelpers() {
+      this.registerHelper('hello-world', {
+        compute: function () {
+          return 'hello world';
+        }
+      });
+
+      this.render('{{hello-world}}');
+
+      this.assertText('hello world');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed("ember-glimmer/tests/integration/helpers/if-unless-test", ["exports"], function (exports) {
+  "use strict";
 });
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy) {
   'use strict';
@@ -16854,8 +16900,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
       _TestCase.call(this);
       var dom = new _emberGlimmerTestsUtilsHelpers.DOMHelper(document);
-      var env = this.env = new _emberGlimmerTestsUtilsEnvironment.default(dom);
       var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
+      var env = this.env = new _emberGlimmerTestsUtilsEnvironment.default({ dom: dom, owner: owner });
       this.renderer = new _emberGlimmerTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
@@ -16914,8 +16960,16 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       _emberMetalRun_loop.default(callback);
     };
 
-    RenderingTest.prototype.registerHelper = function registerHelper(name, func) {
-      this.owner.register('helper:' + name, _emberGlimmerTestsUtilsHelpers.helper(func));
+    RenderingTest.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
+      var type = typeof funcOrClassBody;
+
+      if (type === 'function') {
+        this.owner.register('helper:' + name, _emberGlimmerTestsUtilsHelpers.helper(funcOrClassBody));
+      } else if (type === 'object' && type !== null) {
+        this.owner.register('helper:' + name, _emberGlimmerTestsUtilsHelpers.Helper.extend(funcOrClassBody));
+      } else {
+        throw new Error('Cannot register ' + funcOrClassBody + ' as a helper');
+      }
     };
 
     RenderingTest.prototype.registerComponent = function registerComponent(name, _ref) {
@@ -19718,36 +19772,8 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     }
   });
 
-  QUnit.test('dashed shorthand helper is resolved from container', function () {
-    var _Component$extend;
-
-    var HelloWorld = _emberHtmlbarsHelper.helper(function () {
-      return 'hello world';
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world}}'), _Component$extend)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), 'hello world');
-  });
-
-  QUnit.test('dashed helper is resolved from container', function () {
-    var _Component$extend2;
-
-    var HelloWorld = _emberHtmlbarsHelper.default.extend({
-      compute: function () {
-        return 'hello world';
-      }
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world}}'), _Component$extend2)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), 'hello world');
-  });
-
   QUnit.test('dashed helper can recompute a new value', function () {
-    var _Component$extend3;
+    var _Component$extend;
 
     var destroyCount = 0;
     var count = 0;
@@ -19766,7 +19792,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_containerOwner.OWNER] = owner, _Component$extend3.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world}}'), _Component$extend3)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world}}'), _Component$extend)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), '1');
@@ -19778,7 +19804,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper with arg can recompute a new value', function () {
-    var _Component$extend4;
+    var _Component$extend2;
 
     var destroyCount = 0;
     var count = 0;
@@ -19797,7 +19823,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_containerOwner.OWNER] = owner, _Component$extend4.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world "whut"}}'), _Component$extend4)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world "whut"}}'), _Component$extend2)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), '1');
@@ -19809,14 +19835,14 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed shorthand helper is called for param changes', function () {
-    var _Component$extend5;
+    var _Component$extend3;
 
     var count = 0;
     var HelloWorld = _emberHtmlbarsHelper.helper(function () {
       return ++count;
     });
     owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend5 = {}, _Component$extend5[_containerOwner.OWNER] = owner, _Component$extend5.name = 'bob', _Component$extend5.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name}}'), _Component$extend5)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_containerOwner.OWNER] = owner, _Component$extend3.name = 'bob', _Component$extend3.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name}}'), _Component$extend3)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), '1');
@@ -19827,7 +19853,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper compute is called for param changes', function () {
-    var _Component$extend6;
+    var _Component$extend4;
 
     var count = 0;
     var createCount = 0;
@@ -19843,7 +19869,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.name = 'bob', _Component$extend6.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name}}'), _Component$extend6)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_containerOwner.OWNER] = owner, _Component$extend4.name = 'bob', _Component$extend4.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name}}'), _Component$extend4)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), '1');
@@ -19855,7 +19881,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed shorthand helper receives params, hash', function () {
-    var _Component$extend7;
+    var _Component$extend5;
 
     var params, hash;
     var HelloWorld = _emberHtmlbarsHelper.helper(function (_params, _hash) {
@@ -19863,7 +19889,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       hash = _hash;
     });
     owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.name = 'bob', _Component$extend7.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}'), _Component$extend7)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend5 = {}, _Component$extend5[_containerOwner.OWNER] = owner, _Component$extend5.name = 'bob', _Component$extend5.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}'), _Component$extend5)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -19873,7 +19899,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper receives params, hash', function () {
-    var _Component$extend8;
+    var _Component$extend6;
 
     var params, hash;
     var HelloWorld = _emberHtmlbarsHelper.default.extend({
@@ -19883,7 +19909,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.name = 'bob', _Component$extend8.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}'), _Component$extend8)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.name = 'bob', _Component$extend6.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}'), _Component$extend6)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -19893,7 +19919,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper usable in subexpressions', function () {
-    var _Component$extend9;
+    var _Component$extend7;
 
     var JoinWords = _emberHtmlbarsHelper.default.extend({
       compute: function (params) {
@@ -19901,7 +19927,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend9 = {}, _Component$extend9[_containerOwner.OWNER] = owner, _Component$extend9.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend9)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend7)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -19909,11 +19935,11 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed shorthand helper not usable with a block', function () {
-    var _Component$extend10;
+    var _Component$extend8;
 
     var SomeHelper = _emberHtmlbarsHelper.helper(function () {});
     owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend10 = {}, _Component$extend10[_containerOwner.OWNER] = owner, _Component$extend10.layout = _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}'), _Component$extend10)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.layout = _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}'), _Component$extend8)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -19921,11 +19947,11 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper not usable with a block', function () {
-    var _Component$extend11;
+    var _Component$extend9;
 
     var SomeHelper = _emberHtmlbarsHelper.default.extend({ compute: function () {} });
     owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend11 = {}, _Component$extend11[_containerOwner.OWNER] = owner, _Component$extend11.layout = _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}'), _Component$extend11)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend9 = {}, _Component$extend9[_containerOwner.OWNER] = owner, _Component$extend9.layout = _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}'), _Component$extend9)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -19933,11 +19959,11 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed shorthand helper not usable within element', function () {
-    var _Component$extend12;
+    var _Component$extend10;
 
     var SomeHelper = _emberHtmlbarsHelper.helper(function () {});
     owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.layout = _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>'), _Component$extend12)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend10 = {}, _Component$extend10[_containerOwner.OWNER] = owner, _Component$extend10.layout = _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>'), _Component$extend10)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -19945,11 +19971,11 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper not usable within element', function () {
-    var _Component$extend13;
+    var _Component$extend11;
 
     var SomeHelper = _emberHtmlbarsHelper.default.extend({ compute: function () {} });
     owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.layout = _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>'), _Component$extend13)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend11 = {}, _Component$extend11[_containerOwner.OWNER] = owner, _Component$extend11.layout = _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>'), _Component$extend11)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -19957,7 +19983,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper is torn down', function () {
-    var _Component$extend14;
+    var _Component$extend12;
 
     var destroyCalled = 0;
     var SomeHelper = _emberHtmlbarsHelper.default.extend({
@@ -19970,7 +19996,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.layout = _emberTemplateCompilerSystemCompile.default('{{some-helper}}'), _Component$extend14)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.layout = _emberTemplateCompilerSystemCompile.default('{{some-helper}}'), _Component$extend12)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     _emberRuntimeTestsUtils.runDestroy(component);
@@ -19979,7 +20005,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper used in subexpression can recompute', function () {
-    var _Component$extend15;
+    var _Component$extend13;
 
     var helper;
     var phrase = 'overcomes by';
@@ -19999,7 +20025,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     });
     owner.register('helper:dynamic-segment', DynamicSegment);
     owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend15)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend13)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -20014,7 +20040,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper used in subexpression can recompute component', function () {
-    var _Component$extend16;
+    var _Component$extend14;
 
     var helper;
     var phrase = 'overcomes by';
@@ -20038,7 +20064,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     }));
     owner.register('helper:dynamic-segment', DynamicSegment);
     owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend16 = {}, _Component$extend16[_containerOwner.OWNER] = owner, _Component$extend16.layout = _emberTemplateCompilerSystemCompile.default('{{some-component first="Who"\n                   second=(dynamic-segment)\n                   third="force"\n                   fourth=(join-words (join-words "hath overcome but" "half"))\n                   fifth=(join-words "his" (join-words "foe"))}}'), _Component$extend16)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.layout = _emberTemplateCompilerSystemCompile.default('{{some-component first="Who"\n                   second=(dynamic-segment)\n                   third="force"\n                   fourth=(join-words (join-words "hath overcome but" "half"))\n                   fifth=(join-words "his" (join-words "foe"))}}'), _Component$extend14)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -20053,7 +20079,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
   });
 
   QUnit.test('dashed helper used in subexpression is destroyed', function () {
-    var _Component$extend17;
+    var _Component$extend15;
 
     var destroyCount = 0;
     var DynamicSegment = _emberHtmlbarsHelper.default.extend({
@@ -20071,7 +20097,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     });
     owner.register('helper:dynamic-segment', DynamicSegment);
     owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend17 = {}, _Component$extend17[_containerOwner.OWNER] = owner, _Component$extend17.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend17)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend15)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     _emberRuntimeTestsUtils.runDestroy(component);
@@ -28077,7 +28103,7 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.assertText('fivetwosixfour');
     };
 
-    _class.prototype['@htmlbars it can be used as input for other helpers'] = function htmlbarsItCanBeUsedAsInputForOtherHelpers() {
+    _class.prototype['@test it can be used as input for other helpers'] = function testItCanBeUsedAsInputForOtherHelpers() {
       var _this3 = this;
 
       this.registerHelper('x-eq', function (_ref) {
@@ -28108,6 +28134,52 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: custom helpers', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can resolve custom helpers'] = function testItCanResolveCustomHelpers() {
+      this.registerHelper('hello-world', function () {
+        return 'hello world';
+      });
+
+      this.render('{{hello-world}}');
+
+      this.assertText('hello world');
+    };
+
+    _class.prototype['@htmlbars it can resolve custom class-based helpers'] = function htmlbarsItCanResolveCustomClassBasedHelpers() {
+      this.registerHelper('hello-world', {
+        compute: function () {
+          return 'hello world';
+        }
+      });
+
+      this.render('{{hello-world}}');
+
+      this.assertText('hello world');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed("ember-htmlbars/tests/integration/helpers/if-unless-test", ["exports"], function (exports) {
+  "use strict";
 });
 enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
@@ -30670,8 +30742,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
       _TestCase.call(this);
       var dom = new _emberHtmlbarsTestsUtilsHelpers.DOMHelper(document);
-      var env = this.env = new _emberHtmlbarsTestsUtilsEnvironment.default(dom);
       var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
+      var env = this.env = new _emberHtmlbarsTestsUtilsEnvironment.default({ dom: dom, owner: owner });
       this.renderer = new _emberHtmlbarsTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
@@ -30730,8 +30802,16 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       _emberMetalRun_loop.default(callback);
     };
 
-    RenderingTest.prototype.registerHelper = function registerHelper(name, func) {
-      this.owner.register('helper:' + name, _emberHtmlbarsTestsUtilsHelpers.helper(func));
+    RenderingTest.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
+      var type = typeof funcOrClassBody;
+
+      if (type === 'function') {
+        this.owner.register('helper:' + name, _emberHtmlbarsTestsUtilsHelpers.helper(funcOrClassBody));
+      } else if (type === 'object' && type !== null) {
+        this.owner.register('helper:' + name, _emberHtmlbarsTestsUtilsHelpers.Helper.extend(funcOrClassBody));
+      } else {
+        throw new Error('Cannot register ' + funcOrClassBody + ' as a helper');
+      }
     };
 
     RenderingTest.prototype.registerComponent = function registerComponent(name, _ref) {
@@ -56262,7 +56342,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+ddd1afbd', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+7bc331df', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
