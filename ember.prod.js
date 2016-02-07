@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+7bc331df
+ * @version   2.5.0-canary+838434a1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+7bc331df
+ * @version   2.5.0-canary+838434a1
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -3425,6 +3425,7 @@ enifed("glimmer-compiler/lib/template-compiler", ["exports", "glimmer-compiler/l
             if (isStatic) {
                 this.opcode('staticAttr', action, name, namespace);
             } else if (action.value.type === 'MustacheStatement') {
+                _glimmerUtil.assert(name.indexOf(':') === -1, "Namespaced attributes cannot be set as props. Perhaps you meant " + name + "=\"{{title}}\"");
                 this.opcode('dynamicProp', action, name);
             } else {
                 this.opcode('dynamicAttr', action, name, namespace);
@@ -8113,9 +8114,10 @@ enifed("glimmer-runtime/lib/compiled/expressions/concat", ["exports"], function 
         }
 
         CompiledConcat.prototype.evaluate = function evaluate(vm) {
-            var parts = this.parts.map(function (p) {
-                return p.evaluate(vm);
-            });
+            var parts = new Array(this.parts.length);
+            for (var i = 0; i < this.parts.length; i++) {
+                parts[i] = this.parts[i].evaluate(vm);
+            }
             return new ConcatReference(parts);
         };
 
@@ -8142,9 +8144,11 @@ enifed("glimmer-runtime/lib/compiled/expressions/concat", ["exports"], function 
         };
 
         ConcatReference.prototype.value = function value() {
-            return this.parts.map(function (p) {
-                return p.value();
-            }).join('');
+            var parts = new Array(this.parts.length);
+            for (var i = 0; i < this.parts.length; i++) {
+                parts[i] = this.parts[i].value();
+            }
+            return parts.join('');
         };
 
         ConcatReference.prototype.destroy = function destroy() {};
@@ -8263,9 +8267,11 @@ enifed('glimmer-runtime/lib/compiled/expressions/named-args', ['exports', 'glimm
             var map = this.map;
 
             var compiledMap = _glimmerUtil.dict();
-            Object.keys(map).forEach(function (key) {
+            var compiledKeys = Object.keys(map);
+            for (var i = 0; i < compiledKeys.length; i++) {
+                var key = compiledKeys[i];
                 compiledMap[key] = map[key].evaluate(vm);
-            });
+            }
             return EvaluatedNamedArgs.create({ map: compiledMap });
         };
 
@@ -8325,9 +8331,11 @@ enifed('glimmer-runtime/lib/compiled/expressions/named-args', ['exports', 'glimm
         EvaluatedNamedArgs.prototype.forEach = function forEach(callback) {
             var map = this.map;
 
-            Object.keys(map).forEach(function (key) {
+            var mapKeys = Object.keys(map);
+            for (var i = 0; i < mapKeys.length; i++) {
+                var key = mapKeys[i];
                 callback(key, map[key]);
-            });
+            }
         };
 
         return EvaluatedNamedArgs;
@@ -8359,9 +8367,11 @@ enifed('glimmer-runtime/lib/compiled/expressions/named-args', ['exports', 'glimm
             var map = this.map;
 
             var out = _glimmerUtil.dict();
-            Object.keys(map).forEach(function (key) {
+            var mapKeys = Object.keys(map);
+            for (var i = 0; i < mapKeys.length; i++) {
+                var key = mapKeys[i];
                 out[key] = map[key].value();
-            });
+            }
             return out;
         };
 
@@ -8439,9 +8449,10 @@ enifed("glimmer-runtime/lib/compiled/expressions/positional-args", ["exports", "
         CompiledNonEmptyPositionalArgs.prototype.evaluate = function evaluate(vm) {
             var values = this.values;
 
-            var valueReferences = values.map(function (value, i) {
-                return value.evaluate(vm);
-            });
+            var valueReferences = new Array(values.length);
+            for (var i = 0; i < values.length; i++) {
+                valueReferences[i] = values[i].evaluate(vm);
+            }
             return EvaluatedPositionalArgs.create({ values: valueReferences });
         };
 
@@ -8497,9 +8508,9 @@ enifed("glimmer-runtime/lib/compiled/expressions/positional-args", ["exports", "
 
         EvaluatedPositionalArgs.prototype.forEach = function forEach(callback) {
             var values = this.values;
-            values.forEach(function (key, i) {
-                return callback(values[i]);
-            });
+            for (var i = 0; i < values.length; i++) {
+                callback(values[i]);
+            }
         };
 
         return EvaluatedPositionalArgs;
@@ -8524,9 +8535,11 @@ enifed("glimmer-runtime/lib/compiled/expressions/positional-args", ["exports", "
         };
 
         NonEmptyEvaluatedPositionalArgs.prototype.value = function value() {
-            return this.values.map(function (v) {
-                return v.value();
-            });
+            var ret = new Array(this.values.length);
+            for (var i = 0; i < this.values.length; i++) {
+                ret[i] = this.values[i].value();
+            }
+            return ret;
         };
 
         return NonEmptyEvaluatedPositionalArgs;
@@ -9159,9 +9172,11 @@ enifed('glimmer-runtime/lib/compiled/opcodes/dom', ['exports', 'glimmer-runtime/
 
         ClassList.prototype.value = function value() {
             if (this.list.length === 0) return null;
-            return this.list.map(function (i) {
-                return i.value();
-            }).join(' ');
+            var ret = new Array(this.list.length);
+            for (var i = 0; i < this.list.length; i++) {
+                ret[i] = this.list[i].value();
+            }
+            return ret.join(' ');
         };
 
         ClassList.prototype.get = function get() {
@@ -9193,23 +9208,26 @@ enifed('glimmer-runtime/lib/compiled/opcodes/dom', ['exports', 'glimmer-runtime/
 
             var classes = new ClassList();
             var flattened = _glimmerUtil.dict();
-            groups.forEach(function (group) {
-                group.forEach(function (op) {
-                    var name = op['name'];
+            var flattenedKeys = [];
+            for (var i = 0; i < groups.length; i++) {
+                for (var j = 0; j < groups[i].length; j++) {
+                    var op = groups[i][j];
+                    var _name = op['name'];
                     var value = op['value'];
-                    if (name === 'class') {
+                    if (_name === 'class') {
                         classes.append(value);
                     } else {
-                        flattened[name] = op;
+                        flattenedKeys.push(_name);
+                        flattened[_name] = op;
                     }
-                });
-            });
+                }
+            }
             if (!classes.isEmpty()) {
                 vm.updateWith(new NonNamespacedAttribute('class', classes).flush(dom, element));
             }
-            Object.keys(flattened).forEach(function (key) {
-                vm.updateWith(flattened[key].flush(dom, element));
-            });
+            for (var k = 0; k < flattenedKeys.length; k++) {
+                vm.updateWith(flattened[flattenedKeys[k]].flush(dom, element));
+            }
             stack.closeElement();
         };
 
@@ -9284,6 +9302,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/dom', ['exports', 'glimmer-runtime/
 
         NamespacedAttribute.prototype.apply = function apply(dom, element) {
             var lastValue = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+            var name = this.name;
             var reference = this.value;
             var namespace = this.namespace;
 
@@ -10648,7 +10667,7 @@ enifed('glimmer-runtime/lib/dom', ['exports', 'glimmer-runtime/lib/bounds', 'gli
     exports.DOMHelper = DOMHelper;
 });
 
-enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/references', 'glimmer-reference', 'glimmer-util', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/syntax/builtins/if', 'glimmer-runtime/lib/syntax/builtins/unless'], function (exports, _glimmerRuntimeLibReferences, _glimmerReference, _glimmerUtil, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibSyntaxBuiltinsIf, _glimmerRuntimeLibSyntaxBuiltinsUnless) {
+enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/references', 'glimmer-reference', 'glimmer-util', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/syntax/builtins/if', 'glimmer-runtime/lib/syntax/builtins/unless', 'glimmer-runtime/lib/syntax/builtins/with'], function (exports, _glimmerRuntimeLibReferences, _glimmerReference, _glimmerUtil, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibSyntaxBuiltinsIf, _glimmerRuntimeLibSyntaxBuiltinsUnless, _glimmerRuntimeLibSyntaxBuiltinsWith) {
     'use strict';
 
     exports.helper = helper;
@@ -10781,8 +10800,8 @@ enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/refer
                     //   return new EachSyntax({ args: block.args, templates: block.templates });
                     case 'if':
                         return new _glimmerRuntimeLibSyntaxBuiltinsIf.default({ args: block.args, templates: block.templates });
-                    // case 'with':
-                    //   return new WithSyntax({ args: block.args, templates: block.templates });
+                    case 'with':
+                        return new _glimmerRuntimeLibSyntaxBuiltinsWith.default({ args: block.args, templates: block.templates });
                     case 'unless':
                         return new _glimmerRuntimeLibSyntaxBuiltinsUnless.default({ args: block.args, templates: block.templates });
                 }
@@ -11355,6 +11374,75 @@ enifed('glimmer-runtime/lib/syntax/builtins/unless', ['exports', 'glimmer-runtim
     exports.default = UnlessSyntax;
 });
 
+enifed('glimmer-runtime/lib/syntax/builtins/with', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/compiled/opcodes/vm'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibCompiledOpcodesVm) {
+    'use strict';
+
+    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+    function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+    var WithSyntax = (function (_StatementSyntax) {
+        _inherits(WithSyntax, _StatementSyntax);
+
+        function WithSyntax(_ref) {
+            var args = _ref.args;
+            var templates = _ref.templates;
+
+            _classCallCheck(this, WithSyntax);
+
+            _StatementSyntax.call(this);
+            this.type = "with-statement";
+            this.isStatic = false;
+            this.args = args;
+            this.templates = templates;
+        }
+
+        WithSyntax.prototype.prettyPrint = function prettyPrint() {
+            return '#with ' + this.args.prettyPrint();
+        };
+
+        WithSyntax.prototype.compile = function compile(compiler, env) {
+            //        Enter(BEGIN, END)
+            // BEGIN: Noop
+            //        PutArgs
+            //        Test
+            //        JumpUnless(ELSE)
+            //        Evaluate(default)
+            //        Jump(END)
+            // ELSE:  Noop
+            //        Evaluate(inverse)
+            // END:   Noop
+            //        Exit
+            var BEGIN = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BEGIN" });
+            var ELSE = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "ELSE" });
+            var END = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "END" });
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EnterOpcode({ begin: BEGIN, end: END }));
+            compiler.append(BEGIN);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.TestOpcode());
+            if (this.templates.inverse) {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpUnlessOpcode({ target: ELSE }));
+            } else {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpUnlessOpcode({ target: END }));
+            }
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpOpcode({ target: END }));
+            if (this.templates.inverse) {
+                compiler.append(ELSE);
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
+            }
+            compiler.append(END);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.ExitOpcode());
+        };
+
+        return WithSyntax;
+    })(_glimmerRuntimeLibSyntax.Statement);
+
+    exports.default = WithSyntax;
+});
+
 enifed('glimmer-runtime/lib/syntax/core', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/compiled/blocks', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/syntax/expressions', 'glimmer-runtime/lib/compiled/expressions/args', 'glimmer-runtime/lib/compiled/expressions/value', 'glimmer-runtime/lib/compiled/expressions/ref', 'glimmer-runtime/lib/compiled/expressions/helper', 'glimmer-runtime/lib/compiled/expressions/concat', 'glimmer-reference', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/opcodes/content'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibCompiledBlocks, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibSyntaxExpressions, _glimmerRuntimeLibCompiledExpressionsArgs, _glimmerRuntimeLibCompiledExpressionsValue, _glimmerRuntimeLibCompiledExpressionsRef, _glimmerRuntimeLibCompiledExpressionsHelper, _glimmerRuntimeLibCompiledExpressionsConcat, _glimmerReference, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledOpcodesContent) {
     'use strict';
 
@@ -11731,8 +11819,15 @@ enifed('glimmer-runtime/lib/syntax/core', ['exports', 'glimmer-runtime/lib/synta
         };
 
         DynamicAttr.prototype.compile = function compile(compiler, env) {
-            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutValueOpcode({ expression: this.value.compile(compiler, env) }));
-            compiler.append(new _glimmerRuntimeLibCompiledOpcodesDom.DynamicAttrOpcode(this));
+            var namespace = this.namespace;
+            var value = this.value;
+
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutValueOpcode({ expression: value.compile(compiler, env) }));
+            if (namespace) {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesDom.DynamicAttrNSOpcode(this));
+            } else {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesDom.DynamicAttrOpcode(this));
+            }
         };
 
         DynamicAttr.prototype.valueSyntax = function valueSyntax() {
@@ -17869,6 +17964,9 @@ enifed("glimmer-runtime/tests/extern", ["exports"], function (exports) {
 enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerUtil, _glimmerTestHelpers, _glimmerReference) {
     "use strict";
 
+    var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    var XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
+    var XHTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
     var env = undefined,
         root = undefined;
     function compile(template) {
@@ -17899,18 +17997,18 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
             setup: commonSetup
         });
     }
-    _module("Initial render - simple content");
-    test("Simple content gets appended properly", function () {
+    _module("Initial render - Simple HTML, inline expressions");
+    test("HTML text content", function () {
         var template = compile("content");
         render(template, {});
         _glimmerTestHelpers.equalTokens(root, "content");
     });
-    test("Simple elements are created", function () {
+    test("HTML tags", function () {
         var template = compile("<h1>hello!</h1><div>content</div>");
         render(template, {});
         _glimmerTestHelpers.equalTokens(root, "<h1>hello!</h1><div>content</div>");
     });
-    test("Simple elements can be re-rendered", function () {
+    test("HTML tags re-rendered", function () {
         var template = compile("<h1>hello!</h1><div>content</div>");
         var result = render(template, {});
         var oldFirstChild = root.firstChild;
@@ -17918,51 +18016,51 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         strictEqual(root.firstChild, oldFirstChild);
         _glimmerTestHelpers.equalTokens(root, "<h1>hello!</h1><div>content</div>");
     });
-    test("Simple elements can have attributes", function () {
+    test("HTML attributes", function () {
         var template = compile("<div class='foo' id='bar'>content</div>");
         render(template, {});
         _glimmerTestHelpers.equalTokens(root, '<div class="foo" id="bar">content</div>');
     });
-    test("Simple elements can have an empty attribute", function () {
+    test("HTML tag with empty attribute", function () {
         var template = compile("<div class=''>content</div>");
         render(template, {});
         _glimmerTestHelpers.equalTokens(root, '<div class="">content</div>');
     });
-    test("presence of `disabled` attribute without value marks as disabled", function () {
+    test("HTML boolean attribute 'disabled'", function () {
         var template = compile('<input disabled>');
         render(template, {});
         ok(root.firstChild['disabled'], 'disabled without value set as property is true');
     });
-    test("Null quoted attribute value calls toString on the value", function () {
+    test("Quoted attribute expression is coerced to a string", function () {
         var template = compile('<input disabled="{{isDisabled}}">');
         render(template, { isDisabled: null });
         ok(root.firstChild['disabled'], 'string of "null" set as property is true');
     });
-    test("Null unquoted attribute value removes that attribute", function () {
+    test("Unquoted attribute expression with null value is not coerced", function () {
         var template = compile('<input disabled={{isDisabled}}>');
         render(template, { isDisabled: null });
         _glimmerTestHelpers.equalTokens(root, '<input>');
     });
-    test("unquoted attribute string is just that", function () {
+    test("Unquoted attribute values", function () {
         var template = compile('<input value=funstuff>');
         render(template, {});
         var inputNode = root.firstChild;
         equal(inputNode.tagName, 'INPUT', 'input tag');
         equal(inputNode.value, 'funstuff', 'value is set as property');
     });
-    test("unquoted attribute expression is string", function () {
+    test("Unquoted attribute expression with string value is not coerced", function () {
         var template = compile('<input value={{funstuff}}>');
         render(template, { funstuff: "oh my" });
         var inputNode = root.firstChild;
         equal(inputNode.tagName, 'INPUT', 'input tag');
         equal(inputNode.value, 'oh my', 'string is set to property');
     });
-    test("unquoted attribute expression works when followed by another attribute", function () {
+    test("Attribute expression can be followed by another attribute", function () {
         var template = compile('<div foo="{{funstuff}}" name="Alice"></div>');
         render(template, { funstuff: "oh my" });
         _glimmerTestHelpers.equalTokens(root, '<div name="Alice" foo="oh my"></div>');
     });
-    test("Unquoted attribute value with multiple nodes throws an exception", function () {
+    test("Unquoted attribute with expression throws an exception", function () {
         expect(4);
         QUnit.throws(function () {
             compile('<img class=foo{{bar}}>');
@@ -17980,12 +18078,12 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
             return new Error("An unquoted attribute value must be a string or a mustache, " + "preceeded by whitespace or a '=' character, and " + ("followed by whitespace or a '>' character (on line " + line + ")"));
         }
     });
-    test("Simple elements can have arbitrary attributes", function () {
+    test("HTML tag with data- attribute", function () {
         var template = compile("<div data-some-data='foo'>content</div>");
         render(template, {});
         _glimmerTestHelpers.equalTokens(root, '<div data-some-data="foo">content</div>');
     });
-    test("checked attribute and checked property are present after clone and hydrate", function () {
+    test("<input> tag with 'checked' attribute", function () {
         var template = compile("<input checked=\"checked\">");
         render(template, {});
         var inputNode = root.firstChild;
@@ -18546,7 +18644,84 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
             compile("<div>\n<p>\n{{some-comment}}</div>{{some-comment}}");
         }, /Closing tag `div` \(on line 3\) did not match last open tag `p` \(on line 2\)\./);
     });
-    if (document.createElement('div').namespaceURI) {}
+    if (document.createElement('div').namespaceURI) {
+        _module("Initial render of namespaced HTML");
+        test("Namespaced attribute", function () {
+            compilesTo("<svg xlink:title='svg-title'>content</svg>");
+            var svg = root.firstChild;
+            equal(svg.namespaceURI, SVG_NAMESPACE);
+            equal(svg.attributes[0].namespaceURI, XLINK_NAMESPACE);
+        });
+        test("Namespaced attribute with a quoted expression", function () {
+            compilesTo("<svg xlink:title='{{title}}'>content</svg>", "<svg xlink:title='svg-title'>content</svg>", { title: 'svg-title' });
+            var svg = root.firstChild;
+            equal(svg.namespaceURI, SVG_NAMESPACE);
+            equal(svg.attributes[0].namespaceURI, XLINK_NAMESPACE);
+        });
+        test("Namespaced attribute with unquoted expression throws", function () {
+            QUnit.throws(function () {
+                compile("<svg xlink:title={{title}}>content</svg>");
+            }, /Namespaced attributes cannot be set as props. Perhaps you meant xlink:title="{{title}}"/);
+        });
+        test("<svg> tag with case-sensitive attribute", function () {
+            var viewBox = '0 0 0 0';
+            compilesTo("<svg viewBox=\"" + viewBox + "\"></svg>");
+            var svg = root.firstChild;
+            equal(svg.namespaceURI, SVG_NAMESPACE);
+            equal(svg.getAttribute('viewBox'), viewBox);
+        });
+        test("nested element in the SVG namespace", function () {
+            var d = 'M 0 0 L 100 100';
+            compilesTo("<svg><path d=\"" + d + "\"></path></svg>");
+            var svg = root.firstChild;
+            var path = svg.firstChild;
+            equal(svg.namespaceURI, SVG_NAMESPACE);
+            equal(path.namespaceURI, SVG_NAMESPACE, "creates the path element with a namespace");
+            equal(path.getAttribute('d'), d);
+        });
+    }
+    ;
+    test("<foreignObject> tag has an SVG namespace", function () {
+        compilesTo('<svg><foreignObject>Hi</foreignObject></svg>');
+        var svg = root.firstChild;
+        var foreignObject = svg.firstChild;
+        equal(svg.namespaceURI, SVG_NAMESPACE);
+        equal(foreignObject.namespaceURI, SVG_NAMESPACE, "creates the foreignObject element with a namespace");
+    });
+    QUnit.skip("does not set a namespace on an element inside an HTML integration point", function () {
+        compilesTo('<svg><foreignObject><div></div></foreignObject></svg>');
+        var svg = root.firstChild;
+        var foreignObject = svg.firstChild;
+        var div = foreignObject.firstChild;
+        equal(svg.namespaceURI, SVG_NAMESPACE);
+        equal(foreignObject.namespaceURI, SVG_NAMESPACE, "creates the foreignObject element with a namespace");
+        equal(div.namespaceURI, XHTML_NAMESPACE, "creates the div inside the foreignObject without a namespace");
+    });
+    test("Namespaced and non-namespaced elements as siblings", function () {
+        compilesTo('<svg></svg><svg></svg><div></div>');
+        var _root$childNodes = root.childNodes;
+        var first = _root$childNodes[0];
+        var second = _root$childNodes[1];
+        var third = _root$childNodes[2];
+
+        equal(first.namespaceURI, SVG_NAMESPACE, "creates the first svg element with a namespace");
+        equal(second.namespaceURI, SVG_NAMESPACE, "creates the second svg element with a namespace");
+        equal(third.namespaceURI, XHTML_NAMESPACE, "creates the div element without a namespace");
+    });
+    test("Namespaced and non-namespaced elements with nesting", function () {
+        compilesTo('<div><svg></svg></div><div></div>');
+        var _root$childNodes2 = root.childNodes;
+        var firstDiv = _root$childNodes2[0];
+        var secondDiv = _root$childNodes2[1];
+
+        var svg = firstDiv.firstChild;
+        equal(firstDiv.namespaceURI, XHTML_NAMESPACE, "first div's namespace is xhtmlNamespace");
+        equal(svg.namespaceURI, SVG_NAMESPACE, "svg's namespace is svgNamespace");
+        equal(secondDiv.namespaceURI, XHTML_NAMESPACE, "last div's namespace is xhtmlNamespace");
+    });
+    test("Case-sensitive tag has capitalization preserved", function () {
+        compilesTo('<svg><linearGradient id="gradient"></linearGradient></svg>');
+    });
 });
 
 enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
@@ -20185,8 +20360,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                         return new RenderInverseIdentitySyntax({ args: block.args, templates: block.templates });
                     case 'each':
                         return new EachSyntax({ args: block.args, templates: block.templates });
-                    case 'with':
-                        return new WithSyntax({ args: block.args, templates: block.templates });
                 }
             }
             if (isSimple && (append || block)) {
@@ -20581,63 +20754,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         };
 
         return RenderInverseIdentitySyntax;
-    })(_glimmerRuntime.StatementSyntax);
-
-    var WithSyntax = (function (_StatementSyntax5) {
-        _inherits(WithSyntax, _StatementSyntax5);
-
-        function WithSyntax(_ref10) {
-            var args = _ref10.args;
-            var templates = _ref10.templates;
-
-            _classCallCheck(this, WithSyntax);
-
-            _StatementSyntax5.call(this);
-            this.type = "with-statement";
-            this.isStatic = false;
-            this.args = args;
-            this.templates = templates;
-        }
-
-        WithSyntax.prototype.prettyPrint = function prettyPrint() {
-            return "#with " + this.args.prettyPrint();
-        };
-
-        WithSyntax.prototype.compile = function compile(compiler, env) {
-            //        Enter(BEGIN, END)
-            // BEGIN: Noop
-            //        PutArgs
-            //        Test
-            //        JumpUnless(ELSE)
-            //        Evaluate(default)
-            //        Jump(END)
-            // ELSE:  Noop
-            //        Evaluate(inverse)
-            // END:   Noop
-            //        Exit
-            var BEGIN = new _glimmerRuntime.LabelOpcode({ label: "BEGIN" });
-            var ELSE = new _glimmerRuntime.LabelOpcode({ label: "ELSE" });
-            var END = new _glimmerRuntime.LabelOpcode({ label: "END" });
-            compiler.append(new _glimmerRuntime.EnterOpcode({ begin: BEGIN, end: END }));
-            compiler.append(BEGIN);
-            compiler.append(new _glimmerRuntime.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
-            compiler.append(new _glimmerRuntime.TestOpcode());
-            if (this.templates.inverse) {
-                compiler.append(new _glimmerRuntime.JumpUnlessOpcode({ target: ELSE }));
-            } else {
-                compiler.append(new _glimmerRuntime.JumpUnlessOpcode({ target: END }));
-            }
-            compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
-            compiler.append(new _glimmerRuntime.JumpOpcode({ target: END }));
-            if (this.templates.inverse) {
-                compiler.append(ELSE);
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
-            }
-            compiler.append(END);
-            compiler.append(new _glimmerRuntime.ExitOpcode());
-        };
-
-        return WithSyntax;
     })(_glimmerRuntime.StatementSyntax);
 
     function equalsElement(element, tagName, attributes, content) {
@@ -31159,7 +31275,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+7bc331df';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -36761,7 +36877,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+7bc331df
+    @version 2.5.0-canary+838434a1
     @public
   */
 
@@ -36803,11 +36919,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+7bc331df'
+    @default '2.5.0-canary+838434a1'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+7bc331df';
+  Ember.VERSION = '2.5.0-canary+838434a1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -50642,7 +50758,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+7bc331df';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -51142,7 +51258,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+7bc331df';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -60019,7 +60135,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+7bc331df',
+        revision: 'Ember@2.5.0-canary+838434a1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -64086,7 +64202,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+7bc331df';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
 
   /**
   @module ember
