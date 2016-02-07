@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+838434a1
+ * @version   2.5.0-canary+9dd4db54
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+838434a1
+ * @version   2.5.0-canary+9dd4db54
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -18732,6 +18732,17 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
 
     function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
+    /*
+     * IE9 does not serialize namespaced attributes correctly. The namespace
+     * prefix is incorrectly stripped off.
+     */
+    var serializesNSAttributesCorrectly = (function () {
+        var div = document.createElement('div');
+        var span = document.createElement('span');
+        span.setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:lang', 'en-uk');
+        div.appendChild(span);
+        return div.innerHTML === '<span xml:lang="en-uk"></span>';
+    })();
     var hooks = undefined,
         root = undefined;
     var env = undefined;
@@ -19035,28 +19046,30 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello world'>hello</div>");
     });
-    test("namespaced attribute nodes follow the normal dirtying rules", function () {
-        var template = compile("<div xml:lang='{{lang}}'>hello</div>");
-        var object = { lang: "en-us" };
-        render(template, object);
-        _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
-        object.lang = "en-uk";
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
-    });
-    test("namespaced attribute nodes w/ concat follow the normal dirtying rules", function () {
-        var template = compile("<div xml:lang='en-{{locale}}'>hello</div>");
-        var object = { locale: "us" };
-        render(template, object);
-        _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
-        object.locale = "uk";
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
-    });
+    if (serializesNSAttributesCorrectly) {
+        test("namespaced attribute nodes follow the normal dirtying rules", function () {
+            var template = compile("<div xml:lang='{{lang}}'>hello</div>");
+            var object = { lang: "en-us" };
+            render(template, object);
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
+            object.lang = "en-uk";
+            rerender();
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
+            rerender();
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
+        });
+        test("namespaced attribute nodes w/ concat follow the normal dirtying rules", function () {
+            var template = compile("<div xml:lang='en-{{locale}}'>hello</div>");
+            var object = { locale: "us" };
+            render(template, object);
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
+            object.locale = "uk";
+            rerender();
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
+            rerender();
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
+        });
+    }
     test("non-standard namespaced attribute nodes follow the normal dirtying rules", function () {
         var template = compile("<div epub:type='{{type}}'>hello</div>");
         var object = { type: "dedication" };
@@ -30411,9 +30424,11 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
           return true;
         case 'unless':
         case 'if':
-          params[0] = shouldDisplay(params[0]);break;
+          params[0] = shouldDisplay(params[0], toBool);break;
         case 'each':
           params[0] = eachParam(params[0]);break;
+        case 'with':
+          params[0] = shouldDisplay(params[0], identity);break;
       }
     }
 
@@ -30463,7 +30478,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     return stream;
   }
 
-  function shouldDisplay(predicate) {
+  function shouldDisplay(predicate, coercer) {
     var length = getKey(predicate, 'length');
     var isTruthy = getKey(predicate, 'isTruthy');
 
@@ -30480,13 +30495,21 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
         return isTruthyVal;
       }
 
-      return !!predicateVal;
+      return coercer(predicateVal);
     }, 'ShouldDisplay');
 
     _emberMetalStreamsUtils.addDependency(stream, length);
     _emberMetalStreamsUtils.addDependency(stream, isTruthy);
 
     return stream;
+  }
+
+  function toBool(value) {
+    return !!value;
+  }
+
+  function identity(value) {
+    return value;
   }
 
   function getKey(obj, key) {
@@ -31898,7 +31921,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+9dd4db54';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -37592,7 +37615,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+838434a1
+    @version 2.5.0-canary+9dd4db54
     @public
   */
 
@@ -37634,11 +37657,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+838434a1'
+    @default '2.5.0-canary+9dd4db54'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+838434a1';
+  Ember.VERSION = '2.5.0-canary+9dd4db54';
 
   /**
     The hash of environment variables used to control various configuration
@@ -51657,7 +51680,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+9dd4db54';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -52160,7 +52183,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+9dd4db54';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -61128,7 +61151,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+838434a1',
+        revision: 'Ember@2.5.0-canary+9dd4db54',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -66549,7 +66572,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+838434a1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+9dd4db54';
 
   /**
   @module ember

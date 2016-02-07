@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+838434a1
+ * @version   2.5.0-canary+9dd4db54
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24817,6 +24817,79 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(view.$().text(), 'Admin: Tom Dale User: Yehuda Katz', 'should be properly scoped');
+  });
+
+  QUnit.test('should respect `isTruthy` field on a view', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with view}}True{{else}}False{{/with}}'),
+      isTruthy: true
+    });
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'True');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'isTruthy', false);
+    });
+
+    equal(view.$().text(), 'False');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'isTruthy', true);
+    });
+
+    equal(view.$().text(), 'True');
+  });
+
+  QUnit.test('should respect `isTruthy` field on an object', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with view.foo}}True{{else}}False{{/with}}'),
+      foo: {
+        isTruthy: true
+      }
+    });
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'True');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'foo.isTruthy', false);
+    });
+
+    equal(view.$().text(), 'False');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'foo.isTruthy', true);
+    });
+
+    equal(view.$().text(), 'True');
+  });
+
+  QUnit.test('should respect `isTruthy` field on the context object', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with foo}}True{{else}}False{{/with}}'),
+      context: {
+        foo: {
+          isTruthy: true
+        }
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'True');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'context.foo.isTruthy', false);
+    });
+
+    equal(view.$().text(), 'False');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'context.foo.isTruthy', true);
+    });
+
+    equal(view.$().text(), 'True');
   });
 
   QUnit.test('the scoped variable is not available outside the {{with}} block.', function () {
@@ -56040,7 +56113,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+838434a1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+9dd4db54', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
