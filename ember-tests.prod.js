@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+632a2540
+ * @version   2.5.0-canary+f2684115
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -53869,7 +53869,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
     ok(_emberMetalProperty_get.get(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
   });
 });
-enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/meta', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMeta, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemObject) {
   'use strict';
 
   var moduleOptions, originalLookup;
@@ -53994,6 +53994,12 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
   QUnit.test('EmberObject.create can take null as a parameter', function () {
     var o = _emberRuntimeSystemObject.default.create(null);
     deepEqual(_emberRuntimeSystemObject.default.create(), o);
+  });
+
+  QUnit.test('EmberObject.create avoids allocating a binding map when not necessary', function () {
+    var o = _emberRuntimeSystemObject.default.create();
+    var m = _emberMetalMeta.meta(o);
+    ok(!m.peekBindings(), 'A binding map is not allocated');
   });
 });
 enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object', 'ember-metal/meta'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject, _emberMetalMeta) {
@@ -55887,7 +55893,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+632a2540', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+f2684115', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
