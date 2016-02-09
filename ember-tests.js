@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+8455352b
+ * @version   2.5.0-canary+632a2540
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -31506,24 +31506,24 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     equal(_emberMetalProperty_get.getWithDefault(theRealObject, 'someProperty', 'fail'), 'foo', 'should return the set value, not false');
   });
 });
-enifed('ember-metal/tests/accessors/is_global_path_test', ['exports', 'ember-metal/binding'], function (exports, _emberMetalBinding) {
+enifed('ember-metal/tests/accessors/is_global_path_test', ['exports', 'ember-metal/path_cache'], function (exports, _emberMetalPath_cache) {
   'use strict';
 
   QUnit.module('Ember.isGlobalPath');
 
   QUnit.test('global path\'s are recognized', function () {
-    ok(_emberMetalBinding.isGlobalPath('App.myProperty'));
-    ok(_emberMetalBinding.isGlobalPath('App.myProperty.subProperty'));
+    ok(_emberMetalPath_cache.isGlobalPath('App.myProperty'));
+    ok(_emberMetalPath_cache.isGlobalPath('App.myProperty.subProperty'));
   });
 
   QUnit.test('if there is a \'this\' in the path, it\'s not a global path', function () {
-    ok(!_emberMetalBinding.isGlobalPath('this.myProperty'));
-    ok(!_emberMetalBinding.isGlobalPath('this'));
+    ok(!_emberMetalPath_cache.isGlobalPath('this.myProperty'));
+    ok(!_emberMetalPath_cache.isGlobalPath('this'));
   });
 
   QUnit.test('if the path starts with a lowercase character, it is not a global path', function () {
-    ok(!_emberMetalBinding.isGlobalPath('myObj'));
-    ok(!_emberMetalBinding.isGlobalPath('myObj.SecondProperty'));
+    ok(!_emberMetalPath_cache.isGlobalPath('myObj'));
+    ok(!_emberMetalPath_cache.isGlobalPath('myObj.SecondProperty'));
   });
 });
 enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/meta'], function (exports, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalMeta) {
@@ -31957,123 +31957,6 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     equal(foodDesc.set, undefined);
 
     equal(child.food, 'icecreame');
-  });
-});
-enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-metal/core', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_get) {
-  /*globals Foo:true, $foo:true */
-  'use strict';
-
-  var obj;
-  var moduleOpts = {
-    setup: function () {
-      obj = {
-        foo: {
-          bar: {
-            baz: {}
-          }
-        }
-      };
-
-      window.Foo = {
-        bar: {
-          baz: {}
-        }
-      };
-
-      window.$foo = {
-        bar: {
-          baz: {}
-        }
-      };
-    },
-
-    teardown: function () {
-      obj = undefined;
-      window.Foo = undefined;
-      window.$foo = undefined;
-    }
-  };
-
-  QUnit.module('normalizeTuple', moduleOpts);
-
-  // ..........................................................
-  // LOCAL PATHS
-  //
-
-  QUnit.test('[obj, foo] -> [obj, foo]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'foo'), [obj, 'foo']);
-  });
-
-  QUnit.test('[obj, *] -> [obj, *]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, '*'), [obj, '*']);
-  });
-
-  QUnit.test('[obj, foo.bar] -> [obj, foo.bar]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'foo.bar'), [obj, 'foo.bar']);
-  });
-
-  QUnit.test('[obj, foo.*] -> [obj, foo.*]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'foo.*'), [obj, 'foo.*']);
-  });
-
-  QUnit.test('[obj, foo.*.baz] -> [obj, foo.*.baz]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'foo.*.baz'), [obj, 'foo.*.baz']);
-  });
-
-  QUnit.test('[obj, this.foo] -> [obj, foo]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'this.foo'), [obj, 'foo']);
-  });
-
-  QUnit.test('[obj, this.foo.bar] -> [obj, foo.bar]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'this.foo.bar'), [obj, 'foo.bar']);
-  });
-
-  QUnit.test('[obj, this.Foo.bar] -> [obj, Foo.bar]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'this.Foo.bar'), [obj, 'Foo.bar']);
-  });
-
-  // ..........................................................
-  // GLOBAL PATHS
-  //
-
-  QUnit.test('[obj, Foo] -> [Ember.lookup, Foo]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'Foo'), [_emberMetalCore.default.lookup, 'Foo']);
-  });
-
-  QUnit.test('[obj, Foo.bar] -> [Foo, bar]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, 'Foo.bar'), [Foo, 'bar']);
-  });
-
-  QUnit.test('[obj, $foo.bar.baz] -> [$foo, bar.baz]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(obj, '$foo.bar.baz'), [$foo, 'bar.baz']);
-  });
-
-  // ..........................................................
-  // NO TARGET
-  //
-
-  QUnit.test('[null, Foo] -> [Ember.lookup, Foo]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(null, 'Foo'), [_emberMetalCore.default.lookup, 'Foo']);
-  });
-
-  QUnit.test('[null, Foo.bar] -> [Foo, bar]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(null, 'Foo.bar'), [Foo, 'bar']);
-  });
-
-  QUnit.test('[null, foo] -> [undefined, \'\']', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(null, 'foo'), [undefined, '']);
-  });
-
-  QUnit.test('[null, foo.bar] -> [undefined, \'\']', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(null, 'foo'), [undefined, '']);
-  });
-
-  QUnit.test('[null, $foo] -> [Ember.lookup, $foo]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(null, '$foo'), [_emberMetalCore.default.lookup, '$foo']);
-  });
-
-  QUnit.test('[null, $foo.bar] -> [$foo, bar]', function () {
-    deepEqual(_emberMetalProperty_get.normalizeTuple(null, '$foo.bar'), [$foo, 'bar']);
   });
 });
 enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get) {
@@ -37101,8 +36984,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   // CHAINED OBSERVERS
   //
 
-  var obj, count, lookup;
-  var originalLookup = _emberMetalCore.default.lookup;
+  var obj, count;
 
   QUnit.module('addObserver - dependentkey with chained properties', {
     setup: function () {
@@ -37113,11 +36995,8 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
               biff: 'BIFF'
             }
           }
-        }
-      };
-
-      _emberMetalCore.default.lookup = lookup = {
-        Global: {
+        },
+        Capital: {
           foo: {
             bar: {
               baz: {
@@ -37133,7 +37012,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
 
     teardown: function () {
       obj = count = null;
-      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -37191,38 +37069,37 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 6, 'should be not have invoked observer');
   });
 
-  _emberMetalTestsProps_helper.testBoth('depending on a Global chain', function (get, set) {
-    var Global = lookup.Global;
+  _emberMetalTestsProps_helper.testBoth('depending on a chain with a capitalized first key', function (get, set) {
     var val;
 
-    _emberMetalObserver.addObserver(obj, 'Global.foo.bar.baz.biff', function (target, key) {
-      val = get(lookup, key);
+    _emberMetalObserver.addObserver(obj, 'Capital.foo.bar.baz.biff', function (target, key) {
+      val = get(obj, key);
       count++;
     });
 
-    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
+    set(get(obj, 'Capital.foo.bar.baz'), 'biff', 'BUZZ');
     equal(val, 'BUZZ');
     equal(count, 1);
 
-    set(get(Global, 'foo.bar'), 'baz', { biff: 'BLARG' });
+    set(get(obj, 'Capital.foo.bar'), 'baz', { biff: 'BLARG' });
     equal(val, 'BLARG');
     equal(count, 2);
 
-    set(get(Global, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
+    set(get(obj, 'Capital.foo'), 'bar', { baz: { biff: 'BOOM' } });
     equal(val, 'BOOM');
     equal(count, 3);
 
-    set(Global, 'foo', { bar: { baz: { biff: 'BLARG' } } });
+    set(obj, 'Capital.foo', { bar: { baz: { biff: 'BLARG' } } });
     equal(val, 'BLARG');
     equal(count, 4);
 
-    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
+    set(get(obj, 'Capital.foo.bar.baz'), 'biff', 'BUZZ');
     equal(val, 'BUZZ');
     equal(count, 5);
 
     var foo = get(obj, 'foo');
 
-    set(Global, 'foo', 'BOO');
+    set(obj, 'Capital.foo', 'BOO');
     equal(val, undefined);
     equal(count, 6);
 
@@ -39255,7 +39132,7 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
 enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/tests/props_helper', 'ember-metal/events', 'ember-metal/watching'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberMetalProperties, _emberMetalTestsProps_helper, _emberMetalEvents, _emberMetalWatching) {
   'use strict';
 
-  var willCount, didCount, willKeys, didKeys, originalLookup, lookup, Global;
+  var willCount, didCount, willKeys, didKeys, originalLookup, lookup;
 
   QUnit.module('watch', {
     setup: function () {
@@ -39410,56 +39287,6 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
 
     _emberMetalWatching.unwatch(obj, 'foo.bar.baz.biff');
     equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('watching a global object that does not yet exist should queue', function (get, set) {
-    lookup['Global'] = Global = null;
-
-    var obj = {};
-    addListeners(obj, 'Global.foo');
-
-    _emberMetalWatching.watch(obj, 'Global.foo'); // only works on global chained props
-
-    equal(willCount, 0, 'should not have fired yet');
-    equal(didCount, 0, 'should not have fired yet');
-
-    lookup['Global'] = Global = { foo: 'bar' };
-    addListeners(Global, 'foo');
-
-    _emberMetalWatching.watch.flushPending(); // this will also be invoked automatically on ready
-
-    equal(willCount, 0, 'should not have fired yet');
-    equal(didCount, 0, 'should not have fired yet');
-
-    set(Global, 'foo', 'baz');
-
-    // should fire twice because this is a chained property (once on key, once
-    // on path)
-    equal(willCount, 2, 'should be watching');
-    equal(didCount, 2, 'should be watching');
-
-    lookup['Global'] = Global = null; // reset
-  });
-
-  QUnit.test('when watching a global object, destroy should remove chain watchers from the global object', function () {
-    lookup['Global'] = Global = { foo: 'bar' };
-    var obj = {};
-    addListeners(obj, 'Global.foo');
-
-    _emberMetalWatching.watch(obj, 'Global.foo');
-
-    var meta_Global = _emberMetalCore.default.meta(Global);
-    var chainNode = _emberMetalCore.default.meta(obj).readableChains()._chains.Global._chains.foo;
-
-    equal(meta_Global.peekWatching('foo'), 1, 'should be watching foo');
-    equal(meta_Global.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
-
-    _emberMetalWatching.destroy(obj);
-
-    equal(meta_Global.peekWatching('foo'), 0, 'should not be watching foo');
-    equal(meta_Global.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
-
-    lookup['Global'] = Global = null; // reset
   });
 
   QUnit.test('when watching another object, destroy should remove chain watchers from the other object', function () {
@@ -48033,7 +47860,7 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-m
     equal(_emberMetalProperty_get.get(TestNamespace.toObject, 'relative'), 'newerValue');
   });
 });
-enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
   'use strict';
 
   /*
@@ -48059,7 +47886,6 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['exports', 'emb
   // ========================================================================
 
   var obj, obj1, don; // global variables
-  var TestNamespace, originalLookup, lookup;
 
   QUnit.module('A new EmberObject instance', {
 
@@ -48102,60 +47928,6 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['exports', 'emb
     equal(_emberMetalProperty_get.get(obj, 'total'), 12);
   });
 
-  QUnit.module('EmberObject observers', {
-    setup: function () {
-      originalLookup = _emberMetalCore.default.lookup;
-      _emberMetalCore.default.lookup = lookup = {};
-
-      // create a namespace
-      lookup['TestNamespace'] = TestNamespace = {
-        obj: _emberRuntimeSystemObject.default.create({
-          value: 'test'
-        })
-      };
-
-      // create an object
-      obj = _emberRuntimeSystemObject.default.extend({
-        // normal observer
-        observer: _emberMetalMixin.observer('prop1', function () {
-          this._normal = true;
-        }),
-
-        globalObserver: _emberMetalMixin.observer('TestNamespace.obj.value', function () {
-          this._global = true;
-        }),
-
-        bothObserver: _emberMetalMixin.observer('prop1', 'TestNamespace.obj.value', function () {
-          this._both = true;
-        })
-      }).create({
-        prop1: null
-      });
-    },
-
-    teardown: function () {
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('Local observers work', function () {
-    obj._normal = false;
-    _emberMetalProperty_set.set(obj, 'prop1', false);
-    equal(obj._normal, true, 'Normal observer did change.');
-  });
-
-  QUnit.test('Global observers work', function () {
-    obj._global = false;
-    _emberMetalProperty_set.set(TestNamespace.obj, 'value', 'test2');
-    equal(obj._global, true, 'Global observer did change.');
-  });
-
-  QUnit.test('Global+Local observer works', function () {
-    obj._both = false;
-    _emberMetalProperty_set.set(obj, 'prop1', false);
-    equal(obj._both, true, 'Both observer did change.');
-  });
-
   QUnit.module('EmberObject superclass and subclasses', {
     setup: function () {
       obj = _emberRuntimeSystemObject.default.extend({
@@ -48188,7 +47960,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['exports', 'emb
     ok(obj.detectInstance(obj.create()));
   });
 });
-enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/watching', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalWatching, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject) {
   'use strict';
 
   /*
@@ -48345,7 +48117,9 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
 
     equal(_emberMetalProperty_get.get(testObject, 'foo'), 'BAZ', 'binding should have synced');
 
-    _emberMetalWatching.destroy(testObject);
+    _emberMetalRun_loop.default(function () {
+      testObject.destroy();
+    });
 
     _emberMetalRun_loop.default(function () {
       _emberMetalProperty_set.set(TestNamespace.fromObject, 'bar', 'BIFF');
@@ -56557,7 +56331,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+8455352b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+632a2540', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -61063,7 +60837,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     container = _emberViewsViewsContainer_view.default.create();
     var observerFired = false;
     expectDeprecation(function () {
-      container.addObserver('this.[]', function () {
+      container.addObserver('[]', function () {
         observerFired = true;
       });
     }, /ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView./);
