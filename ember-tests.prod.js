@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+23975518
+ * @version   2.5.0-canary+c81bca94
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -37362,6 +37362,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
 
   var originalSetTimeout = window.setTimeout;
   var originalDateValueOf = Date.prototype.valueOf;
+  var originalPlatform = _emberMetalRun_loop.default.backburner._platform;
 
   function wait(callback, maxWaitCount) {
     maxWaitCount = _emberMetalIs_none.default(maxWaitCount) ? 100 : maxWaitCount;
@@ -37392,6 +37393,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
 
   QUnit.module('run.later', {
     teardown: function () {
+      _emberMetalRun_loop.default.backburner._platform = originalPlatform;
       window.setTimeout = originalSetTimeout;
       Date.prototype.valueOf = originalDateValueOf;
     }
@@ -37559,13 +37561,14 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
     // happens when an expired timer callback takes a while to run,
     // which is what we simulate here.
     var newSetTimeoutUsed;
-    window.setTimeout = function () {
-      var wait = arguments[arguments.length - 1];
-      newSetTimeoutUsed = true;
-      ok(!isNaN(wait) && wait >= 0, 'wait is a non-negative number');
-      // In IE8, `setTimeout.apply` is `undefined`.
-      var apply = Function.prototype.apply;
-      return apply.apply(originalSetTimeout, [this, arguments]);
+    _emberMetalRun_loop.default.backburner._platform = {
+      setTimeout: function () {
+        var wait = arguments[arguments.length - 1];
+        newSetTimeoutUsed = true;
+        ok(!isNaN(wait) && wait >= 0, 'wait is a non-negative number');
+
+        return originalPlatform.setTimeout.apply(originalPlatform, arguments);
+      }
     };
 
     var count = 0;
@@ -37588,7 +37591,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
     });
 
     wait(function () {
-      window.setTimeout = originalSetTimeout;
       QUnit.start();
       ok(newSetTimeoutUsed, 'stub setTimeout was used');
     });
@@ -55897,7 +55899,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+23975518', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+c81bca94', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

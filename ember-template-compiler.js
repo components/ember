@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+23975518
+ * @version   2.5.0-canary+c81bca94
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -212,20 +212,24 @@ enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'bac
 enifed('backburner/platform', ['exports'], function (exports) {
   'use strict';
 
-  var platform;
+  var GlobalContext;
 
   /* global self */
   if (typeof self === 'object') {
-    platform = self;
+    GlobalContext = self;
 
     /* global global */
   } else if (typeof global === 'object') {
-      platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
-    }
+      GlobalContext = global;
 
-  exports.default = platform;
+      /* global window */
+    } else if (typeof window === 'object') {
+        GlobalContext = window;
+      } else {
+        throw new Error('no global: `self`, `global` nor `window` was found');
+      }
+
+  exports.default = GlobalContext;
 });
 enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
   'use strict';
@@ -468,7 +472,6 @@ enifed('backburner/utils', ['exports'], function (exports) {
   exports.isFunction = isFunction;
   exports.isNumber = isNumber;
   exports.isCoercableNumber = isCoercableNumber;
-  exports.wrapInTryCatch = wrapInTryCatch;
   var NUMBER = /\d+/;
 
   function each(collection, callback) {
@@ -476,14 +479,6 @@ enifed('backburner/utils', ['exports'], function (exports) {
       callback(collection[i]);
     }
   }
-
-  // Date.now is not available in browsers < IE9
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  var now = Date.now || function () {
-    return new Date().getTime();
-  };
-
-  exports.now = now;
 
   function isString(suspect) {
     return typeof suspect === 'string';
@@ -499,16 +494,6 @@ enifed('backburner/utils', ['exports'], function (exports) {
 
   function isCoercableNumber(number) {
     return isNumber(number) || NUMBER.test(number);
-  }
-
-  function wrapInTryCatch(func) {
-    return function () {
-      try {
-        return func.apply(this, arguments);
-      } catch (e) {
-        throw e;
-      }
-    };
   }
 });
 enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
@@ -530,10 +515,16 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       begin: []
     };
 
+    var _this = this;
+    this._boundClearItems = function () {
+      clearItems();
+    };
+
     this._timerTimeoutId = undefined;
     this._timers = [];
 
-    var _this = this;
+    this._platform = this.options._platform || _backburnerPlatform.default;
+
     this._boundRunExpiredTimers = function () {
       _this._runExpiredTimers();
     };
@@ -870,7 +861,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         }
       }
 
-      var executeAt = _backburnerUtils.now() + parseInt(wait, 10);
+      var executeAt = Date.now() + parseInt(wait, 10);
 
       if (_backburnerUtils.isString(method)) {
         method = target[method];
@@ -936,7 +927,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         return this._throttlers[index];
       } // throttled
 
-      timer = _backburnerPlatform.default.setTimeout(function () {
+      timer = this._platform.setTimeout(function () {
         if (!immediate) {
           backburner.run.apply(backburner, args);
         }
@@ -981,10 +972,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       if (index > -1) {
         debouncee = this._debouncees[index];
         this._debouncees.splice(index, 1);
-        clearTimeout(debouncee[2]);
+        this._platform.clearTimeout(debouncee[2]);
       }
 
-      timer = _backburnerPlatform.default.setTimeout(function () {
+      timer = this._platform.setTimeout(function () {
         if (!immediate) {
           backburner.run.apply(backburner, args);
         }
@@ -1006,17 +997,17 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     },
 
     cancelTimers: function () {
-      _backburnerUtils.each(this._throttlers, clearItems);
+      _backburnerUtils.each(this._throttlers, this._boundClearItems);
       this._throttlers = [];
 
-      _backburnerUtils.each(this._debouncees, clearItems);
+      _backburnerUtils.each(this._debouncees, this._boundClearItems);
       this._debouncees = [];
 
       this._clearTimerTimeout();
       this._timers = [];
 
       if (this._autorun) {
-        clearTimeout(this._autorun);
+        this._platform.clearTimeout(this._autorun);
         this._autorun = null;
       }
     },
@@ -1065,7 +1056,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
         if (item[2] === timer[2]) {
           array.splice(index, 1);
-          clearTimeout(timer[2]);
+          this._platform.clearTimeout(timer[2]);
           return true;
         }
       }
@@ -1079,7 +1070,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     },
 
     _scheduleExpiredTimers: function () {
-      var n = _backburnerUtils.now();
+      var n = Date.now();
       var timers = this._timers;
       var i = 0;
       var l = timers.length;
@@ -1105,7 +1096,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       if (!this._timerTimeoutId) {
         return;
       }
-      clearTimeout(this._timerTimeoutId);
+      this._platform.clearTimeout(this._timerTimeoutId);
       this._timerTimeoutId = undefined;
     },
 
@@ -1114,9 +1105,9 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         return;
       }
       var minExpiresAt = this._timers[0];
-      var n = _backburnerUtils.now();
+      var n = Date.now();
       var wait = Math.max(0, minExpiresAt - n);
-      this._timerTimeoutId = setTimeout(this._boundRunExpiredTimers, wait);
+      this._timerTimeoutId = this._platform.setTimeout(this._boundRunExpiredTimers, wait);
     }
   };
 
@@ -1130,7 +1121,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
   function createAutorun(backburner) {
     backburner.begin();
-    backburner._autorun = _backburnerPlatform.default.setTimeout(function () {
+    backburner._autorun = backburner._platform.setTimeout(function () {
       backburner._autorun = null;
       backburner.end();
     });
@@ -1160,7 +1151,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
   }
 
   function clearItems(item) {
-    clearTimeout(item[2]);
+    this._platform.clearTimeout(item[2]);
   }
 });
 enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
@@ -4061,7 +4052,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+23975518
+    @version 2.5.0-canary+c81bca94
     @public
   */
 
@@ -4103,11 +4094,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+23975518'
+    @default '2.5.0-canary+c81bca94'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+23975518';
+  Ember.VERSION = '2.5.0-canary+c81bca94';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12621,7 +12612,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+23975518',
+        revision: 'Ember@2.5.0-canary+c81bca94',
         loc: program.loc,
         moduleName: options.moduleName
       };
