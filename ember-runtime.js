@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c81bca94
+ * @version   2.5.0-canary+58f5a9aa
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+c81bca94
+    @version 2.5.0-canary+58f5a9aa
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+c81bca94'
+    @default '2.5.0-canary+58f5a9aa'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+c81bca94';
+  Ember.VERSION = '2.5.0-canary+58f5a9aa';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14272,6 +14272,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   //
   'use strict';
 
+  exports.objectAt = objectAt;
+
   function arrayObserversHelper(obj, target, opts, operation, notify) {
     var willChange = opts && opts.willChange || 'arrayWillChange';
     var didChange = opts && opts.didChange || 'arrayDidChange';
@@ -14289,6 +14291,14 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     return obj;
+  }
+
+  function objectAt(content, idx) {
+    if (content.objectAt) {
+      return content.objectAt(idx);
+    }
+
+    return content[idx];
   }
 
   // ..........................................................
@@ -14383,16 +14393,16 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       @public
      */
     objectsAt: function (indexes) {
-      var self = this;
+      var _this = this;
 
       return indexes.map(function (idx) {
-        return self.objectAt(idx);
+        return objectAt(_this, idx);
       });
     },
 
     // overrides Ember.Enumerable version
     nextObject: function (idx) {
-      return this.objectAt(idx);
+      return objectAt(this, idx);
     },
 
     /**
@@ -14415,11 +14425,11 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }),
 
     firstObject: _emberMetalComputed.computed(function () {
-      return this.objectAt(0);
+      return objectAt(this, 0);
     }),
 
     lastObject: _emberMetalComputed.computed(function () {
-      return this.objectAt(_emberMetalProperty_get.get(this, 'length') - 1);
+      return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
     }),
 
     // optimized version from Enumerable
@@ -14465,7 +14475,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       while (beginIndex < endIndex) {
-        ret[ret.length] = this.objectAt(beginIndex++);
+        ret[ret.length] = objectAt(this, beginIndex++);
       }
 
       return ret;
@@ -14504,7 +14514,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       for (idx = startAt; idx < len; idx++) {
-        if (this.objectAt(idx) === object) {
+        if (objectAt(this, idx) === object) {
           return idx;
         }
       }
@@ -14545,7 +14555,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       for (idx = startAt; idx >= 0; idx--) {
-        if (this.objectAt(idx) === object) {
+        if (objectAt(this, idx) === object) {
           return idx;
         }
       }
@@ -14650,7 +14660,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
         lim = startIdx + removeAmt;
 
         for (var idx = startIdx; idx < lim; idx++) {
-          removing.push(this.objectAt(idx));
+          removing.push(objectAt(this, idx));
         }
       } else {
         removing = removeAmt;
@@ -14697,7 +14707,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
         lim = startIdx + addAmt;
 
         for (var idx = startIdx; idx < lim; idx++) {
-          adding.push(this.objectAt(idx));
+          adding.push(objectAt(this, idx));
         }
       } else {
         adding = addAmt;
@@ -14715,12 +14725,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       var cachedFirst = _emberMetalComputed.cacheFor(this, 'firstObject');
       var cachedLast = _emberMetalComputed.cacheFor(this, 'lastObject');
 
-      if (this.objectAt(0) !== cachedFirst) {
+      if (objectAt(this, 0) !== cachedFirst) {
         _emberMetalProperty_events.propertyWillChange(this, 'firstObject');
         _emberMetalProperty_events.propertyDidChange(this, 'firstObject');
       }
 
-      if (this.objectAt(length - 1) !== cachedLast) {
+      if (objectAt(this, length - 1) !== cachedLast) {
         _emberMetalProperty_events.propertyWillChange(this, 'lastObject');
         _emberMetalProperty_events.propertyDidChange(this, 'lastObject');
       }
@@ -16483,7 +16493,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
         return null;
       }
 
-      var ret = this.objectAt(len - 1);
+      var ret = _emberRuntimeMixinsArray.objectAt(this, len - 1);
       this.removeAt(len - 1, 1);
       return ret;
     },
@@ -16505,7 +16515,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
         return null;
       }
 
-      var ret = this.objectAt(0);
+      var ret = _emberRuntimeMixinsArray.objectAt(this, 0);
       this.removeAt(0);
       return ret;
     },
@@ -16608,7 +16618,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
     removeObject: function (obj) {
       var loc = _emberMetalProperty_get.get(this, 'length') || 0;
       while (--loc >= 0) {
-        var curObject = this.objectAt(loc);
+        var curObject = _emberRuntimeMixinsArray.objectAt(this, loc);
 
         if (curObject === obj) {
           this.removeAt(loc);
@@ -17817,7 +17827,7 @@ enifed('ember-runtime/system/application', ['exports', 'ember-runtime/system/nam
 
   exports.default = _emberRuntimeSystemNamespace.default.extend();
 });
-enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/error', 'ember-runtime/system/object', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/enumerable', 'ember-metal/alias'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalProperty_events, _emberMetalError, _emberRuntimeSystemObject, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsEnumerable, _emberMetalAlias) {
+enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/error', 'ember-runtime/system/object', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/enumerable', 'ember-metal/alias', 'ember-runtime/mixins/array'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalProperty_events, _emberMetalError, _emberRuntimeSystemObject, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsEnumerable, _emberMetalAlias, _emberRuntimeMixinsArray) {
   'use strict';
 
   /**
@@ -17902,7 +17912,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       @private
     */
     objectAtContent: function (idx) {
-      return _emberMetalProperty_get.get(this, 'arrangedContent').objectAt(idx);
+      return _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(this, 'arrangedContent'), idx);
     },
 
     /**
@@ -18103,7 +18113,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
         // Get a list of indices in original content to remove
         for (i = start; i < start + len; i++) {
           // Use arrangedContent here so we avoid confusion with objects transformed by objectAtContent
-          indices.push(content.indexOf(arrangedContent.objectAt(i)));
+          indices.push(content.indexOf(_emberRuntimeMixinsArray.objectAt(arrangedContent, i)));
         }
 
         // Replace in reverse order since indices will change
@@ -19020,7 +19030,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
   @return {String} string representation
   @public
 */
-enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/empty_object'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalObserver, _emberMetalProperty_events, _emberMetalEmpty_object) {
+enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/empty_object', 'ember-runtime/mixins/array'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalObserver, _emberMetalProperty_events, _emberMetalEmpty_object, _emberRuntimeMixinsArray) {
   'use strict';
 
   /**
@@ -19121,7 +19131,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/debug', 'embe
 
   function addObserverForContentKey(content, keyName, proxy, idx, loc) {
     while (--loc >= idx) {
-      var item = content.objectAt(loc);
+      var item = _emberRuntimeMixinsArray.objectAt(content, loc);
       if (item) {
         _emberMetalDebug.assert('When using @each to observe the array ' + content + ', the array must return an object', typeof item === 'object');
         _emberMetalObserver._addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
@@ -19132,7 +19142,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/debug', 'embe
 
   function removeObserverForContentKey(content, keyName, proxy, idx, loc) {
     while (--loc >= idx) {
-      var item = content.objectAt(loc);
+      var item = _emberRuntimeMixinsArray.objectAt(content, loc);
       if (item) {
         _emberMetalObserver._removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
         _emberMetalObserver.removeObserver(item, keyName, proxy, 'contentKeyDidChange');

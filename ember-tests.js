@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c81bca94
+ * @version   2.5.0-canary+58f5a9aa
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -18864,7 +18864,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), 'Foo', 'there is only one Foo');
   });
 });
-enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -18875,13 +18875,13 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
   var TemplateTests, owner, lookup, originalViewKeyword;
 
   function nthChild(view, nth) {
-    return _emberMetalProperty_get.get(view, 'childViews').objectAt(nth || 0);
+    return _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(view, 'childViews'), nth || 0);
   }
 
   var firstChild = nthChild;
 
   function firstGrandchild(view) {
-    return _emberMetalProperty_get.get(_emberMetalProperty_get.get(view, 'childViews').objectAt(0), 'childViews').objectAt(0);
+    return _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(_emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(view, 'childViews'), 0), 'childViews'), 0);
   }
 
   QUnit.module('collection helper [LEGACY]', {
@@ -23462,7 +23462,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
     equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
   });
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalCore, _emberMetalDebug, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalDebug, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray) {
   /*globals EmberDev */
   'use strict';
 
@@ -23471,11 +23471,11 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
   var trim = _emberViewsSystemJquery.default.trim;
 
   function firstGrandchild(view) {
-    return _emberMetalProperty_get.get(_emberMetalProperty_get.get(view, 'childViews').objectAt(0), 'childViews').objectAt(0);
+    return _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(_emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(view, 'childViews'), 0), 'childViews'), 0);
   }
 
   function nthChild(view, nth) {
-    return _emberMetalProperty_get.get(view, 'childViews').objectAt(nth || 0);
+    return _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(view, 'childViews'), nth || 0);
   }
 
   function viewClass(options) {
@@ -48734,9 +48734,15 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
     });
 
     count = 0;
-    var item = ary.objectAt(2);
+    var item = _emberRuntimeMixinsArray.objectAt(ary, 2);
     _emberMetalProperty_set.set(item, 'isDone', !_emberMetalProperty_get.get(item, 'isDone'));
     equal(count, 1, '@each.isDone should have notified');
+  });
+
+  QUnit.test('`objectAt` returns correct object', function () {
+    var arr = ['first', 'second', 'third', 'fourth'];
+    equal(_emberRuntimeMixinsArray.objectAt(arr, 2), 'third');
+    equal(_emberRuntimeMixinsArray.objectAt(arr, 4), undefined);
   });
 
   _emberMetalTestsProps_helper.testBoth('should be clear caches for computed properties that have dependent keys on arrays that are changed after object initialization', function (get, set) {
@@ -48747,14 +48753,14 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
       },
 
       common: _emberMetalComputed.computed('resources.@each.common', function () {
-        return get(get(this, 'resources').objectAt(0), 'common');
+        return get(_emberRuntimeMixinsArray.objectAt(get(this, 'resources'), 0), 'common');
       })
     }).create();
 
     get(obj, 'resources').pushObject(_emberRuntimeSystemObject.default.create({ common: 'HI!' }));
     equal('HI!', get(obj, 'common'));
 
-    set(get(obj, 'resources').objectAt(0), 'common', 'BYE!');
+    set(_emberRuntimeMixinsArray.objectAt(get(obj, 'resources'), 0), 'common', 'BYE!');
     equal('BYE!', get(obj, 'common'));
   });
 
@@ -48776,7 +48782,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
     // Observer fires second time when new object is added
     get(obj, 'resources').pushObject(_emberRuntimeSystemObject.default.create({ common: 'HI!' }));
     // Observer fires third time when property on an object is changed
-    set(get(obj, 'resources').objectAt(0), 'common', 'BYE!');
+    set(_emberRuntimeMixinsArray.objectAt(get(obj, 'resources'), 0), 'common', 'BYE!');
 
     equal(count, 2, 'observers should only be called once');
   });
@@ -50022,7 +50028,7 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/mixins/array'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeMixinsArray) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -50036,7 +50042,7 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
     var idx;
 
     for (idx = 0; idx < len; idx++) {
-      equal(obj.objectAt(idx), expected[idx], 'obj.objectAt(' + idx + ') should match');
+      equal(_emberRuntimeMixinsArray.objectAt(obj, idx), expected[idx], 'obj.objectAt(' + idx + ') should match');
     }
   });
 
@@ -50044,10 +50050,10 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
     var obj;
 
     obj = this.newObject(this.newFixture(3));
-    equal(obj.objectAt(5), undefined, 'should return undefined for obj.objectAt(5) when len = 3');
+    equal(_emberRuntimeMixinsArray.objectAt(obj, 5), undefined, 'should return undefined for obj.objectAt(5) when len = 3');
 
     obj = this.newObject([]);
-    equal(obj.objectAt(0), undefined, 'should return undefined for obj.objectAt(0) when len = 0');
+    equal(_emberRuntimeMixinsArray.objectAt(obj, 0), undefined, 'should return undefined for obj.objectAt(0) when len = 0');
   });
 
   exports.default = suite;
@@ -53029,7 +53035,7 @@ enifed('ember-runtime/tests/system/application/base_test', ['exports', 'ember-ru
     ok(_emberRuntimeSystemNamespace.default.detect(_emberRuntimeSystemApplication.default), 'Ember.Application subclass of Ember.Namespace');
   });
 });
-enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array, _emberRuntimeMixinsArray) {
   'use strict';
 
   var array;
@@ -53114,7 +53120,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports
   });
 
   QUnit.test('objectAt - returns object at index in arrangedContent', function () {
-    equal(array.objectAt(1), 4, 'returns object at index');
+    equal(_emberRuntimeMixinsArray.objectAt(array, 1), 4, 'returns object at index');
   });
 
   // Not sure if we need a specific test for it, since it's internal
@@ -53297,7 +53303,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports
           }).property('content.[]'),
 
           objectAtContent: function (idx) {
-            var obj = this.get('arrangedContent').objectAt(idx);
+            var obj = _emberRuntimeMixinsArray.objectAt(this.get('arrangedContent'), idx);
             return obj && obj.toString();
           }
         }).create({
@@ -53328,7 +53334,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports
   });
 
   QUnit.test('objectAt - returns object at index in arrangedContent', function () {
-    equal(array.objectAt(1), '4', 'returns object at index');
+    equal(_emberRuntimeMixinsArray.objectAt(array, 1), '4', 'returns object at index');
   });
 
   // Not sure if we need a specific test for it, since it's internal
@@ -56343,7 +56349,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+c81bca94', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+58f5a9aa', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -60118,7 +60124,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
   });
 });
-enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeControllersController, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeControllersController, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -60406,7 +60412,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     equal(trim(container.$().text()), 'This is the main view.', 'should render its child');
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), mainView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), mainView, 'should have the currentView as the only child view');
     equal(mainView.get('parentView'), container, 'parentView is setup');
   });
 
@@ -60428,7 +60434,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     equal(container.$().text(), 'This is the main view.', 'should render its child');
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), mainView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), mainView, 'should have the currentView as the only child view');
     equal(mainView.get('parentView'), container, 'parentView is setup');
   });
 
@@ -60458,7 +60464,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     equal(container.$().text(), 'This is the main view.', 'should render its child');
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), mainView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), mainView, 'should have the currentView as the only child view');
     equal(mainView.get('parentView'), container, 'parentView is setup');
   });
 
@@ -60481,7 +60487,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     equal(container.$().text(), 'This is the main view.', 'should render its child');
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), mainView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), mainView, 'should have the currentView as the only child view');
     equal(mainView.get('parentView'), container, 'parentView is setup');
 
     _emberMetalRun_loop.default(function () {
@@ -60511,7 +60517,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     equal(container.$().text(), 'This is the main view.', 'should render its child');
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), mainView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), mainView, 'should have the currentView as the only child view');
     equal(mainView.get('parentView'), container, 'parentView is setup');
 
     _emberMetalRun_loop.default(function () {
@@ -60546,14 +60552,14 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     equal(container.$().text(), 'This is the main view.', 'should render its child');
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), mainView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), mainView, 'should have the currentView as the only child view');
 
     _emberMetalRun_loop.default(function () {
       _emberMetalProperty_set.set(container, 'currentView', secondaryView);
     });
 
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), secondaryView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), secondaryView, 'should have the currentView as the only child view');
     equal(mainView.isDestroyed, true, 'should destroy the previous currentView: mainView.');
 
     equal(trim(container.$().text()), 'This is the secondary view.', 'should render its child');
@@ -60563,7 +60569,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     });
 
     equal(_emberMetalProperty_get.get(container, 'length'), 1, 'should have one child view');
-    equal(container.objectAt(0), tertiaryView, 'should have the currentView as the only child view');
+    equal(_emberRuntimeMixinsArray.objectAt(container, 0), tertiaryView, 'should have the currentView as the only child view');
     equal(secondaryView.isDestroyed, true, 'should destroy the previous currentView: secondaryView.');
 
     equal(trim(container.$().text()), 'This is the tertiary view.', 'should render its child');
@@ -64359,7 +64365,7 @@ enifed('ember-views/tests/views/view/current_state_deprecation_test', ['exports'
     ok(view._currentState, '_currentState can be used without deprecation');
   });
 });
-enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
   'use strict';
 
   var originalViewKeyword;
@@ -64427,7 +64433,7 @@ enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-m
     equal(parentCount, 1, 'invoked destroy element on the parent');
     equal(childCount, 1, 'invoked destroy element on the child');
     ok(!_emberMetalProperty_get.get(view, 'element'), 'view no longer has element');
-    ok(!_emberMetalProperty_get.get(_emberMetalProperty_get.get(view, 'childViews').objectAt(0), 'element'), 'child no longer has an element');
+    ok(!_emberMetalProperty_get.get(_emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(view, 'childViews'), 0), 'element'), 'child no longer has an element');
   });
 
   QUnit.test('returns receiver', function () {
@@ -64484,7 +64490,7 @@ enifed('ember-views/tests/views/view/destroy_test', ['exports', 'ember-metal/pro
     });
   });
 });
-enifed('ember-views/tests/views/view/element_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view) {
+enifed('ember-views/tests/views/view/element_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-runtime/mixins/array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberRuntimeMixinsArray) {
   /*globals EmberDev */
 
   'use strict';
@@ -64514,7 +64520,7 @@ enifed('ember-views/tests/views/view/element_test', ['exports', 'ember-metal/pro
     parentView = _emberViewsViewsContainer_view.default.create({
       childViews: [_emberViewsViewsView.default.extend()]
     });
-    view = _emberMetalProperty_get.get(parentView, 'childViews').objectAt(0);
+    view = _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(parentView, 'childViews'), 0);
 
     equal(_emberMetalProperty_get.get(view, 'parentView'), parentView, 'precond - has parent view');
     equal(_emberMetalProperty_get.get(parentView, 'element'), null, 'parentView has no element');
@@ -64708,7 +64714,7 @@ enifed('ember-views/tests/views/view/inject_test', ['exports', 'ember-runtime/sy
     equal(profilerService, appView.get('profilerService'), 'service.profiler is injected');
   });
 });
-enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
   'use strict';
 
   var View, view, parentBecameVisible, childBecameVisible, grandchildBecameVisible;
@@ -64932,7 +64938,7 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
 
   QUnit.test('view should be notified after isVisible is set to false and the element has been hidden', function () {
     view = View.create({ isVisible: true });
-    //var childView = view.get('childViews').objectAt(0);
+    //var childView = objectAt(view.get('childViews'), 0);
 
     _emberMetalRun_loop.default(function () {
       view.append();
@@ -64969,7 +64975,7 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
 
   QUnit.test('if a view descends from a hidden view, making isVisible true should not trigger becameVisible', function () {
     view = View.create({ isVisible: true });
-    var childView = view.get('childViews').objectAt(0);
+    var childView = _emberRuntimeMixinsArray.objectAt(view.get('childViews'), 0);
 
     _emberMetalRun_loop.default(function () {
       view.append();
@@ -64998,7 +65004,7 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
 
   QUnit.test('if a child view becomes visible while its parent is hidden, if its parent later becomes visible, it receives a becameVisible callback', function () {
     view = View.create({ isVisible: false });
-    var childView = view.get('childViews').objectAt(0);
+    var childView = _emberRuntimeMixinsArray.objectAt(view.get('childViews'), 0);
 
     _emberMetalRun_loop.default(function () {
       view.append();
@@ -65319,7 +65325,7 @@ enifed('ember-views/tests/views/view/nested_view_ordering_test', ['exports', 'em
     equal(insertedLast, 'outer', 'didInsertElement called on outer view after inner view');
   });
 });
-enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
   'use strict';
 
   // .......................................................
@@ -65334,7 +65340,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
       expectDeprecation('Setting `childViews` on a Container is deprecated.');
 
       parentView = _emberViewsViewsContainer_view.default.create({ childViews: [_emberViewsViewsView.default] });
-      child = _emberMetalProperty_get.get(parentView, 'childViews').objectAt(0);
+      child = _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(parentView, 'childViews'), 0);
     },
     teardown: function () {
       _emberMetalRun_loop.default(function () {
@@ -65424,7 +65430,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
     expectDeprecation('Setting `childViews` on a Container is deprecated.');
 
     parentView = _emberViewsViewsContainer_view.default.create({ childViews: [_emberViewsViewsView.default] });
-    child = _emberMetalProperty_get.get(parentView, 'childViews').objectAt(0);
+    child = _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(parentView, 'childViews'), 0);
     ok(_emberMetalProperty_get.get(child, 'parentView'), 'precond - has parentView');
 
     _emberMetalRun_loop.default(function () {
@@ -65446,7 +65452,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
     expectDeprecation('Setting `childViews` on a Container is deprecated.');
 
     parentView = _emberViewsViewsContainer_view.default.create({ childViews: [_emberViewsViewsView.default] });
-    child = _emberMetalProperty_get.get(parentView, 'childViews').objectAt(0);
+    child = _emberRuntimeMixinsArray.objectAt(_emberMetalProperty_get.get(parentView, 'childViews'), 0);
     var removed = _emberMetalRun_loop.default(function () {
       return child.removeFromParent();
     });
