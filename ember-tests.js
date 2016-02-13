@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+13c99713
+ * @version   2.5.0-canary+6f8f4dc7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -6910,56 +6910,11 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _classCallCheck(this, GenericComponentDefinition);
 
             _ComponentDefinition.call(this, name, manager, ComponentClass);
-            this.layout = layout;
+            this.layoutString = layout;
         }
 
-        GenericComponentDefinition.prototype.getLayout = function getLayout(env) {
-            if (!this.compiledLayout) {
-                this.compiledLayout = _glimmerTestHelpersLibHelpers.compileLayout(this.layout, { env: env });
-            }
-            return this.compiledLayout;
-        };
-
-        GenericComponentDefinition.prototype.compile = function compile(builder, _ref4) {
-            var env = _ref4.env;
-
-            var _getLayout = this.getLayout(env);
-
-            var program = _getLayout.program;
-
-            var current = program.head();
-            while (current && current.type !== 'open-primitive-element') {
-                current = current.next;
-            }
-            return this.extractComponent(builder, current);
-        };
-
-        GenericComponentDefinition.prototype.extractComponent = function extractComponent(builder, head) {
-            builder.tag(head.tag);
-            var current = head.next;
-            var beginAttrs = null;
-            var endAttrs = null;
-            while (_glimmerRuntime.isAttribute(current)) {
-                beginAttrs = beginAttrs || current;
-                endAttrs = current;
-                current = current.next;
-            }
-            builder.attrs.replace(new _glimmerUtil.ListSlice(beginAttrs, endAttrs));
-            var beginBody = null;
-            var endBody = null;
-            var nesting = 1;
-            while (true) {
-                if (current instanceof _glimmerRuntime.CloseElementSyntax && --nesting === 0) {
-                    break;
-                }
-                beginBody = beginBody || current;
-                endBody = current;
-                if (current instanceof _glimmerRuntime.OpenElement || current instanceof _glimmerRuntime.OpenPrimitiveElementSyntax) {
-                    nesting++;
-                }
-                current = current.next;
-            }
-            builder.body.replace(new _glimmerUtil.ListSlice(beginBody, endBody));
+        GenericComponentDefinition.prototype.getLayout = function getLayout(options) {
+            return _glimmerTestHelpersLibHelpers.compileLayout(this.layoutString, options);
         };
 
         return GenericComponentDefinition;
@@ -6973,6 +6928,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
             _GenericComponentDefinition.apply(this, arguments);
         }
+
+        BasicComponentDefinition.prototype.compile = function compile(builder) {
+            builder.fromLayout(this.getLayout(builder));
+        };
 
         return BasicComponentDefinition;
     })(GenericComponentDefinition);
@@ -6990,13 +6949,12 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _GenericComponentDefinition2.apply(this, arguments);
         }
 
-        EmberishCurlyComponentDefinition.prototype.compile = function compile(builder, _ref5) {
-            var env = _ref5.env;
-
-            builder.tag('div');
-            builder.body.fromLayout(this.getLayout(env));
-            builder.attrs.static({ name: 'class', value: 'ember-view' });
-            builder.attrs.dynamic({ name: 'id', value: EmberID });
+        EmberishCurlyComponentDefinition.prototype.compile = function compile(builder) {
+            var layout = this.getLayout(builder);
+            builder.wrapLayout(layout);
+            builder.tag.static('div');
+            builder.attrs.static('class', 'ember-view');
+            builder.attrs.dynamic('id', EmberID);
         };
 
         return EmberishCurlyComponentDefinition;
@@ -7011,13 +6969,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _GenericComponentDefinition3.apply(this, arguments);
         }
 
-        EmberishGlimmerComponentDefinition.prototype.compile = function compile(builder, _ref6) {
-            var env = _ref6.env;
-            var symbolTable = _ref6.symbolTable;
-
-            _GenericComponentDefinition3.prototype.compile.call(this, builder, { env: env, symbolTable: symbolTable });
-            builder.attrs.static({ name: 'class', value: 'ember-view' });
-            builder.attrs.dynamic({ name: 'id', value: EmberID });
+        EmberishGlimmerComponentDefinition.prototype.compile = function compile(builder) {
+            builder.fromLayout(this.getLayout(builder));
+            builder.attrs.static('class', 'ember-view');
+            builder.attrs.dynamic('id', EmberID);
         };
 
         return EmberishGlimmerComponentDefinition;
@@ -7081,9 +7036,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var EachSyntax = (function (_StatementSyntax2) {
         _inherits(EachSyntax, _StatementSyntax2);
 
-        function EachSyntax(_ref7) {
-            var args = _ref7.args;
-            var templates = _ref7.templates;
+        function EachSyntax(_ref4) {
+            var args = _ref4.args;
+            var templates = _ref4.templates;
 
             _classCallCheck(this, EachSyntax);
 
@@ -7139,9 +7094,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var IdentitySyntax = (function (_StatementSyntax3) {
         _inherits(IdentitySyntax, _StatementSyntax3);
 
-        function IdentitySyntax(_ref8) {
-            var args = _ref8.args;
-            var templates = _ref8.templates;
+        function IdentitySyntax(_ref5) {
+            var args = _ref5.args;
+            var templates = _ref5.templates;
 
             _classCallCheck(this, IdentitySyntax);
 
@@ -7161,9 +7116,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var RenderInverseIdentitySyntax = (function (_StatementSyntax4) {
         _inherits(RenderInverseIdentitySyntax, _StatementSyntax4);
 
-        function RenderInverseIdentitySyntax(_ref9) {
-            var args = _ref9.args;
-            var templates = _ref9.templates;
+        function RenderInverseIdentitySyntax(_ref6) {
+            var args = _ref6.args;
+            var templates = _ref6.templates;
 
             _classCallCheck(this, RenderInverseIdentitySyntax);
 
@@ -64003,7 +63958,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+13c99713', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+6f8f4dc7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
