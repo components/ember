@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+6f8f4dc7
+ * @version   2.5.0-canary+444de325
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4052,7 +4052,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+6f8f4dc7
+    @version 2.5.0-canary+444de325
     @public
   */
 
@@ -4094,11 +4094,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+6f8f4dc7'
+    @default '2.5.0-canary+444de325'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+6f8f4dc7';
+  Ember.VERSION = '2.5.0-canary+444de325';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12347,7 +12347,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     return segments;
   }
 });
-enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports', 'ember-metal/features'], function (exports, _emberMetalFeatures) {
+enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
   'use strict';
 
   function TransformTopLevelComponents() {
@@ -12424,9 +12424,6 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
     if (lastComponentNode.type === 'ComponentNode') {
       componentCallback(lastComponentNode);
-    } else if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-      var component = elementCallback(lastComponentNode);
-      body.splice(lastIndex, 1, component);
     }
   }
 
@@ -12564,7 +12561,7 @@ enifed('ember-template-compiler/system/compile', ['exports', 'require', 'ember-t
     return _emberTemplateCompilerSystemTemplate.default(templateSpec);
   };
 });
-enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/features', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalFeatures, _emberMetalAssign, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalAssign, _emberTemplateCompilerPlugins) {
   /**
   @module ember
   @submodule ember-template-compiler
@@ -12579,9 +12576,6 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports.default = function (_options) {
     var disableComponentGeneration = true;
-    if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-      disableComponentGeneration = false;
-    }
 
     var options = undefined;
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
@@ -12607,7 +12601,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+6f8f4dc7',
+        revision: 'Ember@2.5.0-canary+444de325',
         loc: program.loc,
         moduleName: options.moduleName
       };
