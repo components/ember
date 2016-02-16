@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+444de325
+ * @version   2.5.0-canary+c609f7de
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -23766,10 +23766,30 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-gl
       var truthy = _ref.truthy;
       var falsy = _ref.falsy;
 
+      return '{{#with ' + cond + '}}' + truthy + '{{else}}' + falsy + '{{/with}}';
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_SharedConditionalsTest2) {
+    _inherits(_class2, _SharedConditionalsTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _SharedConditionalsTest2.apply(this, arguments);
+    }
+
+    _class2.prototype.templateFor = function templateFor(_ref2) {
+      var cond = _ref2.cond;
+      var truthy = _ref2.truthy;
+      var falsy = _ref2.falsy;
+
       return '{{#with ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/with}}';
     };
 
-    _class.prototype['@test it aliases the condition into the block param'] = function testItAliasesTheConditionIntoTheBlockParam() {
+    _class2.prototype['@test it renders and hides the given block based on the conditional'] = function testItRendersAndHidesTheGivenBlockBasedOnTheConditional() {
       var _this = this;
 
       this.render('{{#with cond1 as |cond|}}{{cond.greeting}}{{else}}False{{/with}}', {
@@ -23797,8 +23817,308 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-gl
       this.assertText('False');
     };
 
-    return _class;
+    _class2.prototype['@test can access alias and original scope'] = function testCanAccessAliasAndOriginalScope() {
+      var _this2 = this;
+
+      this.render('{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}', {
+        title: 'Señor Engineer',
+        person: { name: 'Tom Dale' }
+      });
+
+      this.assertText('Señor Engineer: Tom Dale');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Señor Engineer: Tom Dale');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'person.name', 'Yehuda Katz');
+        _emberMetalProperty_set.set(_this2.context, 'title', 'Principal Engineer');
+      });
+
+      this.assertText('Principal Engineer: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'person', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this2.context, 'title', 'Señor Engineer');
+      });
+
+      this.assertText('Señor Engineer: Tom Dale');
+    };
+
+    _class2.prototype['@test the scoped variable is not available outside the {{with}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheWithBlock() {
+      var _this3 = this;
+
+      this.render('{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}', {
+        name: 'Stef',
+        other: 'Yehuda'
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'other', 'Chad');
+      });
+
+      this.assertText('Stef-Chad-Stef');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'name', 'Tom');
+      });
+
+      this.assertText('Tom-Chad-Tom');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this3.context, 'name', 'Stef');
+        _emberMetalProperty_set.set(_this3.context, 'other', 'Yehuda');
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+    };
+
+    _class2.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
+      var _this4 = this;
+
+      this.render('{{#with falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/with}}', {
+        falsyThing: null,
+        otherThing: 'bar'
+      });
+
+      this.assertText('No Thing bar');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('No Thing bar');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'falsyThing', true);
+      });
+
+      this.assertText('Has Thing');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'otherThing', 'biz');
+      });
+
+      this.assertText('Has Thing');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.context, 'otherThing', 'bar');
+        _emberMetalProperty_set.set(_this4.context, 'falsyThing', null);
+      });
+
+      this.assertText('No Thing bar');
+    };
+
+    return _class2;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
+    _inherits(_class3, _RenderingTest);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
+      var _this5 = this;
+
+      this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
+        admin: { name: 'Tom Dale' },
+        user: { name: 'Yehuda Katz' }
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'admin.name', 'Godfrey Chan');
+        _emberMetalProperty_set.set(_this5.context, 'user.name', 'Stefan Penner');
+      });
+
+      this.assertText('Admin: Godfrey Chan User: Stefan Penner');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'admin', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this5.context, 'user', { name: 'Yehuda Katz' });
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+    };
+
+    _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
+      var _this6 = this;
+
+      this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
+        admin: { name: 'Tom Dale' },
+        user: { name: 'Yehuda Katz' }
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'admin.name', 'Erik Bryn');
+        _emberMetalProperty_set.set(_this6.context, 'user.name', 'Chad Hietala');
+      });
+
+      this.assertText('Admin: Erik Bryn User: Chad Hietala');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'admin', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this6.context, 'user', { name: 'Yehuda Katz' });
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+    };
+
+    _class3.prototype['@test the scoped variable is not available outside the {{with}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheWithBlock() {
+      var _this7 = this;
+
+      this.render('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}', {
+        first: 'Limbo',
+        fifth: 'Wrath',
+        ninth: 'Treachery'
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this7.context, 'first', 'I');
+        _emberMetalProperty_set.set(_this7.context, 'fifth', 'D');
+        _emberMetalProperty_set.set(_this7.context, 'ninth', 'K');
+      });
+
+      this.assertText('I-D-K-D-I');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this7.context, 'first', 'Limbo');
+        _emberMetalProperty_set.set(_this7.context, 'fifth', 'Wrath');
+        _emberMetalProperty_set.set(_this7.context, 'ninth', 'Treachery');
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+    };
+
+    _class3.prototype['@test it should support #with name as |foo|, then #with foo as |bar|'] = function testItShouldSupportWithNameAsFooThenWithFooAsBar() {
+      var _this8 = this;
+
+      this.render('{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}', {
+        name: 'caterpillar'
+      });
+
+      this.assertText('caterpillar');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('caterpillar');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'name', 'butterfly');
+      });
+
+      this.assertText('butterfly');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'name', 'caterpillar');
+      });
+
+      this.assertText('caterpillar');
+    };
+
+    _class3.prototype['@test nested {{with}} blocks shadow the outer scoped variable properly.'] = function testNestedWithBlocksShadowTheOuterScopedVariableProperly() {
+      var _this9 = this;
+
+      this.render('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}', {
+        first: 'Limbo',
+        fifth: 'Wrath',
+        ninth: 'Treachery'
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'first', 'I');
+        _emberMetalProperty_set.set(_this9.context, 'ninth', 'K');
+      });
+
+      this.assertText('I-Wrath-K-Wrath-I');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'first', 'Limbo');
+        _emberMetalProperty_set.set(_this9.context, 'fifth', 'Wrath');
+        _emberMetalProperty_set.set(_this9.context, 'ninth', 'Treachery');
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+    };
+
+    _class3.prototype['@test updating the context should update the alias'] = function testUpdatingTheContextShouldUpdateTheAlias() {
+      var _this10 = this;
+
+      this.render('{{#with this as |person|}}{{person.name}}{{/with}}', {
+        name: 'Los Pivots'
+      });
+
+      this.assertText('Los Pivots');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('Los Pivots');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'name', 'l\'Pivots');
+      });
+
+      this.assertText('l\'Pivots');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'name', 'Los Pivots');
+      });
+
+      this.assertText('Los Pivots');
+    };
+
+    return _class3;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'glimmer-test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _glimmerTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
@@ -24579,6 +24899,34 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('F1');
 
       this.assertInvariants();
+    };
+
+    SharedConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
+      var _this14 = this;
+
+      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+
+      this.render(template, { isTruthy: true });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'isTruthy', false);
+      });
+
+      this.assertText('F1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'isTruthy', true);
+      });
+
+      this.assertText('T1');
     };
 
     return SharedConditionalsTest;
@@ -32100,258 +32448,13 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     }
   });
 });
-enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/property_set', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalProperty_set, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   'use strict';
 
   var view, lookup;
   var originalLookup = _emberMetalCore.default.lookup;
 
-  function testWithAs(moduleName, templateString, deprecated) {
-    QUnit.module(moduleName, {
-      setup: function () {
-        _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-        var template;
-        if (deprecated) {
-          expectDeprecation(function () {
-            template = _emberTemplateCompilerSystemCompile.default(templateString);
-          }, 'Using {{with}} without block syntax (L1:C0) is deprecated. Please use standard block form (`{{#with foo as |bar|}}`) instead.');
-        } else {
-          template = _emberTemplateCompilerSystemCompile.default(templateString);
-        }
-
-        view = _emberViewsViewsView.default.create({
-          template: template,
-          context: {
-            title: 'Señor Engineer',
-            person: { name: 'Tom Dale' }
-          }
-        });
-
-        _emberRuntimeTestsUtils.runAppend(view);
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(view);
-        _emberMetalCore.default.lookup = originalLookup;
-      }
-    });
-
-    QUnit.test('it should support #with-as syntax', function () {
-      equal(view.$().text(), 'Señor Engineer: Tom Dale', 'should be properly scoped');
-    });
-
-    QUnit.test('updating the context should update the alias', function () {
-      _emberMetalRun_loop.default(function () {
-        view.set('context.person', {
-          name: 'Yehuda Katz'
-        });
-      });
-
-      equal(view.$().text(), 'Señor Engineer: Yehuda Katz', 'should be properly scoped after updating');
-    });
-
-    QUnit.test('updating a property on the context should update the HTML', function () {
-      equal(view.$().text(), 'Señor Engineer: Tom Dale', 'precond - should be properly scoped after updating');
-
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view, 'context.person.name', 'Yehuda Katz');
-      });
-
-      equal(view.$().text(), 'Señor Engineer: Yehuda Katz', 'should be properly scoped after updating');
-    });
-
-    QUnit.test('updating a property on the view should update the HTML', function () {
-      _emberMetalRun_loop.default(function () {
-        view.set('context.title', 'Señorette Engineer');
-      });
-
-      equal(view.$().text(), 'Señorette Engineer: Tom Dale', 'should be properly scoped after updating');
-    });
-  }
-
-  QUnit.module('Multiple Handlebars {{with foo as |bar|}} helpers', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('re-using the same variable with different #with blocks does not override each other', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}'),
-      context: {
-        admin: { name: 'Tom Dale' },
-        user: { name: 'Yehuda Katz' }
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Admin: Tom Dale User: Yehuda Katz', 'should be properly scoped');
-  });
-
-  QUnit.test('should respect `isTruthy` field on a view', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view}}True{{else}}False{{/with}}'),
-      isTruthy: true
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'True');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'isTruthy', false);
-    });
-
-    equal(view.$().text(), 'False');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'isTruthy', true);
-    });
-
-    equal(view.$().text(), 'True');
-  });
-
-  QUnit.test('should respect `isTruthy` field on an object', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view.foo}}True{{else}}False{{/with}}'),
-      foo: {
-        isTruthy: true
-      }
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'True');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'foo.isTruthy', false);
-    });
-
-    equal(view.$().text(), 'False');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'foo.isTruthy', true);
-    });
-
-    equal(view.$().text(), 'True');
-  });
-
-  QUnit.test('should respect `isTruthy` field on the context object', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with foo}}True{{else}}False{{/with}}'),
-      context: {
-        foo: {
-          isTruthy: true
-        }
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'True');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.foo.isTruthy', false);
-    });
-
-    equal(view.$().text(), 'False');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.foo.isTruthy', true);
-    });
-
-    equal(view.$().text(), 'True');
-  });
-
-  QUnit.test('the scoped variable is not available outside the {{with}} block.', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}'),
-      context: {
-        name: 'Stef',
-        other: 'Yehuda'
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Stef-Yehuda-Stef', 'should be properly scoped after updating');
-  });
-
-  QUnit.test('nested {{with}} blocks shadow the outer scoped variable properly.', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}'),
-      context: {
-        first: 'Limbo',
-        fifth: 'Wrath',
-        ninth: 'Treachery'
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Limbo-Wrath-Treachery-Wrath-Limbo', 'should be properly scoped after updating');
-  });
-
-  QUnit.module('Handlebars {{#with keyword as |foo|}}');
-
-  QUnit.test('it should support #with view as |foo|', function () {
-    var view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view as |myView|}}{{myView.name}}{{/with}}'),
-      name: 'Sonics'
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Sonics', 'should be properly scoped');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'name', 'Thunder');
-    });
-
-    equal(view.$().text(), 'Thunder', 'should update');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-
-  QUnit.test('it should support #with name as |foo|, then #with foo as |bar|', function () {
-    var view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}'),
-      context: { name: 'caterpillar' }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'caterpillar', 'should be properly scoped');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.name', 'butterfly');
-    });
-
-    equal(view.$().text(), 'butterfly', 'should update');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-
   QUnit.module('Handlebars {{#with this as |foo|}}');
-
-  QUnit.test('it should support #with this as |qux|', function () {
-    var view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with this as |person|}}{{person.name}}{{/with}}'),
-      controller: _emberRuntimeSystemObject.default.create({ name: 'Los Pivots' })
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Los Pivots', 'should be properly scoped');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'controller.name', 'l\'Pivots');
-    });
-
-    equal(view.$().text(), 'l\'Pivots', 'should update');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
 
   QUnit.module('{{#with}} helper binding to view keyword', {
     setup: function () {
@@ -32376,125 +32479,6 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
 
   QUnit.test('{{with}} helper can bind to keywords with \'as\'', function () {
     equal(view.$().text(), 'We have: this is from the view and this is from the context', 'should render');
-  });
-
-  testWithAs('ember-htmlbars: {{#with x as |y|}}', '{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}');
-
-  QUnit.module('Multiple Handlebars {{with foo as |bar|}} helpers', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('re-using the same variable with different #with blocks does not override each other', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}'),
-      context: {
-        admin: { name: 'Tom Dale' },
-        user: { name: 'Yehuda Katz' }
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Admin: Tom Dale User: Yehuda Katz', 'should be properly scoped');
-  });
-
-  QUnit.test('the scoped variable is not available outside the {{with}} block.', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}'),
-      context: {
-        name: 'Stef',
-        other: 'Yehuda'
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Stef-Yehuda-Stef', 'should be properly scoped after updating');
-  });
-
-  QUnit.test('nested {{with}} blocks shadow the outer scoped variable properly.', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}'),
-      context: {
-        first: 'Limbo',
-        fifth: 'Wrath',
-        ninth: 'Treachery'
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Limbo-Wrath-Treachery-Wrath-Limbo', 'should be properly scoped after updating');
-  });
-
-  QUnit.test('{{with}} block should not render if passed variable is falsey', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with foo as |bar|}}Don\'t render me{{/with}}'),
-      context: {
-        foo: null
-      }
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), '', 'should not render the inner template');
-  });
-
-  QUnit.module('{{#with}} inverse template', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with view.falsyThing as |thing|}}Has Thing{{else}}No Thing{{/with}}'),
-        falsyThing: null
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('inverse template is displayed', function () {
-    equal(view.$().text(), 'No Thing', 'should render inverse template');
-  });
-
-  QUnit.test('changing the property to truthy causes standard template to be displayed', function () {
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'falsyThing', true);
-    });
-    equal(view.$().text(), 'Has Thing', 'should render standard template');
-  });
-
-  QUnit.module('{{#with}} inverse template preserves context', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/with}}'),
-        context: {
-          falsyThing: null,
-          otherThing: 'bar'
-        }
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('inverse template is displayed with context', function () {
-    equal(view.$().text(), 'No Thing bar', 'should render inverse template with context preserved');
   });
 });
 enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/native_array', 'ember-views/components/component', 'ember-htmlbars/helpers', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemNative_array, _emberViewsComponentsComponent, _emberHtmlbarsHelpers, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -36393,10 +36377,30 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       var truthy = _ref.truthy;
       var falsy = _ref.falsy;
 
+      return '{{#with ' + cond + '}}' + truthy + '{{else}}' + falsy + '{{/with}}';
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_SharedConditionalsTest2) {
+    _inherits(_class2, _SharedConditionalsTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _SharedConditionalsTest2.apply(this, arguments);
+    }
+
+    _class2.prototype.templateFor = function templateFor(_ref2) {
+      var cond = _ref2.cond;
+      var truthy = _ref2.truthy;
+      var falsy = _ref2.falsy;
+
       return '{{#with ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/with}}';
     };
 
-    _class.prototype['@test it aliases the condition into the block param'] = function testItAliasesTheConditionIntoTheBlockParam() {
+    _class2.prototype['@test it renders and hides the given block based on the conditional'] = function testItRendersAndHidesTheGivenBlockBasedOnTheConditional() {
       var _this = this;
 
       this.render('{{#with cond1 as |cond|}}{{cond.greeting}}{{else}}False{{/with}}', {
@@ -36424,8 +36428,308 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('False');
     };
 
-    return _class;
+    _class2.prototype['@test can access alias and original scope'] = function testCanAccessAliasAndOriginalScope() {
+      var _this2 = this;
+
+      this.render('{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}', {
+        title: 'Señor Engineer',
+        person: { name: 'Tom Dale' }
+      });
+
+      this.assertText('Señor Engineer: Tom Dale');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Señor Engineer: Tom Dale');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'person.name', 'Yehuda Katz');
+        _emberMetalProperty_set.set(_this2.context, 'title', 'Principal Engineer');
+      });
+
+      this.assertText('Principal Engineer: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'person', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this2.context, 'title', 'Señor Engineer');
+      });
+
+      this.assertText('Señor Engineer: Tom Dale');
+    };
+
+    _class2.prototype['@test the scoped variable is not available outside the {{with}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheWithBlock() {
+      var _this3 = this;
+
+      this.render('{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}', {
+        name: 'Stef',
+        other: 'Yehuda'
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'other', 'Chad');
+      });
+
+      this.assertText('Stef-Chad-Stef');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'name', 'Tom');
+      });
+
+      this.assertText('Tom-Chad-Tom');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this3.context, 'name', 'Stef');
+        _emberMetalProperty_set.set(_this3.context, 'other', 'Yehuda');
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+    };
+
+    _class2.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
+      var _this4 = this;
+
+      this.render('{{#with falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/with}}', {
+        falsyThing: null,
+        otherThing: 'bar'
+      });
+
+      this.assertText('No Thing bar');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('No Thing bar');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'falsyThing', true);
+      });
+
+      this.assertText('Has Thing');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'otherThing', 'biz');
+      });
+
+      this.assertText('Has Thing');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.context, 'otherThing', 'bar');
+        _emberMetalProperty_set.set(_this4.context, 'falsyThing', null);
+      });
+
+      this.assertText('No Thing bar');
+    };
+
+    return _class2;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
+    _inherits(_class3, _RenderingTest);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
+      var _this5 = this;
+
+      this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
+        admin: { name: 'Tom Dale' },
+        user: { name: 'Yehuda Katz' }
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'admin.name', 'Godfrey Chan');
+        _emberMetalProperty_set.set(_this5.context, 'user.name', 'Stefan Penner');
+      });
+
+      this.assertText('Admin: Godfrey Chan User: Stefan Penner');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'admin', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this5.context, 'user', { name: 'Yehuda Katz' });
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+    };
+
+    _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
+      var _this6 = this;
+
+      this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
+        admin: { name: 'Tom Dale' },
+        user: { name: 'Yehuda Katz' }
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'admin.name', 'Erik Bryn');
+        _emberMetalProperty_set.set(_this6.context, 'user.name', 'Chad Hietala');
+      });
+
+      this.assertText('Admin: Erik Bryn User: Chad Hietala');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'admin', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this6.context, 'user', { name: 'Yehuda Katz' });
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+    };
+
+    _class3.prototype['@test the scoped variable is not available outside the {{with}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheWithBlock() {
+      var _this7 = this;
+
+      this.render('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}', {
+        first: 'Limbo',
+        fifth: 'Wrath',
+        ninth: 'Treachery'
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this7.context, 'first', 'I');
+        _emberMetalProperty_set.set(_this7.context, 'fifth', 'D');
+        _emberMetalProperty_set.set(_this7.context, 'ninth', 'K');
+      });
+
+      this.assertText('I-D-K-D-I');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this7.context, 'first', 'Limbo');
+        _emberMetalProperty_set.set(_this7.context, 'fifth', 'Wrath');
+        _emberMetalProperty_set.set(_this7.context, 'ninth', 'Treachery');
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+    };
+
+    _class3.prototype['@test it should support #with name as |foo|, then #with foo as |bar|'] = function testItShouldSupportWithNameAsFooThenWithFooAsBar() {
+      var _this8 = this;
+
+      this.render('{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}', {
+        name: 'caterpillar'
+      });
+
+      this.assertText('caterpillar');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('caterpillar');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'name', 'butterfly');
+      });
+
+      this.assertText('butterfly');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'name', 'caterpillar');
+      });
+
+      this.assertText('caterpillar');
+    };
+
+    _class3.prototype['@test nested {{with}} blocks shadow the outer scoped variable properly.'] = function testNestedWithBlocksShadowTheOuterScopedVariableProperly() {
+      var _this9 = this;
+
+      this.render('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}', {
+        first: 'Limbo',
+        fifth: 'Wrath',
+        ninth: 'Treachery'
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'first', 'I');
+        _emberMetalProperty_set.set(_this9.context, 'ninth', 'K');
+      });
+
+      this.assertText('I-Wrath-K-Wrath-I');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'first', 'Limbo');
+        _emberMetalProperty_set.set(_this9.context, 'fifth', 'Wrath');
+        _emberMetalProperty_set.set(_this9.context, 'ninth', 'Treachery');
+      });
+
+      this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
+    };
+
+    _class3.prototype['@test updating the context should update the alias'] = function testUpdatingTheContextShouldUpdateTheAlias() {
+      var _this10 = this;
+
+      this.render('{{#with this as |person|}}{{person.name}}{{/with}}', {
+        name: 'Los Pivots'
+      });
+
+      this.assertText('Los Pivots');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('Los Pivots');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'name', 'l\'Pivots');
+      });
+
+      this.assertText('l\'Pivots');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'name', 'Los Pivots');
+      });
+
+      this.assertText('Los Pivots');
+    };
+
+    return _class3;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-runtime/tests/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _emberRuntimeTestsUtils, _emberRuntimeSystemNative_array) {
   'use strict';
@@ -38025,6 +38329,34 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('F1');
 
       this.assertInvariants();
+    };
+
+    SharedConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
+      var _this14 = this;
+
+      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+
+      this.render(template, { isTruthy: true });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'isTruthy', false);
+      });
+
+      this.assertText('F1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'isTruthy', true);
+      });
+
+      this.assertText('T1');
     };
 
     return SharedConditionalsTest;
@@ -63266,7 +63598,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+444de325', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+c609f7de', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
