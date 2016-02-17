@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c609f7de
+ * @version   2.5.0-canary+033fe1b6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2594,7 +2594,11 @@ enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers
 
     var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
     function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+    function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
     var env = undefined,
         root = undefined,
@@ -2633,10 +2637,13 @@ enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers
         setup: commonSetup
     });
 
-    var MyComponent = (function () {
+    var MyComponent = (function (_BasicComponent) {
+        _inherits(MyComponent, _BasicComponent);
+
         function MyComponent(attrs) {
             _classCallCheck(this, MyComponent);
 
+            _BasicComponent.call(this, attrs);
             this.attrs = attrs;
         }
 
@@ -2652,7 +2659,7 @@ enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers
         }]);
 
         return MyComponent;
-    })();
+    })(_glimmerTestHelpers.BasicComponent);
 
     QUnit.skip('creating a new component', function (assert) {
         var template = compile("<my-component color='{{color}}'>hello!</my-component>");
@@ -6631,6 +6638,14 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return new klass(args.value());
         };
 
+        BasicComponentManager.prototype.getSelf = function getSelf(component) {
+            return component;
+        };
+
+        BasicComponentManager.prototype.didCreateElement = function didCreateElement(component, element) {
+            component.element = element;
+        };
+
         BasicComponentManager.prototype.didCreate = function didCreate() {};
 
         BasicComponentManager.prototype.update = function update(component, attrs) {
@@ -6638,10 +6653,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         };
 
         BasicComponentManager.prototype.didUpdate = function didUpdate() {};
-
-        BasicComponentManager.prototype.getSelf = function getSelf(component) {
-            return component;
-        };
 
         return BasicComponentManager;
     })();
@@ -6665,6 +6676,14 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return component;
         };
 
+        EmberishGlimmerComponentManager.prototype.getSelf = function getSelf(component) {
+            return component;
+        };
+
+        EmberishGlimmerComponentManager.prototype.didCreateElement = function didCreateElement(component, element) {
+            component.element = element;
+        };
+
         EmberishGlimmerComponentManager.prototype.didCreate = function didCreate(component) {
             component.didInsertElement();
             component.didRender();
@@ -6683,10 +6702,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         EmberishGlimmerComponentManager.prototype.didUpdate = function didUpdate(component) {
             component.didUpdate();
             component.didRender();
-        };
-
-        EmberishGlimmerComponentManager.prototype.getSelf = function getSelf(component) {
-            return component;
         };
 
         return EmberishGlimmerComponentManager;
@@ -6712,6 +6727,14 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return component;
         };
 
+        EmberishCurlyComponentManager.prototype.getSelf = function getSelf(component) {
+            return component;
+        };
+
+        EmberishCurlyComponentManager.prototype.didCreateElement = function didCreateElement(component, element) {
+            component.element = element;
+        };
+
         EmberishCurlyComponentManager.prototype.didCreate = function didCreate(component) {
             component.didInsertElement();
             component.didRender();
@@ -6731,10 +6754,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         EmberishCurlyComponentManager.prototype.didUpdate = function didUpdate(component) {
             component.didUpdate();
             component.didRender();
-        };
-
-        EmberishCurlyComponentManager.prototype.getSelf = function getSelf(component) {
-            return component;
         };
 
         return EmberishCurlyComponentManager;
@@ -6832,8 +6851,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                         return new IdentitySyntax({ args: args, templates: templates });
                     case 'render-inverse':
                         return new RenderInverseIdentitySyntax({ args: args, templates: templates });
-                    case 'each':
-                        return new EachSyntax({ args: args, templates: templates });
                 }
             }
             if (isSimple && (isInline || isBlock)) {
@@ -7033,74 +7050,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         });
     }
 
-    var EachSyntax = (function (_StatementSyntax2) {
-        _inherits(EachSyntax, _StatementSyntax2);
+    var IdentitySyntax = (function (_StatementSyntax2) {
+        _inherits(IdentitySyntax, _StatementSyntax2);
 
-        function EachSyntax(_ref4) {
+        function IdentitySyntax(_ref4) {
             var args = _ref4.args;
             var templates = _ref4.templates;
 
-            _classCallCheck(this, EachSyntax);
-
-            _StatementSyntax2.call(this);
-            this.type = "each-statement";
-            this.isStatic = false;
-            this.args = args;
-            this.templates = templates;
-        }
-
-        EachSyntax.prototype.prettyPrint = function prettyPrint() {
-            return "#each " + this.args.prettyPrint();
-        };
-
-        EachSyntax.prototype.compile = function compile(compiler, env) {
-            //        PutArgs
-            //        EnterList(BEGIN, END)
-            // ITER:  Noop
-            //        NextIter(BREAK)
-            //        EnterWithKey(BEGIN, END)
-            // BEGIN: Noop
-            //        PushChildScope
-            //        Evaluate(default)
-            //        PopScope
-            // END:   Noop
-            //        Exit
-            //        Jump(ITER)
-            // BREAK: Noop
-            //        ExitList
-            var BEGIN = new _glimmerRuntime.LabelOpcode({ label: "BEGIN" });
-            var ITER = new _glimmerRuntime.LabelOpcode({ label: "ITER" });
-            var BREAK = new _glimmerRuntime.LabelOpcode({ label: "BREAK" });
-            var END = new _glimmerRuntime.LabelOpcode({ label: "END" });
-            compiler.append(new _glimmerRuntime.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
-            compiler.append(new _glimmerRuntime.EnterListOpcode(BEGIN, END));
-            compiler.append(ITER);
-            compiler.append(new _glimmerRuntime.NextIterOpcode(BREAK));
-            compiler.append(new _glimmerRuntime.EnterWithKeyOpcode(BEGIN, END));
-            compiler.append(BEGIN);
-            compiler.append(new _glimmerRuntime.PushChildScopeOpcode());
-            compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
-            compiler.append(new _glimmerRuntime.PopScopeOpcode());
-            compiler.append(END);
-            compiler.append(new _glimmerRuntime.ExitOpcode());
-            compiler.append(new _glimmerRuntime.JumpOpcode({ target: ITER }));
-            compiler.append(BREAK);
-            compiler.append(new _glimmerRuntime.ExitListOpcode());
-        };
-
-        return EachSyntax;
-    })(_glimmerRuntime.StatementSyntax);
-
-    var IdentitySyntax = (function (_StatementSyntax3) {
-        _inherits(IdentitySyntax, _StatementSyntax3);
-
-        function IdentitySyntax(_ref5) {
-            var args = _ref5.args;
-            var templates = _ref5.templates;
-
             _classCallCheck(this, IdentitySyntax);
 
-            _StatementSyntax3.call(this);
+            _StatementSyntax2.call(this);
             this.type = "identity";
             this.args = args;
             this.templates = templates;
@@ -7113,16 +7072,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return IdentitySyntax;
     })(_glimmerRuntime.StatementSyntax);
 
-    var RenderInverseIdentitySyntax = (function (_StatementSyntax4) {
-        _inherits(RenderInverseIdentitySyntax, _StatementSyntax4);
+    var RenderInverseIdentitySyntax = (function (_StatementSyntax3) {
+        _inherits(RenderInverseIdentitySyntax, _StatementSyntax3);
 
-        function RenderInverseIdentitySyntax(_ref6) {
-            var args = _ref6.args;
-            var templates = _ref6.templates;
+        function RenderInverseIdentitySyntax(_ref5) {
+            var args = _ref5.args;
+            var templates = _ref5.templates;
 
             _classCallCheck(this, RenderInverseIdentitySyntax);
 
-            _StatementSyntax4.call(this);
+            _StatementSyntax3.call(this);
             this.type = "render-inverse-identity";
             this.args = args;
             this.templates = templates;
@@ -23122,8 +23081,101 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+    _class.prototype['@test it has an element'] = function testItHasAnElement() {
       var _this2 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          instance = this;
+          this._super();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      var element1 = instance.element;
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      var element2 = instance.element;
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@htmlbars it has a jQuery proxy to the element'] = function htmlbarsItHasAJQueryProxyToTheElement(assert) {
+      var _this3 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          instance = this;
+          this._super();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      var element1 = instance.$()[0];
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      var element2 = instance.$()[0];
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@htmlbars it scopes the jQuery proxy to the component element'] = function htmlbarsItScopesTheJQueryProxyToTheComponentElement(assert) {
+      var _this4 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          instance = this;
+          this._super();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '<span class="inner">inner</span>' });
+
+      this.render('<span class="outer">outer</span>{{foo-bar}}');
+
+      var $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+    };
+
+    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+      var _this5 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -23132,14 +23184,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this2.rerender();
+        return _this5.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this3 = this;
+      var _this6 = this;
 
       var instance = undefined;
 
@@ -23158,7 +23210,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this6.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -23177,7 +23229,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this4 = this;
+      var _this7 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -23186,19 +23238,19 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this7.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -24352,8 +24404,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
     };
 
-    RenderingTest.prototype.assertSameNode = function assertSameNode(node1, node2) {
-      assert.strictEqual(node1, node2, 'DOM node stability');
+    RenderingTest.prototype.assertSameNode = function assertSameNode(actual, expected) {
+      assert.strictEqual(actual, expected, 'DOM node stability');
     };
 
     RenderingTest.prototype.assertInvariants = function assertInvariants() {
@@ -34606,8 +34658,101 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+    _class.prototype['@test it has an element'] = function testItHasAnElement() {
       var _this2 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          instance = this;
+          this._super();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      var element1 = instance.element;
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      var element2 = instance.element;
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@htmlbars it has a jQuery proxy to the element'] = function htmlbarsItHasAJQueryProxyToTheElement(assert) {
+      var _this3 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          instance = this;
+          this._super();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      var element1 = instance.$()[0];
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      var element2 = instance.$()[0];
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@htmlbars it scopes the jQuery proxy to the component element'] = function htmlbarsItScopesTheJQueryProxyToTheComponentElement(assert) {
+      var _this4 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          instance = this;
+          this._super();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '<span class="inner">inner</span>' });
+
+      this.render('<span class="outer">outer</span>{{foo-bar}}');
+
+      var $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+    };
+
+    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+      var _this5 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -34616,14 +34761,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this2.rerender();
+        return _this5.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this3 = this;
+      var _this6 = this;
 
       var instance = undefined;
 
@@ -34642,7 +34787,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this6.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -34661,7 +34806,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this4 = this;
+      var _this7 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -34670,19 +34815,19 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this7.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -37776,8 +37921,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
     };
 
-    RenderingTest.prototype.assertSameNode = function assertSameNode(node1, node2) {
-      assert.strictEqual(node1, node2, 'DOM node stability');
+    RenderingTest.prototype.assertSameNode = function assertSameNode(actual, expected) {
+      assert.strictEqual(actual, expected, 'DOM node stability');
     };
 
     RenderingTest.prototype.assertInvariants = function assertInvariants() {
@@ -63598,7 +63743,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+c609f7de', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+033fe1b6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
