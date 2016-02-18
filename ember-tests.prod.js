@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+033fe1b6
+ * @version   2.5.0-canary+cd45f5a3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -5213,7 +5213,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     // });
 });
 
-enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
+enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference", "glimmer-util"], function (exports, _glimmerTestHelpers, _glimmerReference, _glimmerUtil) {
     "use strict";
 
     var _templateObject = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li><!----></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li><!----></ul>"]),
@@ -5250,9 +5250,11 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
     }
     function render(template) {
         var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+        var suppliedOptions = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
+        var options = _glimmerUtil.assign({ appendTo: root }, suppliedOptions);
         self = new _glimmerReference.UpdatableReference(context);
-        result = template.render(self, env, { appendTo: root });
+        result = template.render(self, env, options);
         assertInvariants(result);
         return result;
     }
@@ -5312,6 +5314,60 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         object.value = b;
         rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>B</p></div>', "Updating");
+    });
+    test("dynamically scoped keywords can be passed to render, and used in curlies", function (assert) {
+        var template = compile("{{view.name}}");
+        var view = { name: 'Godfrey' };
+        var viewRef = new _glimmerReference.UpdatableReference(view);
+        render(template, {}, { keywords: { view: viewRef } });
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey', "Initial render");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey', "Noop rerender");
+        view.name = 'Godhuda';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godhuda', "Update with mutation");
+        viewRef.update({ name: 'Godfrey' });
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey', "Reset with replacement");
+    });
+    test("changing dynamic scope", function (assert) {
+        var template = compile("{{view.name}} {{#with-keywords view=innerView}}{{view.name}}{{/with-keywords}} {{view.name}}");
+        var view = { name: 'Godfrey' };
+        var viewRef = new _glimmerReference.UpdatableReference(view);
+        var innerView = { name: 'Yehuda' };
+        render(template, { innerView: innerView }, { keywords: { view: viewRef } });
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Initial render");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Noop rerender");
+        innerView.name = 'Tom';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Tom Godfrey', "Update with mutation");
+        view.name = 'Godhuda';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godhuda Tom Godhuda', "Update with mutation");
+        self.update({ innerView: { name: 'Yehuda' } });
+        viewRef.update({ name: 'Godfrey' });
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Reset with replacement");
+    });
+    test("changing dynamic scope derived from another keyword from the outer scope", function (assert) {
+        var template = compile("{{view.name}} {{#with-keywords view=view.innerView}}{{view.name}}{{/with-keywords}} {{view.name}}");
+        var innerView = { name: 'Yehuda' };
+        var view = { name: 'Godfrey', innerView: innerView };
+        var viewRef = new _glimmerReference.UpdatableReference(view);
+        render(template, { innerView: innerView }, { keywords: { view: viewRef } });
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Initial render");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Noop rerender");
+        innerView.name = 'Tom';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Tom Godfrey', "Update with mutation");
+        view.name = 'Godhuda';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godhuda Tom Godhuda', "Update with mutation");
+        viewRef.update({ name: 'Godfrey', innerView: { name: 'Yehuda' } });
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Reset with replacement");
     });
     test("a simple implementation of a dirtying rerender", function () {
         var object = { condition: true, value: 'hello world' };
@@ -6851,6 +6907,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                         return new IdentitySyntax({ args: args, templates: templates });
                     case 'render-inverse':
                         return new RenderInverseIdentitySyntax({ args: args, templates: templates });
+                    case 'with-keywords':
+                        return new WithKeywordsSyntax({ args: args, templates: templates });
                 }
             }
             if (isSimple && (isInline || isBlock)) {
@@ -6887,6 +6945,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         TestEnvironment.prototype.compileLayout = function compileLayout(template) {
             return _glimmerTestHelpersLibHelpers.compileLayout(template, { env: this });
+        };
+
+        TestEnvironment.prototype.getKeywords = function getKeywords() {
+            return ['view'];
         };
 
         return TestEnvironment;
@@ -7092,6 +7154,32 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         };
 
         return RenderInverseIdentitySyntax;
+    })(_glimmerRuntime.StatementSyntax);
+
+    var WithKeywordsSyntax = (function (_StatementSyntax4) {
+        _inherits(WithKeywordsSyntax, _StatementSyntax4);
+
+        function WithKeywordsSyntax(_ref6) {
+            var args = _ref6.args;
+            var templates = _ref6.templates;
+
+            _classCallCheck(this, WithKeywordsSyntax);
+
+            _StatementSyntax4.call(this);
+            this.type = "with-keywords";
+            this.args = args;
+            this.templates = templates;
+        }
+
+        WithKeywordsSyntax.prototype.compile = function compile(compiler, env) {
+            var keywords = this.args.named.compile(compiler, env).map;
+            compiler.append(new _glimmerRuntime.PushDynamicScopeOpcode());
+            compiler.append(_glimmerRuntime.BindKeywordsOpcode.create(compiler, keywords));
+            compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+            compiler.append(new _glimmerRuntime.PopDynamicScopeOpcode());
+        };
+
+        return WithKeywordsSyntax;
     })(_glimmerRuntime.StatementSyntax);
 
     function equalsElement(element, tagName, attributes, content) {
@@ -23088,8 +23176,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
         }
       });
 
@@ -23119,8 +23207,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
         }
       });
 
@@ -23150,8 +23238,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
         }
       });
 
@@ -23174,8 +23262,52 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal($span.attr('class'), 'inner');
     };
 
-    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
       var _this5 = this;
+
+      var fooBarInstance = undefined,
+          fooBarBazInstance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+        }
+      });
+
+      var FooBarBazComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarBazInstance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'foo-bar {{foo-bar-baz}}' });
+      this.registerComponent('foo-bar-baz', { ComponentClass: FooBarBazComponent, template: 'foo-bar-baz' });
+
+      this.render('{{foo-bar}}');
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+    };
+
+    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+      var _this6 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -23184,21 +23316,21 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this6 = this;
+      var _this7 = this;
 
       var instance = undefined;
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
           this.set('message', 'hello');
         }
       });
@@ -23210,7 +23342,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -23229,7 +23361,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -23238,19 +23370,19 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this8.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this8.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -34665,8 +34797,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
         }
       });
 
@@ -34696,8 +34828,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
         }
       });
 
@@ -34727,8 +34859,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
         }
       });
 
@@ -34751,8 +34883,52 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal($span.attr('class'), 'inner');
     };
 
-    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
       var _this5 = this;
+
+      var fooBarInstance = undefined,
+          fooBarBazInstance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+        }
+      });
+
+      var FooBarBazComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarBazInstance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'foo-bar {{foo-bar-baz}}' });
+      this.registerComponent('foo-bar-baz', { ComponentClass: FooBarBazComponent, template: 'foo-bar-baz' });
+
+      this.render('{{foo-bar}}');
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+    };
+
+    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+      var _this6 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -34761,21 +34937,21 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this6 = this;
+      var _this7 = this;
 
       var instance = undefined;
 
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         init: function () {
-          instance = this;
           this._super();
+          instance = this;
           this.set('message', 'hello');
         }
       });
@@ -34787,7 +34963,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -34806,7 +34982,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -34815,19 +34991,19 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this8.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this8.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -63299,7 +63475,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+033fe1b6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+cd45f5a3', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
