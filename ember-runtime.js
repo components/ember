@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+cd45f5a3
+ * @version   2.5.0-canary+d7fbc891
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+cd45f5a3
+    @version 2.5.0-canary+d7fbc891
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+cd45f5a3'
+    @default '2.5.0-canary+d7fbc891'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+cd45f5a3';
+  Ember.VERSION = '2.5.0-canary+d7fbc891';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12547,7 +12547,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 
   /**
-    A computed property that returns the sum of the value
+    A computed property that returns the sum of the values
     in the dependent array.
   
     @method sum
