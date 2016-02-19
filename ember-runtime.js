@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+d60236d8
+ * @version   2.5.0-canary+0b80c188
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+d60236d8
+    @version 2.5.0-canary+0b80c188
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+d60236d8'
+    @default '2.5.0-canary+0b80c188'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+d60236d8';
+  Ember.VERSION = '2.5.0-canary+0b80c188';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14267,6 +14267,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   //
   'use strict';
 
+  exports.addArrayObserver = addArrayObserver;
+  exports.removeArrayObserver = removeArrayObserver;
   exports.objectAt = objectAt;
 
   function arrayObserversHelper(obj, target, opts, operation, notify) {
@@ -14286,6 +14288,14 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     return obj;
+  }
+
+  function addArrayObserver(array, target, opts) {
+    return arrayObserversHelper(array, target, opts, _emberMetalEvents.addListener, false);
+  }
+
+  function removeArrayObserver(array, target, opts) {
+    return arrayObserversHelper(array, target, opts, _emberMetalEvents.removeListener, true);
   }
 
   function objectAt(content, idx) {
@@ -14585,7 +14595,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     */
 
     addArrayObserver: function (target, opts) {
-      return arrayObserversHelper(this, target, opts, _emberMetalEvents.addListener, false);
+      return addArrayObserver(this, target, opts);
     },
 
     /**
@@ -14600,7 +14610,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       @public
     */
     removeArrayObserver: function (target, opts) {
-      return arrayObserversHelper(this, target, opts, _emberMetalEvents.removeListener, true);
+      return removeArrayObserver(this, target, opts);
     },
 
     /**
@@ -17941,7 +17951,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       var content = _emberMetalProperty_get.get(this, 'content');
 
       if (content) {
-        content.removeArrayObserver(this, {
+        _emberRuntimeMixinsArray.removeArrayObserver(content, this, {
           willChange: 'contentArrayWillChange',
           didChange: 'contentArrayDidChange'
         });
@@ -17989,7 +17999,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       if (content) {
         _emberMetalDebug.assert('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof content, _emberRuntimeUtils.isArray(content) || content.isDestroyed);
 
-        content.addArrayObserver(this, {
+        _emberRuntimeMixinsArray.addArrayObserver(content, this, {
           willChange: 'contentArrayWillChange',
           didChange: 'contentArrayDidChange'
         });
@@ -18024,7 +18034,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       if (arrangedContent) {
         _emberMetalDebug.assert('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof arrangedContent, _emberRuntimeUtils.isArray(arrangedContent) || arrangedContent.isDestroyed);
 
-        arrangedContent.addArrayObserver(this, {
+        _emberRuntimeMixinsArray.addArrayObserver(arrangedContent, this, {
           willChange: 'arrangedContentArrayWillChange',
           didChange: 'arrangedContentArrayDidChange'
         });
@@ -18035,7 +18045,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
 
       if (arrangedContent) {
-        arrangedContent.removeArrayObserver(this, {
+        _emberRuntimeMixinsArray.removeArrayObserver(arrangedContent, this, {
           willChange: 'arrangedContentArrayWillChange',
           didChange: 'arrangedContentArrayDidChange'
         });

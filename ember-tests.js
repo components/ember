@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+d60236d8
+ * @version   2.5.0-canary+0b80c188
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -56121,7 +56121,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
         _after: null
       });
 
-      obj.addArrayObserver(observer);
+      _emberRuntimeMixinsArray.addArrayObserver(obj, observer);
     },
 
     teardown: function () {
@@ -56155,7 +56155,7 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
   });
 
   QUnit.test('removing enumerable observer should disable', function () {
-    obj.removeArrayObserver(observer);
+    _emberRuntimeMixinsArray.removeArrayObserver(obj, observer);
     obj.arrayContentWillChange();
     deepEqual(observer._before, null);
 
@@ -57628,18 +57628,18 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeTestsSuitesArrayIndexOf, _emberRuntimeTestsSuitesArrayLastIndexOf, _emberRuntimeTestsSuitesArrayObjectAt) {
+enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt', 'ember-runtime/mixins/array'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeTestsSuitesArrayIndexOf, _emberRuntimeTestsSuitesArrayLastIndexOf, _emberRuntimeTestsSuitesArrayObjectAt, _emberRuntimeMixinsArray) {
   'use strict';
 
   var ObserverClass = _emberRuntimeTestsSuitesEnumerable.ObserverClass.extend({
 
     observeArray: function (obj) {
-      obj.addArrayObserver(this);
+      _emberRuntimeMixinsArray.addArrayObserver(obj, this);
       return this;
     },
 
     stopObserveArray: function (obj) {
-      obj.removeArrayObserver(this);
+      _emberRuntimeMixinsArray.removeArrayObserver(obj, this);
       return this;
     },
 
@@ -63919,7 +63919,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+d60236d8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+0b80c188', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

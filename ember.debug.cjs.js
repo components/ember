@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+d60236d8
+ * @version   2.5.0-canary+0b80c188
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+d60236d8
+ * @version   2.5.0-canary+0b80c188
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -21253,13 +21253,13 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       var observer = { didChange: contentDidChange, willChange: function () {
           return this;
         } };
-      records.addArrayObserver(this, observer);
+      _emberRuntimeMixinsArray.addArrayObserver(records, this, observer);
 
       release = function () {
         releaseMethods.forEach(function (fn) {
           fn();
         });
-        records.removeArrayObserver(_this2, observer);
+        _emberRuntimeMixinsArray.removeArrayObserver(records, _this2, observer);
         _this2.releaseMethods.removeObject(release);
       };
 
@@ -21334,10 +21334,10 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
         }
       };
 
-      records.addArrayObserver(this, observer);
+      _emberRuntimeMixinsArray.addArrayObserver(records, this, observer);
 
       var release = function () {
-        records.removeArrayObserver(_this3, observer);
+        _emberRuntimeMixinsArray.removeArrayObserver(records, _this3, observer);
       };
 
       return release;
@@ -25414,7 +25414,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+d60236d8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+0b80c188';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -31057,7 +31057,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+d60236d8
+    @version 2.5.0-canary+0b80c188
     @public
   */
 
@@ -31099,11 +31099,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+d60236d8'
+    @default '2.5.0-canary+0b80c188'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+d60236d8';
+  Ember.VERSION = '2.5.0-canary+0b80c188';
 
   /**
     The hash of environment variables used to control various configuration
@@ -45072,7 +45072,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+d60236d8';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+0b80c188';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -45575,7 +45575,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+d60236d8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+0b80c188';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -47546,6 +47546,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   //
   'use strict';
 
+  exports.addArrayObserver = addArrayObserver;
+  exports.removeArrayObserver = removeArrayObserver;
   exports.objectAt = objectAt;
 
   function arrayObserversHelper(obj, target, opts, operation, notify) {
@@ -47565,6 +47567,14 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     return obj;
+  }
+
+  function addArrayObserver(array, target, opts) {
+    return arrayObserversHelper(array, target, opts, _emberMetalEvents.addListener, false);
+  }
+
+  function removeArrayObserver(array, target, opts) {
+    return arrayObserversHelper(array, target, opts, _emberMetalEvents.removeListener, true);
   }
 
   function objectAt(content, idx) {
@@ -47864,7 +47874,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     */
 
     addArrayObserver: function (target, opts) {
-      return arrayObserversHelper(this, target, opts, _emberMetalEvents.addListener, false);
+      return addArrayObserver(this, target, opts);
     },
 
     /**
@@ -47879,7 +47889,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       @public
     */
     removeArrayObserver: function (target, opts) {
-      return arrayObserversHelper(this, target, opts, _emberMetalEvents.removeListener, true);
+      return removeArrayObserver(this, target, opts);
     },
 
     /**
@@ -51220,7 +51230,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       var content = _emberMetalProperty_get.get(this, 'content');
 
       if (content) {
-        content.removeArrayObserver(this, {
+        _emberRuntimeMixinsArray.removeArrayObserver(content, this, {
           willChange: 'contentArrayWillChange',
           didChange: 'contentArrayDidChange'
         });
@@ -51268,7 +51278,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       if (content) {
         _emberMetalDebug.assert('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof content, _emberRuntimeUtils.isArray(content) || content.isDestroyed);
 
-        content.addArrayObserver(this, {
+        _emberRuntimeMixinsArray.addArrayObserver(content, this, {
           willChange: 'contentArrayWillChange',
           didChange: 'contentArrayDidChange'
         });
@@ -51303,7 +51313,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       if (arrangedContent) {
         _emberMetalDebug.assert('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof arrangedContent, _emberRuntimeUtils.isArray(arrangedContent) || arrangedContent.isDestroyed);
 
-        arrangedContent.addArrayObserver(this, {
+        _emberRuntimeMixinsArray.addArrayObserver(arrangedContent, this, {
           willChange: 'arrangedContentArrayWillChange',
           didChange: 'arrangedContentArrayDidChange'
         });
@@ -51314,7 +51324,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
 
       if (arrangedContent) {
-        arrangedContent.removeArrayObserver(this, {
+        _emberRuntimeMixinsArray.removeArrayObserver(arrangedContent, this, {
           willChange: 'arrangedContentArrayWillChange',
           didChange: 'arrangedContentArrayDidChange'
         });
@@ -54547,7 +54557,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+d60236d8',
+        revision: 'Ember@2.5.0-canary+0b80c188',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -59728,7 +59738,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
     _contentDidChange: _emberMetalMixin.observer('content', function () {
       var prevContent = this._prevContent;
       if (prevContent) {
-        prevContent.removeArrayObserver(this);
+        _emberRuntimeMixinsArray.removeArrayObserver(prevContent, this);
       }
       var len = prevContent ? _emberMetalProperty_get.get(prevContent, 'length') : 0;
       this.arrayWillChange(prevContent, 0, len);
@@ -59738,7 +59748,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       if (content) {
         this._prevContent = content;
         this._assertArrayLike(content);
-        content.addArrayObserver(this);
+        _emberRuntimeMixinsArray.addArrayObserver(content, this);
       }
 
       len = content ? _emberMetalProperty_get.get(content, 'length') : 0;
@@ -59766,7 +59776,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 
       var content = _emberMetalProperty_get.get(this, 'content');
       if (content) {
-        content.removeArrayObserver(this);
+        _emberRuntimeMixinsArray.removeArrayObserver(content, this);
       }
 
       if (this._createdEmptyView) {
@@ -59968,7 +59978,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+d60236d8';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+0b80c188';
 
   /**
   @module ember
