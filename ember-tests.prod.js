@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+3b8e8751
+ * @version   2.5.0-canary+b00c0762
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -46538,6 +46538,106 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
   });
 });
+enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], function (exports, _emberMetalWeak_map) {
+  'use strict';
+
+  QUnit.module('Ember.WeakMap');
+
+  QUnit.test('has weakMap like qualities', function (assert) {
+    var map = new _emberMetalWeak_map.default();
+    var map2 = new _emberMetalWeak_map.default();
+
+    var a = {};
+    var b = {};
+    var c = {};
+
+    assert.strictEqual(map.get(a), undefined);
+    assert.strictEqual(map.get(b), undefined);
+    assert.strictEqual(map.get(c), undefined);
+
+    assert.strictEqual(map2.get(a), undefined);
+    assert.strictEqual(map2.get(b), undefined);
+    assert.strictEqual(map2.get(c), undefined);
+
+    assert.strictEqual(map.set(a, 1), map, 'map.set should return itself');
+    assert.strictEqual(map.get(a), 1);
+    assert.strictEqual(map.set(b, undefined), map);
+    assert.strictEqual(map.set(a, 2), map);
+    assert.strictEqual(map.get(a), 2);
+    assert.strictEqual(map.set(b, undefined), map);
+
+    assert.strictEqual(map2.get(a), undefined);
+    assert.strictEqual(map2.get(b), undefined);
+    assert.strictEqual(map2.get(c), undefined);
+
+    assert.strictEqual(map.set(c, 1), map);
+    assert.strictEqual(map.get(c), 1);
+    assert.strictEqual(map.get(a), 2);
+    assert.strictEqual(map.get(b), undefined);
+
+    assert.strictEqual(map2.set(a, 3), map2);
+    assert.strictEqual(map2.set(b, 4), map2);
+    assert.strictEqual(map2.set(c, 5), map2);
+
+    assert.strictEqual(map2.get(a), 3);
+    assert.strictEqual(map2.get(b), 4);
+    assert.strictEqual(map2.get(c), 5);
+
+    assert.strictEqual(map.get(c), 1);
+    assert.strictEqual(map.get(a), 2);
+    assert.strictEqual(map.get(b), undefined);
+  });
+
+  QUnit.test('invoking the WeakMap constructor with arguments is not supported at this time', function (assert) {
+    expectAssertion(function () {
+      new _emberMetalWeak_map.default([[{}, 1]]);
+    }, /Invoking the WeakMap constructor with arguments is not supported at this time/);
+  });
+
+  QUnit.test('that error is thrown when using a primitive key', function (assert) {
+    var map = new _emberMetalWeak_map.default();
+
+    expectAssertion(function () {
+      map.set('a', 1);
+    }, /Uncaught TypeError: Invalid value used as weak map key/);
+
+    expectAssertion(function () {
+      map.set(1, 1);
+    }, /Uncaught TypeError: Invalid value used as weak map key/);
+
+    expectAssertion(function () {
+      map.set(true, 1);
+    }, /Uncaught TypeError: Invalid value used as weak map key/);
+
+    expectAssertion(function () {
+      map.set(null, 1);
+    }, /Uncaught TypeError: Invalid value used as weak map key/);
+
+    expectAssertion(function () {
+      map.set(undefined, 1);
+    }, /Uncaught TypeError: Invalid value used as weak map key/);
+  });
+
+  QUnit.test('that .has and .delete work as expected', function (assert) {
+    var map = new _emberMetalWeak_map.default();
+    var a = {};
+    var b = {};
+    var foo = { id: 1, name: 'My file', progress: 0 };
+
+    assert.strictEqual(map.set(a, foo), map);
+    assert.strictEqual(map.get(a), foo);
+    assert.strictEqual(map.has(a), true);
+    assert.strictEqual(map.has(b), false);
+    assert.strictEqual(map.delete(a), true);
+    assert.strictEqual(map.has(a), false);
+    assert.strictEqual(map.delete(a), false);
+    assert.strictEqual(map.set(a, undefined), map);
+    assert.strictEqual(map.has(a), true);
+    assert.strictEqual(map.delete(a), true);
+    assert.strictEqual(map.delete(a), false);
+    assert.strictEqual(map.has(a), false);
+  });
+});
 enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -63475,7 +63575,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+3b8e8751', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+b00c0762', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
