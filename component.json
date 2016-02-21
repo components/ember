@@ -1,13 +1,14 @@
 {
   "name": "ember",
   "repo": "components/ember",
-  "version": "2.4.0-beta.2",
+  "version": "2.4.0-beta.3",
   "license": "MIT",
+  "homepage": "https://github.com/emberjs/ember.js",
   "main": "ember.debug.js",
   "scripts": [
     "ember.debug.js"
   ],
   "dependencies": {
-    "components/jquery": ">= 1.7.0 < 2.2.0"
+    "components/jquery": ">= 1.7.0 < 3.0.0"
   }
 }

@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.4.0-beta.2"
+        "version": "v2.4.0-beta.3"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -2265,7 +2265,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 15,
+            "line": 20,
             "description": "The `ContainerDebugAdapter` helps the container and resolver interface\nwith tools that debug Ember such as the\n[Ember Extension](https://github.com/tildeio/ember-extension)\nfor Chrome and Firefox.\n\nThis class can be extended by a custom resolver implementer\nto override some of the methods with library-specific code.\n\nThe methods likely to be overridden are:\n\n* `canCatalogEntriesByType`\n* `catalogEntriesByType`\n\nThe adapter will need to be registered\nin the application's container as `container-debug-adapter:main`\n\nExample:\n\n```javascript\nApplication.initializer({\n  name: \"containerDebugAdapter\",\n\n  initialize: function(application) {\n    application.register('container-debug-adapter:main', require('app/container-debug-adapter'));\n  }\n});\n```"
         },
         "ember-templates": {
@@ -2746,7 +2746,7 @@
             "submodule": "ember-extension-support",
             "namespace": "Ember",
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 15,
+            "line": 20,
             "description": "The `DataAdapter` helps a data persistence library\ninterface with tools that debug Ember such\nas the [Ember Extension](https://github.com/tildeio/ember-extension)\nfor Chrome and Firefox.\n\nThis class will be extended by a persistence library\nwhich will override some of the methods with\nlibrary-specific code.\n\nThe methods likely to be overridden are:\n\n* `getFilters`\n* `detect`\n* `columnsForType`\n* `getRecords`\n* `getRecordColumnValues`\n* `getRecordKeywords`\n* `getRecordFilterValues`\n* `getRecordColor`\n* `observeRecord`\n\nThe adapter will need to be registered\nin the application's container as `dataAdapter:main`\n\nExample:\n\n```javascript\nApplication.initializer({\n  name: \"data-adapter\",\n\n  initialize: function(application) {\n    application.register('data-adapter:main', DS.DataAdapter);\n  }\n});\n```",
             "extends": "EmberObject",
             "access": "public",
@@ -3523,7 +3523,7 @@
             "submodule": "ember-runtime",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 53,
+            "line": 69,
             "description": "This mixin implements Observer-friendly Array-like behavior. It is not a\nconcrete implementation, but it can be used up by other classes that want\nto appear like arrays.\n\nFor example, ArrayProxy is a concrete classes that can\nbe instantiated to implement array-like behavior. Both of these classes use\nthe Array Mixin by way of the MutableArray mixin, which allows observable\nchanges to be made to the underlying array.\n\nUnlike `Ember.Enumerable,` this mixin defines methods specifically for\ncollections that provide index-ordered access to their contents. When you\nare designing code that needs to accept any kind of Array-like object, you\nshould use these methods instead of Array primitives because these will\nproperly notify observers of changes to the array.\n\nAlthough these methods are efficient, they do add a layer of indirection to\nyour application so it is a good idea to use them only when you need the\nflexibility of using both true JavaScript arrays and \"virtual\" arrays such\nas controllers and collections.\n\nYou can use the methods defined in this module to access and modify array\ncontents in a KVO-friendly way. You can also be notified whenever the\nmembership of an array changes by using `.observes('myArray.[]')`.\n\nTo support `Ember.Array` in your own class, you must override two\nprimitives to use it: `length()` and `objectAt()`.\n\nNote that the Ember.Array mixin also incorporates the `Ember.Enumerable`\nmixin. All `Ember.Array`-like objects are also enumerable.",
             "uses": [
                 "Ember.Enumerable"
@@ -3713,7 +3713,7 @@
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/mixins/observable.js",
             "line": 30,
-            "description": "## Overview\n\nThis mixin provides properties and property observing functionality, core\nfeatures of the Ember object model.\n\nProperties and observers allow one object to observe changes to a\nproperty on another object. This is one of the fundamental ways that\nmodels, controllers and views communicate with each other in an Ember\napplication.\n\nAny object that has this mixin applied can be used in observer\noperations. That includes `Ember.Object` and most objects you will\ninteract with as you write your Ember application.\n\nNote that you will not generally apply this mixin to classes yourself,\nbut you will use the features provided by this module frequently, so it\nis important to understand how to use it.\n\n## Using `get()` and `set()`\n\nBecause of Ember's support for bindings and observers, you will always\naccess properties using the get method, and set properties using the\nset method. This allows the observing objects to be notified and\ncomputed properties to be handled properly.\n\nMore documentation about `get` and `set` are below.\n\n## Observing Property Changes\n\nYou typically observe property changes simply by adding the `observes`\ncall to the end of your method declarations in classes that you write.\nFor example:\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function(sender, key, value, rev) {\n    // Executes whenever the \"value\" property changes\n    // See the addObserver method for more information about the callback arguments\n  })\n});\n```\n\nAlthough this is the most common way to add an observer, this capability\nis actually built into the `Ember.Object` class on top of two methods\ndefined in this mixin: `addObserver` and `removeObserver`. You can use\nthese two methods to add and remove observers yourself if you need to\ndo so at runtime.\n\nTo add an observer for a property, call:\n\n```javascript\nobject.addObserver('propertyKey', targetObject, targetAction)\n```\n\nThis will call the `targetAction` method on the `targetObject` whenever\nthe value of the `propertyKey` changes.\n\nNote that if `propertyKey` is a computed property, the observer will be\ncalled when any of the property dependencies are changed, even if the\nresulting value of the computed property is unchanged. This is necessary\nbecause computed properties are not computed until `get` is called.",
+            "description": "## Overview\n\nThis mixin provides properties and property observing functionality, core\nfeatures of the Ember object model.\n\nProperties and observers allow one object to observe changes to a\nproperty on another object. This is one of the fundamental ways that\nmodels, controllers and views communicate with each other in an Ember\napplication.\n\nAny object that has this mixin applied can be used in observer\noperations. That includes `Ember.Object` and most objects you will\ninteract with as you write your Ember application.\n\nNote that you will not generally apply this mixin to classes yourself,\nbut you will use the features provided by this module frequently, so it\nis important to understand how to use it.\n\n## Using `get()` and `set()`\n\nBecause of Ember's support for bindings and observers, you will always\naccess properties using the get method, and set properties using the\nset method. This allows the observing objects to be notified and\ncomputed properties to be handled properly.\n\nMore documentation about `get` and `set` are below.\n\n## Observing Property Changes\n\nYou typically observe property changes simply by using the `Ember.observer`\nfunction in classes that you write.\n\nFor example:\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function(sender, key, value, rev) {\n    // Executes whenever the \"value\" property changes\n    // See the addObserver method for more information about the callback arguments\n  })\n});\n```\n\nAlthough this is the most common way to add an observer, this capability\nis actually built into the `Ember.Object` class on top of two methods\ndefined in this mixin: `addObserver` and `removeObserver`. You can use\nthese two methods to add and remove observers yourself if you need to\ndo so at runtime.\n\nTo add an observer for a property, call:\n\n```javascript\nobject.addObserver('propertyKey', targetObject, targetAction)\n```\n\nThis will call the `targetAction` method on the `targetObject` whenever\nthe value of the `propertyKey` changes.\n\nNote that if `propertyKey` is a computed property, the observer will be\ncalled when any of the property dependencies are changed, even if the\nresulting value of the computed property is unchanged. This is necessary\nbecause computed properties are not computed until `get` is called.",
             "access": "public",
             "tagname": ""
         },
@@ -3786,7 +3786,7 @@
             "submodule": "ember-runtime",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 31,
+            "line": 36,
             "description": "An ArrayProxy wraps any other object that implements `Ember.Array` and/or\n`Ember.MutableArray,` forwarding all requests. This makes it very useful for\na number of binding use cases or other cases where being able to swap\nout the underlying array is useful.\n\nA simple example of usage:\n\n```javascript\nvar pets = ['dog', 'cat', 'fish'];\nvar ap = Ember.ArrayProxy.create({ content: Ember.A(pets) });\n\nap.get('firstObject');                        // 'dog'\nap.set('content', ['amoeba', 'paramecium']);\nap.get('firstObject');                        // 'amoeba'\n```\n\nThis class can also be useful as a layer to transform the contents of\nan array, as they are accessed. This can be done by overriding\n`objectAtContent`:\n\n```javascript\nvar pets = ['dog', 'cat', 'fish'];\nvar ap = Ember.ArrayProxy.create({\n    content: Ember.A(pets),\n    objectAtContent: function(idx) {\n        return this.get('content').objectAt(idx).toUpperCase();\n    }\n});\n\nap.get('firstObject'); // . 'DOG'\n```",
             "extends": "Ember.Object",
             "uses": [
@@ -3822,7 +3822,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/system/each_proxy.js",
-            "line": 15,
+            "line": 16,
             "description": "This is the object instance returned when you get the `@each` property on an\narray. It uses the unknownProperty handler to automatically create\nEachArray instances for property names.",
             "access": "private",
             "tagname": ""
@@ -4244,7 +4244,7 @@
             "submodule": "ember-views",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 19,
+            "line": 23,
             "description": "`Ember.CollectionView` is an `Ember.View` descendent responsible for managing\na collection (an array or array-like object) by maintaining a child view object\nand associated DOM representation for each item in the array and ensuring\nthat child views and their associated rendered HTML are updated when items in\nthe array are added, removed, or replaced.\n\n## Setting content\n\nThe managed collection of objects is referenced as the `Ember.CollectionView`\ninstance's `content` property.\n\n```javascript\nsomeItemsView = Ember.CollectionView.create({\n  content: ['A', 'B','C']\n})\n```\n\nThe view for each item in the collection will have its `content` property set\nto the item.\n\n## Specifying `itemViewClass`\n\nBy default the view class for each item in the managed collection will be an\ninstance of `Ember.View`. You can supply a different class by setting the\n`CollectionView`'s `itemViewClass` property.\n\nGiven the following application code:\n\n```javascript\nvar App = Ember.Application.create();\nApp.ItemListView = Ember.CollectionView.extend({\n  classNames: ['a-collection'],\n  content: ['A','B','C'],\n  itemViewClass: Ember.View.extend({\n    template: Ember.HTMLBars.compile(\"the letter: {{view.content}}\")\n  })\n});\n```\n\nAnd a simple application template:\n\n```handlebars\n{{view 'item-list'}}\n```\n\nThe following HTML will result:\n\n```html\n<div class=\"ember-view a-collection\">\n  <div class=\"ember-view\">the letter: A</div>\n  <div class=\"ember-view\">the letter: B</div>\n  <div class=\"ember-view\">the letter: C</div>\n</div>\n```\n\n## Automatic matching of parent/child tagNames\n\nSetting the `tagName` property of a `CollectionView` to any of\n\"ul\", \"ol\", \"table\", \"thead\", \"tbody\", \"tfoot\", \"tr\", or \"select\" will result\nin the item views receiving an appropriately matched `tagName` property.\n\nGiven the following application code:\n\n```javascript\nvar App = Ember.Application.create();\nApp.UnorderedListView = Ember.CollectionView.create({\n  tagName: 'ul',\n  content: ['A','B','C'],\n  itemViewClass: Ember.View.extend({\n    template: Ember.HTMLBars.compile(\"the letter: {{view.content}}\")\n  })\n});\n```\n\nAnd a simple application template:\n\n```handlebars\n{{view 'unordered-list-view'}}\n```\n\nThe following HTML will result:\n\n```html\n<ul class=\"ember-view a-collection\">\n  <li class=\"ember-view\">the letter: A</li>\n  <li class=\"ember-view\">the letter: B</li>\n  <li class=\"ember-view\">the letter: C</li>\n</ul>\n```\n\nAdditional `tagName` pairs can be provided by adding to\n`Ember.CollectionView.CONTAINER_MAP`. For example:\n\n```javascript\nEmber.CollectionView.CONTAINER_MAP['article'] = 'section'\n```\n\n## Programmatic creation of child views\n\nFor cases where additional customization beyond the use of a single\n`itemViewClass` or `tagName` matching is required CollectionView's\n`createChildView` method can be overridden:\n\n```javascript\nApp.CustomCollectionView = Ember.CollectionView.extend({\n  createChildView: function(viewClass, attrs) {\n    if (attrs.content.kind == 'album') {\n      viewClass = App.AlbumView;\n    } else {\n      viewClass = App.SongView;\n    }\n    return this._super(viewClass, attrs);\n  }\n});\n```\n\n## Empty View\n\nYou can provide an `Ember.View` subclass to the `Ember.CollectionView`\ninstance as its `emptyView` property. If the `content` property of a\n`CollectionView` is set to `null` or an empty array, an instance of this view\nwill be the `CollectionView`s only child.\n\n```javascript\nvar App = Ember.Application.create();\nApp.ListWithNothing = Ember.CollectionView.create({\n  classNames: ['nothing'],\n  content: null,\n  emptyView: Ember.View.extend({\n    template: Ember.HTMLBars.compile(\"The collection is empty\")\n  })\n});\n```\n\nAnd a simple application template:\n\n```handlebars\n{{view 'list-with-nothing'}}\n```\n\nThe following HTML will result:\n\n```html\n<div class=\"ember-view nothing\">\n  <div class=\"ember-view\">\n    The collection is empty\n  </div>\n</div>\n```\n\n## Adding and Removing items\n\nThe `childViews` property of a `CollectionView` should not be directly\nmanipulated. Instead, add, remove, replace items from its `content` property.\nThis will trigger appropriate changes to its rendered HTML.",
             "extends": "Ember.ContainerView",
             "uses": [
@@ -4309,7 +4309,7 @@
             "submodule": "ember-views",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 69,
+            "line": 71,
             "description": "The `Ember.Select` view class renders a\n[select](https://developer.mozilla.org/en/HTML/Element/select) HTML element,\nallowing the user to choose from a list of options.\n\nThe text and `value` property of each `<option>` element within the\n`<select>` element are populated from the objects in the `Element.Select`'s\n`content` property. The underlying data object of the selected `<option>` is\nstored in the `Element.Select`'s `value` property.\n\n## The Content Property (array of strings)\n\nThe simplest version of an `Ember.Select` takes an array of strings as its\n`content` property. The string will be used as both the `value` property and\nthe inner text of each `<option>` element inside the rendered `<select>`.\n\nExample:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  names: [\"Yehuda\", \"Tom\"]\n});\n```\n\n```handlebars\n{{view \"select\" content=names}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\">Tom</option>\n</select>\n```\n\nYou can control which `<option>` is selected through the `Ember.Select`'s\n`value` property:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  selectedName: 'Tom',\n  names: [\"Yehuda\", \"Tom\"]\n});\n```\n\n```handlebars\n{{view \"select\" content=names value=selectedName}}\n```\n\nWould result in the following HTML with the `<option>` for 'Tom' selected:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\" selected=\"selected\">Tom</option>\n</select>\n```\n\nA user interacting with the rendered `<select>` to choose \"Yehuda\" would\nupdate the value of `selectedName` to \"Yehuda\".\n\n## The Content Property (array of Objects)\n\nAn `Ember.Select` can also take an array of JavaScript or Ember objects as\nits `content` property.\n\nWhen using objects you need to tell the `Ember.Select` which property should\nbe accessed on each object to supply the `value` attribute of the `<option>`\nand which property should be used to supply the element text.\n\nThe `optionValuePath` option is used to specify the path on each object to\nthe desired property for the `value` attribute. The `optionLabelPath`\nspecifies the path on each object to the desired property for the\nelement's text. Both paths must reference each object itself as `content`:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  programmers: [\n    {firstName: \"Yehuda\", id: 1},\n    {firstName: \"Tom\",    id: 2}\n  ]\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       optionValuePath=\"content.id\"\n       optionLabelPath=\"content.firstName\"}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"1\">Yehuda</option>\n  <option value=\"2\">Tom</option>\n</select>\n```\n\nThe `value` attribute of the selected `<option>` within an `Ember.Select`\ncan be bound to a property on another object:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  programmers: [\n    {firstName: \"Yehuda\", id: 1},\n    {firstName: \"Tom\",    id: 2}\n  ],\n  currentProgrammer: {\n    id: 2\n  }\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       optionValuePath=\"content.id\"\n       optionLabelPath=\"content.firstName\"\n       value=currentProgrammer.id}}\n```\n\nWould result in the following HTML with a selected option:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"1\">Yehuda</option>\n  <option value=\"2\" selected=\"selected\">Tom</option>\n</select>\n```\n\nInteracting with the rendered element by selecting the first option\n('Yehuda') will update the `id` of `currentProgrammer`\nto match the `value` property of the newly selected `<option>`.\n\nAlternatively, you can control selection through the underlying objects\nused to render each object by binding the `selection` option. When the selected\n`<option>` is changed, the property path provided to `selection`\nwill be updated to match the content object of the rendered `<option>`\nelement:\n\n```javascript\n\nvar yehuda = {firstName: \"Yehuda\", id: 1, bff4eva: 'tom'}\nvar tom = {firstName: \"Tom\", id: 2, bff4eva: 'yehuda'};\n\nApp.ApplicationController = Ember.Controller.extend({\n  selectedPerson: tom,\n  programmers: [ yehuda, tom ]\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       optionValuePath=\"content.id\"\n       optionLabelPath=\"content.firstName\"\n       selection=selectedPerson}}\n```\n\nWould result in the following HTML with a selected option:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"1\">Yehuda</option>\n  <option value=\"2\" selected=\"selected\">Tom</option>\n</select>\n```\n\nInteracting with the rendered element by selecting the first option\n('Yehuda') will update the `selectedPerson` to match the object of\nthe newly selected `<option>`. In this case it is the first object\nin the `programmers`\n\n## Supplying a Prompt\n\nA `null` value for the `Ember.Select`'s `value` or `selection` property\nresults in there being no `<option>` with a `selected` attribute:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  selectedProgrammer: null,\n  programmers: [\"Yehuda\", \"Tom\"]\n});\n```\n\n``` handlebars\n{{view \"select\"\n       content=programmers\n       value=selectedProgrammer\n}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\">Tom</option>\n</select>\n```\n\nAlthough `selectedProgrammer` is `null` and no `<option>`\nhas a `selected` attribute the rendered HTML will display the\nfirst item as though it were selected. You can supply a string\nvalue for the `Ember.Select` to display when there is no selection\nwith the `prompt` option:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  selectedProgrammer: null,\n  programmers: [ \"Yehuda\", \"Tom\" ]\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       value=selectedProgrammer\n       prompt=\"Please select a name\"\n}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option>Please select a name</option>\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\">Tom</option>\n</select>\n```",
             "extends": "Ember.View",
             "access": "public",
@@ -6332,7 +6332,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 63,
+            "line": 68,
             "description": "The container-debug-adapter which is used\nto list all models.",
             "itemtype": "property",
             "name": "containerDebugAdapter",
@@ -6347,7 +6347,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 74,
+            "line": 79,
             "description": "Number of attributes to send\nas columns. (Enough to make the record\nidentifiable).",
             "access": "private",
             "tagname": "",
@@ -6362,7 +6362,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 86,
+            "line": 91,
             "description": "Ember Data > v1.0.0-beta.18\nrequires string model names to be passed\naround instead of the actual factories.\n\nThis is a stamp for the Ember Inspector\nto differentiate between the versions\nto be able to support older versions too.",
             "access": "public",
             "tagname": "",
@@ -6375,7 +6375,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 100,
+            "line": 105,
             "description": "Stores all methods that clear observers.\nThese methods will be called on destruction.",
             "access": "private",
             "tagname": "",
@@ -6389,7 +6389,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 110,
+            "line": 115,
             "description": "Specifies how records can be filtered.\nRecords returned will need to have a `filterValues`\nproperty with a key for every name in the returned array.",
             "access": "public",
             "tagname": "",
@@ -6406,7 +6406,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 124,
+            "line": 129,
             "description": "Fetch the model types and observe them for changes.",
             "access": "public",
             "tagname": "",
@@ -6435,7 +6435,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 167,
+            "line": 172,
             "description": "Fetch the records of a given type and observe them for changes.",
             "access": "public",
             "tagname": "",
@@ -6474,7 +6474,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 235,
+            "line": 240,
             "description": "Clear all observers before destruction",
             "access": "private",
             "tagname": "",
@@ -6487,7 +6487,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 247,
+            "line": 252,
             "description": "Detect whether a class is a model.\n\nTest that against the model class\nof your persistence library",
             "access": "private",
             "tagname": "",
@@ -6510,7 +6510,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 262,
+            "line": 267,
             "description": "Get the columns for a given model type.",
             "access": "private",
             "tagname": "",
@@ -6534,7 +6534,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 276,
+            "line": 281,
             "description": "Adds observers to a model type class.",
             "access": "private",
             "tagname": "",
@@ -6563,7 +6563,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 310,
+            "line": 315,
             "description": "Wraps a given model type and observes changes to it.",
             "access": "private",
             "tagname": "",
@@ -6592,7 +6592,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 343,
+            "line": 348,
             "description": "Fetches all models defined in the application.",
             "access": "private",
             "tagname": "",
@@ -6609,7 +6609,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 374,
+            "line": 379,
             "description": "Loops over all namespaces and all objects\nattached to them",
             "access": "private",
             "tagname": "",
@@ -6626,7 +6626,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 403,
+            "line": 408,
             "description": "Fetches all loaded records for a given type.",
             "access": "private",
             "tagname": "",
@@ -6643,7 +6643,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 416,
+            "line": 421,
             "description": "Wraps a record and observers changes to it.",
             "access": "private",
             "tagname": "",
@@ -6667,7 +6667,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 437,
+            "line": 442,
             "description": "Gets the values for each column.",
             "access": "private",
             "tagname": "",
@@ -6684,7 +6684,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 449,
+            "line": 454,
             "description": "Returns keywords to match when searching records.",
             "access": "private",
             "tagname": "",
@@ -6701,7 +6701,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 460,
+            "line": 465,
             "description": "Returns the values of filters defined by `getFilters`.",
             "access": "private",
             "tagname": "",
@@ -6725,7 +6725,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 472,
+            "line": 477,
             "description": "Each record can have a color that represents its state.",
             "access": "private",
             "tagname": "",
@@ -6749,7 +6749,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 485,
+            "line": 490,
             "description": "Observes all relevant properties and re-sends the wrapped record\nwhen a change occurs.",
             "access": "private",
             "tagname": "",
@@ -9502,7 +9502,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 315,
+            "line": 317,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -9638,7 +9638,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 678,
+            "line": 675,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -9650,7 +9650,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 701,
+            "line": 698,
             "description": "Makes a method available via an additional name.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  name: function() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: Ember.aliasMethod('name')\n});\n\nvar goodGuy = App.Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -9669,7 +9669,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 731,
+            "line": 728,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -9697,7 +9697,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 783,
+            "line": 780,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -9727,7 +9727,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 822,
+            "line": 819,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.\n\nA `_beforeObserver` is an alternative form of `.observesBefore()`.\n\n```javascript\nApp.PersonView = Ember.View.extend({\n  friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],\n\n  valueDidChange: Ember.observer('content.value', function(obj, keyName) {\n      // only run if updating a value already in the DOM\n      if (this.get('state') === 'inDOM') {\n        var color = obj.get(keyName) > this.changingFrom ? 'green' : 'red';\n        // logic\n      }\n  }),\n\n  friendsDidChange: Ember.observer('friends.@each.name', function(obj, keyName) {\n    // some logic\n    // obj.get(keyName) returns friends array\n  })\n});\n```\n\nAlso available as `Function.prototype.observesBefore` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -11429,7 +11429,7 @@
         {
             "file": "packages/ember-routing/lib/ext/controller.js",
             "line": 12,
-            "description": "Defines which query parameters the controller accepts.\nIf you give the names ['category','page'] it will bind\nthe values of these query parameters to the variables\n`this.category` and `this.page`",
+            "description": "Defines which query parameters the controller accepts.\nIf you give the names `['category','page']` it will bind\nthe values of these query parameters to the variables\n`this.category` and `this.page`",
             "itemtype": "property",
             "name": "queryParams",
             "access": "public",
@@ -13309,7 +13309,42 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 346,
+            "line": 310,
+            "description": "Transition the application into another route. The route may\nbe either a single route or route path:\n\nSee [Route.transitionTo](http://emberjs.com/api/classes/Ember.Route.html#method_transitionTo) for more info.",
+            "itemtype": "method",
+            "name": "transitionTo",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the route or a URL",
+                    "type": "String"
+                },
+                {
+                    "name": "models",
+                    "description": "the model(s) or identifier(s) to be used while\n  transitioning to the route.",
+                    "type": "...Object"
+                },
+                {
+                    "name": "options",
+                    "description": "optional hash with a queryParams property\n  containing a mapping of query parameters",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "the transition object associated with this\n  attempted transition",
+                "type": "Transition"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "Ember.Router",
+            "module": "ember",
+            "submodule": "ember-routing",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-routing/lib/system/router.js",
+            "line": 363,
             "description": "Determines if the supplied route is currently active.",
             "itemtype": "method",
             "name": "isActive",
@@ -13332,7 +13367,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 359,
+            "line": 376,
             "description": "An alternative form of `isActive` that doesn't require\nmanual concatenation of the arguments into a single\narray.",
             "itemtype": "method",
             "name": "isActiveIntent",
@@ -13364,7 +13399,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 380,
+            "line": 397,
             "description": "Does this router instance have the given route.",
             "itemtype": "method",
             "name": "hasRoute",
@@ -13381,7 +13416,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 391,
+            "line": 408,
             "description": "Resets the state of the router by clearing the current route\nhandlers and deactivating them.",
             "access": "private",
             "tagname": "",
@@ -13394,7 +13429,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 634,
+            "line": 651,
             "description": "Returns a merged query params meta object for a given route.\nUseful for asking a route what its known query params are.",
             "access": "private",
             "tagname": "",
@@ -13405,7 +13440,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 973,
+            "line": 990,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nin your application. These mappings are defined within the\nsupplied callback function using `this.route`.\n\nThe first parameter is the name of the route which is used by default as the\npath name as well.\n\nThe second parameter is the optional options hash. Available options are:\n  * `path`: allows you to provide your own path as well as mark dynamic\n    segments.\n  * `resetNamespace`: false by default; when nesting routes, ember will\n    combine the route names to form the fully-qualified route name, which is\n    used with `{{link-to}}` or manually transitioning to routes. Setting\n    `resetNamespace: true` will cause the route not to inherit from its\n    parent route's names. This is handy for resources which can be accessed\n    in multiple places as well as preventing extremely long route names.\n    Keep in mind that the actual URL path behavior is still retained.\n\nThe third parameter is a function, which can be used to nest routes.\nNested routes, by default, will have the parent route tree's route name and\npath prepended to it's own.\n\n```javascript\nApp.Router.map(function(){\n  this.route('post', { path: '/post/:post_id' }, function() {\n    this.route('edit');\n    this.route('comments', { resetNamespace: true }, function() {\n      this.route('new');\n    });\n  });\n});\n```\n\nFor more detailed documentation and examples please see\n[the guides](http://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -13424,8 +13459,8 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 59,
-            "description": "A computed property that returns the sum of the value\nin the dependent array.",
+            "line": 60,
+            "description": "A computed property that returns the sum of the values\nin the dependent array.",
             "itemtype": "method",
             "name": "sum",
             "params": [
@@ -13449,7 +13484,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 74,
+            "line": 75,
             "description": "A computed property that calculates the maximum value in the\ndependent array. This will return `-Infinity` when the dependent\narray is empty.\n\n```javascript\nvar Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age'),\n  maxChildAge: Ember.computed.max('childAges')\n});\n\nvar lordByron = Person.create({ children: [] });\n\nlordByron.get('maxChildAge'); // -Infinity\nlordByron.get('children').pushObject({\n  name: 'Augusta Ada Byron', age: 7\n});\nlordByron.get('maxChildAge'); // 7\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('maxChildAge'); // 8\n```",
             "itemtype": "method",
             "name": "max",
@@ -13473,7 +13508,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 112,
+            "line": 113,
             "description": "A computed property that calculates the minimum value in the\ndependent array. This will return `Infinity` when the dependent\narray is empty.\n\n```javascript\nvar Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age'),\n  minChildAge: Ember.computed.min('childAges')\n});\n\nvar lordByron = Person.create({ children: [] });\n\nlordByron.get('minChildAge'); // Infinity\nlordByron.get('children').pushObject({\n  name: 'Augusta Ada Byron', age: 7\n});\nlordByron.get('minChildAge'); // 7\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('minChildAge'); // 5\n```",
             "itemtype": "method",
             "name": "min",
@@ -13497,7 +13532,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 150,
+            "line": 151,
             "description": "Returns an array mapped via the callback\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n\n```javascript\nfunction(item, index);\n```\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  excitingChores: Ember.computed.map('chores', function(chore, index) {\n    return chore.toUpperCase() + '!';\n  })\n});\n\nvar hamster = Hamster.create({\n  chores: ['clean', 'write more unit tests']\n});\n\nhamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']\n```",
             "itemtype": "method",
             "name": "map",
@@ -13526,7 +13561,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 190,
+            "line": 191,
             "description": "Returns an array mapped to the specified key.\n\n```javascript\nvar Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age')\n});\n\nvar lordByron = Person.create({ children: [] });\n\nlordByron.get('childAges'); // []\nlordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });\nlordByron.get('childAges'); // [7]\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('childAges'); // [7, 5, 8]\n```",
             "itemtype": "method",
             "name": "mapBy",
@@ -13555,7 +13590,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 230,
+            "line": 231,
             "description": "Filters the array by the callback.\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n`array` is the dependant array itself.\n\n```javascript\nfunction(item, index, array);\n```\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores', function(chore, index, array) {\n    return !chore.done;\n  })\n});\n\nvar hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\n```",
             "itemtype": "method",
             "name": "filter",
@@ -13584,7 +13619,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 273,
+            "line": 274,
             "description": "Filters the array by the property and value\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filterBy('chores', 'done', false)\n});\n\nvar hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]\n```",
             "itemtype": "method",
             "name": "filterBy",
@@ -13618,7 +13653,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 316,
+            "line": 317,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniq('fruits')\n});\n\nvar hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']\n```",
             "itemtype": "method",
             "name": "uniq",
@@ -13643,7 +13678,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 365,
+            "line": 366,
             "description": "Alias for [Ember.computed.uniq](/api/#method_computed_uniq).",
             "itemtype": "method",
             "name": "union",
@@ -13668,7 +13703,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 377,
+            "line": 378,
             "description": "A computed property which returns a new array with all the duplicated\nelements from two or more dependent arrays.\n\nExample\n\n```javascript\nvar obj = Ember.Object.extend({\n  friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')\n}).create({\n  adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],\n  charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']\n});\n\nobj.get('friendsInCommon'); // ['William King', 'Mary Somerville']\n```",
             "itemtype": "method",
             "name": "intersect",
@@ -13693,7 +13728,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 432,
+            "line": 433,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array that are not in the second\ndependent array.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  likes: ['banana', 'grape', 'kale'],\n  wants: Ember.computed.setDiff('likes', 'fruits')\n});\n\nvar hamster = Hamster.create({\n  fruits: [\n    'grape',\n    'kale',\n  ]\n});\n\nhamster.get('wants'); // ['banana']\n```",
             "itemtype": "method",
             "name": "setDiff",
@@ -13722,7 +13757,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 480,
+            "line": 481,
             "description": "A computed property that returns the array of values\nfor the provided dependent properties.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  clothes: Ember.computed.collect('hat', 'shirt')\n});\n\nvar hamster = Hamster.create();\n\nhamster.get('clothes'); // [null, null]\nhamster.set('hat', 'Camp Hat');\nhamster.set('shirt', 'Camp Shirt');\nhamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']\n```",
             "itemtype": "method",
             "name": "collect",
@@ -13747,7 +13782,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 523,
+            "line": 524,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nvar ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: ['name'],\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: ['name:desc'],\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nvar todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
             "itemtype": "method",
             "name": "sort",
@@ -14014,7 +14049,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 92,
+            "line": 108,
             "description": "__Required.__ You must implement this method to apply this mixin.\n\nYour array must support the `length` property. Your replace methods should\nset this property whenever it changes.",
             "itemtype": "property",
             "name": "length",
@@ -14028,7 +14063,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 103,
+            "line": 119,
             "description": "Returns the object at the given `index`. If the given `index` is negative\nor is greater or equal than the array length, returns `undefined`.\n\nThis is one of the primitives you must implement to support `Ember.Array`.\nIf your object supports retrieving the value of an array item using `get()`\n(i.e. `myArray.get(0)`), then you do not need to implement this method\nyourself.\n\n```javascript\nvar arr = ['a', 'b', 'c', 'd'];\n\narr.objectAt(0);   // 'a'\narr.objectAt(3);   // 'd'\narr.objectAt(-1);  // undefined\narr.objectAt(4);   // undefined\narr.objectAt(5);   // undefined\n```",
             "itemtype": "method",
             "name": "objectAt",
@@ -14052,7 +14087,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 135,
+            "line": 151,
             "description": "This returns the objects at the specified indexes, using `objectAt`.\n\n```javascript\nvar arr = ['a', 'b', 'c', 'd'];\n\narr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']\narr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]\n```",
             "itemtype": "method",
             "name": "objectsAt",
@@ -14076,7 +14111,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 163,
+            "line": 175,
             "description": "This is the handler for the special array content property. If you get\nthis property, it will return this. If you set this property to a new\narray, it will replace the current content.\n\nThis property overrides the default property defined in `Ember.Enumerable`.",
             "itemtype": "property",
             "name": "[]",
@@ -14092,7 +14127,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 198,
+            "line": 210,
             "description": "Returns a new array that is a slice of the receiver. This implementation\nuses the observable array methods to retrieve the objects for the new\nslice.\n\n```javascript\nvar arr = ['red', 'green', 'blue'];\n\narr.slice(0);       // ['red', 'green', 'blue']\narr.slice(0, 2);    // ['red', 'green']\narr.slice(1, 100);  // ['green', 'blue']\n```",
             "itemtype": "method",
             "name": "slice",
@@ -14121,7 +14156,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 244,
+            "line": 256,
             "description": "Returns the index of the given object's first occurrence.\nIf no `startAt` argument is given, the starting location to\nsearch is 0. If it's negative, will count backward from\nthe end of the array. Returns -1 if no match is found.\n\n```javascript\nvar arr = ['a', 'b', 'c', 'd', 'a'];\n\narr.indexOf('a');       //  0\narr.indexOf('z');       // -1\narr.indexOf('a', 2);    //  4\narr.indexOf('a', -1);   //  4\narr.indexOf('b', 3);    // -1\narr.indexOf('a', 100);  // -1\n```",
             "itemtype": "method",
             "name": "indexOf",
@@ -14150,7 +14185,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 288,
+            "line": 300,
             "description": "Returns the index of the given object's last occurrence.\nIf no `startAt` argument is given, the search starts from\nthe last position. If it's negative, will count backward\nfrom the end of the array. Returns -1 if no match is found.\n\n```javascript\nvar arr = ['a', 'b', 'c', 'd', 'a'];\n\narr.lastIndexOf('a');       //  4\narr.lastIndexOf('z');       // -1\narr.lastIndexOf('a', 2);    //  0\narr.lastIndexOf('a', -1);   //  4\narr.lastIndexOf('b', 3);    //  1\narr.lastIndexOf('a', 100);  //  4\n```",
             "itemtype": "method",
             "name": "lastIndexOf",
@@ -14179,7 +14214,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 336,
+            "line": 348,
             "description": "Adds an array observer to the receiving array. The array observer object\nnormally must implement two methods:\n\n* `arrayWillChange(observedObj, start, removeCount, addCount)` - This method will be\n  called just before the array is modified.\n* `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be\n  called just after the array is modified.\n\nBoth callbacks will be passed the observed object, starting index of the\nchange as well as a count of the items to be removed and added. You can use\nthese callbacks to optionally inspect the array during the change, clear\ncaches, or do any other bookkeeping necessary.\n\nIn addition to passing a target, you can also include an options hash\nwhich you can use to override the method names that will be invoked on the\ntarget.",
             "itemtype": "method",
             "name": "addArrayObserver",
@@ -14208,7 +14243,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 366,
+            "line": 378,
             "description": "Removes an array observer from the object if the observer is current\nregistered. Calling this method multiple times with the same object will\nhave no effect.",
             "itemtype": "method",
             "name": "removeArrayObserver",
@@ -14237,7 +14272,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 382,
+            "line": 394,
             "description": "Becomes true whenever the array currently has observers watching changes\non the array.",
             "itemtype": "property",
             "name": "hasArrayObservers",
@@ -14251,7 +14286,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 393,
+            "line": 405,
             "description": "If you are implementing an object that supports `Ember.Array`, call this\nmethod just before the array content changes to notify any observers and\ninvalidate any related properties. Pass the starting index of the change\nas well as a delta of the amounts to change.",
             "itemtype": "method",
             "name": "arrayContentWillChange",
@@ -14285,7 +14320,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 448,
+            "line": 460,
             "description": "If you are implementing an object that supports `Ember.Array`, call this\nmethod just after the array content changes to notify any observers and\ninvalidate any related properties. Pass the starting index of the change\nas well as a delta of the amounts to change.",
             "itemtype": "method",
             "name": "arrayContentDidChange",
@@ -14319,7 +14354,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
-            "line": 516,
+            "line": 528,
             "description": "Returns a special object that can be used to observe individual properties\non the array. Just get an equivalent property on this object and it will\nreturn an enumerable that maps automatically to the named key on the\nmember objects.\n\nIf you merely want to watch for any items being added or removed to the array,\nuse the `[]` property instead of `@each`.",
             "itemtype": "property",
             "name": "@each",
@@ -15971,7 +16006,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 99,
+            "line": 100,
             "description": "Retrieves the value of a property from the object.\n\nThis method is usually similar to using `object[keyName]` or `object.keyName`,\nhowever it supports both computed properties and the unknownProperty\nhandler.\n\nBecause `get` unifies the syntax for accessing all these kinds\nof properties, it can make many refactorings easier, such as replacing a\nsimple property with a computed property, or vice versa.\n\n### Computed Properties\n\nComputed properties are methods defined with the `property` modifier\ndeclared at the end, such as:\n\n```javascript\nfullName: function() {\n  return this.get('firstName') + ' ' + this.get('lastName');\n}.property('firstName', 'lastName')\n```\n\nWhen you call `get` on a computed property, the function will be\ncalled and the return value will be returned instead of the function\nitself.\n\n### Unknown Properties\n\nLikewise, if you try to call `get` on a property whose value is\n`undefined`, the `unknownProperty()` method will be called on the object.\nIf this method returns any value other than `undefined`, it will be returned\ninstead. This allows you to implement \"virtual\" properties that are\nnot defined upfront.",
             "itemtype": "method",
             "name": "get",
@@ -15995,7 +16030,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 142,
+            "line": 143,
             "description": "To get the values of multiple properties at once, call `getProperties`\nwith a list of strings or an array:\n\n```javascript\nrecord.getProperties('firstName', 'lastName', 'zipCode');\n// { firstName: 'John', lastName: 'Doe', zipCode: '10011' }\n```\n\nis equivalent to:\n\n```javascript\nrecord.getProperties(['firstName', 'lastName', 'zipCode']);\n// { firstName: 'John', lastName: 'Doe', zipCode: '10011' }\n```",
             "itemtype": "method",
             "name": "getProperties",
@@ -16019,7 +16054,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 167,
+            "line": 168,
             "description": "Sets the provided key or path to the value.\n\nThis method is generally very similar to calling `object[key] = value` or\n`object.key = value`, except that it provides support for computed\nproperties, the `setUnknownProperty()` method and property observers.\n\n### Computed Properties\n\nIf you try to set a value on a key that has a computed property handler\ndefined (see the `get()` method for an example), then `set()` will call\nthat method, passing both the value and key instead of simply changing\nthe value itself. This is useful for those times when you need to\nimplement a property that is composed of one or more member\nproperties.\n\n### Unknown Properties\n\nIf you try to set a value on a key that is undefined in the target\nobject, then the `setUnknownProperty()` handler will be called instead. This\ngives you an opportunity to implement complex \"virtual\" properties that\nare not predefined on the object. If `setUnknownProperty()` returns\nundefined, then `set()` will simply set the value on the object.\n\n### Property Observers\n\nIn addition to changing the property, `set()` will also register a property\nchange with the object. Unless you have placed this call inside of a\n`beginPropertyChanges()` and `endPropertyChanges(),` any \"local\" observers\n(i.e. observer methods declared on the same object), will be called\nimmediately. Any \"remote\" observers (i.e. observer methods declared on\nanother object) will be placed in a queue and called at a later time in a\ncoalesced manner.",
             "itemtype": "method",
             "name": "set",
@@ -16048,7 +16083,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 212,
+            "line": 213,
             "description": "Sets a list of properties at once. These properties are set inside\na single `beginPropertyChanges` and `endPropertyChanges` batch, so\nobservers will be buffered.\n\n```javascript\nrecord.setProperties({ firstName: 'Charles', lastName: 'Jolley' });\n```",
             "itemtype": "method",
             "name": "setProperties",
@@ -16072,7 +16107,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 230,
+            "line": 231,
             "description": "Begins a grouping of property changes.\n\nYou can use this method to group property changes so that notifications\nwill not be sent until the changes are finished. If you plan to make a\nlarge number of changes to an object at one time, you should call this\nmethod at the beginning of the changes to begin deferring change\nnotifications. When you are done making changes, call\n`endPropertyChanges()` to deliver the deferred change notifications and end\ndeferring.",
             "itemtype": "method",
             "name": "beginPropertyChanges",
@@ -16089,7 +16124,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 250,
+            "line": 251,
             "description": "Ends a grouping of property changes.\n\nYou can use this method to group property changes so that notifications\nwill not be sent until the changes are finished. If you plan to make a\nlarge number of changes to an object at one time, you should call\n`beginPropertyChanges()` at the beginning of the changes to defer change\nnotifications. When you are done making changes, call this method to\ndeliver the deferred change notifications and end deferring.",
             "itemtype": "method",
             "name": "endPropertyChanges",
@@ -16106,7 +16141,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 269,
+            "line": 270,
             "description": "Notify the observer system that a property is about to change.\n\nSometimes you need to change a value directly or indirectly without\nactually calling `get()` or `set()` on it. In this case, you can use this\nmethod and `propertyDidChange()` instead. Calling these two methods\ntogether will notify all observers that the property has potentially\nchanged value.\n\nNote that you must always call `propertyWillChange` and `propertyDidChange`\nas a pair. If you do not, it may get the property change groups out of\norder and cause notifications to be delivered more often than you would\nlike.",
             "itemtype": "method",
             "name": "propertyWillChange",
@@ -16130,7 +16165,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 293,
+            "line": 294,
             "description": "Notify the observer system that a property has just changed.\n\nSometimes you need to change a value directly or indirectly without\nactually calling `get()` or `set()` on it. In this case, you can use this\nmethod and `propertyWillChange()` instead. Calling these two methods\ntogether will notify all observers that the property has potentially\nchanged value.\n\nNote that you must always call `propertyWillChange` and `propertyDidChange`\nas a pair. If you do not, it may get the property change groups out of\norder and cause notifications to be delivered more often than you would\nlike.",
             "itemtype": "method",
             "name": "propertyDidChange",
@@ -16154,7 +16189,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 317,
+            "line": 318,
             "description": "Convenience method to call `propertyWillChange` and `propertyDidChange` in\nsuccession.",
             "itemtype": "method",
             "name": "notifyPropertyChange",
@@ -16178,7 +16213,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 332,
+            "line": 333,
             "description": "Adds an observer on a property.\n\nThis is the core method used to register an observer for a property.\n\nOnce you call this method, any time the key's value is set, your observer\nwill be notified. Note that the observers are triggered any time the\nvalue is set, regardless of whether it has actually changed. Your\nobserver should be prepared to handle that.\n\nYou can also pass an optional context parameter to this method. The\ncontext will be passed to your observer method whenever it is triggered.\nNote that if you add the same target/method pair on a key multiple times\nwith different context parameters, your observer will only be called once\nwith the last context you passed.\n\n### Observer Methods\n\nObserver methods you pass should generally have the following signature if\nyou do not pass a `context` parameter:\n\n```javascript\nfooDidChange: function(sender, key, value, rev) { };\n```\n\nThe sender is the object that changed. The key is the property that\nchanges. The value property is currently reserved and unused. The rev\nis the last property revision of the object when it changed, which you can\nuse to detect if the key value has really changed or not.\n\nIf you pass a `context` parameter, the context will be passed before the\nrevision like so:\n\n```javascript\nfooDidChange: function(sender, key, value, context, rev) { };\n```\n\nUsually you will not need the value, context or revision parameters at\nthe end. In this case, it is common to write observer methods that take\nonly a sender and key value as parameters or, if you aren't interested in\nany of these values, to write an observer that has no parameters at all.",
             "itemtype": "method",
             "name": "addObserver",
@@ -16208,7 +16243,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 384,
+            "line": 385,
             "description": "Remove an observer you have previously registered on this object. Pass\nthe same key, target, and method you passed to `addObserver()` and your\ntarget will no longer receive notifications.",
             "itemtype": "method",
             "name": "removeObserver",
@@ -16238,7 +16273,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 399,
+            "line": 400,
             "description": "Returns `true` if the object currently has observers registered for a\nparticular key. You can use this method to potentially defer performing\nan expensive action until someone begins observing a particular property\non the object.",
             "itemtype": "method",
             "name": "hasObserverFor",
@@ -16262,7 +16297,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 414,
+            "line": 415,
             "description": "Retrieves the value of a property, or a default value in the case that the\nproperty returns `undefined`.\n\n```javascript\nperson.getWithDefault('lastName', 'Doe');\n```",
             "itemtype": "method",
             "name": "getWithDefault",
@@ -16291,7 +16326,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 432,
+            "line": 433,
             "description": "Set the value of a property to the current value plus some amount.\n\n```javascript\nperson.incrementProperty('age');\nteam.incrementProperty('score', 2);\n```",
             "itemtype": "method",
             "name": "incrementProperty",
@@ -16320,7 +16355,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 452,
+            "line": 453,
             "description": "Set the value of a property to the current value minus some amount.\n\n```javascript\nplayer.decrementProperty('lives');\norc.decrementProperty('health', 5);\n```",
             "itemtype": "method",
             "name": "decrementProperty",
@@ -16349,7 +16384,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 472,
+            "line": 473,
             "description": "Set the value of a boolean property to the opposite of its\ncurrent value.\n\n```javascript\nstarship.toggleProperty('warpDriveEngaged');\n```",
             "itemtype": "method",
             "name": "toggleProperty",
@@ -16373,7 +16408,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 489,
+            "line": 490,
             "description": "Returns the cached value of a computed property, if it exists.\nThis allows you to inspect the value of a computed property\nwithout accidentally invoking it if it is intended to be\ngenerated lazily.",
             "itemtype": "method",
             "name": "cacheFor",
@@ -16843,7 +16878,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 72,
+            "line": 77,
             "description": "The content array. Must be an object that implements `Ember.Array` and/or\n`Ember.MutableArray.`",
             "itemtype": "property",
             "name": "content",
@@ -16857,7 +16892,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 82,
+            "line": 87,
             "description": "The array that the proxy pretends to be. In the default `ArrayProxy`\nimplementation, this and `content` are the same. Subclasses of `ArrayProxy`\ncan override this property to provide things like sorting and filtering.",
             "itemtype": "property",
             "name": "arrangedContent",
@@ -16870,7 +16905,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 92,
+            "line": 97,
             "description": "Should actually retrieve the object at the specified index from the\ncontent. You can override this method in subclasses to transform the\ncontent item to something new.\n\nThis method will only be called if content is non-`null`.",
             "itemtype": "method",
             "name": "objectAtContent",
@@ -16894,7 +16929,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 108,
+            "line": 113,
             "description": "Should actually replace the specified objects on the content array.\nYou can override this method in subclasses to transform the content item\ninto something new.\n\nThis method will only be called if content is non-`null`.",
             "itemtype": "method",
             "name": "replaceContent",
@@ -16928,7 +16963,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 127,
+            "line": 132,
             "description": "Invoked when the content property is about to change. Notifies observers that the\nentire array content will change.",
             "access": "private",
             "tagname": "",
@@ -16941,7 +16976,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 149,
+            "line": 154,
             "description": "Override to implement content array `willChange` observer.",
             "itemtype": "method",
             "name": "contentArrayWillChange",
@@ -16976,7 +17011,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 161,
+            "line": 166,
             "description": "Override to implement content array `didChange` observer.",
             "itemtype": "method",
             "name": "contentArrayDidChange",
@@ -17011,7 +17046,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/array_proxy.js",
-            "line": 174,
+            "line": 179,
             "description": "Invoked when the content property changes. Notifies observers that the\nentire array content has changed.",
             "access": "private",
             "tagname": "",
@@ -19808,7 +19843,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 186,
+            "line": 190,
             "description": "A list of items to be displayed by the `Ember.CollectionView`.",
             "itemtype": "property",
             "name": "content",
@@ -19823,7 +19858,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 196,
+            "line": 200,
             "itemtype": "property",
             "name": "itemViewClass",
             "type": "Ember.View",
@@ -19837,7 +19872,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 204,
+            "line": 208,
             "description": "Setup a CollectionView",
             "itemtype": "method",
             "name": "init",
@@ -19850,7 +19885,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 216,
+            "line": 220,
             "description": "Check to make sure that the content has changed, and if so,\nupdate the children directly. This is always scheduled\nasynchronously, to allow the element to be created before\nbindings have synchronized and vice versa.",
             "access": "private",
             "tagname": "",
@@ -19863,7 +19898,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 243,
+            "line": 247,
             "description": "Ensure that the content implements Ember.Array",
             "access": "private",
             "tagname": "",
@@ -19876,7 +19911,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 253,
+            "line": 257,
             "description": "Removes the content and content observers.",
             "itemtype": "method",
             "name": "destroy",
@@ -19889,7 +19924,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 272,
+            "line": 276,
             "description": "Called when a mutation to the underlying content array will occur.\n\nThis method will remove any views that are no longer in the underlying\ncontent array.\n\nInvokes whenever the content array itself will change.",
             "itemtype": "method",
             "name": "arrayWillChange",
@@ -19919,7 +19954,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 290,
+            "line": 294,
             "description": "Called when a mutation to the underlying content array occurs.\n\nThis method will replay that mutation against the views that compose the\n`Ember.CollectionView`, ensuring that the view reflects the model.\n\nThis array observer is added in `contentDidChange`.",
             "itemtype": "method",
             "name": "arrayDidChange",
@@ -19954,7 +19989,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 332,
+            "line": 336,
             "description": "Instantiates a view to be added to the childViews array during view\ninitialization. You generally will not call this method directly unless\nyou are overriding `createChildViews()`. Note that this method will\nautomatically configure the correct settings on the new view instance to\nact as a child of the parent.\n\nThe tag name for the view will be set to the tagName of the viewClass\npassed in.",
             "itemtype": "method",
             "name": "createChildView",
@@ -19984,7 +20019,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/collection_view.js",
-            "line": 386,
+            "line": 390,
             "description": "A map of parent tags to their default child tags. You can add\nadditional parent tags if you want collection views that use\na particular parent tag to default to a child tag.",
             "itemtype": "property",
             "name": "CONTAINER_MAP",
@@ -20033,7 +20068,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 329,
+            "line": 331,
             "description": "The `multiple` attribute of the select element. Indicates whether multiple\noptions can be selected.",
             "itemtype": "property",
             "name": "multiple",
@@ -20048,7 +20083,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 340,
+            "line": 342,
             "description": "The `disabled` attribute of the select element. Indicates whether\nthe element is disabled from interactions.",
             "itemtype": "property",
             "name": "disabled",
@@ -20063,7 +20098,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 351,
+            "line": 353,
             "description": "The `required` attribute of the select element. Indicates whether\na selected option is required for form validation.",
             "itemtype": "property",
             "name": "required",
@@ -20079,7 +20114,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 363,
+            "line": 365,
             "description": "The list of options.\n\nIf `optionLabelPath` and `optionValuePath` are not overridden, this should\nbe a list of strings, which will serve simultaneously as labels and values.\n\nOtherwise, this should be a list of objects. For instance:\n\n```javascript\nvar App = Ember.Application.create();\nvar App.MySelect = Ember.Select.extend({\n  content: Ember.A([\n      { id: 1, firstName: 'Yehuda' },\n      { id: 2, firstName: 'Tom' }\n    ]),\n  optionLabelPath: 'content.firstName',\n  optionValuePath: 'content.id'\n});\n```",
             "itemtype": "property",
             "name": "content",
@@ -20094,7 +20129,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 390,
+            "line": 392,
             "description": "When `multiple` is `false`, the element of `content` that is currently\nselected, if any.\n\nWhen `multiple` is `true`, an array of such elements.",
             "itemtype": "property",
             "name": "selection",
@@ -20109,7 +20144,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 403,
+            "line": 405,
             "description": "In single selection mode (when `multiple` is `false`), value can be used to\nget the current selection's value or set the selection by its value.\n\nIt is not currently supported in multiple selection mode.",
             "itemtype": "property",
             "name": "value",
@@ -20124,7 +20159,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 424,
+            "line": 426,
             "description": "If given, a top-most dummy option will be rendered to serve as a user\nprompt.",
             "itemtype": "property",
             "name": "prompt",
@@ -20139,7 +20174,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 435,
+            "line": 437,
             "description": "The path of the option labels. See [content](/api/classes/Ember.Select.html#property_content).",
             "itemtype": "property",
             "name": "optionLabelPath",
@@ -20154,7 +20189,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 445,
+            "line": 447,
             "description": "The path of the option values. See [content](/api/classes/Ember.Select.html#property_content).",
             "itemtype": "property",
             "name": "optionValuePath",
@@ -20169,7 +20204,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 455,
+            "line": 457,
             "description": "The path of the option group.\nWhen this property is used, `content` should be sorted by `optionGroupPath`.",
             "itemtype": "property",
             "name": "optionGroupPath",
@@ -20184,7 +20219,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 466,
+            "line": 468,
             "description": "The view class for optgroup.",
             "itemtype": "property",
             "name": "groupView",
@@ -20199,7 +20234,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 497,
+            "line": 499,
             "description": "The view class for option.",
             "itemtype": "property",
             "name": "optionView",
@@ -20462,7 +20497,7 @@
         },
         {
             "message": "Missing item type\nReturns a merged query params meta object for a given route.\nUseful for asking a route what its known query params are.",
-            "line": " packages/ember-routing/lib/system/router.js:634"
+            "line": " packages/ember-routing/lib/system/router.js:651"
         },
         {
             "message": "Missing item type",
