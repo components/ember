@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "2.4.0-beta.2",
+  "version": "2.4.0-beta.2+f61014d1",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
   "main": [
@@ -12,6 +12,6 @@
     "url": "https://github.com/emberjs/ember.js.git"
   },
   "dependencies": {
-    "jquery": ">= 1.7.0 < 2.2.0"
+    "jquery": ">= 1.7.0 < 3.0.0"
   }
 }
