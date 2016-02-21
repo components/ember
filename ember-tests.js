@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+b00c0762
+ * @version   2.5.0-canary+4a404de2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51847,7 +51847,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'quz'), null);
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalComputed, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var obj;
@@ -52847,7 +52847,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
         sortProps: ['count', 'name'],
         sortedItems: _emberRuntimeComputedReduce_computed_macros.sort('items', 'sortProps')
       }).create({
-        items: [{ name: 'A', count: 1 }, { name: 'B', count: 1 }, { name: 'C', count: 1 }, { name: 'D', count: 1 }]
+        items: [{ name: 'A', count: 1, thing: 4 }, { name: 'B', count: 1, thing: 3 }, { name: 'C', count: 1, thing: 2 }, { name: 'D', count: 1, thing: 4 }]
       });
     },
     teardown: function () {
@@ -52863,16 +52863,18 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'final');
   });
 
+  var klass;
   QUnit.module('sort - concurrency', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
+      klass = _emberRuntimeSystemObject.default.extend({
         sortProps: ['count'],
         sortedItems: _emberRuntimeComputedReduce_computed_macros.sort('items', 'sortProps'),
         customSortedItems: _emberRuntimeComputedReduce_computed_macros.sort('items.@each.count', function (a, b) {
           return a.count - b.count;
         })
-      }).create({
-        items: _emberRuntimeSystemNative_array.A([{ name: 'A', count: 1 }, { name: 'B', count: 2 }, { name: 'C', count: 3 }, { name: 'D', count: 4 }])
+      });
+      obj = klass.create({
+        items: _emberRuntimeSystemNative_array.A([{ name: 'A', count: 1, thing: 4, id: 1 }, { name: 'B', count: 2, thing: 3, id: 2 }, { name: 'C', count: 3, thing: 2, id: 3 }, { name: 'D', count: 4, thing: 1, id: 4 }])
       });
     },
 
@@ -52891,7 +52893,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
   });
 
-  QUnit.test('sort correctl after mutation to the sor ', function () {
+  QUnit.test('sort correctly after mutation to the sort', function () {
     deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
 
     _emberMetalProperty_set.set(obj.get('items')[1], 'count', 5);
@@ -52900,6 +52902,78 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
 
     deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+  });
+
+  QUnit.test('sort correctly on multiple instances of the same class', function () {
+    var obj2 = klass.create({
+      items: _emberRuntimeSystemNative_array.A([{ name: 'W', count: 23, thing: 4 }, { name: 'X', count: 24, thing: 3 }, { name: 'Y', count: 25, thing: 2 }, { name: 'Z', count: 26, thing: 1 }])
+    });
+
+    deepEqual(obj2.get('sortedItems').mapBy('name'), ['W', 'X', 'Y', 'Z'], 'initial');
+    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+
+    _emberMetalProperty_set.set(obj.get('items')[1], 'count', 5);
+    _emberMetalProperty_set.set(obj.get('items')[2], 'count', 6);
+    _emberMetalProperty_set.set(obj2.get('items')[1], 'count', 27);
+    _emberMetalProperty_set.set(obj2.get('items')[2], 'count', 28);
+
+    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    deepEqual(obj2.get('sortedItems').mapBy('name'), ['W', 'Z', 'X', 'Y'], 'final');
+
+    obj.set('sortProps', ['thing']);
+
+    deepEqual(obj.get('sortedItems').mapBy('name'), ['D', 'C', 'B', 'A'], 'final');
+
+    obj2.notifyPropertyChange('sortedItems'); // invalidate to flush, to get DK refreshed
+    obj2.get('sortedItems'); // flush to get updated DK
+
+    obj2.set('items.firstObject.count', 9999);
+
+    deepEqual(obj2.get('sortedItems').mapBy('name'), ['Z', 'X', 'Y', 'W'], 'final');
+  });
+
+  QUnit.test('sort correctly when multiple sorts are chained on the same instance of a class', function () {
+    var obj2 = klass.extend({
+      items: _emberMetalComputed.computed('sibling.sortedItems.[]', function () {
+        return this.get('sibling.sortedItems');
+      }),
+      asdf: _emberMetalMixin.observer('sibling.sortedItems.[]', function () {
+        this.get('sibling.sortedItems');
+      })
+    }).create({
+      sibling: obj
+    });
+
+    /*
+                                           ┌───────────┐                              ┌────────────┐
+                                           │sortedProps│                              │sortedProps2│
+                                           └───────────┘                              └────────────┘
+                                                 ▲                                           ▲
+                                                 │               ╔═══════════╗               │
+                                                 │─ ─ ─ ─ ─ ─ ─ ▶║ CP (sort) ║◀─ ─ ─ ─ ─ ─ ─ ┤
+                                                 │               ╚═══════════╝               │
+                                                 │                                           │
+    ┌───────────┐                            ┏━━━━━━━━━━━┓                              ┏━━━━━━━━━━━━┓
+    │           │   ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    ┃           ┃    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─     ┃            ┃
+    │   items   │◀──  items.@each.count  │◀──┃sortedItems┃◀───  items.@each.count  │◀───┃sortedItems2┃
+    │           │   └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    ┃           ┃    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─     ┃            ┃
+    └───────────┘                            ┗━━━━━━━━━━━┛                              ┗━━━━━━━━━━━━┛
+     */
+
+    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'obj.sortedItems.name should be sorted alpha');
+    deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'obj2.sortedItems.name should be sorted alpha');
+
+    _emberMetalProperty_set.set(obj.get('items')[1], 'count', 5);
+    _emberMetalProperty_set.set(obj.get('items')[2], 'count', 6);
+
+    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'obj.sortedItems.name should now have changed');
+    deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'obj2.sortedItems.name should still mirror sortedItems2');
+
+    obj.set('sortProps', ['thing']);
+    obj2.set('sortProps', ['id']);
+
+    deepEqual(obj2.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'we now sort obj2 by id, so we expect a b c d');
+    deepEqual(obj.get('sortedItems').mapBy('name'), ['D', 'C', 'B', 'A'], 'we now sort obj by thing');
   });
 
   QUnit.module('max', {
@@ -64019,7 +64093,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+b00c0762', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+4a404de2', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

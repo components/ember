@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+b00c0762
+ * @version   2.5.0-canary+4a404de2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+b00c0762
+    @version 2.5.0-canary+4a404de2
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+b00c0762'
+    @default '2.5.0-canary+4a404de2'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+b00c0762';
+  Ember.VERSION = '2.5.0-canary+4a404de2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12574,7 +12574,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
     }
   }
 });
-enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-metal/is_none', 'ember-metal/get_properties'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils, _emberRuntimeSystemNative_array, _emberMetalIs_none, _emberMetalGet_properties) {
+enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-metal/is_none', 'ember-metal/get_properties', 'ember-metal/weak_map'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils, _emberRuntimeSystemNative_array, _emberMetalIs_none, _emberMetalGet_properties, _emberMetalWeak_map) {
   /**
   @module ember
   @submodule ember-runtime
@@ -13237,67 +13237,83 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     var cp = new _emberMetalComputed.ComputedProperty(function (key) {
       var _this5 = this;
 
-      function didChange() {
-        this.notifyPropertyChange(key);
-      }
-
-      var items = itemsKey === '@this' ? this : _emberMetalProperty_get.get(this, itemsKey);
+      var itemsKeyIsAtThis = itemsKey === '@this';
       var sortProperties = _emberMetalProperty_get.get(this, sortPropertiesKey);
 
-      if (items === null || typeof items !== 'object') {
-        return _emberRuntimeSystemNative_array.A();
-      }
+      _emberMetalDebug.assert('The sort definition for \'' + key + '\' on ' + this + ' must be a function or an array of strings', _emberRuntimeUtils.isArray(sortProperties) && sortProperties.every(function (s) {
+        return typeof s === 'string';
+      }));
 
-      // TODO: Ideally we'd only do this if things have changed
-      if (cp._sortPropObservers) {
-        cp._sortPropObservers.forEach(function (args) {
-          return _emberMetalObserver.removeObserver.apply(null, args);
+      var normalizedSortProperties = normalizeSortProperties(sortProperties);
+
+      // Add/remove property observers as required.
+      var activeObserversMap = cp._activeObserverMap || (cp._activeObserverMap = new _emberMetalWeak_map.default());
+      var activeObservers = activeObserversMap.get(this);
+
+      if (activeObservers) {
+        activeObservers.forEach(function (args) {
+          _emberMetalObserver.removeObserver.apply(null, args);
         });
       }
 
-      cp._sortPropObservers = [];
-
-      if (!_emberRuntimeUtils.isArray(sortProperties)) {
-        return items;
+      function sortPropertyDidChange() {
+        this.notifyPropertyChange(key);
       }
 
-      // Normalize properties
-      var normalizedSort = sortProperties.map(function (p) {
-        var _p$split = p.split(':');
+      activeObservers = normalizedSortProperties.map(function (_ref) {
+        var prop = _ref[0];
 
-        var prop = _p$split[0];
-        var direction = _p$split[1];
-
-        direction = direction || 'asc';
-
-        return [prop, direction];
-      });
-
-      // TODO: Ideally we'd only do this if things have changed
-      // Add observers
-      normalizedSort.forEach(function (prop) {
-        var args = [_this5, itemsKey + '.@each.' + prop[0], didChange];
-        cp._sortPropObservers.push(args);
+        var path = itemsKeyIsAtThis ? '@each.' + prop : itemsKey + '.@each.' + prop;
+        var args = [_this5, path, sortPropertyDidChange];
         _emberMetalObserver.addObserver.apply(null, args);
+        return args;
       });
 
-      return _emberRuntimeSystemNative_array.A(items.slice().sort(function (itemA, itemB) {
-        for (var i = 0; i < normalizedSort.length; ++i) {
-          var _normalizedSort$i = normalizedSort[i];
-          var prop = _normalizedSort$i[0];
-          var direction = _normalizedSort$i[1];
+      activeObserversMap.set(this, activeObservers);
 
-          var result = _emberRuntimeCompare.default(_emberMetalProperty_get.get(itemA, prop), _emberMetalProperty_get.get(itemB, prop));
-          if (result !== 0) {
-            return direction === 'desc' ? -1 * result : result;
-          }
-        }
+      // Sort and return the array.
+      var items = itemsKeyIsAtThis ? this : _emberMetalProperty_get.get(this, itemsKey);
 
-        return 0;
-      }));
+      if (_emberRuntimeUtils.isArray(items)) {
+        return sortByNormalizedSortProperties(items, normalizedSortProperties);
+      } else {
+        return _emberRuntimeSystemNative_array.A();
+      }
     });
 
-    return cp.property(itemsKey + '.[]', sortPropertiesKey + '.[]').readOnly();
+    cp._activeObserverMap = undefined;
+
+    return cp.property(sortPropertiesKey + '.[]').readOnly();
+  }
+
+  function normalizeSortProperties(sortProperties) {
+    return sortProperties.map(function (p) {
+      var _p$split = p.split(':');
+
+      var prop = _p$split[0];
+      var direction = _p$split[1];
+
+      direction = direction || 'asc';
+
+      return [prop, direction];
+    });
+  }
+
+  function sortByNormalizedSortProperties(items, normalizedSortProperties) {
+    return _emberRuntimeSystemNative_array.A(items.slice().sort(function (itemA, itemB) {
+      for (var i = 0; i < normalizedSortProperties.length; i++) {
+        var _normalizedSortProperties$i = normalizedSortProperties[i];
+        var prop = _normalizedSortProperties$i[0];
+        var direction = _normalizedSortProperties$i[1];
+
+        var result = _emberRuntimeCompare.default(_emberMetalProperty_get.get(itemA, prop), _emberMetalProperty_get.get(itemB, prop));
+        if (result !== 0) {
+          return direction === 'desc' ? -1 * result : result;
+        }
+      }
+
+      return 0;
+    }));
   }
 });
 enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/debug', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberMetalDebug, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject, _emberRuntimeMixinsAction_handler) {
