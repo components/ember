@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+eac772a9
+ * @version   2.5.0-canary+4acbd7f7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -46152,7 +46152,7 @@ enifed('ember-metal/tests/utils/try_invoke_test', ['exports', 'ember-metal/utils
     equal(_emberMetalUtils.tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
   });
 });
-enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils', 'ember-metal/environment'], function (exports, _emberMetalUtils, _emberMetalEnvironment) {
+enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/environment', 'ember-metal/utils'], function (exports, _emberMetalEnvironment, _emberMetalUtils) {
   'use strict';
 
   QUnit.module('Ember Metal Utils');
@@ -46178,6 +46178,22 @@ enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils', 'ember-m
       assert.notOk(_emberMetalUtils.checkHasSuper(function () {}), 'empty function does not have super');
     });
   }
+
+  QUnit.test("toString uses an object's toString method when available", function () {
+    var obj = {
+      toString: function () {
+        return "bob";
+      }
+    };
+
+    strictEqual(_emberMetalUtils.toString(obj), 'bob');
+  });
+
+  QUnit.test("toString falls back to Object.prototype.toString", function () {
+    var obj = Object.create(null);
+
+    strictEqual(_emberMetalUtils.toString(obj), ({}).toString());
+  });
 });
 enifed('ember-metal/tests/watching/is_watching_test', ['exports', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/observer', 'ember-metal/watching'], function (exports, _emberMetalComputed, _emberMetalProperty_get, _emberMetalProperties, _emberMetalMixin, _emberMetalObserver, _emberMetalWatching) {
   'use strict';
@@ -63721,7 +63737,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+eac772a9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+4acbd7f7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

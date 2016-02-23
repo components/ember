@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+eac772a9
+ * @version   2.5.0-canary+4acbd7f7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+eac772a9
+ * @version   2.5.0-canary+4acbd7f7
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -25413,7 +25413,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+eac772a9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+4acbd7f7';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -31056,7 +31056,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+eac772a9
+    @version 2.5.0-canary+4acbd7f7
     @public
   */
 
@@ -31098,11 +31098,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+eac772a9'
+    @default '2.5.0-canary+4acbd7f7'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+eac772a9';
+  Ember.VERSION = '2.5.0-canary+4acbd7f7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -35823,7 +35823,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
       return setPath(obj, keyName, value, tolerant);
     }
 
-    _emberMetalDebug.assert('calling set on destroyed object: ' + (obj.toString ? obj.toString() : '') + '.' + keyName + ' = ' + value, !obj.isDestroyed);
+    _emberMetalDebug.assert('calling set on destroyed object: ' + _emberMetalUtils.toString(obj) + '.' + keyName + ' = ' + _emberMetalUtils.toString(value), !obj.isDestroyed);
 
     if (desc) {
       desc.set(obj, keyName, value);
@@ -37719,6 +37719,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   exports.apply = apply;
   exports.applyStr = applyStr;
   exports.lookupDescriptor = lookupDescriptor;
+  exports.toString = toString;
   var _uuid = 0;
 
   /**
@@ -38103,7 +38104,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   // TYPING & ARRAY MESSAGING
   //
 
-  var toString = Object.prototype.toString;
+  var objectToString = Object.prototype.toString;
 
   /**
     Forces the passed object to be part of an array. If the object is already
@@ -38167,7 +38168,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
       return '' + obj;
     }
     // overridden toString
-    if (typeof obj.toString === 'function' && obj.toString !== toString) {
+    if (typeof obj.toString === 'function' && obj.toString !== objectToString) {
       return obj.toString();
     }
 
@@ -38185,7 +38186,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
         }
 
         if (v && typeof v.toString !== 'function') {
-          ret.push(key + ': ' + toString.call(v));
+          ret.push(key + ': ' + objectToString.call(v));
         } else {
           ret.push(key + ': ' + v);
         }
@@ -38265,6 +38266,17 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
 
     return null;
+  }
+
+  // A `toString` util function that supports objects without a `toString`
+  // method, e.g. an object created with `Object.create(null)`.
+
+  function toString(obj) {
+    if (obj && obj.toString) {
+      return obj.toString();
+    } else {
+      return objectToString.call(obj);
+    }
   }
 
   exports.GUID_KEY = GUID_KEY;
@@ -45168,7 +45180,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+eac772a9';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+4acbd7f7';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -45671,7 +45683,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+eac772a9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+4acbd7f7';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -54670,7 +54682,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+eac772a9',
+        revision: 'Ember@2.5.0-canary+4acbd7f7',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -60091,7 +60103,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+eac772a9';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+4acbd7f7';
 
   /**
   @module ember

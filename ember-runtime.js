@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+eac772a9
+ * @version   2.5.0-canary+4acbd7f7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+eac772a9
+    @version 2.5.0-canary+4acbd7f7
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+eac772a9'
+    @default '2.5.0-canary+4acbd7f7'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+eac772a9';
+  Ember.VERSION = '2.5.0-canary+4acbd7f7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9601,7 +9601,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
       return setPath(obj, keyName, value, tolerant);
     }
 
-    _emberMetalDebug.assert('calling set on destroyed object: ' + (obj.toString ? obj.toString() : '') + '.' + keyName + ' = ' + value, !obj.isDestroyed);
+    _emberMetalDebug.assert('calling set on destroyed object: ' + _emberMetalUtils.toString(obj) + '.' + keyName + ' = ' + _emberMetalUtils.toString(value), !obj.isDestroyed);
 
     if (desc) {
       desc.set(obj, keyName, value);
@@ -11500,6 +11500,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   exports.apply = apply;
   exports.applyStr = applyStr;
   exports.lookupDescriptor = lookupDescriptor;
+  exports.toString = toString;
   var _uuid = 0;
 
   /**
@@ -11884,7 +11885,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   // TYPING & ARRAY MESSAGING
   //
 
-  var toString = Object.prototype.toString;
+  var objectToString = Object.prototype.toString;
 
   /**
     Forces the passed object to be part of an array. If the object is already
@@ -11948,7 +11949,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
       return '' + obj;
     }
     // overridden toString
-    if (typeof obj.toString === 'function' && obj.toString !== toString) {
+    if (typeof obj.toString === 'function' && obj.toString !== objectToString) {
       return obj.toString();
     }
 
@@ -11966,7 +11967,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
         }
 
         if (v && typeof v.toString !== 'function') {
-          ret.push(key + ': ' + toString.call(v));
+          ret.push(key + ': ' + objectToString.call(v));
         } else {
           ret.push(key + ': ' + v);
         }
@@ -12046,6 +12047,17 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
 
     return null;
+  }
+
+  // A `toString` util function that supports objects without a `toString`
+  // method, e.g. an object created with `Object.create(null)`.
+
+  function toString(obj) {
+    if (obj && obj.toString) {
+      return obj.toString();
+    } else {
+      return objectToString.call(obj);
+    }
   }
 
   exports.GUID_KEY = GUID_KEY;
