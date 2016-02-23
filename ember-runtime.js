@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c3289757
+ * @version   2.5.0-canary+eac772a9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+c3289757
+    @version 2.5.0-canary+eac772a9
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+c3289757'
+    @default '2.5.0-canary+eac772a9'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+c3289757';
+  Ember.VERSION = '2.5.0-canary+eac772a9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9601,7 +9601,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
       return setPath(obj, keyName, value, tolerant);
     }
 
-    _emberMetalDebug.assert('calling set on destroyed object', !obj.isDestroyed);
+    _emberMetalDebug.assert('calling set on destroyed object: ' + (obj.toString ? obj.toString() : '') + '.' + keyName + ' = ' + value, !obj.isDestroyed);
 
     if (desc) {
       desc.set(obj, keyName, value);
