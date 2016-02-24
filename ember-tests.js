@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+4acbd7f7
+ * @version   2.5.0-canary+1659f53c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -23804,8 +23804,176 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed("ember-glimmer/tests/integration/helpers/if-unless-test", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsSharedConditionalTests) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_SharedHelperConditionalsTest) {
+    _inherits(_class, _SharedHelperConditionalsTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _SharedHelperConditionalsTest.apply(this, arguments);
+    }
+
+    _class.prototype.templateFor = function templateFor(_ref) {
+      var cond = _ref.cond;
+      var truthy = _ref.truthy;
+      var falsy = _ref.falsy;
+
+      return '{{if ' + cond + ' ' + truthy + ' ' + falsy + '}}';
+    };
+
+    _class.prototype['@test it can omit the falsy argument'] = function testItCanOmitTheFalsyArgument() {
+      var _this = this;
+
+      this.render('{{if cond1 \'T1\'}}{{if cond2 \'T2\'}}', { cond1: true, cond2: false });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'cond1', false);
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', false);
+      });
+
+      this.assertText('T1');
+    };
+
+    _class.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
+      var _this2 = this;
+
+      expectAssertion(function () {
+        _this2.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    _class.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
+      var _this3 = this;
+
+      expectAssertion(function () {
+        _this3.render('{{if condition}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning truthy values)', (function (_SharedHelperConditionalsTest2) {
+    _inherits(_class2, _SharedHelperConditionalsTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _SharedHelperConditionalsTest2.apply(this, arguments);
+    }
+
+    _class2.prototype.templateFor = function templateFor(_ref2) {
+      var cond = _ref2.cond;
+      var truthy = _ref2.truthy;
+      var falsy = _ref2.falsy;
+
+      return '{{if (if ' + cond + ' ' + cond + ' false) ' + truthy + ' ' + falsy + '}}';
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning falsy values)', (function (_SharedHelperConditionalsTest3) {
+    _inherits(_class3, _SharedHelperConditionalsTest3);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _SharedHelperConditionalsTest3.apply(this, arguments);
+    }
+
+    _class3.prototype.templateFor = function templateFor(_ref3) {
+      var cond = _ref3.cond;
+      var truthy = _ref3.truthy;
+      var falsy = _ref3.falsy;
+
+      return '{{if (if ' + cond + ' true ' + cond + ') ' + truthy + ' ' + falsy + '}}';
+    };
+
+    return _class3;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used with another helper', (function (_SharedHelperConditionalsTest4) {
+    _inherits(_class4, _SharedHelperConditionalsTest4);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _SharedHelperConditionalsTest4.apply(this, arguments);
+    }
+
+    _class4.prototype.wrapperFor = function wrapperFor(templates) {
+      return '{{concat ' + templates.join(' ') + '}}';
+    };
+
+    _class4.prototype.templateFor = function templateFor(_ref4) {
+      var cond = _ref4.cond;
+      var truthy = _ref4.truthy;
+      var falsy = _ref4.falsy;
+
+      return '(if ' + cond + ' ' + truthy + ' ' + falsy + ')';
+    };
+
+    return _class4;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_SharedHelperConditionalsTest5) {
+    _inherits(_class5, _SharedHelperConditionalsTest5);
+
+    function _class5() {
+      _classCallCheck(this, _class5);
+
+      _SharedHelperConditionalsTest5.apply(this, arguments);
+    }
+
+    _class5.prototype.wrapperFor = function wrapperFor(templates) {
+      return '<div data-foo="' + templates.join('') + '" />';
+    };
+
+    _class5.prototype.templateFor = function templateFor(_ref5) {
+      var cond = _ref5.cond;
+      var truthy = _ref5.truthy;
+      var falsy = _ref5.falsy;
+
+      return '{{if ' + cond + ' ' + truthy + ' ' + falsy + '}}';
+    };
+
+    _class5.prototype.textValue = function textValue() {
+      return this.$('div').attr('data-foo');
+    };
+
+    return _class5;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 });
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
@@ -23816,13 +23984,13 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_SharedConditionalsTest) {
-    _inherits(_class, _SharedConditionalsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_SharedSyntaxConditionalsTest) {
+    _inherits(_class, _SharedSyntaxConditionalsTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _SharedConditionalsTest.apply(this, arguments);
+      _SharedSyntaxConditionalsTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -23868,15 +24036,15 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     };
 
     return _class;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}}', (function (_SharedConditionalsTest2) {
-    _inherits(_class2, _SharedConditionalsTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}}', (function (_SharedSyntaxConditionalsTest2) {
+    _inherits(_class2, _SharedSyntaxConditionalsTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _SharedConditionalsTest2.apply(this, arguments);
+      _SharedSyntaxConditionalsTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -23925,7 +24093,7 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     };
 
     return _class2;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 });
 enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
@@ -23936,13 +24104,13 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-gl
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_SharedConditionalsTest) {
-    _inherits(_class, _SharedConditionalsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_SharedSyntaxConditionalsTest) {
+    _inherits(_class, _SharedSyntaxConditionalsTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _SharedConditionalsTest.apply(this, arguments);
+      _SharedSyntaxConditionalsTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -23954,15 +24122,15 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-gl
     };
 
     return _class;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_SharedConditionalsTest2) {
-    _inherits(_class2, _SharedConditionalsTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_SharedSyntaxConditionalsTest2) {
+    _inherits(_class2, _SharedSyntaxConditionalsTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _SharedConditionalsTest2.apply(this, arguments);
+      _SharedSyntaxConditionalsTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -24137,7 +24305,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-gl
     };
 
     return _class2;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberGlimmerTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
     _inherits(_class3, _RenderingTest);
@@ -24354,7 +24522,11 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   function moduleFor(description, TestClass) {
     var context = undefined;
 
-    QUnit.module('[' + _emberGlimmerTestsUtilsPackageName.default + '] ' + description, {
+    var modulePackagePrefixMatch = description.match(/^@(\w*)/); //eg '@glimmer' or '@htmlbars'
+    var modulePackagePrefix = modulePackagePrefixMatch ? modulePackagePrefixMatch[1] : '';
+    var descriptionWithoutPackagePrefix = description.replace(/^@\w* /, '');
+
+    QUnit.module('[' + _emberGlimmerTestsUtilsPackageName.default + '] ' + descriptionWithoutPackagePrefix, {
       setup: function () {
         context = new TestClass();
       },
@@ -24382,6 +24554,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     }
 
     function generateTest(name) {
+      if (modulePackagePrefix && _emberGlimmerTestsUtilsPackageName.default !== modulePackagePrefix) {
+        return;
+      }
+
       if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
           return context[name](assert);
@@ -24449,6 +24625,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         _emberRuntimeTestsUtils.runDestroy(this.component);
         _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
+    };
+
+    RenderingTest.prototype.$ = function $(sel) {
+      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
     };
 
     RenderingTest.prototype.takeSnapshot = function takeSnapshot() {
@@ -24522,8 +24702,12 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
+    RenderingTest.prototype.textValue = function textValue() {
+      return this.$().text();
+    };
+
     RenderingTest.prototype.assertText = function assertText(text) {
-      assert.strictEqual(_emberViewsSystemJquery.default(this.element).text(), text, '#qunit-fixture content');
+      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
     };
 
     RenderingTest.prototype.assertHTML = function assertHTML(html) {
@@ -24653,6 +24837,14 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       5. Reset them to their original values (through replacement)
     */
 
+    AbstractConditionalsTest.prototype.wrapperFor = function wrapperFor(templates) {
+      return templates.join('');
+    };
+
+    AbstractConditionalsTest.prototype.wrappedTemplateFor = function wrappedTemplateFor(options) {
+      return this.wrapperFor([this.templateFor(options)]);
+    };
+
     /* abstract */
 
     AbstractConditionalsTest.prototype.templateFor = function templateFor(_ref2) {
@@ -24664,20 +24856,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       throw new Error('Not implemented: `templateFor`');
     };
 
+    /* abstract */
+
     AbstractConditionalsTest.prototype.renderValues = function renderValues() {
-      var templates = [];
-      var context = {};
-
-      for (var _len = arguments.length, values = Array(_len), _key = 0; _key < _len; _key++) {
-        values[_key] = arguments[_key];
-      }
-
-      for (var i = 1; i <= values.length; i++) {
-        templates.push(this.templateFor({ cond: 'cond' + i, truthy: '{{t}}' + i, falsy: '{{f}}' + i }));
-        context['cond' + i] = values[i - 1];
-      }
-
-      this.render(templates.join(''), _emberMetalAssign.default({ t: 'T', f: 'F' }, context));
+      throw new Error('Not implemented: `renderValues`');
     };
 
     return AbstractConditionalsTest;
@@ -24685,7 +24867,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   var BASIC_TRUTHY_TESTS = {
 
-    cases: [true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }),
+    cases: [true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject.default.create({ isTruthy: true }),
     /*jshint -W053 */
     new String('hello'), new String(''), new Boolean(true), new Boolean(false), new Date()
     /*jshint +W053 */
@@ -24726,7 +24908,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.BASIC_TRUTHY_TESTS = BASIC_TRUTHY_TESTS;
   var BASIC_FALSY_TESTS = {
 
-    cases: [false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A()],
+    cases: [false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A(), _emberRuntimeSystemObject.default.create({ isTruthy: false })],
 
     generate: function (value) {
       var _tests;
@@ -25045,44 +25227,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T1F2');
     };
 
-    SharedConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
-      var _this11 = this;
-
-      var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
-
-      this.render(template, { cond1: true, cond2: false });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        return _this11.rerender();
-      });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'cond1', false);
-      });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this11.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this11.context, 'cond2', true);
-      });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this11.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this11.context, 'cond2', false);
-      });
-
-      this.assertText('T1F2');
-    };
-
     SharedConditionalsTest.prototype['@test it maintains DOM stability when condition changes from a truthy to a different truthy value'] = function testItMaintainsDOMStabilityWhenConditionChangesFromATruthyToADifferentTruthyValue() {
-      var _this12 = this;
+      var _this11 = this;
 
       this.renderValues(true);
 
@@ -25091,7 +25237,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.takeSnapshot();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'cond1', 'hello');
+        return _emberMetalProperty_set.set(_this11.context, 'cond1', 'hello');
       });
 
       this.assertText('T1');
@@ -25100,7 +25246,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     };
 
     SharedConditionalsTest.prototype['@test it maintains DOM stability when condition changes from a falsy to a different falsy value'] = function testItMaintainsDOMStabilityWhenConditionChangesFromAFalsyToADifferentFalsyValue() {
-      var _this13 = this;
+      var _this12 = this;
 
       this.renderValues(false);
 
@@ -25109,7 +25255,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.takeSnapshot();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'cond1', '');
+        return _emberMetalProperty_set.set(_this12.context, 'cond1', '');
       });
 
       this.assertText('F1');
@@ -25117,10 +25263,79 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertInvariants();
     };
 
-    SharedConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
+    return SharedConditionalsTest;
+  })(AbstractConditionalsTest);
+
+  exports.SharedConditionalsTest = SharedConditionalsTest;
+
+  var SharedHelperConditionalsTest = (function (_SharedConditionalsTest) {
+    _inherits(SharedHelperConditionalsTest, _SharedConditionalsTest);
+
+    function SharedHelperConditionalsTest() {
+      _classCallCheck(this, SharedHelperConditionalsTest);
+
+      _SharedConditionalsTest.apply(this, arguments);
+    }
+
+    SharedHelperConditionalsTest.prototype.renderValues = function renderValues() {
+      var templates = [];
+      var context = {};
+
+      for (var _len = arguments.length, values = Array(_len), _key = 0; _key < _len; _key++) {
+        values[_key] = arguments[_key];
+      }
+
+      for (var i = 1; i <= values.length; i++) {
+        templates.push(this.templateFor({ cond: 'cond' + i, truthy: 't' + i, falsy: 'f' + i }));
+        context['t' + i] = 'T' + i;
+        context['f' + i] = 'F' + i;
+        context['cond' + i] = values[i - 1];
+      }
+
+      var wrappedTemplate = this.wrapperFor(templates);
+      this.render(wrappedTemplate, context);
+    };
+
+    SharedHelperConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+      var _this13 = this;
+
+      var template = '' + this.wrappedTemplateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }) + this.wrappedTemplateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' });
+
+      this.render(template, { cond1: true, cond2: false });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'cond1', false);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', true);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    SharedHelperConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
       var _this14 = this;
 
-      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+      var template = this.wrappedTemplateFor({ cond: 'this', truthy: '"T1"', falsy: '"F1"' });
 
       this.render(template, { isTruthy: true });
 
@@ -25145,10 +25360,105 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T1');
     };
 
-    return SharedConditionalsTest;
-  })(AbstractConditionalsTest);
+    return SharedHelperConditionalsTest;
+  })(SharedConditionalsTest);
 
-  exports.SharedConditionalsTest = SharedConditionalsTest;
+  exports.SharedHelperConditionalsTest = SharedHelperConditionalsTest;
+
+  var SharedSyntaxConditionalsTest = (function (_SharedConditionalsTest2) {
+    _inherits(SharedSyntaxConditionalsTest, _SharedConditionalsTest2);
+
+    function SharedSyntaxConditionalsTest() {
+      _classCallCheck(this, SharedSyntaxConditionalsTest);
+
+      _SharedConditionalsTest2.apply(this, arguments);
+    }
+
+    SharedSyntaxConditionalsTest.prototype.renderValues = function renderValues() {
+      var templates = [];
+      var context = {};
+
+      for (var _len2 = arguments.length, values = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        values[_key2] = arguments[_key2];
+      }
+
+      for (var i = 1; i <= values.length; i++) {
+        templates.push(this.templateFor({ cond: 'cond' + i, truthy: '{{t}}' + i, falsy: '{{f}}' + i }));
+        context['cond' + i] = values[i - 1];
+      }
+
+      var wrappedTemplate = this.wrapperFor(templates);
+      this.render(wrappedTemplate, _emberMetalAssign.default({ t: 'T', f: 'F' }, context));
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+      var _this15 = this;
+
+      var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
+
+      this.render(template, { cond1: true, cond2: false });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'cond1', false);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', true);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
+      var _this16 = this;
+
+      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+
+      this.render(template, { isTruthy: true });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _this16.rerender();
+      });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'isTruthy', false);
+      });
+
+      this.assertText('F1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'isTruthy', true);
+      });
+
+      this.assertText('T1');
+    };
+
+    return SharedSyntaxConditionalsTest;
+  })(SharedConditionalsTest);
+
+  exports.SharedSyntaxConditionalsTest = SharedSyntaxConditionalsTest;
 });
 enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-views/component_lookup'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberViewsComponent_lookup) {
   'use strict';
@@ -29618,7 +29928,7 @@ enifed('ember-htmlbars/tests/helpers/hash_test', ['exports', 'ember-views/views/
     equal(view.$().text(), 'Balint', 'it gets the value from a nested hash');
   });
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/components/component', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'ember-views/system/jquery', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberViewsViewsView, _emberViewsComponentsComponent, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _emberViewsSystemJquery, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'ember-views/system/jquery', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _emberViewsSystemJquery, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var originalLookup = _emberMetalCore.default.lookup;
@@ -29809,67 +30119,6 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'test');
   });
 
-  QUnit.test('`if` helper with inline form: renders the second argument when conditional is truthy', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'truthy');
-  });
-
-  QUnit.test('`if` helper with inline form: renders the third argument when conditional is falsy', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: false,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'falsy');
-  });
-
-  QUnit.test('`if` helper with inline form: can omit the falsy argument', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'truthy');
-  });
-
-  QUnit.test('`if` helper with inline form: can omit the falsy argument and renders nothing when conditional is falsy', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: false,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '');
-  });
-
-  QUnit.test('`if` helper with inline form: truthy and falsy arguments are changed if conditional changes', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'truthy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', false);
-    });
-
-    equal(view.$().text(), 'falsy');
-  });
-
   QUnit.test('`if` helper with inline form: can use truthy param as binding', function () {
     view = _emberViewsViewsView.default.create({
       truthy: 'ok',
@@ -29886,215 +30135,6 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
     });
 
     equal(view.$().text(), 'yes');
-  });
-
-  QUnit.test('`if` helper with inline form: can use falsy param as binding', function () {
-    view = _emberViewsViewsView.default.create({
-      truthy: 'ok',
-      falsy: 'boom',
-      conditional: false,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional view.truthy view.falsy}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'boom');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('falsy', 'no');
-    });
-
-    equal(view.$().text(), 'no');
-  });
-
-  QUnit.test('`if` helper with inline form: raises when using more than three arguments', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if one two three four}}')
-    });
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
-  });
-
-  QUnit.test('`if` helper with inline form: raises when using less than two arguments', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if one}}')
-    });
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
-  });
-
-  QUnit.test('`if` helper with inline form: works when used in a sub expression', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      innerConditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional (if view.innerConditional "truthy" )}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'truthy');
-  });
-
-  QUnit.test('`if` helper with inline form: updates if condition changes in a sub expression', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      innerConditional: true,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional (if view.innerConditional "innerTruthy" "innerFalsy")}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'innerTruthy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('innerConditional', false);
-    });
-
-    equal(view.$().text(), 'innerFalsy');
-  });
-
-  QUnit.test('`if` helper with inline form: can use truthy param as binding in a sub expression', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: true,
-      innerConditional: true,
-      innerTruthy: 'innerTruthy',
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional (if view.innerConditional view.innerTruthy)}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'innerTruthy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('innerTruthy', 'innerOk');
-    });
-
-    equal(view.$().text(), 'innerOk');
-  });
-
-  QUnit.test('`if` helper with inline form: respects isTruthy when object changes', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: _emberRuntimeSystemObject.default.create({ isTruthy: false }),
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'falsy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', _emberRuntimeSystemObject.default.create({ isTruthy: true }));
-    });
-
-    equal(view.$().text(), 'truthy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', _emberRuntimeSystemObject.default.create({ isTruthy: false }));
-    });
-
-    equal(view.$().text(), 'falsy');
-  });
-
-  QUnit.test('`if` helper with inline form: respects isTruthy when property changes', function () {
-    var candidate = _emberRuntimeSystemObject.default.create({ isTruthy: false });
-
-    view = _emberViewsViewsView.default.create({
-      conditional: candidate,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'falsy');
-
-    _emberMetalRun_loop.default(function () {
-      candidate.set('isTruthy', true);
-    });
-
-    equal(view.$().text(), 'truthy');
-
-    _emberMetalRun_loop.default(function () {
-      candidate.set('isTruthy', false);
-    });
-
-    equal(view.$().text(), 'falsy');
-  });
-
-  QUnit.test('`if` helper with inline form: respects length test when list content changes', function () {
-    var list = _emberRuntimeSystemNative_array.A();
-
-    view = _emberViewsViewsView.default.create({
-      conditional: list,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'falsy');
-
-    _emberMetalRun_loop.default(function () {
-      list.pushObject(1);
-    });
-
-    equal(view.$().text(), 'truthy');
-
-    _emberMetalRun_loop.default(function () {
-      list.replace(0, 1);
-    });
-
-    equal(view.$().text(), 'falsy');
-  });
-
-  QUnit.test('`if` helper with inline form: respects length test when list itself', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: [],
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "truthy" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'falsy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', [1]);
-    });
-
-    equal(view.$().text(), 'truthy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', []);
-    });
-
-    equal(view.$().text(), 'falsy');
-  });
-
-  QUnit.test('`if` helper with inline form: updates when given a falsey second argument', function () {
-    view = _emberViewsViewsView.default.create({
-      conditional: false,
-      template: _emberTemplateCompilerSystemCompile.default('{{if view.conditional "" "falsy"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'falsy');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', true);
-    });
-
-    equal(view.$().text(), '');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('conditional', false);
-    });
-
-    equal(view.$().text(), 'falsy');
   });
 
   QUnit.test('using `if` with an `{{each}}` destroys components when transitioning to and from inverse (GH #12267)', function () {
@@ -35612,8 +35652,176 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed("ember-htmlbars/tests/integration/helpers/if-unless-test", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_SharedHelperConditionalsTest) {
+    _inherits(_class, _SharedHelperConditionalsTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _SharedHelperConditionalsTest.apply(this, arguments);
+    }
+
+    _class.prototype.templateFor = function templateFor(_ref) {
+      var cond = _ref.cond;
+      var truthy = _ref.truthy;
+      var falsy = _ref.falsy;
+
+      return '{{if ' + cond + ' ' + truthy + ' ' + falsy + '}}';
+    };
+
+    _class.prototype['@test it can omit the falsy argument'] = function testItCanOmitTheFalsyArgument() {
+      var _this = this;
+
+      this.render('{{if cond1 \'T1\'}}{{if cond2 \'T2\'}}', { cond1: true, cond2: false });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'cond1', false);
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', false);
+      });
+
+      this.assertText('T1');
+    };
+
+    _class.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
+      var _this2 = this;
+
+      expectAssertion(function () {
+        _this2.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    _class.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
+      var _this3 = this;
+
+      expectAssertion(function () {
+        _this3.render('{{if condition}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning truthy values)', (function (_SharedHelperConditionalsTest2) {
+    _inherits(_class2, _SharedHelperConditionalsTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _SharedHelperConditionalsTest2.apply(this, arguments);
+    }
+
+    _class2.prototype.templateFor = function templateFor(_ref2) {
+      var cond = _ref2.cond;
+      var truthy = _ref2.truthy;
+      var falsy = _ref2.falsy;
+
+      return '{{if (if ' + cond + ' ' + cond + ' false) ' + truthy + ' ' + falsy + '}}';
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning falsy values)', (function (_SharedHelperConditionalsTest3) {
+    _inherits(_class3, _SharedHelperConditionalsTest3);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _SharedHelperConditionalsTest3.apply(this, arguments);
+    }
+
+    _class3.prototype.templateFor = function templateFor(_ref3) {
+      var cond = _ref3.cond;
+      var truthy = _ref3.truthy;
+      var falsy = _ref3.falsy;
+
+      return '{{if (if ' + cond + ' true ' + cond + ') ' + truthy + ' ' + falsy + '}}';
+    };
+
+    return _class3;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used with another helper', (function (_SharedHelperConditionalsTest4) {
+    _inherits(_class4, _SharedHelperConditionalsTest4);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _SharedHelperConditionalsTest4.apply(this, arguments);
+    }
+
+    _class4.prototype.wrapperFor = function wrapperFor(templates) {
+      return '{{concat ' + templates.join(' ') + '}}';
+    };
+
+    _class4.prototype.templateFor = function templateFor(_ref4) {
+      var cond = _ref4.cond;
+      var truthy = _ref4.truthy;
+      var falsy = _ref4.falsy;
+
+      return '(if ' + cond + ' ' + truthy + ' ' + falsy + ')';
+    };
+
+    return _class4;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_SharedHelperConditionalsTest5) {
+    _inherits(_class5, _SharedHelperConditionalsTest5);
+
+    function _class5() {
+      _classCallCheck(this, _class5);
+
+      _SharedHelperConditionalsTest5.apply(this, arguments);
+    }
+
+    _class5.prototype.wrapperFor = function wrapperFor(templates) {
+      return '<div data-foo="' + templates.join('') + '" />';
+    };
+
+    _class5.prototype.templateFor = function templateFor(_ref5) {
+      var cond = _ref5.cond;
+      var truthy = _ref5.truthy;
+      var falsy = _ref5.falsy;
+
+      return '{{if ' + cond + ' ' + truthy + ' ' + falsy + '}}';
+    };
+
+    _class5.prototype.textValue = function textValue() {
+      return this.$('div').attr('data-foo');
+    };
+
+    return _class5;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedHelperConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 });
 enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
@@ -36596,13 +36804,13 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_SharedConditionalsTest) {
-    _inherits(_class, _SharedConditionalsTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_SharedSyntaxConditionalsTest) {
+    _inherits(_class, _SharedSyntaxConditionalsTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _SharedConditionalsTest.apply(this, arguments);
+      _SharedSyntaxConditionalsTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -36648,15 +36856,15 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     };
 
     return _class;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}}', (function (_SharedConditionalsTest2) {
-    _inherits(_class2, _SharedConditionalsTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}}', (function (_SharedSyntaxConditionalsTest2) {
+    _inherits(_class2, _SharedSyntaxConditionalsTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _SharedConditionalsTest2.apply(this, arguments);
+      _SharedSyntaxConditionalsTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -36705,7 +36913,7 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     };
 
     return _class2;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 });
 enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
@@ -36716,13 +36924,13 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_SharedConditionalsTest) {
-    _inherits(_class, _SharedConditionalsTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_SharedSyntaxConditionalsTest) {
+    _inherits(_class, _SharedSyntaxConditionalsTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _SharedConditionalsTest.apply(this, arguments);
+      _SharedSyntaxConditionalsTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -36734,15 +36942,15 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
     };
 
     return _class;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_SharedConditionalsTest2) {
-    _inherits(_class2, _SharedConditionalsTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_SharedSyntaxConditionalsTest2) {
+    _inherits(_class2, _SharedSyntaxConditionalsTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _SharedConditionalsTest2.apply(this, arguments);
+      _SharedSyntaxConditionalsTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -36917,7 +37125,7 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
     };
 
     return _class2;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.SharedSyntaxConditionalsTest), _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_TRUTHY_TESTS, _emberHtmlbarsTestsUtilsSharedConditionalTests.BASIC_FALSY_TESTS);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
     _inherits(_class3, _RenderingTest);
@@ -37947,7 +38155,11 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   function moduleFor(description, TestClass) {
     var context = undefined;
 
-    QUnit.module('[' + _emberHtmlbarsTestsUtilsPackageName.default + '] ' + description, {
+    var modulePackagePrefixMatch = description.match(/^@(\w*)/); //eg '@glimmer' or '@htmlbars'
+    var modulePackagePrefix = modulePackagePrefixMatch ? modulePackagePrefixMatch[1] : '';
+    var descriptionWithoutPackagePrefix = description.replace(/^@\w* /, '');
+
+    QUnit.module('[' + _emberHtmlbarsTestsUtilsPackageName.default + '] ' + descriptionWithoutPackagePrefix, {
       setup: function () {
         context = new TestClass();
       },
@@ -37975,6 +38187,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     }
 
     function generateTest(name) {
+      if (modulePackagePrefix && _emberHtmlbarsTestsUtilsPackageName.default !== modulePackagePrefix) {
+        return;
+      }
+
       if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
           return context[name](assert);
@@ -38042,6 +38258,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         _emberRuntimeTestsUtils.runDestroy(this.component);
         _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
+    };
+
+    RenderingTest.prototype.$ = function $(sel) {
+      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
     };
 
     RenderingTest.prototype.takeSnapshot = function takeSnapshot() {
@@ -38115,8 +38335,12 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
+    RenderingTest.prototype.textValue = function textValue() {
+      return this.$().text();
+    };
+
     RenderingTest.prototype.assertText = function assertText(text) {
-      assert.strictEqual(_emberViewsSystemJquery.default(this.element).text(), text, '#qunit-fixture content');
+      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
     };
 
     RenderingTest.prototype.assertHTML = function assertHTML(html) {
@@ -38252,6 +38476,14 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       5. Reset them to their original values (through replacement)
     */
 
+    AbstractConditionalsTest.prototype.wrapperFor = function wrapperFor(templates) {
+      return templates.join('');
+    };
+
+    AbstractConditionalsTest.prototype.wrappedTemplateFor = function wrappedTemplateFor(options) {
+      return this.wrapperFor([this.templateFor(options)]);
+    };
+
     /* abstract */
 
     AbstractConditionalsTest.prototype.templateFor = function templateFor(_ref2) {
@@ -38263,20 +38495,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       throw new Error('Not implemented: `templateFor`');
     };
 
+    /* abstract */
+
     AbstractConditionalsTest.prototype.renderValues = function renderValues() {
-      var templates = [];
-      var context = {};
-
-      for (var _len = arguments.length, values = Array(_len), _key = 0; _key < _len; _key++) {
-        values[_key] = arguments[_key];
-      }
-
-      for (var i = 1; i <= values.length; i++) {
-        templates.push(this.templateFor({ cond: 'cond' + i, truthy: '{{t}}' + i, falsy: '{{f}}' + i }));
-        context['cond' + i] = values[i - 1];
-      }
-
-      this.render(templates.join(''), _emberMetalAssign.default({ t: 'T', f: 'F' }, context));
+      throw new Error('Not implemented: `renderValues`');
     };
 
     return AbstractConditionalsTest;
@@ -38284,7 +38506,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
   var BASIC_TRUTHY_TESTS = {
 
-    cases: [true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }),
+    cases: [true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject.default.create({ isTruthy: true }),
     /*jshint -W053 */
     new String('hello'), new String(''), new Boolean(true), new Boolean(false), new Date()
     /*jshint +W053 */
@@ -38325,7 +38547,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.BASIC_TRUTHY_TESTS = BASIC_TRUTHY_TESTS;
   var BASIC_FALSY_TESTS = {
 
-    cases: [false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A()],
+    cases: [false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A(), _emberRuntimeSystemObject.default.create({ isTruthy: false })],
 
     generate: function (value) {
       var _tests;
@@ -38644,44 +38866,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T1F2');
     };
 
-    SharedConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
-      var _this11 = this;
-
-      var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
-
-      this.render(template, { cond1: true, cond2: false });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        return _this11.rerender();
-      });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'cond1', false);
-      });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this11.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this11.context, 'cond2', true);
-      });
-
-      this.assertText('T1F2');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this11.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this11.context, 'cond2', false);
-      });
-
-      this.assertText('T1F2');
-    };
-
     SharedConditionalsTest.prototype['@test it maintains DOM stability when condition changes from a truthy to a different truthy value'] = function testItMaintainsDOMStabilityWhenConditionChangesFromATruthyToADifferentTruthyValue() {
-      var _this12 = this;
+      var _this11 = this;
 
       this.renderValues(true);
 
@@ -38690,7 +38876,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.takeSnapshot();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'cond1', 'hello');
+        return _emberMetalProperty_set.set(_this11.context, 'cond1', 'hello');
       });
 
       this.assertText('T1');
@@ -38699,7 +38885,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     };
 
     SharedConditionalsTest.prototype['@test it maintains DOM stability when condition changes from a falsy to a different falsy value'] = function testItMaintainsDOMStabilityWhenConditionChangesFromAFalsyToADifferentFalsyValue() {
-      var _this13 = this;
+      var _this12 = this;
 
       this.renderValues(false);
 
@@ -38708,7 +38894,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.takeSnapshot();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'cond1', '');
+        return _emberMetalProperty_set.set(_this12.context, 'cond1', '');
       });
 
       this.assertText('F1');
@@ -38716,10 +38902,79 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertInvariants();
     };
 
-    SharedConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
+    return SharedConditionalsTest;
+  })(AbstractConditionalsTest);
+
+  exports.SharedConditionalsTest = SharedConditionalsTest;
+
+  var SharedHelperConditionalsTest = (function (_SharedConditionalsTest) {
+    _inherits(SharedHelperConditionalsTest, _SharedConditionalsTest);
+
+    function SharedHelperConditionalsTest() {
+      _classCallCheck(this, SharedHelperConditionalsTest);
+
+      _SharedConditionalsTest.apply(this, arguments);
+    }
+
+    SharedHelperConditionalsTest.prototype.renderValues = function renderValues() {
+      var templates = [];
+      var context = {};
+
+      for (var _len = arguments.length, values = Array(_len), _key = 0; _key < _len; _key++) {
+        values[_key] = arguments[_key];
+      }
+
+      for (var i = 1; i <= values.length; i++) {
+        templates.push(this.templateFor({ cond: 'cond' + i, truthy: 't' + i, falsy: 'f' + i }));
+        context['t' + i] = 'T' + i;
+        context['f' + i] = 'F' + i;
+        context['cond' + i] = values[i - 1];
+      }
+
+      var wrappedTemplate = this.wrapperFor(templates);
+      this.render(wrappedTemplate, context);
+    };
+
+    SharedHelperConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+      var _this13 = this;
+
+      var template = '' + this.wrappedTemplateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }) + this.wrappedTemplateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' });
+
+      this.render(template, { cond1: true, cond2: false });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'cond1', false);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', true);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    SharedHelperConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
       var _this14 = this;
 
-      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+      var template = this.wrappedTemplateFor({ cond: 'this', truthy: '"T1"', falsy: '"F1"' });
 
       this.render(template, { isTruthy: true });
 
@@ -38744,10 +38999,105 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T1');
     };
 
-    return SharedConditionalsTest;
-  })(AbstractConditionalsTest);
+    return SharedHelperConditionalsTest;
+  })(SharedConditionalsTest);
 
-  exports.SharedConditionalsTest = SharedConditionalsTest;
+  exports.SharedHelperConditionalsTest = SharedHelperConditionalsTest;
+
+  var SharedSyntaxConditionalsTest = (function (_SharedConditionalsTest2) {
+    _inherits(SharedSyntaxConditionalsTest, _SharedConditionalsTest2);
+
+    function SharedSyntaxConditionalsTest() {
+      _classCallCheck(this, SharedSyntaxConditionalsTest);
+
+      _SharedConditionalsTest2.apply(this, arguments);
+    }
+
+    SharedSyntaxConditionalsTest.prototype.renderValues = function renderValues() {
+      var templates = [];
+      var context = {};
+
+      for (var _len2 = arguments.length, values = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        values[_key2] = arguments[_key2];
+      }
+
+      for (var i = 1; i <= values.length; i++) {
+        templates.push(this.templateFor({ cond: 'cond' + i, truthy: '{{t}}' + i, falsy: '{{f}}' + i }));
+        context['cond' + i] = values[i - 1];
+      }
+
+      var wrappedTemplate = this.wrapperFor(templates);
+      this.render(wrappedTemplate, _emberMetalAssign.default({ t: 'T', f: 'F' }, context));
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+      var _this15 = this;
+
+      var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
+
+      this.render(template, { cond1: true, cond2: false });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'cond1', false);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', true);
+      });
+
+      this.assertText('T1F2');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
+      var _this16 = this;
+
+      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+
+      this.render(template, { isTruthy: true });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _this16.rerender();
+      });
+
+      this.assertText('T1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'isTruthy', false);
+      });
+
+      this.assertText('F1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'isTruthy', true);
+      });
+
+      this.assertText('T1');
+    };
+
+    return SharedSyntaxConditionalsTest;
+  })(SharedConditionalsTest);
+
+  exports.SharedSyntaxConditionalsTest = SharedSyntaxConditionalsTest;
 });
 enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString) {
   'use strict';
@@ -64181,7 +64531,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+4acbd7f7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+1659f53c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
