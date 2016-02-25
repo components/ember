@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.11+82a5e8d2
+ * @version   1.13.13+6acfa43c
  */
 
 (function() {
@@ -30151,6 +30151,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test", ["exports", "ember-me
       init: function () {
         this._super.apply(this, arguments);
         this.uniqueId = id++;
+        this.set('model', model);
       }
     }));
     view = _emberViewsViewsView["default"].create({
@@ -30163,9 +30164,51 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test", ["exports", "ember-me
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    var uniqueId = container.lookup('controller:posts').get('uniqueId');
+    var renderedController = container.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
     equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
     equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
+  });
+
+  QUnit.test('{{render}} helper should rerender with given controller', function () {
+    var template = '{{render "home" controller="posts"}}';
+    var Controller = _emberRuntimeControllersController["default"].extend();
+    var model = {};
+    var controller = Controller.create({
+      container: container
+    });
+    var id = 0;
+
+    registry.register('controller:posts', _emberRuntimeControllersController["default"].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.uniqueId = id++;
+        this.set('model', model);
+      }
+    }));
+
+    view = _emberViewsViewsView["default"].create({
+      container: container,
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile["default"](template)
+    });
+
+    _emberMetalCore["default"].TEMPLATES['home'] = _emberTemplateCompilerSystemCompile["default"]('{{uniqueId}}');
+
+    _emberRuntimeTestsUtils.runAppend(view);
+    _emberMetalRun_loop["default"](function () {
+      view.rerender();
+    });
+
+    var renderedController = container.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
+
+    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
+    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
   });
 
   QUnit.test("{{render}} helper should render a template without a model only once", function () {
@@ -48373,7 +48416,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.11+82a5e8d2', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.13+6acfa43c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
