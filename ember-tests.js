@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+13f0d2b4
+ * @version   2.5.0-canary+81c75336
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2589,7 +2589,7 @@ enifed('glimmer-reference/tests/reference-test', ['exports', 'glimmer-reference'
     }
 });
 
-enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
+enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers", "glimmer-reference", "glimmer-util"], function (exports, _glimmerTestHelpers, _glimmerReference, _glimmerUtil) {
     "use strict";
 
     var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -2618,7 +2618,7 @@ enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers
     function render(template) {
         var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-        self = new _glimmerReference.UpdatableReference(context);
+        self = new _glimmerReference.UpdatableReference(_glimmerUtil.opaque(context));
         result = template.render(self, env, { appendTo: root });
         assertInvariants(result);
         return result;
@@ -2626,7 +2626,7 @@ enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers
     function rerender() {
         var context = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-        self.update(context);
+        self.update(_glimmerUtil.opaque(context));
         result.rerender();
     }
     function assertInvariants(result) {
@@ -2746,6 +2746,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
             }
             this._result.rerender();
             this.element = this.parent.firstElementChild;
+        };
+
+        EmberishRootView.prototype.destroy = function destroy() {
+            _EmberObject.prototype.destroy.call(this);
+            if (this._result) {
+                this._result.destroy();
+            }
         };
 
         return EmberishRootView;
@@ -4354,6 +4361,124 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     //   runAppend(view);
     //   equal(view.$().text(), 'Whoop, whoop!', 'block provided always overrides template property');
     // });
+    _module('Teardown');
+    QUnit.test('curly components are destroyed', function (assert) {
+        var destroyed = 0;
+        var DestroyMeComponent = _glimmerTestHelpers.EmberishCurlyComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed++;
+            }
+        });
+        env.registerEmberishCurlyComponent('destroy-me', DestroyMeComponent, 'destroy me!');
+        appendViewFor("{{#if cond}}{{destroy-me}}{{/if}}", { cond: true });
+        assert.strictEqual(destroyed, 0, 'destroy should not be called');
+        view.rerender({ cond: false });
+        assert.strictEqual(destroyed, 1, 'destroy should be called exactly one');
+    });
+    QUnit.test('glimmer components are destroyed', function (assert) {
+        var destroyed = 0;
+        var DestroyMeComponent = _glimmerTestHelpers.EmberishGlimmerComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed++;
+            }
+        });
+        env.registerEmberishGlimmerComponent('destroy-me', DestroyMeComponent, 'destroy me!');
+        appendViewFor("{{#if cond}}<destroy-me />{{/if}}", { cond: true });
+        assert.strictEqual(destroyed, 0, 'destroy should not be called');
+        view.rerender({ cond: false });
+        assert.strictEqual(destroyed, 1, 'destroy should be called exactly one');
+    });
+    QUnit.test('components inside a list are destroyed', function (assert) {
+        var destroyed = [];
+        var DestroyMeComponent = _glimmerTestHelpers.EmberishGlimmerComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed.push(this.attrs.item);
+            }
+        });
+        env.registerEmberishGlimmerComponent('destroy-me', DestroyMeComponent, 'destroy me!');
+        appendViewFor("{{#each list key='@primitive' as |item|}}<destroy-me item={{item}} />{{/each}}", { list: [1, 2, 3, 4, 5] });
+        assert.strictEqual(destroyed.length, 0, 'destroy should not be called');
+        view.rerender({ list: [1, 2, 3] });
+        assert.deepEqual(destroyed, [4, 5], 'destroy should be called exactly twice');
+        view.rerender({ list: [3, 2, 1] });
+        assert.deepEqual(destroyed, [4, 5], 'destroy should be called exactly twice');
+        view.rerender({ list: [] });
+        assert.deepEqual(destroyed, [4, 5, 3, 2, 1], 'destroy should be called for each item');
+    });
+    QUnit.test('components that are "destroyed twice" are destroyed once', function (assert) {
+        var destroyed = [];
+        var DestroyMeComponent = _glimmerTestHelpers.EmberishCurlyComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed.push(this.attrs.from);
+            }
+        });
+        var DestroyMe2Component = _glimmerTestHelpers.EmberishCurlyComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed.push(this.attrs.from);
+            }
+        });
+        env.registerEmberishCurlyComponent('destroy-me', DestroyMeComponent, '{{#if @cond}}{{destroy-me-inner from="inner"}}{{/if}}');
+        env.registerEmberishCurlyComponent('destroy-me-inner', DestroyMe2Component, 'inner');
+        appendViewFor("{{#if cond}}{{destroy-me from=\"root\" cond=child.cond}}{{/if}}", { cond: true, child: { cond: true } });
+        assert.deepEqual(destroyed, [], 'destroy should not be called');
+        view.rerender({ cond: false, child: { cond: false } });
+        assert.deepEqual(destroyed, ['root', 'inner'], 'destroy should be called exactly once per component');
+    });
+    QUnit.test('deeply nested destructions', function (assert) {
+        var destroyed = [];
+        var DestroyMe1Component = _glimmerTestHelpers.EmberishGlimmerComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed.push("destroy-me1: " + this.attrs.item);
+            }
+        });
+        var DestroyMe2Component = _glimmerTestHelpers.EmberishCurlyComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed.push("destroy-me2: " + this.attrs.from + " - " + this.attrs.item);
+            }
+        });
+        env.registerEmberishGlimmerComponent('destroy-me1', DestroyMe1Component, '<div>{{#destroy-me2 item=@item from="destroy-me1"}}{{yield}}{{/destroy-me2}}</div>');
+        env.registerEmberishCurlyComponent('destroy-me2', DestroyMe2Component, 'Destroy me! {{yield}}');
+        appendViewFor("{{#each list key='@primitive' as |item|}}<destroy-me1 item={{item}}>{{#destroy-me2 from=\"root\" item=item}}{{/destroy-me2}}</destroy-me1>{{/each}}", { list: [1, 2, 3, 4, 5] });
+        assert.strictEqual(destroyed.length, 0, 'destroy should not be called');
+        view.rerender({ list: [1, 2, 3] });
+        assert.deepEqual(destroyed, ["destroy-me1: 4", "destroy-me2: destroy-me1 - 4", "destroy-me2: root - 4", "destroy-me1: 5", "destroy-me2: destroy-me1 - 5", "destroy-me2: root - 5"], 'destroy should be called exactly twice');
+        destroyed = [];
+        view.rerender({ list: [3, 2, 1] });
+        assert.deepEqual(destroyed, [], 'destroy should be called exactly twice');
+        view.rerender({ list: [] });
+        assert.deepEqual(destroyed, ["destroy-me1: 3", "destroy-me2: destroy-me1 - 3", "destroy-me2: root - 3", "destroy-me1: 2", "destroy-me2: destroy-me1 - 2", "destroy-me2: root - 2", "destroy-me1: 1", "destroy-me2: destroy-me1 - 1", "destroy-me2: root - 1"], 'destroy should be called for each item');
+    });
+    QUnit.test('components inside the root are destroyed when the render result is destroyed', function (assert) {
+        var glimmerDestroyed = false;
+        var curlyDestroyed = false;
+        var DestroyMe1Component = _glimmerTestHelpers.EmberishGlimmerComponent.extend({
+            destroy: function () {
+                this._super();
+                glimmerDestroyed = true;
+            }
+        });
+        var DestroyMe2Component = _glimmerTestHelpers.EmberishCurlyComponent.extend({
+            destroy: function () {
+                this._super();
+                curlyDestroyed = true;
+            }
+        });
+        env.registerEmberishGlimmerComponent('destroy-me1', DestroyMe1Component, '<div>Destry me!</div>');
+        env.registerEmberishCurlyComponent('destroy-me2', DestroyMe2Component, 'Destroy me too!');
+        appendViewFor("<destroy-me1 />{{destroy-me2}}");
+        assert.strictEqual(glimmerDestroyed, false, 'the glimmer component should not be destroyed');
+        assert.strictEqual(curlyDestroyed, false, 'the curly component should not be destroyed');
+        view.destroy();
+        assert.strictEqual(glimmerDestroyed, true, 'the glimmer component should be destroyed');
+        assert.strictEqual(curlyDestroyed, true, 'the curly component should be destroyed');
+    });
 });
 
 enifed("glimmer-runtime/tests/extern", ["exports"], function (exports) {
@@ -6710,6 +6835,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         BasicComponentManager.prototype.didUpdate = function didUpdate() {};
 
+        BasicComponentManager.prototype.getDestructor = function getDestructor() {
+            return null;
+        };
+
         return BasicComponentManager;
     })();
 
@@ -6758,6 +6887,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         EmberishGlimmerComponentManager.prototype.didUpdate = function didUpdate(component) {
             component.didUpdate();
             component.didRender();
+        };
+
+        EmberishGlimmerComponentManager.prototype.getDestructor = function getDestructor(component) {
+            return component;
         };
 
         return EmberishGlimmerComponentManager;
@@ -6810,6 +6943,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         EmberishCurlyComponentManager.prototype.didUpdate = function didUpdate(component) {
             component.didUpdate();
             component.didRender();
+        };
+
+        EmberishCurlyComponentManager.prototype.getDestructor = function getDestructor(component) {
+            return component;
         };
 
         return EmberishCurlyComponentManager;
@@ -6992,8 +7129,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             this.layoutString = layout;
         }
 
-        GenericComponentDefinition.prototype.getLayout = function getLayout(options) {
-            return _glimmerTestHelpersLibHelpers.compileLayout(this.layoutString, options);
+        GenericComponentDefinition.prototype.compileLayout = function compileLayout(env) {
+            if (this.compiledLayout) return this.compiledLayout;
+            return this.compiledLayout = _glimmerTestHelpersLibHelpers.compileLayout(this.layoutString, { env: env });
         };
 
         return GenericComponentDefinition;
@@ -7009,7 +7147,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         BasicComponentDefinition.prototype.compile = function compile(builder) {
-            builder.fromLayout(this.getLayout(builder));
+            builder.fromLayout(this.compileLayout(builder.env));
         };
 
         return BasicComponentDefinition;
@@ -7029,8 +7167,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         EmberishCurlyComponentDefinition.prototype.compile = function compile(builder) {
-            var layout = this.getLayout(builder);
-            builder.wrapLayout(layout);
+            builder.wrapLayout(this.compileLayout(builder.env));
             builder.tag.static('div');
             builder.attrs.static('class', 'ember-view');
             builder.attrs.dynamic('id', EmberID);
@@ -7049,7 +7186,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         EmberishGlimmerComponentDefinition.prototype.compile = function compile(builder) {
-            builder.fromLayout(this.getLayout(builder));
+            builder.fromLayout(this.compileLayout(builder.env));
             builder.attrs.static('class', 'ember-view');
             builder.attrs.dynamic('id', EmberID);
         };
@@ -23135,7 +23272,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -23200,7 +23337,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertSameNode(element2, element1);
     };
 
-    _class.prototype['@htmlbars it has a jQuery proxy to the element'] = function htmlbarsItHasAJQueryProxyToTheElement(assert) {
+    _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
       var _this3 = this;
 
       var instance = undefined;
@@ -23231,7 +23368,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertSameNode(element2, element1);
     };
 
-    _class.prototype['@htmlbars it scopes the jQuery proxy to the component element'] = function htmlbarsItScopesTheJQueryProxyToTheComponentElement(assert) {
+    _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
       var _this4 = this;
 
       var instance = undefined;
@@ -23386,6 +23523,61 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+      var _this9 = this;
+
+      var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+      this.registerComponent('foo-bar', {
+        template: '{{id}} {{yield}}',
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed[this.get('id')]++;
+          }
+        })
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'), {
+        cond1: true,
+        cond2: true,
+        cond3: true,
+        cond4: true,
+        cond5: true
+      });
+
+      this.assertText('1 2 3 4 5 6 7 8 ');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'cond5', false);
+      });
+
+      this.assertText('1 2 3 4 8 ');
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this9.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this9.context, 'cond4', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this9.context, 'cond1', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     return _class;
@@ -24510,6 +24702,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
   exports.moduleFor = moduleFor;
+  exports.strip = strip;
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -24789,6 +24982,12 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   })(TestCase);
 
   exports.RenderingTest = RenderingTest;
+
+  function strip(str) {
+    return str.split('\n').map(function (s) {
+      return s.trim();
+    }).join('');
+  }
 });
 enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], function (exports, _emberGlimmer) {
   'use strict';
@@ -34828,7 +35027,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
   // from inside the attrs hash out into state and passes it as attrs into a child
   // component. The hooks should run correctly.
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -34893,7 +35092,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertSameNode(element2, element1);
     };
 
-    _class.prototype['@htmlbars it has a jQuery proxy to the element'] = function htmlbarsItHasAJQueryProxyToTheElement(assert) {
+    _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
       var _this3 = this;
 
       var instance = undefined;
@@ -34924,7 +35123,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertSameNode(element2, element1);
     };
 
-    _class.prototype['@htmlbars it scopes the jQuery proxy to the component element'] = function htmlbarsItScopesTheJQueryProxyToTheComponentElement(assert) {
+    _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
       var _this4 = this;
 
       var instance = undefined;
@@ -35079,6 +35278,61 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+      var _this9 = this;
+
+      var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+      this.registerComponent('foo-bar', {
+        template: '{{id}} {{yield}}',
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed[this.get('id')]++;
+          }
+        })
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'), {
+        cond1: true,
+        cond2: true,
+        cond3: true,
+        cond4: true,
+        cond5: true
+      });
+
+      this.assertText('1 2 3 4 5 6 7 8 ');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'cond5', false);
+      });
+
+      this.assertText('1 2 3 4 8 ');
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this9.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this9.context, 'cond4', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this9.context, 'cond1', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     return _class;
@@ -38143,6 +38397,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
   exports.moduleFor = moduleFor;
+  exports.strip = strip;
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -38422,6 +38677,12 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   })(TestCase);
 
   exports.RenderingTest = RenderingTest;
+
+  function strip(str) {
+    return str.split('\n').map(function (s) {
+      return s.trim();
+    }).join('');
+  }
 });
 enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports) {
   "use strict";
@@ -64531,7 +64792,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+13f0d2b4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+81c75336', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
