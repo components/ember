@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.1
+ * @version   2.3.1+65e30068
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -36805,6 +36805,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     var template = '{{render "home" controller="posts"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
+    var model = {};
     var controller = Controller.create((_Controller$create3 = {}, _Controller$create3[_containerOwner.OWNER] = appInstance, _Controller$create3));
     var id = 0;
 
@@ -36812,6 +36813,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       init: function () {
         this._super.apply(this, arguments);
         this.uniqueId = id++;
+        this.set('model', model);
       }
     }));
 
@@ -36821,19 +36823,57 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    var uniqueId = appInstance.lookup('controller:posts').get('uniqueId');
+    var renderedController = appInstance.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
     equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
     equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
+  });
+
+  QUnit.test('{{render}} helper should rerender with given controller', function () {
+    var _Controller$create4, _EmberView$create10;
+
+    var template = '{{render "home" controller="posts"}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var model = {};
+    var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
+    var id = 0;
+
+    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.uniqueId = id++;
+        this.set('model', model);
+      }
+    }));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create10));
+
+    _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
+
+    _emberRuntimeTestsUtils.runAppend(view);
+    _emberMetalRun_loop.default(function () {
+      view.rerender();
+    });
+
+    var renderedController = appInstance.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
+
+    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
+    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
   });
 
   QUnit.test('{{render}} helper should render a template without a model only once', function () {
-    var _Controller$create4, _EmberView$create10;
+    var _Controller$create5, _EmberView$create11;
 
     var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
+    var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create10));
+    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create11));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('<p>BYE</p>');
 
@@ -36843,7 +36883,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render templates with models multiple times', function () {
-    var _Controller$create5, _EmberView$create11;
+    var _Controller$create6, _EmberView$create12;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
     var post1 = {
@@ -36858,9 +36898,9 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       post2: post2
     });
 
-    var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
+    var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create11));
+    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
 
     var postController1, postController2;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -36890,7 +36930,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should not leak controllers', function () {
-    var _Controller$create6, _EmberView$create12;
+    var _Controller$create7, _EmberView$create13;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}}';
     var post1 = {
@@ -36901,9 +36941,9 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       post1: post1
     });
 
-    var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
+    var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
+    view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
 
     var postController;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -36924,13 +36964,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
-    var _EmberController$create2, _EmberView$create13;
+    var _EmberController$create2, _EmberView$create14;
 
     var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
 
     var controller = _emberRuntimeControllersController.default.create((_EmberController$create2 = {}, _EmberController$create2[_containerOwner.OWNER] = appInstance, _EmberController$create2.zero = false, _EmberController$create2));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
+    view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
 
     var postController1, postController2;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -36955,7 +36995,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render templates both with and without models', function () {
-    var _Controller$create7, _EmberView$create14;
+    var _Controller$create8, _EmberView$create15;
 
     var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
     var post = {
@@ -36966,9 +37006,9 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       post: post
     });
 
-    var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
+    var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
+    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = controller, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
 
     var postController1, postController2;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -36998,7 +37038,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should link child controllers to the parent controller', function () {
-    var _Controller$create8, _EmberView$create15;
+    var _Controller$create9, _EmberView$create16;
 
     var parentTriggered = 0;
     var template = '<h1>HI</h1>{{render "posts"}}';
@@ -37010,11 +37050,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       },
       role: 'Mom'
     });
-    var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
+    var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
 
     appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = controller, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
+    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = controller, _EmberView$create16.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create16));
 
     _emberMetalCore.default.TEMPLATES['posts'] = _emberTemplateCompilerSystemCompile.default('<button id="parent-action" {{action "parentPlease"}}>Go to {{parentController.role}}</button>');
 
@@ -37035,11 +37075,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should be able to render a template again when it was removed', function () {
-    var _Controller$create9, _CoreOutlet$create;
+    var _Controller$create10, _CoreOutlet$create;
 
     var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
+    var controller = Controller.create((_Controller$create10 = {}, _Controller$create10[_containerOwner.OWNER] = appInstance, _Controller$create10));
 
     view = CoreOutlet.create((_CoreOutlet$create = {}, _CoreOutlet$create[_containerOwner.OWNER] = appInstance, _CoreOutlet$create));
 
@@ -37079,7 +37119,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} works with dot notation', function () {
-    var _ContextController$create, _EmberView$create16;
+    var _ContextController$create, _EmberView$create17;
 
     var template = '{{render "blog.post"}}';
 
@@ -37097,7 +37137,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
     appInstance.register('controller:blog.post', BlogPostController);
 
-    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = contextController, _EmberView$create16.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create16));
+    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = contextController, _EmberView$create17.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create17));
 
     _emberMetalCore.default.TEMPLATES['blog.post'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
 
@@ -37108,11 +37148,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
-    var _Controller$create10;
+    var _Controller$create11;
 
     var template = '<h1>HI</h1>{{render home}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create10 = {}, _Controller$create10[_containerOwner.OWNER] = appInstance, _Controller$create10));
+    var controller = Controller.create((_Controller$create11 = {}, _Controller$create11[_containerOwner.OWNER] = appInstance, _Controller$create11));
 
     view = _emberViewsViewsView.default.create({
       controller: controller,
@@ -37127,13 +37167,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('throws an assertion if {{render}} is called with a literal for a model', function () {
-    var _Controller$create11, _EmberView$create17;
+    var _Controller$create12, _EmberView$create18;
 
     var template = '<h1>HI</h1>{{render "home" "model"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create11 = {}, _Controller$create11[_containerOwner.OWNER] = appInstance, _Controller$create11));
+    var controller = Controller.create((_Controller$create12 = {}, _Controller$create12[_containerOwner.OWNER] = appInstance, _Controller$create12));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = controller, _EmberView$create17.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create17));
+    view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.controller = controller, _EmberView$create18.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create18));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('<p>BYE</p>');
 
@@ -37143,13 +37183,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should let view provide its own template', function () {
-    var _Controller$create12, _EmberView$create18;
+    var _Controller$create13, _EmberView$create19;
 
     var template = '{{render \'fish\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create12 = {}, _Controller$create12[_containerOwner.OWNER] = appInstance, _Controller$create12));
+    var controller = Controller.create((_Controller$create13 = {}, _Controller$create13[_containerOwner.OWNER] = appInstance, _Controller$create13));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.controller = controller, _EmberView$create18.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create18));
+    view = _emberViewsViewsView.default.create((_EmberView$create19 = {}, _EmberView$create19[_containerOwner.OWNER] = appInstance, _EmberView$create19.controller = controller, _EmberView$create19.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create19));
 
     appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
     appInstance.register('template:other', _emberTemplateCompilerSystemCompile.default('Hello other!'));
@@ -37164,13 +37204,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should not require view to provide its own template', function () {
-    var _Controller$create13, _EmberView$create19;
+    var _Controller$create14, _EmberView$create20;
 
     var template = '{{render \'fish\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create13 = {}, _Controller$create13[_containerOwner.OWNER] = appInstance, _Controller$create13));
+    var controller = Controller.create((_Controller$create14 = {}, _Controller$create14[_containerOwner.OWNER] = appInstance, _Controller$create14));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create19 = {}, _EmberView$create19[_containerOwner.OWNER] = appInstance, _EmberView$create19.controller = controller, _EmberView$create19.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create19));
+    view = _emberViewsViewsView.default.create((_EmberView$create20 = {}, _EmberView$create20[_containerOwner.OWNER] = appInstance, _EmberView$create20.controller = controller, _EmberView$create20.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create20));
 
     appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
 
@@ -49779,7 +49819,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.1+65e30068', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
