@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+e067234f
+ * @version   2.5.0-canary+552e2840
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -46790,17 +46790,17 @@ enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/environment', 'e
     });
   }
 
-  QUnit.test("toString uses an object's toString method when available", function () {
+  QUnit.test('toString uses an object\'s toString method when available', function () {
     var obj = {
       toString: function () {
-        return "bob";
+        return 'bob';
       }
     };
 
     strictEqual(_emberMetalUtils.toString(obj), 'bob');
   });
 
-  QUnit.test("toString falls back to Object.prototype.toString", function () {
+  QUnit.test('toString falls back to Object.prototype.toString', function () {
     var obj = Object.create(null);
 
     strictEqual(_emberMetalUtils.toString(obj), ({}).toString());
@@ -64388,7 +64388,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+e067234f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+552e2840', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
