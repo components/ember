@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-beta.3+11d92242
+ * @version   2.4.0-beta.3+e6952497
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -5039,7 +5039,6 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
       @param url {String} The initial URL to navigate to
       @param options {Ember.ApplicationInstance.BootOptions}
       @return {Promise<Ember.ApplicationInstance, Error>}
-      @private
     */
     visit: function (url, options) {
       var _this = this;
@@ -9063,7 +9062,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
       var isTruthyVal = _emberMetalStreamsUtils.read(isTruthy);
 
       if (_emberRuntimeUtils.isArray(predicateVal)) {
-        return lengthVal > 0;
+        return lengthVal > 0 ? predicateVal : false;
       }
 
       if (typeof isTruthyVal === 'boolean') {
@@ -9773,7 +9772,7 @@ enifed('ember-htmlbars/keywords/component', ['exports', 'htmlbars-runtime/hooks'
   
     ```handlebars
     {{yield (hash
-        nameInput=(component "input" value=model.name placeholder="First Name"))}}
+        nameInput=(component "my-input-component" value=model.name placeholder="First Name"))}}
     ```
   
     The following snippet:
@@ -10496,7 +10495,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-beta.3+11d92242';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-beta.3+e6952497';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -16165,7 +16164,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-beta.3+11d92242
+    @version 2.4.0-beta.3+e6952497
     @public
   */
 
@@ -16207,11 +16206,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-beta.3+11d92242'
+    @default '2.4.0-beta.3+e6952497'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-beta.3+11d92242';
+  Ember.VERSION = '2.4.0-beta.3+e6952497';
 
   /**
     The hash of environment variables used to control various configuration
@@ -30277,7 +30276,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-beta.3+11d92242';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-beta.3+e6952497';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30780,7 +30779,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-beta.3+11d92242';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-beta.3+e6952497';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39799,7 +39798,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-beta.3+11d92242',
+        revision: 'Ember@2.4.0-beta.3+e6952497',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45139,7 +45138,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-beta.3+11d92242';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-beta.3+e6952497';
 
   /**
   @module ember
