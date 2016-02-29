@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-beta.3
+ * @version   2.4.0
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4875,7 +4875,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-beta.3
+    @version 2.4.0
     @public
   */
 
@@ -4917,11 +4917,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-beta.3'
+    @default '2.4.0'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-beta.3';
+  Ember.VERSION = '2.4.0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -6038,6 +6038,10 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
       _emberMetalCore.default.Debug.registerWarnHandler = function () {};
     }
   }
+
+  _emberMetalDebug.deprecate('Support for the `ember-legacy-views` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'ember-legacy-views', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
+
+  _emberMetalDebug.deprecate('Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT, { id: 'ember-legacy-controllers', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
 
   _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
   _emberMetalCore.default.keys = _emberMetalDebug.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);

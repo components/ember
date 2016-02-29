@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.4.0-beta.3"
+        "version": "v2.4.0"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -5465,8 +5465,6 @@
                 "description": "",
                 "type": "Promise<Ember.ApplicationInstance, Error>"
             },
-            "access": "private",
-            "tagname": "",
             "class": "Ember.Application",
             "module": "ember",
             "submodule": "ember-application",
@@ -5474,7 +5472,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 1013,
+            "line": 1012,
             "description": "This creates a registry with the default Ember naming conventions.\n\nIt also configures the registry:\n\n* registered views are created every time they are looked up (they are\n  not singletons)\n* registered templates are not factories; the registered value is\n  returned directly.\n* the router receives the application as its `namespace` property\n* all controllers receive the router as their `target` and `controllers`\n  properties\n* all controllers receive the application as their `namespace` property\n* the application view receives the application controller as its\n  `controller` property\n* the application view receives the application template as its\n  `defaultTemplate` property",
             "access": "public",
             "tagname": "",
@@ -6951,7 +6949,7 @@
         {
             "file": "packages/ember-htmlbars/lib/keywords/component.js",
             "line": 12,
-            "description": "The `{{component}}` helper lets you add instances of `Ember.Component` to a\ntemplate. See [Ember.Component](/api/classes/Ember.Component.html) for\nadditional information on how a `Component` functions.\n`{{component}}`'s primary use is for cases where you want to dynamically\nchange which type of component is rendered as the state of your application\nchanges. The provided block will be applied as the template for the component.\nGiven an empty `<body>` the following template:\n\n```handlebars\n{{! application.hbs }}\n{{component infographicComponentName}}\n```\n\nAnd the following application code:\n\n```javascript\nexport default Ember.Controller.extend({\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nThe `live-updating-chart` component will be appended when `isMarketOpen` is\n`true`, and the `market-close-summary` component will be appended when\n`isMarketOpen` is `false`. If the value changes while the app is running,\nthe component will be automatically swapped out accordingly.\nNote: You should not use this helper when you are consistently rendering the same\ncomponent. In that case, use standard component syntax, for example:\n\n```handlebars\n{{! application.hbs }}\n{{live-updating-chart}}\n```\n\n## Nested Usage\n\nThe `component` helper can be used to package a component path with initial attrs.\nThe included attrs can then be merged during the final invocation.\n\nFor example, given a `person-form` component with the following template:\n\n```handlebars\n{{yield (hash\n    nameInput=(component \"input\" value=model.name placeholder=\"First Name\"))}}\n```\n\nThe following snippet:\n\n```\n{{#person-form as |form|}}\n  {{component form.nameInput placeholder=\"Username\"}}\n{{/person-form}}\n```\n\nwould output an input whose value is already bound to `model.name` and `placeholder`\nis \"Username\".",
+            "description": "The `{{component}}` helper lets you add instances of `Ember.Component` to a\ntemplate. See [Ember.Component](/api/classes/Ember.Component.html) for\nadditional information on how a `Component` functions.\n`{{component}}`'s primary use is for cases where you want to dynamically\nchange which type of component is rendered as the state of your application\nchanges. The provided block will be applied as the template for the component.\nGiven an empty `<body>` the following template:\n\n```handlebars\n{{! application.hbs }}\n{{component infographicComponentName}}\n```\n\nAnd the following application code:\n\n```javascript\nexport default Ember.Controller.extend({\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nThe `live-updating-chart` component will be appended when `isMarketOpen` is\n`true`, and the `market-close-summary` component will be appended when\n`isMarketOpen` is `false`. If the value changes while the app is running,\nthe component will be automatically swapped out accordingly.\nNote: You should not use this helper when you are consistently rendering the same\ncomponent. In that case, use standard component syntax, for example:\n\n```handlebars\n{{! application.hbs }}\n{{live-updating-chart}}\n```\n\n## Nested Usage\n\nThe `component` helper can be used to package a component path with initial attrs.\nThe included attrs can then be merged during the final invocation.\n\nFor example, given a `person-form` component with the following template:\n\n```handlebars\n{{yield (hash\n    nameInput=(component \"my-input-component\" value=model.name placeholder=\"First Name\"))}}\n```\n\nThe following snippet:\n\n```\n{{#person-form as |form|}}\n  {{component form.nameInput placeholder=\"Username\"}}\n{{/person-form}}\n```\n\nwould output an input whose value is already bound to `model.name` and `placeholder`\nis \"Username\".",
             "itemtype": "method",
             "name": "component",
             "since": "1.11.0",
