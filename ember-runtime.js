@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+e134483e
+ * @version   2.5.0-canary+346bdc34
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+e134483e
+    @version 2.5.0-canary+346bdc34
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+e134483e'
+    @default '2.5.0-canary+346bdc34'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+e134483e';
+  Ember.VERSION = '2.5.0-canary+346bdc34';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12554,7 +12554,18 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
         return spaceship(v, w);
 
       case 'string':
-        return spaceship(v.localeCompare(w), 0);
+        // We are comparing Strings using operators instead of `String#localeCompare`
+        // because of unexpected behavior for certain edge cases.
+        // For example `'Z'.localeCompare('a')` returns `1`.
+        //
+        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare#Description
+        if (v < w) {
+          return -1;
+        } else if (v === w) {
+          return 0;
+        }
+
+        return 1;
 
       case 'array':
         var vLen = v.length;
