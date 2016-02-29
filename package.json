@@ -1,6 +1,6 @@
 {
   "name": "components-ember",
-  "version": "2.3.1+65e30068",
+  "version": "2.4.0",
   "description": "Ember Application Framework",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
@@ -9,7 +9,7 @@
   ],
   "main": "./ember.debug.js",
   "dependencies": {
-    "jquery": ">=1.7.0 < 2.2.0"
+    "jquery": ">=1.7.0 <3.0.0"
   },
   "jspm": {
     "main": "ember.debug",
