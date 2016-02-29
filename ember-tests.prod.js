@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+3fe509e7
+ * @version   2.5.0-canary+2bf4f1df
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24696,7 +24696,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-gl
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'glimmer-test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _glimmerTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -24904,7 +24904,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     RenderingTest.prototype.assertHTML = function assertHTML(html) {
-      _glimmerTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
 
     RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
@@ -24928,7 +24928,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
       }
 
-      _glimmerTestHelpers.equalsElement(node, tagName, attrs, content);
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
     };
 
     RenderingTest.prototype.assertComponentElement = function assertComponentElement(node, _ref3) {
@@ -24941,7 +24941,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       var _ref3$content = _ref3.content;
       var content = _ref3$content === undefined ? null : _ref3$content;
 
-      attrs = _emberMetalAssign.default({}, { id: _glimmerTestHelpers.regex(/^ember\d*$/), class: _glimmerTestHelpers.classes('ember-view') }, attrs || {});
+      attrs = _emberMetalAssign.default({}, { id: _emberGlimmerTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
     };
 
@@ -25701,6 +25701,141 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
   })(_emberGlimmerTestsUtilsAbstractTestCase.RenderingTest);
 
   exports.RenderingTest = RenderingTest;
+});
+enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
+  'use strict';
+
+  exports.equalTokens = equalTokens;
+  exports.equalsElement = equalsElement;
+  exports.regex = regex;
+  exports.classes = classes;
+
+  function generateTokens(containerOrHTML) {
+    if (typeof containerOrHTML === 'string') {
+      return {
+        tokens: _simpleHtmlTokenizer.tokenize(containerOrHTML),
+        html: containerOrHTML
+      };
+    } else {
+      return {
+        tokens: _simpleHtmlTokenizer.tokenize(containerOrHTML.innerHTML),
+        html: containerOrHTML.innerHTML
+      };
+    }
+  }
+
+  function normalizeTokens(tokens) {
+    tokens.forEach(function (token) {
+      if (token.type === 'StartTag') {
+        token.attributes = token.attributes.sort(function (a, b) {
+          if (a[0] > b[0]) {
+            return 1;
+          }
+          if (a[0] < b[0]) {
+            return -1;
+          }
+          return 0;
+        });
+      }
+    });
+  }
+
+  function equalTokens(actualContainer, expectedHTML) {
+    var message = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+    var actual = generateTokens(actualContainer);
+    var expected = generateTokens(expectedHTML);
+
+    normalizeTokens(actual.tokens);
+    normalizeTokens(expected.tokens);
+
+    var equiv = QUnit.equiv(actual.tokens, expected.tokens);
+
+    if (equiv && expected.html !== actual.html) {
+      deepEqual(actual.tokens, expected.tokens, message);
+    } else {
+      QUnit.push(QUnit.equiv(actual.tokens, expected.tokens), actual.html, expected.html, message);
+    }
+  }
+
+  var MATCHER_BRAND = '3d4ef194-13be-4ccf-8dc7-862eea02c93e';
+
+  function isMatcher(obj) {
+    return typeof obj === 'object' && MATCHER_BRAND in obj;
+  }
+
+  var HTMLElement = window.HTMLElement;
+
+  function equalsElement(element, tagName, attributes, content) {
+    QUnit.push(element.tagName === tagName.toUpperCase(), element.tagName.toLowerCase(), tagName, 'expect tagName to be ' + tagName);
+
+    var expectedAttrs = {};
+    var expectedCount = 0;
+
+    for (var _name in attributes) {
+      expectedCount++;
+
+      var expected = attributes[_name];
+
+      var matcher = isMatcher(expected) ? expected : equalsAttr(expected);
+
+      expectedAttrs[_name] = matcher;
+
+      QUnit.push(expectedAttrs[_name].match(element.getAttribute(_name)), element.getAttribute(_name), matcher.expected(), 'Element\'s ' + _name + ' attribute ' + matcher.message());
+    }
+
+    var actualAttributes = {};
+
+    for (var i = 0, l = element.attributes.length; i < l; i++) {
+      actualAttributes[element.attributes[i].name] = element.attributes[i].value;
+    }
+
+    if (!(element instanceof HTMLElement)) {
+      QUnit.push(element instanceof HTMLElement, null, null, 'Element must be an HTML Element, not an SVG Element');
+    } else {
+      QUnit.push(element.attributes.length === expectedCount, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
+
+      if (content !== null) {
+        QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
+      }
+    }
+  }
+
+  function equalsAttr(expected) {
+    var _ref;
+
+    return _ref = {}, _ref[MATCHER_BRAND] = true, _ref.match = function (actual) {
+      return expected === actual;
+    }, _ref.expected = function () {
+      return expected;
+    }, _ref.message = function () {
+      return 'should equal ' + this.expected();
+    }, _ref;
+  }
+
+  function regex(r) {
+    var _ref2;
+
+    return _ref2 = {}, _ref2[MATCHER_BRAND] = true, _ref2.match = function (v) {
+      return r.test(v);
+    }, _ref2.expected = function () {
+      return r.toString();
+    }, _ref2.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref2;
+  }
+
+  function classes(expected) {
+    var _ref3;
+
+    return _ref3 = {}, _ref3[MATCHER_BRAND] = true, _ref3.match = function (actual) {
+      return actual && expected.split(' ').sort().join(' ') === actual.split(' ').sort().join(' ');
+    }, _ref3.expected = function () {
+      return expected;
+    }, _ref3.message = function () {
+      return 'should match ' + this.expected;
+    }, _ref3;
+  }
 });
 enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
@@ -38391,7 +38526,7 @@ enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/v
     ok(extractEnv(components.child) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{child-component}} environment should be an instance of RenderEnv');
   });
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'glimmer-test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _glimmerTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -38599,7 +38734,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     RenderingTest.prototype.assertHTML = function assertHTML(html) {
-      _glimmerTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
 
     RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
@@ -38623,7 +38758,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
       }
 
-      _glimmerTestHelpers.equalsElement(node, tagName, attrs, content);
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
     };
 
     RenderingTest.prototype.assertComponentElement = function assertComponentElement(node, _ref3) {
@@ -38636,7 +38771,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       var _ref3$content = _ref3.content;
       var content = _ref3$content === undefined ? null : _ref3$content;
 
-      attrs = _emberMetalAssign.default({}, { id: _glimmerTestHelpers.regex(/^ember\d*$/), class: _glimmerTestHelpers.classes('ember-view') }, attrs || {});
+      attrs = _emberMetalAssign.default({}, { id: _emberHtmlbarsTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
     };
 
@@ -39417,6 +39552,141 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
   })(_emberHtmlbarsTestsUtilsAbstractTestCase.RenderingTest);
 
   exports.RenderingTest = RenderingTest;
+});
+enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
+  'use strict';
+
+  exports.equalTokens = equalTokens;
+  exports.equalsElement = equalsElement;
+  exports.regex = regex;
+  exports.classes = classes;
+
+  function generateTokens(containerOrHTML) {
+    if (typeof containerOrHTML === 'string') {
+      return {
+        tokens: _simpleHtmlTokenizer.tokenize(containerOrHTML),
+        html: containerOrHTML
+      };
+    } else {
+      return {
+        tokens: _simpleHtmlTokenizer.tokenize(containerOrHTML.innerHTML),
+        html: containerOrHTML.innerHTML
+      };
+    }
+  }
+
+  function normalizeTokens(tokens) {
+    tokens.forEach(function (token) {
+      if (token.type === 'StartTag') {
+        token.attributes = token.attributes.sort(function (a, b) {
+          if (a[0] > b[0]) {
+            return 1;
+          }
+          if (a[0] < b[0]) {
+            return -1;
+          }
+          return 0;
+        });
+      }
+    });
+  }
+
+  function equalTokens(actualContainer, expectedHTML) {
+    var message = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+    var actual = generateTokens(actualContainer);
+    var expected = generateTokens(expectedHTML);
+
+    normalizeTokens(actual.tokens);
+    normalizeTokens(expected.tokens);
+
+    var equiv = QUnit.equiv(actual.tokens, expected.tokens);
+
+    if (equiv && expected.html !== actual.html) {
+      deepEqual(actual.tokens, expected.tokens, message);
+    } else {
+      QUnit.push(QUnit.equiv(actual.tokens, expected.tokens), actual.html, expected.html, message);
+    }
+  }
+
+  var MATCHER_BRAND = '3d4ef194-13be-4ccf-8dc7-862eea02c93e';
+
+  function isMatcher(obj) {
+    return typeof obj === 'object' && MATCHER_BRAND in obj;
+  }
+
+  var HTMLElement = window.HTMLElement;
+
+  function equalsElement(element, tagName, attributes, content) {
+    QUnit.push(element.tagName === tagName.toUpperCase(), element.tagName.toLowerCase(), tagName, 'expect tagName to be ' + tagName);
+
+    var expectedAttrs = {};
+    var expectedCount = 0;
+
+    for (var _name in attributes) {
+      expectedCount++;
+
+      var expected = attributes[_name];
+
+      var matcher = isMatcher(expected) ? expected : equalsAttr(expected);
+
+      expectedAttrs[_name] = matcher;
+
+      QUnit.push(expectedAttrs[_name].match(element.getAttribute(_name)), element.getAttribute(_name), matcher.expected(), 'Element\'s ' + _name + ' attribute ' + matcher.message());
+    }
+
+    var actualAttributes = {};
+
+    for (var i = 0, l = element.attributes.length; i < l; i++) {
+      actualAttributes[element.attributes[i].name] = element.attributes[i].value;
+    }
+
+    if (!(element instanceof HTMLElement)) {
+      QUnit.push(element instanceof HTMLElement, null, null, 'Element must be an HTML Element, not an SVG Element');
+    } else {
+      QUnit.push(element.attributes.length === expectedCount, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
+
+      if (content !== null) {
+        QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
+      }
+    }
+  }
+
+  function equalsAttr(expected) {
+    var _ref;
+
+    return _ref = {}, _ref[MATCHER_BRAND] = true, _ref.match = function (actual) {
+      return expected === actual;
+    }, _ref.expected = function () {
+      return expected;
+    }, _ref.message = function () {
+      return 'should equal ' + this.expected();
+    }, _ref;
+  }
+
+  function regex(r) {
+    var _ref2;
+
+    return _ref2 = {}, _ref2[MATCHER_BRAND] = true, _ref2.match = function (v) {
+      return r.test(v);
+    }, _ref2.expected = function () {
+      return r.toString();
+    }, _ref2.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref2;
+  }
+
+  function classes(expected) {
+    var _ref3;
+
+    return _ref3 = {}, _ref3[MATCHER_BRAND] = true, _ref3.match = function (actual) {
+      return actual && expected.split(' ').sort().join(' ') === actual.split(' ').sort().join(' ');
+    }, _ref3.expected = function () {
+      return expected;
+    }, _ref3.message = function () {
+      return 'should match ' + this.expected;
+    }, _ref3;
+  }
 });
 enifed('ember-htmlbars/tests/utils', ['exports', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
   'use strict';
@@ -64392,7 +64662,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+3fe509e7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+2bf4f1df', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
