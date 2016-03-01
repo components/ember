@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+57d8c36a
+ * @version   2.6.0-canary+036ff2fb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -18871,7 +18871,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalAssign, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug) {
   /*globals EmberDev */
 
   'use strict';
@@ -19210,6 +19210,75 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     equal(_emberRuntimeSystemLazy_load._loaded.application, app);
     _emberMetalRun_loop.default(app, 'destroy');
     equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
+  });
+
+  var originalEmberENV = undefined;
+
+  QUnit.module('Ember.Application - legacy addon deprecation warnings', {
+    setup: function () {
+      originalEmberENV = _emberMetalCore.default.ENV;
+
+      _emberMetalCore.default.ENV = _emberMetalAssign.default({}, originalEmberENV, {
+        _ENABLE_LEGACY_VIEW_SUPPORT: false,
+        _ENABLE_LEGACY_CONTROLLER_SUPPORT: false
+      });
+
+      _emberApplicationSystemApplication._resetLegacyAddonWarnings();
+    },
+
+    teardown: function () {
+      _emberMetalCore.default.ENV = originalEmberENV;
+
+      if (app) {
+        _emberMetalRun_loop.default(app, 'destroy');
+      }
+    }
+  });
+
+  QUnit.test('it does not warn about the ember-legacy-views addon on first boot when not installed', function () {
+    expectNoDeprecation();
+
+    _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
+  });
+
+  QUnit.test('it warns about the ember-legacy-views addon on first boot when installed', function () {
+    _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
+
+    expectDeprecation(function () {
+      app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
+    }, 'Support for the `ember-legacy-views` addon will end soon, please remove it from your application.');
+
+    _emberMetalRun_loop.default(app, 'destroy');
+
+    // It should not warn again on second boot
+    expectNoDeprecation(function () {
+      app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
+    });
+  });
+
+  QUnit.test('it does not warn about the ember-legacy-controllers addon on first boot when not installed', function () {
+    expectNoDeprecation();
+
+    _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
+
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
+  });
+
+  QUnit.test('it warns about the ember-legacy-controllers addon on first boot when installed', function () {
+    _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = true;
+
+    expectDeprecation(function () {
+      app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
+    }, 'Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.');
+
+    _emberMetalRun_loop.default(app, 'destroy');
+
+    // It should not warn again on second boot
+    expectNoDeprecation(function () {
+      app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
+    });
   });
 });
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/system/compile'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerSystemCompile) {
@@ -64662,7 +64731,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+57d8c36a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+036ff2fb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
