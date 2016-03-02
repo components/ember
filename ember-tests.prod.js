@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+036ff2fb
+ * @version   2.6.0-canary+95786674
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -54167,10 +54167,6 @@ enifed('ember-runtime/tests/core/compare_test', ['exports', 'ember-runtime/utils
     equal(_emberRuntimeCompare.default('a', negOne), 1, 'Second item comparable - returns -1 (negated)');
     equal(_emberRuntimeCompare.default('b', zero), 0, 'Second item comparable - returns  0 (negated)');
     equal(_emberRuntimeCompare.default('c', one), -1, 'Second item comparable - returns  1 (negated)');
-
-    equal(_emberRuntimeCompare.default('A', 'Z'), -1, '\'A\' < \'Z\' returns -1');
-    equal(_emberRuntimeCompare.default('Z', 'a'), -1, '\'Z\' < \'a\' returns -1');
-    equal(_emberRuntimeCompare.default('a', 'z'), -1, '\'a\' < \'z\' returns -1');
   });
 });
 enifed('ember-runtime/tests/core/copy_test', ['exports', 'ember-runtime/copy'], function (exports, _emberRuntimeCopy) {
@@ -64731,7 +64727,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+036ff2fb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+95786674', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
