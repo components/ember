@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+95786674
+ * @version   2.6.0-canary+c7ddfb44
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -44150,6 +44150,29 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-runt
     equal(_emberMetalProperty_get.get(obj, 'options').b.c, 'ccc');
   });
 
+  QUnit.test('defining mergedProperties at create time should not modify the prototype', function () {
+    var AnObj = _emberRuntimeSystemObject.default.extend({
+      mergedProperties: ['options'],
+      options: {
+        a: 1
+      }
+    });
+
+    var objA = AnObj.create({
+      options: {
+        a: 2
+      }
+    });
+    var objB = AnObj.create({
+      options: {
+        a: 3
+      }
+    });
+
+    equal(_emberMetalProperty_get.get(objA, 'options').a, 2);
+    equal(_emberMetalProperty_get.get(objB, 'options').a, 3);
+  });
+
   QUnit.test('mergedProperties\' overwriting methods can call _super', function () {
     expect(4);
 
@@ -65171,7 +65194,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+95786674', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+c7ddfb44', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
