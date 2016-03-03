@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.1+e50e058d
+ * @version   2.5.0-beta.1+0bf24e2b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.1+e50e058d
+    @version 2.5.0-beta.1+0bf24e2b
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.1+e50e058d'
+    @default '2.5.0-beta.1+0bf24e2b'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.1+e50e058d';
+  Ember.VERSION = '2.5.0-beta.1+0bf24e2b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12554,18 +12554,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
         return spaceship(v, w);
 
       case 'string':
-        // We are comparing Strings using operators instead of `String#localeCompare`
-        // because of unexpected behavior for certain edge cases.
-        // For example `'Z'.localeCompare('a')` returns `1`.
-        //
-        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare#Description
-        if (v < w) {
-          return -1;
-        } else if (v === w) {
-          return 0;
-        }
-
-        return 1;
+        return spaceship(v.localeCompare(w), 0);
 
       case 'array':
         var vLen = v.length;
@@ -18443,7 +18432,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
             if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
               var originalValue = this[keyName];
 
-              value = _emberMetalAssign.default(originalValue, value);
+              value = _emberMetalAssign.default({}, originalValue, value);
             }
 
             if (desc) {
