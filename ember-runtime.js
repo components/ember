@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.1
+ * @version   2.4.1+4965dfec
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4875,7 +4875,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.1
+    @version 2.4.1+4965dfec
     @public
   */
 
@@ -4917,11 +4917,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.1'
+    @default '2.4.1+4965dfec'
     @static
     @public
   */
-  Ember.VERSION = '2.4.1';
+  Ember.VERSION = '2.4.1+4965dfec';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18533,7 +18533,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
             if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
               var originalValue = this[keyName];
 
-              value = _emberMetalAssign.default(originalValue, value);
+              value = _emberMetalAssign.default({}, originalValue, value);
             }
 
             if (desc) {
