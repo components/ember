@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+9dee81eb
+ * @version   2.6.0-canary+386c65ef
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25698,7 +25698,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     SharedSyntaxConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
       var _this16 = this;
 
-      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+      var template = this.wrappedTemplateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
 
       this.render(template, { isTruthy: true });
 
@@ -25721,6 +25721,121 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       });
 
       this.assertText('T1');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it updates correctly when enclosing another conditional'] = function htmlbarsItUpdatesCorrectlyWhenEnclosingAnotherConditional() {
+      var _this17 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#if inner}}T-inner{{else}}F-inner{{/if}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: true, inner: true });
+
+      this.assertText('T-inner');
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertText('T-inner');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this17.context, 'inner', false);
+      });
+
+      this.assertText('F-inner');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this17.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it updates correctly when enclosing #each'] = function htmlbarsItUpdatesCorrectlyWhenEnclosingEach() {
+      var _this18 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: true, inner: ['inner', '-', 'before'] });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-after']);
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
+
+      // Reset
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-again']);
+        _emberMetalProperty_set.set(_this18.context, 'outer', true);
+      });
+
+      this.assertText('inner-again');
+
+      // Now clear the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', []);
+      });
+
+      this.assertText('');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it updates correctly when enclosing triple-curlies'] = function htmlbarsItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
+      var _this19 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: true, inner: '<b>inner</b>-<b>before</b>' });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'inner', '<p>inner-after</p>');
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
     };
 
     return SharedSyntaxConditionalsTest;
@@ -39534,7 +39649,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     SharedSyntaxConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
       var _this16 = this;
 
-      var template = this.templateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
+      var template = this.wrappedTemplateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
 
       this.render(template, { isTruthy: true });
 
@@ -39557,6 +39672,121 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       });
 
       this.assertText('T1');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it updates correctly when enclosing another conditional'] = function htmlbarsItUpdatesCorrectlyWhenEnclosingAnotherConditional() {
+      var _this17 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#if inner}}T-inner{{else}}F-inner{{/if}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: true, inner: true });
+
+      this.assertText('T-inner');
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertText('T-inner');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this17.context, 'inner', false);
+      });
+
+      this.assertText('F-inner');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this17.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it updates correctly when enclosing #each'] = function htmlbarsItUpdatesCorrectlyWhenEnclosingEach() {
+      var _this18 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: true, inner: ['inner', '-', 'before'] });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-after']);
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
+
+      // Reset
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-again']);
+        _emberMetalProperty_set.set(_this18.context, 'outer', true);
+      });
+
+      this.assertText('inner-again');
+
+      // Now clear the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', []);
+      });
+
+      this.assertText('');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    SharedSyntaxConditionalsTest.prototype['@htmlbars it updates correctly when enclosing triple-curlies'] = function htmlbarsItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
+      var _this19 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: true, inner: '<b>inner</b>-<b>before</b>' });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'inner', '<p>inner-after</p>');
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'outer', false);
+      });
+
+      this.assertText('F-outer');
     };
 
     return SharedSyntaxConditionalsTest;
@@ -65194,7 +65424,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+9dee81eb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+386c65ef', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
