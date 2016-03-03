@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+386c65ef
+ * @version   2.6.0-canary+58c9ff81
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+386c65ef
+    @version 2.6.0-canary+58c9ff81
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+386c65ef'
+    @default '2.6.0-canary+58c9ff81'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+386c65ef';
+  Ember.VERSION = '2.6.0-canary+58c9ff81';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5695,7 +5695,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null, "ember-htmlbars-local-lookup": null, "ember-application-engines": null, "ember-glimmer": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-application-engines": null, "ember-glimmer": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
