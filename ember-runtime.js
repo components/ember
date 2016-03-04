@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+8b643c6e
+ * @version   2.6.0-canary+7e807172
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+8b643c6e
+    @version 2.6.0-canary+7e807172
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+8b643c6e'
+    @default '2.6.0-canary+7e807172'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+8b643c6e';
+  Ember.VERSION = '2.6.0-canary+7e807172';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14381,7 +14381,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', '
     });
   }
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
   /**
   @module ember
   @submodule ember-runtime
@@ -14392,9 +14392,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   //
   'use strict';
 
+  var _Mixin$create;
+
   exports.addArrayObserver = addArrayObserver;
   exports.removeArrayObserver = removeArrayObserver;
   exports.objectAt = objectAt;
+  exports.isEmberArray = isEmberArray;
 
   function arrayObserversHelper(obj, target, opts, operation, notify) {
     var willChange = opts && opts.willChange || 'arrayWillChange';
@@ -14429,6 +14432,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     return content[idx];
+  }
+
+  var EMBER_ARRAY = _emberMetalSymbol.default('EMBER_ARRAY');
+
+  function isEmberArray(obj) {
+    return obj && !!obj[EMBER_ARRAY];
   }
 
   // ..........................................................
@@ -14471,424 +14480,403 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     @since Ember 0.9.0
     @public
   */
-  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsEnumerable.default, {
+  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsEnumerable.default, (_Mixin$create = {}, _Mixin$create[EMBER_ARRAY] = true, _Mixin$create.length = null, _Mixin$create.objectAt = function (idx) {
+    if (idx < 0 || idx >= _emberMetalProperty_get.get(this, 'length')) {
+      return undefined;
+    }
 
-    /**
-      __Required.__ You must implement this method to apply this mixin.
-       Your array must support the `length` property. Your replace methods should
-      set this property whenever it changes.
-       @property {Number} length
-      @public
-    */
-    length: null,
+    return _emberMetalProperty_get.get(this, idx);
+  }, _Mixin$create.objectsAt = function (indexes) {
+    var _this = this;
 
-    /**
-      Returns the object at the given `index`. If the given `index` is negative
-      or is greater or equal than the array length, returns `undefined`.
-       This is one of the primitives you must implement to support `Ember.Array`.
-      If your object supports retrieving the value of an array item using `get()`
-      (i.e. `myArray.get(0)`), then you do not need to implement this method
-      yourself.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd'];
-       arr.objectAt(0);   // 'a'
-      arr.objectAt(3);   // 'd'
-      arr.objectAt(-1);  // undefined
-      arr.objectAt(4);   // undefined
-      arr.objectAt(5);   // undefined
-      ```
-       @method objectAt
-      @param {Number} idx The index of the item to return.
-      @return {*} item at index or undefined
-      @public
-    */
-    objectAt: function (idx) {
-      if (idx < 0 || idx >= _emberMetalProperty_get.get(this, 'length')) {
-        return undefined;
-      }
-
-      return _emberMetalProperty_get.get(this, idx);
-    },
-
-    /**
-      This returns the objects at the specified indexes, using `objectAt`.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd'];
-       arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
-      arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
-      ```
-       @method objectsAt
-      @param {Array} indexes An array of indexes of items to return.
-      @return {Array}
-      @public
-     */
-    objectsAt: function (indexes) {
-      var _this = this;
-
-      return indexes.map(function (idx) {
-        return objectAt(_this, idx);
-      });
-    },
-
-    // overrides Ember.Enumerable version
-    nextObject: function (idx) {
-      return objectAt(this, idx);
-    },
-
-    /**
-      This is the handler for the special array content property. If you get
-      this property, it will return this. If you set this property to a new
-      array, it will replace the current content.
-       This property overrides the default property defined in `Ember.Enumerable`.
-       @property []
-      @return this
-      @public
-    */
-    '[]': _emberMetalComputed.computed({
-      get: function (key) {
-        return this;
-      },
-      set: function (key, value) {
-        this.replace(0, _emberMetalProperty_get.get(this, 'length'), value);
-        return this;
-      }
-    }),
-
-    firstObject: _emberMetalComputed.computed(function () {
-      return objectAt(this, 0);
-    }),
-
-    lastObject: _emberMetalComputed.computed(function () {
-      return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
-    }),
-
-    // optimized version from Enumerable
-    contains: function (obj) {
-      return this.indexOf(obj) >= 0;
-    },
-
-    // Add any extra methods to Ember.Array that are native to the built-in Array.
-    /**
-      Returns a new array that is a slice of the receiver. This implementation
-      uses the observable array methods to retrieve the objects for the new
-      slice.
-       ```javascript
-      var arr = ['red', 'green', 'blue'];
-       arr.slice(0);       // ['red', 'green', 'blue']
-      arr.slice(0, 2);    // ['red', 'green']
-      arr.slice(1, 100);  // ['green', 'blue']
-      ```
-       @method slice
-      @param {Number} beginIndex (Optional) index to begin slicing from.
-      @param {Number} endIndex (Optional) index to end the slice at (but not included).
-      @return {Array} New array with specified slice
-      @public
-    */
-    slice: function (beginIndex, endIndex) {
-      var ret = _emberMetalCore.default.A();
-      var length = _emberMetalProperty_get.get(this, 'length');
-
-      if (_emberMetalIs_none.default(beginIndex)) {
-        beginIndex = 0;
-      }
-
-      if (_emberMetalIs_none.default(endIndex) || endIndex > length) {
-        endIndex = length;
-      }
-
-      if (beginIndex < 0) {
-        beginIndex = length + beginIndex;
-      }
-
-      if (endIndex < 0) {
-        endIndex = length + endIndex;
-      }
-
-      while (beginIndex < endIndex) {
-        ret[ret.length] = objectAt(this, beginIndex++);
-      }
-
-      return ret;
-    },
-
-    /**
-      Returns the index of the given object's first occurrence.
-      If no `startAt` argument is given, the starting location to
-      search is 0. If it's negative, will count backward from
-      the end of the array. Returns -1 if no match is found.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd', 'a'];
-       arr.indexOf('a');       //  0
-      arr.indexOf('z');       // -1
-      arr.indexOf('a', 2);    //  4
-      arr.indexOf('a', -1);   //  4
-      arr.indexOf('b', 3);    // -1
-      arr.indexOf('a', 100);  // -1
-      ```
-       @method indexOf
-      @param {Object} object the item to search for
-      @param {Number} startAt optional starting location to search, default 0
-      @return {Number} index or -1 if not found
-      @public
-    */
-    indexOf: function (object, startAt) {
-      var len = _emberMetalProperty_get.get(this, 'length');
-      var idx;
-
-      if (startAt === undefined) {
-        startAt = 0;
-      }
-
-      if (startAt < 0) {
-        startAt += len;
-      }
-
-      for (idx = startAt; idx < len; idx++) {
-        if (objectAt(this, idx) === object) {
-          return idx;
-        }
-      }
-
-      return -1;
-    },
-
-    /**
-      Returns the index of the given object's last occurrence.
-      If no `startAt` argument is given, the search starts from
-      the last position. If it's negative, will count backward
-      from the end of the array. Returns -1 if no match is found.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd', 'a'];
-       arr.lastIndexOf('a');       //  4
-      arr.lastIndexOf('z');       // -1
-      arr.lastIndexOf('a', 2);    //  0
-      arr.lastIndexOf('a', -1);   //  4
-      arr.lastIndexOf('b', 3);    //  1
-      arr.lastIndexOf('a', 100);  //  4
-      ```
-       @method lastIndexOf
-      @param {Object} object the item to search for
-      @param {Number} startAt optional starting location to search, default 0
-      @return {Number} index or -1 if not found
-      @public
-    */
-    lastIndexOf: function (object, startAt) {
-      var len = _emberMetalProperty_get.get(this, 'length');
-      var idx;
-
-      if (startAt === undefined || startAt >= len) {
-        startAt = len - 1;
-      }
-
-      if (startAt < 0) {
-        startAt += len;
-      }
-
-      for (idx = startAt; idx >= 0; idx--) {
-        if (objectAt(this, idx) === object) {
-          return idx;
-        }
-      }
-
-      return -1;
-    },
-
-    // ..........................................................
-    // ARRAY OBSERVERS
-    //
-
-    /**
-      Adds an array observer to the receiving array. The array observer object
-      normally must implement two methods:
-       * `arrayWillChange(observedObj, start, removeCount, addCount)` - This method will be
-        called just before the array is modified.
-      * `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be
-        called just after the array is modified.
-       Both callbacks will be passed the observed object, starting index of the
-      change as well as a count of the items to be removed and added. You can use
-      these callbacks to optionally inspect the array during the change, clear
-      caches, or do any other bookkeeping necessary.
-       In addition to passing a target, you can also include an options hash
-      which you can use to override the method names that will be invoked on the
-      target.
-       @method addArrayObserver
-      @param {Object} target The observer object.
-      @param {Object} opts Optional hash of configuration options including
-        `willChange` and `didChange` option.
-      @return {Ember.Array} receiver
-      @public
-    */
-
-    addArrayObserver: function (target, opts) {
-      return addArrayObserver(this, target, opts);
-    },
-
-    /**
-      Removes an array observer from the object if the observer is current
-      registered. Calling this method multiple times with the same object will
-      have no effect.
-       @method removeArrayObserver
-      @param {Object} target The object observing the array.
-      @param {Object} opts Optional hash of configuration options including
-        `willChange` and `didChange` option.
-      @return {Ember.Array} receiver
-      @public
-    */
-    removeArrayObserver: function (target, opts) {
-      return removeArrayObserver(this, target, opts);
-    },
-
-    /**
-      Becomes true whenever the array currently has observers watching changes
-      on the array.
-       @property {Boolean} hasArrayObservers
-      @public
-    */
-    hasArrayObservers: _emberMetalComputed.computed(function () {
-      return _emberMetalEvents.hasListeners(this, '@array:change') || _emberMetalEvents.hasListeners(this, '@array:before');
-    }),
-
-    /**
-      If you are implementing an object that supports `Ember.Array`, call this
-      method just before the array content changes to notify any observers and
-      invalidate any related properties. Pass the starting index of the change
-      as well as a delta of the amounts to change.
-       @method arrayContentWillChange
-      @param {Number} startIdx The starting index in the array that will change.
-      @param {Number} removeAmt The number of items that will be removed. If you
-        pass `null` assumes 0
-      @param {Number} addAmt The number of items that will be added. If you
-        pass `null` assumes 0.
-      @return {Ember.Array} receiver
-      @public
-    */
-    arrayContentWillChange: function (startIdx, removeAmt, addAmt) {
-      var removing, lim;
-
-      // if no args are passed assume everything changes
-      if (startIdx === undefined) {
-        startIdx = 0;
-        removeAmt = addAmt = -1;
-      } else {
-        if (removeAmt === undefined) {
-          removeAmt = -1;
-        }
-
-        if (addAmt === undefined) {
-          addAmt = -1;
-        }
-      }
-
-      if (this.__each) {
-        this.__each.arrayWillChange(this, startIdx, removeAmt, addAmt);
-      }
-
-      _emberMetalEvents.sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
-
-      if (startIdx >= 0 && removeAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
-        removing = [];
-        lim = startIdx + removeAmt;
-
-        for (var idx = startIdx; idx < lim; idx++) {
-          removing.push(objectAt(this, idx));
-        }
-      } else {
-        removing = removeAmt;
-      }
-
-      this.enumerableContentWillChange(removing, addAmt);
-
+    return indexes.map(function (idx) {
+      return objectAt(_this, idx);
+    });
+  }, _Mixin$create.nextObject = function (idx) {
+    return objectAt(this, idx);
+  }, _Mixin$create['[]'] = _emberMetalComputed.computed({
+    get: function (key) {
       return this;
     },
-
-    /**
-      If you are implementing an object that supports `Ember.Array`, call this
-      method just after the array content changes to notify any observers and
-      invalidate any related properties. Pass the starting index of the change
-      as well as a delta of the amounts to change.
-       @method arrayContentDidChange
-      @param {Number} startIdx The starting index in the array that did change.
-      @param {Number} removeAmt The number of items that were removed. If you
-        pass `null` assumes 0
-      @param {Number} addAmt The number of items that were added. If you
-        pass `null` assumes 0.
-      @return {Ember.Array} receiver
-      @public
-    */
-    arrayContentDidChange: function (startIdx, removeAmt, addAmt) {
-      var adding, lim;
-
-      // if no args are passed assume everything changes
-      if (startIdx === undefined) {
-        startIdx = 0;
-        removeAmt = addAmt = -1;
-      } else {
-        if (removeAmt === undefined) {
-          removeAmt = -1;
-        }
-
-        if (addAmt === undefined) {
-          addAmt = -1;
-        }
-      }
-
-      if (startIdx >= 0 && addAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
-        adding = [];
-        lim = startIdx + addAmt;
-
-        for (var idx = startIdx; idx < lim; idx++) {
-          adding.push(objectAt(this, idx));
-        }
-      } else {
-        adding = addAmt;
-      }
-
-      this.enumerableContentDidChange(removeAmt, adding);
-
-      if (this.__each) {
-        this.__each.arrayDidChange(this, startIdx, removeAmt, addAmt);
-      }
-
-      _emberMetalEvents.sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
-
-      var length = _emberMetalProperty_get.get(this, 'length');
-      var cachedFirst = _emberMetalComputed.cacheFor(this, 'firstObject');
-      var cachedLast = _emberMetalComputed.cacheFor(this, 'lastObject');
-
-      if (objectAt(this, 0) !== cachedFirst) {
-        _emberMetalProperty_events.propertyWillChange(this, 'firstObject');
-        _emberMetalProperty_events.propertyDidChange(this, 'firstObject');
-      }
-
-      if (objectAt(this, length - 1) !== cachedLast) {
-        _emberMetalProperty_events.propertyWillChange(this, 'lastObject');
-        _emberMetalProperty_events.propertyDidChange(this, 'lastObject');
-      }
-
+    set: function (key, value) {
+      this.replace(0, _emberMetalProperty_get.get(this, 'length'), value);
       return this;
-    },
+    }
+  }), _Mixin$create.firstObject = _emberMetalComputed.computed(function () {
+    return objectAt(this, 0);
+  }), _Mixin$create.lastObject = _emberMetalComputed.computed(function () {
+    return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
+  }), _Mixin$create.contains = function (obj) {
+    return this.indexOf(obj) >= 0;
+  }, _Mixin$create.slice = function (beginIndex, endIndex) {
+    var ret = _emberMetalCore.default.A();
+    var length = _emberMetalProperty_get.get(this, 'length');
 
-    /**
-      Returns a special object that can be used to observe individual properties
-      on the array. Just get an equivalent property on this object and it will
-      return an enumerable that maps automatically to the named key on the
-      member objects.
-       If you merely want to watch for any items being added or removed to the array,
-      use the `[]` property instead of `@each`.
-       @property @each
-      @public
-    */
-    '@each': _emberMetalComputed.computed(function () {
-      // TODO use Symbol or add to meta
-      if (!this.__each) {
-        this.__each = new _emberRuntimeSystemEach_proxy.default(this);
+    if (_emberMetalIs_none.default(beginIndex)) {
+      beginIndex = 0;
+    }
+
+    if (_emberMetalIs_none.default(endIndex) || endIndex > length) {
+      endIndex = length;
+    }
+
+    if (beginIndex < 0) {
+      beginIndex = length + beginIndex;
+    }
+
+    if (endIndex < 0) {
+      endIndex = length + endIndex;
+    }
+
+    while (beginIndex < endIndex) {
+      ret[ret.length] = objectAt(this, beginIndex++);
+    }
+
+    return ret;
+  }, _Mixin$create.indexOf = function (object, startAt) {
+    var len = _emberMetalProperty_get.get(this, 'length');
+    var idx;
+
+    if (startAt === undefined) {
+      startAt = 0;
+    }
+
+    if (startAt < 0) {
+      startAt += len;
+    }
+
+    for (idx = startAt; idx < len; idx++) {
+      if (objectAt(this, idx) === object) {
+        return idx;
+      }
+    }
+
+    return -1;
+  }, _Mixin$create.lastIndexOf = function (object, startAt) {
+    var len = _emberMetalProperty_get.get(this, 'length');
+    var idx;
+
+    if (startAt === undefined || startAt >= len) {
+      startAt = len - 1;
+    }
+
+    if (startAt < 0) {
+      startAt += len;
+    }
+
+    for (idx = startAt; idx >= 0; idx--) {
+      if (objectAt(this, idx) === object) {
+        return idx;
+      }
+    }
+
+    return -1;
+  }, _Mixin$create.addArrayObserver = function (target, opts) {
+    return addArrayObserver(this, target, opts);
+  }, _Mixin$create.removeArrayObserver = function (target, opts) {
+    return removeArrayObserver(this, target, opts);
+  }, _Mixin$create.hasArrayObservers = _emberMetalComputed.computed(function () {
+    return _emberMetalEvents.hasListeners(this, '@array:change') || _emberMetalEvents.hasListeners(this, '@array:before');
+  }), _Mixin$create.arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
+    var removing, lim;
+
+    // if no args are passed assume everything changes
+    if (startIdx === undefined) {
+      startIdx = 0;
+      removeAmt = addAmt = -1;
+    } else {
+      if (removeAmt === undefined) {
+        removeAmt = -1;
       }
 
-      return this.__each;
-    }).volatile()
-  });
+      if (addAmt === undefined) {
+        addAmt = -1;
+      }
+    }
+
+    if (this.__each) {
+      this.__each.arrayWillChange(this, startIdx, removeAmt, addAmt);
+    }
+
+    _emberMetalEvents.sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
+
+    if (startIdx >= 0 && removeAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
+      removing = [];
+      lim = startIdx + removeAmt;
+
+      for (var idx = startIdx; idx < lim; idx++) {
+        removing.push(objectAt(this, idx));
+      }
+    } else {
+      removing = removeAmt;
+    }
+
+    this.enumerableContentWillChange(removing, addAmt);
+
+    return this;
+  }, _Mixin$create.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
+    var adding, lim;
+
+    // if no args are passed assume everything changes
+    if (startIdx === undefined) {
+      startIdx = 0;
+      removeAmt = addAmt = -1;
+    } else {
+      if (removeAmt === undefined) {
+        removeAmt = -1;
+      }
+
+      if (addAmt === undefined) {
+        addAmt = -1;
+      }
+    }
+
+    if (startIdx >= 0 && addAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
+      adding = [];
+      lim = startIdx + addAmt;
+
+      for (var idx = startIdx; idx < lim; idx++) {
+        adding.push(objectAt(this, idx));
+      }
+    } else {
+      adding = addAmt;
+    }
+
+    this.enumerableContentDidChange(removeAmt, adding);
+
+    if (this.__each) {
+      this.__each.arrayDidChange(this, startIdx, removeAmt, addAmt);
+    }
+
+    _emberMetalEvents.sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
+
+    var length = _emberMetalProperty_get.get(this, 'length');
+    var cachedFirst = _emberMetalComputed.cacheFor(this, 'firstObject');
+    var cachedLast = _emberMetalComputed.cacheFor(this, 'lastObject');
+
+    if (objectAt(this, 0) !== cachedFirst) {
+      _emberMetalProperty_events.propertyWillChange(this, 'firstObject');
+      _emberMetalProperty_events.propertyDidChange(this, 'firstObject');
+    }
+
+    if (objectAt(this, length - 1) !== cachedLast) {
+      _emberMetalProperty_events.propertyWillChange(this, 'lastObject');
+      _emberMetalProperty_events.propertyDidChange(this, 'lastObject');
+    }
+
+    return this;
+  }, _Mixin$create['@each'] = _emberMetalComputed.computed(function () {
+    // TODO use Symbol or add to meta
+    if (!this.__each) {
+      this.__each = new _emberRuntimeSystemEach_proxy.default(this);
+    }
+
+    return this.__each;
+  }).volatile(), _Mixin$create));
 });
 // ES6TODO: Ember.A
+
+/**
+  __Required.__ You must implement this method to apply this mixin.
+   Your array must support the `length` property. Your replace methods should
+  set this property whenever it changes.
+   @property {Number} length
+  @public
+*/
+
+/**
+  Returns the object at the given `index`. If the given `index` is negative
+  or is greater or equal than the array length, returns `undefined`.
+   This is one of the primitives you must implement to support `Ember.Array`.
+  If your object supports retrieving the value of an array item using `get()`
+  (i.e. `myArray.get(0)`), then you do not need to implement this method
+  yourself.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd'];
+   arr.objectAt(0);   // 'a'
+  arr.objectAt(3);   // 'd'
+  arr.objectAt(-1);  // undefined
+  arr.objectAt(4);   // undefined
+  arr.objectAt(5);   // undefined
+  ```
+   @method objectAt
+  @param {Number} idx The index of the item to return.
+  @return {*} item at index or undefined
+  @public
+*/
+
+/**
+  This returns the objects at the specified indexes, using `objectAt`.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd'];
+   arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
+  arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
+  ```
+   @method objectsAt
+  @param {Array} indexes An array of indexes of items to return.
+  @return {Array}
+  @public
+ */
+
+// overrides Ember.Enumerable version
+
+/**
+  This is the handler for the special array content property. If you get
+  this property, it will return this. If you set this property to a new
+  array, it will replace the current content.
+   This property overrides the default property defined in `Ember.Enumerable`.
+   @property []
+  @return this
+  @public
+*/
+
+// optimized version from Enumerable
+
+// Add any extra methods to Ember.Array that are native to the built-in Array.
+/**
+  Returns a new array that is a slice of the receiver. This implementation
+  uses the observable array methods to retrieve the objects for the new
+  slice.
+   ```javascript
+  var arr = ['red', 'green', 'blue'];
+   arr.slice(0);       // ['red', 'green', 'blue']
+  arr.slice(0, 2);    // ['red', 'green']
+  arr.slice(1, 100);  // ['green', 'blue']
+  ```
+   @method slice
+  @param {Number} beginIndex (Optional) index to begin slicing from.
+  @param {Number} endIndex (Optional) index to end the slice at (but not included).
+  @return {Array} New array with specified slice
+  @public
+*/
+
+/**
+  Returns the index of the given object's first occurrence.
+  If no `startAt` argument is given, the starting location to
+  search is 0. If it's negative, will count backward from
+  the end of the array. Returns -1 if no match is found.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd', 'a'];
+   arr.indexOf('a');       //  0
+  arr.indexOf('z');       // -1
+  arr.indexOf('a', 2);    //  4
+  arr.indexOf('a', -1);   //  4
+  arr.indexOf('b', 3);    // -1
+  arr.indexOf('a', 100);  // -1
+  ```
+   @method indexOf
+  @param {Object} object the item to search for
+  @param {Number} startAt optional starting location to search, default 0
+  @return {Number} index or -1 if not found
+  @public
+*/
+
+/**
+  Returns the index of the given object's last occurrence.
+  If no `startAt` argument is given, the search starts from
+  the last position. If it's negative, will count backward
+  from the end of the array. Returns -1 if no match is found.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd', 'a'];
+   arr.lastIndexOf('a');       //  4
+  arr.lastIndexOf('z');       // -1
+  arr.lastIndexOf('a', 2);    //  0
+  arr.lastIndexOf('a', -1);   //  4
+  arr.lastIndexOf('b', 3);    //  1
+  arr.lastIndexOf('a', 100);  //  4
+  ```
+   @method lastIndexOf
+  @param {Object} object the item to search for
+  @param {Number} startAt optional starting location to search, default 0
+  @return {Number} index or -1 if not found
+  @public
+*/
+
+// ..........................................................
+// ARRAY OBSERVERS
+//
+
+/**
+  Adds an array observer to the receiving array. The array observer object
+  normally must implement two methods:
+   * `arrayWillChange(observedObj, start, removeCount, addCount)` - This method will be
+    called just before the array is modified.
+  * `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be
+    called just after the array is modified.
+   Both callbacks will be passed the observed object, starting index of the
+  change as well as a count of the items to be removed and added. You can use
+  these callbacks to optionally inspect the array during the change, clear
+  caches, or do any other bookkeeping necessary.
+   In addition to passing a target, you can also include an options hash
+  which you can use to override the method names that will be invoked on the
+  target.
+   @method addArrayObserver
+  @param {Object} target The observer object.
+  @param {Object} opts Optional hash of configuration options including
+    `willChange` and `didChange` option.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Removes an array observer from the object if the observer is current
+  registered. Calling this method multiple times with the same object will
+  have no effect.
+   @method removeArrayObserver
+  @param {Object} target The object observing the array.
+  @param {Object} opts Optional hash of configuration options including
+    `willChange` and `didChange` option.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Becomes true whenever the array currently has observers watching changes
+  on the array.
+   @property {Boolean} hasArrayObservers
+  @public
+*/
+
+/**
+  If you are implementing an object that supports `Ember.Array`, call this
+  method just before the array content changes to notify any observers and
+  invalidate any related properties. Pass the starting index of the change
+  as well as a delta of the amounts to change.
+   @method arrayContentWillChange
+  @param {Number} startIdx The starting index in the array that will change.
+  @param {Number} removeAmt The number of items that will be removed. If you
+    pass `null` assumes 0
+  @param {Number} addAmt The number of items that will be added. If you
+    pass `null` assumes 0.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  If you are implementing an object that supports `Ember.Array`, call this
+  method just after the array content changes to notify any observers and
+  invalidate any related properties. Pass the starting index of the change
+  as well as a delta of the amounts to change.
+   @method arrayContentDidChange
+  @param {Number} startIdx The starting index in the array that did change.
+  @param {Number} removeAmt The number of items that were removed. If you
+    pass `null` assumes 0
+  @param {Number} addAmt The number of items that were added. If you
+    pass `null` assumes 0.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Returns a special object that can be used to observe individual properties
+  on the array. Just get an equivalent property on this object and it will
+  return an enumerable that maps automatically to the named key on the
+  member objects.
+   If you merely want to watch for any items being added or removed to the array,
+  use the `[]` property instead of `@each`.
+   @property @each
+  @public
+*/
 enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
   'use strict';
 

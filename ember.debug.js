@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+8b643c6e
+ * @version   2.6.0-canary+7e807172
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+8b643c6e
+ * @version   2.6.0-canary+7e807172
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -1312,7 +1312,7 @@ enifed('glimmer-object/lib/utils', ['exports'], function (exports) {
     }
 });
 
-enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
+enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
   "use strict";
 
   function _interopExportWildcard(obj, defaults) { var newObj = defaults({}, obj); delete newObj["default"]; return newObj; }
@@ -1332,12 +1332,21 @@ enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/
 
   _defaults(exports, _interopExportWildcard(_glimmerReferenceLibTypes, _defaults));
 
+  exports.ObjectReference = _glimmerReferenceLibReferencesPath.default;
   exports.UpdatableReference = _glimmerReferenceLibReferencesRoot.default;
   exports.referenceFromParts = _glimmerReferenceLibReferencesRoot.referenceFromParts;
   exports.ConstReference = _glimmerReferenceLibReferencesConst.ConstReference;
-  exports.ListManager = _glimmerReferenceLibReferencesIterable.ListManager;
-  exports.ListIterator = _glimmerReferenceLibReferencesIterable.ListIterator;
-  exports.ListDelegate = _glimmerReferenceLibReferencesIterable.ListDelegate;
+  exports.IterationItem = _glimmerReferenceLibReferencesIterable.IterationItem;
+  exports.Iterator = _glimmerReferenceLibReferencesIterable.Iterator;
+  exports.Iterable = _glimmerReferenceLibReferencesIterable.Iterable;
+  exports.OpaqueIterator = _glimmerReferenceLibReferencesIterable.OpaqueIterator;
+  exports.OpaqueIterable = _glimmerReferenceLibReferencesIterable.OpaqueIterable;
+  exports.AbstractIterator = _glimmerReferenceLibReferencesIterable.AbstractIterator;
+  exports.AbstractIterable = _glimmerReferenceLibReferencesIterable.AbstractIterable;
+  exports.IterationArtifacts = _glimmerReferenceLibReferencesIterable.IterationArtifacts;
+  exports.ReferenceIterator = _glimmerReferenceLibReferencesIterable.ReferenceIterator;
+  exports.IteratorSynchronizer = _glimmerReferenceLibReferencesIterable.IteratorSynchronizer;
+  exports.IteratorSynchronizerDelegate = _glimmerReferenceLibReferencesIterable.IteratorSynchronizerDelegate;
 });
 
 enifed('glimmer-reference/lib/meta', ['exports', 'glimmer-reference/lib/references/descriptors', 'glimmer-reference/lib/references/root', 'glimmer-util'], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesRoot, _glimmerUtil) {
@@ -1731,263 +1740,292 @@ enifed('glimmer-reference/lib/references/forked', ['exports'], function (exports
     }
 });
 
-enifed('glimmer-reference/lib/references/iterable', ['exports', 'glimmer-util', 'glimmer-reference/lib/references/root'], function (exports, _glimmerUtil, _glimmerReferenceLibReferencesRoot) {
-    'use strict';
+enifed("glimmer-reference/lib/references/iterable", ["exports", "glimmer-util"], function (exports, _glimmerUtil) {
+    "use strict";
 
     function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
-    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-    var REFERENCE_ITERATOR = _glimmerUtil.symbol("reference-iterator");
-    exports.REFERENCE_ITERATOR = REFERENCE_ITERATOR;
+    function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
     var ListItem = (function (_ListNode) {
         _inherits(ListItem, _ListNode);
 
-        function ListItem(value, key) {
+        function ListItem(iterable, result) {
             _classCallCheck(this, ListItem);
 
-            _ListNode.call(this, value);
-            this.handled = true;
-            this.key = key;
+            _ListNode.call(this, iterable.referenceFor(result));
+            this.retained = false;
+            this.seen = false;
+            this.key = result.key;
+            this.iterable = iterable;
         }
 
-        ListItem.prototype.handle = function handle(value) {
-            this.handled = true;
-            this.value.update(value);
+        ListItem.prototype.update = function update(item) {
+            this.retained = true;
+            this.iterable.updateReference(this.value, item);
+        };
+
+        ListItem.prototype.shouldRemove = function shouldRemove() {
+            return !this.retained;
+        };
+
+        ListItem.prototype.reset = function reset() {
+            this.retained = false;
+            this.seen = false;
         };
 
         return ListItem;
     })(_glimmerUtil.ListNode);
 
-    var ListManager = (function () {
-        /* tslint:enable:no-unused-variable */
+    var IterationArtifacts = (function () {
+        function IterationArtifacts(iterable) {
+            _classCallCheck(this, IterationArtifacts);
 
-        function ListManager(array, keyPath) {
-            _classCallCheck(this, ListManager);
-
-            /* tslint:disable:no-unused-variable */
             this.map = _glimmerUtil.dict();
             this.list = new _glimmerUtil.LinkedList();
-            this.array = array;
-            this.keyPath = keyPath;
+            this.iterable = iterable;
         }
 
-        ListManager.prototype.iterator = function iterator(target) {
-            var array = this.array;
+        IterationArtifacts.prototype.isEmpty = function isEmpty() {
+            var iterator = this.iterator = this.iterable.iterate();
+            return iterator.isEmpty();
+        };
+
+        IterationArtifacts.prototype.iterate = function iterate() {
+            var iterator = this.iterator || this.iterable.iterate();
+            this.iterator = null;
+            return iterator;
+        };
+
+        IterationArtifacts.prototype.has = function has(key) {
+            return !!this.map[key];
+        };
+
+        IterationArtifacts.prototype.get = function get(key) {
+            return this.map[key];
+        };
+
+        IterationArtifacts.prototype.wasSeen = function wasSeen(key) {
+            var node = this.map[key];
+            return node && node.seen;
+        };
+
+        IterationArtifacts.prototype.append = function append(item) {
             var map = this.map;
             var list = this.list;
-            var keyPath = this.keyPath;
+            var iterable = this.iterable;
 
-            var keyFor = undefined;
-            if (keyPath === '@index') {
-                keyFor = function (_, index) {
-                    return String(index);
-                };
-            } else if (keyPath === '@primitive') {
-                keyFor = function (value) {
-                    return String(value);
-                };
-            } else {
-                keyFor = function (item) {
-                    return _glimmerUtil.intern(item[keyPath]);
-                };
-            }
-            return new ListIterator({ array: array.value(), keyFor: keyFor, target: target, map: map, list: list });
+            var node = map[item.key] = new ListItem(iterable, item);
+            list.append(node);
+            return node;
         };
 
-        ListManager.prototype.sync = function sync(target) {
-            var iterator = this.iterator(target);
-            while (!iterator.next());
+        IterationArtifacts.prototype.insertBefore = function insertBefore(item, reference) {
+            var map = this.map;
+            var list = this.list;
+            var iterable = this.iterable;
+
+            var node = map[item.key] = new ListItem(iterable, item);
+            node.retained = true;
+            list.insertBefore(node, reference);
+            return node;
         };
 
-        return ListManager;
+        IterationArtifacts.prototype.move = function move(item, reference) {
+            var list = this.list;
+
+            item.retained = true;
+            list.remove(item);
+            list.insertBefore(item, reference);
+        };
+
+        IterationArtifacts.prototype.remove = function remove(item) {
+            var list = this.list;
+            var map = this.map;
+
+            list.remove(item);
+            delete this.map[item.key];
+        };
+
+        IterationArtifacts.prototype.nextNode = function nextNode(item) {
+            return this.list.nextNode(item);
+        };
+
+        IterationArtifacts.prototype.head = function head() {
+            return this.list.head();
+        };
+
+        return IterationArtifacts;
     })();
 
-    exports.ListManager = ListManager;
+    exports.IterationArtifacts = IterationArtifacts;
+
+    var ReferenceIterator = (function () {
+        // if anyone needs to construct this object with something other than
+        // an iterable, let @wycats know.
+
+        function ReferenceIterator(iterable) {
+            _classCallCheck(this, ReferenceIterator);
+
+            this.iterator = null;
+            var artifacts = new IterationArtifacts(iterable);
+            this.artifacts = artifacts;
+        }
+
+        ReferenceIterator.prototype.next = function next() {
+            var artifacts = this.artifacts;
+
+            var iterator = this.iterator = this.iterator || artifacts.iterate();
+            var item = iterator.next();
+            if (!item) return null;
+            return artifacts.append(item);
+        };
+
+        return ReferenceIterator;
+    })();
+
+    exports.ReferenceIterator = ReferenceIterator;
 
     var Phase;
     (function (Phase) {
-        Phase[Phase["FirstAppend"] = 0] = "FirstAppend";
-        Phase[Phase["Append"] = 1] = "Append";
-        Phase[Phase["Prune"] = 2] = "Prune";
-        Phase[Phase["Done"] = 3] = "Done";
+        Phase[Phase["Append"] = 0] = "Append";
+        Phase[Phase["Prune"] = 1] = "Prune";
+        Phase[Phase["Done"] = 2] = "Done";
     })(Phase || (Phase = {}));
 
-    var ListIterator = (function () {
-        function ListIterator(_ref) {
-            var array = _ref.array;
-            var keyFor = _ref.keyFor;
+    var IteratorSynchronizer = (function () {
+        function IteratorSynchronizer(_ref) {
             var target = _ref.target;
-            var map = _ref.map;
-            var list = _ref.list;
+            var artifacts = _ref.artifacts;
 
-            _classCallCheck(this, ListIterator);
+            _classCallCheck(this, IteratorSynchronizer);
 
-            /* tslint:disable:no-unused-variable */
-            this.candidates = _glimmerUtil.dict();
-            this.arrayPosition = 0;
-            this.phase = Phase.Append;
-            this.array = array;
-            this.keyFor = keyFor;
             this.target = target;
-            this.map = map;
-            this.list = list;
-            if (list.isEmpty()) {
-                this.phase = Phase.FirstAppend;
-            } else {
-                this.phase = Phase.Append;
-            }
-            this.listPosition = list.head();
+            this.artifacts = artifacts;
+            this.iterator = artifacts.iterate();
+            this.current = artifacts.head();
         }
 
-        ListIterator.prototype.advanceToKey = function advanceToKey(key) {
-            var listPosition = this.listPosition;
-            var candidates = this.candidates;
-            var list = this.list;
-
-            var seek = listPosition;
-            while (seek && seek.key !== key) {
-                candidates[seek.key] = seek;
-                seek = list.nextNode(seek);
-            }
-            this.listPosition = seek && list.nextNode(seek);
-        };
-
-        ListIterator.prototype.next = function next() {
+        IteratorSynchronizer.prototype.sync = function sync() {
+            var phase = Phase.Append;
             while (true) {
-                var handled = false;
-                switch (this.phase) {
-                    case Phase.FirstAppend:
-                        if (this.array.length <= this.arrayPosition) {
-                            this.startPrune();
-                        } else {
-                            handled = this.nextInitialAppend();
-                        }
-                        break;
+                switch (phase) {
                     case Phase.Append:
-                        handled = this.nextAppend();
+                        phase = this.nextAppend();
                         break;
                     case Phase.Prune:
-                        this.nextPrune();
+                        phase = this.nextPrune();
                         break;
                     case Phase.Done:
                         this.nextDone();
-                        return true;
+                        return;
                 }
-                if (handled) return false;
             }
         };
 
-        ListIterator.prototype.nextInitialAppend = function nextInitialAppend() {
-            var array = this.array;
-            var arrayPosition = this.arrayPosition;
-            var keyFor = this.keyFor;
-            var listPosition = this.listPosition;
-            var map = this.map;
+        IteratorSynchronizer.prototype.advanceToKey = function advanceToKey(key) {
+            var current = this.current;
+            var artifacts = this.artifacts;
 
-            var item = array[this.arrayPosition++];
-            if (item === null || item === undefined) return;
-            var key = keyFor(item, arrayPosition);
-            this.nextInsert(map, listPosition, key, item);
-            return true;
+            var seek = current;
+            while (seek && seek.key !== key) {
+                seek.seen = true;
+                seek = artifacts.nextNode(seek);
+            }
+            this.current = seek && artifacts.nextNode(seek);
         };
 
-        ListIterator.prototype.nextAppend = function nextAppend() {
-            var keyFor = this.keyFor;
-            var array = this.array;
-            var listPosition = this.listPosition;
-            var arrayPosition = this.arrayPosition;
-            var map = this.map;
+        IteratorSynchronizer.prototype.nextAppend = function nextAppend() {
+            var iterator = this.iterator;
+            var current = this.current;
+            var artifacts = this.artifacts;
 
-            if (array.length <= arrayPosition) {
-                this.startPrune();
-                return;
+            var item = iterator.next();
+            if (item === null) {
+                return this.startPrune();
             }
-            var item = array[this.arrayPosition++];
-            if (item === null || item === undefined) return;
-            var key = keyFor(item, arrayPosition);
-            if (listPosition && listPosition.key === key) {
-                this.nextRetain(listPosition, key, item);
-                return false;
-            } else if (map[key]) {
-                this.nextMove(map, listPosition, key, item);
-                return false;
+            var key = item.key;
+            var value = item.value;
+
+            if (current && current.key === key) {
+                this.nextRetain(item);
+            } else if (artifacts.has(key)) {
+                this.nextMove(item);
             } else {
-                this.nextInsert(map, listPosition, key, item);
-                return true;
+                this.nextInsert(item);
             }
+            return Phase.Append;
         };
 
-        ListIterator.prototype.nextRetain = function nextRetain(current, key, item) {
-            current.handle(item);
-            this.listPosition = this.list.nextNode(current);
-            this.target.retain(key, item);
+        IteratorSynchronizer.prototype.nextRetain = function nextRetain(item) {
+            var artifacts = this.artifacts;
+            var current = this.current;
+
+            current.update(item);
+            this.current = artifacts.nextNode(current);
+            this.target.retain(item.key, current.value);
         };
 
-        ListIterator.prototype.nextMove = function nextMove(map, current, key, item) {
-            var candidates = this.candidates;
-            var list = this.list;
+        IteratorSynchronizer.prototype.nextMove = function nextMove(item) {
+            var current = this.current;
+            var artifacts = this.artifacts;
             var target = this.target;
+            var key = item.key;
+            var value = item.value;
 
-            var found = map[key];
-            found.handle(item);
-            if (candidates[key]) {
-                list.remove(found);
-                list.insertBefore(found, current);
+            var found = artifacts.get(item.key);
+            found.update(item);
+            if (artifacts.wasSeen(item.key)) {
+                artifacts.move(found, current);
                 target.move(found.key, found.value, current ? current.key : null);
             } else {
                 this.advanceToKey(key);
             }
         };
 
-        ListIterator.prototype.nextInsert = function nextInsert(map, current, key, item) {
-            var list = this.list;
+        IteratorSynchronizer.prototype.nextInsert = function nextInsert(item) {
+            var artifacts = this.artifacts;
             var target = this.target;
+            var current = this.current;
 
-            var reference = new _glimmerReferenceLibReferencesRoot.default(item);
-            var node = map[key] = new ListItem(reference, key);
-            list.append(node);
+            var node = artifacts.insertBefore(item, current);
             target.insert(node.key, node.value, current ? current.key : null);
         };
 
-        ListIterator.prototype.startPrune = function startPrune() {
-            this.phase = Phase.Prune;
-            this.listPosition = this.list.head();
-            return true;
+        IteratorSynchronizer.prototype.startPrune = function startPrune() {
+            this.current = this.artifacts.head();
+            return Phase.Prune;
         };
 
-        ListIterator.prototype.nextPrune = function nextPrune() {
-            var list = this.list;
+        IteratorSynchronizer.prototype.nextPrune = function nextPrune() {
+            var artifacts = this.artifacts;
             var target = this.target;
+            var current = this.current;
 
-            if (this.listPosition === null) {
-                this.phase = Phase.Done;
-                return;
+            if (current === null) {
+                return Phase.Done;
             }
-            var node = this.listPosition;
-            this.listPosition = list.nextNode(node);
-            if (node.handled) {
-                node.handled = false;
-                return;
-            } else {
-                list.remove(node);
-                delete this.map[node.key];
+            var node = current;
+            this.current = artifacts.nextNode(node);
+            if (node.shouldRemove()) {
+                artifacts.remove(node);
                 target.delete(node.key);
-                return;
+            } else {
+                node.reset();
             }
+            return Phase.Prune;
         };
 
-        ListIterator.prototype.nextDone = function nextDone() {
+        IteratorSynchronizer.prototype.nextDone = function nextDone() {
             this.target.done();
         };
 
-        return ListIterator;
+        return IteratorSynchronizer;
     })();
 
-    exports.ListIterator = ListIterator;
+    exports.IteratorSynchronizer = IteratorSynchronizer;
 });
 
 enifed('glimmer-reference/lib/references/path', ['exports', 'glimmer-reference/lib/utils', 'glimmer-util', 'glimmer-reference/lib/meta', 'glimmer-reference/lib/references/forked', 'glimmer-reference/lib/references/descriptors', 'glimmer-reference/lib/references/push-pull'], function (exports, _glimmerReferenceLibUtils, _glimmerUtil, _glimmerReferenceLibMeta, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesPushPull) {
@@ -2101,6 +2139,7 @@ enifed('glimmer-reference/lib/references/path', ['exports', 'glimmer-reference/l
         return PathReference;
     })(_glimmerReferenceLibReferencesPushPull.default);
 
+    exports.default = PathReference;
     exports.PathReference = PathReference;
 });
 
@@ -7415,7 +7454,7 @@ enifed("glimmer-runtime/lib/bounds", ["exports"], function (exports) {
     }
 });
 
-enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom'], function (exports, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom) {
+enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-runtime/lib/bounds', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom'], function (exports, _glimmerRuntimeLibBounds, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom) {
     'use strict';
 
     function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -7483,6 +7522,34 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
         return GroupedElementOperations;
     })();
 
+    var Fragment = (function () {
+        function Fragment(bounds) {
+            _classCallCheck(this, Fragment);
+
+            this.bounds = bounds;
+        }
+
+        Fragment.prototype.parentElement = function parentElement() {
+            return this.bounds.parentElement();
+        };
+
+        Fragment.prototype.firstNode = function firstNode() {
+            return this.bounds.firstNode();
+        };
+
+        Fragment.prototype.lastNode = function lastNode() {
+            return this.bounds.lastNode();
+        };
+
+        Fragment.prototype.update = function update(bounds) {
+            this.bounds = bounds;
+        };
+
+        return Fragment;
+    })();
+
+    exports.Fragment = Fragment;
+
     var ElementStack = (function () {
         function ElementStack(_ref) {
             var dom = _ref.dom;
@@ -7499,10 +7566,28 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
             this.dom = dom;
             this.element = parentNode;
             this.nextSibling = nextSibling;
-            if (nextSibling && !(nextSibling instanceof Node)) throw new Error("NOPE");
             this.elementStack.push(this.element);
             this.nextSiblingStack.push(this.nextSibling);
         }
+
+        ElementStack.forInitialRender = function forInitialRender(_ref2) {
+            var parentNode = _ref2.parentNode;
+            var nextSibling = _ref2.nextSibling;
+            var dom = _ref2.dom;
+
+            return new ElementStack({ dom: dom, parentNode: parentNode, nextSibling: nextSibling });
+        };
+
+        ElementStack.resume = function resume(_ref3) {
+            var tracker = _ref3.tracker;
+            var nextSibling = _ref3.nextSibling;
+            var dom = _ref3.dom;
+
+            var parentNode = tracker.parentElement();
+            var stack = new ElementStack({ dom: dom, parentNode: parentNode, nextSibling: nextSibling });
+            stack.pushBlockTracker(tracker);
+            return stack;
+        };
 
         ElementStack.prototype.block = function block() {
             return this.blockStack.current;
@@ -7536,6 +7621,11 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
 
         ElementStack.prototype.pushBlock = function pushBlock() {
             var tracker = new BlockTracker(this.element);
+            this.pushBlockTracker(tracker);
+            return tracker;
+        };
+
+        ElementStack.prototype.pushBlockTracker = function pushBlockTracker(tracker) {
             var current = this.blockStack.current;
             if (current !== null) {
                 current.newDestroyable(tracker);
@@ -7598,7 +7688,7 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
             if (!canInsertHTML(element)) {
                 throw new Error('You cannot insert HTML (using triple-curlies or htmlSafe) into an SVG context: ' + element.tagName);
             } else {
-                var bounds = this.dom.insertHTMLBefore(element, nextSibling, html);
+                var bounds = new Fragment(this.dom.insertHTMLBefore(element, nextSibling, html));
                 this.blockStack.current.newBounds(bounds);
                 return bounds;
             }
@@ -7711,6 +7801,21 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
             }
         };
 
+        BlockTracker.prototype.reset = function reset(env) {
+            var destroyables = this.destroyables;
+
+            if (destroyables && destroyables.length) {
+                for (var i = 0; i < destroyables.length; i++) {
+                    env.didDestroy(destroyables[i]);
+                }
+            }
+            var nextSibling = _glimmerRuntimeLibBounds.clear(this);
+            this.destroyables = null;
+            this.first = null;
+            this.last = null;
+            return nextSibling;
+        };
+
         return BlockTracker;
     })();
 
@@ -7719,19 +7824,14 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
             _classCallCheck(this, BlockListTracker);
 
             this.last = null;
-            this.destroyables = null;
             this.parent = parent;
             this.boundList = boundList;
         }
 
         BlockListTracker.prototype.destroy = function destroy() {
-            var destroyables = this.destroyables;
-
-            if (destroyables && destroyables.length) {
-                for (var i = 0; i < destroyables.length; i++) {
-                    destroyables[i].destroy();
-                }
-            }
+            this.boundList.forEachNode(function (node) {
+                return node.destroy();
+            });
         };
 
         BlockListTracker.prototype.parentElement = function parentElement() {
@@ -7761,10 +7861,7 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
 
         BlockListTracker.prototype.newBounds = function newBounds(bounds) {};
 
-        BlockListTracker.prototype.newDestroyable = function newDestroyable(d) {
-            this.destroyables = this.destroyables || [];
-            this.destroyables.push(d);
-        };
+        BlockListTracker.prototype.newDestroyable = function newDestroyable(d) {};
 
         BlockListTracker.prototype.finalize = function finalize(stack) {
             var dom = stack.dom;
@@ -7775,6 +7872,8 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
             dom.insertBefore(parent, comment, nextSibling);
             this.last = comment;
         };
+
+        BlockListTracker.prototype.reset = function reset() {};
 
         return BlockListTracker;
     })();
@@ -9271,7 +9370,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/content', ['exports', 'glimmer-runt
                 this.lastValue = val;
                 var _parent = this.bounds.parentElement();
                 var nextSibling = _glimmerRuntimeLibBounds.clear(this.bounds);
-                this.bounds = vm.dom.insertHTMLBefore(_parent, nextSibling, val);
+                this.bounds.update(vm.dom.insertHTMLBefore(_parent, nextSibling, val));
             }
         };
 
@@ -9810,24 +9909,67 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
         return ListUpdatingOpcode;
     })(_glimmerRuntimeLibOpcodes.UpdatingOpcode);
 
-    var EnterListOpcode = (function (_Opcode) {
-        _inherits(EnterListOpcode, _Opcode);
+    var IterablePresenceReference = (function () {
+        function IterablePresenceReference(artifacts) {
+            _classCallCheck(this, IterablePresenceReference);
+
+            this.artifacts = artifacts;
+        }
+
+        IterablePresenceReference.prototype.value = function value() {
+            return !this.artifacts.isEmpty();
+        };
+
+        IterablePresenceReference.prototype.isDirty = function isDirty() {
+            return true;
+        };
+
+        IterablePresenceReference.prototype.destroy = function destroy() {};
+
+        return IterablePresenceReference;
+    })();
+
+    var PutIteratorOpcode = (function (_Opcode) {
+        _inherits(PutIteratorOpcode, _Opcode);
+
+        function PutIteratorOpcode() {
+            _classCallCheck(this, PutIteratorOpcode);
+
+            for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = arguments[_key2];
+            }
+
+            _Opcode.call.apply(_Opcode, [this].concat(args));
+            this.type = "put-iterator";
+        }
+
+        PutIteratorOpcode.prototype.evaluate = function evaluate(vm) {
+            var listRef = vm.frame.getOperand();
+            var args = vm.frame.getArgs();
+            var iterable = vm.env.iterableFor(listRef, args);
+            var iterator = new _glimmerReference.ReferenceIterator(iterable);
+            vm.frame.setIterator(iterator);
+            vm.frame.setCondition(new IterablePresenceReference(iterator.artifacts));
+        };
+
+        return PutIteratorOpcode;
+    })(_glimmerRuntimeLibOpcodes.Opcode);
+
+    exports.PutIteratorOpcode = PutIteratorOpcode;
+
+    var EnterListOpcode = (function (_Opcode2) {
+        _inherits(EnterListOpcode, _Opcode2);
 
         function EnterListOpcode(start, end) {
             _classCallCheck(this, EnterListOpcode);
 
-            _Opcode.call(this);
+            _Opcode2.call(this);
             this.type = "enter-list";
             this.slice = new _glimmerUtil.ListSlice(start, end);
         }
 
         EnterListOpcode.prototype.evaluate = function evaluate(vm) {
-            var listRef = vm.frame.getOperand();
-            var keyPath = vm.frame.getArgs().named.get(_glimmerUtil.LITERAL("key")).value();
-            var manager = new _glimmerReference.ListManager(listRef, keyPath);
-            var delegate = new IterateDelegate(vm);
-            vm.frame.setIterator(manager.iterator(delegate));
-            vm.enterList(manager, this.slice);
+            vm.enterList(this.slice);
         };
 
         EnterListOpcode.prototype.toJSON = function toJSON() {
@@ -9849,17 +9991,17 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
 
     exports.EnterListOpcode = EnterListOpcode;
 
-    var ExitListOpcode = (function (_Opcode2) {
-        _inherits(ExitListOpcode, _Opcode2);
+    var ExitListOpcode = (function (_Opcode3) {
+        _inherits(ExitListOpcode, _Opcode3);
 
         function ExitListOpcode() {
             _classCallCheck(this, ExitListOpcode);
 
-            for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                args[_key2] = arguments[_key2];
+            for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+                args[_key3] = arguments[_key3];
             }
 
-            _Opcode2.call.apply(_Opcode2, [this].concat(args));
+            _Opcode3.call.apply(_Opcode3, [this].concat(args));
             this.type = "exit-list";
         }
 
@@ -9872,13 +10014,13 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
 
     exports.ExitListOpcode = ExitListOpcode;
 
-    var EnterWithKeyOpcode = (function (_Opcode3) {
-        _inherits(EnterWithKeyOpcode, _Opcode3);
+    var EnterWithKeyOpcode = (function (_Opcode4) {
+        _inherits(EnterWithKeyOpcode, _Opcode4);
 
         function EnterWithKeyOpcode(start, end) {
             _classCallCheck(this, EnterWithKeyOpcode);
 
-            _Opcode3.call(this);
+            _Opcode4.call(this);
             this.type = "enter-with-key";
             this.slice = new _glimmerUtil.ListSlice(start, end);
         }
@@ -9909,55 +10051,26 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
     var TRUE_REF = new _glimmerReference.ConstReference(true);
     var FALSE_REF = new _glimmerReference.ConstReference(false);
 
-    var IterateDelegate = (function () {
-        function IterateDelegate(vm) {
-            _classCallCheck(this, IterateDelegate);
-
-            this.vm = vm;
-        }
-
-        IterateDelegate.prototype.insert = function insert(key, item, before) {
-            var vm = this.vm;
-
-            _glimmerUtil.assert(!before, "Insertion should be append-only on initial render");
-            vm.frame.setArgs(_glimmerRuntimeLibCompiledExpressionsArgs.EvaluatedArgs.positional([item]));
-            vm.frame.setOperand(item);
-            vm.frame.setCondition(TRUE_REF);
-            vm.frame.setKey(key);
-        };
-
-        IterateDelegate.prototype.retain = function retain(key, item) {
-            _glimmerUtil.assert(false, "Insertion should be append-only on initial render");
-        };
-
-        IterateDelegate.prototype.move = function move(key, item, before) {
-            _glimmerUtil.assert(false, "Insertion should be append-only on initial render");
-        };
-
-        IterateDelegate.prototype.delete = function _delete(key) {
-            _glimmerUtil.assert(false, "Insertion should be append-only on initial render");
-        };
-
-        IterateDelegate.prototype.done = function done() {
-            this.vm.frame.setCondition(FALSE_REF);
-        };
-
-        return IterateDelegate;
-    })();
-
-    var NextIterOpcode = (function (_Opcode4) {
-        _inherits(NextIterOpcode, _Opcode4);
+    var NextIterOpcode = (function (_Opcode5) {
+        _inherits(NextIterOpcode, _Opcode5);
 
         function NextIterOpcode(end) {
             _classCallCheck(this, NextIterOpcode);
 
-            _Opcode4.call(this);
+            _Opcode5.call(this);
             this.type = "next-iter";
             this.end = end;
         }
 
         NextIterOpcode.prototype.evaluate = function evaluate(vm) {
-            if (vm.frame.getIterator().next()) {
+            var item = vm.frame.getIterator().next();
+            if (item) {
+                vm.frame.setCondition(TRUE_REF);
+                vm.frame.setKey(item.key);
+                vm.frame.setOperand(item.value);
+                vm.frame.setArgs(_glimmerRuntimeLibCompiledExpressionsArgs.EvaluatedArgs.positional([item.value]));
+            } else {
+                vm.frame.setCondition(FALSE_REF);
                 vm.goto(this.end);
             }
         };
@@ -9966,24 +10079,6 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
     })(_glimmerRuntimeLibOpcodes.Opcode);
 
     exports.NextIterOpcode = NextIterOpcode;
-
-    var ReiterateOpcode = (function (_ListUpdatingOpcode) {
-        _inherits(ReiterateOpcode, _ListUpdatingOpcode);
-
-        function ReiterateOpcode(initialize) {
-            _classCallCheck(this, ReiterateOpcode);
-
-            _ListUpdatingOpcode.call(this);
-            this.type = "reiterate";
-            this.initialize = initialize;
-        }
-
-        ReiterateOpcode.prototype.evaluate = function evaluate(vm) {
-            vm.throw(this.initialize);
-        };
-
-        return ReiterateOpcode;
-    })(ListUpdatingOpcode);
 });
 
 enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/utils', 'glimmer-runtime/lib/references', 'glimmer-util'], function (exports, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibUtils, _glimmerRuntimeLibReferences, _glimmerUtil) {
@@ -11336,21 +11431,6 @@ enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/refer
             }
         };
 
-        Environment.prototype.iteratorFor = function iteratorFor(iterable) {
-            var position = 0;
-            var len = iterable.value().length;
-            return {
-                next: function () {
-                    if (position >= len) return { done: true, value: undefined };
-                    position++;
-                    return {
-                        done: false,
-                        value: iterable.get(_glimmerUtil.intern("" + (position - 1)))
-                    };
-                }
-            };
-        };
-
         return Environment;
     })();
 
@@ -11845,38 +11925,65 @@ enifed('glimmer-runtime/lib/syntax/builtins/each', ['exports', 'glimmer-runtime/
         };
 
         EachSyntax.prototype.compile = function compile(compiler, env) {
-            //        PutArgs
-            //        EnterList(BEGIN, END)
-            // ITER:  Noop
-            //        NextIter(BREAK)
-            //        EnterWithKey(BEGIN, END)
-            // BEGIN: Noop
-            //        PushChildScope
-            //        Evaluate(default)
-            //        PopScope
-            // END:   Noop
-            //        Exit
-            //        Jump(ITER)
-            // BREAK: Noop
-            //        ExitList
+            //         Enter(BEGIN, END)
+            // BEGIN:  Noop
+            //         PutArgs
+            //         PutIterable
+            //         JumpUnless(ELSE)
+            //         EnterList(BEGIN2, END2)
+            // ITER:   Noop
+            //         NextIter(BREAK)
+            //         EnterWithKey(BEGIN2, END2)
+            // BEGIN2: Noop
+            //         PushChildScope
+            //         Evaluate(default)
+            //         PopScope
+            // END2:   Noop
+            //         Exit
+            //         Jump(ITER)
+            // BREAK:  Noop
+            //         ExitList
+            //         Jump(END)
+            // ELSE:   Noop
+            //         Evalulate(inverse)
+            // END:    Noop
+            //         Exit
             var BEGIN = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BEGIN" });
             var ITER = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "ITER" });
+            var BEGIN2 = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BEGIN2" });
+            var END2 = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "END2" });
             var BREAK = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BREAK" });
+            var ELSE = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "ELSE" });
             var END = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "END" });
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EnterOpcode({ begin: BEGIN, end: END }));
+            compiler.append(BEGIN);
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
-            compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.EnterListOpcode(BEGIN, END));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.PutIteratorOpcode());
+            if (this.templates.inverse) {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpUnlessOpcode({ target: ELSE }));
+            } else {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpUnlessOpcode({ target: END }));
+            }
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.EnterListOpcode(BEGIN2, END2));
             compiler.append(ITER);
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.NextIterOpcode(BREAK));
-            compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.EnterWithKeyOpcode(BEGIN, END));
-            compiler.append(BEGIN);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.EnterWithKeyOpcode(BEGIN2, END2));
+            compiler.append(BEGIN2);
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PushChildScopeOpcode());
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "default", block: this.templates.default }));
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PopScopeOpcode());
-            compiler.append(END);
+            compiler.append(END2);
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.ExitOpcode());
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpOpcode({ target: ITER }));
             compiler.append(BREAK);
             compiler.append(new _glimmerRuntimeLibCompiledOpcodesLists.ExitListOpcode());
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpOpcode({ target: END }));
+            if (this.templates.inverse) {
+                compiler.append(ELSE);
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
+            }
+            compiler.append(END);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.ExitOpcode());
         };
 
         return EachSyntax;
@@ -13489,7 +13596,7 @@ enifed('glimmer-runtime/lib/template', ['exports', 'glimmer-runtime/lib/builder'
             var appendTo = _ref2.appendTo;
             var blockArguments = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
-            var elementStack = new _glimmerRuntimeLibBuilder.ElementStack({ dom: env.getDOM(), parentNode: appendTo, nextSibling: null });
+            var elementStack = _glimmerRuntimeLibBuilder.ElementStack.forInitialRender({ dom: env.getDOM(), parentNode: appendTo, nextSibling: null });
             var compiled = this.raw.compile(env);
             var vm = _glimmerRuntimeLibVmAppend.default.initial(env, { self: self, elementStack: elementStack, size: compiled.symbols });
             if (keywords) {
@@ -13631,11 +13738,12 @@ enifed('glimmer-runtime/lib/vm/append', ['exports', 'glimmer-runtime/lib/environ
             this.didEnter(tryOpcode, updating);
         };
 
-        VM.prototype.enterList = function enterList(manager, ops) {
+        VM.prototype.enterList = function enterList(ops) {
             var updating = new _glimmerUtil.LinkedList();
             this.stack().pushBlockList(updating);
             var state = this.capture();
-            var opcode = new _glimmerRuntimeLibVmUpdate.ListBlockOpcode({ ops: ops, state: state, updating: updating, manager: manager });
+            var artifacts = this.frame.getIterator().artifacts;
+            var opcode = new _glimmerRuntimeLibVmUpdate.ListBlockOpcode({ ops: ops, state: state, updating: updating, artifacts: artifacts });
             this.listBlockStack.push(opcode);
             this.didEnter(opcode, updating);
         };
@@ -14079,8 +14187,8 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             this.frameStack.push(new UpdatingVMFrame(this, ops, handler));
         };
 
-        UpdatingVM.prototype.throw = function _throw(initialize) {
-            this.frameStack.current.handleException(initialize);
+        UpdatingVM.prototype.throw = function _throw() {
+            this.frameStack.current.handleException();
             this.frameStack.pop();
         };
 
@@ -14136,6 +14244,10 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             vm.try(this.updating, null);
         };
 
+        BlockOpcode.prototype.destroy = function destroy() {
+            this.bounds.destroy();
+        };
+
         BlockOpcode.prototype.didDestroy = function didDestroy() {
             this.env.didDestroy(this.bounds);
         };
@@ -14180,23 +14292,23 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             vm.try(this.updating, this);
         };
 
-        TryOpcode.prototype.handleException = function handleException(initialize) {
+        TryOpcode.prototype.handleException = function handleException() {
             var env = this.env;
             var scope = this.scope;
             var dynamicScope = this.dynamicScope;
 
-            var elementStack = new _glimmerRuntimeLibBuilder.ElementStack({
+            var elementStack = _glimmerRuntimeLibBuilder.ElementStack.resume({
                 dom: this.env.getDOM(),
-                parentNode: this.bounds.parentElement(),
-                nextSibling: initialize ? this.bounds.lastNode().nextSibling : _glimmerRuntimeLibBounds.clear(this.bounds)
+                tracker: this.bounds,
+                nextSibling: this.bounds.reset(env)
             });
-            env.didDestroy(this.bounds);
             var vm = new _glimmerRuntimeLibVmAppend.default({ env: env, scope: scope, dynamicScope: dynamicScope, elementStack: elementStack });
-            var result = vm.execute(this.ops, initialize);
-            if (!initialize) {
-                this.updating = result.opcodes();
-            }
-            this.bounds = result;
+            var result = vm.execute(this.ops);
+            this.updating = result.opcodes();
+        };
+
+        TryOpcode.prototype.destroy = function destroy() {
+            this.bounds.destroy();
         };
 
         TryOpcode.prototype.toJSON = function toJSON() {
@@ -14281,9 +14393,7 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             delete map[key];
         };
 
-        ListRevalidationDelegate.prototype.done = function done() {
-            // this.vm.registers.condition = new ConstReference(false);
-        };
+        ListRevalidationDelegate.prototype.done = function done() {};
 
         return ListRevalidationDelegate;
     })();
@@ -14299,7 +14409,7 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             _BlockOpcode2.call(this, options);
             this.type = "list-block";
             this.map = _glimmerUtil.dict();
-            this.manager = options.manager;
+            this.artifacts = options.artifacts;
         }
 
         ListBlockOpcode.prototype.firstNode = function firstNode() {
@@ -14317,8 +14427,11 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
 
         ListBlockOpcode.prototype.evaluate = function evaluate(vm) {
             // Revalidate list somehow....
-            var delegate = new ListRevalidationDelegate(this);
-            this.manager.sync(delegate);
+            var artifacts = this.artifacts;
+
+            var target = new ListRevalidationDelegate(this);
+            var synchronizer = new _glimmerReference.IteratorSynchronizer({ target: target, artifacts: artifacts });
+            synchronizer.sync();
             // Run now-updated updating opcodes
             _BlockOpcode2.prototype.evaluate.call(this, vm);
         };
@@ -14328,7 +14441,7 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             var scope = this.scope;
             var dynamicScope = this.dynamicScope;
 
-            var elementStack = new _glimmerRuntimeLibBuilder.ElementStack({
+            var elementStack = _glimmerRuntimeLibBuilder.ElementStack.forInitialRender({
                 dom: this.env.getDOM(),
                 parentNode: this.bounds.parentElement(),
                 nextSibling: nextSibling || this.bounds.lastNode()
@@ -14369,8 +14482,8 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             return current;
         };
 
-        UpdatingVMFrame.prototype.handleException = function handleException(initialize) {
-            this.exceptionHandler.handleException(initialize);
+        UpdatingVMFrame.prototype.handleException = function handleException() {
+            this.exceptionHandler.handleException();
         };
 
         return UpdatingVMFrame;
@@ -21749,7 +21862,7 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
 
   exports.CurlyComponentDefinition = CurlyComponentDefinition;
 });
-enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
+enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils/references'], function (exports, _emberGlimmerUtilsReferences) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -21769,8 +21882,8 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/envir
 
     Renderer.prototype.appendTo = function appendTo(view, target) {
       var env = this._env;
-      var self = new _emberGlimmerEnvironment.RootReference(view);
-      var viewRef = new _emberGlimmerEnvironment.RootReference(view);
+      var self = new _emberGlimmerUtilsReferences.RootReference(view);
+      var viewRef = new _emberGlimmerUtilsReferences.RootReference(view);
 
       env.begin();
       var result = view.template.asEntryPoint().render(self, env, { appendTo: target, keywords: { view: viewRef } });
@@ -21862,90 +21975,19 @@ enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'emb
     return Wrapper.extend({ spec: JSON.parse(json) });
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/property_get', 'ember-metal/empty_object', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/components/curly-component', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/inline-if'], function (exports, _glimmerRuntime, _emberMetalProperty_get, _emberMetalEmpty_object, _emberGlimmerHelpersIfUnless, _emberGlimmerComponentsCurlyComponent, _emberGlimmerUtilsLookupComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersInlineIf) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/inline-if'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersInlineIf) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  // @implements PathReference
-
-  var RootReference = (function () {
-    function RootReference(value) {
-      _classCallCheck(this, RootReference);
-
-      this._value = value;
-    }
-
-    // @implements PathReference
-
-    RootReference.prototype.value = function value() {
-      return this._value;
-    };
-
-    RootReference.prototype.isDirty = function isDirty() {
-      return true;
-    };
-
-    RootReference.prototype.get = function get(propertyKey) {
-      return new PropertyReference(this, propertyKey);
-    };
-
-    RootReference.prototype.destroy = function destroy() {};
-
-    return RootReference;
-  })();
-
-  exports.RootReference = RootReference;
-
-  var PropertyReference = (function () {
-    function PropertyReference(parentReference, propertyKey) {
-      _classCallCheck(this, PropertyReference);
-
-      this._parentReference = parentReference;
-      this._propertyKey = propertyKey;
-    }
-
-    PropertyReference.prototype.value = function value() {
-      return _emberMetalProperty_get.get(this._parentReference.value(), this._propertyKey);
-    };
-
-    PropertyReference.prototype.isDirty = function isDirty() {
-      return true;
-    };
-
-    PropertyReference.prototype.get = function get(propertyKey) {
-      return new PropertyReference(this, propertyKey);
-    };
-
-    PropertyReference.prototype.destroy = function destroy() {};
-
-    return PropertyReference;
-  })();
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   var helpers = {
     concat: _emberGlimmerHelpersConcat.default,
     if: _emberGlimmerHelpersInlineIf.default
   };
-
-  var EmberConditionalReference = (function (_ConditionalReference) {
-    _inherits(EmberConditionalReference, _ConditionalReference);
-
-    function EmberConditionalReference() {
-      _classCallCheck(this, EmberConditionalReference);
-
-      _ConditionalReference.apply(this, arguments);
-    }
-
-    EmberConditionalReference.prototype.toBool = function toBool(predicate) {
-      return _emberGlimmerHelpersIfUnless.toBool(predicate);
-    };
-
-    return EmberConditionalReference;
-  })(_glimmerRuntime.ConditionalReference);
 
   var VIEW_KEYWORD = 'view'; // legacy ? 'view' : symbol('view');
   var KEYWORDS = [VIEW_KEYWORD];
@@ -22034,11 +22076,16 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     };
 
     _default.prototype.rootReferenceFor = function rootReferenceFor(value) {
-      return new RootReference(value);
+      return new _emberGlimmerUtilsReferences.RootReference(value);
     };
 
     _default.prototype.toConditionalReference = function toConditionalReference(reference) {
-      return new EmberConditionalReference(reference);
+      return new _emberGlimmerUtilsReferences.ConditionalReference(reference);
+    };
+
+    _default.prototype.iterableFor = function iterableFor(ref, args) {
+      var keyPath = args.named.get('key').value();
+      return _emberGlimmerUtilsIterable.default(ref, keyPath);
     };
 
     return _default;
@@ -22264,6 +22311,170 @@ enifed('ember-glimmer/helpers/inline-if', ['exports', 'ember-glimmer/helpers/if-
     }
   }
 });
+enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences) {
+  'use strict';
+
+  exports.default = iterableFor;
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function iterableFor(ref, keyPath) {
+    return new Iterable(ref, keyFor(keyPath));
+  }
+
+  function keyFor(keyPath) {
+    switch (keyPath) {
+      case '@index':
+        return index;
+      case '@identity':
+      case undefined:
+      case null:
+        return identity;
+      default:
+        return function (item) {
+          return _emberMetalProperty_get.get(item, keyPath);
+        };
+    }
+  }
+
+  function index(item, index) {
+    return String(index);
+  }
+
+  function identity(item) {
+    switch (typeof item) {
+      case 'string':
+      case 'number':
+        return String(item);
+      default:
+        return _emberMetalUtils.guidFor(item);
+    }
+  }
+
+  var ArrayIterator = (function () {
+    function ArrayIterator(array, keyFor) {
+      _classCallCheck(this, ArrayIterator);
+
+      this.array = array;
+      this.length = array.length;
+      this.keyFor = keyFor;
+      this.position = 0;
+    }
+
+    ArrayIterator.prototype.isEmpty = function isEmpty() {
+      return false;
+    };
+
+    ArrayIterator.prototype.next = function next() {
+      var array = this.array;
+      var length = this.length;
+      var keyFor = this.keyFor;
+      var position = this.position;
+
+      if (position >= length) {
+        return null;
+      }
+
+      var value = array[position];
+      var key = keyFor(value, position);
+
+      this.position++;
+
+      return { key: key, value: value };
+    };
+
+    return ArrayIterator;
+  })();
+
+  var EmberArrayIterator = (function () {
+    function EmberArrayIterator(array, keyFor) {
+      _classCallCheck(this, EmberArrayIterator);
+
+      this.array = array;
+      this.length = _emberMetalProperty_get.get(array, 'length');
+      this.keyFor = keyFor;
+      this.position = 0;
+    }
+
+    EmberArrayIterator.prototype.isEmpty = function isEmpty() {
+      return this.length === 0;
+    };
+
+    EmberArrayIterator.prototype.next = function next() {
+      var array = this.array;
+      var length = this.length;
+      var keyFor = this.keyFor;
+      var position = this.position;
+
+      if (position >= length) {
+        return null;
+      }
+
+      var value = _emberRuntimeMixinsArray.objectAt(array, position);
+      var key = keyFor(value, position);
+
+      this.position++;
+
+      return { key: key, value: value };
+    };
+
+    return EmberArrayIterator;
+  })();
+
+  var EmptyIterator = (function () {
+    function EmptyIterator() {
+      _classCallCheck(this, EmptyIterator);
+    }
+
+    EmptyIterator.prototype.isEmpty = function isEmpty() {
+      return true;
+    };
+
+    EmptyIterator.prototype.next = function next() {
+      throw new Error('Cannot call next() on an empty iterator');
+    };
+
+    return EmptyIterator;
+  })();
+
+  var EMPTY_ITERATOR = new EmptyIterator();
+
+  var Iterable = (function () {
+    function Iterable(ref, keyFor) {
+      _classCallCheck(this, Iterable);
+
+      this.ref = ref;
+      this.keyFor = keyFor;
+    }
+
+    Iterable.prototype.iterate = function iterate() {
+      var ref = this.ref;
+      var keyFor = this.keyFor;
+
+      var iterable = ref.value();
+
+      if (iterable === undefined || iterable === null) {
+        return EMPTY_ITERATOR;
+      } else if (Array.isArray(iterable)) {
+        return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
+      } else if (_emberRuntimeMixinsArray.isEmberArray(iterable)) {
+        return new EmberArrayIterator(iterable, keyFor);
+      } else {
+        throw new Error('Don\'t know how to {{#each ' + iterable + '}}');
+      }
+    };
+
+    Iterable.prototype.referenceFor = function referenceFor(item) {
+      return new _emberGlimmerUtilsReferences.UpdatableReference(item.value);
+    };
+
+    Iterable.prototype.updateReference = function updateReference(reference, item) {
+      reference.update(item.value);
+    };
+
+    return Iterable;
+  })();
+});
 enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features'], function (exports, _emberMetalFeatures) {
   'use strict';
 
@@ -22293,6 +22504,108 @@ enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features
 
     return lookupComponentPair(componentLookup, owner, name);
   }
+});
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'glimmer-runtime', 'ember-glimmer/helpers/if-unless'], function (exports, _emberMetalProperty_get, _glimmerRuntime, _emberGlimmerHelpersIfUnless) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  // @implements PathReference
+
+  var RootReference = (function () {
+    function RootReference(value) {
+      _classCallCheck(this, RootReference);
+
+      this._value = value;
+    }
+
+    // @implements PathReference
+
+    RootReference.prototype.value = function value() {
+      return this._value;
+    };
+
+    RootReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    RootReference.prototype.get = function get(propertyKey) {
+      return new PropertyReference(this, propertyKey);
+    };
+
+    RootReference.prototype.destroy = function destroy() {};
+
+    return RootReference;
+  })();
+
+  exports.RootReference = RootReference;
+
+  var PropertyReference = (function () {
+    function PropertyReference(parentReference, propertyKey) {
+      _classCallCheck(this, PropertyReference);
+
+      this._parentReference = parentReference;
+      this._propertyKey = propertyKey;
+    }
+
+    // @implements PathReference
+
+    PropertyReference.prototype.value = function value() {
+      return _emberMetalProperty_get.get(this._parentReference.value(), this._propertyKey);
+    };
+
+    PropertyReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    PropertyReference.prototype.get = function get(propertyKey) {
+      return new PropertyReference(this, propertyKey);
+    };
+
+    PropertyReference.prototype.destroy = function destroy() {};
+
+    return PropertyReference;
+  })();
+
+  var UpdatableReference = (function (_RootReference) {
+    _inherits(UpdatableReference, _RootReference);
+
+    function UpdatableReference() {
+      _classCallCheck(this, UpdatableReference);
+
+      _RootReference.apply(this, arguments);
+    }
+
+    UpdatableReference.prototype.update = function update(value) {
+      this._value = value;
+    };
+
+    return UpdatableReference;
+  })(RootReference);
+
+  exports.UpdatableReference = UpdatableReference;
+
+  var ConditionalReference = (function (_GlimmerConditionalReference) {
+    _inherits(ConditionalReference, _GlimmerConditionalReference);
+
+    function ConditionalReference() {
+      _classCallCheck(this, ConditionalReference);
+
+      _GlimmerConditionalReference.apply(this, arguments);
+    }
+
+    ConditionalReference.prototype.toBool = function toBool(predicate) {
+      return _emberGlimmerHelpersIfUnless.toBool(predicate);
+    };
+
+    return ConditionalReference;
+  })(_glimmerRuntime.ConditionalReference);
+
+  exports.ConditionalReference = ConditionalReference;
 });
 enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
   'use strict';
@@ -25539,7 +25852,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+8b643c6e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+7e807172';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -31182,7 +31495,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+8b643c6e
+    @version 2.6.0-canary+7e807172
     @public
   */
 
@@ -31224,11 +31537,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+8b643c6e'
+    @default '2.6.0-canary+7e807172'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+8b643c6e';
+  Ember.VERSION = '2.6.0-canary+7e807172';
 
   /**
     The hash of environment variables used to control various configuration
@@ -45308,7 +45621,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+8b643c6e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+7e807172';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -45811,7 +46124,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+8b643c6e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+7e807172';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -47787,7 +48100,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', '
     });
   }
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
   /**
   @module ember
   @submodule ember-runtime
@@ -47798,9 +48111,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   //
   'use strict';
 
+  var _Mixin$create;
+
   exports.addArrayObserver = addArrayObserver;
   exports.removeArrayObserver = removeArrayObserver;
   exports.objectAt = objectAt;
+  exports.isEmberArray = isEmberArray;
 
   function arrayObserversHelper(obj, target, opts, operation, notify) {
     var willChange = opts && opts.willChange || 'arrayWillChange';
@@ -47835,6 +48151,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     return content[idx];
+  }
+
+  var EMBER_ARRAY = _emberMetalSymbol.default('EMBER_ARRAY');
+
+  function isEmberArray(obj) {
+    return obj && !!obj[EMBER_ARRAY];
   }
 
   // ..........................................................
@@ -47877,424 +48199,403 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     @since Ember 0.9.0
     @public
   */
-  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsEnumerable.default, {
+  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsEnumerable.default, (_Mixin$create = {}, _Mixin$create[EMBER_ARRAY] = true, _Mixin$create.length = null, _Mixin$create.objectAt = function (idx) {
+    if (idx < 0 || idx >= _emberMetalProperty_get.get(this, 'length')) {
+      return undefined;
+    }
 
-    /**
-      __Required.__ You must implement this method to apply this mixin.
-       Your array must support the `length` property. Your replace methods should
-      set this property whenever it changes.
-       @property {Number} length
-      @public
-    */
-    length: null,
+    return _emberMetalProperty_get.get(this, idx);
+  }, _Mixin$create.objectsAt = function (indexes) {
+    var _this = this;
 
-    /**
-      Returns the object at the given `index`. If the given `index` is negative
-      or is greater or equal than the array length, returns `undefined`.
-       This is one of the primitives you must implement to support `Ember.Array`.
-      If your object supports retrieving the value of an array item using `get()`
-      (i.e. `myArray.get(0)`), then you do not need to implement this method
-      yourself.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd'];
-       arr.objectAt(0);   // 'a'
-      arr.objectAt(3);   // 'd'
-      arr.objectAt(-1);  // undefined
-      arr.objectAt(4);   // undefined
-      arr.objectAt(5);   // undefined
-      ```
-       @method objectAt
-      @param {Number} idx The index of the item to return.
-      @return {*} item at index or undefined
-      @public
-    */
-    objectAt: function (idx) {
-      if (idx < 0 || idx >= _emberMetalProperty_get.get(this, 'length')) {
-        return undefined;
-      }
-
-      return _emberMetalProperty_get.get(this, idx);
-    },
-
-    /**
-      This returns the objects at the specified indexes, using `objectAt`.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd'];
-       arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
-      arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
-      ```
-       @method objectsAt
-      @param {Array} indexes An array of indexes of items to return.
-      @return {Array}
-      @public
-     */
-    objectsAt: function (indexes) {
-      var _this = this;
-
-      return indexes.map(function (idx) {
-        return objectAt(_this, idx);
-      });
-    },
-
-    // overrides Ember.Enumerable version
-    nextObject: function (idx) {
-      return objectAt(this, idx);
-    },
-
-    /**
-      This is the handler for the special array content property. If you get
-      this property, it will return this. If you set this property to a new
-      array, it will replace the current content.
-       This property overrides the default property defined in `Ember.Enumerable`.
-       @property []
-      @return this
-      @public
-    */
-    '[]': _emberMetalComputed.computed({
-      get: function (key) {
-        return this;
-      },
-      set: function (key, value) {
-        this.replace(0, _emberMetalProperty_get.get(this, 'length'), value);
-        return this;
-      }
-    }),
-
-    firstObject: _emberMetalComputed.computed(function () {
-      return objectAt(this, 0);
-    }),
-
-    lastObject: _emberMetalComputed.computed(function () {
-      return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
-    }),
-
-    // optimized version from Enumerable
-    contains: function (obj) {
-      return this.indexOf(obj) >= 0;
-    },
-
-    // Add any extra methods to Ember.Array that are native to the built-in Array.
-    /**
-      Returns a new array that is a slice of the receiver. This implementation
-      uses the observable array methods to retrieve the objects for the new
-      slice.
-       ```javascript
-      var arr = ['red', 'green', 'blue'];
-       arr.slice(0);       // ['red', 'green', 'blue']
-      arr.slice(0, 2);    // ['red', 'green']
-      arr.slice(1, 100);  // ['green', 'blue']
-      ```
-       @method slice
-      @param {Number} beginIndex (Optional) index to begin slicing from.
-      @param {Number} endIndex (Optional) index to end the slice at (but not included).
-      @return {Array} New array with specified slice
-      @public
-    */
-    slice: function (beginIndex, endIndex) {
-      var ret = _emberMetalCore.default.A();
-      var length = _emberMetalProperty_get.get(this, 'length');
-
-      if (_emberMetalIs_none.default(beginIndex)) {
-        beginIndex = 0;
-      }
-
-      if (_emberMetalIs_none.default(endIndex) || endIndex > length) {
-        endIndex = length;
-      }
-
-      if (beginIndex < 0) {
-        beginIndex = length + beginIndex;
-      }
-
-      if (endIndex < 0) {
-        endIndex = length + endIndex;
-      }
-
-      while (beginIndex < endIndex) {
-        ret[ret.length] = objectAt(this, beginIndex++);
-      }
-
-      return ret;
-    },
-
-    /**
-      Returns the index of the given object's first occurrence.
-      If no `startAt` argument is given, the starting location to
-      search is 0. If it's negative, will count backward from
-      the end of the array. Returns -1 if no match is found.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd', 'a'];
-       arr.indexOf('a');       //  0
-      arr.indexOf('z');       // -1
-      arr.indexOf('a', 2);    //  4
-      arr.indexOf('a', -1);   //  4
-      arr.indexOf('b', 3);    // -1
-      arr.indexOf('a', 100);  // -1
-      ```
-       @method indexOf
-      @param {Object} object the item to search for
-      @param {Number} startAt optional starting location to search, default 0
-      @return {Number} index or -1 if not found
-      @public
-    */
-    indexOf: function (object, startAt) {
-      var len = _emberMetalProperty_get.get(this, 'length');
-      var idx;
-
-      if (startAt === undefined) {
-        startAt = 0;
-      }
-
-      if (startAt < 0) {
-        startAt += len;
-      }
-
-      for (idx = startAt; idx < len; idx++) {
-        if (objectAt(this, idx) === object) {
-          return idx;
-        }
-      }
-
-      return -1;
-    },
-
-    /**
-      Returns the index of the given object's last occurrence.
-      If no `startAt` argument is given, the search starts from
-      the last position. If it's negative, will count backward
-      from the end of the array. Returns -1 if no match is found.
-       ```javascript
-      var arr = ['a', 'b', 'c', 'd', 'a'];
-       arr.lastIndexOf('a');       //  4
-      arr.lastIndexOf('z');       // -1
-      arr.lastIndexOf('a', 2);    //  0
-      arr.lastIndexOf('a', -1);   //  4
-      arr.lastIndexOf('b', 3);    //  1
-      arr.lastIndexOf('a', 100);  //  4
-      ```
-       @method lastIndexOf
-      @param {Object} object the item to search for
-      @param {Number} startAt optional starting location to search, default 0
-      @return {Number} index or -1 if not found
-      @public
-    */
-    lastIndexOf: function (object, startAt) {
-      var len = _emberMetalProperty_get.get(this, 'length');
-      var idx;
-
-      if (startAt === undefined || startAt >= len) {
-        startAt = len - 1;
-      }
-
-      if (startAt < 0) {
-        startAt += len;
-      }
-
-      for (idx = startAt; idx >= 0; idx--) {
-        if (objectAt(this, idx) === object) {
-          return idx;
-        }
-      }
-
-      return -1;
-    },
-
-    // ..........................................................
-    // ARRAY OBSERVERS
-    //
-
-    /**
-      Adds an array observer to the receiving array. The array observer object
-      normally must implement two methods:
-       * `arrayWillChange(observedObj, start, removeCount, addCount)` - This method will be
-        called just before the array is modified.
-      * `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be
-        called just after the array is modified.
-       Both callbacks will be passed the observed object, starting index of the
-      change as well as a count of the items to be removed and added. You can use
-      these callbacks to optionally inspect the array during the change, clear
-      caches, or do any other bookkeeping necessary.
-       In addition to passing a target, you can also include an options hash
-      which you can use to override the method names that will be invoked on the
-      target.
-       @method addArrayObserver
-      @param {Object} target The observer object.
-      @param {Object} opts Optional hash of configuration options including
-        `willChange` and `didChange` option.
-      @return {Ember.Array} receiver
-      @public
-    */
-
-    addArrayObserver: function (target, opts) {
-      return addArrayObserver(this, target, opts);
-    },
-
-    /**
-      Removes an array observer from the object if the observer is current
-      registered. Calling this method multiple times with the same object will
-      have no effect.
-       @method removeArrayObserver
-      @param {Object} target The object observing the array.
-      @param {Object} opts Optional hash of configuration options including
-        `willChange` and `didChange` option.
-      @return {Ember.Array} receiver
-      @public
-    */
-    removeArrayObserver: function (target, opts) {
-      return removeArrayObserver(this, target, opts);
-    },
-
-    /**
-      Becomes true whenever the array currently has observers watching changes
-      on the array.
-       @property {Boolean} hasArrayObservers
-      @public
-    */
-    hasArrayObservers: _emberMetalComputed.computed(function () {
-      return _emberMetalEvents.hasListeners(this, '@array:change') || _emberMetalEvents.hasListeners(this, '@array:before');
-    }),
-
-    /**
-      If you are implementing an object that supports `Ember.Array`, call this
-      method just before the array content changes to notify any observers and
-      invalidate any related properties. Pass the starting index of the change
-      as well as a delta of the amounts to change.
-       @method arrayContentWillChange
-      @param {Number} startIdx The starting index in the array that will change.
-      @param {Number} removeAmt The number of items that will be removed. If you
-        pass `null` assumes 0
-      @param {Number} addAmt The number of items that will be added. If you
-        pass `null` assumes 0.
-      @return {Ember.Array} receiver
-      @public
-    */
-    arrayContentWillChange: function (startIdx, removeAmt, addAmt) {
-      var removing, lim;
-
-      // if no args are passed assume everything changes
-      if (startIdx === undefined) {
-        startIdx = 0;
-        removeAmt = addAmt = -1;
-      } else {
-        if (removeAmt === undefined) {
-          removeAmt = -1;
-        }
-
-        if (addAmt === undefined) {
-          addAmt = -1;
-        }
-      }
-
-      if (this.__each) {
-        this.__each.arrayWillChange(this, startIdx, removeAmt, addAmt);
-      }
-
-      _emberMetalEvents.sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
-
-      if (startIdx >= 0 && removeAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
-        removing = [];
-        lim = startIdx + removeAmt;
-
-        for (var idx = startIdx; idx < lim; idx++) {
-          removing.push(objectAt(this, idx));
-        }
-      } else {
-        removing = removeAmt;
-      }
-
-      this.enumerableContentWillChange(removing, addAmt);
-
+    return indexes.map(function (idx) {
+      return objectAt(_this, idx);
+    });
+  }, _Mixin$create.nextObject = function (idx) {
+    return objectAt(this, idx);
+  }, _Mixin$create['[]'] = _emberMetalComputed.computed({
+    get: function (key) {
       return this;
     },
-
-    /**
-      If you are implementing an object that supports `Ember.Array`, call this
-      method just after the array content changes to notify any observers and
-      invalidate any related properties. Pass the starting index of the change
-      as well as a delta of the amounts to change.
-       @method arrayContentDidChange
-      @param {Number} startIdx The starting index in the array that did change.
-      @param {Number} removeAmt The number of items that were removed. If you
-        pass `null` assumes 0
-      @param {Number} addAmt The number of items that were added. If you
-        pass `null` assumes 0.
-      @return {Ember.Array} receiver
-      @public
-    */
-    arrayContentDidChange: function (startIdx, removeAmt, addAmt) {
-      var adding, lim;
-
-      // if no args are passed assume everything changes
-      if (startIdx === undefined) {
-        startIdx = 0;
-        removeAmt = addAmt = -1;
-      } else {
-        if (removeAmt === undefined) {
-          removeAmt = -1;
-        }
-
-        if (addAmt === undefined) {
-          addAmt = -1;
-        }
-      }
-
-      if (startIdx >= 0 && addAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
-        adding = [];
-        lim = startIdx + addAmt;
-
-        for (var idx = startIdx; idx < lim; idx++) {
-          adding.push(objectAt(this, idx));
-        }
-      } else {
-        adding = addAmt;
-      }
-
-      this.enumerableContentDidChange(removeAmt, adding);
-
-      if (this.__each) {
-        this.__each.arrayDidChange(this, startIdx, removeAmt, addAmt);
-      }
-
-      _emberMetalEvents.sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
-
-      var length = _emberMetalProperty_get.get(this, 'length');
-      var cachedFirst = _emberMetalComputed.cacheFor(this, 'firstObject');
-      var cachedLast = _emberMetalComputed.cacheFor(this, 'lastObject');
-
-      if (objectAt(this, 0) !== cachedFirst) {
-        _emberMetalProperty_events.propertyWillChange(this, 'firstObject');
-        _emberMetalProperty_events.propertyDidChange(this, 'firstObject');
-      }
-
-      if (objectAt(this, length - 1) !== cachedLast) {
-        _emberMetalProperty_events.propertyWillChange(this, 'lastObject');
-        _emberMetalProperty_events.propertyDidChange(this, 'lastObject');
-      }
-
+    set: function (key, value) {
+      this.replace(0, _emberMetalProperty_get.get(this, 'length'), value);
       return this;
-    },
+    }
+  }), _Mixin$create.firstObject = _emberMetalComputed.computed(function () {
+    return objectAt(this, 0);
+  }), _Mixin$create.lastObject = _emberMetalComputed.computed(function () {
+    return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
+  }), _Mixin$create.contains = function (obj) {
+    return this.indexOf(obj) >= 0;
+  }, _Mixin$create.slice = function (beginIndex, endIndex) {
+    var ret = _emberMetalCore.default.A();
+    var length = _emberMetalProperty_get.get(this, 'length');
 
-    /**
-      Returns a special object that can be used to observe individual properties
-      on the array. Just get an equivalent property on this object and it will
-      return an enumerable that maps automatically to the named key on the
-      member objects.
-       If you merely want to watch for any items being added or removed to the array,
-      use the `[]` property instead of `@each`.
-       @property @each
-      @public
-    */
-    '@each': _emberMetalComputed.computed(function () {
-      // TODO use Symbol or add to meta
-      if (!this.__each) {
-        this.__each = new _emberRuntimeSystemEach_proxy.default(this);
+    if (_emberMetalIs_none.default(beginIndex)) {
+      beginIndex = 0;
+    }
+
+    if (_emberMetalIs_none.default(endIndex) || endIndex > length) {
+      endIndex = length;
+    }
+
+    if (beginIndex < 0) {
+      beginIndex = length + beginIndex;
+    }
+
+    if (endIndex < 0) {
+      endIndex = length + endIndex;
+    }
+
+    while (beginIndex < endIndex) {
+      ret[ret.length] = objectAt(this, beginIndex++);
+    }
+
+    return ret;
+  }, _Mixin$create.indexOf = function (object, startAt) {
+    var len = _emberMetalProperty_get.get(this, 'length');
+    var idx;
+
+    if (startAt === undefined) {
+      startAt = 0;
+    }
+
+    if (startAt < 0) {
+      startAt += len;
+    }
+
+    for (idx = startAt; idx < len; idx++) {
+      if (objectAt(this, idx) === object) {
+        return idx;
+      }
+    }
+
+    return -1;
+  }, _Mixin$create.lastIndexOf = function (object, startAt) {
+    var len = _emberMetalProperty_get.get(this, 'length');
+    var idx;
+
+    if (startAt === undefined || startAt >= len) {
+      startAt = len - 1;
+    }
+
+    if (startAt < 0) {
+      startAt += len;
+    }
+
+    for (idx = startAt; idx >= 0; idx--) {
+      if (objectAt(this, idx) === object) {
+        return idx;
+      }
+    }
+
+    return -1;
+  }, _Mixin$create.addArrayObserver = function (target, opts) {
+    return addArrayObserver(this, target, opts);
+  }, _Mixin$create.removeArrayObserver = function (target, opts) {
+    return removeArrayObserver(this, target, opts);
+  }, _Mixin$create.hasArrayObservers = _emberMetalComputed.computed(function () {
+    return _emberMetalEvents.hasListeners(this, '@array:change') || _emberMetalEvents.hasListeners(this, '@array:before');
+  }), _Mixin$create.arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
+    var removing, lim;
+
+    // if no args are passed assume everything changes
+    if (startIdx === undefined) {
+      startIdx = 0;
+      removeAmt = addAmt = -1;
+    } else {
+      if (removeAmt === undefined) {
+        removeAmt = -1;
       }
 
-      return this.__each;
-    }).volatile()
-  });
+      if (addAmt === undefined) {
+        addAmt = -1;
+      }
+    }
+
+    if (this.__each) {
+      this.__each.arrayWillChange(this, startIdx, removeAmt, addAmt);
+    }
+
+    _emberMetalEvents.sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
+
+    if (startIdx >= 0 && removeAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
+      removing = [];
+      lim = startIdx + removeAmt;
+
+      for (var idx = startIdx; idx < lim; idx++) {
+        removing.push(objectAt(this, idx));
+      }
+    } else {
+      removing = removeAmt;
+    }
+
+    this.enumerableContentWillChange(removing, addAmt);
+
+    return this;
+  }, _Mixin$create.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
+    var adding, lim;
+
+    // if no args are passed assume everything changes
+    if (startIdx === undefined) {
+      startIdx = 0;
+      removeAmt = addAmt = -1;
+    } else {
+      if (removeAmt === undefined) {
+        removeAmt = -1;
+      }
+
+      if (addAmt === undefined) {
+        addAmt = -1;
+      }
+    }
+
+    if (startIdx >= 0 && addAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
+      adding = [];
+      lim = startIdx + addAmt;
+
+      for (var idx = startIdx; idx < lim; idx++) {
+        adding.push(objectAt(this, idx));
+      }
+    } else {
+      adding = addAmt;
+    }
+
+    this.enumerableContentDidChange(removeAmt, adding);
+
+    if (this.__each) {
+      this.__each.arrayDidChange(this, startIdx, removeAmt, addAmt);
+    }
+
+    _emberMetalEvents.sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
+
+    var length = _emberMetalProperty_get.get(this, 'length');
+    var cachedFirst = _emberMetalComputed.cacheFor(this, 'firstObject');
+    var cachedLast = _emberMetalComputed.cacheFor(this, 'lastObject');
+
+    if (objectAt(this, 0) !== cachedFirst) {
+      _emberMetalProperty_events.propertyWillChange(this, 'firstObject');
+      _emberMetalProperty_events.propertyDidChange(this, 'firstObject');
+    }
+
+    if (objectAt(this, length - 1) !== cachedLast) {
+      _emberMetalProperty_events.propertyWillChange(this, 'lastObject');
+      _emberMetalProperty_events.propertyDidChange(this, 'lastObject');
+    }
+
+    return this;
+  }, _Mixin$create['@each'] = _emberMetalComputed.computed(function () {
+    // TODO use Symbol or add to meta
+    if (!this.__each) {
+      this.__each = new _emberRuntimeSystemEach_proxy.default(this);
+    }
+
+    return this.__each;
+  }).volatile(), _Mixin$create));
 });
 // ES6TODO: Ember.A
+
+/**
+  __Required.__ You must implement this method to apply this mixin.
+   Your array must support the `length` property. Your replace methods should
+  set this property whenever it changes.
+   @property {Number} length
+  @public
+*/
+
+/**
+  Returns the object at the given `index`. If the given `index` is negative
+  or is greater or equal than the array length, returns `undefined`.
+   This is one of the primitives you must implement to support `Ember.Array`.
+  If your object supports retrieving the value of an array item using `get()`
+  (i.e. `myArray.get(0)`), then you do not need to implement this method
+  yourself.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd'];
+   arr.objectAt(0);   // 'a'
+  arr.objectAt(3);   // 'd'
+  arr.objectAt(-1);  // undefined
+  arr.objectAt(4);   // undefined
+  arr.objectAt(5);   // undefined
+  ```
+   @method objectAt
+  @param {Number} idx The index of the item to return.
+  @return {*} item at index or undefined
+  @public
+*/
+
+/**
+  This returns the objects at the specified indexes, using `objectAt`.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd'];
+   arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
+  arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
+  ```
+   @method objectsAt
+  @param {Array} indexes An array of indexes of items to return.
+  @return {Array}
+  @public
+ */
+
+// overrides Ember.Enumerable version
+
+/**
+  This is the handler for the special array content property. If you get
+  this property, it will return this. If you set this property to a new
+  array, it will replace the current content.
+   This property overrides the default property defined in `Ember.Enumerable`.
+   @property []
+  @return this
+  @public
+*/
+
+// optimized version from Enumerable
+
+// Add any extra methods to Ember.Array that are native to the built-in Array.
+/**
+  Returns a new array that is a slice of the receiver. This implementation
+  uses the observable array methods to retrieve the objects for the new
+  slice.
+   ```javascript
+  var arr = ['red', 'green', 'blue'];
+   arr.slice(0);       // ['red', 'green', 'blue']
+  arr.slice(0, 2);    // ['red', 'green']
+  arr.slice(1, 100);  // ['green', 'blue']
+  ```
+   @method slice
+  @param {Number} beginIndex (Optional) index to begin slicing from.
+  @param {Number} endIndex (Optional) index to end the slice at (but not included).
+  @return {Array} New array with specified slice
+  @public
+*/
+
+/**
+  Returns the index of the given object's first occurrence.
+  If no `startAt` argument is given, the starting location to
+  search is 0. If it's negative, will count backward from
+  the end of the array. Returns -1 if no match is found.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd', 'a'];
+   arr.indexOf('a');       //  0
+  arr.indexOf('z');       // -1
+  arr.indexOf('a', 2);    //  4
+  arr.indexOf('a', -1);   //  4
+  arr.indexOf('b', 3);    // -1
+  arr.indexOf('a', 100);  // -1
+  ```
+   @method indexOf
+  @param {Object} object the item to search for
+  @param {Number} startAt optional starting location to search, default 0
+  @return {Number} index or -1 if not found
+  @public
+*/
+
+/**
+  Returns the index of the given object's last occurrence.
+  If no `startAt` argument is given, the search starts from
+  the last position. If it's negative, will count backward
+  from the end of the array. Returns -1 if no match is found.
+   ```javascript
+  var arr = ['a', 'b', 'c', 'd', 'a'];
+   arr.lastIndexOf('a');       //  4
+  arr.lastIndexOf('z');       // -1
+  arr.lastIndexOf('a', 2);    //  0
+  arr.lastIndexOf('a', -1);   //  4
+  arr.lastIndexOf('b', 3);    //  1
+  arr.lastIndexOf('a', 100);  //  4
+  ```
+   @method lastIndexOf
+  @param {Object} object the item to search for
+  @param {Number} startAt optional starting location to search, default 0
+  @return {Number} index or -1 if not found
+  @public
+*/
+
+// ..........................................................
+// ARRAY OBSERVERS
+//
+
+/**
+  Adds an array observer to the receiving array. The array observer object
+  normally must implement two methods:
+   * `arrayWillChange(observedObj, start, removeCount, addCount)` - This method will be
+    called just before the array is modified.
+  * `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be
+    called just after the array is modified.
+   Both callbacks will be passed the observed object, starting index of the
+  change as well as a count of the items to be removed and added. You can use
+  these callbacks to optionally inspect the array during the change, clear
+  caches, or do any other bookkeeping necessary.
+   In addition to passing a target, you can also include an options hash
+  which you can use to override the method names that will be invoked on the
+  target.
+   @method addArrayObserver
+  @param {Object} target The observer object.
+  @param {Object} opts Optional hash of configuration options including
+    `willChange` and `didChange` option.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Removes an array observer from the object if the observer is current
+  registered. Calling this method multiple times with the same object will
+  have no effect.
+   @method removeArrayObserver
+  @param {Object} target The object observing the array.
+  @param {Object} opts Optional hash of configuration options including
+    `willChange` and `didChange` option.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Becomes true whenever the array currently has observers watching changes
+  on the array.
+   @property {Boolean} hasArrayObservers
+  @public
+*/
+
+/**
+  If you are implementing an object that supports `Ember.Array`, call this
+  method just before the array content changes to notify any observers and
+  invalidate any related properties. Pass the starting index of the change
+  as well as a delta of the amounts to change.
+   @method arrayContentWillChange
+  @param {Number} startIdx The starting index in the array that will change.
+  @param {Number} removeAmt The number of items that will be removed. If you
+    pass `null` assumes 0
+  @param {Number} addAmt The number of items that will be added. If you
+    pass `null` assumes 0.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  If you are implementing an object that supports `Ember.Array`, call this
+  method just after the array content changes to notify any observers and
+  invalidate any related properties. Pass the starting index of the change
+  as well as a delta of the amounts to change.
+   @method arrayContentDidChange
+  @param {Number} startIdx The starting index in the array that did change.
+  @param {Number} removeAmt The number of items that were removed. If you
+    pass `null` assumes 0
+  @param {Number} addAmt The number of items that were added. If you
+    pass `null` assumes 0.
+  @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Returns a special object that can be used to observe individual properties
+  on the array. Just get an equivalent property on this object and it will
+  return an enumerable that maps automatically to the named key on the
+  member objects.
+   If you merely want to watch for any items being added or removed to the array,
+  use the `[]` property instead of `@each`.
+   @property @each
+  @public
+*/
 enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
   'use strict';
 
@@ -54810,7 +55111,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+8b643c6e',
+        revision: 'Ember@2.6.0-canary+7e807172',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -60231,7 +60532,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+8b643c6e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+7e807172';
 
   /**
   @module ember
