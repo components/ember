@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.1+0bf24e2b
+ * @version   2.5.0-beta.1+c6fa8a5a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -27496,8 +27496,48 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('No Thing bar');
     };
 
-    _class2.prototype['@test can access alias of an array'] = function testCanAccessAliasOfAnArray() {
+    _class2.prototype['@test can access alias of a proxy'] = function testCanAccessAliasOfAProxy() {
       var _this5 = this;
+
+      this.render('{{#with proxyThing as |person|}}{{person.name}}{{/with}}', {
+        proxyThing: { isTruthy: true, name: 'Tom Dale' }
+      });
+
+      this.assertText('Tom Dale');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Tom Dale');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'proxyThing.name', 'Yehuda Katz');
+      });
+
+      this.assertText('Yehuda Katz');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'proxyThing.isTruthy', false);
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'proxyThing.name', 'Godfrey Chan');
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'proxyThing', { isTruthy: true, name: 'Tom Dale' });
+      });
+
+      this.assertText('Tom Dale');
+    };
+
+    _class2.prototype['@test can access alias of an array'] = function testCanAccessAliasOfAnArray() {
+      var _this6 = this;
 
       this.render('{{#with arrayThing as |thing|}}{{#each thing as |value|}}{{value}}{{/each}}{{/with}}', {
         arrayThing: ['a', 'b', 'c', 'd']
@@ -27506,14 +27546,14 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('abcd');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       this.assertText('abcd');
     };
 
     _class2.prototype['@test empty arrays yield inverse'] = function testEmptyArraysYieldInverse() {
-      var _this6 = this;
+      var _this7 = this;
 
       this.render('{{#with arrayThing as |thing|}}{{thing}}{{else}}Empty Array{{/with}}', {
         arrayThing: []
@@ -27522,7 +27562,7 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('Empty Array');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('Empty Array');
@@ -27541,37 +27581,6 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
     }
 
     _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
-      var _this7 = this;
-
-      this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
-        admin: { name: 'Tom Dale' },
-        user: { name: 'Yehuda Katz' }
-      });
-
-      this.assertText('Admin: Tom Dale User: Yehuda Katz');
-
-      this.runTask(function () {
-        return _this7.rerender();
-      });
-
-      this.assertText('Admin: Tom Dale User: Yehuda Katz');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this7.context, 'admin.name', 'Godfrey Chan');
-        _emberMetalProperty_set.set(_this7.context, 'user.name', 'Stefan Penner');
-      });
-
-      this.assertText('Admin: Godfrey Chan User: Stefan Penner');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this7.context, 'admin', { name: 'Tom Dale' });
-        _emberMetalProperty_set.set(_this7.context, 'user', { name: 'Yehuda Katz' });
-      });
-
-      this.assertText('Admin: Tom Dale User: Yehuda Katz');
-    };
-
-    _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
       var _this8 = this;
 
       this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
@@ -27588,11 +27597,11 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('Admin: Tom Dale User: Yehuda Katz');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this8.context, 'admin.name', 'Erik Bryn');
-        _emberMetalProperty_set.set(_this8.context, 'user.name', 'Chad Hietala');
+        _emberMetalProperty_set.set(_this8.context, 'admin.name', 'Godfrey Chan');
+        _emberMetalProperty_set.set(_this8.context, 'user.name', 'Stefan Penner');
       });
 
-      this.assertText('Admin: Erik Bryn User: Chad Hietala');
+      this.assertText('Admin: Godfrey Chan User: Stefan Penner');
 
       this.runTask(function () {
         _emberMetalProperty_set.set(_this8.context, 'admin', { name: 'Tom Dale' });
@@ -27602,8 +27611,39 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('Admin: Tom Dale User: Yehuda Katz');
     };
 
-    _class3.prototype['@test the scoped variable is not available outside the {{with}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheWithBlock() {
+    _class3.prototype['@test re-using the same variable with different #with blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentWithBlocksDoesNotOverrideEachOther() {
       var _this9 = this;
+
+      this.render('Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}', {
+        admin: { name: 'Tom Dale' },
+        user: { name: 'Yehuda Katz' }
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'admin.name', 'Erik Bryn');
+        _emberMetalProperty_set.set(_this9.context, 'user.name', 'Chad Hietala');
+      });
+
+      this.assertText('Admin: Erik Bryn User: Chad Hietala');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'admin', { name: 'Tom Dale' });
+        _emberMetalProperty_set.set(_this9.context, 'user', { name: 'Yehuda Katz' });
+      });
+
+      this.assertText('Admin: Tom Dale User: Yehuda Katz');
+    };
+
+    _class3.prototype['@test the scoped variable is not available outside the {{with}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheWithBlock() {
+      var _this10 = this;
 
       this.render('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}', {
         first: 'Limbo',
@@ -27614,30 +27654,30 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this9.context, 'first', 'I');
-        _emberMetalProperty_set.set(_this9.context, 'fifth', 'D');
-        _emberMetalProperty_set.set(_this9.context, 'ninth', 'K');
+        _emberMetalProperty_set.set(_this10.context, 'first', 'I');
+        _emberMetalProperty_set.set(_this10.context, 'fifth', 'D');
+        _emberMetalProperty_set.set(_this10.context, 'ninth', 'K');
       });
 
       this.assertText('I-D-K-D-I');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this9.context, 'first', 'Limbo');
-        _emberMetalProperty_set.set(_this9.context, 'fifth', 'Wrath');
-        _emberMetalProperty_set.set(_this9.context, 'ninth', 'Treachery');
+        _emberMetalProperty_set.set(_this10.context, 'first', 'Limbo');
+        _emberMetalProperty_set.set(_this10.context, 'fifth', 'Wrath');
+        _emberMetalProperty_set.set(_this10.context, 'ninth', 'Treachery');
       });
 
       this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
     };
 
     _class3.prototype['@test it should support #with name as |foo|, then #with foo as |bar|'] = function testItShouldSupportWithNameAsFooThenWithFooAsBar() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.render('{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}', {
         name: 'caterpillar'
@@ -27646,26 +27686,26 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'name', 'butterfly');
+        return _emberMetalProperty_set.set(_this11.context, 'name', 'butterfly');
       });
 
       this.assertText('butterfly');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'name', 'caterpillar');
+        return _emberMetalProperty_set.set(_this11.context, 'name', 'caterpillar');
       });
 
       this.assertText('caterpillar');
     };
 
     _class3.prototype['@test nested {{with}} blocks shadow the outer scoped variable properly.'] = function testNestedWithBlocksShadowTheOuterScopedVariableProperly() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.render('{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}', {
         first: 'Limbo',
@@ -27676,29 +27716,29 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this11.context, 'first', 'I');
-        _emberMetalProperty_set.set(_this11.context, 'ninth', 'K');
+        _emberMetalProperty_set.set(_this12.context, 'first', 'I');
+        _emberMetalProperty_set.set(_this12.context, 'ninth', 'K');
       });
 
       this.assertText('I-Wrath-K-Wrath-I');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this11.context, 'first', 'Limbo');
-        _emberMetalProperty_set.set(_this11.context, 'fifth', 'Wrath');
-        _emberMetalProperty_set.set(_this11.context, 'ninth', 'Treachery');
+        _emberMetalProperty_set.set(_this12.context, 'first', 'Limbo');
+        _emberMetalProperty_set.set(_this12.context, 'fifth', 'Wrath');
+        _emberMetalProperty_set.set(_this12.context, 'ninth', 'Treachery');
       });
 
       this.assertText('Limbo-Wrath-Treachery-Wrath-Limbo');
     };
 
     _class3.prototype['@test updating the context should update the alias'] = function testUpdatingTheContextShouldUpdateTheAlias() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.render('{{#with this as |person|}}{{person.name}}{{/with}}', {
         name: 'Los Pivots'
@@ -27707,19 +27747,19 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-h
       this.assertText('Los Pivots');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('Los Pivots');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'name', 'l\'Pivots');
+        return _emberMetalProperty_set.set(_this13.context, 'name', 'l\'Pivots');
       });
 
       this.assertText('l\'Pivots');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'name', 'Los Pivots');
+        return _emberMetalProperty_set.set(_this13.context, 'name', 'Los Pivots');
       });
 
       this.assertText('Los Pivots');
@@ -55140,7 +55180,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-beta.1+0bf24e2b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-beta.1+c6fa8a5a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
