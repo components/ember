@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+fce275bf
+ * @version   2.6.0-canary+a96ccb87
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+fce275bf
+ * @version   2.6.0-canary+a96ccb87
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -8998,7 +8998,7 @@ enifed("glimmer-runtime/lib/compiled/expressions", ["exports"], function (export
     exports.CompiledExpression = CompiledExpression;
 });
 
-enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiler', 'glimmer-util'], function (exports, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiler, _glimmerUtil) {
+enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiler', 'glimmer-util'], function (exports, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiler, _glimmerUtil) {
     'use strict';
 
     function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -9023,18 +9023,98 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
         return Keywords;
     })();
 
-    var OpenComponentOpcode = (function (_Opcode) {
-        _inherits(OpenComponentOpcode, _Opcode);
+    var PutComponentDefinitionOpcode = (function (_Opcode) {
+        _inherits(PutComponentDefinitionOpcode, _Opcode);
 
-        function OpenComponentOpcode(_ref) {
-            var definition = _ref.definition;
-            var args = _ref.args;
-            var shadow = _ref.shadow;
-            var templates = _ref.templates;
+        function PutComponentDefinitionOpcode(_ref) {
+            var factory = _ref.factory;
+
+            _classCallCheck(this, PutComponentDefinitionOpcode);
+
+            _Opcode.call(this);
+            this.type = "put-component-definition";
+            this.factory = factory;
+        }
+
+        PutComponentDefinitionOpcode.prototype.evaluate = function evaluate(vm) {
+            var reference = this.factory.call(undefined, vm.frame.getArgs(), vm.env);
+            vm.frame.setDynamicComponent(reference);
+        };
+
+        return PutComponentDefinitionOpcode;
+    })(_glimmerRuntimeLibOpcodes.Opcode);
+
+    exports.PutComponentDefinitionOpcode = PutComponentDefinitionOpcode;
+
+    var OpenDynamicComponentOpcode = (function (_Opcode2) {
+        _inherits(OpenDynamicComponentOpcode, _Opcode2);
+
+        function OpenDynamicComponentOpcode(_ref2) {
+            var shadow = _ref2.shadow;
+            var templates = _ref2.templates;
+
+            _classCallCheck(this, OpenDynamicComponentOpcode);
+
+            _Opcode2.call(this);
+            this.type = "open-dynamic-component";
+            this.shadow = shadow;
+            this.templates = templates;
+        }
+
+        OpenDynamicComponentOpcode.prototype.evaluate = function evaluate(vm) {
+            var shadow = this.shadow;
+            var templates = this.templates;
+
+            var args = vm.frame.getArgs();
+            var definitionRef = vm.frame.getDynamicComponent();
+            var definition = definitionRef.value();
+            var keywords = new Keywords(vm.env.getKeywords(), vm.dynamicScope());
+            var manager = definition.manager;
+            var component = manager.create(definition, args.named, keywords);
+            var selfRef = vm.env.rootReferenceFor(manager.getSelf(component));
+            var destructor = manager.getDestructor(component);
+            var callerScope = vm.scope();
+            // pass through the list of outer attributes to shadow from the
+            // invocation site, as well as the component definition as internal
+            // arguments.
+            args.internal = args.internal || _glimmerUtil.dict();
+            args.internal['shadow'] = shadow;
+            args.internal['definition'] = definition;
+            args.internal['component'] = component;
+            var layout = _glimmerRuntimeLibCompiler.layoutFor(definition, vm.env);
+            if (destructor) vm.newDestroyable(destructor);
+            vm.pushRootScope(selfRef, layout.symbols);
+            vm.invokeLayout({ templates: templates, args: args, shadow: shadow, layout: layout, callerScope: callerScope });
+            vm.env.didCreate(component, manager);
+            vm.updateWith(new _glimmerRuntimeLibCompiledOpcodesVm.Assert(definitionRef, definition));
+            vm.updateWith(new UpdateComponentOpcode({ name: definition.name, component: component, manager: manager, args: args, keywords: keywords }));
+        };
+
+        OpenDynamicComponentOpcode.prototype.toJSON = function toJSON() {
+            return {
+                guid: this._guid,
+                type: this.type,
+                args: ["$DYNAMIC_COMPONENT"]
+            };
+        };
+
+        return OpenDynamicComponentOpcode;
+    })(_glimmerRuntimeLibOpcodes.Opcode);
+
+    exports.OpenDynamicComponentOpcode = OpenDynamicComponentOpcode;
+
+    var OpenComponentOpcode = (function (_Opcode3) {
+        _inherits(OpenComponentOpcode, _Opcode3);
+
+        function OpenComponentOpcode(_ref3) {
+            var definition = _ref3.definition;
+            var args = _ref3.args;
+            var shadow = _ref3.shadow;
+            var templates = _ref3.templates;
 
             _classCallCheck(this, OpenComponentOpcode);
 
-            _Opcode.call(this);
+            _Opcode3.call(this);
             this.type = "open-component";
             this.definition = definition;
             this.args = args;
@@ -9086,12 +9166,12 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
     var UpdateComponentOpcode = (function (_UpdatingOpcode) {
         _inherits(UpdateComponentOpcode, _UpdatingOpcode);
 
-        function UpdateComponentOpcode(_ref2) {
-            var name = _ref2.name;
-            var component = _ref2.component;
-            var manager = _ref2.manager;
-            var args = _ref2.args;
-            var keywords = _ref2.keywords;
+        function UpdateComponentOpcode(_ref4) {
+            var name = _ref4.name;
+            var component = _ref4.component;
+            var manager = _ref4.manager;
+            var args = _ref4.args;
+            var keywords = _ref4.keywords;
 
             _classCallCheck(this, UpdateComponentOpcode);
 
@@ -9127,8 +9207,8 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
 
     exports.UpdateComponentOpcode = UpdateComponentOpcode;
 
-    var DidCreateElementOpcode = (function (_Opcode2) {
-        _inherits(DidCreateElementOpcode, _Opcode2);
+    var DidCreateElementOpcode = (function (_Opcode4) {
+        _inherits(DidCreateElementOpcode, _Opcode4);
 
         function DidCreateElementOpcode() {
             _classCallCheck(this, DidCreateElementOpcode);
@@ -9137,7 +9217,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
                 args[_key] = arguments[_key];
             }
 
-            _Opcode2.call.apply(_Opcode2, [this].concat(args));
+            _Opcode4.call.apply(_Opcode4, [this].concat(args));
             this.type = "did-create-element";
         }
 
@@ -9166,8 +9246,8 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
 
     exports.DidCreateElementOpcode = DidCreateElementOpcode;
 
-    var ShadowAttributesOpcode = (function (_Opcode3) {
-        _inherits(ShadowAttributesOpcode, _Opcode3);
+    var ShadowAttributesOpcode = (function (_Opcode5) {
+        _inherits(ShadowAttributesOpcode, _Opcode5);
 
         function ShadowAttributesOpcode() {
             _classCallCheck(this, ShadowAttributesOpcode);
@@ -9176,7 +9256,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
                 args[_key2] = arguments[_key2];
             }
 
-            _Opcode3.call.apply(_Opcode3, [this].concat(args));
+            _Opcode5.call.apply(_Opcode5, [this].concat(args));
             this.type = "shadow-attributes";
         }
 
@@ -9205,8 +9285,8 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
 
     exports.ShadowAttributesOpcode = ShadowAttributesOpcode;
 
-    var CloseComponentOpcode = (function (_Opcode4) {
-        _inherits(CloseComponentOpcode, _Opcode4);
+    var CloseComponentOpcode = (function (_Opcode6) {
+        _inherits(CloseComponentOpcode, _Opcode6);
 
         function CloseComponentOpcode() {
             _classCallCheck(this, CloseComponentOpcode);
@@ -9215,7 +9295,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
                 args[_key3] = arguments[_key3];
             }
 
-            _Opcode4.call.apply(_Opcode4, [this].concat(args));
+            _Opcode6.call.apply(_Opcode6, [this].concat(args));
             this.type = "close-component";
         }
 
@@ -10656,10 +10736,8 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
             var value = reference.value();
             if (value) {
                 _JumpOpcode.prototype.evaluate.call(this, vm);
-                vm.updateWith(new Assert(reference));
-            } else {
-                vm.updateWith(new AssertFalse(reference));
             }
+            vm.updateWith(new Assert(reference, value));
         };
 
         return JumpIfOpcode;
@@ -10684,12 +10762,10 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
         JumpUnlessOpcode.prototype.evaluate = function evaluate(vm) {
             var reference = vm.frame.getCondition();
             var value = reference.value();
-            if (value) {
-                vm.updateWith(new Assert(reference));
-            } else {
+            if (!value) {
                 _JumpOpcode2.prototype.evaluate.call(this, vm);
-                vm.updateWith(new AssertFalse(reference));
             }
+            vm.updateWith(new Assert(reference, value));
         };
 
         return JumpUnlessOpcode;
@@ -10700,16 +10776,20 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
     var Assert = (function (_VMUpdatingOpcode) {
         _inherits(Assert, _VMUpdatingOpcode);
 
-        function Assert(reference) {
+        function Assert(reference, expected) {
             _classCallCheck(this, Assert);
 
             _VMUpdatingOpcode.call(this);
             this.type = "assert";
             this.reference = reference;
+            this.expected = expected;
         }
 
         Assert.prototype.evaluate = function evaluate(vm) {
-            if (!this.reference.value()) {
+            var reference = this.reference;
+            var expected = this.expected;
+
+            if (reference.value() !== expected) {
                 vm.throw();
             }
         };
@@ -10718,31 +10798,9 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
     })(VMUpdatingOpcode);
 
     exports.Assert = Assert;
-
-    var AssertFalse = (function (_VMUpdatingOpcode2) {
-        _inherits(AssertFalse, _VMUpdatingOpcode2);
-
-        function AssertFalse(reference) {
-            _classCallCheck(this, AssertFalse);
-
-            _VMUpdatingOpcode2.call(this);
-            this.type = "assert-false";
-            this.reference = reference;
-        }
-
-        AssertFalse.prototype.evaluate = function evaluate(vm) {
-            if (this.reference.value()) {
-                vm.throw();
-            }
-        };
-
-        return AssertFalse;
-    })(VMUpdatingOpcode);
-
-    exports.AssertFalse = AssertFalse;
 });
 
-enifed('glimmer-runtime/lib/compiler', ['exports', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/compiled/blocks', 'glimmer-runtime/lib/compiled/expressions/function', 'glimmer-runtime/lib/component/interfaces'], function (exports, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibCompiledBlocks, _glimmerRuntimeLibCompiledExpressionsFunction, _glimmerRuntimeLibComponentInterfaces) {
+enifed('glimmer-runtime/lib/compiler', ['exports', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/compiled/blocks', 'glimmer-runtime/lib/compiled/expressions/function', 'glimmer-runtime/lib/component/interfaces'], function (exports, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibCompiledBlocks, _glimmerRuntimeLibCompiledExpressionsFunction, _glimmerRuntimeLibComponentInterfaces) {
     'use strict';
 
     var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -11041,6 +11099,51 @@ enifed('glimmer-runtime/lib/compiler', ['exports', 'glimmer-util', 'glimmer-runt
         return ComponentAttrsBuilder;
     })();
 
+    var ComponentBuilder = (function () {
+        function ComponentBuilder(compiler, env) {
+            _classCallCheck(this, ComponentBuilder);
+
+            this.compiler = compiler;
+            this.env = env;
+        }
+
+        ComponentBuilder.prototype.static = function _static(_ref) {
+            var definition = _ref.definition;
+            var rawArgs = _ref.args;
+            var shadow = _ref.shadow;
+            var templates = _ref.templates;
+            var compiler = this.compiler;
+            var env = this.env;
+
+            var args = rawArgs.compile(compiler, env);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesComponent.OpenComponentOpcode({ definition: definition, args: args, shadow: shadow, templates: templates }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesComponent.CloseComponentOpcode());
+        };
+
+        ComponentBuilder.prototype.dynamic = function dynamic(_ref2) {
+            var definition = _ref2.definition;
+            var rawArgs = _ref2.args;
+            var shadow = _ref2.shadow;
+            var templates = _ref2.templates;
+            var compiler = this.compiler;
+            var env = this.env;
+
+            var BEGIN = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BEGIN" });
+            var END = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "END" });
+            var args = rawArgs.compile(compiler, env);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EnterOpcode({ begin: BEGIN, end: END }));
+            compiler.append(BEGIN);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutArgsOpcode({ args: args }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesComponent.PutComponentDefinitionOpcode({ factory: definition }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesComponent.OpenDynamicComponentOpcode({ shadow: shadow, templates: templates }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesComponent.CloseComponentOpcode());
+            compiler.append(END);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.ExitOpcode());
+        };
+
+        return ComponentBuilder;
+    })();
+
     var CompileIntoList = (function (_LinkedList) {
         _inherits(CompileIntoList, _LinkedList);
 
@@ -11055,6 +11158,7 @@ enifed('glimmer-runtime/lib/compiler', ['exports', 'glimmer-util', 'glimmer-runt
             env.getKeywords().forEach(function (n, i) {
                 return keywords[n] = i;
             });
+            this.component = new ComponentBuilder(this, env);
         }
 
         CompileIntoList.prototype.getLocalSymbol = function getLocalSymbol(name) {
@@ -11091,22 +11195,6 @@ enifed('glimmer-runtime/lib/compiler', ['exports', 'glimmer-util', 'glimmer-runt
 
         CompileIntoList.prototype.toOpSeq = function toOpSeq() {
             return this;
-        };
-
-        // implement OpcodeBuilder
-
-        CompileIntoList.prototype.openComponent = function openComponent(_ref) {
-            var definition = _ref.definition;
-            var rawArgs = _ref.args;
-            var shadow = _ref.shadow;
-            var templates = _ref.templates;
-
-            var args = rawArgs.compile(this, this.env);
-            this.append(new _glimmerRuntimeLibCompiledOpcodesComponent.OpenComponentOpcode({ definition: definition, args: args, shadow: shadow, templates: templates }));
-        };
-
-        CompileIntoList.prototype.closeComponent = function closeComponent() {
-            this.append(new _glimmerRuntimeLibCompiledOpcodesComponent.CloseComponentOpcode());
         };
 
         return CompileIntoList;
@@ -13969,6 +14057,7 @@ enifed("glimmer-runtime/lib/vm/frame", ["exports"], function (exports) {
         this.blocks = null;
         this.condition = null;
         this.iterator = null;
+        this.dynamicComponent = null;
         this.key = null;
         this.ops = ops;
         this.op = ops.head();
@@ -14040,6 +14129,14 @@ enifed("glimmer-runtime/lib/vm/frame", ["exports"], function (exports) {
 
         FrameStack.prototype.setIterator = function setIterator(iterator) {
             return this.frames[this.frame].iterator = iterator;
+        };
+
+        FrameStack.prototype.getDynamicComponent = function getDynamicComponent() {
+            return this.frames[this.frame].dynamicComponent;
+        };
+
+        FrameStack.prototype.setDynamicComponent = function setDynamicComponent(dynamicComponent) {
+            return this.frames[this.frame].dynamicComponent = dynamicComponent;
         };
 
         FrameStack.prototype.getKey = function getKey() {
@@ -21745,16 +21842,22 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
   var CurlyComponentSyntax = (function (_StatementSyntax) {
     _inherits(CurlyComponentSyntax, _StatementSyntax);
 
-    function CurlyComponentSyntax(options) {
+    function CurlyComponentSyntax(_ref) {
+      var args = _ref.args;
+      var definition = _ref.definition;
+      var templates = _ref.templates;
+
       _classCallCheck(this, CurlyComponentSyntax);
 
       _StatementSyntax.call(this);
-      this.options = options;
+      this.args = args;
+      this.definition = definition;
+      this.templates = templates;
+      this.shadow = null;
     }
 
     CurlyComponentSyntax.prototype.compile = function compile(builder) {
-      builder.openComponent(this.options);
-      builder.closeComponent();
+      builder.component.static(this);
     };
 
     return CurlyComponentSyntax;
@@ -21861,6 +21964,78 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
   })(_glimmerRuntime.ComponentDefinition);
 
   exports.CurlyComponentDefinition = CurlyComponentDefinition;
+});
+enifed('ember-glimmer/components/dynamic-component', ['exports', 'glimmer-runtime'], function (exports, _glimmerRuntime) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var DynamicComponentSyntax = (function (_StatementSyntax) {
+    _inherits(DynamicComponentSyntax, _StatementSyntax);
+
+    function DynamicComponentSyntax(_ref) {
+      var args = _ref.args;
+      var templates = _ref.templates;
+
+      _classCallCheck(this, DynamicComponentSyntax);
+
+      _StatementSyntax.call(this);
+      this.args = args;
+      this.definition = dynamicComponentFor;
+      this.templates = templates;
+      this.shadow = null;
+    }
+
+    DynamicComponentSyntax.prototype.compile = function compile(builder) {
+      builder.component.dynamic(this);
+    };
+
+    return DynamicComponentSyntax;
+  })(_glimmerRuntime.StatementSyntax);
+
+  exports.DynamicComponentSyntax = DynamicComponentSyntax;
+
+  function dynamicComponentFor(args, env) {
+    var nameRef = args.positional.at(0);
+    return new DynamicComponentReference({ nameRef: nameRef, env: env });
+  }
+
+  var DynamicComponentReference = (function () {
+    function DynamicComponentReference(_ref2) {
+      var nameRef = _ref2.nameRef;
+      var env = _ref2.env;
+
+      _classCallCheck(this, DynamicComponentReference);
+
+      this.nameRef = nameRef;
+      this.env = env;
+    }
+
+    DynamicComponentReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    DynamicComponentReference.prototype.value = function value() {
+      var env = this.env;
+      var nameRef = this.nameRef;
+
+      var name = nameRef.value();
+
+      if (typeof name === 'string') {
+        return env.getComponentDefinition([name]);
+      } else {
+        throw new Error('Cannot render ' + name + ' as a component');
+      }
+    };
+
+    DynamicComponentReference.prototype.destroy = function destroy() {};
+
+    return DynamicComponentReference;
+  })();
 });
 enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils/references'], function (exports, _emberGlimmerUtilsReferences) {
   'use strict';
@@ -21975,7 +22150,7 @@ enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'emb
     return Wrapper.extend({ spec: JSON.parse(json) });
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/inline-if'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersInlineIf) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/inline-if'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersInlineIf) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -22015,11 +22190,15 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
       var args = statement.args;
       var templates = statement.templates;
 
-      if (isSimple && (isInline || isBlock) && key.indexOf('-') >= 0) {
-        var definition = this.getComponentDefinition(path);
+      if (isSimple && (isInline || isBlock)) {
+        if (key === 'component') {
+          return new _emberGlimmerComponentsDynamicComponent.DynamicComponentSyntax({ args: args, templates: templates });
+        } else if (key.indexOf('-') >= 0) {
+          var definition = this.getComponentDefinition(path);
 
-        if (definition) {
-          return new _emberGlimmerComponentsCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
+          if (definition) {
+            return new _emberGlimmerComponentsCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
+          }
         }
       }
 
@@ -25852,7 +26031,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+fce275bf';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a96ccb87';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -31495,7 +31674,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+fce275bf
+    @version 2.6.0-canary+a96ccb87
     @public
   */
 
@@ -31537,11 +31716,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+fce275bf'
+    @default '2.6.0-canary+a96ccb87'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+fce275bf';
+  Ember.VERSION = '2.6.0-canary+a96ccb87';
 
   /**
     The hash of environment variables used to control various configuration
@@ -45621,7 +45800,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+fce275bf';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+a96ccb87';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -46124,7 +46303,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+fce275bf';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a96ccb87';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -55111,7 +55290,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+fce275bf',
+        revision: 'Ember@2.6.0-canary+a96ccb87',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -60532,7 +60711,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+fce275bf';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+a96ccb87';
 
   /**
   @module ember

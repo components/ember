@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+fce275bf
+ * @version   2.6.0-canary+a96ccb87
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2957,6 +2957,9 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         view.rerender();
     }
     ;
+    function isExpected(expected) {
+        return typeof expected === 'object';
+    }
     // Glimmer                Curly
     // foo="bar"              foo=(attr "bar")
     // foo="{{bar}}"          foo=(attr bar)
@@ -3015,6 +3018,53 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
                 updates.forEach(function (update) {
                     view.rerender(update.context);
                     assertExpected('div', update.expected);
+                });
+            });
+        }
+        if (!kind || kind === 'curly' || kind === 'dynamic') {
+            var test = skip === 'dynamic' ? QUnit.skip : QUnit.test;
+            test("curly - component helper: " + title, function (assert) {
+                env.registerEmberishCurlyComponent('test-component', _glimmerTestHelpers.EmberishCurlyComponent, layout);
+                env.registerEmberishCurlyComponent('test-component2', _glimmerTestHelpers.EmberishCurlyComponent, layout + " -- 2");
+                var list = ['component', 'componentName'];
+                Object.keys(attrs).forEach(function (key) {
+                    throw new Error("Cannot use attrs in a curly component test");
+                    // list.push(`${key}="${attrs[key]}"`);
+                });
+                Object.keys(props).forEach(function (key) {
+                    list.push(key + "=" + toCurly(props[key]));
+                });
+                if (blockParams) list.push("as |" + blockParams.join(' ') + "|");
+                var tag = list.join(' ');
+                var syntax = undefined;
+                if (typeof template === 'string') {
+                    var inv = typeof inverse === 'string' ? "{{else}}" + inverse : '';
+                    syntax = "{{#" + tag + "}}" + template + inv + "{{/component}}";
+                } else {
+                    syntax = "{{" + tag + "}}";
+                }
+                assert.ok(true, "generated invocation: " + syntax);
+                var creation = _glimmerUtil.assign(context || {}, { componentName: 'test-component' });
+                var view = appendViewFor(syntax, creation);
+                assertExpected('div', expected);
+                view.rerender({ componentName: 'test-component2' });
+                if (isExpected(expected)) {
+                    assertExpected('div', _glimmerUtil.assign({}, expected, { content: expected.content + " -- 2" }));
+                } else {
+                    assertExpected('div', expected + " -- 2");
+                }
+                updates.forEach(function (update) {
+                    var context = update.context;
+                    var expected = update.expected;
+
+                    view.rerender(_glimmerUtil.assign({}, context || {}, { componentName: 'test-component' }));
+                    assertExpected('div', expected);
+                    view.rerender({ componentName: 'test-component2' });
+                    if (isExpected(expected)) {
+                        assertExpected('div', _glimmerUtil.assign({}, expected, { content: expected.content + " -- 2" }));
+                    } else {
+                        assertExpected('div', expected + " -- 2");
+                    }
                 });
             });
         }
@@ -4431,6 +4481,22 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         appendViewFor("{{#if cond}}<destroy-me />{{/if}}", { cond: true });
         assert.strictEqual(destroyed, 0, 'destroy should not be called');
         view.rerender({ cond: false });
+        assert.strictEqual(destroyed, 1, 'destroy should be called exactly one');
+    });
+    QUnit.test('component helpers component are destroyed', function (assert) {
+        var destroyed = 0;
+        var DestroyMeComponent = _glimmerTestHelpers.EmberishCurlyComponent.extend({
+            destroy: function () {
+                this._super();
+                destroyed++;
+            }
+        });
+        env.registerEmberishCurlyComponent('destroy-me', DestroyMeComponent, 'destroy me!');
+        var AnotherComponent = _glimmerTestHelpers.EmberishCurlyComponent.extend();
+        env.registerEmberishCurlyComponent('another-component', AnotherComponent, 'another thing!');
+        appendViewFor("{{component componentName}}", { componentName: 'destroy-me' });
+        assert.strictEqual(destroyed, 0, 'destroy should not be called');
+        view.rerender({ componentName: 'another-component' });
         assert.strictEqual(destroyed, 1, 'destroy should be called exactly one');
     });
     QUnit.test('components inside a list are destroyed', function (assert) {
@@ -7201,6 +7267,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                 }
             }
             if (isSimple && (isInline || isBlock)) {
+                if (key === 'component') {
+                    return new DynamicComponentSyntax({ args: args, templates: templates });
+                }
                 var component = this.getComponentDefinition(path);
                 if (component) {
                     return new CurlyComponentSyntax({ args: args, definition: component, templates: templates });
@@ -7290,11 +7359,71 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         CurlyComponentSyntax.prototype.compile = function compile(b, env) {
-            b.openComponent(this);
-            b.closeComponent();
+            b.component.static(this);
         };
 
         return CurlyComponentSyntax;
+    })(_glimmerRuntime.StatementSyntax);
+
+    var DynamicComponentReference = (function () {
+        function DynamicComponentReference(_ref4) {
+            var nameRef = _ref4.nameRef;
+            var env = _ref4.env;
+
+            _classCallCheck(this, DynamicComponentReference);
+
+            this.nameRef = nameRef;
+            this.env = env;
+        }
+
+        DynamicComponentReference.prototype.isDirty = function isDirty() {
+            return true;
+        };
+
+        DynamicComponentReference.prototype.value = function value() {
+            var env = this.env;
+            var nameRef = this.nameRef;
+
+            var name = nameRef.value();
+            if (typeof name === 'string') {
+                return env.getComponentDefinition([name]);
+            } else {
+                throw new Error("Cannot render " + name + " as a component");
+            }
+        };
+
+        DynamicComponentReference.prototype.destroy = function destroy() {};
+
+        return DynamicComponentReference;
+    })();
+
+    function dynamicComponentFactoryFor(args, env) {
+        var nameRef = args.positional.at(0);
+        return new DynamicComponentReference({ nameRef: nameRef, env: env });
+    }
+
+    var DynamicComponentSyntax = (function (_StatementSyntax2) {
+        _inherits(DynamicComponentSyntax, _StatementSyntax2);
+
+        function DynamicComponentSyntax(_ref5) {
+            var args = _ref5.args;
+            var templates = _ref5.templates;
+
+            _classCallCheck(this, DynamicComponentSyntax);
+
+            _StatementSyntax2.call(this);
+            // interface for OpenComponent
+            this.definition = dynamicComponentFactoryFor;
+            this.shadow = null;
+            this.args = args;
+            this.templates = templates || _glimmerRuntime.Templates.empty();
+        }
+
+        DynamicComponentSyntax.prototype.compile = function compile(b, env) {
+            b.component.dynamic(this);
+        };
+
+        return DynamicComponentSyntax;
     })(_glimmerRuntime.StatementSyntax);
 
     var GenericComponentDefinition = (function (_ComponentDefinition) {
@@ -7427,16 +7556,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         });
     }
 
-    var IdentitySyntax = (function (_StatementSyntax2) {
-        _inherits(IdentitySyntax, _StatementSyntax2);
+    var IdentitySyntax = (function (_StatementSyntax3) {
+        _inherits(IdentitySyntax, _StatementSyntax3);
 
-        function IdentitySyntax(_ref4) {
-            var args = _ref4.args;
-            var templates = _ref4.templates;
+        function IdentitySyntax(_ref6) {
+            var args = _ref6.args;
+            var templates = _ref6.templates;
 
             _classCallCheck(this, IdentitySyntax);
 
-            _StatementSyntax2.call(this);
+            _StatementSyntax3.call(this);
             this.type = "identity";
             this.args = args;
             this.templates = templates;
@@ -7449,16 +7578,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return IdentitySyntax;
     })(_glimmerRuntime.StatementSyntax);
 
-    var RenderInverseIdentitySyntax = (function (_StatementSyntax3) {
-        _inherits(RenderInverseIdentitySyntax, _StatementSyntax3);
+    var RenderInverseIdentitySyntax = (function (_StatementSyntax4) {
+        _inherits(RenderInverseIdentitySyntax, _StatementSyntax4);
 
-        function RenderInverseIdentitySyntax(_ref5) {
-            var args = _ref5.args;
-            var templates = _ref5.templates;
+        function RenderInverseIdentitySyntax(_ref7) {
+            var args = _ref7.args;
+            var templates = _ref7.templates;
 
             _classCallCheck(this, RenderInverseIdentitySyntax);
 
-            _StatementSyntax3.call(this);
+            _StatementSyntax4.call(this);
             this.type = "render-inverse-identity";
             this.args = args;
             this.templates = templates;
@@ -7471,16 +7600,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return RenderInverseIdentitySyntax;
     })(_glimmerRuntime.StatementSyntax);
 
-    var WithKeywordsSyntax = (function (_StatementSyntax4) {
-        _inherits(WithKeywordsSyntax, _StatementSyntax4);
+    var WithKeywordsSyntax = (function (_StatementSyntax5) {
+        _inherits(WithKeywordsSyntax, _StatementSyntax5);
 
-        function WithKeywordsSyntax(_ref6) {
-            var args = _ref6.args;
-            var templates = _ref6.templates;
+        function WithKeywordsSyntax(_ref8) {
+            var args = _ref8.args;
+            var templates = _ref8.templates;
 
             _classCallCheck(this, WithKeywordsSyntax);
 
-            _StatementSyntax4.call(this);
+            _StatementSyntax5.call(this);
             this.type = "with-keywords";
             this.args = args;
             this.templates = templates;
@@ -23830,6 +23959,346 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: dynamic components', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can render a basic component with a static argument'] = function testItCanRenderABasicComponentWithAStaticArgument() {
+      var _this = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{component "foo-bar"}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it can render a basic component with a dynamic argument'] = function testItCanRenderABasicComponentWithADynamicArgument() {
+      var _this2 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello from foo-bar' });
+      this.registerComponent('foo-bar-baz', { template: 'hello from foo-bar-baz' });
+
+      this.render('{{component componentName}}', { componentName: 'foo-bar' });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar-baz');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar-baz' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+    };
+
+    _class.prototype['@test it has an element'] = function testItHasAnElement() {
+      var _this3 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{component "foo-bar"}}');
+
+      var element1 = instance.element;
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      var element2 = instance.element;
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
+      var _this4 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{component "foo-bar"}}');
+
+      var element1 = instance.$()[0];
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      var element2 = instance.$()[0];
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
+      var _this5 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '<span class="inner">inner</span>' });
+
+      this.render('<span class="outer">outer</span>{{component "foo-bar"}}');
+
+      var $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+    };
+
+    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
+      var _this6 = this;
+
+      var fooBarInstance = undefined,
+          fooBarBazInstance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+        }
+      });
+
+      var FooBarBazComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarBazInstance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'foo-bar {{foo-bar-baz}}' });
+      this.registerComponent('foo-bar-baz', { ComponentClass: FooBarBazComponent, template: 'foo-bar-baz' });
+
+      this.render('{{component "foo-bar"}}');
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+    };
+
+    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+      var _this7 = this;
+
+      this.registerComponent('foo-bar', { template: '{{yield}}' });
+
+      this.render('{{#component "foo-bar"}}hello{{/component}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
+      var _this8 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+          this.set('message', 'hello');
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{message}}' });
+
+      this.render('{{component "foo-bar"}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'message', 'goodbye');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'goodbye' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'message', 'hello');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
+      var _this9 = this;
+
+      this.registerComponent('foo-bar', { template: '{{yield}}' });
+
+      this.render('{{#component "foo-bar"}}{{message}}{{/component}}', { message: 'hello' });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'message', 'goodbye');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'goodbye' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'message', 'hello');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+      var _this10 = this;
+
+      var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+      this.registerComponent('foo-bar', {
+        template: '{{id}} {{yield}}',
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed[this.get('id')]++;
+          }
+        })
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'), {
+        cond1: true,
+        cond2: true,
+        cond3: true,
+        cond4: true,
+        cond5: true
+      });
+
+      this.assertText('1 2 3 4 5 6 7 8 ');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'cond5', false);
+      });
+
+      this.assertText('1 2 3 4 8 ');
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this10.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this10.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this10.context, 'cond4', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this10.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this10.context, 'cond1', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -36356,6 +36825,346 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.runTask(function () {
         _emberMetalProperty_set.set(_this9.context, 'cond2', false);
         _emberMetalProperty_set.set(_this9.context, 'cond1', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: dynamic components', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can render a basic component with a static argument'] = function testItCanRenderABasicComponentWithAStaticArgument() {
+      var _this = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{component "foo-bar"}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it can render a basic component with a dynamic argument'] = function testItCanRenderABasicComponentWithADynamicArgument() {
+      var _this2 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello from foo-bar' });
+      this.registerComponent('foo-bar-baz', { template: 'hello from foo-bar-baz' });
+
+      this.render('{{component componentName}}', { componentName: 'foo-bar' });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar-baz');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar-baz' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+    };
+
+    _class.prototype['@test it has an element'] = function testItHasAnElement() {
+      var _this3 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{component "foo-bar"}}');
+
+      var element1 = instance.element;
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      var element2 = instance.element;
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
+      var _this4 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{component "foo-bar"}}');
+
+      var element1 = instance.$()[0];
+
+      this.assertComponentElement(element1, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      var element2 = instance.$()[0];
+
+      this.assertComponentElement(element2, { content: 'hello' });
+
+      this.assertSameNode(element2, element1);
+    };
+
+    _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
+      var _this5 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '<span class="inner">inner</span>' });
+
+      this.render('<span class="outer">outer</span>{{component "foo-bar"}}');
+
+      var $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      $span = instance.$('span');
+
+      assert.equal($span.length, 1);
+      assert.equal($span.attr('class'), 'inner');
+    };
+
+    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
+      var _this6 = this;
+
+      var fooBarInstance = undefined,
+          fooBarBazInstance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+        }
+      });
+
+      var FooBarBazComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarBazInstance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'foo-bar {{foo-bar-baz}}' });
+      this.registerComponent('foo-bar-baz', { ComponentClass: FooBarBazComponent, template: 'foo-bar-baz' });
+
+      this.render('{{component "foo-bar"}}');
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+      this.assertText('foo-bar foo-bar-baz');
+
+      assert.equal(fooBarInstance.parentView, this.component);
+      assert.equal(fooBarBazInstance.parentView, fooBarInstance);
+
+      assert.deepEqual(this.component.childViews, [fooBarInstance]);
+      assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
+    };
+
+    _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
+      var _this7 = this;
+
+      this.registerComponent('foo-bar', { template: '{{yield}}' });
+
+      this.render('{{#component "foo-bar"}}hello{{/component}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
+      var _this8 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          instance = this;
+          this.set('message', 'hello');
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{message}}' });
+
+      this.render('{{component "foo-bar"}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'message', 'goodbye');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'goodbye' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'message', 'hello');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
+      var _this9 = this;
+
+      this.registerComponent('foo-bar', { template: '{{yield}}' });
+
+      this.render('{{#component "foo-bar"}}{{message}}{{/component}}', { message: 'hello' });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'message', 'goodbye');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'goodbye' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'message', 'hello');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+      var _this10 = this;
+
+      var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+      this.registerComponent('foo-bar', {
+        template: '{{id}} {{yield}}',
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed[this.get('id')]++;
+          }
+        })
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'), {
+        cond1: true,
+        cond2: true,
+        cond3: true,
+        cond4: true,
+        cond5: true
+      });
+
+      this.assertText('1 2 3 4 5 6 7 8 ');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'cond5', false);
+      });
+
+      this.assertText('1 2 3 4 8 ');
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this10.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this10.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this10.context, 'cond4', false);
+      });
+
+      assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this10.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this10.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
@@ -66660,7 +67469,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+fce275bf', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+a96ccb87', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
