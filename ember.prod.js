@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.1+c6fa8a5a
+ * @version   2.5.0-beta.1+873a45e1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9960,7 +9960,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.1+c6fa8a5a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.1+873a45e1';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -15513,7 +15513,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.1+c6fa8a5a
+    @version 2.5.0-beta.1+873a45e1
     @public
   */
 
@@ -15555,11 +15555,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.1+c6fa8a5a'
+    @default '2.5.0-beta.1+873a45e1'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.1+c6fa8a5a';
+  Ember.VERSION = '2.5.0-beta.1+873a45e1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24935,10 +24935,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         var controllerDefinedQueryParameterConfiguration = _emberMetalProperty_get.get(controllerProto, 'queryParams');
         var normalizedControllerQueryParameterConfiguration = _emberRoutingUtils.normalizeControllerQueryParams(controllerDefinedQueryParameterConfiguration);
         combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
-
-        if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-          if (controllerDefinedQueryParameterConfiguration.length) {}
-        }
       } else if (hasRouterDefinedQueryParams) {
         // the developer has not defined a controller but *has* supplied route query params.
         // Generate a class for them so we can later insert default values
@@ -24964,19 +24960,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         }
 
         var desc = combinedQueryParameterConfiguration[propName];
-
-        if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-          // apply default values to controllers
-          // detect that default value defined on router config
-          if (desc.hasOwnProperty('defaultValue')) {
-            // detect that property was not defined on controller
-            if (controllerProto[propName] === undefined) {
-              controllerProto[propName] = desc.defaultValue;
-            } else {
-              deprecateQueryParamDefaultValuesSetOnController(controllerName, this.routeName, propName);
-            }
-          }
-        }
 
         var scope = desc.scope || 'model';
         var parts;
@@ -26551,7 +26534,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       //
       this.render('post', {  // the template name associated with 'post' Route
         into: 'application', // the parent route to 'post' Route
-        outlet: 'main',      // {{outlet}} and {{outlet 'main' are synonymous}},
+        outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,
         view: 'post',        // the view associated with the 'post' Route
         controller: 'post',  // the controller associated with the 'post' Route
       })
@@ -26779,17 +26762,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     };
 
     var Component = undefined;
-    if (_emberMetalFeatures.default('ember-routing-routable-components')) {
-      var componentName = options && options.component || namePassed && name || route.componentName || name;
-      var componentLookup = owner.lookup('component-lookup:main');
-      Component = componentLookup.lookupFactory(componentName);
-      var isGlimmerComponent = Component && Component.proto().isGlimmerComponent;
-      if (!template && !ViewClass && Component && isGlimmerComponent) {
-        renderOptions.Component = Component;
-        renderOptions.ViewClass = undefined;
-        renderOptions.attrs = { model: _emberMetalProperty_get.get(controller, 'model') };
-      }
-    }
 
     if (!ViewClass && !template && !Component) {
       if (LOG_VIEW_LOOKUPS) {
@@ -26855,16 +26827,12 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     var keysAlreadyMergedOrSkippable;
     var qps = {};
 
-    if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-      keysAlreadyMergedOrSkippable = {};
-    } else {
-      keysAlreadyMergedOrSkippable = {
-        defaultValue: true,
-        type: true,
-        scope: true,
-        as: true
-      };
-    }
+    keysAlreadyMergedOrSkippable = {
+      defaultValue: true,
+      type: true,
+      scope: true,
+      as: true
+    };
 
     // first loop over all controller qps, merging them with any matching route qps
     // into a new empty object to avoid mutating.
@@ -26909,6 +26877,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
   exports.default = Route;
 });
 // FEATURES, A, deprecate, assert, Logger
+
+// apply default values to controllers
+// detect that default value defined on router config
+
+// detect that property was not defined on controller
 enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-metal/utils', 'ember-routing/system/router_state', 'container/owner', 'ember-metal/dictionary', 'router', 'router/transition'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberMetalUtils, _emberRoutingSystemRouter_state, _containerOwner, _emberMetalDictionary, _router4, _routerTransition) {
   'use strict';
 
@@ -29453,7 +29426,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.1+c6fa8a5a';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.1+873a45e1';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29953,7 +29926,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.1+c6fa8a5a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.1+873a45e1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38857,7 +38830,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.1+c6fa8a5a',
+        revision: 'Ember@2.5.0-beta.1+873a45e1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42924,7 +42897,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.1+c6fa8a5a';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.1+873a45e1';
 
   /**
   @module ember
