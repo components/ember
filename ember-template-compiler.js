@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.1
+ * @version   2.5.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4052,7 +4052,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.1
+    @version 2.5.0-beta.2
     @public
   */
 
@@ -4094,11 +4094,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.1'
+    @default '2.5.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.1';
+  Ember.VERSION = '2.5.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5161,8 +5161,12 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-  _emberMetalCore.default.merge = _emberMetalMerge.default;
+  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
+    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
+    _emberMetalCore.default.merge = _emberMetalMerge.default;
+  } else {
+    _emberMetalCore.default.merge = _emberMetalMerge.default;
+  }
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -5202,10 +5206,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
     _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
     _emberMetalCore.default.Debug.registerWarnHandler = function () {};
   }
-
-  _emberMetalDebug.deprecate('Support for the `ember-legacy-views` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'ember-legacy-views', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
-
-  _emberMetalDebug.deprecate('Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT, { id: 'ember-legacy-controllers', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
 
   _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
   _emberMetalCore.default.keys = _emberMetalDebug.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
@@ -12710,7 +12710,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.1',
+        revision: 'Ember@2.5.0-beta.2',
         loc: program.loc,
         moduleName: options.moduleName
       };

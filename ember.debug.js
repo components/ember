@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.1
+ * @version   2.5.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4256,7 +4256,19 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
   */
   'use strict';
 
+  exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
+
   var librariesRegistered = false;
+
+  var warnedAboutLegacyViewAddon = false;
+  var warnedAboutLegacyControllerAddon = false;
+
+  // For testing
+
+  function _resetLegacyAddonWarnings() {
+    warnedAboutLegacyViewAddon = false;
+    warnedAboutLegacyControllerAddon = false;
+  }
 
   /**
     An instance of `Ember.Application` is the starting point for every Ember
@@ -4760,6 +4772,18 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
     _bootSync: function () {
       if (this._booted) {
         return;
+      }
+
+      if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT && !warnedAboutLegacyViewAddon) {
+        _emberMetalDebug.deprecate('Support for the `ember-legacy-views` addon will end soon, please remove it from your application.', false, { id: 'ember-legacy-views', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
+
+        warnedAboutLegacyViewAddon = true;
+      }
+
+      if (_emberMetal.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT && !warnedAboutLegacyControllerAddon) {
+        _emberMetalDebug.deprecate('Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.', false, { id: 'ember-legacy-controllers', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
+
+        warnedAboutLegacyControllerAddon = true;
       }
 
       // Even though this returns synchronously, we still need to make sure the
@@ -9128,11 +9152,11 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
       var isTruthyVal = _emberMetalStreamsUtils.read(isTruthy);
 
       if (_emberRuntimeUtils.isArray(predicateVal)) {
-        return lengthVal > 0 ? predicateVal : false;
+        return lengthVal > 0 ? coercer(predicateVal) : false;
       }
 
       if (typeof isTruthyVal === 'boolean') {
-        return isTruthyVal;
+        return isTruthyVal ? coercer(predicateVal) : false;
       }
 
       return coercer(predicateVal);
@@ -10561,7 +10585,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.2';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -16204,7 +16228,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.1
+    @version 2.5.0-beta.2
     @public
   */
 
@@ -16246,11 +16270,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.1'
+    @default '2.5.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.1';
+  Ember.VERSION = '2.5.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17313,8 +17337,12 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-  _emberMetalCore.default.merge = _emberMetalMerge.default;
+  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
+    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
+    _emberMetalCore.default.merge = _emberMetalMerge.default;
+  } else {
+    _emberMetalCore.default.merge = _emberMetalMerge.default;
+  }
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -17354,10 +17382,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
     _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
     _emberMetalCore.default.Debug.registerWarnHandler = function () {};
   }
-
-  _emberMetalDebug.deprecate('Support for the `ember-legacy-views` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'ember-legacy-views', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
-
-  _emberMetalDebug.deprecate('Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT, { id: 'ember-legacy-controllers', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
 
   _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
   _emberMetalCore.default.keys = _emberMetalDebug.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
@@ -27406,7 +27430,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       //
       this.render('post', {  // the template name associated with 'post' Route
         into: 'application', // the parent route to 'post' Route
-        outlet: 'main',      // {{outlet}} and {{outlet 'main' are synonymous}},
+        outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,
         view: 'post',        // the view associated with the 'post' Route
         controller: 'post',  // the controller associated with the 'post' Route
       })
@@ -27949,9 +27973,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
          didTransition: function() {
           this._super(...arguments);
            return ga('send', 'pageview', {
-              'page': this.get('url'),
-              'title': this.get('url')
-            });
+            'page': this.get('url'),
+            'title': this.get('url')
+          });
         }
       });
       ```
@@ -30330,7 +30354,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.2';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30833,7 +30857,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.2';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -30984,18 +31008,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
         return spaceship(v, w);
 
       case 'string':
-        // We are comparing Strings using operators instead of `String#localeCompare`
-        // because of unexpected behavior for certain edge cases.
-        // For example `'Z'.localeCompare('a')` returns `1`.
-        //
-        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare#Description
-        if (v < w) {
-          return -1;
-        } else if (v === w) {
-          return 0;
-        }
-
-        return 1;
+        return spaceship(v.localeCompare(w), 0);
 
       case 'array':
         var vLen = v.length;
@@ -36871,7 +36884,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
             if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
               var originalValue = this[keyName];
 
-              value = _emberMetalAssign.default(originalValue, value);
+              value = _emberMetalAssign.default({}, originalValue, value);
             }
 
             if (desc) {
@@ -39843,7 +39856,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.1',
+        revision: 'Ember@2.5.0-beta.2',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45264,7 +45277,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.2';
 
   /**
   @module ember

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.1
+ * @version   2.5.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.1
+    @version 2.5.0-beta.2
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.1'
+    @default '2.5.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.1';
+  Ember.VERSION = '2.5.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5982,10 +5982,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
       _emberMetalCore.default.Debug.registerWarnHandler = function () {};
     }
   }
-
-  _emberMetalDebug.deprecate('Support for the `ember-legacy-views` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'ember-legacy-views', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
-
-  _emberMetalDebug.deprecate('Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT, { id: 'ember-legacy-controllers', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
 
   _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
   _emberMetalCore.default.keys = _emberMetalDebug.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
@@ -12558,18 +12554,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
         return spaceship(v, w);
 
       case 'string':
-        // We are comparing Strings using operators instead of `String#localeCompare`
-        // because of unexpected behavior for certain edge cases.
-        // For example `'Z'.localeCompare('a')` returns `1`.
-        //
-        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare#Description
-        if (v < w) {
-          return -1;
-        } else if (v === w) {
-          return 0;
-        }
-
-        return 1;
+        return spaceship(v.localeCompare(w), 0);
 
       case 'array':
         var vLen = v.length;
@@ -18447,7 +18432,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
             if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
               var originalValue = this[keyName];
 
-              value = _emberMetalAssign.default(originalValue, value);
+              value = _emberMetalAssign.default({}, originalValue, value);
             }
 
             if (desc) {
