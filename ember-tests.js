@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+4b7a5732
+ * @version   2.6.0-canary+206d391e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2408,7 +2408,6 @@ enifed('glimmer-reference/tests/iterable-test', ['exports', 'glimmer-reference',
         var _initialize2 = initialize(arr);
 
         var target = _initialize2.target;
-        var reference = _initialize2.reference;
         var artifacts = _initialize2.artifacts;
 
         assert.deepEqual(target.toValues(), arr);
@@ -2428,7 +2427,6 @@ enifed('glimmer-reference/tests/iterable-test', ['exports', 'glimmer-reference',
         var _initialize3 = initialize(arr);
 
         var target = _initialize3.target;
-        var reference = _initialize3.reference;
         var artifacts = _initialize3.artifacts;
 
         assert.deepEqual(target.toValues(), arr);
@@ -2662,7 +2660,7 @@ enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers
         var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
         self = new _glimmerReference.UpdatableReference(_glimmerUtil.opaque(context));
-        result = template.render(self, env, { appendTo: root });
+        result = template.render(self, env, { appendTo: root, dynamicScope: new _glimmerTestHelpers.TestDynamicScope(null) });
         assertInvariants(result);
         return result;
     }
@@ -2753,7 +2751,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         _templateObject4 = _taggedTemplateLiteralLoose(["\n      {{#each items key=\"id\" as |item|}}\n        <sub-item name={{item.id}} />\n      {{/each}}"], ["\n      {{#each items key=\"id\" as |item|}}\n        <sub-item name={{item.id}} />\n      {{/each}}"]),
         _templateObject5 = _taggedTemplateLiteralLoose(["\n      <aside>{{@item.id}}:\n        {{#if @item.visible}}\n          {{#each @item.subitems key=\"id\" as |subitem|}}\n             <sub-item name={{subitem.id}} />\n          {{/each}}\n        {{/if}}\n      </aside>"], ["\n      <aside>{{@item.id}}:\n        {{#if @item.visible}}\n          {{#each @item.subitems key=\"id\" as |subitem|}}\n             <sub-item name={{subitem.id}} />\n          {{/each}}\n        {{/if}}\n      </aside>"]),
         _templateObject6 = _taggedTemplateLiteralLoose(["\n        <article>{{#each items key=\"id\" as |item|}}\n          <my-item item={{item}} />\n        {{/each}}</article>"], ["\n        <article>{{#each items key=\"id\" as |item|}}\n          <my-item item={{item}} />\n        {{/each}}</article>"]),
-        _templateObject7 = _taggedTemplateLiteralLoose(["\n        <aside>0:<p>0.0</p><p>0.1</p><!----></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p><!----></aside>\n        <!---->"], ["\n        <aside>0:<p>0.0</p><p>0.1</p><!----></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p><!----></aside>\n        <!---->"]),
+        _templateObject7 = _taggedTemplateLiteralLoose(["\n        <aside>0:<p>0.0</p><p>0.1</p></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p></aside>"], ["\n        <aside>0:<p>0.0</p><p>0.1</p></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p></aside>"]),
         _templateObject8 = _taggedTemplateLiteralLoose(["<div>{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}\n      {{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}\n      {{!sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}</div>"], ["<div>{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}\n      {{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}\n      {{!sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}</div>"]),
         _templateObject9 = _taggedTemplateLiteralLoose(["\n      <div>\n        {{x-curly}}\n        {{x-curly}}\n        <x-glimmer />\n        <x-glimmer />\n        {{x-curly}}\n        <x-glimmer />\n      </div>"], ["\n      <div>\n        {{x-curly}}\n        {{x-curly}}\n        <x-glimmer />\n        <x-glimmer />\n        {{x-curly}}\n        <x-glimmer />\n      </div>"]);
 
@@ -2777,7 +2775,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         EmberishRootView.prototype.appendTo = function appendTo(selector) {
             var element = this.parent = document.querySelector(selector);
             var self = new _glimmerReference.UpdatableReference(this);
-            this._result = this.template.render(self, this.env, { appendTo: element, hostOptions: { component: this } });
+            this._result = this.template.render(self, this.env, { appendTo: element, dynamicScope: new _glimmerTestHelpers.TestDynamicScope(self) });
             this.element = element.firstElementChild;
         };
 
@@ -4623,7 +4621,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         root = rootElement();
     }
     function render(template, self) {
-        return template.render(new _glimmerReference.UpdatableReference(self), env, { appendTo: root });
+        return template.render(new _glimmerReference.UpdatableReference(self), env, { appendTo: root, dynamicScope: new _glimmerTestHelpers.TestDynamicScope(null) });
     }
     function _module(name) {
         return QUnit.module(name, {
@@ -5447,11 +5445,11 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     // });
 });
 
-enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference", "glimmer-util"], function (exports, _glimmerTestHelpers, _glimmerReference, _glimmerUtil) {
+enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
     "use strict";
 
-    var _templateObject = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li><!----></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li><!----></ul>"]),
-        _templateObject2 = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='stefanpenner'>Stefan Penner</li>\n        <li class='rwjblue'>Robert Jackson</li><!----></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='stefanpenner'>Stefan Penner</li>\n        <li class='rwjblue'>Robert Jackson</li><!----></ul>"]);
+    var _templateObject = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li></ul>"]),
+        _templateObject2 = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='stefanpenner'>Stefan Penner</li>\n        <li class='rwjblue'>Robert Jackson</li></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='stefanpenner'>Stefan Penner</li>\n        <li class='rwjblue'>Robert Jackson</li></ul>"]);
 
     function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
@@ -5484,9 +5482,9 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
     }
     function render(template) {
         var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-        var suppliedOptions = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+        var view = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
-        var options = _glimmerUtil.assign({ appendTo: root }, suppliedOptions);
+        var options = { appendTo: root, dynamicScope: new _glimmerTestHelpers.TestDynamicScope(view) };
         self = new _glimmerReference.UpdatableReference(context);
         result = template.render(self, env, options);
         assertInvariants(result);
@@ -5553,7 +5551,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         var template = compile("{{view.name}}");
         var view = { name: 'Godfrey' };
         var viewRef = new _glimmerReference.UpdatableReference(view);
-        render(template, {}, { keywords: { view: viewRef } });
+        render(template, {}, viewRef);
         _glimmerTestHelpers.equalTokens(root, 'Godfrey', "Initial render");
         rerender();
         _glimmerTestHelpers.equalTokens(root, 'Godfrey', "Noop rerender");
@@ -5569,7 +5567,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         var view = { name: 'Godfrey' };
         var viewRef = new _glimmerReference.UpdatableReference(view);
         var innerView = { name: 'Yehuda' };
-        render(template, { innerView: innerView }, { keywords: { view: viewRef } });
+        render(template, { innerView: innerView }, viewRef);
         _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Initial render");
         rerender();
         _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Noop rerender");
@@ -5589,7 +5587,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         var innerView = { name: 'Yehuda' };
         var view = { name: 'Godfrey', innerView: innerView };
         var viewRef = new _glimmerReference.UpdatableReference(view);
-        render(template, { innerView: innerView }, { keywords: { view: viewRef } });
+        render(template, { innerView: innerView }, viewRef);
         _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Initial render");
         rerender();
         _glimmerTestHelpers.equalTokens(root, 'Godfrey Yehuda Godfrey', "Noop rerender");
@@ -5951,21 +5949,21 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
             render(template, object);
             var itemNode = getItemNode('tomdale');
             var nameNode = getNameNode('tomdale');
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li><!----></ul>", "Initial render");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li></ul>", "Initial render");
             rerender();
             assertStableNodes('tomdale', "after no-op rerender");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li><!----></ul>", "After no-op re-render");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li></ul>", "After no-op re-render");
             rerender();
             assertStableNodes('tomdale', "after non-dirty rerender");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li><!----></ul>", "After no-op re-render");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li></ul>", "After no-op re-render");
             object = { list: [yehuda, tom] };
             rerender(object);
             assertStableNodes('tomdale', "after changing the list order");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='wycats'>Yehuda Katz</li><li class='tomdale'>Tom Dale</li><!----></ul>", "After changing the list order");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='wycats'>Yehuda Katz</li><li class='tomdale'>Tom Dale</li></ul>", "After changing the list order");
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "2", name: "Kris Selden", "class": "krisselden" }] };
             rerender(object);
             assertStableNodes('mmun', "after changing the list entries, but with stable keys");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kris Selden</li><!----></ul>", "After changing the list entries, but with stable keys");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kris Selden</li></ul>", "After changing the list entries, but with stable keys");
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "2", name: "Kristoph Selden", "class": "krisselden" }, { key: "3", name: "Matthew Beale", "class": "mixonic" }] };
             rerender(object);
             assertStableNodes('mmun', "after adding an additional entry");
@@ -5973,7 +5971,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "3", name: "Matthew Beale", "class": "mixonic" }] };
             rerender(object);
             assertStableNodes('mmun', "after removing the middle entry");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li><li class='mixonic'>Matthew Beale</li><!----></ul>", "after removing the middle entry");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li><li class='mixonic'>Matthew Beale</li></ul>", "after removing the middle entry");
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "4", name: "Stefan Penner", "class": "stefanpenner" }, { key: "5", name: "Robert Jackson", "class": "rwjblue" }] };
             rerender(object);
             assertStableNodes('mmun', "after adding two more entries");
@@ -5984,7 +5982,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
             object = { list: [{ key: "5", name: "Robert Jackson", "class": "rwjblue" }] };
             rerender(object);
             assertStableNodes('rwjblue', "after removing two entries");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='rwjblue'>Robert Jackson</li><!----></ul>", "After removing two entries");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='rwjblue'>Robert Jackson</li></ul>", "After removing two entries");
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "4", name: "Stefan Penner", "class": "stefanpenner" }, { key: "5", name: "Robert Jackson", "class": "rwjblue" }] };
             rerender(object);
             assertStableNodes('rwjblue', "after adding back entries");
@@ -5995,7 +5993,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }] };
             rerender(object);
             assertStableNodes('mmun', "after removing from the back");
-            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li><!----></ul>", "After removing from the back");
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li></ul>", "After removing from the back");
             object = { list: [] };
             rerender(object);
             strictEqual(root.firstChild.firstChild.nodeType, 8, "there are no li's after removing the remaining entry");
@@ -6836,6 +6834,7 @@ enifed('glimmer-test-helpers/index', ['exports', 'glimmer-test-helpers/lib/helpe
   exports.EmberishCurlyComponent = _glimmerTestHelpersLibEnvironment.EmberishCurlyComponent;
   exports.EmberishGlimmerComponent = _glimmerTestHelpersLibEnvironment.EmberishGlimmerComponent;
   exports.TestEnvironment = _glimmerTestHelpersLibEnvironment.TestEnvironment;
+  exports.TestDynamicScope = _glimmerTestHelpersLibEnvironment.TestDynamicScope;
   exports.equalsElement = _glimmerTestHelpersLibEnvironment.equalsElement;
   exports.inspectHooks = _glimmerTestHelpersLibEnvironment.inspectHooks;
   exports.regex = _glimmerTestHelpersLibEnvironment.regex;
@@ -7034,7 +7033,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         BasicComponentManager.prototype.create = function create(definition, args) {
             var klass = definition.ComponentClass || BasicComponent;
-            return new klass(args.value());
+            return new klass(args.named.value());
         };
 
         BasicComponentManager.prototype.getSelf = function getSelf(component) {
@@ -7048,7 +7047,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         BasicComponentManager.prototype.didCreate = function didCreate() {};
 
         BasicComponentManager.prototype.update = function update(component, attrs) {
-            component.attrs = attrs.value();
+            component.attrs = attrs.named.value();
         };
 
         BasicComponentManager.prototype.didUpdate = function didUpdate() {};
@@ -7070,7 +7069,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         EmberishGlimmerComponentManager.prototype.create = function create(definition, args) {
             var klass = definition.ComponentClass || BaseEmberishGlimmerComponent;
-            var attrs = args.value();
+            var attrs = args.named.value();
             var component = klass.create({ attrs: attrs });
             component.didInitAttrs({ attrs: attrs });
             component.didReceiveAttrs({ oldAttrs: null, newAttrs: attrs });
@@ -7094,7 +7093,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         EmberishGlimmerComponentManager.prototype.update = function update(component, args) {
             var oldAttrs = component.attrs;
-            var newAttrs = args.value();
+            var newAttrs = args.named.value();
             component.set('attrs', newAttrs);
             component.didUpdateAttrs({ oldAttrs: oldAttrs, newAttrs: newAttrs });
             component.didReceiveAttrs({ oldAttrs: oldAttrs, newAttrs: newAttrs });
@@ -7124,7 +7123,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         EmberishCurlyComponentManager.prototype.create = function create(definition, args) {
             var klass = definition.ComponentClass || BaseEmberishCurlyComponent;
-            var attrs = args.value();
+            var attrs = args.named.value();
             var merged = _glimmerUtil.assign({}, attrs, { attrs: attrs });
             var component = klass.create(merged);
             component.didInitAttrs({ attrs: attrs });
@@ -7149,7 +7148,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         EmberishCurlyComponentManager.prototype.update = function update(component, args) {
             var oldAttrs = component.attrs;
-            var newAttrs = args.value();
+            var newAttrs = args.named.value();
             var merged = _glimmerUtil.assign({}, newAttrs, { attrs: newAttrs });
             component.setProperties(merged);
             component.didUpdateAttrs({ oldAttrs: oldAttrs, newAttrs: newAttrs });
@@ -7305,8 +7304,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return _glimmerTestHelpersLibHelpers.compileLayout(template, { env: this });
         };
 
-        TestEnvironment.prototype.getKeywords = function getKeywords() {
-            return ['view'];
+        TestEnvironment.prototype.hasKeyword = function hasKeyword(name) {
+            return name === 'view';
         };
 
         TestEnvironment.prototype.iterableFor = function iterableFor(ref, args) {
@@ -7339,6 +7338,26 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     })(_glimmerRuntime.Environment);
 
     exports.TestEnvironment = TestEnvironment;
+
+    var TestDynamicScope = (function () {
+        function TestDynamicScope(view) {
+            _classCallCheck(this, TestDynamicScope);
+
+            this.view = view;
+        }
+
+        TestDynamicScope.prototype.set = function set(assignment) {
+            _glimmerUtil.assign(this, assignment);
+        };
+
+        TestDynamicScope.prototype.child = function child() {
+            return new TestDynamicScope(this.view);
+        };
+
+        return TestDynamicScope;
+    })();
+
+    exports.TestDynamicScope = TestDynamicScope;
 
     var CurlyComponentSyntax = (function (_StatementSyntax) {
         _inherits(CurlyComponentSyntax, _StatementSyntax);
@@ -7397,8 +7416,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return DynamicComponentReference;
     })();
 
-    function dynamicComponentFactoryFor(args, env) {
+    function dynamicComponentFactoryFor(args, vm) {
         var nameRef = args.positional.at(0);
+        var env = vm.env;
         return new DynamicComponentReference({ nameRef: nameRef, env: env });
     }
 
@@ -7461,7 +7481,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     })(GenericComponentDefinition);
 
     function EmberID(vm) {
-        return new _glimmerRuntime.ValueReference("ember" + vm.getSelf().value()._guid);
+        var self = vm.getSelf().value();
+        return new _glimmerRuntime.ValueReference("ember" + self._guid);
     }
 
     var EmberishCurlyComponentDefinition = (function (_GenericComponentDefinition2) {
@@ -7616,9 +7637,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         WithKeywordsSyntax.prototype.compile = function compile(compiler, env) {
-            var keywords = this.args.named.compile(compiler, env).map;
+            var args = this.args.compile(compiler, env);
+            var callback = function (_vm, _scope) {
+                var vm = _vm;
+                var scope = _scope;
+                var args = vm.frame.getArgs();
+                scope.set(args.named.map);
+            };
+            compiler.append(new _glimmerRuntime.PutArgsOpcode({ args: args }));
             compiler.append(new _glimmerRuntime.PushDynamicScopeOpcode());
-            compiler.append(_glimmerRuntime.BindKeywordsOpcode.create(compiler, keywords));
+            compiler.append(new _glimmerRuntime.BindDynamicScopeOpcode(callback));
             compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
             compiler.append(new _glimmerRuntime.PopDynamicScopeOpcode());
         };
@@ -23648,14 +23676,310 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: rendering', (function (_ApplicationTest) {
+    _inherits(_class, _ApplicationTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can render the application template'] = function testItCanRenderTheApplicationTemplate(assert) {
+      var _this = this;
+
+      this.registerTemplate('application', 'Hello world!');
+
+      return this.visit('/').then(function () {
+        _this.assertText('Hello world!');
+      });
+    };
+
+    _class.prototype['@test it can access the model provided by the route'] = function testItCanAccessTheModelProvidedByTheRoute(assert) {
+      var _this2 = this;
+
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('application', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/').then(function () {
+        _this2.assertComponentElement(_this2.firstChild, {
+          content: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2)
+        });
+      });
+    };
+
+    _class.prototype['@test it can render a nested route'] = function testItCanRenderANestedRoute(assert) {
+      var _this3 = this;
+
+      this.router.map(function () {
+        this.route('lists', function () {
+          this.route('colors', function () {
+            this.route('favorite');
+          });
+        });
+      });
+
+      // The "favorite" route will inherit the model
+      this.registerRoute('lists.colors', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('lists.colors.favorite', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/lists/colors/favorite').then(function () {
+        _this3.assertComponentElement(_this3.firstChild, {
+          content: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2)
+        });
+      });
+    };
+
+    _class.prototype['@test it can render into named outlets'] = function testItCanRenderIntoNamedOutlets(assert) {
+      var _this4 = this;
+
+      this.router.map(function () {
+        this.route('colors');
+      });
+
+      this.registerTemplate('application', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.registerTemplate('nav', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        renderTemplate: function () {
+          this.render();
+          this.render('nav', {
+            into: 'application',
+            outlet: 'nav'
+          });
+        }
+      }));
+
+      this.registerRoute('colors', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('colors', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/colors').then(function () {
+        _this4.assertComponentElement(_this4.firstChild, {
+          content: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
+        });
+      });
+    };
+
+    _class.prototype['@test it can render into named outlets'] = function testItCanRenderIntoNamedOutlets(assert) {
+      var _this5 = this;
+
+      this.router.map(function () {
+        this.route('colors');
+      });
+
+      this.registerTemplate('application', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.registerTemplate('nav', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        renderTemplate: function () {
+          this.render();
+          this.render('nav', {
+            into: 'application',
+            outlet: 'nav'
+          });
+        }
+      }));
+
+      this.registerRoute('colors', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('colors', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/colors').then(function () {
+        _this5.assertComponentElement(_this5.firstChild, {
+          content: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
+        });
+      });
+    };
+
+    _class.prototype['@test it should update the outlets when switching between routes'] = function testItShouldUpdateTheOutletsWhenSwitchingBetweenRoutes(assert) {
+      var _this6 = this;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b', function () {
+          this.route('c');
+          this.route('d');
+        });
+      });
+
+      this.registerTemplate('a', 'A{{outlet}}');
+      this.registerTemplate('b', 'B{{outlet}}');
+      this.registerTemplate('b.c', 'C');
+      this.registerTemplate('b.d', 'D');
+
+      return this.visit('/b/c').then(function () {
+        // this.assertComponentElement(this.firstChild, { content: 'BC' });
+        _this6.assertText('BC');
+        return _this6.visit('/a');
+      }).then(function () {
+        // this.assertComponentElement(this.firstChild, { content: 'A' });
+        _this6.assertText('A');
+        return _this6.visit('/b/d');
+      }).then(function () {
+        _this6.assertText('BD');
+        // this.assertComponentElement(this.firstChild, { content: 'BD' });
+      });
+    };
+
+    _class.prototype['@test it should produce a stable DOM when the model changes'] = function testItShouldProduceAStableDOMWhenTheModelChanges(assert) {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('color', { path: '/colors/:color' });
+      });
+
+      this.registerRoute('color', _emberRoutingSystemRoute.default.extend({
+        model: function (params) {
+          return params.color;
+        }
+      }));
+
+      this.registerTemplate('color', 'color: {{model}}');
+
+      return this.visit('/colors/red').then(function () {
+        _this7.assertComponentElement(_this7.firstChild, { content: 'color: red' });
+        _this7.takeSnapshot();
+        return _this7.visit('/colors/green');
+      }).then(function () {
+        _this7.assertComponentElement(_this7.firstChild, { content: 'color: green' });
+        _this7.assertInvariants();
+      });
+    };
+
+    _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
+      var _this8 = this;
+
+      this.router.map(function () {
+        this.route('color', { path: '/colors/:color' });
+      });
+
+      this.registerRoute('color', _emberRoutingSystemRoute.default.extend({
+        model: function (params) {
+          return { color: params.color };
+        },
+
+        renderTemplate: function (controller, model) {
+          this.render({ controller: model.color, model: model });
+        }
+      }));
+
+      this.registerController('red', _emberRuntimeControllersController.default.extend({
+        color: 'red'
+      }));
+
+      this.registerController('green', _emberRuntimeControllersController.default.extend({
+        color: 'green'
+      }));
+
+      this.registerTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
+
+      return this.visit('/colors/red').then(function () {
+        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: red, controller color: red' });
+        _this8.takeSnapshot();
+        return _this8.visit('/colors/green');
+      }).then(function () {
+        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: green, controller color: green' });
+        _this8.assertInvariants();
+      });
+    };
+
+    _class.prototype['@test it should produce a stable DOM when two routes render the same template'] = function testItShouldProduceAStableDOMWhenTwoRoutesRenderTheSameTemplate(assert) {
+      var _this9 = this;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b');
+      });
+
+      this.registerRoute('a', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return 'A';
+        },
+
+        renderTemplate: function (controller, model) {
+          this.render('common', { controller: 'common', model: model });
+        }
+      }));
+
+      this.registerRoute('b', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return 'B';
+        },
+
+        renderTemplate: function (controller, model) {
+          this.render('common', { controller: 'common', model: model });
+        }
+      }));
+
+      this.registerController('common', _emberRuntimeControllersController.default.extend({
+        prefix: 'common'
+      }));
+
+      this.registerTemplate('common', '{{prefix}} {{model}}');
+
+      return this.visit('/a').then(function () {
+        _this9.assertComponentElement(_this9.firstChild, { content: 'common A' });
+        _this9.takeSnapshot();
+        return _this9.visit('/b');
+      }).then(function () {
+        _this9.assertComponentElement(_this9.firstChild, { content: 'common B' });
+        _this9.assertInvariants();
+      });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
+});
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -23916,7 +24240,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
         cond1: true,
         cond2: true,
         cond3: true,
@@ -23962,11 +24286,15 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']);
+
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: dynamic components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -24256,7 +24584,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
         cond1: true,
         cond2: true,
         cond3: true,
@@ -25740,7 +26068,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -25848,9 +26176,104 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   var TestCase = (function () {
     function TestCase() {
       _classCallCheck(this, TestCase);
+
+      this.element = null;
+      this.snapshot = null;
     }
 
     TestCase.prototype.teardown = function teardown() {};
+
+    // The following methods require `this.element` to work
+
+    TestCase.prototype.$ = function $(sel) {
+      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
+    };
+
+    TestCase.prototype.textValue = function textValue() {
+      return this.$().text();
+    };
+
+    TestCase.prototype.takeSnapshot = function takeSnapshot() {
+      var snapshot = this.snapshot = [];
+
+      var node = this.element.firstChild;
+
+      while (node) {
+        if (!isMarker(node)) {
+          snapshot.push(node);
+        }
+
+        node = node.nextSibling;
+      }
+
+      return snapshot;
+    };
+
+    TestCase.prototype.assertText = function assertText(text) {
+      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
+    };
+
+    TestCase.prototype.assertHTML = function assertHTML(html) {
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
+    };
+
+    TestCase.prototype.assertElement = function assertElement(node, _ref) {
+      var _ref$ElementType = _ref.ElementType;
+      var ElementType = _ref$ElementType === undefined ? HTMLElement : _ref$ElementType;
+      var tagName = _ref.tagName;
+      var _ref$attrs = _ref.attrs;
+      var attrs = _ref$attrs === undefined ? null : _ref$attrs;
+      var _ref$content = _ref.content;
+      var content = _ref$content === undefined ? null : _ref$content;
+
+      if (!(node instanceof ElementType)) {
+        throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
+      }
+
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
+    };
+
+    TestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref2) {
+      var _ref2$ElementType = _ref2.ElementType;
+      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
+      var _ref2$tagName = _ref2.tagName;
+      var tagName = _ref2$tagName === undefined ? 'div' : _ref2$tagName;
+      var _ref2$attrs = _ref2.attrs;
+      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
+      var _ref2$content = _ref2.content;
+      var content = _ref2$content === undefined ? null : _ref2$content;
+
+      attrs = _emberMetalAssign.default({}, { id: _emberGlimmerTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
+      this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
+    };
+
+    TestCase.prototype.assertSameNode = function assertSameNode(actual, expected) {
+      assert.strictEqual(actual, expected, 'DOM node stability');
+    };
+
+    TestCase.prototype.assertInvariants = function assertInvariants() {
+      var oldSnapshot = this.snapshot;
+      var newSnapshot = this.takeSnapshot();
+
+      assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
+
+      for (var i = 0; i < oldSnapshot.length; i++) {
+        this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
+      }
+    };
+
+    _createClass(TestCase, [{
+      key: 'firstChild',
+      get: function () {
+        var node = this.element.firstChild;
+
+        while (node && isMarker(node)) {
+          node = node.nextSibling;
+        }
+
+        return node;
+      }
+    }]);
 
     return TestCase;
   })();
@@ -25869,20 +26292,82 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     return false;
   }
 
-  var RenderingTest = (function (_TestCase) {
-    _inherits(RenderingTest, _TestCase);
+  var ApplicationTest = (function (_TestCase) {
+    _inherits(ApplicationTest, _TestCase);
+
+    function ApplicationTest() {
+      _classCallCheck(this, ApplicationTest);
+
+      _TestCase.call(this);
+
+      this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
+
+      this.application = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', {
+        rootElement: '#qunit-fixture',
+        autoboot: false
+      });
+
+      this.router = this.application.Router = _emberRoutingSystemRouter.default.extend({
+        location: 'none'
+      });
+
+      this.applicationInstance = null;
+      this.bootOptions = undefined;
+    }
+
+    ApplicationTest.prototype.teardown = function teardown() {
+      if (this.applicationInstance) {
+        _emberRuntimeTestsUtils.runDestroy(this.applicationInstance);
+      }
+
+      _emberRuntimeTestsUtils.runDestroy(this.application);
+    };
+
+    ApplicationTest.prototype.visit = function visit(url) {
+      var _this = this;
+
+      var applicationInstance = this.applicationInstance;
+      var bootOptions = this.bootOptions;
+
+      if (applicationInstance) {
+        return _emberMetalRun_loop.default(applicationInstance, 'visit', url, bootOptions);
+      } else {
+        return _emberMetalRun_loop.default(this.application, 'visit', url, bootOptions).then(function (instance) {
+          _this.applicationInstance = instance;
+        });
+      }
+    };
+
+    ApplicationTest.prototype.registerRoute = function registerRoute(name, route) {
+      this.application.register('route:' + name, route);
+    };
+
+    ApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
+      this.application.register('template:' + name, _emberGlimmerTestsUtilsHelpers.compile(template));
+    };
+
+    ApplicationTest.prototype.registerController = function registerController(name, controller) {
+      this.application.register('controller:' + name, controller);
+    };
+
+    return ApplicationTest;
+  })(TestCase);
+
+  exports.ApplicationTest = ApplicationTest;
+
+  var RenderingTest = (function (_TestCase2) {
+    _inherits(RenderingTest, _TestCase2);
 
     function RenderingTest() {
       _classCallCheck(this, RenderingTest);
 
-      _TestCase.call(this);
+      _TestCase2.call(this);
       var dom = new _emberGlimmerTestsUtilsHelpers.DOMHelper(document);
       var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
       var env = this.env = new _emberGlimmerTestsUtilsEnvironment.default({ dom: dom, owner: owner });
       this.renderer = new _emberGlimmerTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
-      this.snapshot = null;
     }
 
     RenderingTest.prototype.teardown = function teardown() {
@@ -25890,26 +26375,6 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         _emberRuntimeTestsUtils.runDestroy(this.component);
         _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
-    };
-
-    RenderingTest.prototype.$ = function $(sel) {
-      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
-    };
-
-    RenderingTest.prototype.takeSnapshot = function takeSnapshot() {
-      var snapshot = this.snapshot = [];
-
-      var node = this.element.firstChild;
-
-      while (node) {
-        if (!isMarker(node)) {
-          snapshot.push(node);
-        }
-
-        node = node.nextSibling;
-      }
-
-      return snapshot;
     };
 
     RenderingTest.prototype.render = function render(templateStr) {
@@ -25950,33 +26415,20 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref) {
-      var _ref$ComponentClass = _ref.ComponentClass;
-      var ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass;
-      var _ref$template = _ref.template;
-      var template = _ref$template === undefined ? null : _ref$template;
+    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref3) {
+      var _ref3$ComponentClass = _ref3.ComponentClass;
+      var ComponentClass = _ref3$ComponentClass === undefined ? null : _ref3$ComponentClass;
+      var _ref3$template = _ref3.template;
+      var template = _ref3$template === undefined ? null : _ref3$template;
       var owner = this.owner;
-      var env = this.env;
 
       if (ComponentClass) {
         owner.register('component:' + name, ComponentClass);
       }
 
       if (typeof template === 'string') {
-        owner.register('template:components/' + name, _emberGlimmerTestsUtilsHelpers.compile(template, { env: env }));
+        owner.register('template:components/' + name, _emberGlimmerTestsUtilsHelpers.compile(template));
       }
-    };
-
-    RenderingTest.prototype.textValue = function textValue() {
-      return this.$().text();
-    };
-
-    RenderingTest.prototype.assertText = function assertText(text) {
-      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
-    };
-
-    RenderingTest.prototype.assertHTML = function assertHTML(html) {
-      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
 
     RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
@@ -25987,66 +26439,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
-    RenderingTest.prototype.assertElement = function assertElement(node, _ref2) {
-      var _ref2$ElementType = _ref2.ElementType;
-      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
-      var tagName = _ref2.tagName;
-      var _ref2$attrs = _ref2.attrs;
-      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
-      var _ref2$content = _ref2.content;
-      var content = _ref2$content === undefined ? null : _ref2$content;
-
-      if (!(node instanceof ElementType)) {
-        throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
-      }
-
-      _emberGlimmerTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
-    };
-
-    RenderingTest.prototype.assertComponentElement = function assertComponentElement(node, _ref3) {
-      var _ref3$ElementType = _ref3.ElementType;
-      var ElementType = _ref3$ElementType === undefined ? HTMLElement : _ref3$ElementType;
-      var _ref3$tagName = _ref3.tagName;
-      var tagName = _ref3$tagName === undefined ? 'div' : _ref3$tagName;
-      var _ref3$attrs = _ref3.attrs;
-      var attrs = _ref3$attrs === undefined ? null : _ref3$attrs;
-      var _ref3$content = _ref3.content;
-      var content = _ref3$content === undefined ? null : _ref3$content;
-
-      attrs = _emberMetalAssign.default({}, { id: _emberGlimmerTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
-      this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
-    };
-
-    RenderingTest.prototype.assertSameNode = function assertSameNode(actual, expected) {
-      assert.strictEqual(actual, expected, 'DOM node stability');
-    };
-
-    RenderingTest.prototype.assertInvariants = function assertInvariants() {
-      var oldSnapshot = this.snapshot;
-      var newSnapshot = this.takeSnapshot();
-
-      assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
-
-      for (var i = 0; i < oldSnapshot.length; i++) {
-        this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
-      }
-    };
-
     _createClass(RenderingTest, [{
       key: 'context',
       get: function () {
         return this.component;
-      }
-    }, {
-      key: 'firstChild',
-      get: function () {
-        var node = this.element.firstChild;
-
-        while (node && isMarker(node)) {
-          node = node.nextSibling;
-        }
-
-        return node;
       }
     }]);
 
@@ -26055,7 +26451,9 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
   exports.RenderingTest = RenderingTest;
 
-  function strip(str) {
+  function strip(_ref4) {
+    var str = _ref4[0];
+
     return str.split('\n').map(function (s) {
       return s.trim();
     }).join('');
@@ -27019,7 +27417,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(TogglingSyntaxConditionalsTest, SyntaxCondtionalTestHelpers);
 });
-enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-views/component_lookup'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberViewsComponent_lookup) {
+enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/ember-routing-view', 'ember-views/component_lookup', 'ember-application/system/application-instance'], function (exports, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerEmberRoutingView, _emberViewsComponent_lookup, _emberApplicationSystemApplicationInstance) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -27030,6 +27428,47 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
 
   exports.TestCase = _emberGlimmerTestsUtilsAbstractTestCase.TestCase;
   exports.moduleFor = _emberGlimmerTestsUtilsAbstractTestCase.moduleFor;
+
+  var ApplicationTest = (function (_AbstractApplicationTest) {
+    _inherits(ApplicationTest, _AbstractApplicationTest);
+
+    function ApplicationTest() {
+      var _bootOptions;
+
+      _classCallCheck(this, ApplicationTest);
+
+      _AbstractApplicationTest.call(this);
+
+      var application = this.application;
+
+      var dom = new _emberGlimmerTestsUtilsHelpers.DOMHelper(document);
+      var env = new _emberGlimmerTestsUtilsEnvironment.default({ dom: dom, owner: application });
+
+      application.registerOptionsForType('helper', { instantiate: false });
+      application.registerOptionsForType('template', { instantiate: true });
+      application.registerOptionsForType('component', { singleton: false });
+
+      application.register('service:-glimmer-env', env, { instantiate: false });
+      application.register('template:-outlet', _emberGlimmerTestsUtilsHelpers.compile('{{outlet}}'));
+      application.register('view:-outlet', _emberGlimmerEmberRoutingView.OutletView);
+      application.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+      application.inject('template', 'env', 'service:-glimmer-env');
+      application.inject('view:-outlet', 'template', 'template:-outlet');
+
+      this.bootOptions = (_bootOptions = {}, _bootOptions[_emberApplicationSystemApplicationInstance.INTERNAL_BOOT_OPTIONS] = {
+        renderer: {
+          create: function () {
+            return new _emberGlimmerTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
+          }
+        }
+      }, _bootOptions);
+    }
+
+    return ApplicationTest;
+  })(_emberGlimmerTestsUtilsAbstractTestCase.ApplicationTest);
+
+  exports.ApplicationTest = ApplicationTest;
 
   var RenderingTest = (function (_AbstractRenderingTest) {
     _inherits(RenderingTest, _AbstractRenderingTest);
@@ -34793,6 +35232,298 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-template-compile
     _htmlbarsTestHelpers.equalHTML(output, 'ohai');
   });
 });
+enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Application test: rendering', (function (_ApplicationTest) {
+    _inherits(_class, _ApplicationTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can render the application template'] = function testItCanRenderTheApplicationTemplate(assert) {
+      var _this = this;
+
+      this.registerTemplate('application', 'Hello world!');
+
+      return this.visit('/').then(function () {
+        _this.assertText('Hello world!');
+      });
+    };
+
+    _class.prototype['@test it can access the model provided by the route'] = function testItCanAccessTheModelProvidedByTheRoute(assert) {
+      var _this2 = this;
+
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('application', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/').then(function () {
+        _this2.assertComponentElement(_this2.firstChild, {
+          content: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2)
+        });
+      });
+    };
+
+    _class.prototype['@test it can render a nested route'] = function testItCanRenderANestedRoute(assert) {
+      var _this3 = this;
+
+      this.router.map(function () {
+        this.route('lists', function () {
+          this.route('colors', function () {
+            this.route('favorite');
+          });
+        });
+      });
+
+      // The "favorite" route will inherit the model
+      this.registerRoute('lists.colors', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('lists.colors.favorite', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/lists/colors/favorite').then(function () {
+        _this3.assertComponentElement(_this3.firstChild, {
+          content: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2)
+        });
+      });
+    };
+
+    _class.prototype['@test it can render into named outlets'] = function testItCanRenderIntoNamedOutlets(assert) {
+      var _this4 = this;
+
+      this.router.map(function () {
+        this.route('colors');
+      });
+
+      this.registerTemplate('application', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.registerTemplate('nav', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        renderTemplate: function () {
+          this.render();
+          this.render('nav', {
+            into: 'application',
+            outlet: 'nav'
+          });
+        }
+      }));
+
+      this.registerRoute('colors', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('colors', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/colors').then(function () {
+        _this4.assertComponentElement(_this4.firstChild, {
+          content: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5)
+        });
+      });
+    };
+
+    _class.prototype['@test it can render into named outlets'] = function testItCanRenderIntoNamedOutlets(assert) {
+      var _this5 = this;
+
+      this.router.map(function () {
+        this.route('colors');
+      });
+
+      this.registerTemplate('application', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.registerTemplate('nav', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        renderTemplate: function () {
+          this.render();
+          this.render('nav', {
+            into: 'application',
+            outlet: 'nav'
+          });
+        }
+      }));
+
+      this.registerRoute('colors', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return ['red', 'yellow', 'blue'];
+        }
+      }));
+
+      this.registerTemplate('colors', _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      return this.visit('/colors').then(function () {
+        _this5.assertComponentElement(_this5.firstChild, {
+          content: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5)
+        });
+      });
+    };
+
+    _class.prototype['@test it should update the outlets when switching between routes'] = function testItShouldUpdateTheOutletsWhenSwitchingBetweenRoutes(assert) {
+      var _this6 = this;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b', function () {
+          this.route('c');
+          this.route('d');
+        });
+      });
+
+      this.registerTemplate('a', 'A{{outlet}}');
+      this.registerTemplate('b', 'B{{outlet}}');
+      this.registerTemplate('b.c', 'C');
+      this.registerTemplate('b.d', 'D');
+
+      return this.visit('/b/c').then(function () {
+        // this.assertComponentElement(this.firstChild, { content: 'BC' });
+        _this6.assertText('BC');
+        return _this6.visit('/a');
+      }).then(function () {
+        // this.assertComponentElement(this.firstChild, { content: 'A' });
+        _this6.assertText('A');
+        return _this6.visit('/b/d');
+      }).then(function () {
+        _this6.assertText('BD');
+        // this.assertComponentElement(this.firstChild, { content: 'BD' });
+      });
+    };
+
+    _class.prototype['@test it should produce a stable DOM when the model changes'] = function testItShouldProduceAStableDOMWhenTheModelChanges(assert) {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('color', { path: '/colors/:color' });
+      });
+
+      this.registerRoute('color', _emberRoutingSystemRoute.default.extend({
+        model: function (params) {
+          return params.color;
+        }
+      }));
+
+      this.registerTemplate('color', 'color: {{model}}');
+
+      return this.visit('/colors/red').then(function () {
+        _this7.assertComponentElement(_this7.firstChild, { content: 'color: red' });
+        _this7.takeSnapshot();
+        return _this7.visit('/colors/green');
+      }).then(function () {
+        _this7.assertComponentElement(_this7.firstChild, { content: 'color: green' });
+        _this7.assertInvariants();
+      });
+    };
+
+    _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
+      var _this8 = this;
+
+      this.router.map(function () {
+        this.route('color', { path: '/colors/:color' });
+      });
+
+      this.registerRoute('color', _emberRoutingSystemRoute.default.extend({
+        model: function (params) {
+          return { color: params.color };
+        },
+
+        renderTemplate: function (controller, model) {
+          this.render({ controller: model.color, model: model });
+        }
+      }));
+
+      this.registerController('red', _emberRuntimeControllersController.default.extend({
+        color: 'red'
+      }));
+
+      this.registerController('green', _emberRuntimeControllersController.default.extend({
+        color: 'green'
+      }));
+
+      this.registerTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
+
+      return this.visit('/colors/red').then(function () {
+        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: red, controller color: red' });
+        _this8.takeSnapshot();
+        return _this8.visit('/colors/green');
+      }).then(function () {
+        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: green, controller color: green' });
+        _this8.assertInvariants();
+      });
+    };
+
+    _class.prototype['@test it should produce a stable DOM when two routes render the same template'] = function testItShouldProduceAStableDOMWhenTwoRoutesRenderTheSameTemplate(assert) {
+      var _this9 = this;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b');
+      });
+
+      this.registerRoute('a', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return 'A';
+        },
+
+        renderTemplate: function (controller, model) {
+          this.render('common', { controller: 'common', model: model });
+        }
+      }));
+
+      this.registerRoute('b', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return 'B';
+        },
+
+        renderTemplate: function (controller, model) {
+          this.render('common', { controller: 'common', model: model });
+        }
+      }));
+
+      this.registerController('common', _emberRuntimeControllersController.default.extend({
+        prefix: 'common'
+      }));
+
+      this.registerTemplate('common', '{{prefix}} {{model}}');
+
+      return this.visit('/a').then(function () {
+        _this9.assertComponentElement(_this9.firstChild, { content: 'common A' });
+        _this9.takeSnapshot();
+        return _this9.visit('/b');
+      }).then(function () {
+        _this9.assertComponentElement(_this9.firstChild, { content: 'common B' });
+        _this9.assertInvariants();
+      });
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
+});
 enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
@@ -36525,11 +37256,15 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']);
+
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -36790,7 +37525,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         })
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
         cond1: true,
         cond2: true,
         cond3: true,
@@ -36836,11 +37571,15 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-views/components/component', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsComponentsComponent, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']);
+
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: dynamic components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -37130,7 +37869,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
         })
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip('\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
         cond1: true,
         cond2: true,
         cond3: true,
@@ -40554,7 +41293,7 @@ enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/v
     ok(extractEnv(components.child) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{child-component}} environment should be an instance of RenderEnv');
   });
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -40662,9 +41401,104 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   var TestCase = (function () {
     function TestCase() {
       _classCallCheck(this, TestCase);
+
+      this.element = null;
+      this.snapshot = null;
     }
 
     TestCase.prototype.teardown = function teardown() {};
+
+    // The following methods require `this.element` to work
+
+    TestCase.prototype.$ = function $(sel) {
+      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
+    };
+
+    TestCase.prototype.textValue = function textValue() {
+      return this.$().text();
+    };
+
+    TestCase.prototype.takeSnapshot = function takeSnapshot() {
+      var snapshot = this.snapshot = [];
+
+      var node = this.element.firstChild;
+
+      while (node) {
+        if (!isMarker(node)) {
+          snapshot.push(node);
+        }
+
+        node = node.nextSibling;
+      }
+
+      return snapshot;
+    };
+
+    TestCase.prototype.assertText = function assertText(text) {
+      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
+    };
+
+    TestCase.prototype.assertHTML = function assertHTML(html) {
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
+    };
+
+    TestCase.prototype.assertElement = function assertElement(node, _ref) {
+      var _ref$ElementType = _ref.ElementType;
+      var ElementType = _ref$ElementType === undefined ? HTMLElement : _ref$ElementType;
+      var tagName = _ref.tagName;
+      var _ref$attrs = _ref.attrs;
+      var attrs = _ref$attrs === undefined ? null : _ref$attrs;
+      var _ref$content = _ref.content;
+      var content = _ref$content === undefined ? null : _ref$content;
+
+      if (!(node instanceof ElementType)) {
+        throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
+      }
+
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
+    };
+
+    TestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref2) {
+      var _ref2$ElementType = _ref2.ElementType;
+      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
+      var _ref2$tagName = _ref2.tagName;
+      var tagName = _ref2$tagName === undefined ? 'div' : _ref2$tagName;
+      var _ref2$attrs = _ref2.attrs;
+      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
+      var _ref2$content = _ref2.content;
+      var content = _ref2$content === undefined ? null : _ref2$content;
+
+      attrs = _emberMetalAssign.default({}, { id: _emberHtmlbarsTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
+      this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
+    };
+
+    TestCase.prototype.assertSameNode = function assertSameNode(actual, expected) {
+      assert.strictEqual(actual, expected, 'DOM node stability');
+    };
+
+    TestCase.prototype.assertInvariants = function assertInvariants() {
+      var oldSnapshot = this.snapshot;
+      var newSnapshot = this.takeSnapshot();
+
+      assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
+
+      for (var i = 0; i < oldSnapshot.length; i++) {
+        this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
+      }
+    };
+
+    _createClass(TestCase, [{
+      key: 'firstChild',
+      get: function () {
+        var node = this.element.firstChild;
+
+        while (node && isMarker(node)) {
+          node = node.nextSibling;
+        }
+
+        return node;
+      }
+    }]);
 
     return TestCase;
   })();
@@ -40683,20 +41517,82 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     return false;
   }
 
-  var RenderingTest = (function (_TestCase) {
-    _inherits(RenderingTest, _TestCase);
+  var ApplicationTest = (function (_TestCase) {
+    _inherits(ApplicationTest, _TestCase);
+
+    function ApplicationTest() {
+      _classCallCheck(this, ApplicationTest);
+
+      _TestCase.call(this);
+
+      this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
+
+      this.application = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', {
+        rootElement: '#qunit-fixture',
+        autoboot: false
+      });
+
+      this.router = this.application.Router = _emberRoutingSystemRouter.default.extend({
+        location: 'none'
+      });
+
+      this.applicationInstance = null;
+      this.bootOptions = undefined;
+    }
+
+    ApplicationTest.prototype.teardown = function teardown() {
+      if (this.applicationInstance) {
+        _emberRuntimeTestsUtils.runDestroy(this.applicationInstance);
+      }
+
+      _emberRuntimeTestsUtils.runDestroy(this.application);
+    };
+
+    ApplicationTest.prototype.visit = function visit(url) {
+      var _this = this;
+
+      var applicationInstance = this.applicationInstance;
+      var bootOptions = this.bootOptions;
+
+      if (applicationInstance) {
+        return _emberMetalRun_loop.default(applicationInstance, 'visit', url, bootOptions);
+      } else {
+        return _emberMetalRun_loop.default(this.application, 'visit', url, bootOptions).then(function (instance) {
+          _this.applicationInstance = instance;
+        });
+      }
+    };
+
+    ApplicationTest.prototype.registerRoute = function registerRoute(name, route) {
+      this.application.register('route:' + name, route);
+    };
+
+    ApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
+      this.application.register('template:' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template));
+    };
+
+    ApplicationTest.prototype.registerController = function registerController(name, controller) {
+      this.application.register('controller:' + name, controller);
+    };
+
+    return ApplicationTest;
+  })(TestCase);
+
+  exports.ApplicationTest = ApplicationTest;
+
+  var RenderingTest = (function (_TestCase2) {
+    _inherits(RenderingTest, _TestCase2);
 
     function RenderingTest() {
       _classCallCheck(this, RenderingTest);
 
-      _TestCase.call(this);
+      _TestCase2.call(this);
       var dom = new _emberHtmlbarsTestsUtilsHelpers.DOMHelper(document);
       var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
       var env = this.env = new _emberHtmlbarsTestsUtilsEnvironment.default({ dom: dom, owner: owner });
       this.renderer = new _emberHtmlbarsTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
-      this.snapshot = null;
     }
 
     RenderingTest.prototype.teardown = function teardown() {
@@ -40704,26 +41600,6 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         _emberRuntimeTestsUtils.runDestroy(this.component);
         _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
-    };
-
-    RenderingTest.prototype.$ = function $(sel) {
-      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
-    };
-
-    RenderingTest.prototype.takeSnapshot = function takeSnapshot() {
-      var snapshot = this.snapshot = [];
-
-      var node = this.element.firstChild;
-
-      while (node) {
-        if (!isMarker(node)) {
-          snapshot.push(node);
-        }
-
-        node = node.nextSibling;
-      }
-
-      return snapshot;
     };
 
     RenderingTest.prototype.render = function render(templateStr) {
@@ -40764,33 +41640,20 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref) {
-      var _ref$ComponentClass = _ref.ComponentClass;
-      var ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass;
-      var _ref$template = _ref.template;
-      var template = _ref$template === undefined ? null : _ref$template;
+    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref3) {
+      var _ref3$ComponentClass = _ref3.ComponentClass;
+      var ComponentClass = _ref3$ComponentClass === undefined ? null : _ref3$ComponentClass;
+      var _ref3$template = _ref3.template;
+      var template = _ref3$template === undefined ? null : _ref3$template;
       var owner = this.owner;
-      var env = this.env;
 
       if (ComponentClass) {
         owner.register('component:' + name, ComponentClass);
       }
 
       if (typeof template === 'string') {
-        owner.register('template:components/' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template, { env: env }));
+        owner.register('template:components/' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template));
       }
-    };
-
-    RenderingTest.prototype.textValue = function textValue() {
-      return this.$().text();
-    };
-
-    RenderingTest.prototype.assertText = function assertText(text) {
-      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
-    };
-
-    RenderingTest.prototype.assertHTML = function assertHTML(html) {
-      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
 
     RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
@@ -40801,66 +41664,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
-    RenderingTest.prototype.assertElement = function assertElement(node, _ref2) {
-      var _ref2$ElementType = _ref2.ElementType;
-      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
-      var tagName = _ref2.tagName;
-      var _ref2$attrs = _ref2.attrs;
-      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
-      var _ref2$content = _ref2.content;
-      var content = _ref2$content === undefined ? null : _ref2$content;
-
-      if (!(node instanceof ElementType)) {
-        throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
-      }
-
-      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
-    };
-
-    RenderingTest.prototype.assertComponentElement = function assertComponentElement(node, _ref3) {
-      var _ref3$ElementType = _ref3.ElementType;
-      var ElementType = _ref3$ElementType === undefined ? HTMLElement : _ref3$ElementType;
-      var _ref3$tagName = _ref3.tagName;
-      var tagName = _ref3$tagName === undefined ? 'div' : _ref3$tagName;
-      var _ref3$attrs = _ref3.attrs;
-      var attrs = _ref3$attrs === undefined ? null : _ref3$attrs;
-      var _ref3$content = _ref3.content;
-      var content = _ref3$content === undefined ? null : _ref3$content;
-
-      attrs = _emberMetalAssign.default({}, { id: _emberHtmlbarsTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
-      this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
-    };
-
-    RenderingTest.prototype.assertSameNode = function assertSameNode(actual, expected) {
-      assert.strictEqual(actual, expected, 'DOM node stability');
-    };
-
-    RenderingTest.prototype.assertInvariants = function assertInvariants() {
-      var oldSnapshot = this.snapshot;
-      var newSnapshot = this.takeSnapshot();
-
-      assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
-
-      for (var i = 0; i < oldSnapshot.length; i++) {
-        this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
-      }
-    };
-
     _createClass(RenderingTest, [{
       key: 'context',
       get: function () {
         return this.component;
-      }
-    }, {
-      key: 'firstChild',
-      get: function () {
-        var node = this.element.firstChild;
-
-        while (node && isMarker(node)) {
-          node = node.nextSibling;
-        }
-
-        return node;
       }
     }]);
 
@@ -40869,7 +41676,9 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
   exports.RenderingTest = RenderingTest;
 
-  function strip(str) {
+  function strip(_ref4) {
+    var str = _ref4[0];
+
     return str.split('\n').map(function (s) {
       return s.trim();
     }).join('');
@@ -41875,6 +42684,20 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
 
   exports.TestCase = _emberHtmlbarsTestsUtilsAbstractTestCase.TestCase;
   exports.moduleFor = _emberHtmlbarsTestsUtilsAbstractTestCase.moduleFor;
+
+  var ApplicationTest = (function (_AbstractApplicationTest) {
+    _inherits(ApplicationTest, _AbstractApplicationTest);
+
+    function ApplicationTest() {
+      _classCallCheck(this, ApplicationTest);
+
+      _AbstractApplicationTest.apply(this, arguments);
+    }
+
+    return ApplicationTest;
+  })(_emberHtmlbarsTestsUtilsAbstractTestCase.ApplicationTest);
+
+  exports.ApplicationTest = ApplicationTest;
 
   var RenderingTest = (function (_AbstractRenderingTest) {
     _inherits(RenderingTest, _AbstractRenderingTest);
@@ -67469,7 +68292,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+4b7a5732', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+206d391e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
