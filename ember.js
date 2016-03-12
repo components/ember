@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+3c28cdd8
+ * @version   2.6.0-canary+0e8e343b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+3c28cdd8
+ * @version   2.6.0-canary+0e8e343b
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -18644,7 +18644,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+3c28cdd8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0e8e343b';
 
   var librariesRegistered = false;
 
@@ -22534,7 +22534,7 @@ enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'emb
     return Wrapper.extend({ spec: JSON.parse(json) });
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/hash'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersHash) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -22546,7 +22546,8 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
   var builtInHelpers = {
     concat: _emberGlimmerHelpersConcat.default,
     if: _emberGlimmerHelpersIfUnless.inlineIf,
-    unless: _emberGlimmerHelpersIfUnless.inlineUnless
+    unless: _emberGlimmerHelpersIfUnless.inlineUnless,
+    hash: _emberGlimmerHelpersHash.default
   };
 
   var _default = (function (_Environment) {
@@ -22802,6 +22803,47 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/helper'], func
   }
 
   exports.default = _emberGlimmerHelper.helper(concat);
+});
+enifed('ember-glimmer/helpers/hash', ['exports', 'ember-glimmer/helper'], function (exports, _emberGlimmerHelper) {
+   'use strict';
+
+   /**
+   @module ember
+   @submodule ember-templates
+   */
+
+   /**
+      Use the `{{hash}}` helper to create a hash to pass as an option to your
+      components. This is specially useful for contextual components where you can
+      just yield a hash:
+   
+      ```handlebars
+      {{yield (hash
+         name='Sarah'
+         title=office
+      )}}
+      ```
+   
+      Would result in an object such as:
+   
+      ```js
+      { name: 'Sarah', title: this.get('office') }
+      ```
+   
+      Where the `title` is bound to updates of the `office` property.
+   
+      @method hash
+      @for Ember.Templates.helpers
+      @param {Object} options
+      @return {Object} Hash
+      @public
+    */
+
+   function hash(params, hash, options) {
+      return hash;
+   }
+
+   exports.default = _emberGlimmerHelper.helper(hash);
 });
 enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal/debug', 'ember-glimmer/utils/to-bool', 'ember-glimmer/utils/references'], function (exports, _emberMetalDebug, _emberGlimmerUtilsToBool, _emberGlimmerUtilsReferences) {
   /**
@@ -23913,22 +23955,17 @@ enifed("ember-htmlbars/helpers/hash", ["exports"], function (exports) {
       Use the `{{hash}}` helper to create a hash to pass as an option to your
       components. This is specially useful for contextual components where you can
       just yield a hash:
-   
       ```handlebars
       {{yield (hash
          name='Sarah'
          title=office
       )}}
       ```
-   
       Would result in an object such as:
-   
       ```js
       { name: 'Sarah', title: this.get('office') }
       ```
-   
       Where the `title` is bound to updates of the `office` property.
-   
       @method hash
       @for Ember.Templates.helpers
       @param {Object} options
@@ -26559,7 +26596,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+3c28cdd8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0e8e343b';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -32191,7 +32228,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+3c28cdd8
+    @version 2.6.0-canary+0e8e343b
     @public
   */
 
@@ -32233,11 +32270,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+3c28cdd8'
+    @default '2.6.0-canary+0e8e343b'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+3c28cdd8';
+  Ember.VERSION = '2.6.0-canary+0e8e343b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -46313,7 +46350,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+3c28cdd8';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+0e8e343b';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -46816,7 +46853,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+3c28cdd8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0e8e343b';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -55803,7 +55840,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+3c28cdd8',
+        revision: 'Ember@2.6.0-canary+0e8e343b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -61216,7 +61253,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+3c28cdd8';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+0e8e343b';
 
   /**
   @module ember

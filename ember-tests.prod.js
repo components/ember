@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+3c28cdd8
+ * @version   2.6.0-canary+0e8e343b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25107,6 +25107,233 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsComponentsComponent) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{hash}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test returns a hash with the right key-value'] = function testReturnsAHashWithTheRightKeyValue() {
+      var _this = this;
+
+      this.render('{{#with (hash name="Sergio") as |person|}}{{person.name}}{{/with}}');
+
+      this.assertText('Sergio');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('Sergio');
+    };
+
+    _class.prototype['@test can have more than one key-value'] = function testCanHaveMoreThanOneKeyValue() {
+      var _this2 = this;
+
+      this.render('{{#with (hash name="Sergio" lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}');
+
+      this.assertText('Sergio Arbeo');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Sergio Arbeo');
+    };
+
+    _class.prototype['@test binds values when variables are used'] = function testBindsValuesWhenVariablesAreUsed() {
+      var _this3 = this;
+
+      this.render('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        firstName: 'Marisa'
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Sergio');
+      });
+
+      this.assertText('Sergio Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Marisa');
+      });
+
+      this.assertText('Marisa Arbeo');
+    };
+
+    _class.prototype['@test binds multiple values when variables are used'] = function testBindsMultipleValuesWhenVariablesAreUsed() {
+      var _this4 = this;
+
+      this.render('{{#with (hash name=firstName lastName=lastName) as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        firstName: 'Marisa',
+        lastName: 'Arbeo'
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'firstName', 'Sergio');
+      });
+
+      this.assertText('Sergio Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'lastName', 'Smith');
+      });
+
+      this.assertText('Sergio Smith');
+
+      this.runTask(function () {
+        return _emberMetalSet_properties.default(_this4.context, {
+          firstName: 'Marisa',
+          lastName: 'Arbeo'
+        });
+      });
+
+      this.assertText('Marisa Arbeo');
+    };
+
+    _class.prototype['@test hash helpers can be nested'] = function testHashHelpersCanBeNested() {
+      var _this5 = this;
+
+      this.render('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}', {
+        firstName: 'Balint'
+      });
+
+      this.assertText('Balint');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Balint');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Chad');
+      });
+
+      this.assertText('Chad');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Balint');
+      });
+
+      this.assertText('Balint');
+    };
+
+    _class.prototype['@test should yield hash of internal properties'] = function testShouldYieldHashOfInternalProperties() {
+      var _this6 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+          this.firstName = 'Chad';
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (hash firstName=firstName)}}'
+      });
+
+      this.render('{{#foo-bar as |values|}}{{values.firstName}}{{/foo-bar}}');
+
+      this.assertText('Chad');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Chad');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
+      });
+
+      this.assertText('Godfrey');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
+      });
+
+      this.assertText('Chad');
+    };
+
+    _class.prototype['@test should yield hash of internal and external properties'] = function testShouldYieldHashOfInternalAndExternalProperties() {
+      var _this7 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+          this.firstName = 'Chad';
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (hash firstName=firstName lastName=lastName)}}'
+      });
+
+      this.render('{{#foo-bar lastName=lastName as |values|}}{{values.firstName}} {{values.lastName}}{{/foo-bar}}', {
+        lastName: 'Hietala'
+      });
+
+      this.assertText('Chad Hietala');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Chad Hietala');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
+        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Chan');
+      });
+
+      this.assertText('Godfrey Chan');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
+        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Hietala');
+      });
+
+      this.assertText('Chad Hietala');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -32175,73 +32402,6 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     equal(view.get('context.source.banana'), 'some value');
   });
 });
-enifed('ember-htmlbars/tests/helpers/hash_test', ['exports', 'ember-views/views/view', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalProperty_set, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('hash helper', {
-    setup: function () {},
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('returns a hash with the right key-value', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name="Sergio") as |person|}}{{person.name}}{{/with}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Sergio', 'shows literal value');
-  });
-
-  QUnit.test('can have more than one key-value', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name="Sergio" lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Sergio Arbeo', 'shows both literal values');
-  });
-
-  QUnit.test('binds values when variables are used', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}'),
-
-      context: {
-        firstName: 'Marisa'
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    // Hello, mom
-    equal(view.$().text(), 'Marisa Arbeo', 'shows original variable value');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.firstName', 'Sergio');
-    });
-
-    equal(view.$().text(), 'Sergio Arbeo', 'shows new variable value');
-  });
-
-  QUnit.test('hash helpers can be nested', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}'),
-      context: {
-        firstName: 'Balint'
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Balint', 'it gets the value from a nested hash');
-  });
-});
 enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'ember-views/system/jquery', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _emberViewsSystemJquery, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -38656,6 +38816,233 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.render('{{hello-world}}');
 
       this.assertText('hello world');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsComponentsComponent) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{hash}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test returns a hash with the right key-value'] = function testReturnsAHashWithTheRightKeyValue() {
+      var _this = this;
+
+      this.render('{{#with (hash name="Sergio") as |person|}}{{person.name}}{{/with}}');
+
+      this.assertText('Sergio');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('Sergio');
+    };
+
+    _class.prototype['@test can have more than one key-value'] = function testCanHaveMoreThanOneKeyValue() {
+      var _this2 = this;
+
+      this.render('{{#with (hash name="Sergio" lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}');
+
+      this.assertText('Sergio Arbeo');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Sergio Arbeo');
+    };
+
+    _class.prototype['@test binds values when variables are used'] = function testBindsValuesWhenVariablesAreUsed() {
+      var _this3 = this;
+
+      this.render('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        firstName: 'Marisa'
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Sergio');
+      });
+
+      this.assertText('Sergio Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Marisa');
+      });
+
+      this.assertText('Marisa Arbeo');
+    };
+
+    _class.prototype['@test binds multiple values when variables are used'] = function testBindsMultipleValuesWhenVariablesAreUsed() {
+      var _this4 = this;
+
+      this.render('{{#with (hash name=firstName lastName=lastName) as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        firstName: 'Marisa',
+        lastName: 'Arbeo'
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('Marisa Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'firstName', 'Sergio');
+      });
+
+      this.assertText('Sergio Arbeo');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'lastName', 'Smith');
+      });
+
+      this.assertText('Sergio Smith');
+
+      this.runTask(function () {
+        return _emberMetalSet_properties.default(_this4.context, {
+          firstName: 'Marisa',
+          lastName: 'Arbeo'
+        });
+      });
+
+      this.assertText('Marisa Arbeo');
+    };
+
+    _class.prototype['@test hash helpers can be nested'] = function testHashHelpersCanBeNested() {
+      var _this5 = this;
+
+      this.render('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}', {
+        firstName: 'Balint'
+      });
+
+      this.assertText('Balint');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Balint');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Chad');
+      });
+
+      this.assertText('Chad');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Balint');
+      });
+
+      this.assertText('Balint');
+    };
+
+    _class.prototype['@test should yield hash of internal properties'] = function testShouldYieldHashOfInternalProperties() {
+      var _this6 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+          this.firstName = 'Chad';
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (hash firstName=firstName)}}'
+      });
+
+      this.render('{{#foo-bar as |values|}}{{values.firstName}}{{/foo-bar}}');
+
+      this.assertText('Chad');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Chad');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
+      });
+
+      this.assertText('Godfrey');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
+      });
+
+      this.assertText('Chad');
+    };
+
+    _class.prototype['@test should yield hash of internal and external properties'] = function testShouldYieldHashOfInternalAndExternalProperties() {
+      var _this7 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+          this.firstName = 'Chad';
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (hash firstName=firstName lastName=lastName)}}'
+      });
+
+      this.render('{{#foo-bar lastName=lastName as |values|}}{{values.firstName}} {{values.lastName}}{{/foo-bar}}', {
+        lastName: 'Hietala'
+      });
+
+      this.assertText('Chad Hietala');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Chad Hietala');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
+        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Chan');
+      });
+
+      this.assertText('Godfrey Chan');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
+        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Hietala');
+      });
+
+      this.assertText('Chad Hietala');
     };
 
     return _class;
@@ -68125,7 +68512,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+3c28cdd8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+0e8e343b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
