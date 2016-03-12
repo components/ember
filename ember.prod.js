@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+15d9896f
+ * @version   2.6.0-canary+2744fd52
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+15d9896f
+ * @version   2.6.0-canary+2744fd52
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -15702,14 +15702,12 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
   function lookup(container, fullName) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      if (options.source) {
-        fullName = container.registry.expandLocalLookup(fullName, options);
+    if (options.source) {
+      fullName = container.registry.expandLocalLookup(fullName, options);
 
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!fullName) {
-          return;
-        }
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!fullName) {
+        return;
       }
     }
 
@@ -15771,14 +15769,12 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
     var registry = container.registry;
 
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      if (options.source) {
-        fullName = registry.expandLocalLookup(fullName, options);
+    if (options.source) {
+      fullName = registry.expandLocalLookup(fullName, options);
 
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!fullName) {
-          return;
-        }
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!fullName) {
+        return;
       }
     }
 
@@ -16376,9 +16372,8 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
     has: function (fullName, options) {
 
       var source = undefined;
-      if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-        source = options && options.source && this.normalize(options.source);
-      }
+
+      source = options && options.source && this.normalize(options.source);
 
       return has(this, this.normalize(fullName), source);
     },
@@ -16742,36 +16737,34 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
     };
   }
 
-  if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-    /**
-      Given a fullName and a source fullName returns the fully resolved
-      fullName. Used to allow for local lookup.
-       ```javascript
-      var registry = new Registry();
-       // the twitter factory is added to the module system
-      registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-      ```
-       @private
-      @method expandLocalLookup
-      @param {String} fullName
-      @param {Object} [options]
-      @param {String} [options.source] the fullname of the request source (used for local lookups)
-      @return {String} fullName
-    */
-    Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
-      if (this.resolver && this.resolver.expandLocalLookup) {
+  /**
+    Given a fullName and a source fullName returns the fully resolved
+    fullName. Used to allow for local lookup.
+     ```javascript
+    var registry = new Registry();
+     // the twitter factory is added to the module system
+    registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
+    ```
+     @private
+    @method expandLocalLookup
+    @param {String} fullName
+    @param {Object} [options]
+    @param {String} [options.source] the fullname of the request source (used for local lookups)
+    @return {String} fullName
+  */
+  Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
+    if (this.resolver && this.resolver.expandLocalLookup) {
 
-        var normalizedFullName = this.normalize(fullName);
-        var normalizedSource = this.normalize(options.source);
+      var normalizedFullName = this.normalize(fullName);
+      var normalizedSource = this.normalize(options.source);
 
-        return expandLocalLookup(this, normalizedFullName, normalizedSource);
-      } else if (this.fallback) {
-        return this.fallback.expandLocalLookup(fullName, options);
-      } else {
-        return null;
-      }
-    };
-  }
+      return expandLocalLookup(this, normalizedFullName, normalizedSource);
+    } else if (this.fallback) {
+      return this.fallback.expandLocalLookup(fullName, options);
+    } else {
+      return null;
+    }
+  };
 
   function expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
@@ -16793,16 +16786,14 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
   }
 
   function resolve(registry, normalizedName, options) {
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      if (options && options.source) {
-        // when `source` is provided expand normalizedName
-        // and source into the full normalizedName
-        normalizedName = registry.expandLocalLookup(normalizedName, options);
+    if (options && options.source) {
+      // when `source` is provided expand normalizedName
+      // and source into the full normalizedName
+      normalizedName = registry.expandLocalLookup(normalizedName, options);
 
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!normalizedName) {
-          return;
-        }
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!normalizedName) {
+        return;
       }
     }
 
@@ -18632,7 +18623,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+15d9896f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+2744fd52';
 
   var librariesRegistered = false;
 
@@ -21938,7 +21929,7 @@ enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'emb
     return Wrapper.extend({ spec: JSON.parse(json) });
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/inline-if'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersInlineIf) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -21949,7 +21940,8 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
 
   var builtInHelpers = {
     concat: _emberGlimmerHelpersConcat.default,
-    if: _emberGlimmerHelpersInlineIf.default
+    if: _emberGlimmerHelpersIfUnless.inlineIf,
+    unless: _emberGlimmerHelpersIfUnless.inlineUnless
   };
 
   var _default = (function (_Environment) {
@@ -22206,7 +22198,7 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/helper'], func
 
   exports.default = _emberGlimmerHelper.helper(concat);
 });
-enifed('ember-glimmer/helpers/inline-if', ['exports', 'ember-metal/debug', 'ember-glimmer/utils/to-bool', 'ember-glimmer/utils/references'], function (exports, _emberMetalDebug, _emberGlimmerUtilsToBool, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal/debug', 'ember-glimmer/utils/to-bool', 'ember-glimmer/utils/references'], function (exports, _emberMetalDebug, _emberGlimmerUtilsToBool, _emberGlimmerUtilsReferences) {
   /**
   @module ember
   @submodule ember-templates
@@ -22214,10 +22206,50 @@ enifed('ember-glimmer/helpers/inline-if', ['exports', 'ember-metal/debug', 'embe
 
   'use strict';
 
+  function makeConditionalHelper(toBool) {
+    return {
+      isInternalHelper: true,
+      toReference: function (args) {
+        switch (args.positional.length) {
+          case 2:
+            return new _emberGlimmerUtilsReferences.InternalHelperReference(conditionalWithoutAlternative, args);
+          case 3:
+            return new _emberGlimmerUtilsReferences.InternalHelperReference(conditionalWithAlternative, args);
+          default:
+        }
+      }
+    };
+
+    function conditionalWithoutAlternative(_ref) {
+      var positional = _ref.positional;
+
+      var condition = positional.at(0).value();
+
+      if (toBool(condition)) {
+        return positional.at(1).value();
+      } else {
+        // TODO: this should probably be `undefined`: https://github.com/emberjs/ember.js/pull/12920#discussion_r53213383
+        return '';
+      }
+    }
+
+    function conditionalWithAlternative(_ref2) {
+      var positional = _ref2.positional;
+
+      var condition = positional.at(0).value();
+
+      if (toBool(condition)) {
+        return positional.at(1).value();
+      } else {
+        return positional.at(2).value();
+      }
+    }
+  }
+
   /**
     The inline `if` helper conditionally renders a single property or string.
     This helper acts like a ternary operator. If the first property is truthy,
-    the second argument will be displayed, if not, the third argument will be
+    the second argument will be displayed, otherwise, the third argument will be
     displayed
     ```handlebars
     {{if useLongGreeting "Hello" "Hi"}} Alex
@@ -22230,43 +22262,29 @@ enifed('ember-glimmer/helpers/inline-if', ['exports', 'ember-metal/debug', 'embe
     @for Ember.Templates.helpers
     @public
   */
-  function inlineIf(_ref) {
-    var positional = _ref.positional;
+  var inlineIf = makeConditionalHelper(_emberGlimmerUtilsToBool.default);
 
-    var condition = positional.at(0).value();
-
-    if (_emberGlimmerUtilsToBool.default(condition)) {
-      return positional.at(1).value();
-    } else {
-      return positional.at(2).value();
-    }
-  }
-
-  function simpleInlineIf(_ref2) {
-    var positional = _ref2.positional;
-
-    var condition = positional.at(0).value();
-
-    if (_emberGlimmerUtilsToBool.default(condition)) {
-      return positional.at(1).value();
-    } else {
-      // TODO: this should probably be `undefined`: https://github.com/emberjs/ember.js/pull/12920#discussion_r53213383
-      return '';
-    }
-  }
-
-  exports.default = {
-    isInternalHelper: true,
-    toReference: function (args) {
-      switch (args.positional.length) {
-        case 2:
-          return new _emberGlimmerUtilsReferences.InternalHelperReference(simpleInlineIf, args);
-        case 3:
-          return new _emberGlimmerUtilsReferences.InternalHelperReference(inlineIf, args);
-        default:
-      }
-    }
-  };
+  exports.inlineIf = inlineIf;
+  /**
+    The inline `unless` helper conditionally renders a single property or string.
+    This helper acts like a ternary operator. If the first property is falsy,
+    the second argument will be displayed, otherwise, the third argument will be
+    displayed
+    ```handlebars
+    {{unless useLongGreeting "Hi" "Hello"}} Ben
+    ```
+    You can use the `unless` helper inside another helper as a subexpression.
+    ```handlebars
+    {{some-component height=(unless isBig "10" "100")}}
+    ```
+    @method unless
+    @for Ember.Templates.helpers
+    @public
+  */
+  var inlineUnless = makeConditionalHelper(function (val) {
+    return !_emberGlimmerUtilsToBool.default(val);
+  });
+  exports.inlineUnless = inlineUnless;
 });
 enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences) {
   'use strict';
@@ -22447,15 +22465,13 @@ enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features
   function lookupComponent(owner, name, options) {
     var componentLookup = owner.lookup('component-lookup:main');
 
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      var source = options && options.source;
+    var source = options && options.source;
 
-      if (source) {
-        var localResult = lookupComponentPair(componentLookup, owner, name, options);
+    if (source) {
+      var localResult = lookupComponentPair(componentLookup, owner, name, options);
 
-        if (localResult.component || localResult.layout) {
-          return localResult;
-        }
+      if (localResult.component || localResult.layout) {
+        return localResult;
       }
     }
 
@@ -23858,12 +23874,11 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
         layout = undefined;
     if (isDasherized || !isAngleBracket) {
       var options = {};
-      if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-        var moduleName = env.meta && env.meta.moduleName;
 
-        if (moduleName) {
-          options.source = 'template:' + moduleName;
-        }
+      var moduleName = env.meta && env.meta.moduleName;
+
+      if (moduleName) {
+        options.source = 'template:' + moduleName;
       }
 
       var result = _emberHtmlbarsUtilsLookupComponent.default(env.owner, tagName, options);
@@ -25918,7 +25933,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+15d9896f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+2744fd52';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -28970,20 +28985,16 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-metal/features', 
       if (hasComponentOrTemplate(owner, path)) {
         return true; // global component found
       } else {
-          if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-            var moduleName = env.meta && env.meta.moduleName;
+          var moduleName = env.meta && env.meta.moduleName;
 
-            if (!moduleName) {
-              // Without a source moduleName, we can not perform local lookups.
-              return false;
-            }
-
-            var options = { source: 'template:' + moduleName };
-
-            return hasComponentOrTemplate(owner, path, options);
-          } else {
+          if (!moduleName) {
+            // Without a source moduleName, we can not perform local lookups.
             return false;
           }
+
+          var options = { source: 'template:' + moduleName };
+
+          return hasComponentOrTemplate(owner, path, options);
         }
     }
   }
@@ -29003,15 +29014,13 @@ enifed('ember-htmlbars/utils/lookup-component', ['exports', 'ember-metal/feature
   function lookupComponent(owner, name, options) {
     var componentLookup = owner.lookup('component-lookup:main');
 
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      var source = options && options.source;
+    var source = options && options.source;
 
-      if (source) {
-        var localResult = lookupComponentPair(componentLookup, owner, name, options);
+    if (source) {
+      var localResult = lookupComponentPair(componentLookup, owner, name, options);
 
-        if (localResult.component || localResult.layout) {
-          return localResult;
-        }
+      if (localResult.component || localResult.layout) {
+        return localResult;
       }
     }
 
@@ -31466,7 +31475,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+15d9896f
+    @version 2.6.0-canary+2744fd52
     @public
   */
 
@@ -31508,11 +31517,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+15d9896f'
+    @default '2.6.0-canary+2744fd52'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+15d9896f';
+  Ember.VERSION = '2.6.0-canary+2744fd52';
 
   /**
     The hash of environment variables used to control various configuration
@@ -32569,12 +32578,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  } else {
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  }
+  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
+  _emberMetalCore.default.merge = _emberMetalMerge.default;
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -33817,7 +33822,6 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
   */
 
   function merge(original, updates) {
-    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {}
 
     if (!updates || typeof updates !== 'object') {
       return original;
@@ -45408,7 +45412,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+15d9896f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+2744fd52';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -45908,7 +45912,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+15d9896f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+2744fd52';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -54800,7 +54804,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+15d9896f',
+        revision: 'Ember@2.6.0-canary+2744fd52',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -58867,7 +58871,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+15d9896f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+2744fd52';
 
   /**
   @module ember

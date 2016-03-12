@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+15d9896f
+ * @version   2.6.0-canary+2744fd52
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4052,7 +4052,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+15d9896f
+    @version 2.6.0-canary+2744fd52
     @public
   */
 
@@ -4094,11 +4094,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+15d9896f'
+    @default '2.6.0-canary+2744fd52'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+15d9896f';
+  Ember.VERSION = '2.6.0-canary+2744fd52';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5161,12 +5161,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  } else {
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  }
+  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
+  _emberMetalCore.default.merge = _emberMetalMerge.default;
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -6414,9 +6410,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
   */
 
   function merge(original, updates) {
-    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, { id: 'ember-metal.merge', until: '3.0.0' });
-    }
+    _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, { id: 'ember-metal.merge', until: '3.0.0' });
 
     if (!updates || typeof updates !== 'object') {
       return original;
@@ -12710,7 +12704,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+15d9896f',
+        revision: 'Ember@2.6.0-canary+2744fd52',
         loc: program.loc,
         moduleName: options.moduleName
       };

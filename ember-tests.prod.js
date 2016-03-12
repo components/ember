@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+15d9896f
+ * @version   2.6.0-canary+2744fd52
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -8684,47 +8684,45 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
   });
 
-  if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-    QUnit.test('lookupFactory passes options through to expandlocallookup', function (assert) {
-      var registry = new _containerRegistry.default();
-      var container = registry.container();
-      var PostController = _containerTestsTestHelpersFactory.default();
+  QUnit.test('lookupFactory passes options through to expandlocallookup', function (assert) {
+    var registry = new _containerRegistry.default();
+    var container = registry.container();
+    var PostController = _containerTestsTestHelpersFactory.default();
 
-      registry.register('controller:post', PostController);
+    registry.register('controller:post', PostController);
 
-      registry.expandLocalLookup = function (fullName, options) {
-        assert.ok(true, 'expandLocalLookup was called');
-        assert.equal(fullName, 'foo:bar');
-        assert.deepEqual(options, { source: 'baz:qux' });
+    registry.expandLocalLookup = function (fullName, options) {
+      assert.ok(true, 'expandLocalLookup was called');
+      assert.equal(fullName, 'foo:bar');
+      assert.deepEqual(options, { source: 'baz:qux' });
 
-        return 'controller:post';
-      };
+      return 'controller:post';
+    };
 
-      var PostControllerFactory = container.lookupFactory('foo:bar', { source: 'baz:qux' });
+    var PostControllerFactory = container.lookupFactory('foo:bar', { source: 'baz:qux' });
 
-      assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
-    });
+    assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
+  });
 
-    QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
-      var registry = new _containerRegistry.default();
-      var container = registry.container();
-      var PostController = _containerTestsTestHelpersFactory.default();
+  QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
+    var registry = new _containerRegistry.default();
+    var container = registry.container();
+    var PostController = _containerTestsTestHelpersFactory.default();
 
-      registry.register('controller:post', PostController);
+    registry.register('controller:post', PostController);
 
-      registry.expandLocalLookup = function (fullName, options) {
-        assert.ok(true, 'expandLocalLookup was called');
-        assert.equal(fullName, 'foo:bar');
-        assert.deepEqual(options, { source: 'baz:qux' });
+    registry.expandLocalLookup = function (fullName, options) {
+      assert.ok(true, 'expandLocalLookup was called');
+      assert.equal(fullName, 'foo:bar');
+      assert.deepEqual(options, { source: 'baz:qux' });
 
-        return 'controller:post';
-      };
+      return 'controller:post';
+    };
 
-      var PostControllerLookupResult = container.lookup('foo:bar', { source: 'baz:qux' });
+    var PostControllerLookupResult = container.lookup('foo:bar', { source: 'baz:qux' });
 
-      assert.ok(PostControllerLookupResult instanceof PostController);
-    });
-  }
+    assert.ok(PostControllerLookupResult instanceof PostController);
+  });
 });
 enifed('container/tests/owner_test', ['exports', 'container/owner'], function (exports, _containerOwner) {
   'use strict';
@@ -9271,227 +9269,225 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
   });
 
-  if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-    // jscs:disable validateIndentation
+  // jscs:disable validateIndentation
 
-    QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
-      assert.expect(1);
+  QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
+    assert.expect(1);
 
-      var registry = new _container.Registry({
-        resolver: {}
-      });
-
-      var result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, null);
+    var registry = new _container.Registry({
+      resolver: {}
     });
 
-    QUnit.test('expandLocalLookup is called on the resolver if present', function (assert) {
-      assert.expect(4);
+    var result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
 
-      var resolver = {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+    assert.equal(result, null);
+  });
 
+  QUnit.test('expandLocalLookup is called on the resolver if present', function (assert) {
+    assert.expect(4);
+
+    var resolver = {
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the resolver');
+        assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+        assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+        return 'foo:qux/bar';
+      }
+    };
+
+    var registry = new _container.Registry({
+      resolver: resolver
+    });
+
+    var result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar');
+  });
+
+  QUnit.test('`expandLocalLookup` is handled by the resolver, then by the fallback registry, if available', function (assert) {
+    assert.expect(9);
+
+    var fallbackResolver = {
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the fallback resolver');
+        assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+        assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+        return 'foo:qux/bar-fallback';
+      }
+    };
+
+    var resolver = {
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the resolver');
+        assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+        assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+        return 'foo:qux/bar-resolver';
+      }
+    };
+
+    var fallbackRegistry = new _container.Registry({
+      resolver: fallbackResolver
+    });
+
+    var registry = new _container.Registry({
+      fallback: fallbackRegistry,
+      resolver: resolver
+    });
+
+    var result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar-resolver', 'handled by the resolver');
+
+    registry.resolver = null;
+
+    result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar-fallback', 'handled by the fallback registry');
+
+    registry.fallback = null;
+
+    result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, null, 'null is returned by default when no resolver or fallback registry is present');
+  });
+
+  QUnit.test('resolver.expandLocalLookup result is cached', function (assert) {
+    assert.expect(3);
+    var result = undefined;
+
+    var resolver = {
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+        return 'foo:qux/bar';
+      }
+    };
+
+    var registry = new _container.Registry({
+      resolver: resolver
+    });
+
+    result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar');
+
+    result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar');
+  });
+
+  QUnit.test('resolver.expandLocalLookup cache is busted when any unregister is called', function (assert) {
+    assert.expect(4);
+    var result = undefined;
+
+    var resolver = {
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+        return 'foo:qux/bar';
+      }
+    };
+
+    var registry = new _container.Registry({
+      resolver: resolver
+    });
+
+    result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar');
+
+    registry.unregister('foo:bar');
+
+    result = registry.expandLocalLookup('foo:bar', {
+      source: 'baz:qux'
+    });
+
+    assert.equal(result, 'foo:qux/bar');
+  });
+
+  QUnit.test('resolve calls expandLocallookup when it receives options.source', function (assert) {
+    assert.expect(3);
+
+    var resolver = {
+      resolve: function () {},
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the resolver');
+        assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
+        assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
+
+        return 'foo:qux/bar';
+      }
+    };
+
+    var registry = new _container.Registry({
+      resolver: resolver
+    });
+
+    registry.resolve('foo:bar', {
+      source: 'baz:qux'
+    });
+  });
+
+  QUnit.test('has uses expandLocalLookup', function (assert) {
+    assert.expect(5);
+    var resolvedFullNames = [];
+    var result = undefined;
+
+    var resolver = {
+      resolve: function (name) {
+        resolvedFullNames.push(name);
+
+        return 'yippie!';
+      },
+
+      expandLocalLookup: function (targetFullName, sourceFullName) {
+        assert.ok(true, 'expandLocalLookup is called on the resolver');
+
+        if (targetFullName === 'foo:bar') {
           return 'foo:qux/bar';
+        } else {
+          return null;
         }
-      };
+      }
+    };
 
-      var registry = new _container.Registry({
-        resolver: resolver
-      });
-
-      var result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar');
+    var registry = new _container.Registry({
+      resolver: resolver
     });
 
-    QUnit.test('`expandLocalLookup` is handled by the resolver, then by the fallback registry, if available', function (assert) {
-      assert.expect(9);
-
-      var fallbackResolver = {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the fallback resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar-fallback';
-        }
-      };
-
-      var resolver = {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar-resolver';
-        }
-      };
-
-      var fallbackRegistry = new _container.Registry({
-        resolver: fallbackResolver
-      });
-
-      var registry = new _container.Registry({
-        fallback: fallbackRegistry,
-        resolver: resolver
-      });
-
-      var result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar-resolver', 'handled by the resolver');
-
-      registry.resolver = null;
-
-      result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar-fallback', 'handled by the fallback registry');
-
-      registry.fallback = null;
-
-      result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, null, 'null is returned by default when no resolver or fallback registry is present');
+    result = registry.has('foo:bar', {
+      source: 'baz:qux'
     });
 
-    QUnit.test('resolver.expandLocalLookup result is cached', function (assert) {
-      assert.expect(3);
-      var result = undefined;
+    assert.ok(result, 'found foo:bar/qux');
 
-      var resolver = {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          return 'foo:qux/bar';
-        }
-      };
-
-      var registry = new _container.Registry({
-        resolver: resolver
-      });
-
-      result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar');
-
-      result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar');
+    result = registry.has('foo:baz', {
+      source: 'baz:qux'
     });
 
-    QUnit.test('resolver.expandLocalLookup cache is busted when any unregister is called', function (assert) {
-      assert.expect(4);
-      var result = undefined;
+    assert.ok(!result, 'foo:baz/qux not found');
 
-      var resolver = {
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          return 'foo:qux/bar';
-        }
-      };
-
-      var registry = new _container.Registry({
-        resolver: resolver
-      });
-
-      result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar');
-
-      registry.unregister('foo:bar');
-
-      result = registry.expandLocalLookup('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.equal(result, 'foo:qux/bar');
-    });
-
-    QUnit.test('resolve calls expandLocallookup when it receives options.source', function (assert) {
-      assert.expect(3);
-
-      var resolver = {
-        resolve: function () {},
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-          assert.equal(targetFullName, 'foo:bar', 'the targetFullName was passed through');
-          assert.equal(sourceFullName, 'baz:qux', 'the sourceFullName was passed through');
-
-          return 'foo:qux/bar';
-        }
-      };
-
-      var registry = new _container.Registry({
-        resolver: resolver
-      });
-
-      registry.resolve('foo:bar', {
-        source: 'baz:qux'
-      });
-    });
-
-    QUnit.test('has uses expandLocalLookup', function (assert) {
-      assert.expect(5);
-      var resolvedFullNames = [];
-      var result = undefined;
-
-      var resolver = {
-        resolve: function (name) {
-          resolvedFullNames.push(name);
-
-          return 'yippie!';
-        },
-
-        expandLocalLookup: function (targetFullName, sourceFullName) {
-          assert.ok(true, 'expandLocalLookup is called on the resolver');
-
-          if (targetFullName === 'foo:bar') {
-            return 'foo:qux/bar';
-          } else {
-            return null;
-          }
-        }
-      };
-
-      var registry = new _container.Registry({
-        resolver: resolver
-      });
-
-      result = registry.has('foo:bar', {
-        source: 'baz:qux'
-      });
-
-      assert.ok(result, 'found foo:bar/qux');
-
-      result = registry.has('foo:baz', {
-        source: 'baz:qux'
-      });
-
-      assert.ok(!result, 'foo:baz/qux not found');
-
-      assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
-    });
-  }
+    assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
+  });
 });
 enifed('container/tests/test-helpers/build-owner', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy) {
   'use strict';
@@ -25111,7 +25107,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsSharedConditionalTests) {
+enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -25137,53 +25133,19 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
       return '{{if ' + cond + ' ' + truthy + ' ' + falsy + '}}';
     };
 
-    _class.prototype['@test it can omit the falsy argument'] = function testItCanOmitTheFalsyArgument() {
+    _class.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
       var _this = this;
 
-      this.render('{{if cond1 \'T1\'}}{{if cond2 \'T2\'}}', { cond1: true, cond2: false });
-
-      this.assertText('T1');
-
-      this.runTask(function () {
-        return _this.rerender();
-      });
-
-      this.assertText('T1');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'cond1', false);
-      });
-
-      this.assertText('');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this.context, 'cond2', true);
-      });
-
-      this.assertText('T1T2');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this.context, 'cond2', false);
-      });
-
-      this.assertText('T1');
-    };
-
-    _class.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
-      var _this2 = this;
-
       expectAssertion(function () {
-        _this2.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
+        _this.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
       }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
     };
 
     _class.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
-      var _this3 = this;
+      var _this2 = this;
 
       expectAssertion(function () {
-        _this3.render('{{if condition}}', { condition: true });
+        _this2.render('{{if condition}}', { condition: true });
       }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
     };
 
@@ -25280,6 +25242,154 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class5;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_TogglingHelperConditionalsTest6) {
+    _inherits(_class6, _TogglingHelperConditionalsTest6);
+
+    function _class6() {
+      _classCallCheck(this, _class6);
+
+      _TogglingHelperConditionalsTest6.apply(this, arguments);
+    }
+
+    _class6.prototype.templateFor = function templateFor(_ref6) {
+      var cond = _ref6.cond;
+      var truthy = _ref6.truthy;
+      var falsy = _ref6.falsy;
+
+      return '{{if ' + cond + ' ' + truthy + '}}{{unless ' + cond + ' ' + falsy + '}}';
+    };
+
+    return _class6;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_TogglingHelperConditionalsTest7) {
+    _inherits(_class7, _TogglingHelperConditionalsTest7);
+
+    function _class7() {
+      _classCallCheck(this, _class7);
+
+      _TogglingHelperConditionalsTest7.apply(this, arguments);
+    }
+
+    _class7.prototype.templateFor = function templateFor(_ref7) {
+      var cond = _ref7.cond;
+      var truthy = _ref7.truthy;
+      var falsy = _ref7.falsy;
+
+      return '{{unless ' + cond + ' ' + falsy + ' ' + truthy + '}}';
+    };
+
+    _class7.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
+      var _this3 = this;
+
+      expectAssertion(function () {
+        _this3.render('{{unless condition \'a\' \'b\' \'c\'}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    _class7.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
+      var _this4 = this;
+
+      expectAssertion(function () {
+        _this4.render('{{unless condition}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    return _class7;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest8) {
+    _inherits(_class8, _TogglingHelperConditionalsTest8);
+
+    function _class8() {
+      _classCallCheck(this, _class8);
+
+      _TogglingHelperConditionalsTest8.apply(this, arguments);
+    }
+
+    _class8.prototype.templateFor = function templateFor(_ref8) {
+      var cond = _ref8.cond;
+      var truthy = _ref8.truthy;
+      var falsy = _ref8.falsy;
+
+      return '{{unless (unless ' + cond + ' false ' + cond + ') ' + falsy + ' ' + truthy + '}}';
+    };
+
+    return _class8;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest9) {
+    _inherits(_class9, _TogglingHelperConditionalsTest9);
+
+    function _class9() {
+      _classCallCheck(this, _class9);
+
+      _TogglingHelperConditionalsTest9.apply(this, arguments);
+    }
+
+    _class9.prototype.templateFor = function templateFor(_ref9) {
+      var cond = _ref9.cond;
+      var truthy = _ref9.truthy;
+      var falsy = _ref9.falsy;
+
+      return '{{unless (unless ' + cond + ' ' + cond + ' true) ' + falsy + ' ' + truthy + '}}';
+    };
+
+    return _class9;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_TogglingHelperConditionalsTest10) {
+    _inherits(_class10, _TogglingHelperConditionalsTest10);
+
+    function _class10() {
+      _classCallCheck(this, _class10);
+
+      _TogglingHelperConditionalsTest10.apply(this, arguments);
+    }
+
+    _class10.prototype.wrapperFor = function wrapperFor(templates) {
+      return '{{concat ' + templates.join(' ') + '}}';
+    };
+
+    _class10.prototype.templateFor = function templateFor(_ref10) {
+      var cond = _ref10.cond;
+      var truthy = _ref10.truthy;
+      var falsy = _ref10.falsy;
+
+      return '(unless ' + cond + ' ' + falsy + ' ' + truthy + ')';
+    };
+
+    return _class10;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_TogglingHelperConditionalsTest11) {
+    _inherits(_class11, _TogglingHelperConditionalsTest11);
+
+    function _class11() {
+      _classCallCheck(this, _class11);
+
+      _TogglingHelperConditionalsTest11.apply(this, arguments);
+    }
+
+    _class11.prototype.wrapperFor = function wrapperFor(templates) {
+      return '<div data-foo="' + templates.join('') + '" />';
+    };
+
+    _class11.prototype.templateFor = function templateFor(_ref11) {
+      var cond = _ref11.cond;
+      var truthy = _ref11.truthy;
+      var falsy = _ref11.falsy;
+
+      return '{{unless ' + cond + ' ' + falsy + ' ' + truthy + '}}';
+    };
+
+    _class11.prototype.textValue = function textValue() {
+      return this.$('div').attr('data-foo');
+    };
+
+    return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsSharedConditionalTests) {
@@ -38551,7 +38661,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
+enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -38577,53 +38687,19 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
       return '{{if ' + cond + ' ' + truthy + ' ' + falsy + '}}';
     };
 
-    _class.prototype['@test it can omit the falsy argument'] = function testItCanOmitTheFalsyArgument() {
+    _class.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
       var _this = this;
 
-      this.render('{{if cond1 \'T1\'}}{{if cond2 \'T2\'}}', { cond1: true, cond2: false });
-
-      this.assertText('T1');
-
-      this.runTask(function () {
-        return _this.rerender();
-      });
-
-      this.assertText('T1');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'cond1', false);
-      });
-
-      this.assertText('');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this.context, 'cond2', true);
-      });
-
-      this.assertText('T1T2');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this.context, 'cond1', true);
-        _emberMetalProperty_set.set(_this.context, 'cond2', false);
-      });
-
-      this.assertText('T1');
-    };
-
-    _class.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
-      var _this2 = this;
-
       expectAssertion(function () {
-        _this2.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
+        _this.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
       }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
     };
 
     _class.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
-      var _this3 = this;
+      var _this2 = this;
 
       expectAssertion(function () {
-        _this3.render('{{if condition}}', { condition: true });
+        _this2.render('{{if condition}}', { condition: true });
       }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
     };
 
@@ -38720,6 +38796,154 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class5;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_TogglingHelperConditionalsTest6) {
+    _inherits(_class6, _TogglingHelperConditionalsTest6);
+
+    function _class6() {
+      _classCallCheck(this, _class6);
+
+      _TogglingHelperConditionalsTest6.apply(this, arguments);
+    }
+
+    _class6.prototype.templateFor = function templateFor(_ref6) {
+      var cond = _ref6.cond;
+      var truthy = _ref6.truthy;
+      var falsy = _ref6.falsy;
+
+      return '{{if ' + cond + ' ' + truthy + '}}{{unless ' + cond + ' ' + falsy + '}}';
+    };
+
+    return _class6;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_TogglingHelperConditionalsTest7) {
+    _inherits(_class7, _TogglingHelperConditionalsTest7);
+
+    function _class7() {
+      _classCallCheck(this, _class7);
+
+      _TogglingHelperConditionalsTest7.apply(this, arguments);
+    }
+
+    _class7.prototype.templateFor = function templateFor(_ref7) {
+      var cond = _ref7.cond;
+      var truthy = _ref7.truthy;
+      var falsy = _ref7.falsy;
+
+      return '{{unless ' + cond + ' ' + falsy + ' ' + truthy + '}}';
+    };
+
+    _class7.prototype['@test it raises when there are more than three arguments'] = function testItRaisesWhenThereAreMoreThanThreeArguments() {
+      var _this3 = this;
+
+      expectAssertion(function () {
+        _this3.render('{{unless condition \'a\' \'b\' \'c\'}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    _class7.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
+      var _this4 = this;
+
+      expectAssertion(function () {
+        _this4.render('{{unless condition}}', { condition: true });
+      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+    };
+
+    return _class7;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest8) {
+    _inherits(_class8, _TogglingHelperConditionalsTest8);
+
+    function _class8() {
+      _classCallCheck(this, _class8);
+
+      _TogglingHelperConditionalsTest8.apply(this, arguments);
+    }
+
+    _class8.prototype.templateFor = function templateFor(_ref8) {
+      var cond = _ref8.cond;
+      var truthy = _ref8.truthy;
+      var falsy = _ref8.falsy;
+
+      return '{{unless (unless ' + cond + ' false ' + cond + ') ' + falsy + ' ' + truthy + '}}';
+    };
+
+    return _class8;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest9) {
+    _inherits(_class9, _TogglingHelperConditionalsTest9);
+
+    function _class9() {
+      _classCallCheck(this, _class9);
+
+      _TogglingHelperConditionalsTest9.apply(this, arguments);
+    }
+
+    _class9.prototype.templateFor = function templateFor(_ref9) {
+      var cond = _ref9.cond;
+      var truthy = _ref9.truthy;
+      var falsy = _ref9.falsy;
+
+      return '{{unless (unless ' + cond + ' ' + cond + ' true) ' + falsy + ' ' + truthy + '}}';
+    };
+
+    return _class9;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_TogglingHelperConditionalsTest10) {
+    _inherits(_class10, _TogglingHelperConditionalsTest10);
+
+    function _class10() {
+      _classCallCheck(this, _class10);
+
+      _TogglingHelperConditionalsTest10.apply(this, arguments);
+    }
+
+    _class10.prototype.wrapperFor = function wrapperFor(templates) {
+      return '{{concat ' + templates.join(' ') + '}}';
+    };
+
+    _class10.prototype.templateFor = function templateFor(_ref10) {
+      var cond = _ref10.cond;
+      var truthy = _ref10.truthy;
+      var falsy = _ref10.falsy;
+
+      return '(unless ' + cond + ' ' + falsy + ' ' + truthy + ')';
+    };
+
+    return _class10;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_TogglingHelperConditionalsTest11) {
+    _inherits(_class11, _TogglingHelperConditionalsTest11);
+
+    function _class11() {
+      _classCallCheck(this, _class11);
+
+      _TogglingHelperConditionalsTest11.apply(this, arguments);
+    }
+
+    _class11.prototype.wrapperFor = function wrapperFor(templates) {
+      return '<div data-foo="' + templates.join('') + '" />';
+    };
+
+    _class11.prototype.templateFor = function templateFor(_ref11) {
+      var cond = _ref11.cond;
+      var truthy = _ref11.truthy;
+      var falsy = _ref11.falsy;
+
+      return '{{unless ' + cond + ' ' + falsy + ' ' + truthy + '}}';
+    };
+
+    _class11.prototype.textValue = function textValue() {
+      return this.$('div').attr('data-foo');
+    };
+
+    return _class11;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
 enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -38987,96 +39211,82 @@ enifed('ember-htmlbars/tests/integration/local-lookup-test', ['exports', 'ember-
     }
   });
 
-  if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-    // jscs:disable validateIndentation
+  // jscs:disable validateIndentation
 
-    QUnit.test('local component lookup with matching template', function () {
-      expect(1);
+  QUnit.test('local component lookup with matching template', function () {
+    expect(1);
 
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerTemplate('components/x-outer/x-inner', 'Nested template says: {{yield}}');
+    registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
+    registerTemplate('components/x-outer/x-inner', 'Nested template says: {{yield}}');
 
-      view = appendViewFor('{{x-outer}}', 'route-template');
+    view = appendViewFor('{{x-outer}}', 'route-template');
 
-      equal(view.$().text(), 'Nested template says: Hi!');
-    });
+    equal(view.$().text(), 'Nested template says: Hi!');
+  });
 
-    QUnit.test('local component lookup with matching component', function () {
-      expect(1);
+  QUnit.test('local component lookup with matching component', function () {
+    expect(1);
 
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerComponent('x-outer/x-inner', _emberViewsComponentsComponent.default.extend({
-        tagName: 'span'
-      }));
+    registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
+    registerComponent('x-outer/x-inner', _emberViewsComponentsComponent.default.extend({
+      tagName: 'span'
+    }));
 
-      view = appendViewFor('{{x-outer}}', 'route-template');
+    view = appendViewFor('{{x-outer}}', 'route-template');
 
-      equal(view.$('span').text(), 'Hi!');
-    });
+    equal(view.$('span').text(), 'Hi!');
+  });
 
-    QUnit.test('local helper lookup', function () {
-      expect(1);
+  QUnit.test('local helper lookup', function () {
+    expect(1);
 
-      registerTemplate('components/x-outer', 'Who dat? {{x-helper}}');
-      registerHelper('x-outer/x-helper', _emberHtmlbarsHelper.helper(function () {
-        return 'Who dis?';
-      }));
+    registerTemplate('components/x-outer', 'Who dat? {{x-helper}}');
+    registerHelper('x-outer/x-helper', _emberHtmlbarsHelper.helper(function () {
+      return 'Who dis?';
+    }));
 
-      view = appendViewFor('{{x-outer}}', 'route-template');
+    view = appendViewFor('{{x-outer}}', 'route-template');
 
-      equal(view.$().text(), 'Who dat? Who dis?');
-    });
+    equal(view.$().text(), 'Who dat? Who dis?');
+  });
 
-    QUnit.test('local helper lookup overrides global lookup', function () {
-      expect(1);
+  QUnit.test('local helper lookup overrides global lookup', function () {
+    expect(1);
 
-      registerTemplate('components/x-outer', 'Who dat? {{x-helper}}');
-      registerHelper('x-outer/x-helper', _emberHtmlbarsHelper.helper(function () {
-        return 'Who dis?';
-      }));
-      registerHelper('x-helper', _emberHtmlbarsHelper.helper(function () {
-        return 'I dunno';
-      }));
+    registerTemplate('components/x-outer', 'Who dat? {{x-helper}}');
+    registerHelper('x-outer/x-helper', _emberHtmlbarsHelper.helper(function () {
+      return 'Who dis?';
+    }));
+    registerHelper('x-helper', _emberHtmlbarsHelper.helper(function () {
+      return 'I dunno';
+    }));
 
-      view = appendViewFor('{{x-outer}} {{x-helper}}', 'route-template');
+    view = appendViewFor('{{x-outer}} {{x-helper}}', 'route-template');
 
-      equal(view.$().text(), 'Who dat? Who dis? I dunno');
-    });
+    equal(view.$().text(), 'Who dat? Who dis? I dunno');
+  });
 
-    QUnit.test('lookup without match issues standard assertion (with local helper name)', function () {
-      expect(1);
+  QUnit.test('lookup without match issues standard assertion (with local helper name)', function () {
+    expect(1);
 
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
+    registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
 
-      expectAssertion(function () {
-        appendViewFor('{{x-outer}}', 'route-template');
-      }, /A helper named 'x-inner' could not be found/);
-    });
+    expectAssertion(function () {
+      appendViewFor('{{x-outer}}', 'route-template');
+    }, /A helper named 'x-inner' could not be found/);
+  });
 
-    QUnit.test('local lookup overrides global lookup', function () {
-      expect(1);
+  QUnit.test('local lookup overrides global lookup', function () {
+    expect(1);
 
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerTemplate('components/x-outer/x-inner', 'Nested template says (from local): {{yield}}');
-      registerTemplate('components/x-inner', 'Nested template says (from global): {{yield}}');
+    registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
+    registerTemplate('components/x-outer/x-inner', 'Nested template says (from local): {{yield}}');
+    registerTemplate('components/x-inner', 'Nested template says (from global): {{yield}}');
 
-      view = appendViewFor('{{#x-inner}}Hi!{{/x-inner}} {{x-outer}} {{#x-outer/x-inner}}Hi!{{/x-outer/x-inner}}', 'route-template');
+    view = appendViewFor('{{#x-inner}}Hi!{{/x-inner}} {{x-outer}} {{#x-outer/x-inner}}Hi!{{/x-outer/x-inner}}', 'route-template');
 
-      equal(view.$().text(), 'Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
-    });
-  } else {
-    QUnit.test('lookup with both global and local match uses specifically invoked component', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerTemplate('components/x-outer/x-inner', 'Nested template says (from local): {{yield}}');
-      registerTemplate('components/x-inner', 'Nested template says (from global): {{yield}}');
-
-      view = appendViewFor('{{#x-inner}}Hi!{{/x-inner}} {{x-outer}} {{#x-outer/x-inner}}Hi!{{/x-outer/x-inner}}', 'route-template');
-
-      equal(view.$().text(), 'Nested template says (from global): Hi! Nested template says (from global): Hi! Nested template says (from local): Hi!');
-    });
-  }
+    equal(view.$().text(), 'Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+  });
 });
 enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
@@ -43569,21 +43779,19 @@ enifed('ember-metal/tests/assign_test', ['exports', 'ember-metal/assign', 'ember
 
   QUnit.module('Ember.assign');
 
-  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-    QUnit.test('Ember.assign', function () {
-      var a = { a: 1 };
-      var b = { b: 2 };
-      var c = { c: 3 };
-      var a2 = { a: 4 };
+  QUnit.test('Ember.assign', function () {
+    var a = { a: 1 };
+    var b = { b: 2 };
+    var c = { c: 3 };
+    var a2 = { a: 4 };
 
-      _emberMetalAssign.default(a, b, c, a2);
+    _emberMetalAssign.default(a, b, c, a2);
 
-      deepEqual(a, { a: 4, b: 2, c: 3 });
-      deepEqual(b, { b: 2 });
-      deepEqual(c, { c: 3 });
-      deepEqual(a2, { a: 4 });
-    });
-  }
+    deepEqual(a, { a: 4, b: 2, c: 3 });
+    deepEqual(b, { b: 2 });
+    deepEqual(c, { c: 3 });
+    deepEqual(a2, { a: 4 });
+  });
 });
 enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalBinding, _emberMetalRun_loop, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
@@ -46237,13 +46445,11 @@ enifed('ember-metal/tests/merge_test', ['exports', 'ember-metal/merge', 'ember-m
 
   QUnit.module('Ember.merge');
 
-  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-    QUnit.test('Ember.merge should be deprecated', function () {
-      expectDeprecation(function () {
-        _emberMetalMerge.default({ a: 1 }, { b: 2 });
-      }, 'Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.');
-    });
-  }
+  QUnit.test('Ember.merge should be deprecated', function () {
+    expectDeprecation(function () {
+      _emberMetalMerge.default({ a: 1 }, { b: 2 });
+    }, 'Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.');
+  });
 });
 enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
@@ -67919,7 +68125,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+15d9896f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+2744fd52', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
