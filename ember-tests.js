@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+8eb21b9d
+ * @version   2.6.0-canary+15d9896f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4819,7 +4819,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         env.registerHelper('testing-unescaped', function (params) {
             return params[0];
         });
-        env.registerHelper('testing-escaped', function (params, hash, blocks) {
+        env.registerHelper('testing-escaped', function (params, hash) {
             return params[0];
         });
         compilesTo('<div>{{{testing-unescaped "<span>hi</span>"}}}</div>', '<div><span>hi</span></div>');
@@ -4875,7 +4875,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     });
     test("The compiler passes along the hash arguments", function () {
         env.registerHelper('testing', function (params, hash) {
-            return hash.first + '-' + hash.second;
+            return hash['first'] + '-' + hash['second'];
         });
         compilesTo('<div>{{testing first="one" second="two"}}</div>', '<div>one-two</div>');
     });
@@ -4925,7 +4925,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     */
     test("Attribute helpers take a hash", function () {
         env.registerHelper('testing', function (params, hash) {
-            return hash.path;
+            return hash['path'];
         });
         compilesTo('<a href="{{testing path=url}}">linky</a>', '<a href="linky.html">linky</a>', { url: 'linky.html' });
     });
@@ -5053,71 +5053,6 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         compilesTo('{{#render-inverse}}Nope{{else}}<div id="test">123</div>{{/render-inverse}}', '<div id="test">123</div>');
     });
     _module("Initial render - miscellaneous");
-    QUnit.skip("Node helpers can modify the node", function () {
-        env.registerHelper('testing', function (params, hash, options) {
-            options.element.setAttribute('zomg', 'zomg');
-        });
-        compilesTo('<div {{testing}}>Node helpers</div>', '<div zomg="zomg">Node helpers</div>');
-    });
-    QUnit.skip("Node helpers can modify the node after one node appended by top-level helper", function () {
-        env.registerHelper('top-helper', function () {
-            return document.createElement('span');
-        });
-        env.registerHelper('attr-helper', function (params, hash, options) {
-            options.element.setAttribute('zomg', 'zomg');
-        });
-        compilesTo('<div {{attr-helper}}>Node helpers</div>{{top-helper}}', '<div zomg="zomg">Node helpers</div><span></span>');
-    });
-    QUnit.skip("Node helpers can modify the node after one node prepended by top-level helper", function () {
-        env.registerHelper('top-helper', function () {
-            return document.createElement('span');
-        });
-        env.registerHelper('attr-helper', function (params, hash, options) {
-            options.element.setAttribute('zomg', 'zomg');
-        });
-        compilesTo('{{top-helper}}<div {{attr-helper}}>Node helpers</div>', '<span></span><div zomg="zomg">Node helpers</div>');
-    });
-    QUnit.skip("Node helpers can modify the node after many nodes returned from top-level helper", function () {
-        env.registerHelper('top-helper', function () {
-            var frag = document.createDocumentFragment();
-            frag.appendChild(document.createElement('span'));
-            frag.appendChild(document.createElement('span'));
-            return frag;
-        });
-        env.registerHelper('attr-helper', function (params, hash, options) {
-            options.element.setAttribute('zomg', 'zomg');
-        });
-        compilesTo('{{top-helper}}<div {{attr-helper}}>Node helpers</div>', '<span></span><span></span><div zomg="zomg">Node helpers</div>');
-    });
-    QUnit.skip("Node helpers can be used for attribute bindings", function () {
-        env.registerHelper('testing', function (params, hash, options) {
-            var value = hash.href,
-                element = options.element;
-            element.setAttribute('href', value);
-        });
-        var object = { url: 'linky.html' };
-        var template = compile('<a {{testing href=url}}>linky</a>');
-        var result = render(template, object);
-        _glimmerTestHelpers.equalTokens(root, '<a href="linky.html">linky</a>');
-        object.url = 'zippy.html';
-        result.rerender();
-        _glimmerTestHelpers.equalTokens(root, '<a href="zippy.html">linky</a>');
-    });
-    function equalHash(_actual, expected) {
-        var actual = {};
-        Object.keys(_actual).forEach(function (k) {
-            return actual[k] = _actual[k];
-        });
-        QUnit.deepEqual(actual, expected);
-    }
-    QUnit.skip('Components - Called as helpers', function () {
-        env.registerHelper('x-append', function (params, hash, blocks) {
-            equalHash(hash, { text: 'de' });
-            blocks.template.yield();
-        });
-        var object = { bar: 'e', baz: 'c' };
-        compilesTo('a<x-append text="d{{bar}}">b{{baz}}</x-append>f', 'abcf', object);
-    });
     test('Components - Unknown helpers fall back to elements', function () {
         var object = { size: 'med', foo: 'b' };
         compilesTo('<x-bar class="btn-{{size}}">a{{foo}}c</x-bar>', '<x-bar class="btn-med">abc</x-bar>', object);
@@ -5152,38 +5087,6 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         QUnit.throws(function () {
             compile('<x-bar as | |>foo</x-bar>');
         }, /Cannot use zero block parameters: 'as \| \|'/);
-    });
-    QUnit.skip('Block params in HTML syntax - Works with a single parameter', function () {
-        env.registerHelper('x-bar', function (params, hash, blocks) {
-            return blocks.template.yield(['Xerxes']);
-        });
-        compilesTo('<x-bar as |x|>{{x}}</x-bar>', 'Xerxes', {});
-    });
-    QUnit.skip('Block params in HTML syntax - Works with other attributes', function () {
-        env.registerHelper('x-bar', function (params, hash) {
-            equalHash(hash, { firstName: 'Alice', lastName: 'Smith' });
-        });
-        var template = compile('<x-bar firstName="Alice" lastName="Smith" as |x y|></x-bar>');
-        render(template, {});
-    });
-    QUnit.skip('Block params in HTML syntax - Ignores whitespace', function () {
-        expect(3);
-        env.registerHelper('x-bar', function (params, hash, blocks) {
-            return blocks.template.yield(['Xerxes', 'York']);
-        });
-        compilesTo('<x-bar as |x y|>{{x}},{{y}}</x-bar>', 'Xerxes,York', {});
-        compilesTo('<x-bar as | x y|>{{x}},{{y}}</x-bar>', 'Xerxes,York', {});
-        compilesTo('<x-bar as | x y |>{{x}},{{y}}</x-bar>', 'Xerxes,York', {});
-    });
-    QUnit.skip('Block params in HTML syntax - Helper should know how many block params it was called with', function () {
-        expect(4);
-        env.registerHelper('count-block-params', function (params, hash, options) {
-            equal(options.template.arity, parseInt(hash.count, 10), 'Helpers should receive the correct number of block params in options.template.blockParams.');
-        });
-        render(compile('<count-block-params count="0"></count-block-params>'), { count: 0 });
-        render(compile('<count-block-params count="1" as |x|></count-block-params>'), { count: 1 });
-        render(compile('<count-block-params count="2" as |x y|></count-block-params>'), { count: 2 });
-        render(compile('<count-block-params count="3" as |x y z|></count-block-params>'), { count: 3 });
     });
     test("Block params in HTML syntax - Throws an error on invalid block params syntax", function () {
         expect(3);
@@ -5318,15 +5221,6 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         equal(svg.namespaceURI, SVG_NAMESPACE);
         equal(foreignObject.namespaceURI, SVG_NAMESPACE, "creates the foreignObject element with a namespace");
     });
-    QUnit.skip("does not set a namespace on an element inside an HTML integration point", function () {
-        compilesTo('<svg><foreignObject><div></div></foreignObject></svg>');
-        var svg = root.firstChild;
-        var foreignObject = svg.firstChild;
-        var div = foreignObject.firstChild;
-        equal(svg.namespaceURI, SVG_NAMESPACE);
-        equal(foreignObject.namespaceURI, SVG_NAMESPACE, "creates the foreignObject element with a namespace");
-        equal(div.namespaceURI, XHTML_NAMESPACE, "creates the div inside the foreignObject without a namespace");
-    });
     test("Namespaced and non-namespaced elements as siblings", function () {
         compilesTo('<svg></svg><svg></svg><div></div>');
         var _root$childNodes = root.childNodes;
@@ -5433,16 +5327,6 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     //   equal( svgNode.childNodes[0].namespaceURI, svgNamespace,
     //          "circle tag inside block inside svg has an svg namespace" );
     // });
-    // QUnit.skip("Block helper with root foreignObject allows namespace to bleed through", function() {
-    //   registerYieldingHelper('testing');
-    //   let template = compile('<foreignObject>{{#testing}}<div></div>{{/testing}}</foreignObject>');
-    //   let fragment = render(template, { isTrue: true }, env, { contextualElement: document.createElementNS(svgNamespace, 'svg') }).fragment;
-    //   let svgNode = fragment.firstChild;
-    //   equal( svgNode.namespaceURI, svgNamespace,
-    //          "foreignObject tag has an svg namespace" );
-    //   equal( svgNode.childNodes[0].namespaceURI, xhtmlNamespace,
-    //          "div inside morph and foreignObject has xhtml namespace" );
-    // });
 });
 
 enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
@@ -5453,6 +5337,8 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
 
     function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
+    var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    var XHTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
     /*
      * Phantom 1.9 does not serialize namespaced attributes correctly. The namespace
      * prefix is incorrectly stripped off.
@@ -6109,6 +5995,93 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         strictEqual(destroyedRenderNodeCount, 6, "cleanup hook was invoked once for the wrapper morph and once for the {{item.word}}");
         strictEqual(destroyedRenderNode.lastValue, "hello", "The correct render node is passed in");
     });
+    QUnit.module("Updating SVG", {
+        setup: commonSetup
+    });
+    test("HTML namespace from root element is continued to child templates", function () {
+        var object = { hasCircle: true };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var getCircle = function () {
+            return getSvg().firstChild;
+        };
+        var template = compile('<svg>{{#if hasCircle}}<circle />{{/if}}</svg>');
+        render(template, object);
+        _glimmerTestHelpers.equalTokens(root, "<svg><circle /></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getCircle().namespaceURI, SVG_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg><circle /></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getCircle().namespaceURI, SVG_NAMESPACE);
+        object.hasCircle = false;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg><!----></svg>");
+        rerender({ hasCircle: true });
+        _glimmerTestHelpers.equalTokens(root, "<svg><circle /></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getCircle().namespaceURI, SVG_NAMESPACE);
+    });
+    test("root <foreignObject> tag is SVG namespaced", function () {
+        var object = { hasForeignObject: true };
+        var getForeignObject = function () {
+            return root.firstChild;
+        };
+        var getDiv = function () {
+            return getForeignObject().firstChild;
+        };
+        var template = compile('{{#if hasForeignObject}}<foreignObject><div></div></foreignObject>{{/if}}');
+        // Add an SVG node on the root that can be rendered into
+        root.appendChild(env.getDOM().createElement('svg', document.body));
+        root = root.firstChild;
+        render(template, object);
+        _glimmerTestHelpers.equalTokens(root.parentNode, "<svg><foreignObject><div></div></foreignObject></svg>");
+        equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root.parentNode, "<svg><foreignObject><div></div></foreignObject></svg>");
+        equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        object.hasForeignObject = false;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root.parentNode, "<svg><!----></svg>");
+        rerender({ hasForeignObject: true });
+        _glimmerTestHelpers.equalTokens(root.parentNode, "<svg><foreignObject><div></div></foreignObject></svg>");
+        equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+    });
+    test("elements nested inside <foreignObject> have an XHTML namespace", function () {
+        var object = { hasDiv: true };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var getForeignObject = function () {
+            return getSvg().firstChild;
+        };
+        var getDiv = function () {
+            return getForeignObject().firstChild;
+        };
+        var template = compile('<svg><foreignObject>{{#if hasDiv}}<div></div>{{/if}}</foreignObject></svg>');
+        render(template, object);
+        _glimmerTestHelpers.equalTokens(root, "<svg><foreignObject><div></div></foreignObject></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg><foreignObject><div></div></foreignObject></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        object.hasDiv = false;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg><foreignObject><!----></foreignObject></svg>");
+        rerender({ hasDiv: true });
+        _glimmerTestHelpers.equalTokens(root, "<svg><foreignObject><div></div></foreignObject></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+    });
 });
 
 enifed('glimmer-syntax/tests/generation/print-test', ['exports', 'glimmer-syntax'], function (exports, _glimmerSyntax) {
@@ -6186,53 +6159,92 @@ enifed('glimmer-syntax/tests/generation/print-test', ['exports', 'glimmer-syntax
 });
 
 enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], function (exports, _glimmerSyntax) {
-    "use strict";
+  "use strict";
 
-    QUnit.module("[glimmer-syntax] Parser - Location Info");
-    function locEqual(node, startLine, startColumn, endLine, endColumn, message) {
-        var expected = {
-            source: null,
-            start: { line: startLine, column: startColumn },
-            end: { line: endLine, column: endColumn }
-        };
-        deepEqual(node.loc, expected, message);
-    }
-    test("programs", function () {
-        var ast = _glimmerSyntax.parse("\n  {{#if foo}}\n    {{bar}}\n       {{/if}}\n    ");
-        locEqual(ast, 1, 0, 5, 4, 'outer program');
-        // startColumn should be 13 not 2.
-        // This should be fixed upstream in Handlebars.
-        locEqual(ast.body[1].program, 2, 2, 4, 7, 'nested program');
-    });
-    test("blocks", function () {
-        var ast = _glimmerSyntax.parse("\n  {{#if foo}}\n    {{#if bar}}\n        test\n        {{else}}\n      test\n  {{/if    }}\n       {{/if\n      }}\n    ");
-        locEqual(ast.body[1], 2, 2, 9, 8, 'outer block');
-        locEqual(ast.body[1].program.body[0], 3, 4, 7, 13, 'nested block');
-    });
-    test("mustache", function () {
-        var ast = _glimmerSyntax.parse("\n    {{foo}}\n    {{#if foo}}\n      bar: {{bar\n        }}\n    {{/if}}\n  ");
-        locEqual(ast.body[1], 2, 4, 2, 11, 'outer mustache');
-        locEqual(ast.body[3].program.body[1], 4, 11, 5, 10, 'inner mustache');
-    });
-    test("element modifier", function () {
-        var ast = _glimmerSyntax.parse("\n    <div {{bind-attr\n      foo\n      bar=wat}}></div>\n  ");
-        locEqual(ast.body[1].modifiers[0], 2, 9, 4, 15, 'element modifier');
-    });
-    test("html elements", function () {
-        var ast = _glimmerSyntax.parse("\n    <section>\n      <br>\n      <div>\n        <hr />\n      </div>\n    </section>\n  ");
-        var _ast$body = ast.body;
-        var section = _ast$body[1];
-        var _section$children = section.children;
-        var br = _section$children[1];
-        var div = _section$children[3];
-        var _div$children = div.children;
-        var hr = _div$children[1];
+  QUnit.module("[glimmer-syntax] Parser - Location Info");
+  function locEqual(node, startLine, startColumn, endLine, endColumn, message) {
+    var expected = {
+      source: null,
+      start: { line: startLine, column: startColumn },
+      end: { line: endLine, column: endColumn }
+    };
+    deepEqual(node.loc, expected, message);
+  }
+  test("programs", function () {
+    var ast = _glimmerSyntax.parse("\n  {{#if foo}}\n    {{bar}}\n       {{/if}}\n    ");
+    locEqual(ast, 1, 0, 5, 4, 'outer program');
+    // startColumn should be 13 not 2.
+    // This should be fixed upstream in Handlebars.
+    locEqual(ast.body[1].program, 2, 2, 4, 7, 'nested program');
+  });
+  test("blocks", function () {
+    var ast = _glimmerSyntax.parse("\n  {{#if foo}}\n    {{#if bar}}\n        test\n        {{else}}\n      test\n  {{/if    }}\n       {{/if\n      }}\n    ");
+    locEqual(ast.body[1], 2, 2, 9, 8, 'outer block');
+    locEqual(ast.body[1].program.body[0], 3, 4, 7, 13, 'nested block');
+  });
+  test("mustache", function () {
+    var ast = _glimmerSyntax.parse("\n    {{foo}}\n    {{#if foo}}\n      bar: {{bar\n        }}\n    {{/if}}\n  ");
+    locEqual(ast.body[1], 2, 4, 2, 11, 'outer mustache');
+    locEqual(ast.body[3].program.body[1], 4, 11, 5, 10, 'inner mustache');
+  });
+  test("element modifier", function () {
+    var ast = _glimmerSyntax.parse("\n    <div {{bind-attr\n      foo\n      bar=wat}}></div>\n  ");
+    locEqual(ast.body[1].modifiers[0], 2, 9, 4, 15, 'element modifier');
+  });
+  test("html elements", function () {
+    var ast = _glimmerSyntax.parse("\n    <section>\n      <br>\n      <div>\n        <hr />\n      </div>\n    </section>\n  ");
+    var _ast$body = ast.body;
+    var section = _ast$body[1];
+    var _section$children = section.children;
+    var br = _section$children[1];
+    var div = _section$children[3];
+    var _div$children = div.children;
+    var hr = _div$children[1];
 
-        locEqual(section, 2, 4, 7, 14, 'section element');
-        locEqual(br, 3, 6, 3, 10, 'br element');
-        locEqual(div, 4, 6, 6, 12, 'div element');
-        locEqual(hr, 5, 8, 5, 14, 'hr element');
-    });
+    locEqual(section, 2, 4, 7, 14, 'section element');
+    locEqual(br, 3, 6, 3, 10, 'br element');
+    locEqual(div, 4, 6, 6, 12, 'div element');
+    locEqual(hr, 5, 8, 5, 14, 'hr element');
+  });
+  test("html elements with nested blocks", function () {
+    var ast = _glimmerSyntax.parse("\n    <div>\n      {{#if isSingleError}}\n        Single error here!\n      {{else if errors}}\n        Multiple errors here!\n      {{else}}\n        No errors found!\n      {{/if}} <p>Hi there!</p>\n    </div>\n  ");
+    var _ast$body2 = ast.body;
+    var div = _ast$body2[1];
+    var _div$children2 = div.children;
+    var ifBlock = _div$children2[1];
+    var p = _div$children2[3];
+
+    var inverseBlock = ifBlock.inverse;
+    var _inverseBlock$body = inverseBlock.body;
+    var nestedIfBlock = _inverseBlock$body[0];
+
+    var nestedIfInverseBlock = nestedIfBlock.inverse;
+    locEqual(div, 2, 4, 10, 10, 'div element');
+    locEqual(ifBlock, 3, 6, 9, 13, 'outer if block');
+    locEqual(inverseBlock, 5, 6, 9, 6, 'inverse block');
+    locEqual(nestedIfBlock, 5, 6, 9, 6, 'nested if block');
+    locEqual(nestedIfInverseBlock, 7, 6, 9, 6, 'nested inverse block');
+    locEqual(p, 9, 14, 9, 30, 'p');
+  });
+  test("blocks with nested html elements", function () {
+    var ast = _glimmerSyntax.parse("\n    {{#foo-bar}}<div>Foo</div>{{/foo-bar}} <p>Hi!</p>\n  ");
+    var block = ast.body[1].program;
+    var _block$body = block.body;
+    var div = _block$body[0];
+
+    var p = ast.body[3];
+    locEqual(p, 2, 43, 2, 53, 'p element');
+    locEqual(div, 2, 16, 2, 30, 'div element');
+  });
+  test("html elements after mustache", function () {
+    var ast = _glimmerSyntax.parse("\n    {{foo-bar}} <p>Hi!</p>\n  ");
+    var _ast$body3 = ast.body;
+    var mustache = _ast$body3[1];
+    var p = _ast$body3[3];
+
+    locEqual(mustache, 2, 4, 2, 15, '{{foo-bar}}');
+    locEqual(p, 2, 16, 2, 26, 'div element');
+  });
 });
 
 enifed("glimmer-syntax/tests/parser-node-test", ["exports", "handlebars/compiler/base", "glimmer-syntax", "glimmer-syntax/lib/builders", "glimmer-syntax/tests/support"], function (exports, _handlebarsCompilerBase, _glimmerSyntax, _glimmerSyntaxLibBuilders, _glimmerSyntaxTestsSupport) {
@@ -7191,6 +7203,63 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return EmberishConditionalReference;
     })(_glimmerRuntime.ConditionalReference);
 
+    var SimplePathReference = (function () {
+        function SimplePathReference(parent, property) {
+            _classCallCheck(this, SimplePathReference);
+
+            this.parent = parent;
+            this.property = property;
+        }
+
+        SimplePathReference.prototype.isDirty = function isDirty() {
+            return true;
+        };
+
+        SimplePathReference.prototype.destroy = function destroy() {};
+
+        SimplePathReference.prototype.value = function value() {
+            return this.parent.value()[this.property];
+        };
+
+        SimplePathReference.prototype.get = function get(prop) {
+            return new SimplePathReference(this, prop);
+        };
+
+        return SimplePathReference;
+    })();
+
+    exports.SimplePathReference = SimplePathReference;
+
+    var HelperReference = (function () {
+        function HelperReference(helper, args) {
+            _classCallCheck(this, HelperReference);
+
+            this.helper = helper;
+            this.args = args;
+        }
+
+        HelperReference.prototype.isDirty = function isDirty() {
+            return true;
+        };
+
+        HelperReference.prototype.destroy = function destroy() {};
+
+        HelperReference.prototype.value = function value() {
+            var helper = this.helper;
+            var _args = this.args;
+            var positional = _args.positional;
+            var named = _args.named;
+
+            return helper(positional.value(), named.value());
+        };
+
+        HelperReference.prototype.get = function get(prop) {
+            return new SimplePathReference(this, prop);
+        };
+
+        return HelperReference;
+    })();
+
     var TestEnvironment = (function (_Environment) {
         _inherits(TestEnvironment, _Environment);
 
@@ -7198,7 +7267,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _classCallCheck(this, TestEnvironment);
 
             _Environment.call(this, dom || new _glimmerRuntime.DOMHelper(document));
-            this.helpers = {};
+            this.helpers = _glimmerUtil.dict();
             this.components = _glimmerUtil.dict();
             this.registerHelper("if", function (_ref) {
                 var cond = _ref[0];
@@ -7215,7 +7284,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         TestEnvironment.prototype.registerHelper = function registerHelper(name, helper) {
-            this.helpers[name] = helper;
+            this.helpers[name] = function (args) {
+                return new HelperReference(helper, args);
+            };
         };
 
         TestEnvironment.prototype.registerComponent = function registerComponent(name, definition) {
@@ -25025,7 +25096,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('hello world');
     };
 
-    _class.prototype['@htmlbars it can resolve custom class-based helpers'] = function htmlbarsItCanResolveCustomClassBasedHelpers() {
+    _class.prototype['@test it can resolve custom class-based helpers'] = function testItCanResolveCustomClassBasedHelpers() {
       this.registerHelper('hello-world', {
         compute: function () {
           return 'hello world';
@@ -38465,7 +38536,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('hello world');
     };
 
-    _class.prototype['@htmlbars it can resolve custom class-based helpers'] = function htmlbarsItCanResolveCustomClassBasedHelpers() {
+    _class.prototype['@test it can resolve custom class-based helpers'] = function testItCanResolveCustomClassBasedHelpers() {
       this.registerHelper('hello-world', {
         compute: function () {
           return 'hello world';
@@ -68292,7 +68363,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+8eb21b9d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+15d9896f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
