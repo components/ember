@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+0e8e343b
+ * @version   2.6.0-canary+92fee435
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -527,7 +527,8 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
-     ```javascript
+  
+    ```javascript
     Ember.Debug.registerDeprecationHandler((message, options, next) => {
       if (message.indexOf('should') !== -1) {
         throw new Error(`Deprecation message with should: ${message}`);
@@ -537,8 +538,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
       }
     }
     ```
-     The handler function takes the following arguments:
-     <ul>
+  
+    The handler function takes the following arguments:
+  
+    <ul>
       <li> <code>message</code> - The message received from the deprecation call.</li>
       <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
         <ul>
@@ -547,7 +550,8 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
         </ul>
       <li> <code>next</code> - A function that calls into the previously registered handler.</li>
     </ul>
-     @public
+  
+    @public
     @static
     @method registerDeprecationHandler
     @param handler {Function} A function to handle deprecation calls.
@@ -559,12 +563,15 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
     The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
     default warning behavior.
-     ```javascript
+  
+    ```javascript
     // next is not called, so no warnings get the default behavior
     Ember.Debug.registerWarnHandler(() => {});
     ```
-     The handler function takes the following arguments:
-     <ul>
+  
+    The handler function takes the following arguments:
+  
+    <ul>
       <li> <code>message</code> - The message received from the warn call. </li>
       <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
         <ul>
@@ -572,7 +579,8 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
         </ul>
       <li> <code>next</code> - A function that calls into the previously registered handler.</li>
     </ul>
-     @public
+  
+    @public
     @static
     @method registerWarnHandler
     @param handler {Function} A function to handle warnings.

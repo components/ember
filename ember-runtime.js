@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+0e8e343b
+ * @version   2.6.0-canary+92fee435
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+0e8e343b
+    @version 2.6.0-canary+92fee435
     @public
   */
 
@@ -4868,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+0e8e343b'
+    @default '2.6.0-canary+92fee435'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+0e8e343b';
+  Ember.VERSION = '2.6.0-canary+92fee435';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5976,11 +5976,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
     _require.default('ember-debug');
   } else {
     _emberMetalCore.default.Debug = {};
-
-    if (_emberMetalFeatures.default('ember-debug-handlers')) {
-      _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
-      _emberMetalCore.default.Debug.registerWarnHandler = function () {};
-    }
+    _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
+    _emberMetalCore.default.Debug.registerWarnHandler = function () {};
   }
 
   _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
