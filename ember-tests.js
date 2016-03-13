@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+92fee435
+ * @version   2.6.0-canary+3dff65ae
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -29231,7 +29231,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var component = undefined,
@@ -29341,7 +29341,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash comp=(component "-looked-up" greeting=greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash comp=(component "-looked-up" greeting=greeting)) as |my|}}\n      {{#my.comp}}{{/my.comp}}\n    {{/with}}');
 
     component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.template = template, _Component$extend6)).create();
 
@@ -29363,7 +29363,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('component:-looked-up', LookedUp);
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{component\n          (component (component "-looked-up" "Sergio" 28)\n                     "Marvin" 21)\n          "Hodari"}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{component\n        (component (component "-looked-up" "Sergio" 28)\n                   "Marvin" 21)\n        "Hodari"}}');
 
     component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.template = template, _Component$extend7)).create();
 
@@ -29376,7 +29376,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}} {{age}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{component (component (component "-looked-up"\n                                  greeting="Hola" name="Dolores" age=33)\n                              greeting="Hej" name="Sigmundur")\n                    greeting=greeting}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component (component "-looked-up"\n                                greeting="Hola" name="Dolores" age=33)\n                            greeting="Hej" name="Sigmundur")\n                  greeting=greeting}}');
 
     component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.template = template, _Component$extend8.greeting = 'Hodi', _Component$extend8)).create();
 
@@ -29598,7 +29598,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     owner.register('component:my-component', MyComponent);
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component }}\n       {{/with}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash my-component=(component \'my-component\')) as |c|}}\n      {{c.my-component }}\n     {{/with}}');
 
     component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21)).create();
 
@@ -29620,7 +29620,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     owner.register('template:components/my-component', _emberTemplateCompilerSystemCompile.default('{{yield (hash my-nested-component=(component \'my-nested-component\' my-parent-attr=attrs.my-attr))}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                             {{api.my-nested-component}}\n                           {{/my-component}}\n                           <br>\n                           <button onclick={{action \'changeValue\'}}>Change value</button>');
+    var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                           {{api.my-nested-component}}\n                         {{/my-component}}\n                         <br>\n                         <button onclick={{action \'changeValue\'}}>Change value</button>');
     component = _emberViewsComponentsComponent.default.extend((_Component$extend22 = {}, _Component$extend22[_containerOwner.OWNER] = owner, _Component$extend22.template = template, _Component$extend22.myProp = 1, _Component$extend22.actions = {
       changeValue: function () {
         this.incrementProperty('myProp');
@@ -68956,7 +68956,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+92fee435', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+3dff65ae', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
