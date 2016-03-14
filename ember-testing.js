@@ -489,10 +489,6 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
-    if (_emberMetalFeatures.default('features-stripped-test')) {
-      exports.featuresWereStripped = featuresWereStripped = false;
-    }
-
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, featuresWereStripped);
 
