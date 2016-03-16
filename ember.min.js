@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+ed298ced
+ * @version   2.6.0-canary+df196154
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+ed298ced
+ * @version   2.6.0-canary+df196154
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -18623,7 +18623,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+ed298ced';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+df196154';
 
   var librariesRegistered = false;
 
@@ -25969,7 +25969,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+ed298ced';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+df196154';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -31511,7 +31511,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+ed298ced
+    @version 2.6.0-canary+df196154
     @public
   */
 
@@ -31553,11 +31553,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+ed298ced'
+    @default '2.6.0-canary+df196154'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+ed298ced';
+  Ember.VERSION = '2.6.0-canary+df196154';
 
   /**
     The hash of environment variables used to control various configuration
@@ -45447,7 +45447,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+ed298ced';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+df196154';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -45947,7 +45947,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+ed298ced';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+df196154';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -54839,7 +54839,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+ed298ced',
+        revision: 'Ember@2.6.0-canary+df196154',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -58898,7 +58898,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+ed298ced';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+df196154';
 
   /**
   @module ember
@@ -66462,13 +66462,19 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
   'use strict';
 
   /**
-    @private
-  
     A Transition is a thennable (a promise-like object) that represents
     an attempt to transition to another route. It can be aborted, either
     explicitly via `abort` or by attempting another transition while a
     previous one is still underway. An aborted transition can also
     be `retry()`d later.
+  
+    @class Transition
+    @constructor
+    @param {Object} router
+    @param {Object} intent
+    @param {Object} state
+    @param {Object} error
+    @private
    */
   function Transition(router, intent, state, error) {
     var transition = this;
@@ -66556,45 +66562,50 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     },
 
     /**
-      @public
-       The Transition's internal promise. Calling `.then` on this property
+      The Transition's internal promise. Calling `.then` on this property
       is that same as calling `.then` on the Transition object itself, but
       this property is exposed for when you want to pass around a
       Transition's promise, but not the Transition object itself, since
       Transition object can be externally `abort`ed, while the promise
       cannot.
+       @property promise
+      @type {Object}
+      @public
      */
     promise: null,
 
     /**
-      @public
-       Custom state can be stored on a Transition's `data` object.
+      Custom state can be stored on a Transition's `data` object.
       This can be useful for decorating a Transition within an earlier
       hook and shared with a later hook. Properties set on `data` will
       be copied to new transitions generated by calling `retry` on this
       transition.
+     
+      @property data
+      @type {Object}
+      @public
      */
     data: null,
 
     /**
-      @public
-       A standard promise hook that resolves if the transition
+      A standard promise hook that resolves if the transition
       succeeds and rejects if it fails/redirects/aborts.
        Forwards to the internal `promise` property which you can
       use in situations where you want to pass around a thennable,
       but not the Transition itself.
-       @param {Function} onFulfilled
+       @method then
+      @param {Function} onFulfilled
       @param {Function} onRejected
       @param {String} label optional string for labeling the promise.
       Useful for tooling.
       @return {Promise}
+      @public
      */
     then: function (onFulfilled, onRejected, label) {
       return this.promise.then(onFulfilled, onRejected, label);
     },
 
     /**
-      @public
        Forwards to the internal `promise` property which you can
       use in situations where you want to pass around a thennable,
       but not the Transition itself.
@@ -66603,13 +66614,13 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
       @param {String} label optional string for labeling the promise.
       Useful for tooling.
       @return {Promise}
+      @public
      */
     catch: function (onRejection, label) {
       return this.promise.catch(onRejection, label);
     },
 
     /**
-      @public
        Forwards to the internal `promise` property which you can
       use in situations where you want to pass around a thennable,
       but not the Transition itself.
@@ -66618,15 +66629,18 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
       @param {String} label optional string for labeling the promise.
       Useful for tooling.
       @return {Promise}
+      @public
      */
     finally: function (callback, label) {
       return this.promise.finally(callback, label);
     },
 
     /**
-      @public
-       Aborts the Transition. Note you can also implicitly abort a transition
+      Aborts the Transition. Note you can also implicitly abort a transition
       by initiating another transition while a previous one is underway.
+       @method abort
+      @return {Transition} this transition
+      @public
      */
     abort: function () {
       if (this.isAborted) {
@@ -66641,10 +66655,12 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     },
 
     /**
-      @public
        Retries a previously-aborted transition (making sure to abort the
       transition if it's still active). Returns a new transition that
       represents the new attempt to transition.
+       @method retry
+      @return {Transition} new transition
+      @public
      */
     retry: function () {
       // TODO: add tests for merged state retry()s
@@ -66653,7 +66669,6 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     },
 
     /**
-      @public
        Sets the URL-changing method to be employed at the end of a
       successful transition. By default, a new Transition will just
       use `updateURL`, but passing 'replace' to this method will
@@ -66662,11 +66677,13 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
       that don't update the URL at completion (this is also used for
       handleURL, since the URL has already changed before the
       transition took place).
-       @param {String} method the type of URL-changing method to use
+       @method method
+      @param {String} method the type of URL-changing method to use
         at the end of a transition. Accepted values are 'replace',
         falsy values, or any other non-falsy value (which is
         interpreted as an updateURL transition).
        @return {Transition} this transition
+      @public
      */
     method: function (method) {
       this.urlMethod = method;
@@ -66674,13 +66691,14 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     },
 
     /**
-      @public
        Fires an event on the current list of resolved/resolving
       handlers within this transition. Useful for firing events
       on route hierarchies that haven't fully been entered yet.
        Note: This method is also aliased as `send`
-       @param {Boolean} [ignoreFailure=false] a boolean specifying whether unhandled events throw an error
+       @method trigger
+      @param {Boolean} [ignoreFailure=false] a boolean specifying whether unhandled events throw an error
       @param {String} name the name of the event to fire
+      @public
      */
     trigger: function (ignoreFailure) {
       var args = _routerUtils.slice.call(arguments);
@@ -66694,14 +66712,15 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     },
 
     /**
-      @public
-       Transitions are aborted and their promises rejected
+      Transitions are aborted and their promises rejected
       when redirects occur; this method returns a promise
       that will follow any redirects that occur and fulfill
       with the value fulfilled by any redirecting transitions
       that occur.
-       @return {Promise} a promise that fulfills with the same
+       @method followRedirects
+      @return {Promise} a promise that fulfills with the same
         value that the final redirecting transition fulfills with
+      @public
      */
     followRedirects: function () {
       var router = this.router;
