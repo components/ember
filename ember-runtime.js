@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+cb1d0d17
+ * @version   2.6.0-canary+3de40b3f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1178,11 +1178,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
-
-    if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-      this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
-      this[CONTAINER_OVERRIDE] = undefined;
-    }
+    this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
+    this[CONTAINER_OVERRIDE] = undefined;
   }
 
   Container.prototype = {
@@ -1433,12 +1430,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       var injectedFactory = factory.extend(injections);
 
       // TODO - remove all `container` injections when Ember reaches v3.0.0
-      if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-        injectDeprecatedContainer(injectedFactory.prototype, container);
-      } else {
-        injectedFactory.prototype.container = container;
-      }
-
+      injectDeprecatedContainer(injectedFactory.prototype, container);
       injectedFactory.reopenClass(factoryInjections);
 
       if (factory && typeof factory._onLookup === 'function') {
@@ -1515,21 +1507,14 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
         // Ensure that a container is available to an object during instantiation.
         // TODO - remove when Ember reaches v3.0.0
-        if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-          // This "fake" container will be replaced after instantiation with a
-          // property that raises deprecations every time it is accessed.
-          injections.container = container._fakeContainerToInject;
-        } else {
-          injections.container = container;
-        }
-
+        // This "fake" container will be replaced after instantiation with a
+        // property that raises deprecations every time it is accessed.
+        injections.container = container._fakeContainerToInject;
         obj = factory.create(injections);
 
         // TODO - remove when Ember reaches v3.0.0
-        if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-          if (!Object.isFrozen(obj) && 'container' in obj) {
-            injectDeprecatedContainer(obj, container);
-          }
+        if (!Object.isFrozen(obj) && 'container' in obj) {
+          injectDeprecatedContainer(obj, container);
         }
       }
 
@@ -4826,7 +4811,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+cb1d0d17
+    @version 2.6.0-canary+3de40b3f
     @public
   */
 
@@ -4868,11 +4853,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+cb1d0d17'
+    @default '2.6.0-canary+3de40b3f'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+cb1d0d17';
+  Ember.VERSION = '2.6.0-canary+3de40b3f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13843,7 +13828,7 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
   }
 });
 // Ember.EXTEND_PROTOTYPES
-enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils', 'ember-metal/features', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils, _emberMetalFeatures, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberRuntimeString_registry) {
+enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberRuntimeString_registry) {
   /**
   @module ember
   @submodule ember-runtime
@@ -13904,13 +13889,11 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   _emberMetal.default.Container = _emberRuntimeSystemContainer.Container;
   _emberMetal.default.Registry = _emberRuntimeSystemContainer.Registry;
 
-  if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-    _emberMetal.default.getOwner = _emberRuntimeSystemContainer.getOwner;
-    _emberMetal.default.setOwner = _emberRuntimeSystemContainer.setOwner;
+  _emberMetal.default.getOwner = _emberRuntimeSystemContainer.getOwner;
+  _emberMetal.default.setOwner = _emberRuntimeSystemContainer.setOwner;
 
-    _emberMetal.default._RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
-    _emberMetal.default._ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
-  }
+  _emberMetal.default._RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
+  _emberMetal.default._ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
 
   _emberMetal.default.Namespace = _emberRuntimeSystemNamespace.default;
   _emberMetal.default.Enumerable = _emberRuntimeMixinsEnumerable.default;
