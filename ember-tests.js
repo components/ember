@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+3de40b3f
+ * @version   2.6.0-canary+08c94289
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25004,6 +25004,13 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       });
 
       this.assertText('threefour');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'first', 'one');
+        _emberMetalProperty_set.set(_this.context, 'second', 'two');
+      });
+
+      this.assertText('onetwo');
     };
 
     _class.prototype['@test it can be used as a sub-expression'] = function testItCanBeUsedAsASubExpression() {
@@ -25025,11 +25032,25 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('onetwothreefour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this2.context, 'first', 'five');
-        _emberMetalProperty_set.set(_this2.context, 'third', 'six');
+        return _emberMetalProperty_set.set(_this2.context, 'first', 'five');
       });
 
-      this.assertText('fivetwosixfour');
+      this.assertText('fivetwothreefour');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'second', 'six');
+        _emberMetalProperty_set.set(_this2.context, 'third', 'seven');
+      });
+
+      this.assertText('fivesixsevenfour');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'first', 'one');
+        _emberMetalProperty_set.set(_this2.context, 'second', 'two');
+        _emberMetalProperty_set.set(_this2.context, 'third', 'three');
+      });
+
+      this.assertText('onetwothreefour');
     };
 
     _class.prototype['@test it can be used as input for other helpers'] = function testItCanBeUsedAsInputForOtherHelpers() {
@@ -25059,6 +25080,12 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       });
 
       this.assertText('False');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'first', 'one');
+      });
+
+      this.assertText('Truthy!');
     };
 
     return _class;
@@ -38718,6 +38745,13 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       });
 
       this.assertText('threefour');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'first', 'one');
+        _emberMetalProperty_set.set(_this.context, 'second', 'two');
+      });
+
+      this.assertText('onetwo');
     };
 
     _class.prototype['@test it can be used as a sub-expression'] = function testItCanBeUsedAsASubExpression() {
@@ -38739,11 +38773,25 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.assertText('onetwothreefour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this2.context, 'first', 'five');
-        _emberMetalProperty_set.set(_this2.context, 'third', 'six');
+        return _emberMetalProperty_set.set(_this2.context, 'first', 'five');
       });
 
-      this.assertText('fivetwosixfour');
+      this.assertText('fivetwothreefour');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'second', 'six');
+        _emberMetalProperty_set.set(_this2.context, 'third', 'seven');
+      });
+
+      this.assertText('fivesixsevenfour');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'first', 'one');
+        _emberMetalProperty_set.set(_this2.context, 'second', 'two');
+        _emberMetalProperty_set.set(_this2.context, 'third', 'three');
+      });
+
+      this.assertText('onetwothreefour');
     };
 
     _class.prototype['@test it can be used as input for other helpers'] = function testItCanBeUsedAsInputForOtherHelpers() {
@@ -38773,6 +38821,12 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       });
 
       this.assertText('False');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'first', 'one');
+      });
+
+      this.assertText('Truthy!');
     };
 
     return _class;
@@ -68956,7 +69010,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+3de40b3f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+08c94289', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
