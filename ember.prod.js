@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+94964e1d
+ * @version   2.6.0-canary+a358c59c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4236,7 +4236,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a358c59c';
 
   var librariesRegistered = false;
 
@@ -7537,7 +7537,7 @@ enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'emb
     return Wrapper.extend({ spec: JSON.parse(json) });
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/hash'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersHash) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -7550,7 +7550,8 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     concat: _emberGlimmerHelpersConcat.default,
     if: _emberGlimmerHelpersIfUnless.inlineIf,
     unless: _emberGlimmerHelpersIfUnless.inlineUnless,
-    hash: _emberGlimmerHelpersHash.default
+    hash: _emberGlimmerHelpersHash.default,
+    loc: _emberGlimmerHelpersLoc.default
   };
 
   var _default = (function (_Environment) {
@@ -7935,6 +7936,52 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal/debug', 'embe
     return !_emberGlimmerUtilsToBool.default(val);
   });
   exports.inlineUnless = inlineUnless;
+});
+enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/helper', 'ember-runtime/system/string'], function (exports, _emberGlimmerHelper, _emberRuntimeSystemString) {
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
+    Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
+    provided string. This is a convenient way to localize text within a template.
+    For example:
+  
+    ```javascript
+    Ember.STRINGS = {
+      '_welcome_': 'Bonjour'
+    };
+    ```
+  
+    ```handlebars
+    <div class='message'>
+      {{loc '_welcome_'}}
+    </div>
+    ```
+  
+    ```html
+    <div class='message'>
+      Bonjour
+    </div>
+    ```
+  
+    See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
+    set up localized string references.
+  
+    @method loc
+    @for Ember.Templates.helpers
+    @param {String} str The string to format.
+    @see {Ember.String#loc}
+    @public
+  */
+  function locHelper(params) {
+    return _emberRuntimeSystemString.loc.apply(null, params);
+  }
+
+  exports.default = _emberGlimmerHelper.helper(locHelper);
 });
 enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences) {
   'use strict';
@@ -9083,10 +9130,8 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'emb
   exports.ifHelper = ifHelper;
   exports.unlessHelper = unlessHelper;
 });
-enifed('ember-htmlbars/helpers/loc', ['exports', 'ember-runtime/system/string'], function (exports, _emberRuntimeSystemString) {
+enifed('ember-htmlbars/helpers/loc', ['exports', 'ember-htmlbars/helper', 'ember-runtime/system/string'], function (exports, _emberHtmlbarsHelper, _emberRuntimeSystemString) {
   'use strict';
-
-  exports.default = locHelper;
 
   /**
   @module ember
@@ -9125,10 +9170,11 @@ enifed('ember-htmlbars/helpers/loc', ['exports', 'ember-runtime/system/string'],
     @see {Ember.String#loc}
     @public
   */
-
   function locHelper(params) {
     return _emberRuntimeSystemString.loc.apply(null, params);
   }
+
+  exports.default = _emberHtmlbarsHelper.helper(locHelper);
 });
 enifed('ember-htmlbars/helpers/log', ['exports', 'ember-metal/logger'], function (exports, _emberMetalLogger) {
   /**
@@ -11577,7 +11623,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a358c59c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -17122,7 +17168,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+94964e1d
+    @version 2.6.0-canary+a358c59c
     @public
   */
 
@@ -17164,11 +17210,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+94964e1d'
+    @default '2.6.0-canary+a358c59c'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+94964e1d';
+  Ember.VERSION = '2.6.0-canary+a358c59c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -31058,7 +31104,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+a358c59c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -31558,7 +31604,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a358c59c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40448,7 +40494,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+94964e1d',
+        revision: 'Ember@2.6.0-canary+a358c59c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44507,7 +44553,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+a358c59c';
 
   /**
   @module ember
@@ -49916,7 +49962,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+94964e1d
+ * @version   2.6.0-canary+a358c59c
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {

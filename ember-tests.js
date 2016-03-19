@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+94964e1d
+ * @version   2.6.0-canary+a358c59c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25646,6 +25646,68 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/core'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalCore) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{loc}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+      this.oldString = _emberMetalCore.default.STRINGS;
+      _emberMetalCore.default.STRINGS = {
+        '_Howdy Friend': 'Hallo Freund'
+      };
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _emberMetalCore.default.STRINGS = this.oldString;
+    };
+
+    _class.prototype['@test it lets the original value through by default'] = function testItLetsTheOriginalValueThroughByDefault() {
+      var _this = this;
+
+      this.render('{{loc "Hiya buddy!"}}');
+      this.assertText('Hiya buddy!', 'the unlocalized string is correct');
+      this.runTask(function () {
+        return _this.rerender();
+      });
+      this.assertText('Hiya buddy!', 'the unlocalized string is correct after rerender');
+    };
+
+    _class.prototype['@test it localizes a simple string'] = function testItLocalizesASimpleString() {
+      var _this2 = this;
+
+      this.render('{{loc "_Howdy Friend"}}');
+      this.assertText('Hallo Freund', 'the localized string is correct');
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+      this.assertText('Hallo Freund', 'the localized string is correct after rerender');
+    };
+
+    _class.prototype['@test it takes passed formats into an account'] = function testItTakesPassedFormatsIntoAnAccount() {
+      var _this3 = this;
+
+      this.render('{{loc "%@, %@" "Hello" "Mr. Pitkin"}}');
+      this.assertText('Hello, Mr. Pitkin', 'the formatted string is correct');
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+      this.assertText('Hello, Mr. Pitkin', 'the formatted string is correct after rerender');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -33120,60 +33182,6 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
   });
 });
-enifed('ember-htmlbars/tests/helpers/loc_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  function buildView(template) {
-    var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    return _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default(template),
-      context: context
-    });
-  }
-
-  var oldString;
-
-  QUnit.module('ember-htmlbars: {{#loc}} helper', {
-    setup: function () {
-      oldString = _emberMetalCore.default.STRINGS;
-      _emberMetalCore.default.STRINGS = {
-        '_Howdy Friend': 'Hallo Freund'
-      };
-    },
-
-    teardown: function () {
-      _emberMetalCore.default.STRINGS = oldString;
-    }
-  });
-
-  QUnit.test('let the original value through by default', function () {
-    var view = buildView('{{loc "Hiya buddy!"}}');
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Hiya buddy!');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-
-  QUnit.test('localize a simple string', function () {
-    var view = buildView('{{loc "_Howdy Friend"}}');
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Hallo Freund');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-
-  QUnit.test('localize takes passed formats into an account', function () {
-    var view = buildView('{{loc "%@, %@" "Hello" "Mr. Pitkin"}}');
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Hello, Mr. Pitkin', 'the value of localizationKey is correct');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-});
 enifed('ember-htmlbars/tests/helpers/log_test', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalLogger, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   'use strict';
 
@@ -39353,6 +39361,68 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
     return _class11;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/core'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalCore) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{loc}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+      this.oldString = _emberMetalCore.default.STRINGS;
+      _emberMetalCore.default.STRINGS = {
+        '_Howdy Friend': 'Hallo Freund'
+      };
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _emberMetalCore.default.STRINGS = this.oldString;
+    };
+
+    _class.prototype['@test it lets the original value through by default'] = function testItLetsTheOriginalValueThroughByDefault() {
+      var _this = this;
+
+      this.render('{{loc "Hiya buddy!"}}');
+      this.assertText('Hiya buddy!', 'the unlocalized string is correct');
+      this.runTask(function () {
+        return _this.rerender();
+      });
+      this.assertText('Hiya buddy!', 'the unlocalized string is correct after rerender');
+    };
+
+    _class.prototype['@test it localizes a simple string'] = function testItLocalizesASimpleString() {
+      var _this2 = this;
+
+      this.render('{{loc "_Howdy Friend"}}');
+      this.assertText('Hallo Freund', 'the localized string is correct');
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+      this.assertText('Hallo Freund', 'the localized string is correct after rerender');
+    };
+
+    _class.prototype['@test it takes passed formats into an account'] = function testItTakesPassedFormatsIntoAnAccount() {
+      var _this3 = this;
+
+      this.render('{{loc "%@, %@" "Hello" "Mr. Pitkin"}}');
+      this.assertText('Hello, Mr. Pitkin', 'the formatted string is correct');
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+      this.assertText('Hello, Mr. Pitkin', 'the formatted string is correct after rerender');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
@@ -68977,7 +69047,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+94964e1d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+a358c59c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
