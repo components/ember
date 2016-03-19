@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+a358c59c
+ * @version   2.6.0-canary+afc5c54a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25708,6 +25708,78 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/logger'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalLogger) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{log}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class(assert) {
+      var _this = this;
+
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+
+      this.originalLog = _emberMetalLogger.default.log;
+      this.logCalls = [];
+      _emberMetalLogger.default.log = function () {
+        var _logCalls;
+
+        (_logCalls = _this.logCalls).push.apply(_logCalls, arguments);
+      };
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _emberMetalLogger.default.log = this.originalLog;
+    };
+
+    _class.prototype.assertLog = function assertLog(values) {
+      this.assertText('');
+      this.assert.strictEqual(this.logCalls.length, values.length);
+
+      for (var i = 0, len = values.length; i < len; i++) {
+        this.assert.strictEqual(this.logCalls[i], values[i]);
+      }
+    };
+
+    _class.prototype['@test correctly logs primitives'] = function testCorrectlyLogsPrimitives() {
+      this.render('{{log "one" 1 true}}');
+
+      this.assertLog(['one', 1, true]);
+    };
+
+    _class.prototype['@test correctly logs a property'] = function testCorrectlyLogsAProperty() {
+      this.render('{{log value}}', {
+        value: 'one'
+      });
+
+      this.assertLog(['one']);
+    };
+
+    _class.prototype['@test correctly logs multiple arguments'] = function testCorrectlyLogsMultipleArguments() {
+      this.render('{{log "my variable:" value}}', {
+        value: 'one'
+      });
+
+      this.assertLog(['my variable:', 'one']);
+    };
+
+    _class.prototype['@test correctly logs `this`'] = function testCorrectlyLogsThis() {
+      this.render('{{log this}}');
+
+      this.assertLog([this.context]);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -26664,8 +26736,6 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     }
   }
 
-  var assert = QUnit.assert;
-
   var TextNode = window.Text;
   var HTMLElement = window.HTMLElement;
   var Comment = window.Comment;
@@ -26676,6 +26746,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
       this.element = null;
       this.snapshot = null;
+      this.assert = QUnit.config.current.assert;
     }
 
     TestCase.prototype.teardown = function teardown() {};
@@ -26707,7 +26778,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     TestCase.prototype.assertText = function assertText(text) {
-      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
+      this.assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
     };
 
     TestCase.prototype.assertHTML = function assertHTML(html) {
@@ -26745,14 +26816,14 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     TestCase.prototype.assertSameNode = function assertSameNode(actual, expected) {
-      assert.strictEqual(actual, expected, 'DOM node stability');
+      this.assert.strictEqual(actual, expected, 'DOM node stability');
     };
 
     TestCase.prototype.assertInvariants = function assertInvariants() {
       var oldSnapshot = this.snapshot;
       var newSnapshot = this.takeSnapshot();
 
-      assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
+      this.assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
 
       for (var i = 0; i < oldSnapshot.length; i++) {
         this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
@@ -26933,7 +27004,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         throw new Error('Expecting a text node, but got ' + node);
       }
 
-      assert.strictEqual(node.textContent, text, 'node.textContent');
+      this.assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
     _createClass(RenderingTest, [{
@@ -31056,74 +31127,6 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     equal(destroyCount, 1, 'destroy is called after a view is destroyed');
   });
 });
-enifed('ember-htmlbars/tests/helpers/debug_test', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalLogger, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var originalLookup = _emberMetalCore.default.lookup;
-  var lookup;
-  var originalLog, logCalls;
-  var view;
-
-  QUnit.module('Handlebars {{log}} helper', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      originalLog = _emberMetalLogger.default.log;
-      logCalls = [];
-      _emberMetalLogger.default.log = function () {
-        logCalls.push.apply(logCalls, arguments);
-      };
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      view = null;
-
-      _emberMetalLogger.default.log = originalLog;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should be able to log multiple properties', function () {
-    var context = {
-      value: 'one',
-      valueTwo: 'two'
-    };
-
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberTemplateCompilerSystemCompile.default('{{log value valueTwo}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '', 'shouldn\'t render any text');
-    equal(logCalls[0], 'one');
-    equal(logCalls[1], 'two');
-  });
-
-  QUnit.test('should be able to log primitives', function () {
-    var context = {
-      value: 'one',
-      valueTwo: 'two'
-    };
-
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberTemplateCompilerSystemCompile.default('{{log value "foo" 0 valueTwo true}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '', 'shouldn\'t render any text');
-    strictEqual(logCalls[0], 'one');
-    strictEqual(logCalls[1], 'foo');
-    strictEqual(logCalls[2], 0);
-    strictEqual(logCalls[3], 'two');
-    strictEqual(logCalls[4], true);
-  });
-});
-// Ember.lookup
 enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-runtime/tests/utils'], function (exports, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
   'use strict';
 
@@ -33180,72 +33183,6 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, view, 'controller.someNullProperty', 'foo');
 
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
-  });
-});
-enifed('ember-htmlbars/tests/helpers/log_test', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalLogger, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var originalLookup, originalLog, logCalls, lookup, view;
-
-  QUnit.module('ember-htmlbars: {{#log}} helper', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      originalLog = _emberMetalLogger.default.log;
-      logCalls = [];
-      _emberMetalLogger.default.log = function (arg) {
-        logCalls.push(arg);
-      };
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-
-      view = null;
-
-      _emberMetalLogger.default.log = originalLog;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should be able to log a property', function () {
-    var context = {
-      value: 'one'
-    };
-
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberTemplateCompilerSystemCompile.default('{{log value}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '', 'shouldn\'t render any text');
-    equal(logCalls[0], 'one', 'should call log with value');
-  });
-
-  QUnit.test('should be able to log a view property', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{log view.value}}'),
-      value: 'one'
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '', 'shouldn\'t render any text');
-    equal(logCalls[0], 'one', 'should call log with value');
-  });
-
-  QUnit.test('should be able to log `this`', function () {
-    view = _emberViewsViewsView.default.create({
-      context: 'one',
-      template: _emberTemplateCompilerSystemCompile.default('{{log this}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '', 'shouldn\'t render any text');
-    equal(logCalls[0], 'one', 'should call log with item one');
   });
 });
 enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -39424,6 +39361,78 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/logger'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalLogger) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{log}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class(assert) {
+      var _this = this;
+
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+
+      this.originalLog = _emberMetalLogger.default.log;
+      this.logCalls = [];
+      _emberMetalLogger.default.log = function () {
+        var _logCalls;
+
+        (_logCalls = _this.logCalls).push.apply(_logCalls, arguments);
+      };
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _emberMetalLogger.default.log = this.originalLog;
+    };
+
+    _class.prototype.assertLog = function assertLog(values) {
+      this.assertText('');
+      this.assert.strictEqual(this.logCalls.length, values.length);
+
+      for (var i = 0, len = values.length; i < len; i++) {
+        this.assert.strictEqual(this.logCalls[i], values[i]);
+      }
+    };
+
+    _class.prototype['@test correctly logs primitives'] = function testCorrectlyLogsPrimitives() {
+      this.render('{{log "one" 1 true}}');
+
+      this.assertLog(['one', 1, true]);
+    };
+
+    _class.prototype['@test correctly logs a property'] = function testCorrectlyLogsAProperty() {
+      this.render('{{log value}}', {
+        value: 'one'
+      });
+
+      this.assertLog(['one']);
+    };
+
+    _class.prototype['@test correctly logs multiple arguments'] = function testCorrectlyLogsMultipleArguments() {
+      this.render('{{log "my variable:" value}}', {
+        value: 'one'
+      });
+
+      this.assertLog(['my variable:', 'one']);
+    };
+
+    _class.prototype['@test correctly logs `this`'] = function testCorrectlyLogsThis() {
+      this.render('{{log this}}');
+
+      this.assertLog([this.context]);
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -42151,8 +42160,6 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     }
   }
 
-  var assert = QUnit.assert;
-
   var TextNode = window.Text;
   var HTMLElement = window.HTMLElement;
   var Comment = window.Comment;
@@ -42163,6 +42170,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
       this.element = null;
       this.snapshot = null;
+      this.assert = QUnit.config.current.assert;
     }
 
     TestCase.prototype.teardown = function teardown() {};
@@ -42194,7 +42202,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     TestCase.prototype.assertText = function assertText(text) {
-      assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
+      this.assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
     };
 
     TestCase.prototype.assertHTML = function assertHTML(html) {
@@ -42232,14 +42240,14 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     TestCase.prototype.assertSameNode = function assertSameNode(actual, expected) {
-      assert.strictEqual(actual, expected, 'DOM node stability');
+      this.assert.strictEqual(actual, expected, 'DOM node stability');
     };
 
     TestCase.prototype.assertInvariants = function assertInvariants() {
       var oldSnapshot = this.snapshot;
       var newSnapshot = this.takeSnapshot();
 
-      assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
+      this.assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
 
       for (var i = 0; i < oldSnapshot.length; i++) {
         this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
@@ -42420,7 +42428,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         throw new Error('Expecting a text node, but got ' + node);
       }
 
-      assert.strictEqual(node.textContent, text, 'node.textContent');
+      this.assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
     _createClass(RenderingTest, [{
@@ -68603,7 +68611,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+a358c59c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+afc5c54a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
