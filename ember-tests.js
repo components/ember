@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+08c94289
+ * @version   2.6.0-canary+9bb3b124
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -35205,39 +35205,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     }
   });
 });
-enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var view, lookup;
-  var originalLookup = _emberMetalCore.default.lookup;
-
-  QUnit.module('Handlebars {{#with this as |foo|}}');
-
-  QUnit.module('{{#with}} helper binding to view keyword', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('We have: {{#with view.thing as |fromView|}}{{fromView.name}} and {{fromContext.name}}{{/with}}'),
-        thing: { name: 'this is from the view' },
-        context: {
-          fromContext: { name: 'this is from the context' }
-        }
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('{{with}} helper can bind to keywords with \'as\'', function () {
-    equal(view.$().text(), 'We have: this is from the view and this is from the context', 'should render');
-  });
-});
 enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/native_array', 'ember-views/components/component', 'ember-htmlbars/helpers', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemNative_array, _emberViewsComponentsComponent, _emberHtmlbarsHelpers, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -69010,7 +68977,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+08c94289', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+9bb3b124', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
