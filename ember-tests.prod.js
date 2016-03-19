@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+9bb3b124
+ * @version   2.6.0-canary+94964e1d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -20308,7 +20308,7 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-metal/co
     equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
   });
 });
-enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberMetalFeatures) {
+enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery) {
   'use strict';
 
   var app;
@@ -21755,7 +21755,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/features', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalFeatures, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberViewsSystemJquery) {
   'use strict';
 
   var App = null;
@@ -22176,7 +22176,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
 
       App.register('template:show', _emberTemplateCompilerSystemCompile.default('{{component model.componentName model=model.componentData}}'));
 
-      App.register('template:components/x-foo', _emberTemplateCompilerSystemCompile.default('\n        <h1>X-Foo</h1>\n        <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n      '));
+      App.register('template:components/x-foo', _emberTemplateCompilerSystemCompile.default('\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    '));
 
       App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
         tagName: 'x-foo',
@@ -22199,7 +22199,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
         }
       }));
 
-      App.register('template:components/x-bar', _emberTemplateCompilerSystemCompile.default('\n        <h1>X-Bar</h1>\n        <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n      '));
+      App.register('template:components/x-bar', _emberTemplateCompilerSystemCompile.default('\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    '));
 
       App.register('component:x-bar', _emberViewsComponentsComponent.default.extend({
         counter: _emberRuntimeInject.default.service('shared-counter'),
@@ -68533,7 +68533,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+9bb3b124', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+94964e1d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -71949,7 +71949,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.A
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/features', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalFeatures, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var a_slice = Array.prototype.slice;

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+9bb3b124
+ * @version   2.6.0-canary+94964e1d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3744,7 +3744,7 @@ enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/f
 @module ember
 @submodule ember-application
 */
-enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/symbol', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-htmlbars/system/dom-helper', 'ember-runtime/mixins/registry_proxy', 'ember-metal-views', 'ember-metal/assign', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-application/system/engine-instance'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSymbol, _emberMetalRun_loop, _emberMetalComputed, _emberHtmlbarsSystemDomHelper, _emberRuntimeMixinsRegistry_proxy, _emberMetalViews, _emberMetalAssign, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberApplicationSystemEngineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/symbol', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-htmlbars/system/dom-helper', 'ember-runtime/mixins/registry_proxy', 'ember-metal-views', 'ember-metal/assign', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-application/system/engine-instance'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSymbol, _emberMetalRun_loop, _emberMetalComputed, _emberHtmlbarsSystemDomHelper, _emberRuntimeMixinsRegistry_proxy, _emberMetalViews, _emberMetalAssign, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
   @submodule ember-application
@@ -3812,8 +3812,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
     init: function () {
       this._super.apply(this, arguments);
-
-      var application = this.application;
 
       // Register this instance in the per-instance registry.
       //
@@ -3973,10 +3971,8 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       dispatcher.setup(customEvents, this.rootElement);
 
       return dispatcher;
-    }
-  });
+    },
 
-  ApplicationInstance.reopen({
     /**
       Returns the current URL of the app instance. This is useful when your
       app does not update the browsers URL bar (i.e. it uses the `'none'`
@@ -4039,17 +4035,22 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   /**
     A list of boot-time configuration options for customizing the behavior of
     an `Ember.ApplicationInstance`.
-     This is an interface class that exists purely to document the available
+  
+    This is an interface class that exists purely to document the available
     options; you do not need to construct it manually. Simply pass a regular
     JavaScript object containing the desired options into methods that require
     one of these options object:
-     ```javascript
+  
+    ```javascript
     MyApp.visit("/", { location: "none", rootElement: "#container" });
     ```
-     Not all combinations of the supported options are valid. See the documentation
+  
+    Not all combinations of the supported options are valid. See the documentation
     on `Ember.Application#visit` for the supported configurations.
-     Internal, experimental or otherwise unstable flags are marked as private.
-     @class BootOptions
+  
+    Internal, experimental or otherwise unstable flags are marked as private.
+  
+    @class BootOptions
     @namespace Ember.ApplicationInstance
     @public
   */
@@ -4247,7 +4248,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-metal-views', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/templates/top-level-view', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-application/system/engine'], function (exports, _emberMetal, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberRuntimeControllersController, _emberMetalViews, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsTemplatesTopLevelView, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberApplicationSystemEngine) {
+enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-metal-views', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/templates/top-level-view', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-application/system/engine'], function (exports, _emberMetal, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberRuntimeControllersController, _emberMetalViews, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsTemplatesTopLevelView, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberApplicationSystemEngine) {
   /**
   @module ember
   @submodule ember-application
@@ -4256,7 +4257,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+9bb3b124';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
 
   var librariesRegistered = false;
 
@@ -4955,18 +4956,8 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
       if (this._globalsMode && this.__deprecatedInstance__) {
         this.__deprecatedInstance__.destroy();
       }
-    }
-  });
+    },
 
-  Object.defineProperty(Application.prototype, 'registry', {
-    configurable: true,
-    enumerable: false,
-    get: function () {
-      return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'Application');
-    }
-  });
-
-  Application.reopen({
     /**
       Boot a new instance of `Ember.ApplicationInstance` for the current
       application and navigate it to the given `url`. Returns a `Promise` that
@@ -5130,6 +5121,14 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
     }
   });
 
+  Object.defineProperty(Application.prototype, 'registry', {
+    configurable: true,
+    enumerable: false,
+    get: function () {
+      return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'Application');
+    }
+  });
+
   Application.reopenClass({
     /**
       This creates a registry with the default Ember naming conventions.
@@ -5264,9 +5263,6 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
   exports.default = Application;
 });
 // Ember.libraries, LOG_VERSION, Namespace, BOOTED
-
-// Force-assign these flags to their default values when the feature is
-// disabled, this ensures we can rely on their values in other paths.
 enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-metal/run_loop'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberMetalRun_loop) {
   /**
   @module ember
@@ -12215,7 +12211,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+9bb3b124';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -17850,7 +17846,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+9bb3b124
+    @version 2.6.0-canary+94964e1d
     @public
   */
 
@@ -17892,11 +17888,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+9bb3b124'
+    @default '2.6.0-canary+94964e1d'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+9bb3b124';
+  Ember.VERSION = '2.6.0-canary+94964e1d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -31971,7 +31967,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+9bb3b124';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -32474,7 +32470,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+9bb3b124';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -41459,7 +41455,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+9bb3b124',
+        revision: 'Ember@2.6.0-canary+94964e1d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44458,7 +44454,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/debug',
 
   exports.default = ViewStateSupport;
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/features', 'ember-metal/symbol', 'container/owner', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalFeatures, _emberMetalSymbol, _containerOwner, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'container/owner', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _containerOwner, _emberViewsSystemJquery) {
   'use strict';
 
   var _Mixin$create;
@@ -46872,7 +46868,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+9bb3b124';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+94964e1d';
 
   /**
   @module ember
@@ -52315,7 +52311,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+9bb3b124
+ * @version   2.6.0-canary+94964e1d
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
