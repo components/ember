@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+0cce3cf9
+ * @version   2.6.0-canary+4cd5900d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -29323,19 +29323,6 @@ enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-metal
       _emberRuntimeTestsUtils.runAppend(component);
     }, /Using `{{view}}` or any path based on it .*/);
   });
-});
-enifed("ember-htmlbars/tests/glimmer-component/test-helpers", ["exports"], function (exports) {
-  "use strict";
-
-  exports.moduleForGlimmerComponent = moduleForGlimmerComponent;
-
-  function moduleForGlimmerComponent(name, options) {
-    function beforeEach() {}
-
-    function afterEach() {}
-
-    QUnit.module("Glimmer Component - " + name, { beforeEach: beforeEach, afterEach: afterEach });
-  }
 });
 enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   /* globals EmberDev */
@@ -69057,7 +69044,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+0cce3cf9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+4cd5900d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
