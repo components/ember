@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+a564a3f7
+ * @version   2.6.0-canary+0cce3cf9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4257,7 +4257,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a564a3f7';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0cce3cf9';
 
   var librariesRegistered = false;
 
@@ -7351,7 +7351,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-metal/assign', 'ember-views/components/component'], function (exports, _glimmerRuntime, _emberMetalAssign, _emberViewsComponentsComponent) {
+enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-metal/assign', 'ember-glimmer/ember-views/component'], function (exports, _glimmerRuntime, _emberMetalAssign, _emberGlimmerEmberViewsComponent) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -7461,7 +7461,7 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
     function CurlyComponentDefinition(name, ComponentClass, template) {
       _classCallCheck(this, CurlyComponentDefinition);
 
-      _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberViewsComponentsComponent.default);
+      _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberGlimmerEmberViewsComponent.default);
       this.template = template;
     }
 
@@ -8149,6 +8149,97 @@ enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'emb
   function template(json) {
     return Wrapper.extend({ spec: JSON.parse(json) });
   }
+});
+enifed('ember-glimmer/ember-views/child-views-support', ['exports', 'ember-metal/mixin', 'container/owner'], function (exports, _emberMetalMixin, _containerOwner) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
+  'use strict';
+
+  exports.default = _emberMetalMixin.Mixin.create({
+    init: function () {
+      this._super.apply(this, arguments);
+
+      /**
+        Array of child views. You should never edit this array directly.
+        Instead, use `appendChild` and `removeFromParent`.
+         @property childViews
+        @type Array
+        @default []
+        @private
+      */
+      this.childViews = [];
+      this.parentView = null;
+      this.ownerView = this.ownerView || this;
+    },
+
+    appendChild: function (view) {
+      this.linkChild(view);
+      this.childViews.push(view);
+    },
+
+    destroyChild: function (view) {
+      view.destroy();
+    },
+
+    /**
+      Removes the child view from the parent view.
+       @method removeChild
+      @param {Ember.View} view
+      @return {Ember.View} receiver
+      @private
+    */
+    removeChild: function (view) {
+      // If we're destroying, the entire subtree will be
+      // freed, and the DOM will be handled separately,
+      // so no need to mess with childViews.
+      if (this.isDestroying) {
+        return;
+      }
+
+      // update parent node
+      this.unlinkChild(view);
+
+      // remove view from childViews array.
+      var childViews = this.childViews;
+
+      var index = childViews.indexOf(view);
+      if (index !== -1) {
+        childViews.splice(index, 1);
+      }
+
+      return this;
+    },
+
+    linkChild: function (instance) {
+      if (!instance[_containerOwner.OWNER]) {
+        _containerOwner.setOwner(instance, _containerOwner.getOwner(this));
+      }
+
+      instance.parentView = this;
+      instance.ownerView = this.ownerView;
+    },
+
+    unlinkChild: function (instance) {
+      instance.parentView = null;
+    }
+  });
+});
+enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView) {
+  'use strict';
+
+  exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
+    isComponent: true,
+    template: null,
+    layoutName: null,
+    layout: null,
+
+    init: function () {
+      this._super.apply(this, arguments);
+      this._viewRegistry = this._viewRegistry || _emberViewsViewsView.default.views;
+    }
+  });
 });
 enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog) {
   'use strict';
@@ -12306,7 +12397,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a564a3f7';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0cce3cf9';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -17941,7 +18032,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+a564a3f7
+    @version 2.6.0-canary+0cce3cf9
     @public
   */
 
@@ -17983,11 +18074,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+a564a3f7'
+    @default '2.6.0-canary+0cce3cf9'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+a564a3f7';
+  Ember.VERSION = '2.6.0-canary+0cce3cf9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -32062,7 +32153,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+a564a3f7';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+0cce3cf9';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -32565,7 +32656,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a564a3f7';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0cce3cf9';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -41550,7 +41641,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+a564a3f7',
+        revision: 'Ember@2.6.0-canary+0cce3cf9',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -46963,7 +47054,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+a564a3f7';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+0cce3cf9';
 
   /**
   @module ember
@@ -52406,7 +52497,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+a564a3f7
+ * @version   2.6.0-canary+0cce3cf9
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
