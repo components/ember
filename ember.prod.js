@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+4cd5900d
+ * @version   2.6.0-canary+8af78993
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4236,7 +4236,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+4cd5900d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+8af78993';
 
   var librariesRegistered = false;
 
@@ -7900,46 +7900,47 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/helper'], func
 
   exports.default = _emberGlimmerHelper.helper(concat);
 });
-enifed('ember-glimmer/helpers/hash', ['exports', 'ember-glimmer/helper'], function (exports, _emberGlimmerHelper) {
-   'use strict';
+enifed('ember-glimmer/helpers/hash', ['exports', 'ember-glimmer/utils/references'], function (exports, _emberGlimmerUtilsReferences) {
+  'use strict';
 
-   /**
-   @module ember
-   @submodule ember-templates
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
+     Use the `{{hash}}` helper to create a hash to pass as an option to your
+     components. This is specially useful for contextual components where you can
+     just yield a hash:
+  
+     ```handlebars
+     {{yield (hash
+        name='Sarah'
+        title=office
+     )}}
+     ```
+  
+     Would result in an object such as:
+  
+     ```js
+     { name: 'Sarah', title: this.get('office') }
+     ```
+  
+     Where the `title` is bound to updates of the `office` property.
+  
+     @method hash
+     @for Ember.Templates.helpers
+     @param {Object} options
+     @return {Object} Hash
+     @public
    */
 
-   /**
-      Use the `{{hash}}` helper to create a hash to pass as an option to your
-      components. This is specially useful for contextual components where you can
-      just yield a hash:
-   
-      ```handlebars
-      {{yield (hash
-         name='Sarah'
-         title=office
-      )}}
-      ```
-   
-      Would result in an object such as:
-   
-      ```js
-      { name: 'Sarah', title: this.get('office') }
-      ```
-   
-      Where the `title` is bound to updates of the `office` property.
-   
-      @method hash
-      @for Ember.Templates.helpers
-      @param {Object} options
-      @return {Object} Hash
-      @public
-    */
-
-   function hash(params, hash, options) {
-      return hash;
-   }
-
-   exports.default = _emberGlimmerHelper.helper(hash);
+  exports.default = {
+    isInternalHelper: true,
+    toReference: function (args) {
+      return new _emberGlimmerUtilsReferences.HashHelperReference(args);
+    }
+  };
 });
 enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal/debug', 'ember-glimmer/utils/to-bool', 'ember-glimmer/utils/references'], function (exports, _emberMetalDebug, _emberGlimmerUtilsToBool, _emberGlimmerUtilsReferences) {
   /**
@@ -8398,6 +8399,32 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   })(RootReference);
 
   exports.UpdatableReference = UpdatableReference;
+
+  var HashHelperReference = (function () {
+    function HashHelperReference(args) {
+      _classCallCheck(this, HashHelperReference);
+
+      this.namedArgs = args.named;
+    }
+
+    HashHelperReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    HashHelperReference.prototype.value = function value() {
+      return this.namedArgs.value();
+    };
+
+    HashHelperReference.prototype.get = function get(propertyKey) {
+      return this.namedArgs.get(propertyKey);
+    };
+
+    HashHelperReference.prototype.destroy = function destroy() {};
+
+    return HashHelperReference;
+  })();
+
+  exports.HashHelperReference = HashHelperReference;
 
   var ConditionalReference = (function (_GlimmerConditionalReference) {
     _inherits(ConditionalReference, _GlimmerConditionalReference);
@@ -11763,7 +11790,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+4cd5900d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+8af78993';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -17308,7 +17335,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+4cd5900d
+    @version 2.6.0-canary+8af78993
     @public
   */
 
@@ -17350,11 +17377,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+4cd5900d'
+    @default '2.6.0-canary+8af78993'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+4cd5900d';
+  Ember.VERSION = '2.6.0-canary+8af78993';
 
   /**
     The hash of environment variables used to control various configuration
@@ -31244,7 +31271,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+4cd5900d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+8af78993';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -31744,7 +31771,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+4cd5900d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+8af78993';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40634,7 +40661,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+4cd5900d',
+        revision: 'Ember@2.6.0-canary+8af78993',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44693,7 +44720,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+4cd5900d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+8af78993';
 
   /**
   @module ember
@@ -50102,7 +50129,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+4cd5900d
+ * @version   2.6.0-canary+8af78993
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
