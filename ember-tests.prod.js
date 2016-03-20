@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+bf067f73
+ * @version   2.6.0-canary+5c121576
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3222,6 +3222,10 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
             attrs: { id: '"aria-test"', role: '"main"' }
         }
     });
+    testComponent('yielding to an non-existent block', {
+        layout: 'Before-{{yield}}-After',
+        expected: 'Before--After'
+    });
     testComponent('hasBlock is true when block supplied', {
         skip: true,
         layout: '{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}',
@@ -5178,42 +5182,29 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
             compile("<div>\n<p>\n{{some-comment}}</div>{{some-comment}}");
         }, /Closing tag `div` \(on line 3\) did not match last open tag `p` \(on line 2\)\./);
     });
-    if (document.createElement('div').namespaceURI) {
-        _module("Initial render of namespaced HTML");
-        test("Namespaced attribute", function () {
-            compilesTo("<svg xlink:title='svg-title'>content</svg>");
-            var svg = root.firstChild;
-            equal(svg.namespaceURI, SVG_NAMESPACE);
-            equal(svg.attributes[0].namespaceURI, XLINK_NAMESPACE);
-        });
-        test("Namespaced attribute with a quoted expression", function () {
-            compilesTo("<svg xlink:title='{{title}}'>content</svg>", "<svg xlink:title='svg-title'>content</svg>", { title: 'svg-title' });
-            var svg = root.firstChild;
-            equal(svg.namespaceURI, SVG_NAMESPACE);
-            equal(svg.attributes[0].namespaceURI, XLINK_NAMESPACE);
-        });
-        test("Namespaced attribute with unquoted expression throws", function () {
-            QUnit.throws(function () {
-                compile("<svg xlink:title={{title}}>content</svg>");
-            }, /Namespaced attributes cannot be set as props. Perhaps you meant xlink:title="{{title}}"/);
-        });
-        test("<svg> tag with case-sensitive attribute", function () {
-            var viewBox = '0 0 0 0';
-            compilesTo("<svg viewBox=\"" + viewBox + "\"></svg>");
-            var svg = root.firstChild;
-            equal(svg.namespaceURI, SVG_NAMESPACE);
-            equal(svg.getAttribute('viewBox'), viewBox);
-        });
-        test("nested element in the SVG namespace", function () {
-            var d = 'M 0 0 L 100 100';
-            compilesTo("<svg><path d=\"" + d + "\"></path></svg>");
-            var svg = root.firstChild;
-            var path = svg.firstChild;
-            equal(svg.namespaceURI, SVG_NAMESPACE);
-            equal(path.namespaceURI, SVG_NAMESPACE, "creates the path element with a namespace");
-            equal(path.getAttribute('d'), d);
-        });
-    }
+    _module("Initial render of namespaced HTML");
+    test("Namespaced attribute", function () {
+        compilesTo("<svg xlink:title='svg-title'>content</svg>");
+        var svg = root.firstChild;
+        equal(svg.namespaceURI, SVG_NAMESPACE);
+        equal(svg.attributes[0].namespaceURI, XLINK_NAMESPACE);
+    });
+    test("<svg> tag with case-sensitive attribute", function () {
+        var viewBox = '0 0 0 0';
+        compilesTo("<svg viewBox=\"" + viewBox + "\"></svg>");
+        var svg = root.firstChild;
+        equal(svg.namespaceURI, SVG_NAMESPACE);
+        equal(svg.getAttribute('viewBox'), viewBox);
+    });
+    test("nested element in the SVG namespace", function () {
+        var d = 'M 0 0 L 100 100';
+        compilesTo("<svg><path d=\"" + d + "\"></path></svg>");
+        var svg = root.firstChild;
+        var path = svg.firstChild;
+        equal(svg.namespaceURI, SVG_NAMESPACE);
+        equal(path.namespaceURI, SVG_NAMESPACE, "creates the path element with a namespace");
+        equal(path.getAttribute('d'), d);
+    });
     test("<foreignObject> tag has an SVG namespace", function () {
         compilesTo('<svg><foreignObject>Hi</foreignObject></svg>');
         var svg = root.firstChild;
@@ -5246,87 +5237,11 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     test("Case-sensitive tag has capitalization preserved", function () {
         compilesTo('<svg><linearGradient id="gradient"></linearGradient></svg>');
     });
-    // QUnit.skip("svg can live with hydration", function() {
-    //   let template = compile('<svg></svg>{{name}}');
-    //   let fragment = render(template, { name: 'Milly' }, env, { contextualElement: document.body }).fragment;
-    //   equal(
-    //     fragment.childNodes[0].namespaceURI, svgNamespace,
-    //     "svg namespace inside a block is present" );
-    // });
-    // QUnit.skip("top-level unsafe morph uses the correct namespace", function() {
-    //   let template = compile('<svg></svg>{{{foo}}}');
-    //   let fragment = render(template, { foo: '<span>FOO</span>' }).fragment;
-    //   equal(getTextContent(fragment), 'FOO', 'element from unsafe morph is displayed');
-    //   equal(fragment.childNodes[1].namespaceURI, xhtmlNamespace, 'element from unsafe morph has correct namespace');
-    // });
-    // QUnit.skip("nested unsafe morph uses the correct namespace", function() {
-    //   let template = compile('<svg>{{{foo}}}</svg><div></div>');
-    //   let fragment = render(template, { foo: '<path></path>' }).fragment;
-    //   equal(fragment.childNodes[0].childNodes[0].namespaceURI, svgNamespace,
-    //         'element from unsafe morph has correct namespace');
-    // });
-    // QUnit.skip("svg can take some hydration", function() {
-    //   let template = compile('<div><svg>{{name}}</svg></div>');
-    //   let fragment = render(template, { name: 'Milly' }).fragment;
-    //   equal(
-    //     fragment.firstChild.childNodes[0].namespaceURI, svgNamespace,
-    //     "svg namespace inside a block is present" );
-    //   equalTokens( fragment.firstChild, '<div><svg>Milly</svg></div>',
-    //              "html is valid" );
-    // });
-    // QUnit.skip("root svg can take some hydration", function() {
-    //   let template = compile('<svg>{{name}}</svg>');
-    //   let fragment = render(template, { name: 'Milly' }, env).fragment;
-    //   let svgNode = fragment.firstChild;
-    //   equal(
-    //     svgNode.namespaceURI, svgNamespace,
-    //     "svg namespace inside a block is present" );
-    //   equalTokens( svgNode, '<svg>Milly</svg>',
-    //              "html is valid" );
-    // });
-    // QUnit.skip("Block helper allows interior namespace", function() {
-    //   let isTrue = true;
-    //   env.registerHelper('testing', function(params, hash, blocks) {
-    //     if (isTrue) {
-    //       return blocks.template.yield();
-    //     } else {
-    //       return blocks.inverse.yield();
-    //     }
-    //   });
-    //   let template = compile('{{#testing}}<svg></svg>{{else}}<div><svg></svg></div>{{/testing}}');
-    //   let fragment = render(template, { isTrue: true }, env, { contextualElement: document.body }).fragment;
-    //   equal(
-    //     firstChild(fragment).namespaceURI, svgNamespace,
-    //     "svg namespace inside a block is present" );
-    //   isTrue = false;
-    //   fragment = render(template, { isTrue: false }, env, { contextualElement: document.body }).fragment;
-    //   equal(
-    //     firstChild(fragment).namespaceURI, xhtmlNamespace,
-    //     "inverse block path has a normal namespace");
-    //   equal(
-    //     firstChild(fragment).firstChild.namespaceURI, svgNamespace,
-    //     "svg namespace inside an element inside a block is present" );
-    // });
-    // QUnit.skip("Block helper allows namespace to bleed through", function() {
-    //   registerYieldingHelper('testing');
-    //   let template = compile('<div><svg>{{#testing}}<circle />{{/testing}}</svg></div>');
-    //   let fragment = render(template, { isTrue: true }, env).fragment;
-    //   let svgNode = fragment.firstChild.firstChild;
-    //   equal( svgNode.namespaceURI, svgNamespace,
-    //          "svg tag has an svg namespace" );
-    //   equal( svgNode.childNodes[0].namespaceURI, svgNamespace,
-    //          "circle tag inside block inside svg has an svg namespace" );
-    // });
-    // QUnit.skip("Block helper with root svg allows namespace to bleed through", function() {
-    //   registerYieldingHelper('testing');
-    //   let template = compile('<svg>{{#testing}}<circle />{{/testing}}</svg>');
-    //   let fragment = render(template, { isTrue: true }, env).fragment;
-    //   let svgNode = fragment.firstChild;
-    //   equal( svgNode.namespaceURI, svgNamespace,
-    //          "svg tag has an svg namespace" );
-    //   equal( svgNode.childNodes[0].namespaceURI, svgNamespace,
-    //          "circle tag inside block inside svg has an svg namespace" );
-    // });
+    test("Namespaced attribute with unquoted expression throws", function () {
+        QUnit.throws(function () {
+            compile("<svg xlink:title={{title}}>content</svg>");
+        }, /Namespaced attributes cannot be set as props. Perhaps you meant xlink:title="{{title}}"/);
+    });
 });
 
 enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
@@ -5338,6 +5253,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
     function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
     var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    var XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
     var XHTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
     /*
      * Phantom 1.9 does not serialize namespaced attributes correctly. The namespace
@@ -5398,6 +5314,34 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>goodbye world</p></div>', "After updating and dirtying");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
+    });
+    test("null and undefined produces empty text nodes", function () {
+        var object = { v1: null, v2: undefined };
+        var template = compile('<div><p>{{v1}}</p><p>{{v2}}</p></div>');
+        render(template, object);
+        var valueNode1 = root.firstChild.firstChild.firstChild;
+        var valueNode2 = root.firstChild.lastChild.firstChild;
+        _glimmerTestHelpers.equalTokens(root, '<div><p></p><p></p></div>', "Initial render");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p></p><p></p></div>', "no change");
+        strictEqual(root.firstChild.firstChild.firstChild, valueNode1, "The text node was not blown away");
+        strictEqual(root.firstChild.lastChild.firstChild, valueNode2, "The text node was not blown away");
+        object.v1 = 'hello';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello</p><p></p></div>', "After updating and dirtying");
+        strictEqual(root.firstChild.firstChild.firstChild, valueNode1, "The text node was not blown away");
+        strictEqual(root.firstChild.lastChild.firstChild, valueNode2, "The text node was not blown away");
+        object.v2 = 'world';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello</p><p>world</p></div>', "After updating and dirtying");
+        strictEqual(root.firstChild.firstChild.firstChild, valueNode1, "The text node was not blown away");
+        strictEqual(root.firstChild.lastChild.firstChild, valueNode2, "The text node was not blown away");
+        object.v1 = null;
+        object.v2 = undefined;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p></p><p></p></div>', "Reset");
+        strictEqual(root.firstChild.firstChild.firstChild, valueNode1, "The text node was not blown away");
+        strictEqual(root.firstChild.lastChild.firstChild, valueNode2, "The text node was not blown away");
     });
     test("updating a single trusting curly", function () {
         var object = { value: '<p>hello world</p>' };
@@ -5672,11 +5616,14 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         var object = { value: "world" };
         render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
         object.value = "universe";
-        rerender(); // without setting the node to dirty
-        _glimmerTestHelpers.equalTokens(root, "<div class='hello universe'>hello</div>");
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='hello universe'>hello</div>");
+        object.value = null;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div class='hello '>hello</div>");
         object.value = "world";
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
@@ -5700,11 +5647,14 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         var object = { value: "world" };
         render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello world'>hello</div>");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div data-value='hello world'>hello</div>");
         object.value = "universe";
-        rerender(); // without setting the node to dirty
-        _glimmerTestHelpers.equalTokens(root, "<div data-value='hello universe'>hello</div>");
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello universe'>hello</div>");
+        object.value = null;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div data-value='hello '>hello</div>");
         object.value = "world";
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello world'>hello</div>");
@@ -5726,11 +5676,17 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
             var object = { locale: "us" };
             render(template, object);
             _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
+            rerender();
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "No-op rerender");
             object.locale = "uk";
             rerender();
-            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "After update");
+            object.locale = null;
             rerender();
-            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-'>hello</div>", "After updating to null");
+            object.locale = "us";
+            rerender();
+            _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "After reset");
         });
     }
     test("non-standard namespaced attribute nodes follow the normal dirtying rules", function () {
@@ -5749,11 +5705,17 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         var object = { type: "backmatter" };
         render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication backmatter'>hello</div>", "Initial render");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication backmatter'>hello</div>", "No-op rerender");
         object.type = "index";
         rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication index'>hello</div>", "Revalidating without dirtying");
+        _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication index'>hello</div>", "After update");
+        object.type = null;
         rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication index'>hello</div>", "Revalidating after dirtying");
+        _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication '>hello</div>", "After updating to null");
+        object.type = "backmatter";
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication backmatter'>hello</div>", "After reset");
     });
     test("property nodes follow the normal dirtying rules", function () {
         var template = compile("<div foo={{value}}>hello</div>");
@@ -6081,6 +6043,218 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         equal(getSvg().namespaceURI, SVG_NAMESPACE);
         equal(getForeignObject().namespaceURI, SVG_NAMESPACE);
         equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+    });
+    test("Namespaced attribute with a quoted expression", function () {
+        var title = 'svg-title';
+        var context = { title: title };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var getXlinkAttr = function () {
+            return getSvg().attributes[0];
+        };
+        var template = compile('<svg xlink:title="{{title}}">content</svg>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<svg xlink:title=\"" + title + "\">content</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getXlinkAttr().namespaceURI, XLINK_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg xlink:title=\"" + title + "\">content</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getXlinkAttr().namespaceURI, XLINK_NAMESPACE);
+        context.title = 'mmun';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg xlink:title=\"" + context.title + "\">content</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getXlinkAttr().namespaceURI, XLINK_NAMESPACE);
+        rerender({ title: title });
+        _glimmerTestHelpers.equalTokens(root, "<svg xlink:title=\"" + title + "\">content</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getXlinkAttr().namespaceURI, XLINK_NAMESPACE);
+    });
+    test("<svg> tag and expression as sibling", function () {
+        var name = 'svg-title';
+        var context = { name: name };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var template = compile('<svg></svg>{{name}}');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        context.name = null;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender({ name: name });
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+    });
+    test("<svg> tag and unsafe expression as sibling", function () {
+        var name = '<i>Biff</i>';
+        var context = { name: name };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var getItalic = function () {
+            return root.lastChild;
+        };
+        var template = compile('<svg></svg>{{{name}}}');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getItalic().namespaceURI, XHTML_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getItalic().namespaceURI, XHTML_NAMESPACE);
+        context.name = 'ef4';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + context.name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender({ name: name });
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>" + name);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getItalic().namespaceURI, XHTML_NAMESPACE);
+    });
+    test("unsafe expression nested inside a namespace", function () {
+        var content = '<path></path>';
+        var context = { content: content };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var getPath = function () {
+            return getSvg().firstChild;
+        };
+        var getDiv = function () {
+            return root.lastChild;
+        };
+        var template = compile('<svg>{{{content}}}</svg><div></div>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg><div></div>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getPath().namespaceURI, SVG_NAMESPACE, 'initial render path has SVG namespace');
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg><div></div>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getPath().namespaceURI, SVG_NAMESPACE, 'path has SVG namespace');
+        context.content = '<foreignObject><span></span></foreignObject>';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + context.content + "</svg><div></div>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE, 'foreignObject has SVG NS');
+        equal(getSvg().firstChild.firstChild.namespaceURI, XHTML_NAMESPACE, 'span has XHTML NS');
+        rerender({ content: content });
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg><div></div>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getPath().namespaceURI, SVG_NAMESPACE);
+    });
+    test("expression nested inside a namespace", function () {
+        var content = 'Milly';
+        var context = { content: content };
+        var getDiv = function () {
+            return root.firstChild;
+        };
+        var getSvg = function () {
+            return getDiv().firstChild;
+        };
+        var template = compile('<div><svg>{{content}}</svg></div>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<div><svg>" + content + "</svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div><svg>" + content + "</svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        context.content = 'Moe';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div><svg>" + context.content + "</svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender({ content: content });
+        _glimmerTestHelpers.equalTokens(root, "<div><svg>" + content + "</svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+    });
+    test("expression nested inside a namespaced root element", function () {
+        var content = 'Maurice';
+        var context = { content: content };
+        var getSvg = function () {
+            return root.firstChild;
+        };
+        var template = compile('<svg>{{content}}</svg>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        context.content = null;
+        rerender();
+        equal(getSvg().tagName, 'svg');
+        ok(getSvg().firstChild.textContent === '');
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender({ content: content });
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+    });
+    test("HTML namespace is created in child templates", function () {
+        var isTrue = true;
+        var context = { isTrue: isTrue };
+        var template = compile('{{#if isTrue}}<svg></svg>{{else}}<div><svg></svg></div>{{/if}}');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>");
+        equal(root.firstChild.namespaceURI, SVG_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>");
+        equal(root.firstChild.namespaceURI, SVG_NAMESPACE);
+        context.isTrue = false;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div><svg></svg></div>");
+        equal(root.firstChild.namespaceURI, XHTML_NAMESPACE);
+        equal(root.firstChild.firstChild.namespaceURI, SVG_NAMESPACE);
+        rerender({ isTrue: isTrue });
+        _glimmerTestHelpers.equalTokens(root, "<svg></svg>");
+        equal(root.firstChild.namespaceURI, SVG_NAMESPACE);
+    });
+    test("HTML namespace is continued to child templates", function () {
+        var isTrue = true;
+        var context = { isTrue: isTrue };
+        var getDiv = function () {
+            return root.firstChild;
+        };
+        var getSvg = function () {
+            return getDiv().firstChild;
+        };
+        var template = compile('<div><svg>{{#if isTrue}}<circle />{{/if}}</svg></div>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, "<div><svg><circle /></svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div><svg><circle /></svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE);
+        context.isTrue = false;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div><svg><!----></svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        rerender({ isTrue: isTrue });
+        _glimmerTestHelpers.equalTokens(root, "<div><svg><circle /></svg></div>");
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE);
     });
 });
 
@@ -24694,7 +24868,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
+enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -24763,82 +24937,95 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+  var DynamicContentTest = (function (_RenderingTest2) {
+    _inherits(DynamicContentTest, _RenderingTest2);
 
-    function _class2() {
-      _classCallCheck(this, _class2);
+    function DynamicContentTest() {
+      _classCallCheck(this, DynamicContentTest);
 
       _RenderingTest2.apply(this, arguments);
     }
 
-    _class2.prototype['@test it can render a dynamic text node'] = function testItCanRenderADynamicTextNode() {
+    /* abstract */
+
+    DynamicContentTest.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      throw new Error('Not implemented: `renderValues`');
+    };
+
+    DynamicContentTest.prototype.assertIsEmpty = function assertIsEmpty() {
+      this.assertText('');
+    };
+
+    DynamicContentTest.prototype['@test it can render a dynamic path'] = function testItCanRenderADynamicPath() {
       var _this4 = this;
 
-      this.render('{{message}}', {
-        message: 'hello'
-      });
-      var text1 = this.assertTextNode(this.firstChild, 'hello');
+      this.renderPath('message', { message: 'hello' });
 
+      this.assertText('hello');
+
+      // FIXME: use @mmun's assertStableRerender
+      this.takeSnapshot();
       this.runTask(function () {
         return _this4.rerender();
       });
-
-      var text2 = this.assertTextNode(this.firstChild, 'hello');
-
-      this.assertSameNode(text1, text2);
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
       });
 
-      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
-
-      this.assertSameNode(text1, text3);
+      this.assertText('goodbye');
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
       });
 
-      var text4 = this.assertTextNode(this.firstChild, 'hello');
-
-      this.assertSameNode(text1, text4);
+      this.assertText('hello');
+      this.assertInvariants();
     };
 
-    _class2.prototype['@test it can render a dynamic text node with deeply nested paths'] = function testItCanRenderADynamicTextNodeWithDeeplyNestedPaths() {
+    DynamicContentTest.prototype['@test it can render a deeply nested dynamic path'] = function testItCanRenderADeeplyNestedDynamicPath() {
       var _this5 = this;
 
-      this.render('{{a.b.c.d.e.f}}', {
+      this.renderPath('a.b.c.d.e.f', {
         a: { b: { c: { d: { e: { f: 'hello' } } } } }
       });
-      var text1 = this.assertTextNode(this.firstChild, 'hello');
 
+      this.assertText('hello');
+
+      // FIXME: use @mmun's assertStableRerender
+      this.takeSnapshot();
       this.runTask(function () {
         return _this5.rerender();
       });
-
-      var text2 = this.assertTextNode(this.firstChild, 'hello');
-
-      this.assertSameNode(text1, text2);
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'goodbye');
       });
 
-      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
-
-      this.assertSameNode(text1, text3);
+      this.assertText('goodbye');
+      this.assertInvariants();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'hello');
+        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d', { e: { f: 'aloha' } });
       });
 
-      var text4 = this.assertTextNode(this.firstChild, 'hello');
+      this.assertText('aloha');
+      this.assertInvariants();
 
-      this.assertSameNode(text1, text4);
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'a', { b: { c: { d: { e: { f: 'hello' } } } } });
+      });
+
+      this.assertText('hello');
+      this.assertInvariants();
     };
 
-    _class2.prototype['@test it can render a dynamic text node where the value is a computed property'] = function testItCanRenderADynamicTextNodeWhereTheValueIsAComputedProperty() {
+    DynamicContentTest.prototype['@test it can render a computed property'] = function testItCanRenderAComputedProperty() {
       var _this6 = this;
 
       var Formatter = _emberRuntimeSystemObject.default.extend({
@@ -24849,77 +25036,215 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       var m = Formatter.create({ message: 'hello' });
 
-      this.render('{{m.formattedMessage}}', { m: m });
+      this.renderPath('m.formattedMessage', { m: m });
 
-      var text1 = this.assertTextNode(this.firstChild, 'HELLO');
+      this.assertText('HELLO');
 
+      // FIXME: use @mmun's assertStableRerender
+      this.takeSnapshot();
       this.runTask(function () {
         return _this6.rerender();
       });
-
-      var text2 = this.assertTextNode(this.firstChild, 'HELLO');
-
-      this.assertSameNode(text1, text2);
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(m, 'message', 'goodbye');
       });
 
-      var text3 = this.assertTextNode(this.firstChild, 'GOODBYE');
-
-      this.assertSameNode(text1, text3);
+      this.assertText('GOODBYE');
+      this.assertInvariants();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(m, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this6.context, 'm', Formatter.create({ message: 'hello' }));
       });
 
-      var text4 = this.assertTextNode(this.firstChild, 'HELLO');
-
-      this.assertSameNode(text1, text4);
+      this.assertText('HELLO');
+      this.assertInvariants();
     };
 
-    _class2.prototype['@test it can render a dynamic element'] = function testItCanRenderADynamicElement() {
-      var _this7 = this;
+    return DynamicContentTest;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
-      this.render('<p>{{message}}</p>', {
-        message: 'hello'
-      });
-      var p1 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text1 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+  var EMPTY = {};
 
-      this.runTask(function () {
-        return _this7.rerender();
-      });
+  var ContentTestGenerator = (function () {
+    function ContentTestGenerator(cases) {
+      var tag = arguments.length <= 1 || arguments[1] === undefined ? '@test' : arguments[1];
 
-      var p2 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text2 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+      _classCallCheck(this, ContentTestGenerator);
 
-      this.assertSameNode(p1, p2);
-      this.assertSameNode(text1, text2);
+      this.cases = cases;
+      this.tag = tag;
+    }
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
-      });
+    ContentTestGenerator.prototype.generate = function generate(_ref3) {
+      var value = _ref3[0];
+      var expected = _ref3[1];
+      var label = _ref3[2];
 
-      var p3 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text3 = this.assertTextNode(this.firstChild.firstChild, 'goodbye');
+      var tag = this.tag;
+      label = label || value;
 
-      this.assertSameNode(p1, p3);
-      this.assertSameNode(text1, text3);
+      if (expected === EMPTY) {
+        var _ref;
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
-      });
+        return _ref = {}, _ref[tag + ' rendering ' + label] = function () {
+          var _this7 = this;
 
-      var p4 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text4 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+          this.renderPath('value', { value: value });
 
-      this.assertSameNode(p1, p4);
-      this.assertSameNode(text1, text4);
+          this.assertIsEmpty();
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this7.context, 'value', 'hello');
+          });
+
+          this.assertText('hello');
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this7.context, 'value', value);
+          });
+
+          this.assertIsEmpty();
+        }, _ref;
+      } else {
+        var _ref2;
+
+        return _ref2 = {}, _ref2[tag + ' rendering ' + label] = function () {
+          var _this8 = this;
+
+          this.renderPath('value', { value: value });
+
+          this.assertText(expected);
+
+          // FIXME: use @mmun's assertStableRerender
+          this.takeSnapshot();
+          this.runTask(function () {
+            return _this8.rerender();
+          });
+          this.assertInvariants();
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this8.context, 'value', 'hello');
+          });
+
+          this.assertText('hello');
+          this.assertInvariants();
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this8.context, 'value', value);
+          });
+
+          this.assertText(expected);
+          this.assertInvariants();
+        }, _ref2;
+      }
     };
 
-    _class2.prototype['@test it can render a dynamic template'] = function testItCanRenderADynamicTemplate() {
-      var _this8 = this;
+    return ContentTestGenerator;
+  })();
+
+  var SharedContentTestCases = new ContentTestGenerator([['foo', 'foo'], [0, '0'], [-0, '0', '-0'], [1, '1'], [-1, '-1'], [0.0, '0', '0.0'], [0.5, '0.5'], [undefined, EMPTY], [null, EMPTY], [true, 'true'], [false, 'false'], [NaN, 'NaN'], [new Date(2000, 0, 1), String(new Date(2000, 0, 1)), 'a Date object'], [Infinity, 'Infinity'], [1 / -0, '-Infinity'], [{ foo: 'bar' }, '[object Object]', '{ foo: \'bar\' }'], [{ toString: function () {
+      return 'foo';
+    } }, 'foo', 'an object with a custom toString function'], [{ valueOf: function () {
+      return 1;
+    } }, '[object Object]', 'an object with a custom valueOf function']]);
+
+  var GlimmerContentTestCases = new ContentTestGenerator([[Object.create(null), EMPTY, 'an object with no toString']], '@glimmer');
+
+  if (typeof Symbol !== 'undefined') {
+    GlimmerContentTestCases.cases.push([Symbol('debug'), 'Symbol(debug)', 'a symbol']);
+  }
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(DynamicContentTest, SharedContentTestCases, GlimmerContentTestCases);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (content position)', (function (_DynamicContentTest) {
+    _inherits(_class2, _DynamicContentTest);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _DynamicContentTest.apply(this, arguments);
+    }
+
+    _class2.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('{{' + path + '}}', context);
+    };
+
+    return _class2;
+  })(DynamicContentTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (content concat)', (function (_DynamicContentTest2) {
+    _inherits(_class3, _DynamicContentTest2);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _DynamicContentTest2.apply(this, arguments);
+    }
+
+    _class3.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('{{concat "" ' + path + ' ""}}', context);
+    };
+
+    return _class3;
+  })(DynamicContentTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (inside an element)', (function (_DynamicContentTest3) {
+    _inherits(_class4, _DynamicContentTest3);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _DynamicContentTest3.apply(this, arguments);
+    }
+
+    _class4.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('<p>{{' + path + '}}</p>', context);
+    };
+
+    return _class4;
+  })(DynamicContentTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (attribute position)', (function (_DynamicContentTest4) {
+    _inherits(_class5, _DynamicContentTest4);
+
+    function _class5() {
+      _classCallCheck(this, _class5);
+
+      _DynamicContentTest4.apply(this, arguments);
+    }
+
+    _class5.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('<div data-foo="{{' + path + '}}"></div>', context);
+    };
+
+    _class5.prototype.textValue = function textValue() {
+      return this.$('div').attr('data-foo');
+    };
+
+    return _class5;
+  })(DynamicContentTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (integration)', (function (_RenderingTest3) {
+    _inherits(_class6, _RenderingTest3);
+
+    function _class6() {
+      _classCallCheck(this, _class6);
+
+      _RenderingTest3.apply(this, arguments);
+    }
+
+    _class6.prototype['@test it can render a dynamic template'] = function testItCanRenderADynamicTemplate() {
+      var _this9 = this;
 
       var template = '\n      <div class="header">\n        <h1>Welcome to {{framework}}</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use {{framework}}?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s {{framework}}</li>\n        </ol>\n      </div>\n      <div class="footer">\n        {{framework}} is free, open source and always will be.\n      </div>\n    ';
 
@@ -24933,25 +25258,25 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertHTML(ember);
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertHTML(ember);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'framework', 'React');
+        return _emberMetalProperty_set.set(_this9.context, 'framework', 'React');
       });
 
       this.assertHTML(react);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'framework', 'Ember.js');
+        return _emberMetalProperty_set.set(_this9.context, 'framework', 'Ember.js');
       });
 
       this.assertHTML(ember);
     };
 
-    return _class2;
+    return _class6;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
@@ -35496,52 +35821,6 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
     equal(view.$('div > p').text(), 'hello', 'view keyword inside component yield block should refer to the correct view');
   });
 });
-enifed('ember-htmlbars/tests/hooks/text_node_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('ember-htmlbars: textNode hook', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('property is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: 'erik' },
-      template: _emberTemplateCompilerSystemCompile.default('ohai {{name}}')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, 'ohai erik', 'property is output');
-  });
-
-  QUnit.test('path is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: { firstName: 'erik' } },
-      template: _emberTemplateCompilerSystemCompile.default('ohai {{name.firstName}}')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, 'ohai erik', 'path is output');
-  });
-
-  QUnit.test('changed property updates', function () {
-    var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberTemplateCompilerSystemCompile.default('ohai {{name}}')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, 'ohai erik', 'precond - original property is output');
-
-    _emberMetalRun_loop.default(context, context.set, 'name', 'mmun');
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, 'ohai mmun', 'new property is output');
-  });
-});
 enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-template-compiler/system/compile', 'ember-htmlbars/env', 'htmlbars-test-helpers', 'ember-metal/assign'], function (exports, _emberTemplateCompilerSystemCompile, _emberHtmlbarsEnv, _htmlbarsTestHelpers, _emberMetalAssign) {
   'use strict';
 
@@ -38236,7 +38515,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
+enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -38305,82 +38584,95 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+  var DynamicContentTest = (function (_RenderingTest2) {
+    _inherits(DynamicContentTest, _RenderingTest2);
 
-    function _class2() {
-      _classCallCheck(this, _class2);
+    function DynamicContentTest() {
+      _classCallCheck(this, DynamicContentTest);
 
       _RenderingTest2.apply(this, arguments);
     }
 
-    _class2.prototype['@test it can render a dynamic text node'] = function testItCanRenderADynamicTextNode() {
+    /* abstract */
+
+    DynamicContentTest.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      throw new Error('Not implemented: `renderValues`');
+    };
+
+    DynamicContentTest.prototype.assertIsEmpty = function assertIsEmpty() {
+      this.assertText('');
+    };
+
+    DynamicContentTest.prototype['@test it can render a dynamic path'] = function testItCanRenderADynamicPath() {
       var _this4 = this;
 
-      this.render('{{message}}', {
-        message: 'hello'
-      });
-      var text1 = this.assertTextNode(this.firstChild, 'hello');
+      this.renderPath('message', { message: 'hello' });
 
+      this.assertText('hello');
+
+      // FIXME: use @mmun's assertStableRerender
+      this.takeSnapshot();
       this.runTask(function () {
         return _this4.rerender();
       });
-
-      var text2 = this.assertTextNode(this.firstChild, 'hello');
-
-      this.assertSameNode(text1, text2);
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
       });
 
-      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
-
-      this.assertSameNode(text1, text3);
+      this.assertText('goodbye');
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
       });
 
-      var text4 = this.assertTextNode(this.firstChild, 'hello');
-
-      this.assertSameNode(text1, text4);
+      this.assertText('hello');
+      this.assertInvariants();
     };
 
-    _class2.prototype['@test it can render a dynamic text node with deeply nested paths'] = function testItCanRenderADynamicTextNodeWithDeeplyNestedPaths() {
+    DynamicContentTest.prototype['@test it can render a deeply nested dynamic path'] = function testItCanRenderADeeplyNestedDynamicPath() {
       var _this5 = this;
 
-      this.render('{{a.b.c.d.e.f}}', {
+      this.renderPath('a.b.c.d.e.f', {
         a: { b: { c: { d: { e: { f: 'hello' } } } } }
       });
-      var text1 = this.assertTextNode(this.firstChild, 'hello');
 
+      this.assertText('hello');
+
+      // FIXME: use @mmun's assertStableRerender
+      this.takeSnapshot();
       this.runTask(function () {
         return _this5.rerender();
       });
-
-      var text2 = this.assertTextNode(this.firstChild, 'hello');
-
-      this.assertSameNode(text1, text2);
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'goodbye');
       });
 
-      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
-
-      this.assertSameNode(text1, text3);
+      this.assertText('goodbye');
+      this.assertInvariants();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'hello');
+        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d', { e: { f: 'aloha' } });
       });
 
-      var text4 = this.assertTextNode(this.firstChild, 'hello');
+      this.assertText('aloha');
+      this.assertInvariants();
 
-      this.assertSameNode(text1, text4);
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'a', { b: { c: { d: { e: { f: 'hello' } } } } });
+      });
+
+      this.assertText('hello');
+      this.assertInvariants();
     };
 
-    _class2.prototype['@test it can render a dynamic text node where the value is a computed property'] = function testItCanRenderADynamicTextNodeWhereTheValueIsAComputedProperty() {
+    DynamicContentTest.prototype['@test it can render a computed property'] = function testItCanRenderAComputedProperty() {
       var _this6 = this;
 
       var Formatter = _emberRuntimeSystemObject.default.extend({
@@ -38391,77 +38683,215 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
       var m = Formatter.create({ message: 'hello' });
 
-      this.render('{{m.formattedMessage}}', { m: m });
+      this.renderPath('m.formattedMessage', { m: m });
 
-      var text1 = this.assertTextNode(this.firstChild, 'HELLO');
+      this.assertText('HELLO');
 
+      // FIXME: use @mmun's assertStableRerender
+      this.takeSnapshot();
       this.runTask(function () {
         return _this6.rerender();
       });
-
-      var text2 = this.assertTextNode(this.firstChild, 'HELLO');
-
-      this.assertSameNode(text1, text2);
+      this.assertInvariants();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(m, 'message', 'goodbye');
       });
 
-      var text3 = this.assertTextNode(this.firstChild, 'GOODBYE');
-
-      this.assertSameNode(text1, text3);
+      this.assertText('GOODBYE');
+      this.assertInvariants();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(m, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this6.context, 'm', Formatter.create({ message: 'hello' }));
       });
 
-      var text4 = this.assertTextNode(this.firstChild, 'HELLO');
-
-      this.assertSameNode(text1, text4);
+      this.assertText('HELLO');
+      this.assertInvariants();
     };
 
-    _class2.prototype['@test it can render a dynamic element'] = function testItCanRenderADynamicElement() {
-      var _this7 = this;
+    return DynamicContentTest;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
-      this.render('<p>{{message}}</p>', {
-        message: 'hello'
-      });
-      var p1 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text1 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+  var EMPTY = {};
 
-      this.runTask(function () {
-        return _this7.rerender();
-      });
+  var ContentTestGenerator = (function () {
+    function ContentTestGenerator(cases) {
+      var tag = arguments.length <= 1 || arguments[1] === undefined ? '@test' : arguments[1];
 
-      var p2 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text2 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+      _classCallCheck(this, ContentTestGenerator);
 
-      this.assertSameNode(p1, p2);
-      this.assertSameNode(text1, text2);
+      this.cases = cases;
+      this.tag = tag;
+    }
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
-      });
+    ContentTestGenerator.prototype.generate = function generate(_ref3) {
+      var value = _ref3[0];
+      var expected = _ref3[1];
+      var label = _ref3[2];
 
-      var p3 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text3 = this.assertTextNode(this.firstChild.firstChild, 'goodbye');
+      var tag = this.tag;
+      label = label || value;
 
-      this.assertSameNode(p1, p3);
-      this.assertSameNode(text1, text3);
+      if (expected === EMPTY) {
+        var _ref;
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
-      });
+        return _ref = {}, _ref[tag + ' rendering ' + label] = function () {
+          var _this7 = this;
 
-      var p4 = this.assertElement(this.firstChild, { tagName: 'p' });
-      var text4 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+          this.renderPath('value', { value: value });
 
-      this.assertSameNode(p1, p4);
-      this.assertSameNode(text1, text4);
+          this.assertIsEmpty();
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this7.context, 'value', 'hello');
+          });
+
+          this.assertText('hello');
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this7.context, 'value', value);
+          });
+
+          this.assertIsEmpty();
+        }, _ref;
+      } else {
+        var _ref2;
+
+        return _ref2 = {}, _ref2[tag + ' rendering ' + label] = function () {
+          var _this8 = this;
+
+          this.renderPath('value', { value: value });
+
+          this.assertText(expected);
+
+          // FIXME: use @mmun's assertStableRerender
+          this.takeSnapshot();
+          this.runTask(function () {
+            return _this8.rerender();
+          });
+          this.assertInvariants();
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this8.context, 'value', 'hello');
+          });
+
+          this.assertText('hello');
+          this.assertInvariants();
+
+          this.runTask(function () {
+            return _emberMetalProperty_set.set(_this8.context, 'value', value);
+          });
+
+          this.assertText(expected);
+          this.assertInvariants();
+        }, _ref2;
+      }
     };
 
-    _class2.prototype['@test it can render a dynamic template'] = function testItCanRenderADynamicTemplate() {
-      var _this8 = this;
+    return ContentTestGenerator;
+  })();
+
+  var SharedContentTestCases = new ContentTestGenerator([['foo', 'foo'], [0, '0'], [-0, '0', '-0'], [1, '1'], [-1, '-1'], [0.0, '0', '0.0'], [0.5, '0.5'], [undefined, EMPTY], [null, EMPTY], [true, 'true'], [false, 'false'], [NaN, 'NaN'], [new Date(2000, 0, 1), String(new Date(2000, 0, 1)), 'a Date object'], [Infinity, 'Infinity'], [1 / -0, '-Infinity'], [{ foo: 'bar' }, '[object Object]', '{ foo: \'bar\' }'], [{ toString: function () {
+      return 'foo';
+    } }, 'foo', 'an object with a custom toString function'], [{ valueOf: function () {
+      return 1;
+    } }, '[object Object]', 'an object with a custom valueOf function']]);
+
+  var GlimmerContentTestCases = new ContentTestGenerator([[Object.create(null), EMPTY, 'an object with no toString']], '@glimmer');
+
+  if (typeof Symbol !== 'undefined') {
+    GlimmerContentTestCases.cases.push([Symbol('debug'), 'Symbol(debug)', 'a symbol']);
+  }
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(DynamicContentTest, SharedContentTestCases, GlimmerContentTestCases);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (content position)', (function (_DynamicContentTest) {
+    _inherits(_class2, _DynamicContentTest);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _DynamicContentTest.apply(this, arguments);
+    }
+
+    _class2.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('{{' + path + '}}', context);
+    };
+
+    return _class2;
+  })(DynamicContentTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (content concat)', (function (_DynamicContentTest2) {
+    _inherits(_class3, _DynamicContentTest2);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _DynamicContentTest2.apply(this, arguments);
+    }
+
+    _class3.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('{{concat "" ' + path + ' ""}}', context);
+    };
+
+    return _class3;
+  })(DynamicContentTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (inside an element)', (function (_DynamicContentTest3) {
+    _inherits(_class4, _DynamicContentTest3);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _DynamicContentTest3.apply(this, arguments);
+    }
+
+    _class4.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('<p>{{' + path + '}}</p>', context);
+    };
+
+    return _class4;
+  })(DynamicContentTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (attribute position)', (function (_DynamicContentTest4) {
+    _inherits(_class5, _DynamicContentTest4);
+
+    function _class5() {
+      _classCallCheck(this, _class5);
+
+      _DynamicContentTest4.apply(this, arguments);
+    }
+
+    _class5.prototype.renderPath = function renderPath(path) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      this.render('<div data-foo="{{' + path + '}}"></div>', context);
+    };
+
+    _class5.prototype.textValue = function textValue() {
+      return this.$('div').attr('data-foo');
+    };
+
+    return _class5;
+  })(DynamicContentTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (integration)', (function (_RenderingTest3) {
+    _inherits(_class6, _RenderingTest3);
+
+    function _class6() {
+      _classCallCheck(this, _class6);
+
+      _RenderingTest3.apply(this, arguments);
+    }
+
+    _class6.prototype['@test it can render a dynamic template'] = function testItCanRenderADynamicTemplate() {
+      var _this9 = this;
 
       var template = '\n      <div class="header">\n        <h1>Welcome to {{framework}}</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use {{framework}}?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s {{framework}}</li>\n        </ol>\n      </div>\n      <div class="footer">\n        {{framework}} is free, open source and always will be.\n      </div>\n    ';
 
@@ -38475,25 +38905,25 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertHTML(ember);
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertHTML(ember);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'framework', 'React');
+        return _emberMetalProperty_set.set(_this9.context, 'framework', 'React');
       });
 
       this.assertHTML(react);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'framework', 'Ember.js');
+        return _emberMetalProperty_set.set(_this9.context, 'framework', 'Ember.js');
       });
 
       this.assertHTML(ember);
     };
 
-    return _class2;
+    return _class6;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeTestsUtils) {
@@ -68712,7 +69142,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+bf067f73', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+5c121576', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
