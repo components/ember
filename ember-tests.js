@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+8af78993
+ * @version   2.6.0-canary+bf067f73
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25646,7 +25646,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/core'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalCore) {
+enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/core'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalCore) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -25664,7 +25664,8 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
       _RenderingTest.call(this);
       this.oldString = _emberMetalCore.default.STRINGS;
       _emberMetalCore.default.STRINGS = {
-        '_Howdy Friend': 'Hallo Freund'
+        'Hello Friend': 'Hallo Freund',
+        'Hello': 'Hallo, %@'
       };
     }
 
@@ -25686,7 +25687,7 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
     _class.prototype['@test it localizes a simple string'] = function testItLocalizesASimpleString() {
       var _this2 = this;
 
-      this.render('{{loc "_Howdy Friend"}}');
+      this.render('{{loc "Hello Friend"}}');
       this.assertText('Hallo Freund', 'the localized string is correct');
       this.runTask(function () {
         return _this2.rerender();
@@ -25703,6 +25704,61 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
         return _this3.rerender();
       });
       this.assertText('Hello, Mr. Pitkin', 'the formatted string is correct after rerender');
+    };
+
+    _class.prototype['@test it updates when bound params change'] = function testItUpdatesWhenBoundParamsChange() {
+      var _this4 = this;
+
+      this.render('{{loc simple}} - {{loc personal \'Mr. Pitkin\'}}', {
+        simple: 'Hello Friend',
+        personal: 'Hello'
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after rerender');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'simple', 'G\'day mate');
+      });
+      this.assertText('G\'day mate - Hallo, Mr. Pitkin', 'the bound value is correct after update');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'simple', 'Hello Friend');
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after reset');
+    };
+
+    _class.prototype['@test it updates when nested bound params change'] = function testItUpdatesWhenNestedBoundParamsChange() {
+      var _this5 = this;
+
+      this.render('{{loc greetings.simple}} - {{loc greetings.personal \'Mr. Pitkin\'}}', {
+        greetings: {
+          simple: 'Hello Friend',
+          personal: 'Hello'
+        }
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after rerender');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'greetings.simple', 'G\'day mate');
+      });
+      this.assertText('G\'day mate - Hallo, Mr. Pitkin', 'the bound value is correct after interior mutation');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'greetings', {
+          simple: 'Hello Friend',
+          personal: 'Hello'
+        });
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after replacement');
     };
 
     return _class;
@@ -39287,7 +39343,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     return _class11;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/core'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalCore) {
+enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/core'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalCore) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -39305,7 +39361,8 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
       _RenderingTest.call(this);
       this.oldString = _emberMetalCore.default.STRINGS;
       _emberMetalCore.default.STRINGS = {
-        '_Howdy Friend': 'Hallo Freund'
+        'Hello Friend': 'Hallo Freund',
+        'Hello': 'Hallo, %@'
       };
     }
 
@@ -39327,7 +39384,7 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
     _class.prototype['@test it localizes a simple string'] = function testItLocalizesASimpleString() {
       var _this2 = this;
 
-      this.render('{{loc "_Howdy Friend"}}');
+      this.render('{{loc "Hello Friend"}}');
       this.assertText('Hallo Freund', 'the localized string is correct');
       this.runTask(function () {
         return _this2.rerender();
@@ -39344,6 +39401,61 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
         return _this3.rerender();
       });
       this.assertText('Hello, Mr. Pitkin', 'the formatted string is correct after rerender');
+    };
+
+    _class.prototype['@test it updates when bound params change'] = function testItUpdatesWhenBoundParamsChange() {
+      var _this4 = this;
+
+      this.render('{{loc simple}} - {{loc personal \'Mr. Pitkin\'}}', {
+        simple: 'Hello Friend',
+        personal: 'Hello'
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after rerender');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'simple', 'G\'day mate');
+      });
+      this.assertText('G\'day mate - Hallo, Mr. Pitkin', 'the bound value is correct after update');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'simple', 'Hello Friend');
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after reset');
+    };
+
+    _class.prototype['@test it updates when nested bound params change'] = function testItUpdatesWhenNestedBoundParamsChange() {
+      var _this5 = this;
+
+      this.render('{{loc greetings.simple}} - {{loc greetings.personal \'Mr. Pitkin\'}}', {
+        greetings: {
+          simple: 'Hello Friend',
+          personal: 'Hello'
+        }
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after rerender');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'greetings.simple', 'G\'day mate');
+      });
+      this.assertText('G\'day mate - Hallo, Mr. Pitkin', 'the bound value is correct after interior mutation');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'greetings', {
+          simple: 'Hello Friend',
+          personal: 'Hello'
+        });
+      });
+      this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after replacement');
     };
 
     return _class;
@@ -69044,7 +69156,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+8af78993', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+bf067f73', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
