@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+bab44470
+ * @version   2.6.0-canary+fd034950
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -41749,68 +41749,6 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
     return _class3;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-runtime/tests/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _emberRuntimeTestsUtils, _emberRuntimeSystemNative_array) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('ember-htmlbars: tagless views should be able to add/remove child views', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('can insert new child views after initial tagless view rendering', function () {
-    view = _emberViewsViewsView.default.create({
-      shouldShow: false,
-      array: _emberRuntimeSystemNative_array.A([1]),
-
-      template: _emberTemplateCompiler.compile('{{#if view.shouldShow}}{{#each view.array as |item|}}{{item}}{{/each}}{{/if}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('shouldShow', true);
-    });
-
-    equal(view.$().text(), '1');
-
-    _emberMetalRun_loop.default(function () {
-      view.get('array').pushObject(2);
-    });
-
-    equal(view.$().text(), '12');
-  });
-
-  QUnit.test('can remove child views after initial tagless view rendering', function () {
-    view = _emberViewsViewsView.default.create({
-      shouldShow: false,
-      array: _emberRuntimeSystemNative_array.A(),
-
-      template: _emberTemplateCompiler.compile('{{#if view.shouldShow}}{{#each view.array as |item|}}{{item}}{{/each}}{{/if}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), '');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('shouldShow', true);
-      view.get('array').pushObject(1);
-    });
-
-    equal(view.$().text(), '1');
-
-    _emberMetalRun_loop.default(function () {
-      view.get('array').removeObject(1);
-    });
-
-    equal(view.$().text(), '');
-  });
-});
 enifed('ember-htmlbars/tests/integration/void-element-component-test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -69095,7 +69033,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+bab44470', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+fd034950', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
