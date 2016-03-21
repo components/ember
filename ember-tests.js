@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+5c121576
+ * @version   2.6.0-canary+e4446254
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24965,12 +24965,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       this.assertText('hello');
 
-      // FIXME: use @mmun's assertStableRerender
-      this.takeSnapshot();
-      this.runTask(function () {
-        return _this4.rerender();
-      });
-      this.assertInvariants();
+      this.assertStableRerender();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
@@ -24996,12 +24991,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       this.assertText('hello');
 
-      // FIXME: use @mmun's assertStableRerender
-      this.takeSnapshot();
-      this.runTask(function () {
-        return _this5.rerender();
-      });
-      this.assertInvariants();
+      this.assertStableRerender();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'goodbye');
@@ -25040,12 +25030,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       this.assertText('HELLO');
 
-      // FIXME: use @mmun's assertStableRerender
-      this.takeSnapshot();
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-      this.assertInvariants();
+      this.assertStableRerender();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(m, 'message', 'goodbye');
@@ -25117,12 +25102,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
           this.assertText(expected);
 
-          // FIXME: use @mmun's assertStableRerender
-          this.takeSnapshot();
-          this.runTask(function () {
-            return _this8.rerender();
-          });
-          this.assertInvariants();
+          this.assertStableRerender();
 
           this.runTask(function () {
             return _emberMetalProperty_set.set(_this8.context, 'value', 'hello');
@@ -26161,6 +26141,156 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
+  'use strict';
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  var EachInTest = (function (_BasicConditionalsTest) {
+    _inherits(EachInTest, _BasicConditionalsTest);
+
+    function EachInTest() {
+      _classCallCheck(this, EachInTest);
+
+      _BasicConditionalsTest.apply(this, arguments);
+    }
+
+    _createClass(EachInTest, [{
+      key: 'truthyValue',
+      get: function () {
+        return { 'Not Empty': 1 };
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return {};
+      }
+    }]);
+
+    return EachInTest;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.BasicConditionalsTest);
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachInTest, _emberGlimmerTestsUtilsSharedConditionalTests.SyntaxCondtionalTestHelpers, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([
+  // TODO: figure out what the rest of the cases are
+  { foo: 1 }]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([
+  // TODO: figure out what the rest of the cases are
+  {}, Object.create({ 'Not Empty': 1 }), undefined, null])
+
+  // TODO(mmun): Add support for object proxies and
+  // include the ObjectTestCases mixin.
+  );
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Syntax test: {{#each-in}}', (function (_EachInTest) {
+    _inherits(_class, _EachInTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _EachInTest.apply(this, arguments);
+    }
+
+    _class.prototype.templateFor = function templateFor(_ref) {
+      var cond = _ref.cond;
+      var truthy = _ref.truthy;
+      var falsy = _ref.falsy;
+
+      return '{{#each-in ' + cond + '}}' + truthy + '{{else}}' + falsy + '{{/each-in}}';
+    };
+
+    _class.prototype['@test it repeats the given block for each item in the hash'] = function testItRepeatsTheGivenBlockForEachItemInTheHash() {
+      var _this = this;
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
+        categories: {
+          'Smartphones': 8203,
+          'JavaScript Frameworks': Infinity
+        }
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'categories.Smartphones', 100);
+        _emberMetalProperty_set.set(_this.context, 'categories.Tweets', 443115);
+
+        // {{#each-in}} does not currently observe internal mutations to the hash
+        // so we manually trigger a rerender. This behavior may change in the future.
+        _this.rerender();
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'categories', {
+          'Smartphones': 8203,
+          'JavaScript Frameworks': Infinity
+        });
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+    };
+
+    _class.prototype['@test it only iterates over an object\'s own properties'] = function testItOnlyIteratesOverAnObjectSOwnProperties() {
+      var _this2 = this;
+
+      var protoCategories = {
+        'Smartphones': 8203,
+        'JavaScript Frameworks': Infinity
+      };
+
+      var categories = Object.create(protoCategories);
+      categories['Televisions'] = 183;
+      categories['Alarm Clocks'] = 999;
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { categories: categories });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(protoCategories, 'Robots', 666);
+        _emberMetalProperty_set.set(categories, 'Tweets', 443115);
+
+        // {{#each-in}} does not currently observe internal mutations to the hash
+        // so we manually trigger a rerender. This behavior may change in the future.
+        _this2.rerender();
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      categories = Object.create(protoCategories);
+      categories['Televisions'] = 183;
+      categories['Alarm Clocks'] = 999;
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'categories', categories);
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+    };
+
+    return _class;
+  })(EachInTest));
+});
+
+// ObjectTestCases
 enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -27211,6 +27341,16 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
+    TestCase.prototype.assertStableRerender = function assertStableRerender() {
+      var _this = this;
+
+      this.takeSnapshot();
+      this.runTask(function () {
+        return _this.rerender();
+      });
+      this.assertInvariants();
+    };
+
     _createClass(TestCase, [{
       key: 'firstChild',
       get: function () {
@@ -27273,7 +27413,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     ApplicationTest.prototype.visit = function visit(url) {
-      var _this = this;
+      var _this2 = this;
 
       var applicationInstance = this.applicationInstance;
       var bootOptions = this.bootOptions;
@@ -27282,7 +27422,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         return _emberMetalRun_loop.default(applicationInstance, 'visit', url, bootOptions);
       } else {
         return _emberMetalRun_loop.default(this.application, 'visit', url, bootOptions).then(function (instance) {
-          _this.applicationInstance = instance;
+          _this2.applicationInstance = instance;
         });
       }
     };
@@ -31494,141 +31634,6 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     _emberRuntimeTestsUtils.runDestroy(component);
 
     equal(destroyCount, 1, 'destroy is called after a view is destroyed');
-  });
-});
-enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-runtime/tests/utils'], function (exports, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var component;
-
-  QUnit.module('ember-htmlbars: {{#each-in}} helper', {
-    teardown: function () {
-      if (component) {
-        _emberRuntimeTestsUtils.runDestroy(component);
-      }
-    }
-  });
-
-  function renderTemplate(_template, props) {
-    var template = _emberTemplateCompilerSystemCompile.default(_template);
-
-    component = _emberViewsComponentsComponent.default.create(props, {
-      layout: template
-    });
-
-    _emberRuntimeTestsUtils.runAppend(component);
-  }
-
-  QUnit.test('it renders the template for each item in a hash', function (assert) {
-    var categories = {
-      'Smartphones': 8203,
-      'JavaScript Frameworks': Infinity
-    };
-
-    renderTemplate('\n      <ul class="categories">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ', { categories: categories });
-
-    assert.equal(component.$('li').length, 2, 'renders 2 lis');
-    assert.equal(component.$('li').first().text(), 'Smartphones: 8203', 'renders first item correctly');
-    assert.equal(component.$('li:eq(1)').text(), 'JavaScript Frameworks: Infinity', 'renders second item correctly');
-
-    _emberMetalRun_loop.default(function () {
-      component.rerender();
-    });
-
-    assert.equal(component.$('li').length, 2, 'renders 2 lis after rerender');
-    assert.equal(component.$('li').first().text(), 'Smartphones: 8203', 'renders first item correctly after rerender');
-    assert.equal(component.$('li:eq(1)').text(), 'JavaScript Frameworks: Infinity', 'renders second item correctly after rerender');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('categories', {
-        'Smartphones': 100
-      });
-    });
-
-    assert.equal(component.$('li').length, 1, 'removes unused item after data changes');
-    assert.equal(component.$('li').first().text(), 'Smartphones: 100', 'correctly updates item after data changes');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('categories', {
-        'Programming Languages': 199303,
-        'Good Programming Languages': 123,
-        'Bad Programming Languages': 456
-      });
-    });
-
-    assert.equal(component.$('li').length, 3, 'renders 3 lis after updating data');
-    assert.equal(component.$('li').first().text(), 'Programming Languages: 199303', 'renders first item correctly after rerender');
-    assert.equal(component.$('li:eq(1)').text(), 'Good Programming Languages: 123', 'renders second item correctly after rerender');
-    assert.equal(component.$('li:eq(2)').text(), 'Bad Programming Languages: 456', 'renders third item correctly after rerender');
-  });
-
-  QUnit.test('it only iterates over an object\'s own properties', function (assert) {
-    var protoCategories = {
-      'Smartphones': 8203,
-      'JavaScript Frameworks': Infinity
-    };
-
-    var categories = Object.create(protoCategories);
-    categories['Televisions'] = 183;
-    categories['Alarm Clocks'] = 999;
-
-    renderTemplate('\n      <ul class="categories">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ', { categories: categories });
-
-    assert.equal(component.$('li').length, 2, 'renders 2 lis');
-    assert.equal(component.$('li').first().text(), 'Televisions: 183', 'renders first item correctly');
-    assert.equal(component.$('li:eq(1)').text(), 'Alarm Clocks: 999', 'renders second item correctly');
-
-    _emberMetalRun_loop.default(function () {
-      return component.rerender();
-    });
-
-    assert.equal(component.$('li').length, 2, 'renders 2 lis after rerender');
-    assert.equal(component.$('li').first().text(), 'Televisions: 183', 'renders first item correctly after rerender');
-    assert.equal(component.$('li:eq(1)').text(), 'Alarm Clocks: 999', 'renders second item correctly after rerender');
-  });
-
-  QUnit.test('it emits nothing if the passed argument is not an object', function (assert) {
-    var categories = null;
-
-    renderTemplate('\n      <ul class="categories">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ', { categories: categories });
-
-    assert.equal(component.$('li').length, 0, 'nothing is rendered if the object is not passed');
-
-    _emberMetalRun_loop.default(function () {
-      return component.rerender();
-    });
-    assert.equal(component.$('li').length, 0, 'nothing is rendered if the object is not passed after rerender');
-  });
-
-  QUnit.test('it supports rendering an inverse', function (assert) {
-    var categories = null;
-
-    renderTemplate('\n      <ul class="categories">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{else}}\n        <li>No categories.</li>\n      {{/each-in}}\n      </ul>\n    ', { categories: categories });
-
-    assert.equal(component.$('li').length, 1, 'one li is rendered');
-    assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered');
-
-    _emberMetalRun_loop.default(function () {
-      return component.rerender();
-    });
-    assert.equal(component.$('li').length, 1, 'one li is rendered');
-    assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('categories', {
-        'First Category': 123
-      });
-    });
-
-    assert.equal(component.$('li').length, 1, 'one li is rendered');
-    assert.equal(component.$('li').text(), 'First Category: 123', 'the list is rendered after being set');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('categories', null);
-    });
-
-    assert.equal(component.$('li').length, 1, 'one li is rendered');
-    assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered when the value becomes falsey again');
   });
 });
 enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -38612,12 +38617,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
       this.assertText('hello');
 
-      // FIXME: use @mmun's assertStableRerender
-      this.takeSnapshot();
-      this.runTask(function () {
-        return _this4.rerender();
-      });
-      this.assertInvariants();
+      this.assertStableRerender();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
@@ -38643,12 +38643,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
       this.assertText('hello');
 
-      // FIXME: use @mmun's assertStableRerender
-      this.takeSnapshot();
-      this.runTask(function () {
-        return _this5.rerender();
-      });
-      this.assertInvariants();
+      this.assertStableRerender();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'goodbye');
@@ -38687,12 +38682,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
       this.assertText('HELLO');
 
-      // FIXME: use @mmun's assertStableRerender
-      this.takeSnapshot();
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-      this.assertInvariants();
+      this.assertStableRerender();
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(m, 'message', 'goodbye');
@@ -38764,12 +38754,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
           this.assertText(expected);
 
-          // FIXME: use @mmun's assertStableRerender
-          this.takeSnapshot();
-          this.runTask(function () {
-            return _this8.rerender();
-          });
-          this.assertInvariants();
+          this.assertStableRerender();
 
           this.runTask(function () {
             return _emberMetalProperty_set.set(_this8.context, 'value', 'hello');
@@ -40921,6 +40906,156 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     equal(select.$('option:eq(1)').prop('selected'), true, 'selected property is set to proper option');
   });
 });
+enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
+  'use strict';
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  var EachInTest = (function (_BasicConditionalsTest) {
+    _inherits(EachInTest, _BasicConditionalsTest);
+
+    function EachInTest() {
+      _classCallCheck(this, EachInTest);
+
+      _BasicConditionalsTest.apply(this, arguments);
+    }
+
+    _createClass(EachInTest, [{
+      key: 'truthyValue',
+      get: function () {
+        return { 'Not Empty': 1 };
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return {};
+      }
+    }]);
+
+    return EachInTest;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.BasicConditionalsTest);
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachInTest, _emberHtmlbarsTestsUtilsSharedConditionalTests.SyntaxCondtionalTestHelpers, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([
+  // TODO: figure out what the rest of the cases are
+  { foo: 1 }]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([
+  // TODO: figure out what the rest of the cases are
+  {}, Object.create({ 'Not Empty': 1 }), undefined, null])
+
+  // TODO(mmun): Add support for object proxies and
+  // include the ObjectTestCases mixin.
+  );
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Syntax test: {{#each-in}}', (function (_EachInTest) {
+    _inherits(_class, _EachInTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _EachInTest.apply(this, arguments);
+    }
+
+    _class.prototype.templateFor = function templateFor(_ref) {
+      var cond = _ref.cond;
+      var truthy = _ref.truthy;
+      var falsy = _ref.falsy;
+
+      return '{{#each-in ' + cond + '}}' + truthy + '{{else}}' + falsy + '{{/each-in}}';
+    };
+
+    _class.prototype['@test it repeats the given block for each item in the hash'] = function testItRepeatsTheGivenBlockForEachItemInTheHash() {
+      var _this = this;
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
+        categories: {
+          'Smartphones': 8203,
+          'JavaScript Frameworks': Infinity
+        }
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'categories.Smartphones', 100);
+        _emberMetalProperty_set.set(_this.context, 'categories.Tweets', 443115);
+
+        // {{#each-in}} does not currently observe internal mutations to the hash
+        // so we manually trigger a rerender. This behavior may change in the future.
+        _this.rerender();
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'categories', {
+          'Smartphones': 8203,
+          'JavaScript Frameworks': Infinity
+        });
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
+    };
+
+    _class.prototype['@test it only iterates over an object\'s own properties'] = function testItOnlyIteratesOverAnObjectSOwnProperties() {
+      var _this2 = this;
+
+      var protoCategories = {
+        'Smartphones': 8203,
+        'JavaScript Frameworks': Infinity
+      };
+
+      var categories = Object.create(protoCategories);
+      categories['Televisions'] = 183;
+      categories['Alarm Clocks'] = 999;
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), { categories: categories });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(protoCategories, 'Robots', 666);
+        _emberMetalProperty_set.set(categories, 'Tweets', 443115);
+
+        // {{#each-in}} does not currently observe internal mutations to the hash
+        // so we manually trigger a rerender. This behavior may change in the future.
+        _this2.rerender();
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      categories = Object.create(protoCategories);
+      categories['Televisions'] = 183;
+      categories['Alarm Clocks'] = 999;
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'categories', categories);
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+    };
+
+    return _class;
+  })(EachInTest));
+});
+
+// ObjectTestCases
 enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -42784,6 +42919,16 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
+    TestCase.prototype.assertStableRerender = function assertStableRerender() {
+      var _this = this;
+
+      this.takeSnapshot();
+      this.runTask(function () {
+        return _this.rerender();
+      });
+      this.assertInvariants();
+    };
+
     _createClass(TestCase, [{
       key: 'firstChild',
       get: function () {
@@ -42846,7 +42991,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     ApplicationTest.prototype.visit = function visit(url) {
-      var _this = this;
+      var _this2 = this;
 
       var applicationInstance = this.applicationInstance;
       var bootOptions = this.bootOptions;
@@ -42855,7 +43000,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         return _emberMetalRun_loop.default(applicationInstance, 'visit', url, bootOptions);
       } else {
         return _emberMetalRun_loop.default(this.application, 'visit', url, bootOptions).then(function (instance) {
-          _this.applicationInstance = instance;
+          _this2.applicationInstance = instance;
         });
       }
     };
@@ -69586,7 +69731,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+5c121576', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+e4446254', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
