@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+39ea4ed4
+ * @version   2.6.0-canary+b32f66ed
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3314,7 +3314,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         layout: '{{#if hasBlock}}Yes{{else}}No{{/if}}',
         expected: 'No'
     });
-    _module("Components - curlies - dynamic tagName");
+    _module("Components - curlies - dynamic customizations");
     QUnit.test('dynamic tagName', function (assert) {
         var FooBar = (function (_EmberishCurlyComponent) {
             _inherits(FooBar, _EmberishCurlyComponent);
@@ -3336,6 +3336,42 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         env.registerEmberishCurlyComponent('foo-bar', FooBar, "Hello. It's me.");
         appendViewFor("{{foo-bar}}");
         assertEmberishElement('aside', {}, "Hello. It's me.");
+        rerender();
+        assertEmberishElement('aside', {}, "Hello. It's me.");
+    });
+    QUnit.test('dynamic attribute bindings', function (assert) {
+        var fooBarInstance = null;
+
+        var FooBar = (function (_EmberishCurlyComponent2) {
+            _inherits(FooBar, _EmberishCurlyComponent2);
+
+            function FooBar() {
+                _classCallCheck(this, FooBar);
+
+                _EmberishCurlyComponent2.call(this);
+                this.attributeBindings = ['style'];
+                this.style = null;
+                this.style = 'color: red;';
+                fooBarInstance = this;
+            }
+
+            return FooBar;
+        })(_glimmerTestHelpers.EmberishCurlyComponent);
+
+        env.registerEmberishCurlyComponent('foo-bar', FooBar, "Hello. It's me.");
+        appendViewFor("{{foo-bar}}");
+        assertEmberishElement('div', { 'style': 'color: red;' }, "Hello. It's me.");
+        rerender();
+        assertEmberishElement('div', { 'style': 'color: red;' }, "Hello. It's me.");
+        fooBarInstance.style = 'color: green;';
+        rerender();
+        assertEmberishElement('div', { 'style': 'color: green;' }, "Hello. It's me.");
+        fooBarInstance.style = null;
+        rerender();
+        assertEmberishElement('div', {}, "Hello. It's me.");
+        fooBarInstance.style = 'color: red;';
+        rerender();
+        assertEmberishElement('div', { 'style': 'color: red;' }, "Hello. It's me.");
     });
     _module("Components - generic - attrs");
     _module("Components - integration - scope");
@@ -3427,13 +3463,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     });
     _module('Curly Components - positional arguments');
     QUnit.skip('static named positional parameters', function () {
-        var SampleComponent = (function (_EmberishCurlyComponent2) {
-            _inherits(SampleComponent, _EmberishCurlyComponent2);
+        var SampleComponent = (function (_EmberishCurlyComponent3) {
+            _inherits(SampleComponent, _EmberishCurlyComponent3);
 
             function SampleComponent() {
                 _classCallCheck(this, SampleComponent);
 
-                _EmberishCurlyComponent2.apply(this, arguments);
+                _EmberishCurlyComponent3.apply(this, arguments);
             }
 
             return SampleComponent;
@@ -4097,8 +4133,8 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.skip('lookup of component takes priority over property', function () {
         expect(1);
 
-        var MyComponent = (function (_EmberishCurlyComponent3) {
-            _inherits(MyComponent, _EmberishCurlyComponent3);
+        var MyComponent = (function (_EmberishCurlyComponent4) {
+            _inherits(MyComponent, _EmberishCurlyComponent4);
 
             function MyComponent() {
                 _classCallCheck(this, MyComponent);
@@ -4107,7 +4143,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
                     args[_key6] = arguments[_key6];
                 }
 
-                _EmberishCurlyComponent3.call.apply(_EmberishCurlyComponent3, [this].concat(args));
+                _EmberishCurlyComponent4.call.apply(_EmberishCurlyComponent4, [this].concat(args));
                 this['some-component'] = 'not-some-component';
                 this['some-prop'] = 'some-prop';
             }
@@ -4115,13 +4151,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
             return MyComponent;
         })(_glimmerTestHelpers.EmberishCurlyComponent);
 
-        var SomeComponent = (function (_EmberishCurlyComponent4) {
-            _inherits(SomeComponent, _EmberishCurlyComponent4);
+        var SomeComponent = (function (_EmberishCurlyComponent5) {
+            _inherits(SomeComponent, _EmberishCurlyComponent5);
 
             function SomeComponent() {
                 _classCallCheck(this, SomeComponent);
 
-                _EmberishCurlyComponent4.apply(this, arguments);
+                _EmberishCurlyComponent5.apply(this, arguments);
             }
 
             return SomeComponent;
@@ -4135,13 +4171,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.test('Curly component hooks (with attrs)', function () {
         var instance = undefined;
 
-        var NonBlock = (function (_EmberishCurlyComponent5) {
-            _inherits(NonBlock, _EmberishCurlyComponent5);
+        var NonBlock = (function (_EmberishCurlyComponent6) {
+            _inherits(NonBlock, _EmberishCurlyComponent6);
 
             function NonBlock() {
                 _classCallCheck(this, NonBlock);
 
-                _EmberishCurlyComponent5.apply(this, arguments);
+                _EmberishCurlyComponent6.apply(this, arguments);
             }
 
             NonBlock.prototype.init = function init() {
@@ -4177,13 +4213,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.test('Curly component hooks (attrs as self props)', function () {
         var instance = undefined;
 
-        var NonBlock = (function (_EmberishCurlyComponent6) {
-            _inherits(NonBlock, _EmberishCurlyComponent6);
+        var NonBlock = (function (_EmberishCurlyComponent7) {
+            _inherits(NonBlock, _EmberishCurlyComponent7);
 
             function NonBlock() {
                 _classCallCheck(this, NonBlock);
 
-                _EmberishCurlyComponent6.apply(this, arguments);
+                _EmberishCurlyComponent7.apply(this, arguments);
             }
 
             NonBlock.prototype.init = function init() {
@@ -7164,6 +7200,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             }
 
             _GlimmerObject.call.apply(_GlimmerObject, [this].concat(args));
+            this.tagName = null;
+            this.attributeBindings = null;
             this.parentView = null;
         }
 
@@ -7346,8 +7384,17 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return component;
         };
 
-        EmberishCurlyComponentManager.prototype.didCreateElement = function didCreateElement(component, element) {
+        EmberishCurlyComponentManager.prototype.didCreateElement = function didCreateElement(component, element, operations) {
             component.element = element;
+            var bindings = component.attributeBindings;
+            var rootRef = new _glimmerReference.UpdatableReference(component);
+            if (bindings) {
+                for (var i = 0; i < bindings.length; i++) {
+                    var attribute = bindings[i];
+                    var reference = rootRef.get(attribute);
+                    operations.addAttribute(attribute, reference);
+                }
+            }
         };
 
         EmberishCurlyComponentManager.prototype.didCreate = function didCreate(component) {
@@ -7379,6 +7426,13 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     })();
 
     var EMBERISH_CURLY_COMPONENT_MANAGER = new EmberishCurlyComponentManager();
+    function emberToBool(value) {
+        if (Array.isArray(value)) {
+            return value.length > 0;
+        } else {
+            return !!value;
+        }
+    }
 
     var EmberishConditionalReference = (function (_ConditionalReference) {
         _inherits(EmberishConditionalReference, _ConditionalReference);
@@ -7390,11 +7444,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         }
 
         EmberishConditionalReference.prototype.toBool = function toBool(value) {
-            if (Array.isArray(value)) {
-                return value.length > 0;
-            } else {
-                return _ConditionalReference.prototype.toBool.call(this, value);
-            }
+            return emberToBool(value);
         };
 
         return EmberishConditionalReference;
@@ -7511,6 +7561,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         };
 
         TestEnvironment.prototype.toConditionalReference = function toConditionalReference(reference) {
+            if (_glimmerReference.isConst(reference)) {
+                return new _glimmerRuntime.ValueReference(emberToBool(reference.value()));
+            }
             return new EmberishConditionalReference(reference);
         };
 
@@ -69477,7 +69530,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+39ea4ed4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+b32f66ed', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
