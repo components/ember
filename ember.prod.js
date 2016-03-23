@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b32f66ed
+ * @version   2.6.0-canary+0bc9bc5f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4236,7 +4236,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+b32f66ed';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0bc9bc5f';
 
   var librariesRegistered = false;
 
@@ -6735,7 +6735,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-metal/assign', 'ember-glimmer/ember-views/component'], function (exports, _glimmerRuntime, _emberMetalAssign, _emberGlimmerEmberViewsComponent) {
+enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/ember-views/component'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerEmberViewsComponent) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -6770,6 +6770,27 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
 
   exports.CurlyComponentSyntax = CurlyComponentSyntax;
 
+  function argsToProps(args) {
+    var attrs = args.named.value();
+    var attrKeys = Object.keys(attrs);
+    var merged = { attrs: {} };
+
+    for (var i = 0, l = attrKeys.length; i < l; i++) {
+      var _name = attrKeys[i];
+      var value = attrs[_name];
+
+      // Do we have to support passing both class /and/ classNames...?
+      if (_name === 'class') {
+        _name = 'classNames';
+      }
+
+      merged[_name] = value;
+      merged.attrs[_name] = value;
+    }
+
+    return merged;
+  }
+
   var CurlyComponentManager = (function () {
     function CurlyComponentManager() {
       _classCallCheck(this, CurlyComponentManager);
@@ -6777,9 +6798,7 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
 
     CurlyComponentManager.prototype.create = function create(definition, args, dynamicScope) {
       var klass = definition.ComponentClass;
-      var attrs = args.named.value();
-      var merged = _emberMetalAssign.default({}, attrs, { attrs: attrs });
-      var component = klass.create(merged);
+      var component = klass.create(argsToProps(args));
       var parentView = dynamicScope.view;
 
       dynamicScope.view = component;
@@ -6797,8 +6816,31 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       return component;
     };
 
-    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(component, element) {
+    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(component, element, operations) {
       component.element = element;
+
+      var attributeBindings = component.attributeBindings;
+      var classNames = component.classNames;
+      var classNameBindings = component.classNameBindings;
+
+      if (attributeBindings) {
+        attributeBindings.forEach(function (binding) {
+          _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, binding, operations);
+        });
+      }
+
+      if (classNames) {
+        classNames.forEach(function (name) {
+          operations.addAttribute('class', new _glimmerRuntime.ValueReference(name));
+        });
+      }
+
+      if (classNameBindings) {
+        classNameBindings.forEach(function (binding) {
+          _emberGlimmerUtilsReferences.applyClassNameBinding(component, binding, operations);
+        });
+      }
+
       component._transitionTo('hasElement');
     };
 
@@ -6809,11 +6851,11 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
     };
 
     CurlyComponentManager.prototype.update = function update(component, args, dynamicScope) {
-      // let oldAttrs = component.attrs;
-      var newAttrs = args.named.value();
-      var merged = _emberMetalAssign.default({}, newAttrs, { attrs: newAttrs });
+      component.setProperties(argsToProps(args));
 
-      component.setProperties(merged);
+      // let oldAttrs = component.attrs;
+      // let newAttrs = args.named.value();
+      //
       // component.didUpdateAttrs({ oldAttrs, newAttrs });
       // component.didReceiveAttrs({ oldAttrs, newAttrs });
       // component.willUpdate();
@@ -7620,10 +7662,84 @@ enifed('ember-glimmer/ember-views/child-views-support', ['exports', 'ember-metal
     }
   });
 });
-enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView) {
+enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal/debug', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
   'use strict';
 
-  exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
+  var EMPTY_ARRAY = [];
+
+  /**
+    @class ClassNamesSupport
+    @namespace Ember
+    @private
+  */
+  exports.default = _emberMetalMixin.Mixin.create({
+    concatenatedProperties: ['classNames', 'classNameBindings'],
+
+    init: function () {
+      this._super.apply(this, arguments);
+
+      this.classNameBindings = this.classNameBindings.slice();
+
+      this.classNames = this.classNames.slice();
+    },
+
+    /**
+      Standard CSS class names to apply to the view's outer element. This
+      property automatically inherits any class names defined by the view's
+      superclasses as well.
+       @property classNames
+      @type Array
+      @default ['ember-view']
+      @public
+    */
+    classNames: EMPTY_ARRAY,
+
+    /**
+      A list of properties of the view to apply as class names. If the property
+      is a string value, the value of that string will be applied as a class
+      name.
+       ```javascript
+      // Applies the 'high' class to the view element
+      Ember.View.extend({
+        classNameBindings: ['priority'],
+        priority: 'high'
+      });
+      ```
+       If the value of the property is a Boolean, the name of that property is
+      added as a dasherized class name.
+       ```javascript
+      // Applies the 'is-urgent' class to the view element
+      Ember.View.extend({
+        classNameBindings: ['isUrgent'],
+        isUrgent: true
+      });
+      ```
+       If you would prefer to use a custom value instead of the dasherized
+      property name, you can pass a binding like this:
+       ```javascript
+      // Applies the 'urgent' class to the view element
+      Ember.View.extend({
+        classNameBindings: ['isUrgent:urgent'],
+        isUrgent: true
+      });
+      ```
+       This list of properties is inherited from the view's superclasses as well.
+       @property classNameBindings
+      @type Array
+      @default []
+      @public
+    */
+    classNameBindings: EMPTY_ARRAY
+  });
+});
+enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView) {
+  'use strict';
+
+  exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
     isComponent: true,
     template: null,
     layoutName: null,
@@ -8323,8 +8439,10 @@ enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features
     return lookupComponentPair(componentLookup, owner, name);
   }
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool'], function (exports, _emberMetalProperty_get, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-metal/debug', 'ember-runtime/system/string'], function (exports, _emberMetalProperty_get, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberMetalDebug, _emberRuntimeSystemString) {
   'use strict';
+
+  exports.applyClassNameBinding = applyClassNameBinding;
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -8563,6 +8681,139 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   })();
 
   exports.InternalHelperReference = InternalHelperReference;
+
+  var AttributeBindingReference = (function () {
+    AttributeBindingReference.apply = function apply(component, microsyntax, operations) {
+      var reference = this.parse(component, microsyntax);
+      operations.addAttribute(reference.attributeName, reference);
+    };
+
+    AttributeBindingReference.parse = function parse(component, microsyntax) {
+      var colonIndex = microsyntax.indexOf(':');
+
+      if (colonIndex === -1) {
+        return new this(component, microsyntax);
+      } else {
+        var prop = microsyntax.substring(0, colonIndex);
+        var attr = microsyntax.substring(colonIndex + 1);
+
+        return new this(component, prop, attr);
+      }
+    };
+
+    function AttributeBindingReference(component, propertyName) {
+      var attributeName = arguments.length <= 2 || arguments[2] === undefined ? propertyName : arguments[2];
+      return (function () {
+        _classCallCheck(this, AttributeBindingReference);
+
+        this.component = component;
+        this.propertyName = propertyName;
+        this.attributeName = attributeName;
+      }).apply(this, arguments);
+    }
+
+    AttributeBindingReference.prototype.value = function value() {
+      var value = _emberMetalProperty_get.get(this.component, this.propertyName);
+
+      if (value === null || value === undefined) {
+        return null;
+      } else {
+        return value;
+      }
+    };
+
+    AttributeBindingReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    AttributeBindingReference.prototype.destroy = function destroy() {};
+
+    return AttributeBindingReference;
+  })();
+
+  exports.AttributeBindingReference = AttributeBindingReference;
+
+  function applyClassNameBinding(component, microsyntax, operations) {
+    var _microsyntax$split = microsyntax.split(':');
+
+    var prop = _microsyntax$split[0];
+    var truthy = _microsyntax$split[1];
+    var falsy = _microsyntax$split[2];
+
+    var ref = undefined;
+
+    if (truthy !== undefined) {
+      ref = new ColonClassNameBindingReference(component, prop, truthy, falsy);
+    } else {
+      ref = new SimpleClassNameBindingReference(component, prop);
+    }
+
+    operations.addAttribute('class', ref);
+  }
+
+  // @implements Reference
+
+  var SimpleClassNameBindingReference = (function () {
+    function SimpleClassNameBindingReference(component, propertyPath) {
+      _classCallCheck(this, SimpleClassNameBindingReference);
+
+      this.component = component;
+      this.propertyPath = propertyPath;
+    }
+
+    // @implements Reference
+
+    SimpleClassNameBindingReference.prototype.value = function value() {
+      var value = _emberMetalProperty_get.get(this.component, this.propertyPath);
+
+      if (value === true) {
+        return propertyPathToClassName(this.propertyPath);
+      } else if (value || value === 0) {
+        return value;
+      } else {
+        return null;
+      }
+    };
+
+    SimpleClassNameBindingReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    SimpleClassNameBindingReference.prototype.destroy = function destroy() {};
+
+    return SimpleClassNameBindingReference;
+  })();
+
+  var ColonClassNameBindingReference = (function () {
+    function ColonClassNameBindingReference(component, propertyPath, truthy, falsy) {
+      _classCallCheck(this, ColonClassNameBindingReference);
+
+      this.component = component;
+      this.propertyPath = propertyPath;
+      this.truthy = truthy || null;
+      this.falsy = falsy || null;
+    }
+
+    ColonClassNameBindingReference.prototype.value = function value() {
+      var value = _emberMetalProperty_get.get(this.component, this.propertyPath);
+      return !!value ? this.truthy : this.falsy;
+    };
+
+    ColonClassNameBindingReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    ColonClassNameBindingReference.prototype.destroy = function destroy() {};
+
+    return ColonClassNameBindingReference;
+  })();
+
+  function propertyPathToClassName(propertyPath) {
+    var parts = propertyPath.split('.');
+    var last = parts[parts.length - 1];
+
+    return _emberRuntimeSystemString.dasherize(last);
+  }
 });
 enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime/utils', 'ember-metal/property_get'], function (exports, _emberRuntimeUtils, _emberMetalProperty_get) {
   'use strict';
@@ -11810,7 +12061,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+b32f66ed';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0bc9bc5f';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -17113,7 +17364,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+b32f66ed
+    @version 2.6.0-canary+0bc9bc5f
     @public
   */
 
@@ -17155,11 +17406,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+b32f66ed'
+    @default '2.6.0-canary+0bc9bc5f'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+b32f66ed';
+  Ember.VERSION = '2.6.0-canary+0bc9bc5f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -31049,7 +31300,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+b32f66ed';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+0bc9bc5f';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -31549,7 +31800,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+b32f66ed';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+0bc9bc5f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40439,7 +40690,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+b32f66ed',
+        revision: 'Ember@2.6.0-canary+0bc9bc5f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44491,7 +44742,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+b32f66ed';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+0bc9bc5f';
 
   /**
   @module ember
@@ -49248,7 +49499,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+b32f66ed
+ * @version   2.6.0-canary+0bc9bc5f
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
