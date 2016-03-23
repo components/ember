@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+0bc9bc5f
+ * @version   2.6.0-canary+2e568567
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10746,6 +10746,16 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     _emberMetalRun_loop.default(App, 'advanceReadiness');
   }
 
+  function assertHasClass(className) {
+    var i = 1;
+    while (i < arguments.length) {
+      var $a = arguments[i];
+      var shouldHaveClass = arguments[i + 1];
+      equal($a.hasClass(className), shouldHaveClass, $a.attr('id') + ' should ' + (shouldHaveClass ? '' : 'not ') + 'have class ' + className);
+      i += 2;
+    }
+  }
+
   var updateCount, replaceCount;
 
   function sharedSetup() {
@@ -10824,16 +10834,6 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     expect(18);
     bootApplication();
 
-    function assertHasClass(className) {
-      var i = 1;
-      while (i < arguments.length) {
-        var $a = arguments[i];
-        var shouldHaveClass = arguments[i + 1];
-        equal($a.hasClass(className), shouldHaveClass, $a.attr('id') + ' should ' + (shouldHaveClass ? '' : 'not ') + 'have class ' + className);
-        i += 2;
-      }
-    }
-
     var $index = _emberViewsSystemJquery.default('#index-link');
     var $about = _emberViewsSystemJquery.default('#about-link');
     var $other = _emberViewsSystemJquery.default('#other-link');
@@ -10879,16 +10879,6 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
     bootApplication();
 
-    function assertHasClass(className) {
-      var i = 1;
-      while (i < arguments.length) {
-        var $a = arguments[i];
-        var shouldHaveClass = arguments[i + 1];
-        equal($a.hasClass(className), shouldHaveClass, $a.attr('id') + ' should ' + (shouldHaveClass ? '' : 'not ') + 'have class ' + className);
-        i += 2;
-      }
-    }
-
     var $index = _emberViewsSystemJquery.default('#index-link');
     var $about = _emberViewsSystemJquery.default('#about-link');
     var $other = _emberViewsSystemJquery.default('#other-link');
@@ -10928,6 +10918,41 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('active', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
+  });
+
+  QUnit.test('with an aborted transition', function () {
+    expect(6);
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    App.AboutRoute = _emberRoutingSystemRoute.default.extend({
+      beforeModel: function (transition) {
+        aboutDefer = _emberRuntimeExtRsvp.default.defer();
+        return aboutDefer.promise.then(function () {
+          transition.abort();
+        });
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('\n    {{link-to \'About\' \'about\' id=\'about-link\'}}\n  ');
+
+    bootApplication();
+
+    var $about = _emberViewsSystemJquery.default('#about-link');
+
+    _emberMetalRun_loop.default($about, 'click');
+
+    assertHasClass('active', $about, false);
+    assertHasClass('ember-transitioning-in', $about, true);
+    assertHasClass('ember-transitioning-out', $about, false);
+
+    _emberMetalRun_loop.default(aboutDefer, 'resolve');
+
+    assertHasClass('active', $about, false);
+    assertHasClass('ember-transitioning-in', $about, false);
+    assertHasClass('ember-transitioning-out', $about, false);
   });
 });
 enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location) {
@@ -69684,7 +69709,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+0bc9bc5f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+2e568567', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
