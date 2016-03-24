@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+503c8b1d
+ * @version   2.6.0-canary+9c645581
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -42845,115 +42845,6 @@ enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 
     _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found, null, path, null, contentTemplate);
   });
 });
-enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
-  'use strict';
-
-  var view, originalViewKeyword;
-  QUnit.module('ember-htmlbars: appendTemplatedView', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-    },
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-    }
-  });
-
-  QUnit.test('can accept a view instance', function () {
-    var controller = {
-      someProp: 'controller context',
-      someView: _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
-      })
-    };
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('{{someProp}} - {{view someView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller context - controller context');
-  });
-
-  QUnit.test('can accept a view factory', function () {
-    var controller = {
-      someProp: 'controller context',
-      someView: _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
-      })
-    };
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('{{someProp}} - {{view someView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller context - controller context');
-  });
-
-  QUnit.test('does change the context if the view factory has a controller specified', function () {
-    var controller = {
-      someProp: 'controller context',
-      someView: _emberViewsViewsView.default.extend({
-        controller: {
-          someProp: 'view local controller context'
-        },
-        template: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
-      })
-    };
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('{{someProp}} - {{view someView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller context - view local controller context');
-  });
-
-  QUnit.test('does change the context if a component factory is used', function () {
-    var controller = {
-      someProp: 'controller context',
-      someView: _emberViewsComponentsComponent.default.extend({
-        someProp: 'view local controller context',
-        layout: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
-      })
-    };
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('{{someProp}} - {{view someView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller context - view local controller context');
-  });
-
-  QUnit.test('does change the context if a component instance is used', function () {
-    var controller = {
-      someProp: 'controller context',
-      someView: _emberViewsComponentsComponent.default.create({
-        someProp: 'view local controller context',
-        layout: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
-      })
-    };
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('{{someProp}} - {{view someView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller context - view local controller context');
-  });
-});
 enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/system/bootstrap', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsSystemBootstrap, _emberApplicationSystemApplication) {
   'use strict';
 
@@ -69846,7 +69737,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+503c8b1d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+9c645581', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
