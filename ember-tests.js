@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+928d2459
+ * @version   2.6.0-canary+0569af0c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -26214,7 +26214,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -26222,6 +26222,8 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var assert = QUnit.assert;
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: custom helpers', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -26232,7 +26234,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@test it can resolve custom helpers'] = function testItCanResolveCustomHelpers() {
+    _class.prototype['@test it can resolve custom simple helpers'] = function testItCanResolveCustomSimpleHelpers() {
       this.registerHelper('hello-world', function () {
         return 'hello world';
       });
@@ -26252,6 +26254,496 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.render('{{hello-world}}');
 
       this.assertText('hello world');
+    };
+
+    _class.prototype['@htmlbars class-based helper can recompute a new value'] = function htmlbarsClassBasedHelperCanRecomputeANewValue() {
+      var _this = this;
+
+      var destroyCount = 0;
+      var computeCount = 0;
+      var helper = undefined;
+
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return ++computeCount;
+        },
+        destroy: function () {
+          destroyCount++;
+          this._super();
+        }
+      });
+
+      this.render('{{hello-world}}');
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('2');
+
+      assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
+    };
+
+    _class.prototype['@htmlbars class-based helper with static arguments can recompute a new value'] = function htmlbarsClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
+      var _this2 = this;
+
+      var destroyCount = 0;
+      var computeCount = 0;
+      var helper = undefined;
+
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return ++computeCount;
+        },
+        destroy: function () {
+          destroyCount++;
+          this._super();
+        }
+      });
+
+      this.render('{{hello-world "whut"}}');
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('2');
+
+      assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
+    };
+
+    _class.prototype['@htmlbars simple helper is called for param changes'] = function htmlbarsSimpleHelperIsCalledForParamChanges() {
+      var _this3 = this;
+
+      var computeCount = 0;
+
+      this.registerHelper('hello-world', function (_ref) {
+        var value = _ref[0];
+
+        computeCount++;
+        return value + '-value';
+      });
+
+      this.render('{{hello-world name}}', {
+        name: 'bob'
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'name', 'sal');
+      });
+
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'name', 'bob');
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+    };
+
+    _class.prototype['@htmlbars class-based helper compute is called for param changes'] = function htmlbarsClassBasedHelperComputeIsCalledForParamChanges() {
+      var _this4 = this;
+
+      var createCount = 0;
+      var computeCount = 0;
+
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          createCount++;
+        },
+        compute: function (_ref2) {
+          var value = _ref2[0];
+
+          computeCount++;
+          return value + '-value';
+        }
+      });
+
+      this.render('{{hello-world name}}', {
+        name: 'bob'
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'name', 'sal');
+      });
+
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'name', 'bob');
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+      assert.strictEqual(createCount, 1, 'helper is only created once');
+    };
+
+    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
+      var _this5 = this;
+
+      this.registerHelper('hello-world', function (_params, _hash) {
+        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+      });
+
+      this.render('{{hello-world name "rich" first=age last="sam"}}', {
+        name: 'bob',
+        age: 42
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'name', 'bob');
+        _emberMetalProperty_set.set(_this5.context, 'age', 42);
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
+      var _this6 = this;
+
+      this.registerHelper('hello-world', {
+        compute: function (_params, _hash) {
+          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+        }
+      });
+
+      this.render('{{hello-world name "rich" first=age last="sam"}}', {
+        name: 'bob',
+        age: 42
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'name', 'bob');
+        _emberMetalProperty_set.set(_this6.context, 'age', 42);
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+      var _this7 = this;
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.render('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   reason\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}', {
+        reason: 'force'
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'reason', 'Nickleback');
+      });
+
+      this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'reason', 'force');
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+    };
+
+    _class.prototype['@htmlbars simple helper not usable with a block'] = function htmlbarsSimpleHelperNotUsableWithABlock() {
+      var _this8 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
+        _this8.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@htmlbars class-based helper not usable with a block'] = function htmlbarsClassBasedHelperNotUsableWithABlock() {
+      var _this9 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this9.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@htmlbars simple helper not usable within element'] = function htmlbarsSimpleHelperNotUsableWithinElement() {
+      var _this10 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
+        _this10.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@htmlbars class-based helper not usable within element'] = function htmlbarsClassBasedHelperNotUsableWithinElement() {
+      var _this11 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this11.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@htmlbars class-based helper is torn down'] = function htmlbarsClassBasedHelperIsTornDown() {
+      var destroyCalled = 0;
+
+      this.registerHelper('some-helper', {
+        destroy: function () {
+          destroyCalled++;
+          this._super.apply(this, arguments);
+        },
+        compute: function () {
+          return 'must define a compute';
+        }
+      });
+
+      this.render('{{some-helper}}');
+
+      _emberRuntimeTestsUtils.runDestroy(this.component);
+
+      assert.strictEqual(destroyCalled, 1, 'destroy called once');
+    };
+
+    _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
+      var _this12 = this;
+
+      var helper = undefined;
+      var phrase = 'overcomes by';
+
+      this.registerHelper('dynamic-segment', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return phrase;
+        }
+      });
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.render('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}');
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      phrase = 'believes his';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who believes his force hath overcome but half his foe');
+
+      phrase = 'overcomes by';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+    };
+
+    _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
+      var _this13 = this;
+
+      var helper = undefined;
+      var phrase = 'overcomes by';
+
+      this.registerHelper('dynamic-segment', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return phrase;
+        }
+      });
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.registerComponent('some-component', {
+        template: '{{first}} {{second}} {{third}} {{fourth}} {{fifth}}'
+      });
+
+      this.render('{{some-component first="Who"\n                   second=(dynamic-segment)\n                   third="force"\n                   fourth=(join-words (join-words "hath overcome but" "half"))\n                   fifth=(join-words "his" (join-words "foe"))}}');
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      phrase = 'believes his';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who believes his force hath overcome but half his foe');
+
+      phrase = 'overcomes by';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+    };
+
+    _class.prototype['@htmlbars class-based helper used in subexpression is destroyed'] = function htmlbarsClassBasedHelperUsedInSubexpressionIsDestroyed() {
+      var destroyCount = 0;
+
+      this.registerHelper('dynamic-segment', {
+        phrase: 'overcomes by',
+        init: function () {
+          this._super.apply(this, arguments);
+        },
+        compute: function () {
+          return this.phrase;
+        },
+        destroy: function () {
+          destroyCount++;
+          this._super.apply(this, arguments);
+        }
+      });
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.render('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}');
+
+      _emberRuntimeTestsUtils.runDestroy(this.component);
+
+      equal(destroyCount, 1, 'destroy is called after a view is destroyed');
     };
 
     return _class;
@@ -31133,359 +31625,6 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
-  });
-});
-enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var owner = undefined,
-      component = undefined;
-
-  QUnit.module('ember-htmlbars: custom app helpers', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('template', { instantiate: false });
-      owner.registerOptionsForType('helper', { singleton: false });
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(component);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = component = null;
-    }
-  });
-
-  QUnit.test('dashed helper can recompute a new value', function () {
-    var _Component$extend;
-
-    var destroyCount = 0;
-    var count = 0;
-    var helper;
-    var HelloWorld = _emberHtmlbarsHelper.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        helper = this;
-      },
-      compute: function () {
-        return ++count;
-      },
-      destroy: function () {
-        destroyCount++;
-        this._super();
-      }
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world}}'), _Component$extend)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), '1');
-    _emberMetalRun_loop.default(function () {
-      helper.recompute();
-    });
-    equal(component.$().text(), '2');
-    equal(destroyCount, 0, 'destroy is not called on recomputation');
-  });
-
-  QUnit.test('dashed helper with arg can recompute a new value', function () {
-    var _Component$extend2;
-
-    var destroyCount = 0;
-    var count = 0;
-    var helper;
-    var HelloWorld = _emberHtmlbarsHelper.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        helper = this;
-      },
-      compute: function () {
-        return ++count;
-      },
-      destroy: function () {
-        destroyCount++;
-        this._super();
-      }
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world "whut"}}'), _Component$extend2)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), '1');
-    _emberMetalRun_loop.default(function () {
-      helper.recompute();
-    });
-    equal(component.$().text(), '2');
-    equal(destroyCount, 0, 'destroy is not called on recomputation');
-  });
-
-  QUnit.test('dashed shorthand helper is called for param changes', function () {
-    var _Component$extend3;
-
-    var count = 0;
-    var HelloWorld = _emberHtmlbarsHelper.helper(function () {
-      return ++count;
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_containerOwner.OWNER] = owner, _Component$extend3.name = 'bob', _Component$extend3.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name}}'), _Component$extend3)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), '1');
-    _emberMetalRun_loop.default(function () {
-      component.set('name', 'sal');
-    });
-    equal(component.$().text(), '2');
-  });
-
-  QUnit.test('dashed helper compute is called for param changes', function () {
-    var _Component$extend4;
-
-    var count = 0;
-    var createCount = 0;
-    var HelloWorld = _emberHtmlbarsHelper.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        // FIXME: Ideally, the helper instance does not need to be recreated
-        // for change of params.
-        createCount++;
-      },
-      compute: function () {
-        return ++count;
-      }
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_containerOwner.OWNER] = owner, _Component$extend4.name = 'bob', _Component$extend4.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name}}'), _Component$extend4)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), '1');
-    _emberMetalRun_loop.default(function () {
-      component.set('name', 'sal');
-    });
-    equal(component.$().text(), '2');
-    equal(createCount, 1, 'helper is only created once');
-  });
-
-  QUnit.test('dashed shorthand helper receives params, hash', function () {
-    var _Component$extend5;
-
-    var params, hash;
-    var HelloWorld = _emberHtmlbarsHelper.helper(function (_params, _hash) {
-      params = _params;
-      hash = _hash;
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend5 = {}, _Component$extend5[_containerOwner.OWNER] = owner, _Component$extend5.name = 'bob', _Component$extend5.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}'), _Component$extend5)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(params[0], 'bob', 'first argument is bob');
-    equal(params[1], 'rich', 'second argument is rich');
-    equal(hash.last, 'sam', 'hash.last argument is sam');
-  });
-
-  QUnit.test('dashed helper receives params, hash', function () {
-    var _Component$extend6;
-
-    var params, hash;
-    var HelloWorld = _emberHtmlbarsHelper.default.extend({
-      compute: function (_params, _hash) {
-        params = _params;
-        hash = _hash;
-      }
-    });
-    owner.register('helper:hello-world', HelloWorld);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.name = 'bob', _Component$extend6.layout = _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}'), _Component$extend6)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(params[0], 'bob', 'first argument is bob');
-    equal(params[1], 'rich', 'second argument is rich');
-    equal(hash.last, 'sam', 'hash.last argument is sam');
-  });
-
-  QUnit.test('dashed helper usable in subexpressions', function () {
-    var _Component$extend7;
-
-    var JoinWords = _emberHtmlbarsHelper.default.extend({
-      compute: function (params) {
-        return params.join(' ');
-      }
-    });
-    owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend7)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'Who overcomes by force hath overcome but half his foe');
-  });
-
-  QUnit.test('dashed shorthand helper not usable with a block', function () {
-    var _Component$extend8;
-
-    var SomeHelper = _emberHtmlbarsHelper.helper(function () {});
-    owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.layout = _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}'), _Component$extend8)).create();
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /Helpers may not be used in the block form/);
-  });
-
-  QUnit.test('dashed helper not usable with a block', function () {
-    var _Component$extend9;
-
-    var SomeHelper = _emberHtmlbarsHelper.default.extend({ compute: function () {} });
-    owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend9 = {}, _Component$extend9[_containerOwner.OWNER] = owner, _Component$extend9.layout = _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}'), _Component$extend9)).create();
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /Helpers may not be used in the block form/);
-  });
-
-  QUnit.test('dashed shorthand helper not usable within element', function () {
-    var _Component$extend10;
-
-    var SomeHelper = _emberHtmlbarsHelper.helper(function () {});
-    owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend10 = {}, _Component$extend10[_containerOwner.OWNER] = owner, _Component$extend10.layout = _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>'), _Component$extend10)).create();
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /Helpers may not be used in the element form/);
-  });
-
-  QUnit.test('dashed helper not usable within element', function () {
-    var _Component$extend11;
-
-    var SomeHelper = _emberHtmlbarsHelper.default.extend({ compute: function () {} });
-    owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend11 = {}, _Component$extend11[_containerOwner.OWNER] = owner, _Component$extend11.layout = _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>'), _Component$extend11)).create();
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /Helpers may not be used in the element form/);
-  });
-
-  QUnit.test('dashed helper is torn down', function () {
-    var _Component$extend12;
-
-    var destroyCalled = 0;
-    var SomeHelper = _emberHtmlbarsHelper.default.extend({
-      destroy: function () {
-        destroyCalled++;
-        this._super.apply(this, arguments);
-      },
-      compute: function () {
-        return 'must define a compute';
-      }
-    });
-    owner.register('helper:some-helper', SomeHelper);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.layout = _emberTemplateCompilerSystemCompile.default('{{some-helper}}'), _Component$extend12)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    _emberRuntimeTestsUtils.runDestroy(component);
-
-    equal(destroyCalled, 1, 'destroy called once');
-  });
-
-  QUnit.test('dashed helper used in subexpression can recompute', function () {
-    var _Component$extend13;
-
-    var helper;
-    var phrase = 'overcomes by';
-    var DynamicSegment = _emberHtmlbarsHelper.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        helper = this;
-      },
-      compute: function () {
-        return phrase;
-      }
-    });
-    var JoinWords = _emberHtmlbarsHelper.default.extend({
-      compute: function (params) {
-        return params.join(' ');
-      }
-    });
-    owner.register('helper:dynamic-segment', DynamicSegment);
-    owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend13)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'Who overcomes by force hath overcome but half his foe');
-
-    phrase = 'believes his';
-    _emberMetalRun_loop.default(function () {
-      helper.recompute();
-    });
-
-    equal(component.$().text(), 'Who believes his force hath overcome but half his foe');
-  });
-
-  QUnit.test('dashed helper used in subexpression can recompute component', function () {
-    var _Component$extend14;
-
-    var helper;
-    var phrase = 'overcomes by';
-    var DynamicSegment = _emberHtmlbarsHelper.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        helper = this;
-      },
-      compute: function () {
-        return phrase;
-      }
-    });
-    var JoinWords = _emberHtmlbarsHelper.default.extend({
-      compute: function (params) {
-        return params.join(' ');
-      }
-    });
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-    owner.register('component:some-component', _emberViewsComponentsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{first}} {{second}} {{third}} {{fourth}} {{fifth}}')
-    }));
-    owner.register('helper:dynamic-segment', DynamicSegment);
-    owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.layout = _emberTemplateCompilerSystemCompile.default('{{some-component first="Who"\n                   second=(dynamic-segment)\n                   third="force"\n                   fourth=(join-words (join-words "hath overcome but" "half"))\n                   fifth=(join-words "his" (join-words "foe"))}}'), _Component$extend14)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'Who overcomes by force hath overcome but half his foe');
-
-    phrase = 'believes his';
-    _emberMetalRun_loop.default(function () {
-      helper.recompute();
-    });
-
-    equal(component.$().text(), 'Who believes his force hath overcome but half his foe');
-  });
-
-  QUnit.test('dashed helper used in subexpression is destroyed', function () {
-    var _Component$extend15;
-
-    var destroyCount = 0;
-    var DynamicSegment = _emberHtmlbarsHelper.default.extend({
-      phrase: 'overcomes by',
-      compute: function () {
-        return this.phrase;
-      },
-      destroy: function () {
-        destroyCount++;
-        this._super.apply(this, arguments);
-      }
-    });
-    var JoinWords = _emberHtmlbarsHelper.helper(function (params) {
-      return params.join(' ');
-    });
-    owner.register('helper:dynamic-segment', DynamicSegment);
-    owner.register('helper:join-words', JoinWords);
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.layout = _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}'), _Component$extend15)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    _emberRuntimeTestsUtils.runDestroy(component);
-
-    equal(destroyCount, 1, 'destroy is called after a view is destroyed');
   });
 });
 enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -39620,7 +39759,7 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -39628,6 +39767,8 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var assert = QUnit.assert;
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: custom helpers', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -39638,7 +39779,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@test it can resolve custom helpers'] = function testItCanResolveCustomHelpers() {
+    _class.prototype['@test it can resolve custom simple helpers'] = function testItCanResolveCustomSimpleHelpers() {
       this.registerHelper('hello-world', function () {
         return 'hello world';
       });
@@ -39658,6 +39799,496 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.render('{{hello-world}}');
 
       this.assertText('hello world');
+    };
+
+    _class.prototype['@htmlbars class-based helper can recompute a new value'] = function htmlbarsClassBasedHelperCanRecomputeANewValue() {
+      var _this = this;
+
+      var destroyCount = 0;
+      var computeCount = 0;
+      var helper = undefined;
+
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return ++computeCount;
+        },
+        destroy: function () {
+          destroyCount++;
+          this._super();
+        }
+      });
+
+      this.render('{{hello-world}}');
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('2');
+
+      assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
+    };
+
+    _class.prototype['@htmlbars class-based helper with static arguments can recompute a new value'] = function htmlbarsClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
+      var _this2 = this;
+
+      var destroyCount = 0;
+      var computeCount = 0;
+      var helper = undefined;
+
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return ++computeCount;
+        },
+        destroy: function () {
+          destroyCount++;
+          this._super();
+        }
+      });
+
+      this.render('{{hello-world "whut"}}');
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('2');
+
+      assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
+    };
+
+    _class.prototype['@htmlbars simple helper is called for param changes'] = function htmlbarsSimpleHelperIsCalledForParamChanges() {
+      var _this3 = this;
+
+      var computeCount = 0;
+
+      this.registerHelper('hello-world', function (_ref) {
+        var value = _ref[0];
+
+        computeCount++;
+        return value + '-value';
+      });
+
+      this.render('{{hello-world name}}', {
+        name: 'bob'
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'name', 'sal');
+      });
+
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'name', 'bob');
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+    };
+
+    _class.prototype['@htmlbars class-based helper compute is called for param changes'] = function htmlbarsClassBasedHelperComputeIsCalledForParamChanges() {
+      var _this4 = this;
+
+      var createCount = 0;
+      var computeCount = 0;
+
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          createCount++;
+        },
+        compute: function (_ref2) {
+          var value = _ref2[0];
+
+          computeCount++;
+          return value + '-value';
+        }
+      });
+
+      this.render('{{hello-world name}}', {
+        name: 'bob'
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'name', 'sal');
+      });
+
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'name', 'bob');
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+      assert.strictEqual(createCount, 1, 'helper is only created once');
+    };
+
+    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
+      var _this5 = this;
+
+      this.registerHelper('hello-world', function (_params, _hash) {
+        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+      });
+
+      this.render('{{hello-world name "rich" first=age last="sam"}}', {
+        name: 'bob',
+        age: 42
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'name', 'bob');
+        _emberMetalProperty_set.set(_this5.context, 'age', 42);
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
+      var _this6 = this;
+
+      this.registerHelper('hello-world', {
+        compute: function (_params, _hash) {
+          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+        }
+      });
+
+      this.render('{{hello-world name "rich" first=age last="sam"}}', {
+        name: 'bob',
+        age: 42
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'name', 'bob');
+        _emberMetalProperty_set.set(_this6.context, 'age', 42);
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+      var _this7 = this;
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.render('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   reason\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}', {
+        reason: 'force'
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'reason', 'Nickleback');
+      });
+
+      this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'reason', 'force');
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+    };
+
+    _class.prototype['@htmlbars simple helper not usable with a block'] = function htmlbarsSimpleHelperNotUsableWithABlock() {
+      var _this8 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
+        _this8.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@htmlbars class-based helper not usable with a block'] = function htmlbarsClassBasedHelperNotUsableWithABlock() {
+      var _this9 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this9.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@htmlbars simple helper not usable within element'] = function htmlbarsSimpleHelperNotUsableWithinElement() {
+      var _this10 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
+        _this10.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@htmlbars class-based helper not usable within element'] = function htmlbarsClassBasedHelperNotUsableWithinElement() {
+      var _this11 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this11.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@htmlbars class-based helper is torn down'] = function htmlbarsClassBasedHelperIsTornDown() {
+      var destroyCalled = 0;
+
+      this.registerHelper('some-helper', {
+        destroy: function () {
+          destroyCalled++;
+          this._super.apply(this, arguments);
+        },
+        compute: function () {
+          return 'must define a compute';
+        }
+      });
+
+      this.render('{{some-helper}}');
+
+      _emberRuntimeTestsUtils.runDestroy(this.component);
+
+      assert.strictEqual(destroyCalled, 1, 'destroy called once');
+    };
+
+    _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
+      var _this12 = this;
+
+      var helper = undefined;
+      var phrase = 'overcomes by';
+
+      this.registerHelper('dynamic-segment', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return phrase;
+        }
+      });
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.render('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}');
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      phrase = 'believes his';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who believes his force hath overcome but half his foe');
+
+      phrase = 'overcomes by';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+    };
+
+    _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
+      var _this13 = this;
+
+      var helper = undefined;
+      var phrase = 'overcomes by';
+
+      this.registerHelper('dynamic-segment', {
+        init: function () {
+          this._super.apply(this, arguments);
+          helper = this;
+        },
+        compute: function () {
+          return phrase;
+        }
+      });
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.registerComponent('some-component', {
+        template: '{{first}} {{second}} {{third}} {{fourth}} {{fifth}}'
+      });
+
+      this.render('{{some-component first="Who"\n                   second=(dynamic-segment)\n                   third="force"\n                   fourth=(join-words (join-words "hath overcome but" "half"))\n                   fifth=(join-words "his" (join-words "foe"))}}');
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+
+      phrase = 'believes his';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who believes his force hath overcome but half his foe');
+
+      phrase = 'overcomes by';
+
+      this.runTask(function () {
+        return helper.recompute();
+      });
+
+      this.assertText('Who overcomes by force hath overcome but half his foe');
+    };
+
+    _class.prototype['@htmlbars class-based helper used in subexpression is destroyed'] = function htmlbarsClassBasedHelperUsedInSubexpressionIsDestroyed() {
+      var destroyCount = 0;
+
+      this.registerHelper('dynamic-segment', {
+        phrase: 'overcomes by',
+        init: function () {
+          this._super.apply(this, arguments);
+        },
+        compute: function () {
+          return this.phrase;
+        },
+        destroy: function () {
+          destroyCount++;
+          this._super.apply(this, arguments);
+        }
+      });
+
+      this.registerHelper('join-words', {
+        compute: function (params) {
+          return params.join(' ');
+        }
+      });
+
+      this.render('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}');
+
+      _emberRuntimeTestsUtils.runDestroy(this.component);
+
+      equal(destroyCount, 1, 'destroy is called after a view is destroyed');
     };
 
     return _class;
@@ -69650,7 +70281,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+928d2459', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+0569af0c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
