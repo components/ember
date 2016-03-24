@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+f808f973
+ * @version   2.6.0-canary+928d2459
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24938,7 +24938,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/computed'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalComputed) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']);
@@ -24960,49 +24960,68 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@test it can render a basic component with a static argument'] = function testItCanRenderABasicComponentWithAStaticArgument() {
+    _class.prototype['@test it can render a basic component with a static component name argument'] = function testItCanRenderABasicComponentWithAStaticComponentNameArgument() {
       var _this = this;
 
-      this.registerComponent('foo-bar', { template: 'hello' });
+      this.registerComponent('foo-bar', { template: 'hello {{name}}' });
 
-      this.render('{{component "foo-bar"}}');
+      this.render('{{component "foo-bar" name=name}}', { name: 'Sarah' });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Sarah' });
 
       this.runTask(function () {
         return _this.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Sarah' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Gavin');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Gavin' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Sarah');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Sarah' });
     };
 
-    _class.prototype['@test it can render a basic component with a dynamic argument'] = function testItCanRenderABasicComponentWithADynamicArgument() {
+    _class.prototype['@test it can render a basic component with a dynamic component name argument'] = function testItCanRenderABasicComponentWithADynamicComponentNameArgument() {
       var _this2 = this;
 
-      this.registerComponent('foo-bar', { template: 'hello from foo-bar' });
-      this.registerComponent('foo-bar-baz', { template: 'hello from foo-bar-baz' });
+      this.registerComponent('foo-bar', { template: 'hello {{name}} from foo-bar' });
+      this.registerComponent('foo-bar-baz', { template: 'hello {{name}} from foo-bar-baz' });
 
-      this.render('{{component componentName}}', { componentName: 'foo-bar' });
+      this.render('{{component componentName name=name}}', { componentName: 'foo-bar', name: 'Alex' });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
 
       this.runTask(function () {
         return _this2.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'name', 'Ben');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar-baz');
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar-baz' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar-baz' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar');
+        _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar');
+        _emberMetalProperty_set.set(_this2.context, 'name', 'Alex');
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
     };
 
     _class.prototype['@test it has an element'] = function testItHasAnElement() {
@@ -25277,6 +25296,391 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+    };
+
+    _class.prototype['@test component helper destroys underlying component when it is swapped out'] = function testComponentHelperDestroysUnderlyingComponentWhenItIsSwappedOut(assert) {
+      var _this11 = this;
+
+      var destroyed = { 'foo-bar': 0, 'foo-bar-baz': 0 };
+
+      this.registerComponent('foo-bar', {
+        template: 'hello from foo-bar',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed['foo-bar']++;
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar-baz', {
+        template: 'hello from foo-bar-baz',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed['foo-bar-baz']++;
+          }
+        })
+      });
+
+      this.render('{{component componentName name=name}}', { componentName: 'foo-bar' });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 0, 'foo-bar-baz': 0 });
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 0, 'foo-bar-baz': 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'componentName', 'foo-bar-baz');
+      });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 1, 'foo-bar-baz': 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'componentName', 'foo-bar');
+      });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 1, 'foo-bar-baz': 1 });
+    };
+
+    _class.prototype['@test component helper with bound properties are updating correctly in init of component'] = function testComponentHelperWithBoundPropertiesAreUpdatingCorrectlyInInitOfComponent(assert) {
+      var _this12 = this;
+
+      this.registerComponent('foo-bar', {
+        template: 'foo-bar {{location}} {{locationCopy}} {{yield}}',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('locationCopy', this.get('location'));
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar-baz', {
+        template: 'foo-bar-baz {{location}} {{locationCopy}} {{yield}}',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('locationCopy', this.get('location'));
+          }
+        })
+      });
+
+      this.registerComponent('outer-component', {
+        template: '{{#component componentName location=location}}arepas!{{/component}}',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          componentName: _emberMetalComputed.default('location', function () {
+            if (this.get('location') === 'Caracas') {
+              return 'foo-bar';
+            } else {
+              return 'foo-bar-baz';
+            }
+          })
+        })
+      });
+
+      this.render('{{outer-component location=location}}', { location: 'Caracas' });
+
+      this.assertText('foo-bar Caracas Caracas arepas!');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('foo-bar Caracas Caracas arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'location', 'Loisaida');
+      });
+
+      this.assertText('foo-bar-baz Loisaida Loisaida arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'location', 'Caracas');
+      });
+
+      this.assertText('foo-bar Caracas Caracas arepas!');
+    };
+
+    _class.prototype['@htmlbars component helper with actions'] = function htmlbarsComponentHelperWithActions(assert) {
+      var _this14 = this;
+
+      this.registerComponent('inner-component', {
+        template: 'inner-component {{yield}}',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          classNames: 'inner-component',
+          didInsertElement: function () {
+            var _this13 = this;
+
+            // trigger action on click in absence of app's EventDispatcher
+            this.$().on('click', function () {
+              _this13.sendAction('somethingClicked');
+            });
+          },
+          willDestroyElement: function () {
+            this.$().off('click');
+          }
+        })
+      });
+
+      var actionTriggered = 0;
+      this.registerComponent('outer-component', {
+        template: '{{#component componentName somethingClicked="mappedAction"}}arepas!{{/component}}',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          classNames: 'outer-component',
+          componentName: 'inner-component',
+          actions: {
+            mappedAction: function () {
+              actionTriggered++;
+            }
+          }
+        })
+      });
+
+      this.render('{{outer-component}}');
+
+      assert.equal(actionTriggered, 0, 'action was not triggered');
+
+      this.runTask(function () {
+        _this14.$('.inner-component').trigger('click');
+      });
+
+      assert.equal(actionTriggered, 1, 'action was triggered');
+    };
+
+    _class.prototype['@test nested component helpers'] = function testNestedComponentHelpers(assert) {
+      var _this15 = this;
+
+      this.registerComponent('foo-bar', { template: 'yippie! {{attrs.location}} {{yield}}' });
+      this.registerComponent('baz-qux', { template: 'yummy {{attrs.location}} {{yield}}' });
+      this.registerComponent('corge-grault', { template: 'delicious {{attrs.location}} {{yield}}' });
+
+      this.render('{{#component componentName1 location=location}}{{#component componentName2 location=location}}arepas!{{/component}}{{/component}}', {
+        componentName1: 'foo-bar',
+        componentName2: 'baz-qux',
+        location: 'Caracas'
+      });
+
+      this.assertText('yippie! Caracas yummy Caracas arepas!');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertText('yippie! Caracas yummy Caracas arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'location', 'Loisaida');
+      });
+
+      this.assertText('yippie! Loisaida yummy Loisaida arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'componentName1', 'corge-grault');
+      });
+
+      this.assertText('delicious Loisaida yummy Loisaida arepas!');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.context, 'componentName1', 'foo-bar');
+        _emberMetalProperty_set.set(_this15.context, 'location', 'Caracas');
+      });
+
+      this.assertText('yippie! Caracas yummy Caracas arepas!');
+    };
+
+    _class.prototype['@htmlbars component with dynamic name argument resolving to non-existent component'] = function htmlbarsComponentWithDynamicNameArgumentResolvingToNonExistentComponent(assert) {
+      var _this16 = this;
+
+      expectAssertion(function () {
+        _this16.render('{{component componentName}}', { componentName: 'does-not-exist' });
+      }, /Could not find component named "does-not-exist"/);
+    };
+
+    _class.prototype['@htmlbars component with static name argument for non-existent component'] = function htmlbarsComponentWithStaticNameArgumentForNonExistentComponent(assert) {
+      var _this17 = this;
+
+      expectAssertion(function () {
+        _this17.render('{{component "does-not-exist"}}');
+      }, /Could not find component named "does-not-exist"/);
+    };
+
+    _class.prototype['@htmlbars component with unquoted param resolving to a component, then non-existent component'] = function htmlbarsComponentWithUnquotedParamResolvingToAComponentThenNonExistentComponent(assert) {
+      var _this18 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello {{name}}' });
+
+      this.render('{{component componentName name=name}}', { componentName: 'foo-bar', name: 'Alex' });
+
+      this.assertText('hello Alex');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('hello Alex');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'componentName', undefined);
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'componentName', 'foo-bar');
+      });
+
+      this.assertText('hello Alex');
+    };
+
+    _class.prototype['@htmlbars component helper properly invalidates hash params inside an {{each}} invocation #11044'] = function htmlbarsComponentHelperProperlyInvalidatesHashParamsInsideAnEachInvocation11044(assert) {
+      var _this19 = this;
+
+      this.registerComponent('foo-bar', {
+        template: '[{{internalName}} - {{attrs.name}}]',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          willRender: function () {
+            // store internally available name to ensure that the name available in `this.attrs.name`
+            // matches the template lookup name
+            _emberMetalProperty_set.set(this, 'internalName', this.attrs.name);
+          }
+        })
+      });
+
+      this.render('{{#each items as |item|}}{{component "foo-bar" name=item.name}}{{/each}}', {
+        items: [{ name: 'Robert' }, { name: 'Jacquie' }]
+      });
+
+      this.assertText('[Robert - Robert][Jacquie - Jacquie]');
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText('[Robert - Robert][Jacquie - Jacquie]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'items', [{ name: 'Max' }, { name: 'James' }]);
+      });
+
+      this.assertText('[Max - Max][James - James]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'items', [{ name: 'Robert' }, { name: 'Jacquie' }]);
+      });
+
+      this.assertText('[Robert - Robert][Jacquie - Jacquie]');
+    };
+
+    _class.prototype['@test dashless components should not be found'] = function testDashlessComponentsShouldNotBeFound(assert) {
+      var _this20 = this;
+
+      this.registerComponent('dashless2', { template: 'Do not render me!' });
+
+      expectAssertion(function () {
+        _this20.render('{{component "dashless"}}');
+      }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
+    };
+
+    _class.prototype['@htmlbars positional parameters does not clash when rendering different components'] = function htmlbarsPositionalParametersDoesNotClashWhenRenderingDifferentComponents(assert) {
+      var _this21 = this;
+
+      this.registerComponent('foo-bar', {
+        template: 'hello {{name}} from foo-bar',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.reopenClass({
+          positionalParams: ['name']
+        })
+      });
+
+      this.registerComponent('foo-bar-baz', {
+        template: 'hello {{name}} from foo-bar-baz',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.reopenClass({
+          positionalParams: ['name']
+        })
+      });
+
+      this.render('{{component componentName name}}', { componentName: 'foo-bar', name: 'Alex' });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'name', 'Ben');
+      });
+
+      // TODO: this fails in htmlbars - https://github.com/emberjs/ember.js/issues/13158
+      // this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar-baz');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar-baz' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar');
+        _emberMetalProperty_set.set(_this21.context, 'name', 'Alex');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+    };
+
+    _class.prototype['@htmlbars positional parameters does not pollute the attributes when changing components'] = function htmlbarsPositionalParametersDoesNotPolluteTheAttributesWhenChangingComponents(assert) {
+      var _this22 = this;
+
+      this.registerComponent('normal-message', {
+        template: 'Normal: {{something}}!',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.reopenClass({
+          positionalParams: ['something']
+        })
+      });
+
+      this.registerComponent('alternative-message', {
+        template: 'Alternative: {{something}} {{somethingElse}}!',
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          something: 'Another'
+        }).reopenClass({
+          positionalParams: ['somethingElse']
+        })
+      });
+
+      this.render('{{component componentName message}}', { componentName: 'normal-message', message: 'Hello' });
+
+      this.assertComponentElement(this.firstChild, { content: 'Normal: Hello!' });
+
+      this.runTask(function () {
+        return _this22.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Normal: Hello!' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this22.context, 'componentName', 'alternative-message');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Alternative: Another Hello!' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this22.context, 'message', 'Hi');
+      });
+
+      // TODO: this fails in htmlbars - https://github.com/emberjs/ember.js/issues/13158
+      // this.assertComponentElement(this.firstChild, { content: 'Alternative: Another Hi!' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this22.context, 'componentName', 'normal-message');
+        _emberMetalProperty_set.set(_this22.context, 'message', 'Hello');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Normal: Hello!' });
     };
 
     return _class;
@@ -30729,354 +31133,6 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
-  });
-});
-enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/computed', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalComputed, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var view, owner;
-
-  QUnit.module('ember-htmlbars: {{#component}} helper', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      owner.registerOptionsForType('template', { instantiate: false });
-      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-    }
-  });
-
-  QUnit.test('component helper with bound properties are updating correctly in init of component', function () {
-    var _EmberView$extend;
-
-    owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        equal(_emberMetalProperty_get.get(this, 'location'), 'Caracas', 'location is bound on init');
-      }
-    }));
-    owner.register('component:baz-qux', _emberViewsComponentsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        equal(_emberMetalProperty_get.get(this, 'location'), 'Loisaida', 'location is bound on init');
-      }
-    }));
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{location}} {{yield}}'));
-    owner.register('template:components/baz-qux', _emberTemplateCompilerSystemCompile.default('yummy {{location}} {{yield}}'));
-
-    view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.dynamicComponent = _emberMetalComputed.default('location', function () {
-      var location = _emberMetalProperty_get.get(this, 'location');
-
-      if (location === 'Caracas') {
-        return 'foo-bar';
-      } else {
-        return 'baz-qux';
-      }
-    }), _EmberView$extend.location = 'Caracas', _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}'), _EmberView$extend)).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'location', 'Loisaida');
-    });
-    equal(view.$().text(), 'yummy Loisaida arepas!', 'component was updated and re-rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'location', 'Caracas');
-    });
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was updated up and rendered');
-  });
-
-  QUnit.test('component helper with unquoted string is bound', function () {
-    var _EmberView$create;
-
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{attrs.location}} {{yield}}'));
-    owner.register('template:components/baz-qux', _emberTemplateCompilerSystemCompile.default('yummy {{attrs.location}} {{yield}}'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.dynamicComponent = 'foo-bar', _EmberView$create.location = 'Caracas', _EmberView$create.template = _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}'), _EmberView$create));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'dynamicComponent', 'baz-qux');
-      _emberMetalProperty_set.set(view, 'location', 'Loisaida');
-    });
-    equal(view.$().text(), 'yummy Loisaida arepas!', 'component was updated and re-rendered');
-  });
-
-  QUnit.test('component helper destroys underlying component when it is swapped out', function () {
-    var _EmberView$create2;
-
-    var currentComponent;
-    var destroyCalls = 0;
-    owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        currentComponent = 'foo-bar';
-      },
-      willDestroy: function () {
-        destroyCalls++;
-      }
-    }));
-    owner.register('component:baz-qux', _emberViewsComponentsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        currentComponent = 'baz-qux';
-      },
-      willDestroy: function () {
-        destroyCalls++;
-      }
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.dynamicComponent = 'foo-bar', _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default('{{component view.dynamicComponent}}'), _EmberView$create2));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(currentComponent, 'foo-bar', 'precond - instantiates the proper component');
-    equal(destroyCalls, 0, 'precond - nothing destroyed yet');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'dynamicComponent', 'baz-qux');
-    });
-
-    equal(currentComponent, 'baz-qux', 'changing bound value instantiates the proper component');
-    equal(destroyCalls, 1, 'prior component should be destroyed');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'dynamicComponent', 'foo-bar');
-    });
-
-    equal(currentComponent, 'foo-bar', 'changing bound value instantiates the proper component');
-    equal(destroyCalls, 2, 'prior components destroyed');
-  });
-
-  QUnit.test('component helper with actions', function () {
-    var _EmberView$create3;
-
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{yield}}'));
-    owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-      classNames: 'foo-bar',
-      didInsertElement: function () {
-        // trigger action on click in absence of app's EventDispatcher
-        var self = this;
-        this.$().on('click', function () {
-          self.sendAction('fooBarred');
-        });
-      },
-      willDestroyElement: function () {
-        this.$().off('click');
-      }
-    }));
-
-    var actionTriggered = 0;
-    var controller = _emberRuntimeControllersController.default.extend({
-      dynamicComponent: 'foo-bar',
-      actions: {
-        mappedAction: function () {
-          actionTriggered++;
-        }
-      }
-    }).create();
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.controller = controller, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default('{{#component dynamicComponent fooBarred="mappedAction"}}arepas!{{/component}}'), _EmberView$create3));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    _emberMetalRun_loop.default(function () {
-      view.$('.foo-bar').trigger('click');
-    });
-    equal(actionTriggered, 1, 'action was triggered');
-  });
-
-  QUnit.test('component helper maintains expected logical parentView', function () {
-    var _EmberView$create4;
-
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{yield}}'));
-    var componentInstance;
-    owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-      didInsertElement: function () {
-        componentInstance = this;
-      }
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.dynamicComponent = 'foo-bar', _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent}}arepas!{{/component}}'), _EmberView$create4));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(_emberMetalProperty_get.get(componentInstance, 'parentView'), view, 'component\'s parentView is the view invoking the helper');
-  });
-
-  QUnit.test('nested component helpers', function () {
-    var _EmberView$create5;
-
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{attrs.location}} {{yield}}'));
-    owner.register('template:components/baz-qux', _emberTemplateCompilerSystemCompile.default('yummy {{attrs.location}} {{yield}}'));
-    owner.register('template:components/corge-grault', _emberTemplateCompilerSystemCompile.default('delicious {{attrs.location}} {{yield}}'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.dynamicComponent1 = 'foo-bar', _EmberView$create5.dynamicComponent2 = 'baz-qux', _EmberView$create5.location = 'Caracas', _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent1 location=view.location}}{{#component view.dynamicComponent2 location=view.location}}arepas!{{/component}}{{/component}}'), _EmberView$create5));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'yippie! Caracas yummy Caracas arepas!', 'components were looked up and rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'dynamicComponent1', 'corge-grault');
-      _emberMetalProperty_set.set(view, 'location', 'Loisaida');
-    });
-    equal(view.$().text(), 'delicious Loisaida yummy Loisaida arepas!', 'components were updated and re-rendered');
-  });
-
-  QUnit.test('component helper can be used with a quoted string (though you probably would not do this)', function () {
-    var _EmberView$create6;
-
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{attrs.location}} {{yield}}'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.location = 'Caracas', _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{#component "foo-bar" location=view.location}}arepas!{{/component}}'), _EmberView$create6));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
-  });
-
-  QUnit.test('component with unquoted param resolving to non-existent component', function () {
-    var _EmberView$create7;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.dynamicComponent = 'does-not-exist', _EmberView$create7.location = 'Caracas', _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}'), _EmberView$create7));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /HTMLBars error: Could not find component named "does-not-exist"./, 'Expected missing component to generate an exception');
-  });
-
-  QUnit.test('component with unquoted param resolving to a component, then non-existent component', function () {
-    var _EmberView$create8;
-
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{attrs.location}} {{yield}}'));
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.dynamicComponent = 'foo-bar', _EmberView$create8.location = 'Caracas', _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}'), _EmberView$create8));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'dynamicComponent', undefined);
-    });
-
-    equal(view.$().text(), '', 'component correctly deals with falsey values set post-render');
-  });
-
-  QUnit.test('component with quoted param for non-existent component', function () {
-    var _EmberView$create9;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.location = 'Caracas', _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default('{{#component "does-not-exist" location=view.location}}arepas!{{/component}}'), _EmberView$create9));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /HTMLBars error: Could not find component named "does-not-exist"./);
-  });
-
-  QUnit.test('component helper properly invalidates hash params inside an {{each}} invocation #11044', function () {
-    var _EmberView$create10;
-
-    owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-      willRender: function () {
-        // store internally available name to ensure that the name available in `this.attrs.name`
-        // matches the template lookup name
-        _emberMetalProperty_set.set(this, 'internalName', this.attrs.name);
-      }
-    }));
-    owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('{{internalName}} - {{attrs.name}}|'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = owner, _EmberView$create10.items = [{ name: 'Robert' }, { name: 'Jacquie' }], _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{component "foo-bar" name=item.name}}{{/each}}'), _EmberView$create10));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Robert - Robert|Jacquie - Jacquie|', 'component was rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'items', [{ name: 'Max' }, { name: 'James' }]);
-    });
-    equal(view.$().text(), 'Max - Max|James - James|', 'component was updated and re-rendered');
-  });
-
-  QUnit.test('dashless components should not be found', function () {
-    var _EmberView$extend2;
-
-    expect(1);
-
-    owner.register('template:components/dashless', _emberTemplateCompilerSystemCompile.default('Do not render me!'));
-
-    view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberTemplateCompilerSystemCompile.default('{{component "dashless"}}'), _EmberView$extend2)).create();
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
-  });
-
-  QUnit.test('positional parameters does not clash when rendering different components', function (assert) {
-    var _EmberView$create11;
-
-    owner.register('component:normal-message', _emberViewsComponentsComponent.default.extend({
-      something: null
-    }).reopenClass({
-      positionalParams: ['something']
-    }));
-
-    owner.register('component:alternative-message', _emberViewsComponentsComponent.default.extend({
-      something: null
-    }).reopenClass({
-      positionalParams: ['something']
-    }));
-
-    owner.register('template:components/normal-message', _emberTemplateCompilerSystemCompile.default('Say: {{something}}!'));
-    owner.register('template:components/alternative-message', _emberTemplateCompilerSystemCompile.default('---: {{something}}!'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = owner, _EmberView$create11.messageType = 'normal-message', _EmberView$create11.message = 'Hello', _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default('{{component view.messageType view.message}}'), _EmberView$create11));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Say: Hello!');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'messageType', 'alternative-message');
-    });
-
-    equal(view.$().text(), '---: Hello!');
-  });
-
-  QUnit.test('positional parameters does not pollute the attributes when changing components', function (assert) {
-    var _EmberView$create12;
-
-    owner.register('component:normal-message', _emberViewsComponentsComponent.default.extend({
-      something: null
-    }).reopenClass({
-      positionalParams: ['something']
-    }));
-
-    owner.register('component:alternative-message', _emberViewsComponentsComponent.default.extend({
-      something: 'Another'
-    }).reopenClass({
-      positionalParams: ['somethingElse']
-    }));
-
-    owner.register('template:components/normal-message', _emberTemplateCompilerSystemCompile.default('Say: {{something}}!'));
-    owner.register('template:components/alternative-message', _emberTemplateCompilerSystemCompile.default('---: {{something}} {{somethingElse}}!'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = owner, _EmberView$create12.messageType = 'normal-message', _EmberView$create12.message = 'Hello', _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default('{{component view.messageType view.message}}'), _EmberView$create12));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Say: Hello!');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'messageType', 'alternative-message');
-    });
-
-    equal(view.$().text(), '---: Another Hello!');
   });
 });
 enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -38133,7 +38189,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/computed'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalComputed) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']);
@@ -38155,49 +38211,68 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@test it can render a basic component with a static argument'] = function testItCanRenderABasicComponentWithAStaticArgument() {
+    _class.prototype['@test it can render a basic component with a static component name argument'] = function testItCanRenderABasicComponentWithAStaticComponentNameArgument() {
       var _this = this;
 
-      this.registerComponent('foo-bar', { template: 'hello' });
+      this.registerComponent('foo-bar', { template: 'hello {{name}}' });
 
-      this.render('{{component "foo-bar"}}');
+      this.render('{{component "foo-bar" name=name}}', { name: 'Sarah' });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Sarah' });
 
       this.runTask(function () {
         return _this.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Sarah' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Gavin');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Gavin' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Sarah');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Sarah' });
     };
 
-    _class.prototype['@test it can render a basic component with a dynamic argument'] = function testItCanRenderABasicComponentWithADynamicArgument() {
+    _class.prototype['@test it can render a basic component with a dynamic component name argument'] = function testItCanRenderABasicComponentWithADynamicComponentNameArgument() {
       var _this2 = this;
 
-      this.registerComponent('foo-bar', { template: 'hello from foo-bar' });
-      this.registerComponent('foo-bar-baz', { template: 'hello from foo-bar-baz' });
+      this.registerComponent('foo-bar', { template: 'hello {{name}} from foo-bar' });
+      this.registerComponent('foo-bar-baz', { template: 'hello {{name}} from foo-bar-baz' });
 
-      this.render('{{component componentName}}', { componentName: 'foo-bar' });
+      this.render('{{component componentName name=name}}', { componentName: 'foo-bar', name: 'Alex' });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
 
       this.runTask(function () {
         return _this2.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'name', 'Ben');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar-baz');
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar-baz' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar-baz' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar');
+        _emberMetalProperty_set.set(_this2.context, 'componentName', 'foo-bar');
+        _emberMetalProperty_set.set(_this2.context, 'name', 'Alex');
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
     };
 
     _class.prototype['@test it has an element'] = function testItHasAnElement() {
@@ -38472,6 +38547,391 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
+    };
+
+    _class.prototype['@test component helper destroys underlying component when it is swapped out'] = function testComponentHelperDestroysUnderlyingComponentWhenItIsSwappedOut(assert) {
+      var _this11 = this;
+
+      var destroyed = { 'foo-bar': 0, 'foo-bar-baz': 0 };
+
+      this.registerComponent('foo-bar', {
+        template: 'hello from foo-bar',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed['foo-bar']++;
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar-baz', {
+        template: 'hello from foo-bar-baz',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          willDestroy: function () {
+            this._super();
+            destroyed['foo-bar-baz']++;
+          }
+        })
+      });
+
+      this.render('{{component componentName name=name}}', { componentName: 'foo-bar' });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 0, 'foo-bar-baz': 0 });
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 0, 'foo-bar-baz': 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'componentName', 'foo-bar-baz');
+      });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 1, 'foo-bar-baz': 0 });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'componentName', 'foo-bar');
+      });
+
+      assert.deepEqual(destroyed, { 'foo-bar': 1, 'foo-bar-baz': 1 });
+    };
+
+    _class.prototype['@test component helper with bound properties are updating correctly in init of component'] = function testComponentHelperWithBoundPropertiesAreUpdatingCorrectlyInInitOfComponent(assert) {
+      var _this12 = this;
+
+      this.registerComponent('foo-bar', {
+        template: 'foo-bar {{location}} {{locationCopy}} {{yield}}',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('locationCopy', this.get('location'));
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar-baz', {
+        template: 'foo-bar-baz {{location}} {{locationCopy}} {{yield}}',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('locationCopy', this.get('location'));
+          }
+        })
+      });
+
+      this.registerComponent('outer-component', {
+        template: '{{#component componentName location=location}}arepas!{{/component}}',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          componentName: _emberMetalComputed.default('location', function () {
+            if (this.get('location') === 'Caracas') {
+              return 'foo-bar';
+            } else {
+              return 'foo-bar-baz';
+            }
+          })
+        })
+      });
+
+      this.render('{{outer-component location=location}}', { location: 'Caracas' });
+
+      this.assertText('foo-bar Caracas Caracas arepas!');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('foo-bar Caracas Caracas arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'location', 'Loisaida');
+      });
+
+      this.assertText('foo-bar-baz Loisaida Loisaida arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'location', 'Caracas');
+      });
+
+      this.assertText('foo-bar Caracas Caracas arepas!');
+    };
+
+    _class.prototype['@htmlbars component helper with actions'] = function htmlbarsComponentHelperWithActions(assert) {
+      var _this14 = this;
+
+      this.registerComponent('inner-component', {
+        template: 'inner-component {{yield}}',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          classNames: 'inner-component',
+          didInsertElement: function () {
+            var _this13 = this;
+
+            // trigger action on click in absence of app's EventDispatcher
+            this.$().on('click', function () {
+              _this13.sendAction('somethingClicked');
+            });
+          },
+          willDestroyElement: function () {
+            this.$().off('click');
+          }
+        })
+      });
+
+      var actionTriggered = 0;
+      this.registerComponent('outer-component', {
+        template: '{{#component componentName somethingClicked="mappedAction"}}arepas!{{/component}}',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          classNames: 'outer-component',
+          componentName: 'inner-component',
+          actions: {
+            mappedAction: function () {
+              actionTriggered++;
+            }
+          }
+        })
+      });
+
+      this.render('{{outer-component}}');
+
+      assert.equal(actionTriggered, 0, 'action was not triggered');
+
+      this.runTask(function () {
+        _this14.$('.inner-component').trigger('click');
+      });
+
+      assert.equal(actionTriggered, 1, 'action was triggered');
+    };
+
+    _class.prototype['@test nested component helpers'] = function testNestedComponentHelpers(assert) {
+      var _this15 = this;
+
+      this.registerComponent('foo-bar', { template: 'yippie! {{attrs.location}} {{yield}}' });
+      this.registerComponent('baz-qux', { template: 'yummy {{attrs.location}} {{yield}}' });
+      this.registerComponent('corge-grault', { template: 'delicious {{attrs.location}} {{yield}}' });
+
+      this.render('{{#component componentName1 location=location}}{{#component componentName2 location=location}}arepas!{{/component}}{{/component}}', {
+        componentName1: 'foo-bar',
+        componentName2: 'baz-qux',
+        location: 'Caracas'
+      });
+
+      this.assertText('yippie! Caracas yummy Caracas arepas!');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertText('yippie! Caracas yummy Caracas arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'location', 'Loisaida');
+      });
+
+      this.assertText('yippie! Loisaida yummy Loisaida arepas!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'componentName1', 'corge-grault');
+      });
+
+      this.assertText('delicious Loisaida yummy Loisaida arepas!');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.context, 'componentName1', 'foo-bar');
+        _emberMetalProperty_set.set(_this15.context, 'location', 'Caracas');
+      });
+
+      this.assertText('yippie! Caracas yummy Caracas arepas!');
+    };
+
+    _class.prototype['@htmlbars component with dynamic name argument resolving to non-existent component'] = function htmlbarsComponentWithDynamicNameArgumentResolvingToNonExistentComponent(assert) {
+      var _this16 = this;
+
+      expectAssertion(function () {
+        _this16.render('{{component componentName}}', { componentName: 'does-not-exist' });
+      }, /Could not find component named "does-not-exist"/);
+    };
+
+    _class.prototype['@htmlbars component with static name argument for non-existent component'] = function htmlbarsComponentWithStaticNameArgumentForNonExistentComponent(assert) {
+      var _this17 = this;
+
+      expectAssertion(function () {
+        _this17.render('{{component "does-not-exist"}}');
+      }, /Could not find component named "does-not-exist"/);
+    };
+
+    _class.prototype['@htmlbars component with unquoted param resolving to a component, then non-existent component'] = function htmlbarsComponentWithUnquotedParamResolvingToAComponentThenNonExistentComponent(assert) {
+      var _this18 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello {{name}}' });
+
+      this.render('{{component componentName name=name}}', { componentName: 'foo-bar', name: 'Alex' });
+
+      this.assertText('hello Alex');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('hello Alex');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'componentName', undefined);
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'componentName', 'foo-bar');
+      });
+
+      this.assertText('hello Alex');
+    };
+
+    _class.prototype['@htmlbars component helper properly invalidates hash params inside an {{each}} invocation #11044'] = function htmlbarsComponentHelperProperlyInvalidatesHashParamsInsideAnEachInvocation11044(assert) {
+      var _this19 = this;
+
+      this.registerComponent('foo-bar', {
+        template: '[{{internalName}} - {{attrs.name}}]',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          willRender: function () {
+            // store internally available name to ensure that the name available in `this.attrs.name`
+            // matches the template lookup name
+            _emberMetalProperty_set.set(this, 'internalName', this.attrs.name);
+          }
+        })
+      });
+
+      this.render('{{#each items as |item|}}{{component "foo-bar" name=item.name}}{{/each}}', {
+        items: [{ name: 'Robert' }, { name: 'Jacquie' }]
+      });
+
+      this.assertText('[Robert - Robert][Jacquie - Jacquie]');
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText('[Robert - Robert][Jacquie - Jacquie]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'items', [{ name: 'Max' }, { name: 'James' }]);
+      });
+
+      this.assertText('[Max - Max][James - James]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'items', [{ name: 'Robert' }, { name: 'Jacquie' }]);
+      });
+
+      this.assertText('[Robert - Robert][Jacquie - Jacquie]');
+    };
+
+    _class.prototype['@test dashless components should not be found'] = function testDashlessComponentsShouldNotBeFound(assert) {
+      var _this20 = this;
+
+      this.registerComponent('dashless2', { template: 'Do not render me!' });
+
+      expectAssertion(function () {
+        _this20.render('{{component "dashless"}}');
+      }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
+    };
+
+    _class.prototype['@htmlbars positional parameters does not clash when rendering different components'] = function htmlbarsPositionalParametersDoesNotClashWhenRenderingDifferentComponents(assert) {
+      var _this21 = this;
+
+      this.registerComponent('foo-bar', {
+        template: 'hello {{name}} from foo-bar',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.reopenClass({
+          positionalParams: ['name']
+        })
+      });
+
+      this.registerComponent('foo-bar-baz', {
+        template: 'hello {{name}} from foo-bar-baz',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.reopenClass({
+          positionalParams: ['name']
+        })
+      });
+
+      this.render('{{component componentName name}}', { componentName: 'foo-bar', name: 'Alex' });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'name', 'Ben');
+      });
+
+      // TODO: this fails in htmlbars - https://github.com/emberjs/ember.js/issues/13158
+      // this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar-baz');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar-baz' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar');
+        _emberMetalProperty_set.set(_this21.context, 'name', 'Alex');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+    };
+
+    _class.prototype['@htmlbars positional parameters does not pollute the attributes when changing components'] = function htmlbarsPositionalParametersDoesNotPolluteTheAttributesWhenChangingComponents(assert) {
+      var _this22 = this;
+
+      this.registerComponent('normal-message', {
+        template: 'Normal: {{something}}!',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.reopenClass({
+          positionalParams: ['something']
+        })
+      });
+
+      this.registerComponent('alternative-message', {
+        template: 'Alternative: {{something}} {{somethingElse}}!',
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          something: 'Another'
+        }).reopenClass({
+          positionalParams: ['somethingElse']
+        })
+      });
+
+      this.render('{{component componentName message}}', { componentName: 'normal-message', message: 'Hello' });
+
+      this.assertComponentElement(this.firstChild, { content: 'Normal: Hello!' });
+
+      this.runTask(function () {
+        return _this22.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Normal: Hello!' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this22.context, 'componentName', 'alternative-message');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Alternative: Another Hello!' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this22.context, 'message', 'Hi');
+      });
+
+      // TODO: this fails in htmlbars - https://github.com/emberjs/ember.js/issues/13158
+      // this.assertComponentElement(this.firstChild, { content: 'Alternative: Another Hi!' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this22.context, 'componentName', 'normal-message');
+        _emberMetalProperty_set.set(_this22.context, 'message', 'Hello');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Normal: Hello!' });
     };
 
     return _class;
@@ -68746,7 +69206,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+f808f973', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+928d2459', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
