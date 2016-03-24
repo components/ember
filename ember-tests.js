@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b295edb3
+ * @version   2.6.0-canary+f808f973
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -41680,97 +41680,6 @@ enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['expo
     });
   });
 });
-enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-views/views/view', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsViewsView, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var view, owner, originalViewKeyword;
-
-  QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('template', { instantiate: false });
-      owner.register('view:toplevel', _emberViewsViewsView.default.extend());
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-      owner = view = null;
-    }
-  });
-
-  QUnit.test('child views can be inserted inside a bind block', function () {
-    var _EmberView$create;
-
-    owner.register('template:nester', _emberTemplateCompilerSystemCompile.default('<h1 id="hello-world">Hello {{world}}</h1>{{view view.bqView}}'));
-    owner.register('template:nested', _emberTemplateCompilerSystemCompile.default('<div id="child-view">Goodbye {{#with content as |thing|}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>'));
-    owner.register('template:other', _emberTemplateCompilerSystemCompile.default('cruel'));
-
-    var context = {
-      world: 'world!'
-    };
-
-    var OtherView = _emberViewsViewsView.default.extend({
-      templateName: 'other'
-    });
-
-    var BQView = _emberViewsViewsView.default.extend({
-      otherView: OtherView,
-      tagName: 'blockquote',
-      templateName: 'nested'
-    });
-
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.bqView = BQView, _EmberView$create.context = context, _EmberView$create.templateName = 'nester', _EmberView$create));
-
-    _emberMetalProperty_set.set(context, 'content', _emberRuntimeSystemObject.default.create({
-      blah: 'wot'
-    }));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$('#hello-world:contains("Hello world!")').length, 'The parent view renders its contents');
-
-    ok(view.$('blockquote').text().match(/Goodbye.*wot.*cruel.*world\!/), 'The child view renders its content once');
-    ok(view.$().text().match(/Hello world!.*Goodbye.*wot.*cruel.*world\!/), 'parent view should appear before the child view');
-  });
-
-  QUnit.test('views render their template in the context of the parent view\'s context', function () {
-    var _EmberView$create2;
-
-    owner.register('template:parent', _emberTemplateCompilerSystemCompile.default('<h1>{{#with content as |person|}}{{#view}}{{person.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
-
-    var context = {
-      content: {
-        firstName: 'Lana',
-        lastName: 'del Heeeyyyyyy'
-      }
-    };
-
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.templateName = 'parent', _EmberView$create2.context = context, _EmberView$create2));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$('h1').text(), 'Lana del Heeeyyyyyy', 'renders properties from parent context');
-  });
-
-  QUnit.test('views make a view keyword available that allows template to reference view context', function () {
-    var _EmberView$create3;
-
-    owner.register('template:parent', _emberTemplateCompilerSystemCompile.default('<h1>{{#with view.content as |person|}}{{#view person.subview}}{{view.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.templateName = 'parent', _EmberView$create3.content = {
-      subview: _emberViewsViewsView.default.extend({
-        firstName: 'Brodele'
-      }),
-      firstName: 'Lana',
-      lastName: 'del Heeeyyyyyy'
-    }, _EmberView$create3));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$('h1').text(), 'Brodele del Heeeyyyyyy', 'renders properties from parent context');
-  });
-});
 enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager) {
   'use strict';
 
@@ -69281,7 +69190,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+b295edb3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+f808f973', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
