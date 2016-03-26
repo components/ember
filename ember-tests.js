@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.3
+ * @version   2.4.3+aab3a81e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -37908,6 +37908,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
   }
 
+  var ORIGINAL_LEGACY_CONTROLLER_FLAG = _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
   var view, appInstance;
 
   QUnit.module('ember-routing-htmlbars: {{render}} helper', {
@@ -37916,6 +37917,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     },
 
     teardown: function () {
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = ORIGINAL_LEGACY_CONTROLLER_FLAG;
       _emberRuntimeTestsUtils.runDestroy(appInstance);
       _emberRuntimeTestsUtils.runDestroy(view);
 
@@ -38501,6 +38503,40 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$().text(), 'Hello fish!');
+  });
+
+  QUnit.test('{{render}} helper should set router as target when parentController is not found', function () {
+    var _EmberView$create21;
+
+    expect(2);
+
+    _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
+
+    var template = '{{render \'post\' post1}}';
+
+    view = _emberViewsViewsView.default.create((_EmberView$create21 = {}, _EmberView$create21[_containerOwner.OWNER] = appInstance, _EmberView$create21.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create21));
+
+    var postController = undefined;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        postController = this;
+      }
+    });
+
+    var routerStub = {
+      send: function (actionName) {
+        equal(actionName, 'someAction');
+        ok(true, 'routerStub#send called');
+      }
+    };
+    appInstance.register('router:main', routerStub, { instantiate: false });
+    appInstance.register('controller:post', PostController);
+    appInstance.register('template:post', _emberTemplateCompilerSystemCompile.default('post template'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    postController.send('someAction');
   });
 });
 // TEMPLATES
@@ -51224,7 +51260,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.3+aab3a81e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
