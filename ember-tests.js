@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+aeeec63a
+ * @version   2.6.0-canary+a62c820b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -27476,6 +27476,742 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalSet_properties, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{unbound}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test should be able to output a property without binding'] = function testShouldBeAbleToOutputAPropertyWithoutBinding() {
+      var _this = this;
+
+      this.render('<div id="first">{{unbound content.anUnboundString}}</div>', {
+        content: {
+          anUnboundString: 'No spans here, son.'
+        }
+      });
+
+      this.assertText('No spans here, son.');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('No spans here, son.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'content.anUnboundString', 'HEY');
+      });
+
+      this.assertText('No spans here, son.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'content', {
+          anUnboundString: 'No spans here, son.'
+        });
+      });
+
+      this.assertText('No spans here, son.');
+    };
+
+    _class.prototype['@test should be able to use unbound helper in #each helper'] = function testShouldBeAbleToUseUnboundHelperInEachHelper() {
+      var _this2 = this;
+
+      this.render('<ul>{{#each items as |item|}}<li>{{unbound item}}</li>{{/each}}</ul>', {
+        items: _emberRuntimeSystemNative_array.A(['a', 'b', 'c', 1, 2, 3])
+      });
+
+      this.assertText('abc123');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('abc123');
+    };
+
+    _class.prototype['@test should be able to use unbound helper in #each helper (with objects)'] = function testShouldBeAbleToUseUnboundHelperInEachHelperWithObjects() {
+      var _this3 = this;
+
+      this.render('<ul>{{#each items as |item|}}<li>{{unbound item.wham}}</li>{{/each}}</ul>', {
+        items: _emberRuntimeSystemNative_array.A([{ wham: 'bam' }, { wham: 1 }])
+      });
+
+      this.assertText('bam1');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('bam1');
+
+      this.runTask(function () {
+        return _this3.context.items.setEach('wham', 'HEY');
+      });
+
+      this.assertText('bam1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'items', _emberRuntimeSystemNative_array.A([{ wham: 'bam' }, { wham: 1 }]));
+      });
+
+      this.assertText('bam1');
+    };
+
+    _class.prototype['@test it should assert unbound cannot be called with multiple arguments'] = function testItShouldAssertUnboundCannotBeCalledWithMultipleArguments() {
+      var _this4 = this;
+
+      var willThrow = function () {
+        _this4.render('{{unbound foo bar}}', {
+          foo: 'BORK',
+          bar: 'BLOOP'
+        });
+      };
+
+      expectAssertion(willThrow, /unbound helper cannot be called with multiple params or hash params/);
+    };
+
+    _class.prototype['@test should render on attributes'] = function testShouldRenderOnAttributes() {
+      var _this5 = this;
+
+      this.render('<a href="{{unbound foo}}"></a>', {
+        foo: 'BORK'
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'foo', 'OOF');
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'foo', 'BORK');
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+    };
+
+    _class.prototype['@htmlbars should property escape unsafe hrefs'] = function htmlbarsShouldPropertyEscapeUnsafeHrefs() {
+      var _this6 = this;
+
+      var unsafeUrls = _emberRuntimeSystemNative_array.A([{
+        name: 'Bob',
+        url: 'javascript:bob-is-cool' // jshint ignore:line
+      }, {
+        name: 'James',
+        url: 'vbscript:james-is-cool' // jshint ignore:line
+      }, {
+        name: 'Richard',
+        url: 'javascript:richard-is-cool' // jshint ignore:line
+      }]);
+
+      this.render('<ul>{{#each people as |person|}}<li><a href="{{unbound person.url}}">{{person.name}}</a></li>{{/each}}</ul>', {
+        people: unsafeUrls
+      });
+
+      var escapedHtml = _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject);
+
+      this.assertHTML(escapedHtml);
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertHTML(escapedHtml);
+
+      this.runTask(function () {
+        return _this6.context.people.setEach('url', 'http://google.com');
+      });
+
+      this.assertHTML(escapedHtml);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'people', unsafeUrls);
+      });
+
+      this.assertHTML(escapedHtml);
+    };
+
+    _class.prototype['@htmlbars helper form updates on parent re-render'] = function htmlbarsHelperFormUpdatesOnParentReRender() {
+      var _this7 = this;
+
+      this.render('{{unbound foo}}', {
+        foo: 'BORK'
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'foo', 'OOF');
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('OOF');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'foo', '');
+      });
+
+      this.assertText('OOF');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'foo', 'BORK');
+      });
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('BORK');
+    };
+
+    // semantics here is not guaranteed
+
+    _class.prototype['@test sexpr form does not update no matter what'] = function testSexprFormDoesNotUpdateNoMatterWhat() {
+      var _this8 = this;
+
+      this.registerHelper('capitalize', function (args) {
+        return args[0].toUpperCase();
+      });
+
+      this.render('{{capitalize (unbound foo)}}', {
+        foo: 'bork'
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this8.context, 'foo', 'oof');
+        _this8.rerender();
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'foo', 'blip');
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this8.context, 'foo', 'bork');
+        _this8.rerender();
+      });
+
+      this.assertText('BORK');
+    };
+
+    _class.prototype['@test sexpr in helper form does not update on parent re-render'] = function testSexprInHelperFormDoesNotUpdateOnParentReRender() {
+      var _this9 = this;
+
+      this.registerHelper('capitalize', function (params) {
+        return params[0].toUpperCase();
+      });
+
+      this.registerHelper('doublize', function (params) {
+        return params[0] + ' ' + params[0];
+      });
+
+      this.render('{{capitalize (unbound (doublize foo))}}', {
+        foo: 'bork'
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'foo', 'oof');
+        _this9.rerender();
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'foo', 'blip');
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'foo', 'bork');
+        _this9.rerender();
+      });
+
+      this.assertText('BORK BORK');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation'] = function testShouldBeAbleToRenderAnUnboundHelperInvocation() {
+      var _this10 = this;
+
+      this.registerHelper('repeat', function (_ref, _ref2) {
+        var value = _ref[0];
+        var count = _ref2.count;
+
+        var a = [];
+        while (a.length < count) {
+          a.push(value);
+        }
+        return a.join('');
+      });
+
+      this.render('{{unbound (repeat foo count=bar)}} {{repeat foo count=bar}} {{unbound (repeat foo count=2)}} {{repeat foo count=4}}', {
+        foo: 'X',
+        numRepeatsBinding: 'bar',
+        bar: 5
+      });
+
+      this.assertText('XXXXX XXXXX XX XXXX');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('XXXXX XXXXX XX XXXX');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'bar', 1);
+      });
+
+      this.assertText('XXXXX X XX XXXX');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'bar', 5);
+      });
+
+      this.assertText('XXXXX XXXXX XX XXXX');
+    };
+
+    _class.prototype['@test should be able to render an bound helper invocation mixed with static values'] = function testShouldBeAbleToRenderAnBoundHelperInvocationMixedWithStaticValues() {
+      var _this11 = this;
+
+      this.registerHelper('surround', function (_ref3) {
+        var prefix = _ref3[0];
+        var value = _ref3[1];
+        var suffix = _ref3[2];
+        return prefix + '-' + value + '-' + suffix;
+      });
+
+      this.render('{{unbound (surround prefix value "bar")}} {{surround prefix value "bar"}} {{unbound (surround "bar" value suffix)}} {{surround "bar" value suffix}}', {
+        prefix: 'before',
+        value: 'core',
+        suffix: 'after'
+      });
+
+      this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
+
+      this.runTask(function () {
+        _emberMetalSet_properties.default(_this11.context, {
+          prefix: 'beforeChanged',
+          value: 'coreChanged',
+          suffix: 'afterChanged'
+        });
+      });
+
+      this.assertText('before-core-bar beforeChanged-coreChanged-bar bar-core-after bar-coreChanged-afterChanged');
+
+      this.runTask(function () {
+        _emberMetalSet_properties.default(_this11.context, {
+          prefix: 'before',
+          value: 'core',
+          suffix: 'after'
+        });
+      });
+
+      this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
+    };
+
+    _class.prototype['@test should be able to render unbound forms of multi-arg helpers'] = function testShouldBeAbleToRenderUnboundFormsOfMultiArgHelpers() {
+      var _this12 = this;
+
+      this.registerHelper('fauxconcat', function (params) {
+        return params.join('');
+      });
+
+      this.render('{{fauxconcat foo bar bing}} {{unbound (fauxconcat foo bar bing)}}', {
+        foo: 'a',
+        bar: 'b',
+        bing: 'c'
+      });
+
+      this.assertText('abc abc');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('abc abc');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'bar', 'X');
+      });
+
+      this.assertText('aXc abc');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'bar', 'b');
+      });
+
+      this.assertText('abc abc');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation for helpers with dependent keys'] = function testShouldBeAbleToRenderAnUnboundHelperInvocationForHelpersWithDependentKeys() {
+      var _this13 = this;
+
+      this.registerHelper('capitalizeName', {
+        destroy: function () {
+          this.removeObserver('value.firstName');
+          this._super.apply(this, arguments);
+        },
+
+        compute: function (_ref4) {
+          var value = _ref4[0];
+
+          if (this.get('value')) {
+            this.removeObserver('value.firstName');
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          return value ? _emberMetalProperty_get.get(value, 'firstName').toUpperCase() : '';
+        }
+      });
+
+      this.registerHelper('concatNames', {
+        destroy: function () {
+          this.teardown();
+          this._super.apply(this, arguments);
+        },
+        teardown: function () {
+          this.removeObserver('value.firstName');
+          this.removeObserver('value.lastName');
+        },
+        compute: function (_ref5) {
+          var value = _ref5[0];
+
+          if (this.get('value')) {
+            this.teardown();
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          this.addObserver('value.lastName', this, this.recompute);
+          return (value ? _emberMetalProperty_get.get(value, 'firstName') : '') + (value ? _emberMetalProperty_get.get(value, 'lastName') : '');
+        }
+      });
+
+      this.render('{{capitalizeName person}} {{unbound (capitalizeName person)}} {{concatNames person}} {{unbound (concatNames person)}}', {
+        person: {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'person.firstName', 'sally');
+      });
+
+      this.assertText('SALLY SHOOBY sallytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'person', {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        });
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation in #each helper'] = function testShouldBeAbleToRenderAnUnboundHelperInvocationInEachHelper() {
+      var _this14 = this;
+
+      this.registerHelper('capitalize', function (params) {
+        return params[0].toUpperCase();
+      });
+
+      this.render('{{#each people as |person|}}{{capitalize person.firstName}} {{unbound (capitalize person.firstName)}}{{/each}}', {
+        people: _emberRuntimeSystemNative_array.A([{
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }, {
+          firstName: 'cindy',
+          lastName: 'taylor'
+        }])
+      });
+
+      this.assertText('SHOOBY SHOOBYCINDY CINDY');
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      this.assertText('SHOOBY SHOOBYCINDY CINDY');
+
+      this.runTask(function () {
+        return _this14.context.people.setEach('firstName', 'chad');
+      });
+
+      this.assertText('CHAD SHOOBYCHAD CINDY');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'people', _emberRuntimeSystemNative_array.A([{
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }, {
+          firstName: 'cindy',
+          lastName: 'taylor'
+        }]));
+      });
+
+      this.assertText('SHOOBY SHOOBYCINDY CINDY');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation with bound hash options'] = function testShouldBeAbleToRenderAnUnboundHelperInvocationWithBoundHashOptions() {
+      var _this15 = this;
+
+      this.registerHelper('capitalizeName', {
+        destroy: function () {
+          this.removeObserver('value.firstName');
+          this._super.apply(this, arguments);
+        },
+
+        compute: function (_ref6) {
+          var value = _ref6[0];
+
+          if (this.get('value')) {
+            this.removeObserver('value.firstName');
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          return value ? _emberMetalProperty_get.get(value, 'firstName').toUpperCase() : '';
+        }
+      });
+
+      this.registerHelper('concatNames', {
+        destroy: function () {
+          this.teardown();
+          this._super.apply(this, arguments);
+        },
+        teardown: function () {
+          this.removeObserver('value.firstName');
+          this.removeObserver('value.lastName');
+        },
+        compute: function (_ref7) {
+          var value = _ref7[0];
+
+          if (this.get('value')) {
+            this.teardown();
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          this.addObserver('value.lastName', this, this.recompute);
+          return (value ? _emberMetalProperty_get.get(value, 'firstName') : '') + (value ? _emberMetalProperty_get.get(value, 'lastName') : '');
+        }
+      });
+
+      this.render('{{capitalizeName person}} {{unbound (capitalizeName person)}} {{concatNames person}} {{unbound (concatNames person)}}', {
+        person: {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'person.firstName', 'sally');
+      });
+
+      this.assertText('SALLY SHOOBY sallytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'person', {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        });
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+    };
+
+    _class.prototype['@test should be able to render bound form of a helper inside unbound form of same helper'] = function testShouldBeAbleToRenderBoundFormOfAHelperInsideUnboundFormOfSameHelper() {
+      var _this16 = this;
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        foo: true,
+        notfoo: false,
+        bar: true
+      });
+
+      this.assertText('truetrue');
+
+      this.runTask(function () {
+        return _this16.rerender();
+      });
+
+      this.assertText('truetrue');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'bar', false);
+      });
+
+      this.assertText('falsefalse');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'bar', true);
+      });
+
+      this.assertText('truetrue');
+    };
+
+    _class.prototype['@test yielding unbound does not update'] = function testYieldingUnboundDoesNotUpdate() {
+      var _this17 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          fooBarInstance = this;
+        },
+        foo: 'bork'
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (unbound foo)}}'
+      });
+
+      this.render('{{#foo-bar as |value|}}{{value}}{{/foo-bar}}');
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+      });
+
+      this.assertText('bork');
+    };
+
+    _class.prototype['@test yielding unbound hash does not update'] = function testYieldingUnboundHashDoesNotUpdate() {
+      var _this18 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          fooBarInstance = this;
+        },
+        foo: 'bork'
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (unbound (hash foo=foo))}}'
+      });
+
+      this.render('{{#foo-bar as |value|}}{{value.foo}}{{/foo-bar}}');
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+      });
+
+      this.assertText('bork');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -33527,569 +34263,6 @@ enifed('ember-htmlbars/tests/helpers/text_area_test', ['exports', 'ember-metal/r
     equal(textArea.$('textarea').val(), 'Lorem ipsum dolor', 'The contents are included');
     set(controller, 'val', 'sit amet');
     equal(textArea.$('textarea').val(), 'sit amet', 'The new contents are included');
-  });
-});
-enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/views/view', 'ember-views/components/component', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsViewsView, _emberViewsComponentsComponent, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var view, lookup, owner;
-  var originalLookup = _emberMetalCore.default.lookup;
-
-  QUnit.module('ember-htmlbars: {{#unbound}} helper', {
-    setup: function () {
-      var _EmberView$create;
-
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default('{{unbound foo}} {{unbound bar}}'), _EmberView$create.context = _emberRuntimeSystemObject.default.create({
-        foo: 'BORK',
-        barBinding: 'foo'
-      }), _EmberView$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('it should render the current value of a property on the context', function () {
-    equal(view.$().text(), 'BORK BORK', 'should render the current value of a property');
-  });
-
-  QUnit.test('it should not re-render if the property changes', function () {
-    _emberMetalRun_loop.default(function () {
-      view.set('context.foo', 'OOF');
-    });
-    equal(view.$().text(), 'BORK BORK', 'should not re-render if the property changes');
-  });
-
-  QUnit.test('it should not re-render if the parent view rerenders', function () {
-    _emberMetalRun_loop.default(function () {
-      view.set('context.foo', 'OOF');
-      view.rerender();
-    });
-    equal(view.$().text(), 'OOF OOF', 'should re-render if the parent view rerenders');
-  });
-
-  QUnit.test('it should assert unbound cannot be called with multiple arguments', function () {
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(_emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{unbound foo bar}}'),
-        context: _emberRuntimeSystemObject.default.create({
-          foo: 'BORK',
-          bar: 'foo'
-        })
-      }));
-    }, /unbound helper cannot be called with multiple params or hash params/);
-  });
-
-  QUnit.test('should property escape unsafe hrefs', function () {
-    /* jshint scripturl:true */
-
-    expect(3);
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<ul>{{#each view.people as |person|}}<a href="{{unbound person.url}}">{{person.name}}</a>{{/each}}</ul>'),
-      people: _emberRuntimeSystemNative_array.A([{
-        name: 'Bob',
-        url: 'javascript:bob-is-cool'
-      }, {
-        name: 'James',
-        url: 'vbscript:james-is-cool'
-      }, {
-        name: 'Richard',
-        url: 'javascript:richard-is-cool'
-      }])
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var links = view.$('a');
-    for (var i = 0, l = links.length; i < l; i++) {
-      var link = links[i];
-      equal(link.protocol, 'unsafe:', 'properly escaped');
-    }
-  });
-
-  QUnit.test('should render on attributes', function (assert) {
-    /* jshint scripturl:true */
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsComponentsComponent.default.create({
-      layout: _emberTemplateCompilerSystemCompile.default('<a href={{unbound name}}></a>'),
-      name: 'bob'
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberMetalRun_loop.default(function () {
-      view.set('name', 'rick');
-    });
-    assert.equal(view.$().html(), '<a href="bob"></a>');
-  });
-
-  QUnit.module('ember-htmlbars: {{#unbound}} helper with container present', {
-    setup: function () {
-      var _EmberView$create2;
-
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default('{{unbound foo}}'), _EmberView$create2.context = _emberRuntimeSystemObject.default.create({
-        foo: 'bleep'
-      }), _EmberView$create2));
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('it should render the current value of a property path on the context', function () {
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'bleep', 'should render the current value of a property path');
-  });
-
-  QUnit.module('ember-htmlbars: {{#unbound}} subexpression', {
-    setup: function () {
-      var _EmberView$create3;
-
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      owner.register('helper:-capitalize', _emberHtmlbarsHelper.helper(function (params) {
-        return params[0].toUpperCase();
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default('{{-capitalize (unbound foo)}}'), _EmberView$create3.context = _emberRuntimeSystemObject.default.create({
-        foo: 'bork'
-      }), _EmberView$create3));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('it should render the current value of a property on the context', function () {
-    equal(view.$().text(), 'BORK', 'should render the current value of a property');
-  });
-
-  QUnit.test('it should not re-render if the property changes', function () {
-    _emberMetalRun_loop.default(function () {
-      view.set('context.foo', 'oof');
-    });
-    equal(view.$().text(), 'BORK', 'should not re-render if the property changes');
-  });
-
-  QUnit.test('it should not re-render if the parent view rerenders', function () {
-    _emberMetalRun_loop.default(function () {
-      view.set('context.foo', 'oof');
-      view.rerender();
-    });
-    equal(view.$().text(), 'BORK', 'should not re-render if the parent view rerenders');
-  });
-
-  QUnit.module('ember-htmlbars: {{#unbound}} subexpression - helper form', {
-    setup: function () {
-      var _EmberView$create4;
-
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      owner.register('helper:-capitalize', _emberHtmlbarsHelper.helper(function (params) {
-        return params[0].toUpperCase();
-      }));
-
-      owner.register('helper:-doublize', _emberHtmlbarsHelper.helper(function (params) {
-        return params[0] + ' ' + params[0];
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{-capitalize (unbound (-doublize foo))}}'), _EmberView$create4.context = _emberRuntimeSystemObject.default.create({
-        foo: 'bork'
-      }), _EmberView$create4));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('it should render the current value of a property on the context', function () {
-    equal(view.$().text(), 'BORK BORK', 'should render the current value of a property');
-  });
-
-  QUnit.test('it should not re-render if the property changes', function () {
-    _emberMetalRun_loop.default(function () {
-      view.set('context.foo', 'oof');
-    });
-    equal(view.$().text(), 'BORK BORK', 'should not re-render if the property changes');
-  });
-
-  QUnit.test('it should re-render if the parent view rerenders', function () {
-    _emberMetalRun_loop.default(function () {
-      view.set('context.foo', 'oof');
-      view.rerender();
-    });
-    equal(view.$().text(), 'BORK BORK', 'should not re-render if the parent view rerenders');
-  });
-
-  QUnit.module('ember-htmlbars: {{#unbound boundHelper arg1 arg2... argN}} form: render unbound helper invocations', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      owner.register('helper:-surround', _emberHtmlbarsHelper.helper(function (_ref) {
-        var prefix = _ref[0];
-        var value = _ref[1];
-        var suffix = _ref[2];
-
-        return prefix + '-' + value + '-' + suffix;
-      }));
-
-      owner.register('helper:-capitalize', _emberHtmlbarsHelper.helper(function (_ref2) {
-        var value = _ref2[0];
-
-        return value.toUpperCase();
-      }));
-
-      owner.register('helper:-capitalizeName', _emberHtmlbarsHelper.default.extend({
-        destroy: function () {
-          this.removeObserver('value.firstName');
-          this._super.apply(this, arguments);
-        },
-        compute: function (_ref3) {
-          var value = _ref3[0];
-
-          if (this.get('value')) {
-            this.removeObserver('value.firstName');
-          }
-          this.set('value', value);
-          this.addObserver('value.firstName', this, this.recompute);
-          return value ? _emberMetalProperty_get.get(value, 'firstName').toUpperCase() : '';
-        }
-      }));
-
-      owner.register('helper:-fauxconcat', _emberHtmlbarsHelper.helper(function (params) {
-        return params.join('');
-      }));
-
-      owner.register('helper:-concatNames', _emberHtmlbarsHelper.default.extend({
-        destroy: function () {
-          this.teardown();
-          this._super.apply(this, arguments);
-        },
-        teardown: function () {
-          this.removeObserver('value.firstName');
-          this.removeObserver('value.lastName');
-        },
-        compute: function (_ref4) {
-          var value = _ref4[0];
-
-          if (this.get('value')) {
-            this.teardown();
-          }
-          this.set('value', value);
-          this.addObserver('value.firstName', this, this.recompute);
-          this.addObserver('value.lastName', this, this.recompute);
-          return (value ? _emberMetalProperty_get.get(value, 'firstName') : '') + (value ? _emberMetalProperty_get.get(value, 'lastName') : '');
-        }
-      }));
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should be able to render an unbound helper invocation', function () {
-    var _EmberView$create5;
-
-    owner.register('helper:-repeat', _emberHtmlbarsHelper.helper(function (_ref5, _ref6) {
-      var value = _ref5[0];
-      var count = _ref6.count;
-
-      var a = [];
-      while (a.length < count) {
-        a.push(value);
-      }
-      return a.join('');
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{unbound (-repeat foo count=bar)}} {{-repeat foo count=bar}} {{unbound (-repeat foo count=2)}} {{-repeat foo count=4}}'), _EmberView$create5.context = _emberRuntimeSystemObject.default.create({
-      foo: 'X',
-      numRepeatsBinding: 'bar',
-      bar: 5
-    }), _EmberView$create5));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'XXXXX XXXXX XX XXXX', 'first render is correct');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.bar', 1);
-    });
-
-    equal(view.$().text(), 'XXXXX X XX XXXX', 'only unbound bound options changed');
-  });
-
-  QUnit.test('should be able to render an bound helper invocation mixed with static values', function () {
-    var _EmberView$create6;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{unbound (-surround prefix value "bar")}} {{-surround prefix value "bar"}} {{unbound (-surround "bar" value suffix)}} {{-surround "bar" value suffix}}'), _EmberView$create6.context = _emberRuntimeSystemObject.default.create({
-      prefix: 'before',
-      value: 'core',
-      suffix: 'after'
-    }), _EmberView$create6));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'before-core-bar before-core-bar bar-core-after bar-core-after', 'first render is correct');
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.prefix', 'beforeChanged');
-      _emberMetalProperty_set.set(view, 'context.value', 'coreChanged');
-      _emberMetalProperty_set.set(view, 'context.suffix', 'afterChanged');
-    });
-    equal(view.$().text(), 'before-core-bar beforeChanged-coreChanged-bar bar-core-after bar-coreChanged-afterChanged', 'only bound values change');
-  });
-
-  QUnit.test('should be able to render unbound forms of multi-arg helpers', function () {
-    var _EmberView$create7;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default('{{-fauxconcat foo bar bing}} {{unbound (-fauxconcat foo bar bing)}}'), _EmberView$create7.context = _emberRuntimeSystemObject.default.create({
-      foo: 'a',
-      bar: 'b',
-      bing: 'c'
-    }), _EmberView$create7));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'abc abc', 'first render is correct');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.bar', 'X');
-    });
-
-    equal(view.$().text(), 'aXc abc', 'unbound helpers/properties stayed the same');
-  });
-
-  QUnit.test('should be able to render an unbound helper invocation for helpers with dependent keys', function () {
-    var _EmberView$create8;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{-capitalizeName person}} {{unbound (-capitalizeName person)}} {{-concatNames person}} {{unbound (-concatNames person)}}'), _EmberView$create8.context = _emberRuntimeSystemObject.default.create({
-      person: _emberRuntimeSystemObject.default.create({
-        firstName: 'shooby',
-        lastName: 'taylor'
-      })
-    }), _EmberView$create8));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'SHOOBY SHOOBY shoobytaylor shoobytaylor', 'first render is correct');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.person.firstName', 'sally');
-    });
-
-    equal(view.$().text(), 'SALLY SHOOBY sallytaylor shoobytaylor', 'only bound values change');
-  });
-
-  QUnit.test('should be able to render an unbound helper invocation in #each helper', function () {
-    var _EmberView$create9;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default(['{{#each people as |person|}}', '{{-capitalize person.firstName}} {{unbound (-capitalize person.firstName)}}', '{{/each}}'].join('')), _EmberView$create9.context = {
-      people: _emberRuntimeSystemNative_array.A([{
-        firstName: 'shooby',
-        lastName: 'taylor'
-      }, {
-        firstName: 'cindy',
-        lastName: 'taylor'
-      }])
-    }, _EmberView$create9));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'SHOOBY SHOOBYCINDY CINDY', 'unbound rendered correctly');
-  });
-
-  QUnit.test('should be able to render an unbound helper invocation with bound hash options', function () {
-    var _EmberView$create10;
-
-    owner.register('helper:-repeat', _emberHtmlbarsHelper.helper(function (_ref7) {
-      var value = _ref7[0];
-
-      return [].slice.call(arguments, 0, -1).join('');
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = owner, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default('{{-capitalizeName person}} {{unbound (-capitalizeName person)}} {{-concatNames person}} {{unbound (-concatNames person)}}'), _EmberView$create10.context = _emberRuntimeSystemObject.default.create({
-      person: _emberRuntimeSystemObject.default.create({
-        firstName: 'shooby',
-        lastName: 'taylor'
-      })
-    }), _EmberView$create10));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'SHOOBY SHOOBY shoobytaylor shoobytaylor', 'first render is correct');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.person.firstName', 'sally');
-    });
-
-    equal(view.$().text(), 'SALLY SHOOBY sallytaylor shoobytaylor', 'only bound values change');
-  });
-
-  QUnit.test('should be able to render bound form of a helper inside unbound form of same helper', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default(['{{#if (unbound foo)}}', '{{#if bar}}true{{/if}}', '{{#unless bar}}false{{/unless}}', '{{/if}}', '{{#unless (unbound notfoo)}}', '{{#if bar}}true{{/if}}', '{{#unless bar}}false{{/unless}}', '{{/unless}}'].join('')),
-      context: _emberRuntimeSystemObject.default.create({
-        foo: true,
-        notfoo: false,
-        bar: true
-      })
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'truetrue', 'first render is correct');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.bar', false);
-    });
-
-    equal(view.$().text(), 'falsefalse', 'bound if and unless inside unbound if/unless are updated');
-  });
-
-  QUnit.module('ember-htmlbars: {{#unbound}} helper -- Container Lookup', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-      owner = _containerTestsTestHelpersBuildOwner.default();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      owner = view = null;
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should lookup helpers in the container', function () {
-    var _EmberView$create11;
-
-    owner.register('helper:up-case', _emberHtmlbarsHelper.helper(function (_ref8) {
-      var value = _ref8[0];
-
-      return value.toUpperCase();
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = owner, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default('{{unbound (up-case displayText)}}'), _EmberView$create11.context = {
-      displayText: 'such awesome'
-    }, _EmberView$create11));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'SUCH AWESOME', 'proper values were rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'context.displayText', 'no changes');
-    });
-
-    equal(view.$().text(), 'SUCH AWESOME', 'only bound values change');
-  });
-
-  QUnit.test('should be able to output a property without binding', function () {
-    var context = {
-      content: _emberRuntimeSystemObject.default.create({
-        anUnboundString: 'No spans here, son.'
-      })
-    };
-
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberTemplateCompilerSystemCompile.default('<div id="first">{{unbound content.anUnboundString}}</div>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('#first').html(), 'No spans here, son.');
-  });
-
-  QUnit.test('should be able to use unbound helper in #each helper', function () {
-    view = _emberViewsViewsView.default.create({
-      items: _emberRuntimeSystemNative_array.A(['a', 'b', 'c', 1, 2, 3]),
-      template: _emberTemplateCompilerSystemCompile.default('<ul>{{#each view.items as |item|}}<li>{{unbound item}}</li>{{/each}}</ul>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'abc123');
-    equal(view.$('li').children().length, 0, 'No markers');
-  });
-
-  QUnit.test('should be able to use unbound helper in #each helper (with objects)', function () {
-    view = _emberViewsViewsView.default.create({
-      items: _emberRuntimeSystemNative_array.A([{ wham: 'bam' }, { wham: 1 }]),
-      template: _emberTemplateCompilerSystemCompile.default('<ul>{{#each view.items as |item|}}<li>{{unbound item.wham}}</li>{{/each}}</ul>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'bam1');
-    equal(view.$('li').children().length, 0, 'No markers');
-  });
-
-  QUnit.test('should work properly with attributes', function () {
-    expect(4);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<ul>{{#each view.people as |person|}}<li class="{{unbound person.cool}}">{{person.name}}</li>{{/each}}</ul>'),
-      people: _emberRuntimeSystemNative_array.A([{
-        name: 'Bob',
-        cool: 'not-cool'
-      }, {
-        name: 'James',
-        cool: 'is-cool'
-      }, {
-        name: 'Richard',
-        cool: 'is-cool'
-      }])
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('li.not-cool').length, 1, 'correct number of not cool people');
-    equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'people.firstObject.cool', 'is-cool');
-    });
-
-    equal(view.$('li.not-cool').length, 1, 'correct number of not cool people');
-    equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
   });
 });
 enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalDebug, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray) {
@@ -41000,6 +41173,742 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
       this.render('{{log this}}');
 
       this.assertLog([this.context]);
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalSet_properties, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{unbound}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test should be able to output a property without binding'] = function testShouldBeAbleToOutputAPropertyWithoutBinding() {
+      var _this = this;
+
+      this.render('<div id="first">{{unbound content.anUnboundString}}</div>', {
+        content: {
+          anUnboundString: 'No spans here, son.'
+        }
+      });
+
+      this.assertText('No spans here, son.');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('No spans here, son.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'content.anUnboundString', 'HEY');
+      });
+
+      this.assertText('No spans here, son.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'content', {
+          anUnboundString: 'No spans here, son.'
+        });
+      });
+
+      this.assertText('No spans here, son.');
+    };
+
+    _class.prototype['@test should be able to use unbound helper in #each helper'] = function testShouldBeAbleToUseUnboundHelperInEachHelper() {
+      var _this2 = this;
+
+      this.render('<ul>{{#each items as |item|}}<li>{{unbound item}}</li>{{/each}}</ul>', {
+        items: _emberRuntimeSystemNative_array.A(['a', 'b', 'c', 1, 2, 3])
+      });
+
+      this.assertText('abc123');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('abc123');
+    };
+
+    _class.prototype['@test should be able to use unbound helper in #each helper (with objects)'] = function testShouldBeAbleToUseUnboundHelperInEachHelperWithObjects() {
+      var _this3 = this;
+
+      this.render('<ul>{{#each items as |item|}}<li>{{unbound item.wham}}</li>{{/each}}</ul>', {
+        items: _emberRuntimeSystemNative_array.A([{ wham: 'bam' }, { wham: 1 }])
+      });
+
+      this.assertText('bam1');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('bam1');
+
+      this.runTask(function () {
+        return _this3.context.items.setEach('wham', 'HEY');
+      });
+
+      this.assertText('bam1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'items', _emberRuntimeSystemNative_array.A([{ wham: 'bam' }, { wham: 1 }]));
+      });
+
+      this.assertText('bam1');
+    };
+
+    _class.prototype['@test it should assert unbound cannot be called with multiple arguments'] = function testItShouldAssertUnboundCannotBeCalledWithMultipleArguments() {
+      var _this4 = this;
+
+      var willThrow = function () {
+        _this4.render('{{unbound foo bar}}', {
+          foo: 'BORK',
+          bar: 'BLOOP'
+        });
+      };
+
+      expectAssertion(willThrow, /unbound helper cannot be called with multiple params or hash params/);
+    };
+
+    _class.prototype['@test should render on attributes'] = function testShouldRenderOnAttributes() {
+      var _this5 = this;
+
+      this.render('<a href="{{unbound foo}}"></a>', {
+        foo: 'BORK'
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'foo', 'OOF');
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'foo', 'BORK');
+      });
+
+      this.assertHTML('<a href="BORK"></a>');
+    };
+
+    _class.prototype['@htmlbars should property escape unsafe hrefs'] = function htmlbarsShouldPropertyEscapeUnsafeHrefs() {
+      var _this6 = this;
+
+      var unsafeUrls = _emberRuntimeSystemNative_array.A([{
+        name: 'Bob',
+        url: 'javascript:bob-is-cool' // jshint ignore:line
+      }, {
+        name: 'James',
+        url: 'vbscript:james-is-cool' // jshint ignore:line
+      }, {
+        name: 'Richard',
+        url: 'javascript:richard-is-cool' // jshint ignore:line
+      }]);
+
+      this.render('<ul>{{#each people as |person|}}<li><a href="{{unbound person.url}}">{{person.name}}</a></li>{{/each}}</ul>', {
+        people: unsafeUrls
+      });
+
+      var escapedHtml = _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject);
+
+      this.assertHTML(escapedHtml);
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertHTML(escapedHtml);
+
+      this.runTask(function () {
+        return _this6.context.people.setEach('url', 'http://google.com');
+      });
+
+      this.assertHTML(escapedHtml);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'people', unsafeUrls);
+      });
+
+      this.assertHTML(escapedHtml);
+    };
+
+    _class.prototype['@htmlbars helper form updates on parent re-render'] = function htmlbarsHelperFormUpdatesOnParentReRender() {
+      var _this7 = this;
+
+      this.render('{{unbound foo}}', {
+        foo: 'BORK'
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'foo', 'OOF');
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('OOF');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'foo', '');
+      });
+
+      this.assertText('OOF');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'foo', 'BORK');
+      });
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('BORK');
+    };
+
+    // semantics here is not guaranteed
+
+    _class.prototype['@test sexpr form does not update no matter what'] = function testSexprFormDoesNotUpdateNoMatterWhat() {
+      var _this8 = this;
+
+      this.registerHelper('capitalize', function (args) {
+        return args[0].toUpperCase();
+      });
+
+      this.render('{{capitalize (unbound foo)}}', {
+        foo: 'bork'
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this8.context, 'foo', 'oof');
+        _this8.rerender();
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'foo', 'blip');
+      });
+
+      this.assertText('BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this8.context, 'foo', 'bork');
+        _this8.rerender();
+      });
+
+      this.assertText('BORK');
+    };
+
+    _class.prototype['@test sexpr in helper form does not update on parent re-render'] = function testSexprInHelperFormDoesNotUpdateOnParentReRender() {
+      var _this9 = this;
+
+      this.registerHelper('capitalize', function (params) {
+        return params[0].toUpperCase();
+      });
+
+      this.registerHelper('doublize', function (params) {
+        return params[0] + ' ' + params[0];
+      });
+
+      this.render('{{capitalize (unbound (doublize foo))}}', {
+        foo: 'bork'
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'foo', 'oof');
+        _this9.rerender();
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'foo', 'blip');
+      });
+
+      this.assertText('BORK BORK');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'foo', 'bork');
+        _this9.rerender();
+      });
+
+      this.assertText('BORK BORK');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation'] = function testShouldBeAbleToRenderAnUnboundHelperInvocation() {
+      var _this10 = this;
+
+      this.registerHelper('repeat', function (_ref, _ref2) {
+        var value = _ref[0];
+        var count = _ref2.count;
+
+        var a = [];
+        while (a.length < count) {
+          a.push(value);
+        }
+        return a.join('');
+      });
+
+      this.render('{{unbound (repeat foo count=bar)}} {{repeat foo count=bar}} {{unbound (repeat foo count=2)}} {{repeat foo count=4}}', {
+        foo: 'X',
+        numRepeatsBinding: 'bar',
+        bar: 5
+      });
+
+      this.assertText('XXXXX XXXXX XX XXXX');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('XXXXX XXXXX XX XXXX');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'bar', 1);
+      });
+
+      this.assertText('XXXXX X XX XXXX');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'bar', 5);
+      });
+
+      this.assertText('XXXXX XXXXX XX XXXX');
+    };
+
+    _class.prototype['@test should be able to render an bound helper invocation mixed with static values'] = function testShouldBeAbleToRenderAnBoundHelperInvocationMixedWithStaticValues() {
+      var _this11 = this;
+
+      this.registerHelper('surround', function (_ref3) {
+        var prefix = _ref3[0];
+        var value = _ref3[1];
+        var suffix = _ref3[2];
+        return prefix + '-' + value + '-' + suffix;
+      });
+
+      this.render('{{unbound (surround prefix value "bar")}} {{surround prefix value "bar"}} {{unbound (surround "bar" value suffix)}} {{surround "bar" value suffix}}', {
+        prefix: 'before',
+        value: 'core',
+        suffix: 'after'
+      });
+
+      this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
+
+      this.runTask(function () {
+        _emberMetalSet_properties.default(_this11.context, {
+          prefix: 'beforeChanged',
+          value: 'coreChanged',
+          suffix: 'afterChanged'
+        });
+      });
+
+      this.assertText('before-core-bar beforeChanged-coreChanged-bar bar-core-after bar-coreChanged-afterChanged');
+
+      this.runTask(function () {
+        _emberMetalSet_properties.default(_this11.context, {
+          prefix: 'before',
+          value: 'core',
+          suffix: 'after'
+        });
+      });
+
+      this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
+    };
+
+    _class.prototype['@test should be able to render unbound forms of multi-arg helpers'] = function testShouldBeAbleToRenderUnboundFormsOfMultiArgHelpers() {
+      var _this12 = this;
+
+      this.registerHelper('fauxconcat', function (params) {
+        return params.join('');
+      });
+
+      this.render('{{fauxconcat foo bar bing}} {{unbound (fauxconcat foo bar bing)}}', {
+        foo: 'a',
+        bar: 'b',
+        bing: 'c'
+      });
+
+      this.assertText('abc abc');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('abc abc');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'bar', 'X');
+      });
+
+      this.assertText('aXc abc');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'bar', 'b');
+      });
+
+      this.assertText('abc abc');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation for helpers with dependent keys'] = function testShouldBeAbleToRenderAnUnboundHelperInvocationForHelpersWithDependentKeys() {
+      var _this13 = this;
+
+      this.registerHelper('capitalizeName', {
+        destroy: function () {
+          this.removeObserver('value.firstName');
+          this._super.apply(this, arguments);
+        },
+
+        compute: function (_ref4) {
+          var value = _ref4[0];
+
+          if (this.get('value')) {
+            this.removeObserver('value.firstName');
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          return value ? _emberMetalProperty_get.get(value, 'firstName').toUpperCase() : '';
+        }
+      });
+
+      this.registerHelper('concatNames', {
+        destroy: function () {
+          this.teardown();
+          this._super.apply(this, arguments);
+        },
+        teardown: function () {
+          this.removeObserver('value.firstName');
+          this.removeObserver('value.lastName');
+        },
+        compute: function (_ref5) {
+          var value = _ref5[0];
+
+          if (this.get('value')) {
+            this.teardown();
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          this.addObserver('value.lastName', this, this.recompute);
+          return (value ? _emberMetalProperty_get.get(value, 'firstName') : '') + (value ? _emberMetalProperty_get.get(value, 'lastName') : '');
+        }
+      });
+
+      this.render('{{capitalizeName person}} {{unbound (capitalizeName person)}} {{concatNames person}} {{unbound (concatNames person)}}', {
+        person: {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'person.firstName', 'sally');
+      });
+
+      this.assertText('SALLY SHOOBY sallytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'person', {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        });
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation in #each helper'] = function testShouldBeAbleToRenderAnUnboundHelperInvocationInEachHelper() {
+      var _this14 = this;
+
+      this.registerHelper('capitalize', function (params) {
+        return params[0].toUpperCase();
+      });
+
+      this.render('{{#each people as |person|}}{{capitalize person.firstName}} {{unbound (capitalize person.firstName)}}{{/each}}', {
+        people: _emberRuntimeSystemNative_array.A([{
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }, {
+          firstName: 'cindy',
+          lastName: 'taylor'
+        }])
+      });
+
+      this.assertText('SHOOBY SHOOBYCINDY CINDY');
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      this.assertText('SHOOBY SHOOBYCINDY CINDY');
+
+      this.runTask(function () {
+        return _this14.context.people.setEach('firstName', 'chad');
+      });
+
+      this.assertText('CHAD SHOOBYCHAD CINDY');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'people', _emberRuntimeSystemNative_array.A([{
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }, {
+          firstName: 'cindy',
+          lastName: 'taylor'
+        }]));
+      });
+
+      this.assertText('SHOOBY SHOOBYCINDY CINDY');
+    };
+
+    _class.prototype['@test should be able to render an unbound helper invocation with bound hash options'] = function testShouldBeAbleToRenderAnUnboundHelperInvocationWithBoundHashOptions() {
+      var _this15 = this;
+
+      this.registerHelper('capitalizeName', {
+        destroy: function () {
+          this.removeObserver('value.firstName');
+          this._super.apply(this, arguments);
+        },
+
+        compute: function (_ref6) {
+          var value = _ref6[0];
+
+          if (this.get('value')) {
+            this.removeObserver('value.firstName');
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          return value ? _emberMetalProperty_get.get(value, 'firstName').toUpperCase() : '';
+        }
+      });
+
+      this.registerHelper('concatNames', {
+        destroy: function () {
+          this.teardown();
+          this._super.apply(this, arguments);
+        },
+        teardown: function () {
+          this.removeObserver('value.firstName');
+          this.removeObserver('value.lastName');
+        },
+        compute: function (_ref7) {
+          var value = _ref7[0];
+
+          if (this.get('value')) {
+            this.teardown();
+          }
+          this.set('value', value);
+          this.addObserver('value.firstName', this, this.recompute);
+          this.addObserver('value.lastName', this, this.recompute);
+          return (value ? _emberMetalProperty_get.get(value, 'firstName') : '') + (value ? _emberMetalProperty_get.get(value, 'lastName') : '');
+        }
+      });
+
+      this.render('{{capitalizeName person}} {{unbound (capitalizeName person)}} {{concatNames person}} {{unbound (concatNames person)}}', {
+        person: {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        }
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'person.firstName', 'sally');
+      });
+
+      this.assertText('SALLY SHOOBY sallytaylor shoobytaylor');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'person', {
+          firstName: 'shooby',
+          lastName: 'taylor'
+        });
+      });
+
+      this.assertText('SHOOBY SHOOBY shoobytaylor shoobytaylor');
+    };
+
+    _class.prototype['@test should be able to render bound form of a helper inside unbound form of same helper'] = function testShouldBeAbleToRenderBoundFormOfAHelperInsideUnboundFormOfSameHelper() {
+      var _this16 = this;
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        foo: true,
+        notfoo: false,
+        bar: true
+      });
+
+      this.assertText('truetrue');
+
+      this.runTask(function () {
+        return _this16.rerender();
+      });
+
+      this.assertText('truetrue');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'bar', false);
+      });
+
+      this.assertText('falsefalse');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this16.context, 'bar', true);
+      });
+
+      this.assertText('truetrue');
+    };
+
+    _class.prototype['@test yielding unbound does not update'] = function testYieldingUnboundDoesNotUpdate() {
+      var _this17 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          fooBarInstance = this;
+        },
+        foo: 'bork'
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (unbound foo)}}'
+      });
+
+      this.render('{{#foo-bar as |value|}}{{value}}{{/foo-bar}}');
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+      });
+
+      this.assertText('bork');
+    };
+
+    _class.prototype['@test yielding unbound hash does not update'] = function testYieldingUnboundHashDoesNotUpdate() {
+      var _this18 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          fooBarInstance = this;
+        },
+        foo: 'bork'
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (unbound (hash foo=foo))}}'
+      });
+
+      this.render('{{#foo-bar as |value|}}{{value.foo}}{{/foo-bar}}');
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+      });
+
+      this.assertText('bork');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+      });
+
+      this.assertText('bork');
     };
 
     return _class;
@@ -70217,7 +71126,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+aeeec63a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+a62c820b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

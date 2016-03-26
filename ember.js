@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+aeeec63a
+ * @version   2.6.0-canary+a62c820b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4257,7 +4257,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+aeeec63a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a62c820b';
 
   var librariesRegistered = false;
 
@@ -8365,7 +8365,7 @@ enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/cor
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/empty_object', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/unbound'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalEmpty_object, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersUnbound) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -8380,7 +8380,8 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'glimmer-refe
     unless: _emberGlimmerHelpersIfUnless.inlineUnless,
     hash: _emberGlimmerHelpersHash.default,
     loc: _emberGlimmerHelpersLoc.default,
-    log: _emberGlimmerHelpersLog.default
+    log: _emberGlimmerHelpersLog.default,
+    unbound: _emberGlimmerHelpersUnbound.default
   };
 
   var _default = (function (_Environment) {
@@ -8842,6 +8843,51 @@ enifed('ember-glimmer/helpers/log', ['exports', 'ember-glimmer/helper', 'ember-m
 @module ember
 @submodule ember-templates
 */
+enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal/debug', 'ember-glimmer/utils/references'], function (exports, _emberMetalDebug, _emberGlimmerUtilsReferences) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  'use strict';
+
+  /**
+    The `{{unbound}}` helper disconnects the one-way binding of a property,
+    essentially freezing its value at the moment of rendering. For example,
+    in this example the display of the variable `name` will not change even
+    if it is set with a new value:
+  
+    ```handlebars
+    {{unbound name}}
+    ```
+  
+    Like any helper, the `unbound` helper can accept a nested helper expression.
+    This allows for custom helpers to be rendered unbound:
+  
+    ```handlebars
+    {{unbound (some-custom-helper)}}
+    {{unbound (capitalize name)}}
+    {{! You can use any helper, including unbound, in a nested expression }}
+    {{capitalize (unbound name)}}
+    ```
+  
+    The `unbound` helper only accepts a single argument, and it return an
+    unbound value.
+  
+    @method unbound
+    @for Ember.Templates.helpers
+    @public
+  */
+
+  exports.default = {
+    isInternalHelper: true,
+    toReference: function (args) {
+      _emberMetalDebug.assert('unbound helper cannot be called with multiple params or hash params', args.positional.values.length === 1 && !args.named.map);
+
+      return new _emberGlimmerUtilsReferences.UnboundReference(args.positional.at(0));
+    }
+  };
+});
 enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer/ember-template-compiler/system/template"], function (exports, _emberGlimmerEmberTemplateCompilerSystemTemplate) {
   "use strict";
 
@@ -9432,6 +9478,46 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
     return _emberRuntimeSystemString.dasherize(last);
   }
+
+  var EMPTY_OBJECT = {};
+
+  // @implements PathReference
+
+  var UnboundReference = (function () {
+    function UnboundReference(sourceRef) {
+      var key = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+      _classCallCheck(this, UnboundReference);
+
+      this.sourceRef = sourceRef;
+      this.key = key;
+      this.cache = EMPTY_OBJECT;
+    }
+
+    UnboundReference.prototype.value = function value() {
+      var cache = this.cache;
+
+      if (cache === EMPTY_OBJECT) {
+        var key = this.key;
+        var sourceRef = this.sourceRef;
+
+        var sourceVal = sourceRef.value();
+        cache = this.cache = key ? _emberMetalProperty_get.get(sourceVal, key) : sourceVal;
+      }
+
+      return cache;
+    };
+
+    UnboundReference.prototype.get = function get(key) {
+      return new UnboundReference(this, key);
+    };
+
+    UnboundReference.prototype.destroy = function destroy() {};
+
+    return UnboundReference;
+  })();
+
+  exports.UnboundReference = UnboundReference;
 });
 enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime/utils', 'ember-metal/property_get'], function (exports, _emberRuntimeUtils, _emberMetalProperty_get) {
   'use strict';
@@ -12394,7 +12480,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+aeeec63a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a62c820b';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -17483,7 +17569,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+aeeec63a
+    @version 2.6.0-canary+a62c820b
     @public
   */
 
@@ -17525,11 +17611,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+aeeec63a'
+    @default '2.6.0-canary+a62c820b'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+aeeec63a';
+  Ember.VERSION = '2.6.0-canary+a62c820b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -31613,7 +31699,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+aeeec63a';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.6.0-canary+a62c820b';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -32116,7 +32202,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+aeeec63a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+a62c820b';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -41037,7 +41123,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+aeeec63a',
+        revision: 'Ember@2.6.0-canary+a62c820b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45930,7 +46016,7 @@ enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'em
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+aeeec63a';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+a62c820b';
 
   /**
   @module ember
@@ -50696,7 +50782,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+aeeec63a
+ * @version   2.6.0-canary+a62c820b
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
