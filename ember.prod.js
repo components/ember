@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.3+e596e13d
+ * @version   2.5.0-beta.3+39d6befe
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9944,7 +9944,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+e596e13d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+39d6befe';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -14704,7 +14704,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
         this.lastName = 'Jones';
       },
   
-      fullName: Ember.computed({
+      fullName: Ember.computed('firstName', 'lastName', {
         get(key) {
           return `${this.get('firstName')} ${this.get('lastName')}`;
         },
@@ -15490,7 +15490,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.3+e596e13d
+    @version 2.5.0-beta.3+39d6befe
     @public
   */
 
@@ -15532,11 +15532,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.3+e596e13d'
+    @default '2.5.0-beta.3+39d6befe'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.3+e596e13d';
+  Ember.VERSION = '2.5.0-beta.3+39d6befe';
 
   /**
     The hash of environment variables used to control various configuration
@@ -27535,6 +27535,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
     currentState: null,
     targetState: null,
 
+    _resetTargetState: function () {
+      var currentState = this.get('currentState');
+      this.set('targetState', currentState);
+    },
+
     _handleSlowTransition: function (transition, originRoute) {
       if (!this.router.activeTransition) {
         // Don't fire an event if we've since moved on from
@@ -27908,6 +27913,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       if (router._isErrorHandled(errorId)) {
         router._clearHandledError(errorId);
       } else {
+        router._resetTargetState();
         throw error;
       }
     });
@@ -28953,6 +28959,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
       }
 
       var parentController = _emberMetalStreamsUtils.read(scope.getLocal('controller'));
+      var target = parentController || router;
       var controller;
 
       // choose name
@@ -28962,7 +28969,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         controller = factory.create({
           model: _emberMetalStreamsUtils.read(context),
           parentController: parentController,
-          target: parentController
+          target: target
         });
 
         node.addDestruction(controller);
@@ -28970,7 +28977,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         controller = owner.lookup(controllerFullName) || _emberRoutingSystemGenerate_controller.default(owner, controllerName);
 
         controller.setProperties({
-          target: parentController,
+          target: target,
           parentController: parentController
         });
       }
@@ -29392,7 +29399,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.3+e596e13d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.3+39d6befe';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29892,7 +29899,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+e596e13d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+39d6befe';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38796,7 +38803,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.3+e596e13d',
+        revision: 'Ember@2.5.0-beta.3+39d6befe',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42863,7 +42870,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.3+e596e13d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.3+39d6befe';
 
   /**
   @module ember
@@ -44633,21 +44640,20 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     ```
   
     If the return value of an `attributeBindings` monitored property is a boolean
-    the property will follow HTML's pattern of repeating the attribute's name as
-    its value:
+    the property's value will be set as a coerced string:
   
     ```javascript
     MyTextInput = Ember.View.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
-      disabled: true
+      disabled: false
     });
     ```
   
-    Will result in view instances with an HTML representation of:
+    Will result in a view instance with an HTML representation of:
   
     ```html
-    <input id="ember1" class="ember-view" disabled="disabled" />
+    <input id="ember1" class="ember-view" disabled="false" />
     ```
   
     `attributeBindings` can refer to computed properties:
@@ -44663,6 +44669,17 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
           return false;
         }
       })
+    });
+    ```
+  
+    To prevent setting an attribute altogether, use `null` or `undefined` as the
+    return value of the `attributeBindings` monitored property:
+  
+    ```javascript
+    MyTextInput = Ember.View.extend({
+      tagName: 'form',
+      attributeBindings: ['novalidate'],
+      novalidate: null
     });
     ```
   
