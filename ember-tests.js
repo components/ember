@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+bd801a4a
+ * @version   2.6.0-canary+19b9f39e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25508,7 +25508,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       }, /Could not find component named "does-not-exist"/);
     };
 
-    _class.prototype['@htmlbars component with unquoted param resolving to a component, then non-existent component'] = function htmlbarsComponentWithUnquotedParamResolvingToAComponentThenNonExistentComponent(assert) {
+    _class.prototype['@htmlbars component with dynamic component name resolving to a component, then non-existent component'] = function htmlbarsComponentWithDynamicComponentNameResolvingToAComponentThenNonExistentComponent(assert) {
       var _this18 = this;
 
       this.registerComponent('foo-bar', { template: 'hello {{name}}' });
@@ -25590,14 +25590,14 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
 
       this.registerComponent('foo-bar', {
         template: 'hello {{name}} from foo-bar',
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.reopenClass({
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: ['name']
         })
       });
 
       this.registerComponent('foo-bar-baz', {
         template: 'hello {{name}} from foo-bar-baz',
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.reopenClass({
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: ['name']
         })
       });
@@ -25638,7 +25638,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
 
       this.registerComponent('normal-message', {
         template: 'Normal: {{something}}!',
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.reopenClass({
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: ['something']
         })
       });
@@ -38923,7 +38923,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       }, /Could not find component named "does-not-exist"/);
     };
 
-    _class.prototype['@htmlbars component with unquoted param resolving to a component, then non-existent component'] = function htmlbarsComponentWithUnquotedParamResolvingToAComponentThenNonExistentComponent(assert) {
+    _class.prototype['@htmlbars component with dynamic component name resolving to a component, then non-existent component'] = function htmlbarsComponentWithDynamicComponentNameResolvingToAComponentThenNonExistentComponent(assert) {
       var _this18 = this;
 
       this.registerComponent('foo-bar', { template: 'hello {{name}}' });
@@ -39005,14 +39005,14 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
 
       this.registerComponent('foo-bar', {
         template: 'hello {{name}} from foo-bar',
-        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.reopenClass({
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: ['name']
         })
       });
 
       this.registerComponent('foo-bar-baz', {
         template: 'hello {{name}} from foo-bar-baz',
-        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.reopenClass({
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: ['name']
         })
       });
@@ -39053,7 +39053,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
 
       this.registerComponent('normal-message', {
         template: 'Normal: {{something}}!',
-        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.reopenClass({
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: ['something']
         })
       });
@@ -70181,7 +70181,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-canary+bd801a4a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-canary+19b9f39e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
