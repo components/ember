@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.3+39d6befe
+ * @version   2.5.0-beta.3+7c4288b9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -14605,7 +14605,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var component = undefined,
@@ -15025,6 +15025,133 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is a param', function (assert) {
+    var _Component$extend24;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    var ChangeButton = _emberViewsComponentsComponent.default.extend().reopenClass({
+      positionalParams: ['val']
+    });
+
+    owner.register('component:change-button', ChangeButton);
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "change-button" val2)}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend24 = {}, _Component$extend24[_containerOwner.OWNER] = owner, _Component$extend24.template = template, _Component$extend24)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is in a nested param', function (assert) {
+    var _Component$extend25;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    var ChangeButton = _emberViewsComponentsComponent.default.extend().reopenClass({
+      positionalParams: ['val']
+    });
+
+    owner.register('component:change-button', ChangeButton);
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    owner.register('component:my-comp', _emberViewsComponentsComponent.default.extend().reopenClass({
+      positionalParams: ['components']
+    }));
+    owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component components.comp}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{my-comp (hash comp=(component "change-button" val2))}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend25 = {}, _Component$extend25[_containerOwner.OWNER] = owner, _Component$extend25.template = template, _Component$extend25)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is a hash value', function (assert) {
+    var _Component$extend26;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component component}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{my-comp component=(component "change-button" val=val2)}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend26 = {}, _Component$extend26[_containerOwner.OWNER] = owner, _Component$extend26.template = template, _Component$extend26)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is a nested hash value', function (assert) {
+    var _Component$extend27;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component components.button}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{my-comp components=(hash button=(component "change-button" val=val2))}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend27 = {}, _Component$extend27[_containerOwner.OWNER] = owner, _Component$extend27.template = template, _Component$extend27)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
   });
 });
 enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
@@ -52306,7 +52433,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-beta.3+39d6befe', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-beta.3+7c4288b9', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
