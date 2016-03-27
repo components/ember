@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+7e9b6024
+ * @version   2.6.0-canary+3bf8c0f3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4060,7 +4060,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+7e9b6024
+    @version 2.6.0-canary+3bf8c0f3
     @public
   */
 
@@ -4102,11 +4102,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+7e9b6024'
+    @default '2.6.0-canary+3bf8c0f3'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+7e9b6024';
+  Ember.VERSION = '2.6.0-canary+3bf8c0f3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12658,7 +12658,7 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
     return moduleInfo;
   }
 });
-enifed('ember-template-compiler/system/compile', ['exports', 'require', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, _require, _emberTemplateCompilerSystemCompile_options, _emberTemplateCompilerSystemTemplate) {
+enifed('ember-template-compiler/system/compile', ['exports', 'ember-metal/features', 'require', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, _emberMetalFeatures, _require, _emberTemplateCompilerSystemCompile_options, _emberTemplateCompilerSystemTemplate) {
   /**
   @module ember
   @submodule ember-template-compiler
@@ -12680,20 +12680,32 @@ enifed('ember-template-compiler/system/compile', ['exports', 'require', 'ember-t
   */
 
   exports.default = function (templateString, options) {
-    if (!compile && _require.has('htmlbars-compiler/compiler')) {
-      compile = _require.default('htmlbars-compiler/compiler').compile;
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      if (!compile && _require.has('glimmer-compiler')) {
+        compile = _require.default('glimmer-compiler').compileSpec;
+      }
+
+      if (!compile) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
+
+      return _emberTemplateCompilerSystemTemplate.default(compile(templateString, options));
+    } else {
+      if (!compile && _require.has('htmlbars-compiler/compiler')) {
+        compile = _require.default('htmlbars-compiler/compiler').compile;
+      }
+
+      if (!compile) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
+
+      var templateSpec = compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+
+      return _emberTemplateCompilerSystemTemplate.default(templateSpec);
     }
-
-    if (!compile) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    var templateSpec = compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
-
-    return _emberTemplateCompilerSystemTemplate.default(templateSpec);
   };
 });
-enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalAssign, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/features', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalFeatures, _emberMetalAssign, _emberTemplateCompilerPlugins) {
   /**
   @module ember
   @submodule ember-template-compiler
@@ -12701,109 +12713,119 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   'use strict';
 
-  /**
-    @private
-    @property compileOptions
-  */
+  var compileOptions = undefined;
 
-  exports.default = function (_options) {
-    var disableComponentGeneration = true;
+  if (!_emberMetalFeatures.default('ember-glimmer')) {
+    (function () {
+      var fragmentReason = undefined;
 
-    var options = undefined;
-    // When calling `Ember.Handlebars.compile()` a second argument of `true`
-    // had a special meaning (long since lost), this just gaurds against
-    // `options` being true, and causing an error during compilation.
-    if (_options === true) {
-      options = {};
-    } else {
-      options = _emberMetalAssign.default({}, _options);
-    }
+      /**
+        @private
+        @property compileOptions
+      */
+      compileOptions = function (_options) {
+        var disableComponentGeneration = true;
 
-    options.disableComponentGeneration = disableComponentGeneration;
+        var options = undefined;
+        // When calling `Ember.Handlebars.compile()` a second argument of `true`
+        // had a special meaning (long since lost), this just gaurds against
+        // `options` being true, and causing an error during compilation.
+        if (_options === true) {
+          options = {};
+        } else {
+          options = _emberMetalAssign.default({}, _options);
+        }
 
-    var plugins = {
-      ast: _emberTemplateCompilerPlugins.default.ast.slice()
-    };
+        options.disableComponentGeneration = disableComponentGeneration;
 
-    if (options.plugins && options.plugins.ast) {
-      plugins.ast = plugins.ast.concat(options.plugins.ast);
-    }
-    options.plugins = plugins;
+        var plugins = {
+          ast: _emberTemplateCompilerPlugins.default.ast.slice()
+        };
 
-    options.buildMeta = function buildMeta(program) {
-      return {
-        fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+7e9b6024',
-        loc: program.loc,
-        moduleName: options.moduleName
+        if (options.plugins && options.plugins.ast) {
+          plugins.ast = plugins.ast.concat(options.plugins.ast);
+        }
+        options.plugins = plugins;
+
+        options.buildMeta = function buildMeta(program) {
+          return {
+            fragmentReason: fragmentReason(program),
+            revision: 'Ember@2.6.0-canary+3bf8c0f3',
+            loc: program.loc,
+            moduleName: options.moduleName
+          };
+        };
+
+        return options;
       };
-    };
 
-    return options;
-  };
+      fragmentReason = function (program) {
+        var loc = program.loc;
+        var body = program.body;
 
-  function fragmentReason(program) {
-    var loc = program.loc;
-    var body = program.body;
+        if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
+          return false;
+        }
 
-    if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
-      return false;
-    }
+        var candidate = undefined;
+        var nodeCount = 0;
 
-    var candidate = undefined;
-    var nodeCount = 0;
+        var problems = {};
 
-    var problems = {};
+        for (var i = 0, l = body.length; i < l; i++) {
+          var curr = body[i];
 
-    for (var i = 0, l = body.length; i < l; i++) {
-      var curr = body[i];
+          // text node with whitespace only
+          if (curr.type === 'TextNode' && /^[\s]*$/.test(curr.chars)) {
+            continue;
+          }
 
-      // text node with whitespace only
-      if (curr.type === 'TextNode' && /^[\s]*$/.test(curr.chars)) {
-        continue;
-      }
+          // has multiple root elements if we've been here before
+          if (nodeCount++ > 0) {
+            problems['multiple-nodes'] = true;
+          }
 
-      // has multiple root elements if we've been here before
-      if (nodeCount++ > 0) {
-        problems['multiple-nodes'] = true;
-      }
+          if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
+            candidate = curr;
+          } else {
+            problems['wrong-type'] = true;
+          }
+        }
 
-      if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
-        candidate = curr;
-      } else {
-        problems['wrong-type'] = true;
-      }
-    }
+        if (nodeCount === 0) {
+          return { name: 'missing-wrapper', problems: ['empty-body'] };
+        }
 
-    if (nodeCount === 0) {
-      return { name: 'missing-wrapper', problems: ['empty-body'] };
-    }
+        var problemList = Object.keys(problems);
+        if (problemList.length) {
+          return { name: 'missing-wrapper', problems: problemList };
+        }
 
-    var problemList = Object.keys(problems);
-    if (problemList.length) {
-      return { name: 'missing-wrapper', problems: problemList };
-    }
-
-    if (candidate.type === 'ComponentNode') {
-      return false;
-    } else if (candidate.modifiers.length) {
-      return { name: 'modifiers', modifiers: candidate.modifiers.map(function (m) {
-          return m.path.original;
-        }) };
-    } else if (candidate.attributes.some(function (attr) {
-      return !attr.value.escaped;
-    })) {
-      return { name: 'triple-curlies' };
-    } else {
-      return false;
-    }
+        if (candidate.type === 'ComponentNode') {
+          return false;
+        } else if (candidate.modifiers.length) {
+          return { name: 'modifiers', modifiers: candidate.modifiers.map(function (m) {
+              return m.path.original;
+            }) };
+        } else if (candidate.attributes.some(function (attr) {
+          return !attr.value.escaped;
+        })) {
+          return { name: 'triple-curlies' };
+        } else {
+          return false;
+        }
+      };
+    })();
   }
+
+  exports.default = compileOptions;
 });
-enifed('ember-template-compiler/system/precompile', ['exports', 'require', 'ember-template-compiler/system/compile_options'], function (exports, _require, _emberTemplateCompilerSystemCompile_options) {
+enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/features', 'require', 'ember-template-compiler/system/compile_options'], function (exports, _emberMetalFeatures, _require, _emberTemplateCompilerSystemCompile_options) {
   /**
   @module ember
   @submodule ember-template-compiler
   */
+
   'use strict';
 
   var compileSpec;
@@ -12820,19 +12842,37 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'require', 'embe
   */
 
   exports.default = function (templateString, options) {
-    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
-      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
-    }
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      if (!compileSpec && _require.has('glimmer-compiler')) {
+        compileSpec = _require.default('glimmer-compiler').compileSpec;
+      }
 
-    if (!compileSpec) {
-      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-    }
+      if (!compileSpec) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
 
-    return compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+      return JSON.stringify(compileSpec(templateString, options));
+    } else {
+      if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
+        compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
+      }
+
+      if (!compileSpec) {
+        throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
+      }
+
+      return compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+    }
   };
 });
-enifed('ember-template-compiler/system/template', ['exports', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks) {
+enifed('ember-template-compiler/system/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require3) {
   'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   /**
   @module ember
@@ -12848,16 +12888,89 @@ enifed('ember-template-compiler/system/template', ['exports', 'htmlbars-runtime/
     @param {Function} templateSpec This is the compiled HTMLBars template spec.
   */
 
-  exports.default = function (templateSpec) {
-    if (!templateSpec.render) {
-      templateSpec = _htmlbarsRuntimeHooks.wrap(templateSpec);
-    }
+  var template = undefined;
 
-    templateSpec.isTop = true;
-    templateSpec.isMethod = false;
+  if (_emberMetalFeatures.default('ember-glimmer')) {
+    (function () {
+      var _require = _require3.default('glimmer-runtime');
 
-    return templateSpec;
-  };
+      var Template = _require.Template;
+
+      var Wrapper = (function () {
+        Wrapper.create = function create(options) {
+          return new this(options);
+        };
+
+        function Wrapper(_ref) {
+          var env = _ref.env;
+
+          _classCallCheck(this, Wrapper);
+
+          this._entryPoint = null;
+          this._layout = null;
+          this.env = env;
+        }
+
+        Wrapper.prototype.asEntryPoint = function asEntryPoint() {
+          if (!this._entryPoint) {
+            var spec = this.spec;
+            var env = this.env;
+
+            this._entryPoint = Template.fromSpec(spec, env);
+          }
+
+          return this._entryPoint;
+        };
+
+        Wrapper.prototype.asLayout = function asLayout() {
+          if (!this._layout) {
+            var spec = this.spec;
+            var env = this.env;
+
+            this._layout = Template.layoutFromSpec(spec, env);
+          }
+
+          return this._layout;
+        };
+
+        return Wrapper;
+      })();
+
+      template = function (json) {
+        return (function (_Wrapper) {
+          _inherits(_class, _Wrapper);
+
+          function _class(options) {
+            _classCallCheck(this, _class);
+
+            _Wrapper.call(this, options);
+            this.spec = JSON.parse(json);
+          }
+
+          return _class;
+        })(Wrapper);
+      };
+    })();
+  } else {
+    (function () {
+      var _require2 = _require3.default('htmlbars-runtime/hooks');
+
+      var wrap = _require2.wrap;
+
+      template = function (templateSpec) {
+        if (!templateSpec.render) {
+          templateSpec = wrap(templateSpec);
+        }
+
+        templateSpec.isTop = true;
+        templateSpec.isMethod = false;
+
+        return templateSpec;
+      };
+    })();
+  }
+
+  exports.default = template;
 });
 enifed("htmlbars-compiler/compiler", ["exports", "htmlbars-syntax/parser", "htmlbars-compiler/template-compiler", "htmlbars-runtime/hooks", "htmlbars-runtime/render"], function (exports, _htmlbarsSyntaxParser, _htmlbarsCompilerTemplateCompiler, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender) {
   /*jshint evil:true*/

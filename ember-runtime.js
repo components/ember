@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+7e9b6024
+ * @version   2.6.0-canary+3bf8c0f3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1681,8 +1681,10 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     object[OWNER] = owner;
   }
 });
-enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/assign', 'container/container'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalAssign, _containerContainer) {
+enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/assign', 'container/container', 'ember-metal/utils'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalAssign, _containerContainer, _emberMetalUtils) {
   'use strict';
+
+  exports.privatize = privatize;
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
@@ -2463,6 +2465,25 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
 
   function has(registry, fullName, source) {
     return registry.resolve(fullName, { source: source }) !== undefined;
+  }
+
+  var privateNames = _emberMetalDictionary.default(null);
+  var privateSuffix = Math.floor(Math.random() * new Date()) + '';
+
+  function privatize(_ref) {
+    var fullName = _ref[0];
+
+    var name = privateNames[fullName];
+    if (name) {
+      return name;
+    }
+
+    var _fullName$split = fullName.split(':');
+
+    var type = _fullName$split[0];
+    var rawName = _fullName$split[1];
+
+    return privateNames[fullName] = _emberMetalUtils.intern(type + ':' + rawName + '-' + privateSuffix);
   }
 
   exports.default = Registry;
@@ -4811,7 +4832,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+7e9b6024
+    @version 2.6.0-canary+3bf8c0f3
     @public
   */
 
@@ -4853,11 +4874,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+7e9b6024'
+    @default '2.6.0-canary+3bf8c0f3'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+7e9b6024';
+  Ember.VERSION = '2.6.0-canary+3bf8c0f3';
 
   /**
     The hash of environment variables used to control various configuration
