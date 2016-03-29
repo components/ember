@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+e35e8b48
+ * @version   2.6.0-canary+f542bcdb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -11956,7 +11956,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+e35e8b48';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+f542bcdb';
   }
 
   /**
@@ -16956,7 +16956,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+e35e8b48
+    @version 2.6.0-canary+f542bcdb
     @public
   */
 
@@ -16998,11 +16998,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+e35e8b48'
+    @default '2.6.0-canary+f542bcdb'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+e35e8b48';
+  Ember.VERSION = '2.6.0-canary+f542bcdb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29980,7 +29980,8 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   
     ### Event Propagation
   
-    `{{action}}` helpers called in element space can control event bubbling.
+    `{{action}}` helpers called in element space can control event bubbling. Note
+    that the closure style actions cannot.
   
     Events triggered through the action helper will automatically have
     `.preventDefault()` called on them. You do not need to do so in your event
@@ -29998,6 +29999,28 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   
     ```handlebars
     <button {{action 'edit' post bubbles=false}}>Edit</button>
+    ```
+  
+    To disable bubbling with closure style actions you must create your own
+    wrapper helper that makes use of `event.stopPropagation()`:
+  
+    ```handlebars
+    <div onclick={{disable-bubbling (action "sayHello")}}>Hello</div>
+    ```
+  
+    ```js
+    // app/helpers/disable-bubbling.js
+    import Ember from 'ember';
+  
+    export function disableBubbling([action]) {
+      return function(event) {
+        event.stopPropagation();
+  
+        return action(event);
+      };
+    }
+  
+    export default Ember.Helper.helper(disableBubbling);
     ```
   
     If you need the default handler to trigger you should either register your
@@ -40348,7 +40371,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+e35e8b48',
+            revision: 'Ember@2.6.0-canary+f542bcdb',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -43992,7 +44015,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/features', '
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+e35e8b48';
+    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+f542bcdb';
   }
 
   /**
@@ -48725,7 +48748,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+e35e8b48
+ * @version   2.6.0-canary+f542bcdb
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
