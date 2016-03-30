@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+3084885d
+ * @version   2.6.0-canary+ad32d4a2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4061,7 +4061,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+3084885d
+    @version 2.6.0-canary+ad32d4a2
     @public
   */
 
@@ -4103,11 +4103,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+3084885d'
+    @default '2.6.0-canary+ad32d4a2'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+3084885d';
+  Ember.VERSION = '2.6.0-canary+ad32d4a2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4594,6 +4594,14 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
 
   function addListener(obj, eventName, target, method, once) {
     _emberMetalDebug.assert('You must pass at least an object and event name to Ember.addListener', !!obj && !!eventName);
+
+    if (eventName === 'didInitAttrs' && obj.isComponent) {
+      _emberMetalDebug.deprecate('[DEPRECATED] didInitAttrs called in ' + obj.toString() + '.', false, {
+        id: 'ember-views.did-init-attrs',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      });
+    }
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -12751,7 +12759,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+3084885d',
+            revision: 'Ember@2.6.0-canary+ad32d4a2',
             loc: program.loc,
             moduleName: options.moduleName
           };
