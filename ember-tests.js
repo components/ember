@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+3084885d
+ * @version   2.6.0-canary+ad32d4a2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -37918,7 +37918,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
         view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend.twitter = '@tomdale', _EmberView$extend)).create();
 
-        _emberRuntimeTestsUtils.runAppend(view);
+        expectDeprecation(function () {
+          _emberRuntimeTestsUtils.runAppend(view);
+        }, /\[DEPRECATED\] didInitAttrs called in <\(subclass of Ember.Component\)\:ember[\d+]+>\./);
 
         ok(component, 'The component was inserted');
         equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Twitter: @tomdale Name: Tom Dale Website: tomdale.net');
@@ -38030,7 +38032,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
         view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberTemplateCompilerSystemCompile.default(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend2.twitter = '@tomdale', _EmberView$extend2)).create();
 
-        _emberRuntimeTestsUtils.runAppend(view);
+        expectDeprecation(function () {
+          _emberRuntimeTestsUtils.runAppend(view);
+        }, /\[DEPRECATED\] didInitAttrs called in <\(subclass of Ember.Component\)\:ember[\d+]+>\./);
 
         ok(component, 'The component was inserted');
         equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Top: Middle: Bottom: @tomdale');
@@ -38074,7 +38078,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       QUnit.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
         var _style$class$extend;
 
-        var component = style.class.extend((_style$class$extend = {}, _style$class$extend[_containerOwner.OWNER] = owner, _style$class$extend.layout = _emberTemplateCompilerSystemCompile.default('<div>{{handle}}</div>'), _style$class$extend.handle = '@wycats', _style$class$extend.didInsertElement = function () {
+        var component = undefined;
+
+        component = style.class.extend((_style$class$extend = {}, _style$class$extend[_containerOwner.OWNER] = owner, _style$class$extend.layout = _emberTemplateCompilerSystemCompile.default('<div>{{handle}}</div>'), _style$class$extend.handle = '@wycats', _style$class$extend.didInsertElement = function () {
           this.set('handle', '@tomdale');
         }, _style$class$extend)).create();
 
@@ -38083,6 +38089,24 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
         }, /modified inside the didInsertElement hook/);
 
         assert.strictEqual(component.$().text(), '@tomdale');
+
+        _emberMetalRun_loop.default(function () {
+          component.destroy();
+        });
+      });
+
+      QUnit.test('DEPRECATED: didInitAttrs is deprecated', function (assert) {
+        var _style$class$extend2;
+
+        var component = undefined;
+
+        var componentClass = style.class.extend((_style$class$extend2 = {}, _style$class$extend2[_containerOwner.OWNER] = owner, _style$class$extend2.layout = _emberTemplateCompilerSystemCompile.default('<div>{{handle}}</div>'), _style$class$extend2.handle = '@wycats', _style$class$extend2.didInitAttrs = function () {
+          this._super.apply(this, arguments);
+        }, _style$class$extend2));
+
+        expectDeprecation(function () {
+          component = componentClass.create();
+        }, /\[DEPRECATED\] didInitAttrs called in <\(subclass of Ember.Component\)\:ember[\d+]+>\./);
 
         _emberMetalRun_loop.default(function () {
           component.destroy();
@@ -48464,7 +48488,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], functio
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-views/components/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberViewsComponentsComponent, _emberMetalEvents) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -48728,6 +48752,14 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
 
     _emberMetalEvents.sendEvent(obj, 'baz');
     equal(triggered, 1, 'should invoke from subclass property');
+  });
+
+  QUnit.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
+    var obj = _emberViewsComponentsComponent.default.create();
+
+    expectDeprecation(function () {
+      _emberMetalEvents.addListener(obj, 'didInitAttrs');
+    }, /\[DEPRECATED\] didInitAttrs called in <\Ember.Component\:ember[\d+]+>\./);
   });
 });
 enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expand_properties'], function (exports, _emberMetalExpand_properties) {
@@ -71576,7 +71608,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+3084885d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+ad32d4a2', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

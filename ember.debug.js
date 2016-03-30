@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+3084885d
+ * @version   2.6.0-canary+ad32d4a2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12596,7 +12596,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+3084885d';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+ad32d4a2';
   }
 
   /**
@@ -17686,7 +17686,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+3084885d
+    @version 2.6.0-canary+ad32d4a2
     @public
   */
 
@@ -17728,11 +17728,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+3084885d'
+    @default '2.6.0-canary+ad32d4a2'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+3084885d';
+  Ember.VERSION = '2.6.0-canary+ad32d4a2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18219,6 +18219,14 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
 
   function addListener(obj, eventName, target, method, once) {
     _emberMetalDebug.assert('You must pass at least an object and event name to Ember.addListener', !!obj && !!eventName);
+
+    if (eventName === 'didInitAttrs' && obj.isComponent) {
+      _emberMetalDebug.deprecate('[DEPRECATED] didInitAttrs called in ' + obj.toString() + '.', false, {
+        id: 'ember-views.did-init-attrs',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      });
+    }
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -41397,7 +41405,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+3084885d',
+            revision: 'Ember@2.6.0-canary+ad32d4a2',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -45001,6 +45009,14 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
 
       this[INIT_WAS_CALLED] = true;
 
+      if (typeof this.didInitAttrs === 'function') {
+        _emberMetalDebug.deprecate('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', false, {
+          id: 'ember-views.did-init-attrs',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+        });
+      }
+
       _emberMetalDebug.assert('Using a custom `.render` function is no longer supported.', !this.render);
     }
 
@@ -46387,7 +46403,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/features', '
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+3084885d';
+    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+ad32d4a2';
   }
 
   /**
@@ -51154,7 +51170,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+3084885d
+ * @version   2.6.0-canary+ad32d4a2
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
