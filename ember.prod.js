@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+bac549e2
+ * @version   2.6.0-canary+44d930c9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9076,12 +9076,17 @@ enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (expo
 
   exports.Environment = _emberGlimmerEnvironment.default;
 });
-enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberMetalDebug, _emberHtmlbarsUtilsString) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
 
-  EmberHandlebars.SafeString = _emberHtmlbarsUtilsString.SafeString;
+  EmberHandlebars.SafeString = _emberMetalDebug.deprecateFunc('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', {
+    id: 'ember-htmlbars.ember-handlebars-safestring',
+    until: '3.0.0',
+    url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+  }, _emberHtmlbarsUtilsString.SafeString);
+
   EmberHandlebars.Utils = {
     escapeExpression: _emberHtmlbarsUtilsString.escapeExpression
   };
@@ -11956,7 +11961,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+bac549e2';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+44d930c9';
   }
 
   /**
@@ -16956,7 +16961,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+bac549e2
+    @version 2.6.0-canary+44d930c9
     @public
   */
 
@@ -16998,11 +17003,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+bac549e2'
+    @default '2.6.0-canary+44d930c9'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+bac549e2';
+  Ember.VERSION = '2.6.0-canary+44d930c9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -40393,7 +40398,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+bac549e2',
+            revision: 'Ember@2.6.0-canary+44d930c9',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -44039,7 +44044,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/features', '
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+bac549e2';
+    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+44d930c9';
   }
 
   /**
@@ -48772,7 +48777,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+bac549e2
+ * @version   2.6.0-canary+44d930c9
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
