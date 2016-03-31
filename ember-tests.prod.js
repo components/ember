@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+44d930c9
+ * @version   2.6.0-canary+dd58346b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15477,6 +15477,33 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
         equal(indexModelCount, 2);
       });
 
+      QUnit.test('refreshModel does not cause a second transition during app boot ', function () {
+        expect(0);
+
+        App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
+          queryParams: {
+            appomg: {
+              defaultValue: 'applol'
+            }
+          }
+        });
+
+        App.IndexRoute = _emberRoutingSystemRoute.default.extend({
+          queryParams: {
+            omg: {
+              defaultValue: 'lol',
+              refreshModel: true
+            }
+          },
+          refresh: function () {
+            ok(false);
+          }
+        });
+
+        startingURL = '/?appomg=hello&omg=world';
+        bootApplication();
+      });
+
       QUnit.test('can use refreshModel even w URL changes that remove QPs from address bar when QP configured on route', function () {
         expect(4);
 
@@ -17518,6 +17545,33 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
 
         equal(appModelCount, 1);
         equal(indexModelCount, 2);
+      });
+
+      QUnit.test('refreshModel does not cause a second transition during app boot ', function () {
+        expect(0);
+        App.ApplicationController = _emberRuntimeControllersController.default.extend({
+          queryParams: ['appomg'],
+          appomg: 'applol'
+        });
+
+        App.IndexController = _emberRuntimeControllersController.default.extend({
+          queryParams: ['omg'],
+          omg: 'lol'
+        });
+
+        App.IndexRoute = _emberRoutingSystemRoute.default.extend({
+          queryParams: {
+            omg: {
+              refreshModel: true
+            }
+          },
+          refresh: function () {
+            ok(false);
+          }
+        });
+
+        startingURL = '/?appomg=hello&omg=world';
+        bootApplication();
       });
 
       QUnit.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
@@ -71208,7 +71262,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+44d930c9', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+dd58346b', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
