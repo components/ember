@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+78907b92
+ * @version   2.6.0-canary+bac549e2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -11956,7 +11956,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+78907b92';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+bac549e2';
   }
 
   /**
@@ -16956,7 +16956,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+78907b92
+    @version 2.6.0-canary+bac549e2
     @public
   */
 
@@ -16998,11 +16998,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+78907b92'
+    @default '2.6.0-canary+bac549e2'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+78907b92';
+  Ember.VERSION = '2.6.0-canary+bac549e2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -30152,6 +30152,9 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           if (!action) {
             throw new _emberMetalError.default('An action named \'' + actionName + '\' was not found in ' + target + '.');
           }
+        } else if (action && typeof action[INVOKE] === 'function') {
+          target = action;
+          action = action[INVOKE];
         } else if (actionType !== 'function') {
           throw new _emberMetalError.default('An action could not be made for `' + rawAction.label + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + rawAction.label + '\')`) or a function available in ' + target + '.');
         }
@@ -40390,7 +40393,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+78907b92',
+            revision: 'Ember@2.6.0-canary+bac549e2',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -44036,7 +44039,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/features', '
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+78907b92';
+    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+bac549e2';
   }
 
   /**
@@ -48769,7 +48772,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+78907b92
+ * @version   2.6.0-canary+bac549e2
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {

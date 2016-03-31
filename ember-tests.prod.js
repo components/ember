@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+78907b92
+ * @version   2.6.0-canary+bac549e2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -55689,7 +55689,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
   'use strict';
 
   var innerComponent, outerComponent, originalViewKeyword;
@@ -56197,6 +56197,39 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
             assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
           }
         }
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+      innerComponent.fireAction();
+    });
+
+    QUnit.test('objects that define INVOKE can be casted to actions', function (assert) {
+      assert.expect(2);
+
+      innerComponent = _emberViewsComponentsComponent.default.extend({
+        fireAction: function () {
+          assert.equal(this.attrs.submit(4, 5, 6), 123);
+        }
+      }).create();
+
+      outerComponent = _emberViewsComponentsComponent.default.extend({
+        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
+        innerComponent: innerComponent,
+        foo: 123,
+        submitTask: _emberMetalComputed.computed(function () {
+          var _ref,
+              _this = this;
+
+          return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+
+            assert.deepEqual(args, [1, 2, 3, 4, 5, 6]);
+            return _this.foo;
+          }, _ref;
+        })
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(outerComponent);
@@ -71164,7 +71197,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+78907b92', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+bac549e2', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
