@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+dd58346b
+ * @version   2.6.0-canary+df38246d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24957,8 +24957,37 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal($span.attr('class'), 'inner');
     };
 
-    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
+    _class.prototype['@test an empty component does not have childNodes'] = function testAnEmptyComponentDoesNotHaveChildNodes(assert) {
       var _this15 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: 'input',
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '' });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'input' });
+
+      assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'input' });
+
+      assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
+    };
+
+    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
+      var _this16 = this;
 
       var fooBarInstance = undefined,
           fooBarBazInstance = undefined;
@@ -24990,7 +25019,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -25002,7 +25031,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
-      var _this16 = this;
+      var _this17 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -25011,14 +25040,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this17 = this;
+      var _this18 = this;
 
       var instance = undefined;
 
@@ -25037,7 +25066,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -25056,7 +25085,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this18 = this;
+      var _this19 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -25065,26 +25094,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this19.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this19.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
-      var _this19 = this;
+      var _this20 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -25109,13 +25138,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this20.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -25123,16 +25152,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this19.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this19.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this20.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this19.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
@@ -38683,8 +38712,37 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal($span.attr('class'), 'inner');
     };
 
-    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
+    _class.prototype['@test an empty component does not have childNodes'] = function testAnEmptyComponentDoesNotHaveChildNodes(assert) {
       var _this15 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: 'input',
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '' });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'input' });
+
+      assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'input' });
+
+      assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
+    };
+
+    _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
+      var _this16 = this;
 
       var fooBarInstance = undefined,
           fooBarBazInstance = undefined;
@@ -38716,7 +38774,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -38728,7 +38786,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
-      var _this16 = this;
+      var _this17 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -38737,14 +38795,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this17 = this;
+      var _this18 = this;
 
       var instance = undefined;
 
@@ -38763,7 +38821,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -38782,7 +38840,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this18 = this;
+      var _this19 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -38791,26 +38849,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this19.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this19.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
-      var _this19 = this;
+      var _this20 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -38835,13 +38893,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this20.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -38849,16 +38907,16 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this19.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this19.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this20.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this19.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this20.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
@@ -44005,51 +44063,6 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
 
     return _class3;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
-});
-enifed('ember-htmlbars/tests/integration/void-element-component-test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var owner, view;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('ember-htmlbars: components for void elements', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.registerOptionsForType('component', { singleton: false });
-        owner.registerOptionsForType('view', { singleton: false });
-        owner.registerOptionsForType('template', { instantiate: false });
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        _emberRuntimeTestsUtils.runDestroy(view);
-        owner = view = null;
-      }
-    });
-
-    QUnit.test('a void element does not have childNodes', function () {
-      var _EmberView$create;
-
-      var component;
-      owner.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
-        tagName: 'input',
-
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default('{{x-foo}}'), _EmberView$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      deepEqual(component.element.childNodes.length, 0, 'no childNodes are added for `<input>`');
-    });
-  }
 });
 enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['exports', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
   'use strict';
@@ -71262,7 +71275,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+dd58346b', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+df38246d', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
