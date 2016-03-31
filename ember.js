@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+df38246d
+ * @version   2.6.0-canary+94b4ccc4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12601,7 +12601,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+df38246d';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+94b4ccc4';
   }
 
   /**
@@ -14804,110 +14804,6 @@ enifed("ember-htmlbars/templates/component", ["exports", "ember-template-compile
       statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
       locals: [],
       templates: []
-    };
-  })());
-});
-enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-compiler/system/template"], function (exports, _emberTemplateCompilerSystemTemplate) {
-  "use strict";
-
-  exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
-    var child0 = (function () {
-      return {
-        meta: {},
-        isEmpty: false,
-        arity: 1,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          dom.insertBoundary(fragment, null);
-          return morphs;
-        },
-        statements: [["inline", "view", [["get", "childView", ["loc", [null, [1, 63], [1, 72]]]]], [], ["loc", [null, [1, 56], [1, 74]]]]],
-        locals: ["childView"],
-        templates: []
-      };
-    })();
-    var child1 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {},
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-            dom.insertBoundary(fragment, 0);
-            dom.insertBoundary(fragment, null);
-            return morphs;
-          },
-          statements: [["inline", "view", [["get", "view._emptyView", ["loc", [null, [1, 108], [1, 123]]]]], ["_defaultTagName", ["get", "view._emptyViewTagName", ["loc", [null, [1, 140], [1, 162]]]]], ["loc", [null, [1, 101], [1, 164]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      return {
-        meta: {},
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createComment("");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var morphs = new Array(1);
-          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-          dom.insertBoundary(fragment, 0);
-          dom.insertBoundary(fragment, null);
-          return morphs;
-        },
-        statements: [["block", "if", [["get", "view._emptyView", ["loc", [null, [1, 84], [1, 99]]]]], [], 0, null, ["loc", [null, [1, 74], [1, 164]]]]],
-        locals: [],
-        templates: [child0]
-      };
-    })();
-    return {
-      meta: {},
-      isEmpty: false,
-      arity: 0,
-      cachedFragment: null,
-      hasRendered: false,
-      buildFragment: function buildFragment(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createComment("");
-        dom.appendChild(el0, el1);
-        return el0;
-      },
-      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-        dom.insertBoundary(fragment, 0);
-        dom.insertBoundary(fragment, null);
-        return morphs;
-      },
-      statements: [["block", "each", [["get", "view.childViews", ["loc", [null, [1, 8], [1, 23]]]]], ["key", "elementId"], 0, 1, ["loc", [null, [1, 0], [1, 173]]]]],
-      locals: [],
-      templates: [child0, child1]
     };
   })());
 });
@@ -17691,7 +17587,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+df38246d
+    @version 2.6.0-canary+94b4ccc4
     @public
   */
 
@@ -17733,11 +17629,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+df38246d'
+    @default '2.6.0-canary+94b4ccc4'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+df38246d';
+  Ember.VERSION = '2.6.0-canary+94b4ccc4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -41413,7 +41309,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+df38246d',
+            revision: 'Ember@2.6.0-canary+94b4ccc4',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -43493,7 +43389,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
 
   exports.default = Component;
 });
-enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/compat/metamorph_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViews, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsCompatMetamorph_view) {
+enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/compat/metamorph_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViews, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsCompatMetamorph_view) {
   /**
   @module ember
   @submodule ember-views
@@ -43528,7 +43424,6 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
     _emberRuntime.default.View.states = _emberViewsViewsStates.states;
     _emberRuntime.default.View.cloneStates = _emberViewsViewsStates.cloneStates;
     _emberRuntime.default.View._Renderer = _emberMetalViews.Renderer;
-    _emberRuntime.default.ContainerView = _emberViewsViewsContainer_view.DeprecatedContainerView;
   }
 
   _emberRuntime.default._Renderer = _emberMetalViews.Renderer;
@@ -44352,7 +44247,7 @@ enifed('ember-views/mixins/view_context_support', ['exports', 'ember-metal/mixin
        The context of a view is looked up as follows:
        1. Supplied context (usually by Handlebars)
       2. Specified controller
-      3. `parentView`'s context (for a child of a ContainerView)
+      3. `parentView`'s context
        The code in Handlebars that overrides the `_context` property first
       checks to see whether the view has a specified controller. This is
       something of a hack and should be revisited.
@@ -44671,10 +44566,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       element will not be appended to the given element until all bindings have
       finished synchronizing.
        This is not typically a function that you will need to call directly when
-      building your application. You might consider using `Ember.ContainerView`
-      instead. If you do need to use `appendTo`, be sure that the target element
-      you are providing is associated with an `Ember.Application` and does not
-      have an ancestor element that is associated with an Ember view.
+      building your application. If you do need to use `appendTo`, be sure that
+      the target element you are providing is associated with an `Ember.Application`
+      and does not have an ancestor element that is associated with an Ember view.
        @method appendTo
       @param {String|DOMElement|jQuery} A selector, element, HTML string, or jQuery object
       @return {Ember.View} receiver
@@ -44687,7 +44581,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
         var target = $(selector);
 
         _emberMetalDebug.assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target.length > 0);
-        _emberMetalDebug.assert('You cannot append to an existing Ember.View. Consider using Ember.ContainerView instead.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
+        _emberMetalDebug.assert('You cannot append to an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
 
         this.renderer.appendTo(this, target[0]);
       } else {
@@ -44762,7 +44656,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       var target = _emberViewsSystemJquery.default(selector);
 
       _emberMetalDebug.assert('You tried to replace in (' + selector + ') but that isn\'t in the DOM', target.length > 0);
-      _emberMetalDebug.assert('You cannot replace an existing Ember.View. Consider using Ember.ContainerView instead.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
+      _emberMetalDebug.assert('You cannot replace an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
 
       this.renderer.replaceIn(this, target[0]);
 
@@ -46407,336 +46301,6 @@ enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'em
     }
   });
 });
-enifed('ember-views/views/container_view', ['exports', 'ember-metal/features', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalFeatures, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  'use strict';
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.6.0-canary+df38246d';
-  }
-
-  /**
-  @module ember
-  @submodule ember-views
-  */
-
-  /**
-    A `ContainerView` is an `Ember.View` subclass that implements `Ember.MutableArray`
-    allowing programmatic management of its child views.
-  
-    ## Setting Initial Child Views
-  
-    The initial array of child views can be set in one of two ways. You can
-    provide a `childViews` property at creation time that contains instance of
-    `Ember.View`:
-  
-    ```javascript
-    aContainer = Ember.ContainerView.create({
-      childViews: [Ember.View.create(), Ember.View.create()]
-    });
-    ```
-  
-    You can also provide a list of property names whose values are instances of
-    `Ember.View`:
-  
-    ```javascript
-    aContainer = Ember.ContainerView.create({
-      childViews: ['aView', 'bView', 'cView'],
-      aView: Ember.View.create(),
-      bView: Ember.View.create(),
-      cView: Ember.View.create()
-    });
-    ```
-  
-    The two strategies can be combined:
-  
-    ```javascript
-    aContainer = Ember.ContainerView.create({
-      childViews: ['aView', Ember.View.create()],
-      aView: Ember.View.create()
-    });
-    ```
-  
-    Each child view's rendering will be inserted into the container's rendered
-    HTML in the same order as its position in the `childViews` property.
-  
-    ## Adding and Removing Child Views
-  
-    The container view implements `Ember.MutableArray` allowing programmatic management of its child views.
-  
-    To remove a view, pass that view into a `removeObject` call on the container view.
-  
-    Given an empty `<body>` the following code
-  
-    ```javascript
-    aContainer = Ember.ContainerView.create({
-      classNames: ['the-container'],
-      childViews: ['aView', 'bView'],
-      aView: Ember.View.create({
-        template: Ember.HTMLBars.compile("A")
-      }),
-      bView: Ember.View.create({
-        template: Ember.HTMLBars.compile("B")
-      })
-    });
-  
-    aContainer.appendTo('body');
-    ```
-  
-    Results in the HTML
-  
-    ```html
-    <div class="ember-view the-container">
-      <div class="ember-view">A</div>
-      <div class="ember-view">B</div>
-    </div>
-    ```
-  
-    Removing a view
-  
-    ```javascript
-    aContainer.toArray();  // [aContainer.aView, aContainer.bView]
-    aContainer.removeObject(aContainer.get('bView'));
-    aContainer.toArray();  // [aContainer.aView]
-    ```
-  
-    Will result in the following HTML
-  
-    ```html
-    <div class="ember-view the-container">
-      <div class="ember-view">A</div>
-    </div>
-    ```
-  
-    Similarly, adding a child view is accomplished by adding `Ember.View` instances to the
-    container view.
-  
-    Given an empty `<body>` the following code
-  
-    ```javascript
-    aContainer = Ember.ContainerView.create({
-      classNames: ['the-container'],
-      childViews: ['aView', 'bView'],
-      aView: Ember.View.create({
-        template: Ember.HTMLBars.compile("A")
-      }),
-      bView: Ember.View.create({
-        template: Ember.HTMLBars.compile("B")
-      })
-    });
-  
-    aContainer.appendTo('body');
-    ```
-  
-    Results in the HTML
-  
-    ```html
-    <div class="ember-view the-container">
-      <div class="ember-view">A</div>
-      <div class="ember-view">B</div>
-    </div>
-    ```
-  
-    Adding a view
-  
-    ```javascript
-    AnotherViewClass = Ember.View.extend({
-      template: Ember.HTMLBars.compile("Another view")
-    });
-  
-    aContainer.toArray();  // [aContainer.aView, aContainer.bView]
-    aContainer.pushObject(AnotherViewClass.create());
-    aContainer.toArray(); // [aContainer.aView, aContainer.bView, <AnotherViewClass instance>]
-    ```
-  
-    Will result in the following HTML
-  
-    ```html
-    <div class="ember-view the-container">
-      <div class="ember-view">A</div>
-      <div class="ember-view">B</div>
-      <div class="ember-view">Another view</div>
-    </div>
-    ```
-  
-    ## Templates and Layout
-  
-    A `template`, `templateName`, `defaultTemplate`, `layout`, `layoutName` or
-    `defaultLayout` property on a container view will not result in the template
-    or layout being rendered. The HTML contents of a `Ember.ContainerView`'s DOM
-    representation will only be the rendered HTML of its child views.
-  
-    @class ContainerView
-    @namespace Ember
-    @extends Ember.View
-    @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-containerview
-    @private
-  */
-  var ContainerView = _emberViewsViewsView.default.extend(_emberRuntimeMixinsMutable_array.default, {
-    willWatchProperty: function (prop) {
-      _emberMetalDebug.deprecate('ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView.', !prop.match(/\[]/) && prop.indexOf('@') !== 0, { id: 'ember-views.container-views-array-observed', until: '2.4.0' });
-    },
-
-    init: function () {
-      var _this = this;
-
-      this._super.apply(this, arguments);
-      this._prevCurrentView = undefined;
-      var userChildViews = _emberMetalProperty_get.get(this, 'childViews');
-      _emberMetalDebug.deprecate('Setting `childViews` on a Container is deprecated.', _emberMetalCore.default.isEmpty(userChildViews), { id: 'ember-views.container-child-views', until: '2.4.0' });
-
-      // redefine view's childViews property that was obliterated
-      // 2.0TODO: Don't Ember.A() this so users disabling prototype extensions
-      // don't pay a penalty.
-      var childViews = this.childViews = _emberRuntimeSystemNative_array.A();
-
-      userChildViews.forEach(function (viewName, idx) {
-        var view;
-
-        if ('string' === typeof viewName) {
-          view = _emberMetalProperty_get.get(_this, viewName);
-          view = _this.createChildView(view);
-          _emberMetalProperty_set.set(_this, viewName, view);
-        } else {
-          view = _this.createChildView(viewName);
-        }
-
-        childViews[idx] = view;
-      });
-
-      var currentView = _emberMetalProperty_get.get(this, 'currentView');
-      if (currentView) {
-        if (!childViews.length) {
-          childViews = this.childViews = _emberRuntimeSystemNative_array.A(this.childViews.slice());
-        }
-        childViews.push(this.createChildView(currentView));
-      }
-
-      _emberMetalProperty_set.set(this, 'length', childViews.length);
-    },
-
-    // Normally parentView and childViews are managed at render time.  However,
-    // the ContainerView is an unusual legacy case. People expect to be able to
-    // push a child view into the ContainerView and have its parentView set
-    // appropriately. As a result, we link the child nodes ahead of time and
-    // ignore render-time linking.
-    appendChild: function (view) {
-      // This occurs if the view being appended is the empty view, rather than
-      // a view eagerly inserted into the childViews array.
-      if (view.parentView !== this) {
-        this.linkChild(view);
-      }
-    },
-
-    _currentViewDidChange: _emberMetalMixin.observer('currentView', function () {
-      var prevView = this._prevCurrentView;
-      if (prevView) {
-        prevView.destroy();
-      }
-      var currentView = _emberMetalProperty_get.get(this, 'currentView');
-      this._prevCurrentView = currentView;
-      if (currentView) {
-        _emberMetalDebug.assert('You tried to set a current view that already has a parent. Make sure you don\'t have multiple outlets in the same view.', !currentView.parentView);
-        this.pushObject(currentView);
-      }
-    }),
-
-    layout: _emberHtmlbarsTemplatesContainerView.default,
-
-    replace: function (idx, removedCount) {
-      var _this2 = this;
-
-      var addedViews = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
-
-      var addedCount = _emberMetalProperty_get.get(addedViews, 'length');
-      var childViews = _emberMetalProperty_get.get(this, 'childViews');
-
-      _emberMetalDebug.assert('You can\'t add a child to a container - the child is already a child of another view', (function () {
-        for (var i = 0, l = addedViews.length; i < l; i++) {
-          var item = addedViews[i];
-          if (item.parentView && item.parentView !== _this2) {
-            return false;
-          }
-        }
-        return true;
-      })());
-
-      this.arrayContentWillChange(idx, removedCount, addedCount);
-
-      // Normally parentView and childViews are managed at render time.  However,
-      // the ContainerView is an unusual legacy case. People expect to be able to
-      // push a child view into the ContainerView and have its parentView set
-      // appropriately.
-      //
-      // Because of this, we synchronously fix up the parentView/childViews tree
-      // as soon as views are added or removed, despite the fact that this will
-      // happen automatically when we render.
-      var removedViews = childViews.slice(idx, idx + removedCount);
-      removedViews.forEach(function (view) {
-        return _this2.unlinkChild(view);
-      });
-      addedViews.forEach(function (view) {
-        return _this2.linkChild(view);
-      });
-
-      childViews.splice.apply(childViews, [idx, removedCount].concat(addedViews));
-
-      this.notifyPropertyChange('childViews');
-      this.arrayContentDidChange(idx, removedCount, addedCount);
-
-      // assert("You can't add a child to a container - the child is already a child of another view", emberA(addedViews).every(function(item) { return !item.parentView || item.parentView === self; }));
-
-      _emberMetalProperty_set.set(this, 'length', childViews.length);
-
-      return this;
-    },
-
-    objectAt: function (idx) {
-      return this.childViews[idx];
-    },
-
-    _triggerChildWillDestroyElement: _emberMetalEvents.on('willDestroyElement', function () {
-      var childViews = this.childViews;
-      if (childViews) {
-        for (var i = 0; i < childViews.length; i++) {
-          this.renderer.willDestroyElement(childViews[i]);
-        }
-      }
-    }),
-
-    _triggerChildDidDestroyElement: _emberMetalEvents.on('didDestroyElement', function () {
-      var childViews = this.childViews;
-      if (childViews) {
-        for (var i = 0; i < childViews.length; i++) {
-          this.renderer.didDestroyElement(childViews[i]);
-        }
-      }
-    })
-  });
-
-  function containerViewDeprecationMessage() {
-    _emberMetalDebug.deprecate('Ember.ContainerView is deprecated.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
-      url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-containerview',
-      id: 'ember-views.container-view',
-      until: '2.4.0'
-    });
-  }
-
-  var DeprecatedContainerView = ContainerView.extend({
-    init: function () {
-      containerViewDeprecationMessage();
-      this._super.apply(this, arguments);
-    }
-  });
-
-  exports.DeprecatedContainerView = DeprecatedContainerView;
-  DeprecatedContainerView.reopen = function () {
-    containerViewDeprecationMessage();
-    ContainerView.reopen.apply(ContainerView, arguments);
-    return this;
-  };
-
-  exports.default = ContainerView;
-});
 enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-metal-views', 'ember-views/views/states', 'htmlbars-runtime', 'require'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberMetalViews, _emberViewsViewsStates, _htmlbarsRuntime, _require) {
   'use strict';
 
@@ -47263,7 +46827,6 @@ enifed('ember-views/views/text_field', ['exports', 'ember-metal/computed', 'embe
 });
 enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/legacy_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalDebug, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsLegacy_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsTemplate_rendering_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support, _emberMetalDeprecate_property) {
   // jQuery, Ember.lookup,
-  // Ember.ContainerView circular dependency
   // Ember.ENV
   'use strict';
 
@@ -51178,7 +50741,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+df38246d
+ * @version   2.6.0-canary+94b4ccc4
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
