@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+57cf48cf
+ * @version   2.6.0-canary+bc78f0c6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12030,6 +12030,12 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
 
       equal(_emberViewsSystemJquery.default('#about-link-static.disabled', '#qunit-fixture').length, 1, 'The static link is disabled when its disabledWhen is true');
       equal(_emberViewsSystemJquery.default('#about-link-dynamic.disabled', '#qunit-fixture').length, 1, 'The dynamic link is disabled when its disabledWhen is true');
+
+      _emberMetalRun_loop.default(function () {
+        _emberMetalProperty_set.set(appInstance.lookup('controller:index'), 'dynamicDisabledWhen', false);
+      });
+
+      equal(_emberViewsSystemJquery.default('#about-link-dynamic.disabled', '#qunit-fixture').length, 0, 'The dynamic link is re-enabled when its disabledWhen becomes false');
     });
 
     QUnit.test('the {{link-to}} doesn\'t apply a \'disabled\' class if disabledWhen is not provided', function () {
@@ -12104,7 +12110,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
       equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
     });
 
-    QUnit.test('the {{link-to}} helper does not respond to clicks when disabled via a bound param', function () {
+    QUnit.test('the {{link-to}} helper responds to clicks according to its disabledWhen bound param', function () {
       _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}');
 
       Router.map(function () {
@@ -12126,6 +12132,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
       });
 
       equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
+
+      _emberMetalRun_loop.default(function () {
+        _emberMetalProperty_set.set(appInstance.lookup('controller:index'), 'disabledWhen', false);
+      });
+      _emberMetalRun_loop.default(function () {
+        _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+      });
+
+      equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 1, 'Transitioning did occur when disabledWhen became false');
     });
 
     QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
@@ -71206,7 +71221,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+57cf48cf', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+bc78f0c6', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
