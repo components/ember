@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+94b4ccc4
+ * @version   2.6.0-canary+3d4fddec
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -32165,9 +32165,13 @@ enifed('ember-htmlbars/tests/compat/safe_string_test', ['exports', 'ember-htmlba
   QUnit.module('ember-htmlbars: compat - SafeString');
 
   QUnit.test('using new results in a deprecation', function (assert) {
+    var result = undefined;
+
     expectDeprecation(function () {
-      new _emberHtmlbarsCompat.default.SafeString('test');
+      result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
     }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+
+    assert.equal(result.toHTML(), '<b>test</b>');
   });
 });
 enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/core', 'ember-views/components/component', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalCore, _emberViewsComponentsComponent, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
@@ -71646,7 +71650,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+94b4ccc4', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+3d4fddec', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
