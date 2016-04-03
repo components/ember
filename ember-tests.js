@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+e8a65b2d
+ * @version   2.6.0-canary+6f98812a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -23216,11 +23216,10 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
   'use strict';
 
-  var oldWarn, oldRunInDebug, origEnvFeatures, origEnableOptional;
+  var oldWarn, oldRunInDebug, origEnvFeatures, origEnableOptional, features, knownFeatures;
 
   function confirmWarns(expectedMsg) {
     var featuresWereStripped = true;
-    var FEATURES = _emberMetalCore.default.ENV.FEATURES;
 
     _emberMetalDebug.setDebugFunction('warn', function (msg, test) {
       if (!test) {
@@ -23233,11 +23232,11 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     });
 
     // Should trigger our 1 warning
-    _emberDebug._warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
+    _emberDebug._warnIfUsingStrippedFeatureFlags(features, knownFeatures, featuresWereStripped);
 
     // Shouldn't trigger any warnings now that we're "in canary"
     featuresWereStripped = false;
-    _emberDebug._warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
+    _emberDebug._warnIfUsingStrippedFeatureFlags(features, knownFeatures, featuresWereStripped);
   }
 
   QUnit.module('ember-debug - _warnIfUsingStrippedFeatureFlags', {
@@ -23246,6 +23245,12 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
       oldRunInDebug = _emberMetalDebug.getDebugFunction('runInDebug');
       origEnvFeatures = _emberMetalCore.default.ENV.FEATURES;
       origEnableOptional = _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES;
+
+      knownFeatures = {
+        'fred': null,
+        'barney': null,
+        'wilma': null
+      };
     },
 
     teardown: function () {
@@ -23260,19 +23265,30 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     expect(1);
 
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = true;
-    _emberMetalCore.default.ENV.FEATURES = {};
+    features = {};
 
     confirmWarns('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
   });
 
-  QUnit.test('Enabling a FEATURES flag in non-canary, debug build causes a warning', function () {
+  QUnit.test('Enabling a known FEATURE flag in non-canary, debug build causes a warning', function () {
     expect(1);
 
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    _emberMetalCore.default.ENV.FEATURES = {
+    features = {
       'fred': true,
       'barney': false,
       'wilma': null
+    };
+
+    confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+  });
+
+  QUnit.test('Enabling an unknown FEATURE flag in non-canary debug build does not cause a warning', function () {
+    expect(0);
+
+    _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
+    features = {
+      'some-ember-data-feature-flag': true
     };
 
     confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
@@ -71886,7 +71902,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+e8a65b2d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+6f98812a', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
