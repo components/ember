@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.3+9d76c89d
+ * @version   2.4.3+18e001fe
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -21327,7 +21327,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     try {
       _emberRuntimeTestsUtils.runAppend(view);
     } catch (error) {
-      equal(error.message, 'Unsupported Content: Cannot bind to function');
+      ok(error.message.indexOf('Unsupported Content: Cannot bind to function') > -1);
     }
   });
 });
@@ -51042,7 +51042,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.3+9d76c89d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.3+18e001fe', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
