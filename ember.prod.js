@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.3+7c4288b9
+ * @version   2.5.0-beta.3+7feff676
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -6859,7 +6859,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
     Each time the input to a helper changes, the `compute` function will be
     called again.
   
-    As instances, these helpers also have access to the container an will accept
+    As instances, these helpers also have access to the container and will accept
     injected dependencies.
   
     Additionally, class helpers can call `recompute` to force a new computation.
@@ -7372,7 +7372,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'emb
     the `else` helper.
   
     ```handlebars
-    {{!Is it raining outside?}}
+    {{! is it raining outside?}}
     {{#if isRaining}}
       Yes, grab an umbrella!
     {{else}}
@@ -9944,7 +9944,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+7c4288b9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+7feff676';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -15490,7 +15490,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.3+7c4288b9
+    @version 2.5.0-beta.3+7feff676
     @public
   */
 
@@ -15532,11 +15532,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.3+7c4288b9'
+    @default '2.5.0-beta.3+7feff676'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.3+7c4288b9';
+  Ember.VERSION = '2.5.0-beta.3+7feff676';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25461,7 +25461,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         var totalChanged = Object.keys(changed).concat(Object.keys(removed));
         for (var i = 0, len = totalChanged.length; i < len; ++i) {
           var qp = qpMap[totalChanged[i]];
-          if (qp && _emberMetalProperty_get.get(this._optionsForQueryParam(qp), 'refreshModel')) {
+          if (qp && _emberMetalProperty_get.get(this._optionsForQueryParam(qp), 'refreshModel') && this.router.currentState) {
             this.refresh();
           }
         }
@@ -27443,6 +27443,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       var targetRouteName = _targetRouteName || _emberRoutingUtils.getActiveTargetName(this.router);
 
       var queryParams = {};
+      // merge in any queryParams from the active transition which could include
+      // queryparams from the url on initial load.
+      if (this.router.activeTransition) {
+        _emberMetalAssign.default(queryParams, this.router.activeTransition.queryParams);
+      }
+
       _emberMetalAssign.default(queryParams, _queryParams);
       this._prepareQueryParams(targetRouteName, models, queryParams);
 
@@ -28460,7 +28466,8 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   
     ### Event Propagation
   
-    `{{action}}` helpers called in element space can control event bubbling.
+    `{{action}}` helpers called in element space can control event bubbling. Note
+    that the closure style actions cannot.
   
     Events triggered through the action helper will automatically have
     `.preventDefault()` called on them. You do not need to do so in your event
@@ -28478,6 +28485,28 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   
     ```handlebars
     <button {{action 'edit' post bubbles=false}}>Edit</button>
+    ```
+  
+    To disable bubbling with closure style actions you must create your own
+    wrapper helper that makes use of `event.stopPropagation()`:
+  
+    ```handlebars
+    <div onclick={{disable-bubbling (action "sayHello")}}>Hello</div>
+    ```
+  
+    ```js
+    // app/helpers/disable-bubbling.js
+    import Ember from 'ember';
+  
+    export function disableBubbling([action]) {
+      return function(event) {
+        event.stopPropagation();
+  
+        return action(event);
+      };
+    }
+  
+    export default Ember.Helper.helper(disableBubbling);
     ```
   
     If you need the default handler to trigger you should either register your
@@ -28601,6 +28630,9 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           if (!action) {
             throw new _emberMetalError.default('An action named \'' + actionName + '\' was not found in ' + target + '.');
           }
+        } else if (action && typeof action[INVOKE] === 'function') {
+          target = action;
+          action = action[INVOKE];
         } else if (actionType !== 'function') {
           throw new _emberMetalError.default('An action could not be made for `' + rawAction.label + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + rawAction.label + '\')`) or a function available in ' + target + '.');
         }
@@ -29399,7 +29431,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.3+7c4288b9';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.3+7feff676';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29835,7 +29867,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
       var params = _emberMetalProperty_get.get(this, 'params').slice();
 
       var disabledWhen = _emberMetalProperty_get.get(this, 'disabledWhen');
-      if (disabledWhen) {
+      if (disabledWhen !== undefined) {
         this.set('disabled', disabledWhen);
       }
 
@@ -29899,7 +29931,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+7c4288b9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3+7feff676';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -32335,8 +32367,19 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       on the array. Just get an equivalent property on this object and it will
       return an enumerable that maps automatically to the named key on the
       member objects.
-       If you merely want to watch for any items being added or removed to the array,
-      use the `[]` property instead of `@each`.
+       @each should only be used in a non-terminal context. Example:
+       ```javascript
+      myMethod: computed('posts.@each.author', function(){
+        ...
+      });
+      ```
+       If you merely want to watch for the array being changed, like an object being
+      replaced, added or removed, use `[]` instead of `@each`.
+       ```javascript
+      myMethod: computed('posts.[]', function(){
+        ...
+      });
+      ```
        @property @each
       @public
     */
@@ -38886,7 +38929,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.3+7c4288b9',
+        revision: 'Ember@2.5.0-beta.3+7feff676',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39269,6 +39312,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
     @class Component
     @namespace Ember
     @extends Ember.View
+    @uses Ember.ViewTargetActionSupport
     @public
   */
   var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, {
@@ -42953,7 +42997,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.3+7c4288b9';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.3+7feff676';
 
   /**
   @module ember
