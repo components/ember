@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+6d717d90
+ * @version   2.6.0-canary+31e954ae
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4832,7 +4832,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+6d717d90
+    @version 2.6.0-canary+31e954ae
     @public
   */
 
@@ -4874,11 +4874,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+6d717d90'
+    @default '2.6.0-canary+31e954ae'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+6d717d90';
+  Ember.VERSION = '2.6.0-canary+31e954ae';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19617,7 +19617,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
     Array support Ember.MutableArray and all of its dependent APIs. Unless you
     have `Ember.EXTEND_PROTOTYPES` or `Ember.EXTEND_PROTOTYPES.Array` set to
     false, this will be applied automatically. Otherwise you can apply the mixin
-    at anytime by calling `Ember.NativeArray.activate`.
+    at anytime by calling `Ember.NativeArray.apply(Array.prototype)`.
   
     @class NativeArray
     @namespace Ember
