@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+31e954ae
+ * @version   2.6.0-canary+e8a65b2d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4798,7 +4798,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
       }
 
       if (_emberMetal.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT && !warnedAboutLegacyControllerAddon) {
-        _emberMetalDebug.deprecate('Support for the `ember-legacy-controllers` addon will end soon, please remove it from your application.', false, { id: 'ember-legacy-controllers', until: '2.6.0', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
+        _emberMetalDebug.warn('Support for the `ember-legacy-controllers` has been removed, please remove it from your application.', false, { id: 'ember-legacy-controllers', url: 'http://emberjs.com/deprecations/v1.x/#toc_objectcontroller' });
 
         warnedAboutLegacyControllerAddon = true;
       }
@@ -10568,27 +10568,10 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-metal', 'ember-metal
 
   exports.default = bindSelf;
 
-  function bindSelf(env, scope, _self) {
-    var self = _self;
-
-    if (self && self.hasBoundController) {
-      var _self2 = self;
-      var controller = _self2.controller;
-
-      self = self.self;
-
-      if (!!_emberMetal.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT) {
-        scope.bindLocal('controller', newStream(controller || self));
-      }
-    }
-
+  function bindSelf(env, scope, self) {
     if (self && self.isView) {
       if (!!_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
         scope.bindLocal('view', newStream(self, 'view'));
-      }
-
-      if (!!_emberMetal.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT) {
-        scope.bindLocal('controller', newStream(self, '').getKey('controller'));
       }
 
       var _selfStream = newStream(self, '');
@@ -10604,12 +10587,6 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-metal', 'ember-metal
 
     var selfStream = newStream(self, '');
     scope.bindSelf(selfStream);
-
-    if (!!_emberMetal.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT) {
-      if (!scope.hasLocal('controller')) {
-        scope.bindLocal('controller', selfStream);
-      }
-    }
   }
 
   function newStream(newValue, key) {
@@ -10631,20 +10608,9 @@ enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-metal/stream
       return;
     }
 
-    var didOverrideController = false;
-
-    if (parentScope && parentScope.overrideController) {
-      didOverrideController = true;
-      shadowScope.bindLocal('controller', parentScope.getLocal('controller'));
-    }
-
     var view = options.view;
     if (view && !view.isComponent) {
       shadowScope.bindLocal('view', newStream(view, 'view'));
-
-      if (!didOverrideController) {
-        shadowScope.bindLocal('controller', newStream(shadowScope.getLocal('view').getKey('controller')));
-      }
 
       if (view.isView) {
         shadowScope.bindSelf(newStream(shadowScope.getLocal('view').getKey('context'), ''));
@@ -10899,13 +10865,6 @@ enifed('ember-htmlbars/hooks/create-fresh-scope', ['exports', 'ember-metal/strea
       use the component itself as the `this`.
     * If `self` is a view, two special locals are created: `view` and
       `controller`. These locals are legacy semantics.
-    * If self has a `hasBoundController` property, it is coming from
-      a legacy form of #with
-      (`{{#with something controller=someController}}`). This has
-      the special effect of giving the child scope the supplied
-      `controller` keyword, with an unrelated `self`. This is
-      legacy functionality, as both the `view` and `controller`
-      keywords have been deprecated.
   
     **IMPORTANT**: There are two places in Ember where the ambient
     controller is looked up. Both of those places use the presence
@@ -12614,7 +12573,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+31e954ae';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+e8a65b2d';
   }
 
   /**
@@ -17600,7 +17559,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+31e954ae
+    @version 2.6.0-canary+e8a65b2d
     @public
   */
 
@@ -17642,11 +17601,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+31e954ae'
+    @default '2.6.0-canary+e8a65b2d'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+31e954ae';
+  Ember.VERSION = '2.6.0-canary+e8a65b2d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -31347,8 +31306,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         controllerFullName = 'controller:' + controllerName;
       }
 
-      var parentController = _emberMetalStreamsUtils.read(scope.getLocal('controller'));
-      var target = parentController || router;
+      var target = router;
       var controller;
 
       // choose name
@@ -31357,7 +31315,6 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
 
         controller = factory.create({
           model: _emberMetalStreamsUtils.read(context),
-          parentController: parentController,
           target: target
         });
 
@@ -31366,8 +31323,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         controller = owner.lookup(controllerFullName) || _emberRoutingSystemGenerate_controller.default(owner, controllerName);
 
         controller.setProperties({
-          target: target,
-          parentController: parentController
+          target: target
         });
       }
 
@@ -40391,11 +40347,10 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
     _emberMetalDebug.assert('Using `{{' + (path && path.type === 'PathExpression' && path.parts[0]) + '}}` or any path based on it ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc) + 'has been removed in Ember 2.0', (function () {
       var noAssertion = true;
 
+      // allow opt-out of the assertion when legacy addons are present
       var viewKeyword = path && path.type === 'PathExpression' && path.parts && path.parts[0];
       if (viewKeyword === 'view') {
         noAssertion = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
-      } else if (viewKeyword === 'controller') {
-        noAssertion = _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
       }
 
       return noAssertion;
@@ -41322,7 +41277,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+31e954ae',
+            revision: 'Ember@2.6.0-canary+e8a65b2d',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -50755,7 +50710,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+31e954ae
+ * @version   2.6.0-canary+e8a65b2d
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {

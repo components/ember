@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+31e954ae
+ * @version   2.6.0-canary+e8a65b2d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4070,7 +4070,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+31e954ae
+    @version 2.6.0-canary+e8a65b2d
     @public
   */
 
@@ -4112,11 +4112,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+31e954ae'
+    @default '2.6.0-canary+e8a65b2d'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+31e954ae';
+  Ember.VERSION = '2.6.0-canary+e8a65b2d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11837,11 +11837,10 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
     _emberMetalDebug.assert('Using `{{' + (path && path.type === 'PathExpression' && path.parts[0]) + '}}` or any path based on it ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc) + 'has been removed in Ember 2.0', (function () {
       var noAssertion = true;
 
+      // allow opt-out of the assertion when legacy addons are present
       var viewKeyword = path && path.type === 'PathExpression' && path.parts && path.parts[0];
       if (viewKeyword === 'view') {
         noAssertion = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
-      } else if (viewKeyword === 'controller') {
-        noAssertion = _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
       }
 
       return noAssertion;
@@ -12768,7 +12767,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+31e954ae',
+            revision: 'Ember@2.6.0-canary+e8a65b2d',
             loc: program.loc,
             moduleName: options.moduleName
           };
