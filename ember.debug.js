@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.3
+ * @version   2.5.0-beta.4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -6384,7 +6384,8 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   /**
     Define an assertion that will throw an exception if the condition is not
     met. Ember build tools will remove any calls to `Ember.assert()` when
-    doing a production build. Example:
+    doing an Ember.js framework production build and will make the assertion a
+    no-op for an application production build. Example:
   
     ```javascript
     // Test for truthiness
@@ -7460,7 +7461,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
     Each time the input to a helper changes, the `compute` function will be
     called again.
   
-    As instances, these helpers also have access to the container an will accept
+    As instances, these helpers also have access to the container and will accept
     injected dependencies.
   
     Additionally, class helpers can call `recompute` to force a new computation.
@@ -7974,7 +7975,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'emb
     the `else` helper.
   
     ```handlebars
-    {{!Is it raining outside?}}
+    {{! is it raining outside?}}
     {{#if isRaining}}
       Yes, grab an umbrella!
     {{else}}
@@ -10565,7 +10566,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.4';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -12506,7 +12507,10 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/debug', '
       var owner = env.owner;
       if (validateLazyHelperName(name, owner, env.hooks.keywords)) {
         var helperName = 'helper:' + name;
-        if (owner.hasRegistration(helperName, options)) {
+        // See https://github.com/emberjs/ember.js/issues/13071
+        // See https://bugs.chromium.org/p/v8/issues/detail?id=4839
+        var registered = owner.hasRegistration(helperName, options);
+        if (registered) {
           helper = owner._lookupFactory(helperName, options);
           _emberMetalDebug.assert('Expected to find an Ember.Helper with the name ' + helperName + ', but found an object of type ' + typeof helper + ' instead.', helper.isHelperFactory || helper.isHelperInstance);
         }
@@ -15410,7 +15414,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
         this.lastName = 'Jones';
       },
   
-      fullName: Ember.computed({
+      fullName: Ember.computed('firstName', 'lastName', {
         get(key) {
           return `${this.get('firstName')} ${this.get('lastName')}`;
         },
@@ -16198,7 +16202,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.3
+    @version 2.5.0-beta.4
     @public
   */
 
@@ -16240,11 +16244,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.3'
+    @default '2.5.0-beta.4'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.3';
+  Ember.VERSION = '2.5.0-beta.4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -26325,7 +26329,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         var totalChanged = Object.keys(changed).concat(Object.keys(removed));
         for (var i = 0, len = totalChanged.length; i < len; ++i) {
           var qp = qpMap[totalChanged[i]];
-          if (qp && _emberMetalProperty_get.get(this._optionsForQueryParam(qp), 'refreshModel')) {
+          if (qp && _emberMetalProperty_get.get(this._optionsForQueryParam(qp), 'refreshModel') && this.router.currentState) {
             this.refresh();
           }
         }
@@ -28321,6 +28325,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       _emberMetalDebug.assert('The route ' + targetRouteName + ' was not found', targetRouteName && this.router.hasRoute(targetRouteName));
 
       var queryParams = {};
+      // merge in any queryParams from the active transition which could include
+      // queryparams from the url on initial load.
+      if (this.router.activeTransition) {
+        _emberMetalAssign.default(queryParams, this.router.activeTransition.queryParams);
+      }
+
       _emberMetalAssign.default(queryParams, _queryParams);
       this._prepareQueryParams(targetRouteName, models, queryParams);
 
@@ -28412,6 +28422,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
 
     currentState: null,
     targetState: null,
+
+    _resetTargetState: function () {
+      var currentState = this.get('currentState');
+      this.set('targetState', currentState);
+    },
 
     _handleSlowTransition: function (transition, originRoute) {
       if (!this.router.activeTransition) {
@@ -28786,6 +28801,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       if (router._isErrorHandled(errorId)) {
         router._clearHandledError(errorId);
       } else {
+        router._resetTargetState();
         throw error;
       }
     });
@@ -29334,7 +29350,8 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   
     ### Event Propagation
   
-    `{{action}}` helpers called in element space can control event bubbling.
+    `{{action}}` helpers called in element space can control event bubbling. Note
+    that the closure style actions cannot.
   
     Events triggered through the action helper will automatically have
     `.preventDefault()` called on them. You do not need to do so in your event
@@ -29352,6 +29369,28 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   
     ```handlebars
     <button {{action 'edit' post bubbles=false}}>Edit</button>
+    ```
+  
+    To disable bubbling with closure style actions you must create your own
+    wrapper helper that makes use of `event.stopPropagation()`:
+  
+    ```handlebars
+    <div onclick={{disable-bubbling (action "sayHello")}}>Hello</div>
+    ```
+  
+    ```js
+    // app/helpers/disable-bubbling.js
+    import Ember from 'ember';
+  
+    export function disableBubbling([action]) {
+      return function(event) {
+        event.stopPropagation();
+  
+        return action(event);
+      };
+    }
+  
+    export default Ember.Helper.helper(disableBubbling);
     ```
   
     If you need the default handler to trigger you should either register your
@@ -29475,6 +29514,9 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           if (!action) {
             throw new _emberMetalError.default('An action named \'' + actionName + '\' was not found in ' + target + '.');
           }
+        } else if (action && typeof action[INVOKE] === 'function') {
+          target = action;
+          action = action[INVOKE];
         } else if (actionType !== 'function') {
           throw new _emberMetalError.default('An action could not be made for `' + rawAction.label + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + rawAction.label + '\')`) or a function available in ' + target + '.');
         }
@@ -29846,6 +29888,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
       }
 
       var parentController = _emberMetalStreamsUtils.read(scope.getLocal('controller'));
+      var target = parentController || router;
       var controller;
 
       // choose name
@@ -29855,7 +29898,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         controller = factory.create({
           model: _emberMetalStreamsUtils.read(context),
           parentController: parentController,
-          target: parentController
+          target: target
         });
 
         node.addDestruction(controller);
@@ -29863,7 +29906,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         controller = owner.lookup(controllerFullName) || _emberRoutingSystemGenerate_controller.default(owner, controllerName);
 
         controller.setProperties({
-          target: parentController,
+          target: target,
           parentController: parentController
         });
       }
@@ -30283,7 +30326,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.3';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-beta.4';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30722,7 +30765,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
       _emberMetalDebug.assert('You must provide one or more parameters to the link-to component.', params.length);
 
       var disabledWhen = _emberMetalProperty_get.get(this, 'disabledWhen');
-      if (disabledWhen) {
+      if (disabledWhen !== undefined) {
         this.set('disabled', disabledWhen);
       }
 
@@ -30786,7 +30829,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-beta.4';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -33254,8 +33297,19 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       on the array. Just get an equivalent property on this object and it will
       return an enumerable that maps automatically to the named key on the
       member objects.
-       If you merely want to watch for any items being added or removed to the array,
-      use the `[]` property instead of `@each`.
+       @each should only be used in a non-terminal context. Example:
+       ```javascript
+      myMethod: computed('posts.@each.author', function(){
+        ...
+      });
+      ```
+       If you merely want to watch for the array being changed, like an object being
+      replaced, added or removed, use `[]` instead of `@each`.
+       ```javascript
+      myMethod: computed('posts.[]', function(){
+        ...
+      });
+      ```
        @property @each
       @public
     */
@@ -38760,12 +38814,13 @@ enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-
   EmberHandlebars.compile = _emberTemplateCompilerSystemCompile.default;
   EmberHandlebars.template = _emberTemplateCompilerSystemTemplate.default;
 });
-enifed('ember-template-compiler/index', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-unescaped-inline-link-to', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/plugins/assert-no-each-in', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformUnescapedInlineLinkTo, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerPluginsAssertNoEachIn, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler/index', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-unescaped-inline-link-to', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/plugins/assert-no-each-in', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformUnescapedInlineLinkTo, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerPluginsAssertNoEachIn, _emberTemplateCompilerCompat) {
   'use strict';
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformItemClass.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformAngleBracketComponents.default);
@@ -38992,6 +39047,88 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   }
 
   exports.default = TransformAngleBracketComponents;
+});
+enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
+  'use strict';
+
+  function TransformClosureComponentAttrsIntoMut() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (validate(node)) {
+        processExpression(b, node);
+      }
+    });
+
+    return ast;
+  };
+
+  function processExpression(builder, node) {
+    processSubExpressionsInNode(builder, node);
+
+    if (isComponentClosure(node)) {
+      mutParameters(builder, node);
+    }
+  }
+
+  function processSubExpressionsInNode(builder, node) {
+    for (var i = 0; i < node.params.length; i++) {
+      if (node.params[i].type === 'SubExpression') {
+        processExpression(builder, node.params[i]);
+      }
+    }
+
+    each(node.hash.pairs, function (pair) {
+      var value = pair.value;
+
+      if (value.type === 'SubExpression') {
+        processExpression(builder, value);
+      }
+    });
+  }
+
+  function isComponentClosure(node) {
+    return node.type === 'SubExpression' && node.path.original === 'component';
+  }
+
+  function mutParameters(builder, node) {
+    for (var i = 1; i < node.params.length; i++) {
+      if (node.params[i].type === 'PathExpression') {
+        node.params[i] = builder.sexpr(builder.path('@mut'), [node.params[i]]);
+      }
+    }
+
+    each(node.hash.pairs, function (pair) {
+      var value = pair.value;
+
+      if (value.type === 'PathExpression') {
+        pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
+      }
+    });
+  }
+
+  function validate(node) {
+    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
+  }
+
+  function each(list, callback) {
+    for (var i = 0, l = list.length; i < l; i++) {
+      callback(list[i]);
+    }
+  }
+
+  exports.default = TransformClosureComponentAttrsIntoMut;
 });
 enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
   'use strict';
@@ -39785,7 +39922,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.3',
+        revision: 'Ember@2.5.0-beta.4',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41435,6 +41572,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
     @class Component
     @namespace Ember
     @extends Ember.View
+    @uses Ember.ViewTargetActionSupport
     @public
   */
   var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, {
@@ -45206,7 +45344,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.3';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-beta.4';
 
   /**
   @module ember
@@ -47004,21 +47142,20 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     ```
   
     If the return value of an `attributeBindings` monitored property is a boolean
-    the property will follow HTML's pattern of repeating the attribute's name as
-    its value:
+    the property's value will be set as a coerced string:
   
     ```javascript
     MyTextInput = Ember.View.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
-      disabled: true
+      disabled: false
     });
     ```
   
-    Will result in view instances with an HTML representation of:
+    Will result in a view instance with an HTML representation of:
   
     ```html
-    <input id="ember1" class="ember-view" disabled="disabled" />
+    <input id="ember1" class="ember-view" disabled="false" />
     ```
   
     `attributeBindings` can refer to computed properties:
@@ -47034,6 +47171,17 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
           return false;
         }
       })
+    });
+    ```
+  
+    To prevent setting an attribute altogether, use `null` or `undefined` as the
+    return value of the `attributeBindings` monitored property:
+  
+    ```javascript
+    MyTextInput = Ember.View.extend({
+      tagName: 'form',
+      attributeBindings: ['novalidate'],
+      novalidate: null
     });
     ```
   
