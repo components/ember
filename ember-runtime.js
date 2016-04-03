@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.3+aab3a81e
+ * @version   2.4.3+9d76c89d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4087,7 +4087,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
         this.lastName = 'Jones';
       },
   
-      fullName: Ember.computed({
+      fullName: Ember.computed('firstName', 'lastName', {
         get(key) {
           return `${this.get('firstName')} ${this.get('lastName')}`;
         },
@@ -4875,7 +4875,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.3+aab3a81e
+    @version 2.4.3+9d76c89d
     @public
   */
 
@@ -4917,11 +4917,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.3+aab3a81e'
+    @default '2.4.3+9d76c89d'
     @static
     @public
   */
-  Ember.VERSION = '2.4.3+aab3a81e';
+  Ember.VERSION = '2.4.3+9d76c89d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14975,8 +14975,19 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       on the array. Just get an equivalent property on this object and it will
       return an enumerable that maps automatically to the named key on the
       member objects.
-       If you merely want to watch for any items being added or removed to the array,
-      use the `[]` property instead of `@each`.
+       @each should only be used in a non-terminal context. Example:
+       ```javascript
+      myMethod: computed('posts.@each.author', function(){
+        ...
+      });
+      ```
+       If you merely want to watch for the array being changed, like an object being
+      replaced, added or removed, use `[]` instead of `@each`.
+       ```javascript
+      myMethod: computed('posts.[]', function(){
+        ...
+      });
+      ```
        @property @each
       @public
     */

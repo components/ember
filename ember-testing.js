@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.3+aab3a81e
+ * @version   2.4.3+9d76c89d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -314,7 +314,8 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   /**
     Define an assertion that will throw an exception if the condition is not
     met. Ember build tools will remove any calls to `Ember.assert()` when
-    doing a production build. Example:
+    doing an Ember.js framework production build and will make the assertion a
+    no-op for an application production build. Example:
   
     ```javascript
     // Test for truthiness

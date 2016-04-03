@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.3+aab3a81e
+ * @version   2.4.3+9d76c89d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3211,6 +3211,12 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
 
     equal(_emberViewsSystemJquery.default('#about-link-static.disabled', '#qunit-fixture').length, 1, 'The static link is disabled when its disabledWhen is true');
     equal(_emberViewsSystemJquery.default('#about-link-dynamic.disabled', '#qunit-fixture').length, 1, 'The dynamic link is disabled when its disabledWhen is true');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(appInstance.lookup('controller:index'), 'dynamicDisabledWhen', false);
+    });
+
+    equal(_emberViewsSystemJquery.default('#about-link-dynamic.disabled', '#qunit-fixture').length, 0, 'The dynamic link is re-enabled when its disabledWhen becomes false');
   });
 
   QUnit.test('the {{link-to}} doesn\'t apply a \'disabled\' class if disabledWhen is not provided', function () {
@@ -3285,7 +3291,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
   });
 
-  QUnit.test('the {{link-to}} helper does not respond to clicks when disabled via a bound param', function () {
+  QUnit.test('the {{link-to}} helper responds to clicks according to its disabledWhen bound param', function () {
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}');
 
     Router.map(function () {
@@ -3307,6 +3313,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     });
 
     equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(appInstance.lookup('controller:index'), 'disabledWhen', false);
+    });
+    _emberMetalRun_loop.default(function () {
+      _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+    });
+
+    equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 1, 'Transitioning did occur when disabledWhen became false');
   });
 
   QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
@@ -6125,6 +6140,35 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
     }
   });
 
+  QUnit.test('Calling transitionTo does not lose query params already on the activeTransition', function () {
+    expect(2);
+    App.Router.map(function () {
+      this.route('parent', function () {
+        this.route('child');
+        this.route('sibling');
+      });
+    });
+
+    App.ParentChildRoute = _emberRoutingSystemRoute.default.extend({
+      afterModel: function () {
+        ok(true, 'The after model hook was called');
+        this.transitionTo('parent.sibling');
+      }
+    });
+
+    App.ParentController = _emberRuntimeControllersController.default.extend({
+      queryParams: ['foo'],
+      foo: 'bar'
+    });
+
+    startingURL = '/parent/child?foo=lol';
+    bootApplication();
+
+    var parentController = container.lookup('controller:parent');
+
+    equal(parentController.get('foo'), 'lol');
+  });
+
   QUnit.test('Single query params can be set on the controller [DEPRECATED]', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -6537,6 +6581,33 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
 
     equal(appModelCount, 1);
     equal(indexModelCount, 2);
+  });
+
+  QUnit.test('refreshModel does not cause a second transition during app boot ', function () {
+    expect(0);
+    App.ApplicationController = _emberRuntimeControllersController.default.extend({
+      queryParams: ['appomg'],
+      appomg: 'applol'
+    });
+
+    App.IndexController = _emberRuntimeControllersController.default.extend({
+      queryParams: ['omg'],
+      omg: 'lol'
+    });
+
+    App.IndexRoute = _emberRoutingSystemRoute.default.extend({
+      queryParams: {
+        omg: {
+          refreshModel: true
+        }
+      },
+      refresh: function () {
+        ok(false);
+      }
+    });
+
+    startingURL = '/?appomg=hello&omg=world';
+    bootApplication();
   });
 
   QUnit.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
@@ -14363,7 +14434,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var component = undefined,
@@ -14783,6 +14854,133 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is a param', function (assert) {
+    var _Component$extend24;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    var ChangeButton = _emberViewsComponentsComponent.default.extend().reopenClass({
+      positionalParams: ['val']
+    });
+
+    owner.register('component:change-button', ChangeButton);
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "change-button" val2)}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend24 = {}, _Component$extend24[_containerOwner.OWNER] = owner, _Component$extend24.template = template, _Component$extend24)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is in a nested param', function (assert) {
+    var _Component$extend25;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    var ChangeButton = _emberViewsComponentsComponent.default.extend().reopenClass({
+      positionalParams: ['val']
+    });
+
+    owner.register('component:change-button', ChangeButton);
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    owner.register('component:my-comp', _emberViewsComponentsComponent.default.extend().reopenClass({
+      positionalParams: ['components']
+    }));
+    owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component components.comp}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{my-comp (hash comp=(component "change-button" val2))}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend25 = {}, _Component$extend25[_containerOwner.OWNER] = owner, _Component$extend25.template = template, _Component$extend25)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is a hash value', function (assert) {
+    var _Component$extend26;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component component}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{my-comp component=(component "change-button" val=val2)}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend26 = {}, _Component$extend26[_containerOwner.OWNER] = owner, _Component$extend26.template = template, _Component$extend26)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
+  });
+
+  QUnit.test('parameters in a closure are mutable when closure is a nested hash value', function (assert) {
+    var _Component$extend27;
+
+    var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+    dispatcher.setup();
+
+    owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
+
+    owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component components.button}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{my-comp components=(hash button=(component "change-button" val=val2))}}<span class="value">{{val2}}</span>');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend27 = {}, _Component$extend27[_containerOwner.OWNER] = owner, _Component$extend27.template = template, _Component$extend27)).create({
+      val2: 8
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    assert.equal(component.$('.value').text(), '8', 'initial state is right');
+
+    _emberMetalRun_loop.default(function () {
+      return component.$('.my-button').click();
+    });
+
+    assert.equal(component.$('.value').text(), '10', 'Value gets updated');
+
+    _emberRuntimeTestsUtils.runDestroy(dispatcher);
   });
 });
 enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray) {
@@ -35328,7 +35526,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var innerComponent, outerComponent, originalViewKeyword;
@@ -35833,6 +36031,39 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
           assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
         }
       }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    innerComponent.fireAction();
+  });
+
+  QUnit.test('objects that define INVOKE can be casted to actions', function (assert) {
+    assert.expect(2);
+
+    innerComponent = _emberViewsComponentsComponent.default.extend({
+      fireAction: function () {
+        assert.equal(this.attrs.submit(4, 5, 6), 123);
+      }
+    }).create();
+
+    outerComponent = _emberViewsComponentsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
+      innerComponent: innerComponent,
+      foo: 123,
+      submitTask: _emberMetalComputed.computed(function () {
+        var _ref,
+            _this = this;
+
+        return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          assert.deepEqual(args, [1, 2, 3, 4, 5, 6]);
+          return _this.foo;
+        }, _ref;
+      })
     }).create();
 
     _emberRuntimeTestsUtils.runAppend(outerComponent);
@@ -50811,7 +51042,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.3+aab3a81e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.3+9d76c89d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
