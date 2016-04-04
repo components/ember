@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+31a8d689
+ * @version   2.6.0-canary+12460024
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4832,7 +4832,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+31a8d689
+    @version 2.6.0-canary+12460024
     @public
   */
 
@@ -4874,11 +4874,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+31a8d689'
+    @default '2.6.0-canary+12460024'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+31a8d689';
+  Ember.VERSION = '2.6.0-canary+12460024';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14887,7 +14887,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   on the array. Just get an equivalent property on this object and it will
   return an enumerable that maps automatically to the named key on the
   member objects.
-   @each should only be used in a non-terminal context. Example:
+   `@each` should only be used in a non-terminal context. Example:
    ```javascript
   myMethod: computed('posts.@each.author', function(){
     ...
