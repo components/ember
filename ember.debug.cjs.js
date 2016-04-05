@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+12460024
+ * @version   2.6.0-canary+272a989f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12579,7 +12579,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+12460024';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+272a989f';
   }
 
   /**
@@ -16232,10 +16232,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
 
   var DEEP_EACH_REGEX = /\.@each\.[^.]+\./;
 
-  // ..........................................................
-  // COMPUTED PROPERTY
-  //
-
   /**
     A computed property transforms an object literal with object's accessor function(s) into a property.
   
@@ -16338,7 +16334,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
   
     @class ComputedProperty
     @namespace Ember
-    @constructor
     @public
   */
   function ComputedProperty(config, opts) {
@@ -16497,7 +16492,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     @chainable
     @public
   */
-
   ComputedPropertyPrototype.meta = function (meta) {
     if (arguments.length === 0) {
       return this._meta || {};
@@ -16528,33 +16522,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     }
   };
 
-  /**
-    Access the value of the function backing the computed property.
-    If this property has already been cached, return the cached result.
-    Otherwise, call the function passing the property name as an argument.
-  
-    ```javascript
-    let Person = Ember.Object.extend({
-      fullName: Ember.computed('firstName', 'lastName', function(keyName) {
-        // the keyName parameter is 'fullName' in this case.
-        return this.get('firstName') + ' ' + this.get('lastName');
-      })
-    });
-  
-  
-    let tom = Person.create({
-      firstName: 'Tom',
-      lastName: 'Dale'
-    });
-  
-    tom.get('fullName') // 'Tom Dale'
-    ```
-  
-    @method get
-    @param {String} keyName The key being accessed.
-    @return {Object} The return value of the function backing the CP.
-    @public
-  */
   ComputedPropertyPrototype.get = function (obj, keyName) {
     if (this._volatile) {
       return this._getter.call(obj, keyName);
@@ -16586,54 +16553,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     return ret;
   };
 
-  /**
-    Set the value of a computed property. If the function that backs your
-    computed property does not accept arguments then the default action for
-    setting would be to define the property on the current object, and set
-    the value of the property to the value being set.
-  
-    Generally speaking if you intend for your computed property to be set
-    you should pass `set(key, value)` function in hash as argument to `Ember.computed()` along with `get(key)` function.
-  
-    ```javascript
-    let Person = Ember.Object.extend({
-      // these will be supplied by `create`
-      firstName: null,
-      lastName: null,
-  
-      fullName: Ember.computed('firstName', 'lastName', {
-        // getter
-        get() {
-          let firstName = this.get('firstName');
-          let lastName = this.get('lastName');
-  
-          return firstName + ' ' + lastName;
-        },
-        // setter
-        set(key, value) {
-          let [firstName, lastName] = value.split(' ');
-  
-          this.set('firstName', firstName);
-          this.set('lastName', lastName);
-  
-          return value;
-        }
-      })
-    });
-  
-    let person = Person.create();
-  
-    person.set('fullName', 'Peter Wagenet');
-    person.get('firstName'); // 'Peter'
-    person.get('lastName');  // 'Wagenet'
-    ```
-  
-    @method set
-    @param {String} keyName The key being accessed.
-    @param {Object} newValue The new value being assigned.
-    @return {Object} The return value of the function backing the CP.
-    @public
-  */
   ComputedPropertyPrototype.set = function computedPropertySetEntry(obj, keyName, value) {
     if (this._readOnly) {
       this._throwReadOnlyError(obj, keyName);
@@ -17565,7 +17484,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+12460024
+    @version 2.6.0-canary+272a989f
     @public
   */
 
@@ -17607,11 +17526,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+12460024'
+    @default '2.6.0-canary+272a989f'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+12460024';
+  Ember.VERSION = '2.6.0-canary+272a989f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -41285,7 +41204,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
         options.buildMeta = function buildMeta(program) {
           return {
             fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+12460024',
+            revision: 'Ember@2.6.0-canary+272a989f',
             loc: program.loc,
             moduleName: options.moduleName
           };
@@ -50718,7 +50637,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+12460024
+ * @version   2.6.0-canary+272a989f
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
