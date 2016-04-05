@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+272a989f
+ * @version   2.6.0-canary+9301fbfa
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25265,8 +25265,106 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+    _class.prototype['@test it can yield internal and external properties positionally'] = function testItCanYieldInternalAndExternalPropertiesPositionally() {
       var _this24 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+        greeting: 'hello'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{yield greeting greetee.firstName}}' });
+
+      this.render('{{#foo-bar greetee=person as |greeting name|}}{{name}} {{person.lastName}}, {{greeting}}{{/foo-bar}}', {
+        person: {
+          firstName: 'Joel',
+          lastName: 'Kang'
+        }
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
+
+      this.runTask(function () {
+        return _this24.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this24.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'greeting', 'hola');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hola' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(instance, 'greeting', 'hello');
+        _emberMetalProperty_set.set(_this24.context, 'person', {
+          firstName: 'Joel',
+          lastName: 'Kang'
+        });
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
+    };
+
+    _class.prototype['@test #11519 - block param infinite loop'] = function test11519BlockParamInfiniteLoop() {
+      var _this25 = this;
+
+      var instance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+        danger: 0
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{danger}}{{yield danger}}' });
+
+      // On initial render, create streams. The bug will not have manifested yet, but at this point
+      // we have created streams that create a circular invalidation.
+      this.render('{{#foo-bar as |dangerBlockParam|}}{{/foo-bar}}');
+
+      this.assertText('0');
+
+      // Trigger a non-revalidating re-render. The yielded block will not be dirtied
+      // nor will block param streams, and thus no infinite loop will occur.
+      this.runTask(function () {
+        return _this25.rerender();
+      });
+
+      this.assertText('0');
+
+      // Trigger a revalidation, which will cause an infinite loop without the fix
+      // in place.  Note that we do not see the infinite loop is in testing mode,
+      // because a deprecation warning about re-renders is issued, which Ember
+      // treats as an exception.
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'danger', 1);
+      });
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'danger', 0);
+      });
+
+      this.assertText('0');
+    };
+
+    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+      var _this26 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -25291,13 +25389,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this26.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this26.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -25305,23 +25403,23 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this24.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this24.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this26.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this24.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     _class.prototype['@test should escape HTML in normal mustaches'] = function testShouldEscapeHTMLInNormalMustaches() {
-      var _this25 = this;
+      var _this27 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -25339,7 +25437,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('you need to be more <b>bold</b>');
 
       this.runTask(function () {
-        return _this25.rerender();
+        return _this27.rerender();
       });
 
       this.assertText('you need to be more <b>bold</b>');
@@ -25356,7 +25454,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars should not escape HTML in triple mustaches'] = function htmlbarsShouldNotEscapeHTMLInTripleMustaches(assert) {
-      var _this26 = this;
+      var _this28 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -25376,7 +25474,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this28.rerender();
       });
 
       assert.strictEqual(this.firstChild.childNodes.length, 4);
@@ -25401,7 +25499,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars should not escape HTML if string is a htmlSafe'] = function htmlbarsShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
-      var _this27 = this;
+      var _this29 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -25421,7 +25519,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
 
       this.runTask(function () {
-        return _this27.rerender();
+        return _this29.rerender();
       });
 
       assert.strictEqual(this.firstChild.childNodes.length, 4);
@@ -29379,14 +29477,18 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     return _class4;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
+enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    '], ['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_TogglingSyntaxConditionalsTest) {
     _inherits(_class, _TogglingSyntaxConditionalsTest);
@@ -29779,6 +29881,51 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
       });
 
       this.assertText('Los Pivots');
+    };
+
+    _class3.prototype['@test nested {{#with}} blocks should have access to root context'] = function testNestedWithBlocksShouldHaveAccessToRootContext() {
+      var _this11 = this;
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
+        name: 'ebryn',
+        committer1: { name: 'trek' },
+        committer2: { name: 'machty' }
+      });
+
+      this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'name', 'chancancode');
+      });
+
+      this.assertText('chancancode[trek[machty]trek]chancancode[machty[trek]machty]chancancode');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'committer1', { name: 'krisselden' });
+      });
+
+      this.assertText('chancancode[krisselden[machty]krisselden]chancancode[machty[krisselden]machty]chancancode');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this11.context, 'committer1.name', 'wycats');
+        _emberMetalProperty_set.set(_this11.context, 'committer2', { name: 'rwjblue' });
+      });
+
+      this.assertText('chancancode[wycats[rwjblue]wycats]chancancode[rwjblue[wycats]rwjblue]chancancode');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this11.context, 'name', 'ebryn');
+        _emberMetalProperty_set.set(_this11.context, 'committer1', { name: 'trek' });
+        _emberMetalProperty_set.set(_this11.context, 'committer2', { name: 'machty' });
+      });
+
+      this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
     };
 
     return _class3;
@@ -36880,123 +37027,6 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     });
   }
 });
-enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'ember-metal/run_loop', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var owner, view;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('ember-htmlbars: block params', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.registerOptionsForType('component', { singleton: false });
-        owner.registerOptionsForType('view', { singleton: false });
-        owner.registerOptionsForType('template', { instantiate: false });
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(view);
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        owner = view = null;
-      }
-    });
-
-    QUnit.test('should raise error if helper not available', function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#shouldfail}}{{/shouldfail}}')
-      });
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, 'A helper named \'shouldfail\' could not be found');
-    });
-
-    QUnit.test('basic block params usage', function () {
-      view = _emberViewsViewsView.default.create({
-        committer: { name: 'rwjblue' },
-        template: _emberTemplateCompilerSystemCompile.default('{{#with view.committer.name as |name|}}name: {{name}}, length: {{name.length}}{{/with}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'name: rwjblue, length: 7');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('committer.name', 'krisselden');
-      });
-
-      equal(view.$().text(), 'name: krisselden, length: 10');
-    });
-
-    QUnit.test('nested block params shadow correctly', function () {
-      view = _emberViewsViewsView.default.create({
-        context: { name: 'ebryn' },
-        committer1: { name: 'trek' },
-        committer2: { name: 'machty' },
-        template: _emberTemplateCompilerSystemCompile.default('{{name}}' + '{{#with view.committer1.name as |name|}}' + '[{{name}}' + '{{#with view.committer2.name as |name|}}' + '[{{name}}]' + '{{/with}}' + '{{name}}]' + '{{/with}}' + '{{name}}' + '{{#with view.committer2.name as |name|}}' + '[{{name}}' + '{{#with view.committer1.name as |name|}}' + '[{{name}}]' + '{{/with}}' + '{{name}}]' + '{{/with}}' + '{{name}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
-    });
-
-    QUnit.test('components can yield values', function () {
-      var _View$create;
-
-      owner.register('template:components/x-alias', _emberTemplateCompilerSystemCompile.default('{{yield attrs.param.name}}'));
-
-      view = _emberViewsViewsView.default.create((_View$create = {}, _View$create[_containerOwner.OWNER] = owner, _View$create.context = { name: 'ebryn' }, _View$create.committer1 = { name: 'trek' }, _View$create.committer2 = { name: 'machty' }, _View$create.template = _emberTemplateCompilerSystemCompile.default('{{name}}' + '{{#x-alias param=view.committer1 as |name|}}' + '[{{name}}' + '{{#x-alias param=view.committer2 as |name|}}' + '[{{name}}]' + '{{/x-alias}}' + '{{name}}]' + '{{/x-alias}}' + '{{name}}' + '{{#x-alias param=view.committer2 as |name|}}' + '[{{name}}' + '{{#x-alias param=view.committer1 as |name|}}' + '[{{name}}]' + '{{/x-alias}}' + '{{name}}]' + '{{/x-alias}}' + '{{name}}'), _View$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('committer1', { name: 'wycats' });
-      });
-
-      equal(view.$().text(), 'ebryn[wycats[machty]wycats]ebryn[machty[wycats]machty]ebryn');
-    });
-
-    QUnit.test('#11519 - block param infinite loop', function (assert) {
-      var _View$create2;
-
-      // To trigger this case, a component must 1) consume a KeyStream and then yield that KeyStream
-      // into a parent light scope.
-      owner.register('template:components/block-with-yield', _emberTemplateCompilerSystemCompile.default('{{danger}} {{yield danger}}'));
-
-      var component;
-      owner.register('component:block-with-yield', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          component = this;
-          return this._super.apply(this, arguments);
-        },
-
-        danger: 0
-      }));
-
-      view = _emberViewsViewsView.default.create((_View$create2 = {}, _View$create2[_containerOwner.OWNER] = owner, _View$create2.template = _emberTemplateCompilerSystemCompile.default('{{#block-with-yield as |dangerBlockParam|}} {{/block-with-yield}}'), _View$create2));
-
-      // On initial render, create streams. The bug will not have manifested yet, but at this point
-      // we have created streams that create a circular invalidation.
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      // Trigger a revalidation, which will cause an infinite loop without the fix
-      // in place.  Note that we do not see the infinite loop is in testing mode,
-      // because a deprecation warning about re-renders is issued, which Ember
-      // treats as an exception.
-      _emberMetalRun_loop.default(function () {
-        component.set('danger', 1);
-      });
-
-      assert.equal(view.$().text().trim(), '1');
-    });
-  }
-});
 enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
@@ -39018,8 +39048,106 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+    _class.prototype['@test it can yield internal and external properties positionally'] = function testItCanYieldInternalAndExternalPropertiesPositionally() {
       var _this24 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+        greeting: 'hello'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{yield greeting greetee.firstName}}' });
+
+      this.render('{{#foo-bar greetee=person as |greeting name|}}{{name}} {{person.lastName}}, {{greeting}}{{/foo-bar}}', {
+        person: {
+          firstName: 'Joel',
+          lastName: 'Kang'
+        }
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
+
+      this.runTask(function () {
+        return _this24.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this24.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'greeting', 'hola');
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hola' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(instance, 'greeting', 'hello');
+        _emberMetalProperty_set.set(_this24.context, 'person', {
+          firstName: 'Joel',
+          lastName: 'Kang'
+        });
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
+    };
+
+    _class.prototype['@test #11519 - block param infinite loop'] = function test11519BlockParamInfiniteLoop() {
+      var _this25 = this;
+
+      var instance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+        danger: 0
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{danger}}{{yield danger}}' });
+
+      // On initial render, create streams. The bug will not have manifested yet, but at this point
+      // we have created streams that create a circular invalidation.
+      this.render('{{#foo-bar as |dangerBlockParam|}}{{/foo-bar}}');
+
+      this.assertText('0');
+
+      // Trigger a non-revalidating re-render. The yielded block will not be dirtied
+      // nor will block param streams, and thus no infinite loop will occur.
+      this.runTask(function () {
+        return _this25.rerender();
+      });
+
+      this.assertText('0');
+
+      // Trigger a revalidation, which will cause an infinite loop without the fix
+      // in place.  Note that we do not see the infinite loop is in testing mode,
+      // because a deprecation warning about re-renders is issued, which Ember
+      // treats as an exception.
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'danger', 1);
+      });
+
+      this.assertText('1');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'danger', 0);
+      });
+
+      this.assertText('0');
+    };
+
+    _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
+      var _this26 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -39044,13 +39172,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this26.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this26.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -39058,23 +39186,23 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this24.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this24.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this26.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this24.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this26.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     _class.prototype['@test should escape HTML in normal mustaches'] = function testShouldEscapeHTMLInNormalMustaches() {
-      var _this25 = this;
+      var _this27 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -39092,7 +39220,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('you need to be more <b>bold</b>');
 
       this.runTask(function () {
-        return _this25.rerender();
+        return _this27.rerender();
       });
 
       this.assertText('you need to be more <b>bold</b>');
@@ -39109,7 +39237,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars should not escape HTML in triple mustaches'] = function htmlbarsShouldNotEscapeHTMLInTripleMustaches(assert) {
-      var _this26 = this;
+      var _this28 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -39129,7 +39257,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this28.rerender();
       });
 
       assert.strictEqual(this.firstChild.childNodes.length, 4);
@@ -39154,7 +39282,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars should not escape HTML if string is a htmlSafe'] = function htmlbarsShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
-      var _this27 = this;
+      var _this29 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -39174,7 +39302,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
 
       this.runTask(function () {
-        return _this27.rerender();
+        return _this29.rerender();
       });
 
       assert.strictEqual(this.firstChild.childNodes.length, 4);
@@ -43935,14 +44063,18 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     return _class4;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
+enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    '], ['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_TogglingSyntaxConditionalsTest) {
     _inherits(_class, _TogglingSyntaxConditionalsTest);
@@ -44335,6 +44467,51 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
       });
 
       this.assertText('Los Pivots');
+    };
+
+    _class3.prototype['@test nested {{#with}} blocks should have access to root context'] = function testNestedWithBlocksShouldHaveAccessToRootContext() {
+      var _this11 = this;
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
+        name: 'ebryn',
+        committer1: { name: 'trek' },
+        committer2: { name: 'machty' }
+      });
+
+      this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'name', 'chancancode');
+      });
+
+      this.assertText('chancancode[trek[machty]trek]chancancode[machty[trek]machty]chancancode');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'committer1', { name: 'krisselden' });
+      });
+
+      this.assertText('chancancode[krisselden[machty]krisselden]chancancode[machty[krisselden]machty]chancancode');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this11.context, 'committer1.name', 'wycats');
+        _emberMetalProperty_set.set(_this11.context, 'committer2', { name: 'rwjblue' });
+      });
+
+      this.assertText('chancancode[wycats[rwjblue]wycats]chancancode[rwjblue[wycats]rwjblue]chancancode');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this11.context, 'name', 'ebryn');
+        _emberMetalProperty_set.set(_this11.context, 'committer1', { name: 'trek' });
+        _emberMetalProperty_set.set(_this11.context, 'committer2', { name: 'machty' });
+      });
+
+      this.assertText('ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
     };
 
     return _class3;
@@ -71902,7 +72079,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+272a989f', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+9301fbfa', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
