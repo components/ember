@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+9301fbfa
+ * @version   2.6.0-canary+63d62798
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -11921,7 +11921,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+9301fbfa';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+63d62798';
   }
 
   /**
@@ -16736,7 +16736,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+9301fbfa
+    @version 2.6.0-canary+63d62798
     @public
   */
 
@@ -16778,11 +16778,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+9301fbfa'
+    @default '2.6.0-canary+63d62798'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+9301fbfa';
+  Ember.VERSION = '2.6.0-canary+63d62798';
 
   /**
     The hash of environment variables used to control various configuration
@@ -40113,7 +40113,7 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-metal/featur
         throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
       }
 
-      return _emberTemplateCompilerSystemTemplate.default(compile(templateString, options));
+      return _emberTemplateCompilerSystemTemplate.default(compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options)));
     } else {
       if (!compile && _require.has('htmlbars-compiler/compiler')) {
         compile = _require.default('htmlbars-compiler/compiler').compile;
@@ -40129,7 +40129,7 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-metal/featur
     }
   };
 });
-enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/features', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalFeatures, _emberMetalAssign, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalAssign, _emberTemplateCompilerPlugins) {
   /**
   @module ember
   @submodule ember-template-compiler
@@ -40138,109 +40138,104 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
   'use strict';
 
   var compileOptions = undefined;
+  var fragmentReason = undefined;
 
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    (function () {
-      var fragmentReason = undefined;
+  /**
+    @private
+    @property compileOptions
+  */
+  compileOptions = function (_options) {
+    var disableComponentGeneration = true;
 
-      /**
-        @private
-        @property compileOptions
-      */
-      compileOptions = function (_options) {
-        var disableComponentGeneration = true;
+    var options = undefined;
+    // When calling `Ember.Handlebars.compile()` a second argument of `true`
+    // had a special meaning (long since lost), this just gaurds against
+    // `options` being true, and causing an error during compilation.
+    if (_options === true) {
+      options = {};
+    } else {
+      options = _emberMetalAssign.default({}, _options);
+    }
 
-        var options = undefined;
-        // When calling `Ember.Handlebars.compile()` a second argument of `true`
-        // had a special meaning (long since lost), this just gaurds against
-        // `options` being true, and causing an error during compilation.
-        if (_options === true) {
-          options = {};
-        } else {
-          options = _emberMetalAssign.default({}, _options);
-        }
+    options.disableComponentGeneration = disableComponentGeneration;
 
-        options.disableComponentGeneration = disableComponentGeneration;
+    var plugins = {
+      ast: _emberTemplateCompilerPlugins.default.ast.slice()
+    };
 
-        var plugins = {
-          ast: _emberTemplateCompilerPlugins.default.ast.slice()
-        };
+    if (options.plugins && options.plugins.ast) {
+      plugins.ast = plugins.ast.concat(options.plugins.ast);
+    }
+    options.plugins = plugins;
 
-        if (options.plugins && options.plugins.ast) {
-          plugins.ast = plugins.ast.concat(options.plugins.ast);
-        }
-        options.plugins = plugins;
-
-        options.buildMeta = function buildMeta(program) {
-          return {
-            fragmentReason: fragmentReason(program),
-            revision: 'Ember@2.6.0-canary+9301fbfa',
-            loc: program.loc,
-            moduleName: options.moduleName
-          };
-        };
-
-        return options;
+    options.buildMeta = function buildMeta(program) {
+      return {
+        fragmentReason: fragmentReason(program),
+        revision: 'Ember@2.6.0-canary+63d62798',
+        loc: program.loc,
+        moduleName: options.moduleName
       };
+    };
 
-      fragmentReason = function (program) {
-        var loc = program.loc;
-        var body = program.body;
+    return options;
+  };
 
-        if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
-          return false;
-        }
+  fragmentReason = function (program) {
+    var loc = program.loc;
+    var body = program.body;
 
-        var candidate = undefined;
-        var nodeCount = 0;
+    if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
+      return false;
+    }
 
-        var problems = {};
+    var candidate = undefined;
+    var nodeCount = 0;
 
-        for (var i = 0, l = body.length; i < l; i++) {
-          var curr = body[i];
+    var problems = {};
 
-          // text node with whitespace only
-          if (curr.type === 'TextNode' && /^[\s]*$/.test(curr.chars)) {
-            continue;
-          }
+    for (var i = 0, l = body.length; i < l; i++) {
+      var curr = body[i];
 
-          // has multiple root elements if we've been here before
-          if (nodeCount++ > 0) {
-            problems['multiple-nodes'] = true;
-          }
+      // text node with whitespace only
+      if (curr.type === 'TextNode' && /^[\s]*$/.test(curr.chars)) {
+        continue;
+      }
 
-          if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
-            candidate = curr;
-          } else {
-            problems['wrong-type'] = true;
-          }
-        }
+      // has multiple root elements if we've been here before
+      if (nodeCount++ > 0) {
+        problems['multiple-nodes'] = true;
+      }
 
-        if (nodeCount === 0) {
-          return { name: 'missing-wrapper', problems: ['empty-body'] };
-        }
+      if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
+        candidate = curr;
+      } else {
+        problems['wrong-type'] = true;
+      }
+    }
 
-        var problemList = Object.keys(problems);
-        if (problemList.length) {
-          return { name: 'missing-wrapper', problems: problemList };
-        }
+    if (nodeCount === 0) {
+      return { name: 'missing-wrapper', problems: ['empty-body'] };
+    }
 
-        if (candidate.type === 'ComponentNode') {
-          return false;
-        } else if (candidate.modifiers.length) {
-          return { name: 'modifiers', modifiers: candidate.modifiers.map(function (m) {
-              return m.path.original;
-            }) };
-        } else if (candidate.attributes.some(function (attr) {
-          return !attr.value.escaped;
-        })) {
-          return { name: 'triple-curlies' };
-        } else {
-          return false;
-        }
-      };
-    })();
-  }
+    var problemList = Object.keys(problems);
+    if (problemList.length) {
+      return { name: 'missing-wrapper', problems: problemList };
+    }
+
+    if (candidate.type === 'ComponentNode') {
+      return false;
+    } else if (candidate.modifiers.length) {
+      return { name: 'modifiers', modifiers: candidate.modifiers.map(function (m) {
+          return m.path.original;
+        }) };
+    } else if (candidate.attributes.some(function (attr) {
+      return !attr.value.escaped;
+    })) {
+      return { name: 'triple-curlies' };
+    } else {
+      return false;
+    }
+  };
 
   exports.default = compileOptions;
 });
@@ -40275,7 +40270,7 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/fea
         throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
       }
 
-      return JSON.stringify(compileSpec(templateString, options));
+      return JSON.stringify(compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options)));
     } else {
       if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
         compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
@@ -48241,7 +48236,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+9301fbfa
+ * @version   2.6.0-canary+63d62798
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {

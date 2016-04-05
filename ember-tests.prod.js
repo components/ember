@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+9301fbfa
+ * @version   2.6.0-canary+63d62798
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -71552,7 +71552,7 @@ enifed('ember-template-compiler/tests/plugins_test', ['exports', 'ember-template
     });
   }
 });
-enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile_options', 'ember-metal/features'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile_options, _emberMetalFeatures) {
+enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile_options'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile_options) {
   'use strict';
 
   function comparePlugins(options) {
@@ -71564,45 +71564,41 @@ enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 
     deepEqual(results.plugins.ast, expectedPlugins);
   }
 
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
+  QUnit.module('ember-htmlbars: compile_options');
 
-    QUnit.module('ember-htmlbars: compile_options');
-
-    QUnit.test('repeated function calls should be able to have separate plugins', function () {
-      comparePlugins({
-        plugins: {
-          ast: ['foo', 'bar']
-        }
-      });
-
-      comparePlugins({
-        plugins: {
-          ast: ['baz', 'qux']
-        }
-      });
+  QUnit.test('repeated function calls should be able to have separate plugins', function () {
+    comparePlugins({
+      plugins: {
+        ast: ['foo', 'bar']
+      }
     });
 
-    QUnit.test('options is not required', function () {
-      var results = _emberTemplateCompilerSystemCompile_options.default();
+    comparePlugins({
+      plugins: {
+        ast: ['baz', 'qux']
+      }
+    });
+  });
 
-      deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  QUnit.test('options is not required', function () {
+    var results = _emberTemplateCompilerSystemCompile_options.default();
+
+    deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  });
+
+  QUnit.test('options.plugins is not required', function () {
+    var results = _emberTemplateCompilerSystemCompile_options.default({});
+
+    deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  });
+
+  QUnit.test('options.plugins.ast is not required', function () {
+    var results = _emberTemplateCompilerSystemCompile_options.default({
+      plugins: {}
     });
 
-    QUnit.test('options.plugins is not required', function () {
-      var results = _emberTemplateCompilerSystemCompile_options.default({});
-
-      deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
-    });
-
-    QUnit.test('options.plugins.ast is not required', function () {
-      var results = _emberTemplateCompilerSystemCompile_options.default({
-        plugins: {}
-      });
-
-      deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
-    });
-  }
+    deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  });
 });
 enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-template-compiler/system/compile', 'htmlbars-compiler/compiler', 'ember-metal/features'], function (exports, _emberTemplateCompilerSystemCompile, _htmlbarsCompilerCompiler, _emberMetalFeatures) {
   'use strict';
@@ -71635,7 +71631,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+9301fbfa', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+63d62798', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
