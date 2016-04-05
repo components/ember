@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+bdb81c40
+ * @version   2.6.0-canary+603d1d15
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10919,41 +10919,6 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
       assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
     });
-
-    QUnit.test('with an aborted transition', function () {
-      expect(6);
-
-      Router.map(function () {
-        this.route('about');
-      });
-
-      App.AboutRoute = _emberRoutingSystemRoute.default.extend({
-        beforeModel: function (transition) {
-          aboutDefer = _emberRuntimeExtRsvp.default.defer();
-          return aboutDefer.promise.then(function () {
-            transition.abort();
-          });
-        }
-      });
-
-      _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('\n    {{link-to \'About\' \'about\' id=\'about-link\'}}\n  ');
-
-      bootApplication();
-
-      var $about = _emberViewsSystemJquery.default('#about-link');
-
-      _emberMetalRun_loop.default($about, 'click');
-
-      assertHasClass('active', $about, false);
-      assertHasClass('ember-transitioning-in', $about, true);
-      assertHasClass('ember-transitioning-out', $about, false);
-
-      _emberMetalRun_loop.default(aboutDefer, 'resolve');
-
-      assertHasClass('active', $about, false);
-      assertHasClass('ember-transitioning-in', $about, false);
-      assertHasClass('ember-transitioning-out', $about, false);
-    });
   }
 });
 enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location) {
@@ -13464,6 +13429,30 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
       });
 
       equal(link.attr('href'), '/bar/one/two/three');
+    });
+
+    QUnit.test('GJ: {{link-to}} to a parent root model hook which performs a `transitionTo` has correct active class #13256', function () {
+      expect(1);
+
+      Router.map(function () {
+        this.route('parent', function () {
+          this.route('child');
+        });
+      });
+
+      App.ParentRoute = _emberRoutingSystemRoute.default.extend({
+        afterModel: function (transition) {
+          this.transitionTo('parent.child');
+        }
+      });
+
+      _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('\n    {{link-to \'Parent\' \'parent\' id=\'parent-link\'}}\n  ');
+
+      bootApplication();
+
+      _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#parent-link'), 'click');
+
+      shouldBeActive('#parent-link');
     });
   }
 });
@@ -71966,7 +71955,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+bdb81c40', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+603d1d15', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
