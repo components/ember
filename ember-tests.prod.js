@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+603d1d15
+ * @version   2.6.0-canary+ff1e96c6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -27601,6 +27601,446 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-views/views/text_field', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberViewsViewsText_field, _emberViewsComponentsComponent) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{get}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test should be able to get an object value with a static key'] = function testShouldBeAbleToGetAnObjectValueWithAStaticKey() {
+      var _this = this;
+
+      this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
+        colors: { apple: 'red', banana: 'yellow' }
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'colors', {
+          apple: 'green', banana: 'purple'
+        });
+      });
+
+      this.assertText('[green] [green]');
+    };
+
+    _class.prototype['@test should be able to get an object value with nested static key'] = function testShouldBeAbleToGetAnObjectValueWithNestedStaticKey() {
+      var _this2 = this;
+
+      this.render('[{{get colors "apple.gala"}}] [{{if true (get colors "apple.gala")}}]', {
+        colors: { apple: { gala: 'red and yellow' }, banana: 'yellow' }
+      });
+
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'colors', {
+          apple: { gala: 'yellow and red striped' }, banana: 'purple'
+        });
+      });
+
+      this.assertText('[yellow and red striped] [yellow and red striped]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'colors.apple.gala', 'yellow-redish');
+      });
+
+      this.assertText('[yellow-redish] [yellow-redish]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithABoundDynamicKey() {
+      var _this3 = this;
+
+      this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
+        colors: { apple: 'red', banana: 'yellow' },
+        key: 'apple'
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'key', 'banana');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'colors', {
+          apple: 'green',
+          banana: 'purple'
+        });
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'key', 'apple');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'colors.apple', 'red');
+      });
+      this.assertText('[red] [red]');
+    };
+
+    _class.prototype['@test should be able to get an object value with nested dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithNestedDynamicKey() {
+      var _this4 = this;
+
+      this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
+        colors: {
+          apple: {
+            gala: 'red and yellow',
+            mcintosh: 'red'
+          },
+          banana: 'yellow'
+        },
+        key: 'apple.gala'
+      });
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'key', 'apple.mcintosh');
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'key', 'banana');
+      });
+      this.assertText('[yellow] [yellow]');
+    };
+
+    _class.prototype['@test should be able to get an object value with subexpression returning nested key'] = function testShouldBeAbleToGetAnObjectValueWithSubexpressionReturningNestedKey() {
+      var _this5 = this;
+
+      this.render('[{{get colors (concat \'apple\' \'.\' \'gala\')}}] [{{if true (get colors (concat \'apple\' \'.\' \'gala\'))}}]', {
+        colors: {
+          apple: {
+            gala: 'red and yellow',
+            mcintosh: 'red'
+          },
+          banana: 'yellow'
+        },
+        key: 'apple.gala'
+      });
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
+      });
+      this.assertText('[yellow and red striped] [yellow and red striped]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'colors.apple.gala', 'yellow-redish');
+      });
+      this.assertText('[yellow-redish] [yellow-redish]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a GetStream key'] = function testShouldBeAbleToGetAnObjectValueWithAGetStreamKey() {
+      var _this6 = this;
+
+      this.render('[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]', {
+        colors: { apple: 'red', banana: 'yellow' },
+        key: 'key1',
+        possibleKeys: { key1: 'apple', key2: 'banana' }
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'key', 'key2');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'colors', { apple: 'green', banana: 'purple' });
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'key', 'key1');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'colors.apple', 'red');
+      });
+      this.assertText('[red] [red]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a GetStream value and bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithAGetStreamValueAndBoundDynamicKey() {
+      var _this7 = this;
+
+      this.render('[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]', {
+        possibleValues: {
+          colors1: { apple: 'red', banana: 'yellow' },
+          colors2: { apple: 'green', banana: 'purple' }
+        },
+        objectKey: 'colors1',
+        key: 'apple'
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'key', 'banana');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[yellow] [yellow]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a GetStream value and GetStream key'] = function testShouldBeAbleToGetAnObjectValueWithAGetStreamValueAndGetStreamKey() {
+      var _this8 = this;
+
+      this.render('[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]', {
+        possibleValues: {
+          colors1: { apple: 'red', banana: 'yellow' },
+          colors2: { apple: 'green', banana: 'purple' }
+        },
+        objectKey: 'colors1',
+        possibleKeys: {
+          key1: 'apple',
+          key2: 'banana'
+        },
+        key: 'key1'
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'key', 'key2');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[yellow] [yellow]');
+    };
+
+    _class.prototype['@test should yield `get`'] = function testShouldYieldGet() {
+      var _this9 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+          this.mcintosh = 'red';
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (get colors mcintosh)}}'
+      });
+
+      this.render('{{#foo-bar colors=colors as |value|}}{{value}}{{/foo-bar}}', {
+        colors: {
+          red: 'banana'
+        }
+      });
+
+      this.assertText('banana');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+      this.assertText('banana');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'mcintosh', 'yellow');
+        _emberMetalProperty_set.set(_this9.context, 'colors', { yellow: 'bus' });
+      });
+      this.assertText('bus');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'mcintosh', 'red');
+        _emberMetalProperty_set.set(_this9.context, 'colors', { red: 'banana' });
+      });
+      this.assertText('banana');
+    };
+
+    _class.prototype['@htmlbars should handle object values as nulls'] = function htmlbarsShouldHandleObjectValuesAsNulls() {
+      var _this10 = this;
+
+      this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
+        colors: null
+      });
+      this.assertText('[] []');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'colors', { apple: 'green', banana: 'purple' });
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'colors', null);
+      });
+      this.assertText('[] []');
+    };
+
+    _class.prototype['@htmlbars should handle object values and keys as nulls'] = function htmlbarsShouldHandleObjectValuesAndKeysAsNulls() {
+      this.render('[{{get colors \'apple\'}}] [{{if true (get colors key)}}]', {
+        colors: null,
+        key: null
+      });
+      this.assertText('[] []');
+    };
+
+    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey() {
+      var _this11 = this;
+
+      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: _emberRuntimeSystemObject.default.create({
+          banana: 'banana'
+        }),
+        key: 'banana'
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'source.banana', 'yellow');
+      });
+      this.assert.strictEqual(this.$('#get-input').val(), 'yellow');
+
+      this.runTask(function () {
+        _this11.$('#get-input').val('some value');
+
+        // have tried to fire _elementValueDidChange via events but no luck
+        // so looks like the only option is to call _elementValueDidChange manually
+        // which I suspect doesn't seem to work for glimmer once it's implemented
+        //
+        // this.$('#get-input').trigger('input');
+        // this.$('#get-input').trigger('paste');
+        // this.$('#get-input').trigger('change');
+        // this.$('#get-input').triggerHandler('input');
+        _this11.component.childViews[0]._elementValueDidChange();
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'some value');
+      this.assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'some value');
+    };
+
+    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey() {
+      var _this12 = this;
+
+      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: _emberRuntimeSystemObject.default.create({
+          apple: {
+            mcintosh: 'mcintosh'
+          }
+        }),
+        key: 'apple.mcintosh'
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'source.apple.mcintosh', 'red');
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'red');
+
+      this.runTask(function () {
+        _this12.$('#get-input').val('some value');
+        _this12.component.childViews[0]._elementValueDidChange();
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'some value');
+      this.assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.mcintosh'), 'some value');
+    };
+
+    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - static key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey() {
+      var _this13 = this;
+
+      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+
+      this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
+        source: _emberRuntimeSystemObject.default.create({
+          banana: 'banana'
+        }),
+        key: 'banana'
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'context.source.banana', 'yellow');
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'yellow');
+
+      this.runTask(function () {
+        _this13.$('#get-input').val('some value');
+        _this13.component.childViews[0]._elementValueDidChange();
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'some value');
+      this.assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'some value');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsComponentsComponent) {
   'use strict';
 
@@ -34050,492 +34490,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   }
 });
 // Ember.lookup;
-enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/component_lookup', 'ember-views/views/text_field', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponent_lookup, _emberViewsViewsText_field, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var view, owner;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('ember-htmlbars: {{get}} helper', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.register('component:-text-field', _emberViewsViewsText_field.default);
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-        owner.registerOptionsForType('template', { instantiate: false });
-      },
-      teardown: function () {
-        _emberMetalRun_loop.default(function () {
-          _emberMetalCore.default.TEMPLATES = {};
-        });
-        _emberRuntimeTestsUtils.runDestroy(view);
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        owner = view = null;
-      }
-    });
-
-    QUnit.test('should be able to get an object value with a static key', function () {
-      var context = {
-        colors: { apple: 'red', banana: 'yellow' }
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple\'}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', { apple: 'green', banana: 'purple' });
-      });
-
-      equal(view.$().text(), '[green] [green]', 'should return \'green\' for {{get colors \'apple\'}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors.apple', 'red');
-      });
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple\'}}');
-    });
-
-    QUnit.test('should be able to get an object value with nested static key', function () {
-      var context = {
-        colors: { apple: { gala: 'red and yellow' }, banana: 'yellow' }
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors "apple.gala"}}] [{{if true (get colors "apple.gala")}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
-      });
-
-      equal(view.$().text(), '[yellow and red striped] [yellow and red striped]', 'should return \'yellow and red striped\' for {{get colors \'apple.gala\'}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors.apple.gala', 'yellow-redish');
-      });
-
-      equal(view.$().text(), '[yellow-redish] [yellow-redish]', 'should return \'yellow-redish\' for {{get colors \'apple.gala\'}}');
-    });
-
-    QUnit.test('should be able to get an object value with a bound/dynamic key', function () {
-      var context = {
-        colors: { apple: 'red', banana: 'yellow' },
-        key: 'apple'
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors key}}] [{{if true (get colors key)}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors key}}  (key = \'apple\')');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'banana');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'red\' for {{get colors key}} (key = \'banana\')');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', { apple: 'green', banana: 'purple' });
-      });
-
-      equal(view.$().text(), '[purple] [purple]', 'should return \'purple\' for {{get colors key}} (key = \'banana\')');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'apple');
-      });
-
-      equal(view.$().text(), '[green] [green]', 'should return \'green\' for {{get colors key}} (key = \'apple\')');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors.apple', 'red');
-      });
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors key}}  (key = \'apple\')');
-    });
-
-    QUnit.test('should be able to get an object value with nested dynamic key', function () {
-      var context = {
-        colors: { apple: { gala: 'red and yellow', mcintosh: 'red' }, banana: 'yellow' },
-        key: 'apple.gala'
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors key}}] [{{if true (get colors key)}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'apple.mcintosh');
-      });
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple.mcintosh\'}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'banana');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\' for {{get colors \'banana\'}}');
-    });
-
-    QUnit.test('should be able to get an object value with subexpression returning nested key', function () {
-      var context = {
-        colors: { apple: { gala: 'red and yellow', mcintosh: 'red' }, banana: 'yellow' }
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors (concat \'apple\' \'.\' \'gala\')}}] [{{if true (get colors (concat \'apple\' \'.\' \'gala\'))}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
-      });
-
-      equal(view.$().text(), '[yellow and red striped] [yellow and red striped]', 'should return \'yellow and red striped\' for {{get colors \'apple.gala\'}}');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors.apple.gala', 'yellow-redish');
-      });
-
-      equal(view.$().text(), '[yellow-redish] [yellow-redish]', 'should return \'yellow-redish\' for {{get colors \'apple.gala\'}}');
-    });
-
-    QUnit.test('should be able to get an object value with a GetStream key', function () {
-      var context = {
-        colors: { apple: 'red', banana: 'yellow' },
-        key: 'key1',
-        possibleKeys: { key1: 'apple', key2: 'banana' }
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'key2');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'red\' for {{get colors key}} (key = \'banana\')');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', { apple: 'green', banana: 'purple' });
-      });
-
-      equal(view.$().text(), '[purple] [purple]', 'should return \'purple\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'key1');
-      });
-
-      equal(view.$().text(), '[green] [green]', 'should return \'green\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors.apple', 'red');
-      });
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\'');
-    });
-
-    QUnit.test('should be able to get an object value with a GetStream value and bound/dynamic key', function () {
-      var context = {
-        possibleValues: {
-          colors1: { apple: 'red', banana: 'yellow' },
-          colors2: { apple: 'green', banana: 'purple' }
-        },
-        objectKey: 'colors1',
-        key: 'apple'
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors2');
-      });
-
-      equal(view.$().text(), '[green] [green]', 'should return \'green\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors1');
-      });
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'banana');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors2');
-      });
-
-      equal(view.$().text(), '[purple] [purple]', 'should return \'purple\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors1');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\'');
-    });
-
-    QUnit.test('should be able to get an object value with a GetStream value and GetStream key', function () {
-      var context = {
-        possibleValues: {
-          colors1: { apple: 'red', banana: 'yellow' },
-          colors2: { apple: 'green', banana: 'purple' }
-        },
-        objectKey: 'colors1',
-        possibleKeys: {
-          key1: 'apple',
-          key2: 'banana'
-        },
-        key: 'key1'
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors2');
-      });
-
-      equal(view.$().text(), '[green] [green]', 'should return \'green\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors1');
-      });
-
-      equal(view.$().text(), '[red] [red]', 'should return \'red\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'key2');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors2');
-      });
-
-      equal(view.$().text(), '[purple] [purple]', 'should return \'purple\'');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.objectKey', 'colors1');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\'');
-    });
-
-    QUnit.test('should handle object values as nulls', function () {
-      var context = {
-        colors: null
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[] []', 'should return \'\' for {{get colors \'apple\'}} (colors = null)');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', { apple: 'green', banana: 'purple' });
-      });
-
-      equal(view.$().text(), '[green] [green]', 'should return \'green\' for {{get colors \'apple\'}} (colors = { apple: \'green\', banana: \'purple\' })');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.colors', null);
-      });
-
-      equal(view.$().text(), '[] []', 'should return \'\' for {{get colors \'apple\'}} (colors = null)');
-    });
-
-    QUnit.test('should handle object keys as nulls', function () {
-      var context = {
-        colors: { apple: 'red', banana: 'yellow' },
-        key: null
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors key}}] [{{if true (get colors key)}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[] []', 'should return \'\' for {{get colors key}}  (key = null)');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', 'banana');
-      });
-
-      equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\' for {{get colors key}} (key = \'banana\')');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.key', null);
-      });
-
-      equal(view.$().text(), '[] []', 'should return \'\' for {{get colors key}}  (key = null)');
-    });
-
-    QUnit.test('should handle object values and keys as nulls', function () {
-      var context = {
-        colors: null,
-        key: null
-      };
-
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: _emberTemplateCompilerSystemCompile.default('[{{get colors key}}] [{{if true (get colors key)}}]')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), '[] []', 'should return \'\' for {{get colors key}}  (colors=null, key = null)');
-    });
-
-    QUnit.test('get helper value should be updatable using {{input}} and (mut) - dynamic key', function () {
-      var _EmberView$create;
-
-      var context = {
-        source: _emberRuntimeSystemObject.default.create({
-          banana: 'banana'
-        }),
-        key: 'banana'
-      };
-
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.context = context, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}'), _EmberView$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#get-input').val(), 'banana');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.source.banana', 'yellow');
-      });
-
-      equal(view.$('#get-input').val(), 'yellow');
-
-      _emberMetalRun_loop.default(function () {
-        view.$('#get-input').val('some value');
-        view.childViews[0]._elementValueDidChange();
-      });
-
-      equal(view.$('#get-input').val(), 'some value');
-      equal(view.get('context.source.banana'), 'some value');
-    });
-
-    QUnit.test('get helper value should be updatable using {{input}} and (mut) - dynamic nested key', function () {
-      var _EmberView$create2;
-
-      var context = {
-        source: _emberRuntimeSystemObject.default.create({
-          apple: {
-            mcintosh: 'mcintosh'
-          }
-        }),
-        key: 'apple.mcintosh'
-      };
-
-      view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.context = context, _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}'), _EmberView$create2));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#get-input').val(), 'mcintosh');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.source.apple.mcintosh', 'red');
-      });
-
-      equal(view.$('#get-input').val(), 'red');
-
-      _emberMetalRun_loop.default(function () {
-        view.$('#get-input').val('some value');
-        view.childViews[0]._elementValueDidChange();
-      });
-
-      equal(view.$('#get-input').val(), 'some value');
-      equal(view.get('context.source.apple.mcintosh'), 'some value');
-    });
-
-    QUnit.test('get helper value should be updatable using {{input}} and (mut) - static key', function () {
-      var _EmberView$create3;
-
-      var context = {
-        source: _emberRuntimeSystemObject.default.create({
-          banana: 'banana'
-        }),
-        key: 'banana'
-      };
-
-      view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.context = context, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}'), _EmberView$create3));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#get-input').val(), 'banana');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('context.source.banana', 'yellow');
-      });
-
-      equal(view.$('#get-input').val(), 'yellow');
-
-      _emberMetalRun_loop.default(function () {
-        view.$('#get-input').val('some value');
-        view.childViews[0]._elementValueDidChange();
-      });
-
-      equal(view.$('#get-input').val(), 'some value');
-      equal(view.get('context.source.banana'), 'some value');
-    });
-  }
-});
 enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
@@ -41586,6 +41540,446 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       _emberRuntimeTestsUtils.runDestroy(this.component);
 
       equal(destroyCount, 1, 'destroy is called after a view is destroyed');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-views/views/text_field', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberViewsViewsText_field, _emberViewsComponentsComponent) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{get}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test should be able to get an object value with a static key'] = function testShouldBeAbleToGetAnObjectValueWithAStaticKey() {
+      var _this = this;
+
+      this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
+        colors: { apple: 'red', banana: 'yellow' }
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'colors', {
+          apple: 'green', banana: 'purple'
+        });
+      });
+
+      this.assertText('[green] [green]');
+    };
+
+    _class.prototype['@test should be able to get an object value with nested static key'] = function testShouldBeAbleToGetAnObjectValueWithNestedStaticKey() {
+      var _this2 = this;
+
+      this.render('[{{get colors "apple.gala"}}] [{{if true (get colors "apple.gala")}}]', {
+        colors: { apple: { gala: 'red and yellow' }, banana: 'yellow' }
+      });
+
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'colors', {
+          apple: { gala: 'yellow and red striped' }, banana: 'purple'
+        });
+      });
+
+      this.assertText('[yellow and red striped] [yellow and red striped]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'colors.apple.gala', 'yellow-redish');
+      });
+
+      this.assertText('[yellow-redish] [yellow-redish]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithABoundDynamicKey() {
+      var _this3 = this;
+
+      this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
+        colors: { apple: 'red', banana: 'yellow' },
+        key: 'apple'
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'key', 'banana');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'colors', {
+          apple: 'green',
+          banana: 'purple'
+        });
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'key', 'apple');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'colors.apple', 'red');
+      });
+      this.assertText('[red] [red]');
+    };
+
+    _class.prototype['@test should be able to get an object value with nested dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithNestedDynamicKey() {
+      var _this4 = this;
+
+      this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
+        colors: {
+          apple: {
+            gala: 'red and yellow',
+            mcintosh: 'red'
+          },
+          banana: 'yellow'
+        },
+        key: 'apple.gala'
+      });
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'key', 'apple.mcintosh');
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'key', 'banana');
+      });
+      this.assertText('[yellow] [yellow]');
+    };
+
+    _class.prototype['@test should be able to get an object value with subexpression returning nested key'] = function testShouldBeAbleToGetAnObjectValueWithSubexpressionReturningNestedKey() {
+      var _this5 = this;
+
+      this.render('[{{get colors (concat \'apple\' \'.\' \'gala\')}}] [{{if true (get colors (concat \'apple\' \'.\' \'gala\'))}}]', {
+        colors: {
+          apple: {
+            gala: 'red and yellow',
+            mcintosh: 'red'
+          },
+          banana: 'yellow'
+        },
+        key: 'apple.gala'
+      });
+      this.assertText('[red and yellow] [red and yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
+      });
+      this.assertText('[yellow and red striped] [yellow and red striped]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'colors.apple.gala', 'yellow-redish');
+      });
+      this.assertText('[yellow-redish] [yellow-redish]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a GetStream key'] = function testShouldBeAbleToGetAnObjectValueWithAGetStreamKey() {
+      var _this6 = this;
+
+      this.render('[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]', {
+        colors: { apple: 'red', banana: 'yellow' },
+        key: 'key1',
+        possibleKeys: { key1: 'apple', key2: 'banana' }
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'key', 'key2');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'colors', { apple: 'green', banana: 'purple' });
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'key', 'key1');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'colors.apple', 'red');
+      });
+      this.assertText('[red] [red]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a GetStream value and bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithAGetStreamValueAndBoundDynamicKey() {
+      var _this7 = this;
+
+      this.render('[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]', {
+        possibleValues: {
+          colors1: { apple: 'red', banana: 'yellow' },
+          colors2: { apple: 'green', banana: 'purple' }
+        },
+        objectKey: 'colors1',
+        key: 'apple'
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'key', 'banana');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[yellow] [yellow]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a GetStream value and GetStream key'] = function testShouldBeAbleToGetAnObjectValueWithAGetStreamValueAndGetStreamKey() {
+      var _this8 = this;
+
+      this.render('[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]', {
+        possibleValues: {
+          colors1: { apple: 'red', banana: 'yellow' },
+          colors2: { apple: 'green', banana: 'purple' }
+        },
+        objectKey: 'colors1',
+        possibleKeys: {
+          key1: 'apple',
+          key2: 'banana'
+        },
+        key: 'key1'
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'key', 'key2');
+      });
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors2');
+      });
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'objectKey', 'colors1');
+      });
+      this.assertText('[yellow] [yellow]');
+    };
+
+    _class.prototype['@test should yield `get`'] = function testShouldYieldGet() {
+      var _this9 = this;
+
+      var fooBarInstance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        init: function () {
+          this._super();
+          fooBarInstance = this;
+          this.mcintosh = 'red';
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: '{{yield (get colors mcintosh)}}'
+      });
+
+      this.render('{{#foo-bar colors=colors as |value|}}{{value}}{{/foo-bar}}', {
+        colors: {
+          red: 'banana'
+        }
+      });
+
+      this.assertText('banana');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+      this.assertText('banana');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'mcintosh', 'yellow');
+        _emberMetalProperty_set.set(_this9.context, 'colors', { yellow: 'bus' });
+      });
+      this.assertText('bus');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(fooBarInstance, 'mcintosh', 'red');
+        _emberMetalProperty_set.set(_this9.context, 'colors', { red: 'banana' });
+      });
+      this.assertText('banana');
+    };
+
+    _class.prototype['@htmlbars should handle object values as nulls'] = function htmlbarsShouldHandleObjectValuesAsNulls() {
+      var _this10 = this;
+
+      this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
+        colors: null
+      });
+      this.assertText('[] []');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'colors', { apple: 'green', banana: 'purple' });
+      });
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'colors', null);
+      });
+      this.assertText('[] []');
+    };
+
+    _class.prototype['@htmlbars should handle object values and keys as nulls'] = function htmlbarsShouldHandleObjectValuesAndKeysAsNulls() {
+      this.render('[{{get colors \'apple\'}}] [{{if true (get colors key)}}]', {
+        colors: null,
+        key: null
+      });
+      this.assertText('[] []');
+    };
+
+    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey() {
+      var _this11 = this;
+
+      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: _emberRuntimeSystemObject.default.create({
+          banana: 'banana'
+        }),
+        key: 'banana'
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'source.banana', 'yellow');
+      });
+      this.assert.strictEqual(this.$('#get-input').val(), 'yellow');
+
+      this.runTask(function () {
+        _this11.$('#get-input').val('some value');
+
+        // have tried to fire _elementValueDidChange via events but no luck
+        // so looks like the only option is to call _elementValueDidChange manually
+        // which I suspect doesn't seem to work for glimmer once it's implemented
+        //
+        // this.$('#get-input').trigger('input');
+        // this.$('#get-input').trigger('paste');
+        // this.$('#get-input').trigger('change');
+        // this.$('#get-input').triggerHandler('input');
+        _this11.component.childViews[0]._elementValueDidChange();
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'some value');
+      this.assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'some value');
+    };
+
+    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey() {
+      var _this12 = this;
+
+      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: _emberRuntimeSystemObject.default.create({
+          apple: {
+            mcintosh: 'mcintosh'
+          }
+        }),
+        key: 'apple.mcintosh'
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'source.apple.mcintosh', 'red');
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'red');
+
+      this.runTask(function () {
+        _this12.$('#get-input').val('some value');
+        _this12.component.childViews[0]._elementValueDidChange();
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'some value');
+      this.assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.mcintosh'), 'some value');
+    };
+
+    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - static key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey() {
+      var _this13 = this;
+
+      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+
+      this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
+        source: _emberRuntimeSystemObject.default.create({
+          banana: 'banana'
+        }),
+        key: 'banana'
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this13.context, 'context.source.banana', 'yellow');
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'yellow');
+
+      this.runTask(function () {
+        _this13.$('#get-input').val('some value');
+        _this13.component.childViews[0]._elementValueDidChange();
+      });
+
+      this.assert.strictEqual(this.$('#get-input').val(), 'some value');
+      this.assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'some value');
     };
 
     return _class;
@@ -71955,7 +72349,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+603d1d15', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+ff1e96c6', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
