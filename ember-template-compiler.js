@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+ff1e96c6
+ * @version   2.6.0-canary+6dbfcbb8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3993,7 +3993,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+ff1e96c6
+    @version 2.6.0-canary+6dbfcbb8
     @public
   */
 
@@ -4035,11 +4035,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+ff1e96c6'
+    @default '2.6.0-canary+6dbfcbb8'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+ff1e96c6';
+  Ember.VERSION = '2.6.0-canary+6dbfcbb8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8216,9 +8216,9 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Ember.defineProperty(contact, 'lastName', undefined, 'Jolley');
   
     // define a computed property
-    Ember.defineProperty(contact, 'fullName', Ember.computed(function() {
+    Ember.defineProperty(contact, 'fullName', Ember.computed('firstName', 'lastName', function() {
       return this.firstName+' '+this.lastName;
-    }).property('firstName', 'lastName'));
+    }));
     ```
   
     @private
@@ -12689,7 +12689,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+ff1e96c6',
+        revision: 'Ember@2.6.0-canary+6dbfcbb8',
         loc: program.loc,
         moduleName: options.moduleName
       };
