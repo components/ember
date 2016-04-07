@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+56b06c4c
+ * @version   2.6.0-canary+8908d5d6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -59197,7 +59197,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper should render given template with a supplied model', function () {
-      var _Controller$create, _EmberView$create6;
+      var _Controller$create;
 
       var template = '<h1>HI</h1>{{render \'post\' post}}';
       var post = {
@@ -59210,7 +59210,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
       var controller = Controller.create((_Controller$create = {}, _Controller$create[_containerOwner.OWNER] = appInstance, _Controller$create));
 
-      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create6));
+      expectDeprecation(function () {
+        var _EmberView$create6;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create6));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var postController;
       var PostController = _emberRuntimeControllersController.default.extend({
@@ -59235,7 +59239,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper with a supplied model should not fire observers on the controller', function () {
-      var _EmberController$create, _EmberView$create7;
+      var _EmberController$create;
 
       var template = '<h1>HI</h1>{{render \'post\' post}}';
       var post = {
@@ -59243,7 +59247,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       };
       var controller = _emberRuntimeControllersController.default.create((_EmberController$create = {}, _EmberController$create[_containerOwner.OWNER] = appInstance, _EmberController$create.post = post, _EmberController$create));
 
-      view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
+      expectDeprecation(function () {
+        var _EmberView$create7;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var PostController = _emberRuntimeControllersController.default.extend({
         modelDidChange: _emberMetalMixin.observer('model', function () {
@@ -59361,7 +59369,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper should render templates with models multiple times', function () {
-      var _Controller$create6, _EmberView$create12;
+      var _Controller$create6;
 
       var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
       var post1 = {
@@ -59378,7 +59386,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
       var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
 
-      view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
+      expectDeprecation(function () {
+        var _EmberView$create12;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var postController1, postController2;
       var PostController = _emberRuntimeControllersController.default.extend({
@@ -59408,7 +59420,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper should not leak controllers', function () {
-      var _Controller$create7, _EmberView$create13;
+      var _Controller$create7;
 
       var template = '<h1>HI</h1> {{render \'post\' post1}}';
       var post1 = {
@@ -59421,7 +59433,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
       var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
 
-      view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
+      expectDeprecation(function () {
+        var _EmberView$create13;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var postController;
       var PostController = _emberRuntimeControllersController.default.extend({
@@ -59442,13 +59458,17 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
-      var _EmberController$create2, _EmberView$create14;
+      var _EmberController$create2;
 
       var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
 
       var controller = _emberRuntimeControllersController.default.create((_EmberController$create2 = {}, _EmberController$create2[_containerOwner.OWNER] = appInstance, _EmberController$create2.zero = false, _EmberController$create2));
 
-      view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
+      expectDeprecation(function () {
+        var _EmberView$create14;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var postController1, postController2;
       var PostController = _emberRuntimeControllersController.default.extend({
@@ -59473,7 +59493,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper should render templates both with and without models', function () {
-      var _Controller$create8, _EmberView$create15;
+      var _Controller$create8;
 
       var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
       var post = {
@@ -59486,7 +59506,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
       var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
 
-      view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = controller, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
+      expectDeprecation(function () {
+        var _EmberView$create15;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = controller, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var postController1, postController2;
       var PostController = _emberRuntimeControllersController.default.extend({
@@ -59663,15 +59687,17 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
 
     QUnit.test('{{render}} helper should set router as target when parentController is not found', function () {
-      var _EmberView$create20;
-
-      expect(2);
+      expect(3);
 
       _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
 
       var template = '{{render \'post\' post1}}';
 
-      view = _emberViewsViewsView.default.create((_EmberView$create20 = {}, _EmberView$create20[_containerOwner.OWNER] = appInstance, _EmberView$create20.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create20));
+      expectDeprecation(function () {
+        var _EmberView$create20;
+
+        view = _emberViewsViewsView.default.create((_EmberView$create20 = {}, _EmberView$create20[_containerOwner.OWNER] = appInstance, _EmberView$create20.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create20));
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       var postController = undefined;
       var PostController = _emberRuntimeControllersController.default.extend({
@@ -72178,6 +72204,27 @@ enifed('ember-template-compiler/tests/plugins/assert-no-each-in-test', ['exports
     });
   }
 });
+enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['exports', 'ember-template-compiler', 'ember-metal/features'], function (exports, _emberTemplateCompiler, _emberMetalFeatures) {
+  'use strict';
+
+  if (!_emberMetalFeatures.default('ember-glimmer')) {
+    // jscs:disable
+
+    QUnit.module('ember-template-compiler: deprecate-model-render');
+
+    QUnit.test('Using `{{render` with model provides a deprecation', function () {
+      expect(1);
+
+      var expectedMessage = 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ';
+
+      expectDeprecation(function () {
+        _emberTemplateCompiler.compile('{{render "foo-bar" coolModel}}', {
+          moduleName: 'baz/foo-bar'
+        });
+      }, expectedMessage);
+    });
+  }
+});
 enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler', 'ember-metal/features'], function (exports, _emberTemplateCompiler, _emberMetalFeatures) {
   'use strict';
 
@@ -72349,7 +72396,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+56b06c4c', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+8908d5d6', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
