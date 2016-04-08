@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+47af7a27
+ * @version   2.6.0-canary+be701b86
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12676,7 +12676,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+47af7a27';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+be701b86';
   }
 
   /**
@@ -17579,7 +17579,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+47af7a27
+    @version 2.6.0-canary+be701b86
     @public
   */
 
@@ -17621,11 +17621,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+47af7a27'
+    @default '2.6.0-canary+be701b86'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+47af7a27';
+  Ember.VERSION = '2.6.0-canary+be701b86';
 
   /**
     The hash of environment variables used to control various configuration
@@ -26349,17 +26349,20 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       @return url {String}
     */
     getURL: function () {
-      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
       var location = _emberMetalProperty_get.get(this, 'location');
       var path = location.pathname;
+
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
       var baseURL = _emberMetalProperty_get.get(this, 'baseURL');
 
+      // remove trailing slashes if they exists
       rootURL = rootURL.replace(/\/$/, '');
       baseURL = baseURL.replace(/\/$/, '');
 
+      // remove baseURL and rootURL from path
       var url = path.replace(baseURL, '').replace(rootURL, '');
-      var search = location.search || '';
 
+      var search = location.search || '';
       url += search;
       url += this.getHash();
 
@@ -26483,9 +26486,12 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       var baseURL = _emberMetalProperty_get.get(this, 'baseURL');
 
       if (url !== '') {
+        // remove trailing slashes if they exists
         rootURL = rootURL.replace(/\/$/, '');
         baseURL = baseURL.replace(/\/$/, '');
       } else if (baseURL.match(/^\//) && rootURL.match(/^\//)) {
+        // if baseURL and rootURL both start with a slash
+        // ... remove trailing slash from baseURL if it exists
         baseURL = baseURL.replace(/\/$/, '');
       }
 
@@ -41345,7 +41351,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+47af7a27',
+        revision: 'Ember@2.6.0-canary+be701b86',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -50876,7 +50882,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+47af7a27
+ * @version   2.6.0-canary+be701b86
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed("glimmer-reference/index", ["exports", "glimmer-reference/lib/references/descriptors", "glimmer-reference/lib/references/forked", "glimmer-reference/lib/meta", "glimmer-reference/lib/object", "glimmer-reference/lib/references/push-pull", "glimmer-reference/lib/types", "glimmer-reference/lib/references/path", "glimmer-reference/lib/references/root", "glimmer-reference/lib/references/const", "glimmer-reference/lib/references/iterable"], function (exports, _glimmerReferenceLibReferencesDescriptors, _glimmerReferenceLibReferencesForked, _glimmerReferenceLibMeta, _glimmerReferenceLibObject, _glimmerReferenceLibReferencesPushPull, _glimmerReferenceLibTypes, _glimmerReferenceLibReferencesPath, _glimmerReferenceLibReferencesRoot, _glimmerReferenceLibReferencesConst, _glimmerReferenceLibReferencesIterable) {
