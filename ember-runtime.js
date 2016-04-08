@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+be701b86
+ * @version   2.6.0-canary+fbfc4046
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4749,7 +4749,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+be701b86
+    @version 2.6.0-canary+fbfc4046
     @public
   */
 
@@ -4791,11 +4791,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+be701b86'
+    @default '2.6.0-canary+fbfc4046'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+be701b86';
+  Ember.VERSION = '2.6.0-canary+fbfc4046';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7171,7 +7171,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
    peekBindings, clearBindings, writeValues,
    peekValues, clearValues, writeDeps, forEachInDeps
    writableChainWatchers, readableChainWatchers, writableChains,
-   readableChains
+   readableChains, writableTag, readableTag
   
   */
   var members = {
@@ -7183,7 +7183,8 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
     values: inheritedMap,
     deps: inheritedMapOfMaps,
     chainWatchers: ownCustomObject,
-    chains: inheritedCustomObject
+    chains: inheritedCustomObject,
+    tag: ownCustomObject
   };
 
   var memberNames = Object.keys(members);
@@ -7199,6 +7200,8 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
     this._deps = undefined;
     this._chainWatchers = undefined;
     this._chains = undefined;
+    this._tag = undefined;
+
     // used only internally
     this.source = obj;
 
@@ -9492,7 +9495,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
 
   exports.default = get;
 });
-enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/meta', 'ember-metal/utils'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalMeta, _emberMetalUtils) {
+enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/meta', 'ember-metal/utils', 'ember-metal/tags'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalMeta, _emberMetalUtils, _emberMetalTags) {
   'use strict';
 
   exports.set = set;
@@ -9519,11 +9522,15 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     _emberMetalDebug.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalDebug.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
 
-    var meta, possibleDesc, desc;
+    var meta = undefined,
+        possibleDesc = undefined,
+        desc = undefined;
+
     if (obj) {
       meta = _emberMetalMeta.peekMeta(obj);
       possibleDesc = obj[keyName];
       desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+      _emberMetalTags.markObjectAsDirty(meta);
     }
 
     var isUnknown, currentValue;
@@ -11405,6 +11412,53 @@ enifed('ember-metal/symbol', ['exports', 'ember-metal/utils'], function (exports
     // would introduce a large cost.
 
     return _emberMetalUtils.intern(debugName + ' [id=' + _emberMetalUtils.GUID_KEY + Math.floor(Math.random() * new Date()) + ']');
+  }
+});
+enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function (exports, _emberMetalMeta, _require2) {
+  'use strict';
+
+  exports.tagFor = tagFor;
+
+  var hasGlimmer = _require2.has('glimmer-reference');
+  var CONSTANT_TAG = undefined,
+      CURRENT_TAG = undefined,
+      DirtyableTag = undefined,
+      makeTag = undefined;
+
+  var markObjectAsDirty = undefined;
+
+  exports.markObjectAsDirty = markObjectAsDirty;
+
+  function tagFor(object, _meta) {
+    if (!hasGlimmer) {
+      throw new Error('Cannot call tagFor without Glimmer');
+    }
+
+    if (object && typeof object === 'object') {
+      var meta = _meta || _emberMetalMeta.meta(object);
+      return meta.writableTag(makeTag);
+    } else {
+      return CONSTANT_TAG;
+    }
+  }
+
+  if (hasGlimmer) {
+    var _require = _require2.default('glimmer-reference');
+
+    DirtyableTag = _require.DirtyableTag;
+    CONSTANT_TAG = _require.CONSTANT_TAG;
+    CURRENT_TAG = _require.CURRENT_TAG;
+
+    makeTag = function () {
+      return new DirtyableTag();
+    };
+
+    exports.markObjectAsDirty = markObjectAsDirty = function (meta) {
+      var tag = meta && meta.readableTag() || CURRENT_TAG;
+      tag.dirty();
+    };
+  } else {
+    exports.markObjectAsDirty = markObjectAsDirty = function () {};
   }
 });
 enifed('ember-metal/utils', ['exports'], function (exports) {
@@ -14025,13 +14079,23 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalObserver, _emberMetalProperty_events, _emberMetalComputed, _emberMetalProperties, _emberMetalMixin) {
+enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalObserver, _emberMetalProperty_events, _emberMetalComputed, _emberMetalProperties, _emberMetalMixin, _emberMetalSymbol) {
   /**
   @module ember
   @submodule ember-runtime
   */
 
   'use strict';
+
+  var _Mixin$create;
+
+  exports.isProxy = isProxy;
+
+  var IS_PROXY = _emberMetalSymbol.default('IS_PROXY');
+
+  function isProxy(value) {
+    return value && value[IS_PROXY];
+  }
 
   function contentPropertyWillChange(content, contentKey) {
     var key = contentKey.slice(8); // remove "content."
@@ -14057,61 +14121,46 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
     @namespace Ember
     @private
   */
-  exports.default = _emberMetalMixin.Mixin.create({
-    /**
-      The object whose properties will be forwarded.
-       @property content
-      @type Ember.Object
-      @default null
-      @private
-    */
-    content: null,
-    _contentDidChange: _emberMetalMixin.observer('content', function () {
-      _emberMetalDebug.assert('Can\'t set Proxy\'s content to itself', _emberMetalProperty_get.get(this, 'content') !== this);
-    }),
-
-    isTruthy: _emberMetalComputed.computed.bool('content'),
-
-    _debugContainerKey: null,
-
-    willWatchProperty: function (key) {
-      var contentKey = 'content.' + key;
-      _emberMetalObserver._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
-      _emberMetalObserver.addObserver(this, contentKey, null, contentPropertyDidChange);
-    },
-
-    didUnwatchProperty: function (key) {
-      var contentKey = 'content.' + key;
-      _emberMetalObserver._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
-      _emberMetalObserver.removeObserver(this, contentKey, null, contentPropertyDidChange);
-    },
-
-    unknownProperty: function (key) {
-      var content = _emberMetalProperty_get.get(this, 'content');
-      if (content) {
-        _emberMetalDebug.deprecate('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
-        return _emberMetalProperty_get.get(content, key);
-      }
-    },
-
-    setUnknownProperty: function (key, value) {
-      var m = _emberMetalMeta.meta(this);
-      if (m.proto === this) {
-        // if marked as prototype then just defineProperty
-        // rather than delegate
-        _emberMetalProperties.defineProperty(this, key, null, value);
-        return value;
-      }
-
-      var content = _emberMetalProperty_get.get(this, 'content');
-      _emberMetalDebug.assert('Cannot delegate set(\'' + key + '\', ' + value + ') to the \'content\' property of object proxy ' + this + ': its \'content\' is undefined.', content);
-
-      _emberMetalDebug.deprecate('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
-      return _emberMetalProperty_set.set(content, key, value);
+  exports.default = _emberMetalMixin.Mixin.create((_Mixin$create = {}, _Mixin$create[IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._contentDidChange = _emberMetalMixin.observer('content', function () {
+    _emberMetalDebug.assert('Can\'t set Proxy\'s content to itself', _emberMetalProperty_get.get(this, 'content') !== this);
+  }), _Mixin$create.isTruthy = _emberMetalComputed.computed.bool('content'), _Mixin$create._debugContainerKey = null, _Mixin$create.willWatchProperty = function (key) {
+    var contentKey = 'content.' + key;
+    _emberMetalObserver._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+    _emberMetalObserver.addObserver(this, contentKey, null, contentPropertyDidChange);
+  }, _Mixin$create.didUnwatchProperty = function (key) {
+    var contentKey = 'content.' + key;
+    _emberMetalObserver._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+    _emberMetalObserver.removeObserver(this, contentKey, null, contentPropertyDidChange);
+  }, _Mixin$create.unknownProperty = function (key) {
+    var content = _emberMetalProperty_get.get(this, 'content');
+    if (content) {
+      _emberMetalDebug.deprecate('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
+      return _emberMetalProperty_get.get(content, key);
+    }
+  }, _Mixin$create.setUnknownProperty = function (key, value) {
+    var m = _emberMetalMeta.meta(this);
+    if (m.proto === this) {
+      // if marked as prototype then just defineProperty
+      // rather than delegate
+      _emberMetalProperties.defineProperty(this, key, null, value);
+      return value;
     }
 
-  });
+    var content = _emberMetalProperty_get.get(this, 'content');
+    _emberMetalDebug.assert('Cannot delegate set(\'' + key + '\', ' + value + ') to the \'content\' property of object proxy ' + this + ': its \'content\' is undefined.', content);
+
+    _emberMetalDebug.deprecate('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
+    return _emberMetalProperty_set.set(content, key, value);
+  }, _Mixin$create));
 });
+
+/**
+  The object whose properties will be forwarded.
+   @property content
+  @type Ember.Object
+  @default null
+  @private
+*/
 enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberMetalProperty_get) {
   /**
   @module ember
@@ -14313,7 +14362,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', '
     });
   }
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-metal/tags', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberMetalTags, _emberRuntimeSystemEach_proxy) {
   /**
   @module ember
   @submodule ember-runtime
@@ -14548,6 +14597,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     return this;
   }, _Mixin$create.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
     var adding, lim;
+
+    _emberMetalTags.tagFor(this).dirty();
 
     // if no args are passed assume everything changes
     if (startIdx === undefined) {
