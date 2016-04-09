@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b625b61c
+ * @version   2.6.0-canary+6265067e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -70778,6 +70778,19 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-meta
     equal(_emberRuntimeSystemNamespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
   });
 });
+enifed('ember-runtime/tests/system/native_array/a_test', ['exports', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array'], function (exports, _emberRuntimeMixinsArray, _emberRuntimeSystemNative_array) {
+  'use strict';
+
+  QUnit.module('Ember.A');
+
+  QUnit.test('Ember.A', function () {
+    deepEqual(_emberRuntimeSystemNative_array.A([1, 2]), [1, 2], 'array values were not be modified');
+    deepEqual(_emberRuntimeSystemNative_array.A(), [], 'returned an array with no arguments');
+    deepEqual(_emberRuntimeSystemNative_array.A(null), [], 'returned an array with a null argument');
+    ok(_emberRuntimeMixinsArray.default.detect(_emberRuntimeSystemNative_array.A()), 'returned an ember array');
+    ok(_emberRuntimeMixinsArray.default.detect(_emberRuntimeSystemNative_array.A([1, 2])), 'returned an ember array');
+  });
+});
 enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports', 'ember-metal/utils', 'ember-runtime/system/native_array', 'ember-runtime/tests/suites/copyable'], function (exports, _emberMetalUtils, _emberRuntimeSystemNative_array, _emberRuntimeTestsSuitesCopyable) {
   'use strict';
 
@@ -73123,7 +73136,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+b625b61c', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+6265067e', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

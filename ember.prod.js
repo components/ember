@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b625b61c
+ * @version   2.6.0-canary+6265067e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12116,7 +12116,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+b625b61c';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+6265067e';
   }
 
   /**
@@ -16929,7 +16929,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+b625b61c
+    @version 2.6.0-canary+6265067e
     @public
   */
 
@@ -16971,11 +16971,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+b625b61c'
+    @default '2.6.0-canary+6265067e'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+b625b61c';
+  Ember.VERSION = '2.6.0-canary+6265067e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -38811,14 +38811,14 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
   if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
-    A = A = function () {
-      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-      return arr;
+    A = A = function (arr) {
+      return arr || [];
     };
   } else {
-    exports.A = A = function () {
-      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-
+    exports.A = A = function (arr) {
+      if (!arr) {
+        arr = [];
+      }
       return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
     };
   }
@@ -40550,7 +40550,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+b625b61c',
+        revision: 'Ember@2.6.0-canary+6265067e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -48715,7 +48715,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+b625b61c
+ * @version   2.6.0-canary+6265067e
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

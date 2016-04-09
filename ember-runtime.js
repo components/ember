@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b625b61c
+ * @version   2.6.0-canary+6265067e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4749,7 +4749,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+b625b61c
+    @version 2.6.0-canary+6265067e
     @public
   */
 
@@ -4791,11 +4791,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+b625b61c'
+    @default '2.6.0-canary+6265067e'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+b625b61c';
+  Ember.VERSION = '2.6.0-canary+6265067e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19791,14 +19791,14 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
   if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
-    A = A = function () {
-      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-      return arr;
+    A = A = function (arr) {
+      return arr || [];
     };
   } else {
-    exports.A = A = function () {
-      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-
+    exports.A = A = function (arr) {
+      if (!arr) {
+        arr = [];
+      }
       return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
     };
   }
