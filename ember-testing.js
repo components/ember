@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+6265067e
+ * @version   2.6.0-canary+422662df
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -213,8 +213,10 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
 
   /**
     Display a deprecation warning with the provided message and a stack trace
-    (Chrome and Firefox only). Ember build tools will remove any calls to
-    `Ember.deprecate()` when doing a production build.
+    (Chrome and Firefox only).
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
   
     @method deprecate
     @param {String} message A description of the deprecation.
@@ -321,10 +323,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   */
 
   /**
-    Define an assertion that will throw an exception if the condition is not
-    met. Ember build tools will remove any calls to `Ember.assert()` when
-    doing an Ember.js framework production build and will make the assertion a
-    no-op for an application production build. Example:
+    Define an assertion that will throw an exception if the condition is not met.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
   
     ```javascript
     // Test for truthiness
@@ -358,8 +360,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   });
 
   /**
-    Display a debug notice. Ember build tools will remove any calls to
-    `Ember.debug()` when doing a production build.
+    Display a debug notice.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
   
     ```javascript
     Ember.debug('I\'m a debug notice!');
@@ -376,6 +380,9 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   /**
     Display an info notice.
   
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
     @method info
     @private
   */
@@ -389,8 +396,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only) when the assigned method is called.
   
-    Ember build tools will not remove calls to `Ember.deprecateFunc()`, though
-    no warnings will be shown in production.
+    * In a production build, this method is defined as an empty function (NOP).
   
     ```javascript
     Ember.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);
@@ -441,8 +447,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   });
 
   /**
-    Run a function meant for debugging. Ember build tools will remove any calls to
-    `Ember.runInDebug()` when doing a production build.
+    Run a function meant for debugging.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
   
     ```javascript
     Ember.runInDebug(() => {
@@ -654,8 +662,10 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
   */
 
   /**
-    Display a warning with the provided message. Ember build tools will
-    remove any calls to `Ember.warn()` when doing a production build.
+    Display a warning with the provided message.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
   
     @method warn
     @param {String} message A warning to display.
