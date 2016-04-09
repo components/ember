@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+fbfc4046
+ * @version   2.6.0-canary+8f73701b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -67714,7 +67714,7 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/firstObject', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/suites/enumerable/firstObject', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get, _emberMetalProperty_set) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -67729,6 +67729,16 @@ enifed('ember-runtime/tests/suites/enumerable/firstObject', ['exports', 'ember-r
   suite.test('returns undefined if enumerable is empty', function () {
     var obj = this.newObject([]);
     equal(_emberMetalProperty_get.get(obj, 'firstObject'), undefined);
+  });
+
+  suite.test('can not be set', function () {
+    var obj = this.newObject([]);
+
+    equal(_emberMetalProperty_get.get(obj, 'firstObject'), this.toArray(obj)[0]);
+
+    throws(function () {
+      _emberMetalProperty_set.set(obj, 'firstObject', 'foo!');
+    }, /Cannot set read-only property "firstObject" on object/);
   });
 
   exports.default = suite;
@@ -73478,7 +73488,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+fbfc4046', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+8f73701b', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
