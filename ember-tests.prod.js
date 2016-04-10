@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b29d10cb
+ * @version   2.6.0-canary+fc29bc54
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -67653,7 +67653,7 @@ enifed('ember-runtime/tests/suites/enumerable/is_any', ['exports', 'ember-runtim
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get, _emberMetalProperty_set) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -67671,6 +67671,17 @@ enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-ru
     var obj = this.newObject([]);
 
     equal(_emberMetalProperty_get.get(obj, 'lastObject'), undefined);
+  });
+
+  suite.test('can not be set', function () {
+    var obj = this.newObject();
+    var ary = this.toArray(obj);
+
+    equal(_emberMetalProperty_get.get(obj, 'lastObject'), ary[ary.length - 1]);
+
+    throws(function () {
+      _emberMetalProperty_set.set(obj, 'lastObject', 'foo!');
+    }, /Cannot set read-only property "lastObject" on object/);
   });
 
   exports.default = suite;
@@ -73245,7 +73256,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+b29d10cb', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+fc29bc54', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
