@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+b29d10cb
+ * @version   2.6.0-canary+06e1d707
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -29207,87 +29207,6 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-views/views/text_area', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsViewsText_area, _emberGlimmerTestsUtilsTestCase) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  var TextAreaRenderingTest = (function (_RenderingTest) {
-    _inherits(TextAreaRenderingTest, _RenderingTest);
-
-    function TextAreaRenderingTest() {
-      _classCallCheck(this, TextAreaRenderingTest);
-
-      _RenderingTest.call(this);
-
-      this.registerComponent('-text-area', { ComponentClass: _emberViewsViewsText_area.default });
-    }
-
-    return TextAreaRenderingTest;
-  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
-
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{textarea}}', (function (_TextAreaRenderingTest) {
-    _inherits(_class, _TextAreaRenderingTest);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _TextAreaRenderingTest.apply(this, arguments);
-    }
-
-    _class.prototype['@htmlbars Should insert a textarea'] = function htmlbarsShouldInsertATextarea() {
-      this.render('{{textarea}}');
-
-      equal(this.$('textarea').length, 1);
-
-      this.assertStableRerender();
-    };
-
-    _class.prototype['@htmlbars Should become disabled when the context changes'] = function htmlbarsShouldBecomeDisabledWhenTheContextChanges() {
-      var _this = this;
-
-      this.render('{{textarea disabled=disabled}}');
-      ok(this.$('textarea').is(':not(:disabled)'));
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', true);
-      });
-      ok(this.$('textarea').is(':disabled'));
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', false);
-      });
-      ok(this.$('textarea').is(':not(:disabled)'));
-    };
-
-    _class.prototype['@htmlbars Should bind its contents to the specified value'] = function htmlbarsShouldBindItsContentsToTheSpecifiedValue() {
-      var _this2 = this;
-
-      this.render('{{textarea value=val}}', { val: 'A beautiful day in Seattle' });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'Auckland');
-      });
-      ok(this.$('textarea').val('Auckland'));
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'A beautiful day in Seattle');
-      });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
-    };
-
-    return _class;
-  })(TextAreaRenderingTest));
-});
 enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalSet_properties, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array) {
   'use strict';
 
@@ -35584,6 +35503,59 @@ enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-metal/cor
       });
 
       equal(trim(view.$().text()), 'This  is pretty great.');
+    });
+  }
+});
+enifed('ember-htmlbars/tests/helpers/text_area_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-views/views/text_area', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberViewsViewsText_area, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
+  'use strict';
+
+  var textArea, controller, owner;
+
+  function set(object, key, value) {
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(object, key, value);
+    });
+  }
+
+  if (!_emberMetalFeatures.default('ember-glimmer')) {
+    // jscs:disable
+
+    QUnit.module('{{textarea}}', {
+      setup: function () {
+        var _View$extend;
+
+        controller = {
+          val: 'Lorem ipsum dolor'
+        };
+
+        owner = _containerTestsTestHelpersBuildOwner.default();
+        owner.register('component:-text-area', _emberViewsViewsText_area.default);
+        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+        textArea = _emberViewsViewsView.default.extend((_View$extend = {}, _View$extend[_containerOwner.OWNER] = owner, _View$extend.controller = controller, _View$extend.template = _emberTemplateCompilerSystemCompile.default('{{textarea disabled=disabled value=val}}'), _View$extend)).create();
+
+        _emberRuntimeTestsUtils.runAppend(textArea);
+      },
+
+      teardown: function () {
+        _emberRuntimeTestsUtils.runDestroy(textArea);
+      }
+    });
+
+    QUnit.test('Should insert a textarea', function () {
+      equal(textArea.$('textarea').length, 1, 'There is a single textarea');
+    });
+
+    QUnit.test('Should become disabled when the controller changes', function () {
+      ok(textArea.$('textarea').is(':not(:disabled)'), 'Nothing is disabled yet');
+      set(controller, 'disabled', true);
+      ok(textArea.$('textarea').is(':disabled'), 'The disabled attribute is updated');
+    });
+
+    QUnit.test('Should bind its contents to the specified value', function () {
+      equal(textArea.$('textarea').val(), 'Lorem ipsum dolor', 'The contents are included');
+      set(controller, 'val', 'sit amet');
+      equal(textArea.$('textarea').val(), 'sit amet', 'The new contents are included');
     });
   }
 });
@@ -43352,87 +43324,6 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
-});
-enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-views/views/text_area', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsViewsText_area, _emberHtmlbarsTestsUtilsTestCase) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  var TextAreaRenderingTest = (function (_RenderingTest) {
-    _inherits(TextAreaRenderingTest, _RenderingTest);
-
-    function TextAreaRenderingTest() {
-      _classCallCheck(this, TextAreaRenderingTest);
-
-      _RenderingTest.call(this);
-
-      this.registerComponent('-text-area', { ComponentClass: _emberViewsViewsText_area.default });
-    }
-
-    return TextAreaRenderingTest;
-  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
-
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{textarea}}', (function (_TextAreaRenderingTest) {
-    _inherits(_class, _TextAreaRenderingTest);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _TextAreaRenderingTest.apply(this, arguments);
-    }
-
-    _class.prototype['@htmlbars Should insert a textarea'] = function htmlbarsShouldInsertATextarea() {
-      this.render('{{textarea}}');
-
-      equal(this.$('textarea').length, 1);
-
-      this.assertStableRerender();
-    };
-
-    _class.prototype['@htmlbars Should become disabled when the context changes'] = function htmlbarsShouldBecomeDisabledWhenTheContextChanges() {
-      var _this = this;
-
-      this.render('{{textarea disabled=disabled}}');
-      ok(this.$('textarea').is(':not(:disabled)'));
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', true);
-      });
-      ok(this.$('textarea').is(':disabled'));
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', false);
-      });
-      ok(this.$('textarea').is(':not(:disabled)'));
-    };
-
-    _class.prototype['@htmlbars Should bind its contents to the specified value'] = function htmlbarsShouldBindItsContentsToTheSpecifiedValue() {
-      var _this2 = this;
-
-      this.render('{{textarea value=val}}', { val: 'A beautiful day in Seattle' });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'Auckland');
-      });
-      ok(this.$('textarea').val('Auckland'));
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'A beautiful day in Seattle');
-      });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
-    };
-
-    return _class;
-  })(TextAreaRenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalSet_properties, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array) {
   'use strict';
@@ -73689,7 +73580,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+b29d10cb', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+06e1d707', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
