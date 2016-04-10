@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+70268469
+ * @version   2.6.0-canary+d262a69e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24818,7 +24818,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
       _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']),
       _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']);
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -25868,6 +25869,48 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.strictEqual(this.firstChild.childNodes.length, 4);
 
       this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+    };
+
+    _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
+      var _this32 = this;
+
+      var component = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        isStream: true,
+
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'true' });
+
+      this.runTask(function () {
+        return _this32.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'true' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(component, 'isStream', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(component, 'isStream', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'true' });
     };
 
     return _class;
@@ -38964,7 +39007,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
       _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']),
       _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']);
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -40014,6 +40058,48 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.strictEqual(this.firstChild.childNodes.length, 4);
 
       this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+    };
+
+    _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
+      var _this32 = this;
+
+      var component = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        isStream: true,
+
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        }
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5)
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'true' });
+
+      this.runTask(function () {
+        return _this32.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'true' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(component, 'isStream', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(component, 'isStream', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'true' });
     };
 
     return _class;
@@ -55462,7 +55548,7 @@ enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams
     });
     var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
 
-    assert.ok(result.isStream, 'a stream is returned');
+    assert.ok(_emberMetalStreamsUtils.isStream(result), 'a stream is returned');
     assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
   });
 
@@ -73700,7 +73786,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+70268469', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+d262a69e', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

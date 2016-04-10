@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+70268469
+ * @version   2.6.0-canary+d262a69e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12784,7 +12784,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+70268469';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+d262a69e';
   }
 
   /**
@@ -17687,7 +17687,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+70268469
+    @version 2.6.0-canary+d262a69e
     @public
   */
 
@@ -17729,11 +17729,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+70268469'
+    @default '2.6.0-canary+d262a69e'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+70268469';
+  Ember.VERSION = '2.6.0-canary+d262a69e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23547,11 +23547,13 @@ enifed('ember-metal/streams/proxy-stream', ['exports', 'ember-runtime/system/obj
 
   exports.default = ProxyStream;
 });
-enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency', 'ember-metal/utils', 'require'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency, _emberMetalUtils, _require) {
+enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency', 'ember-metal/utils', 'require', 'ember-metal/symbol'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency, _emberMetalUtils, _require, _emberMetalSymbol) {
   'use strict';
 
   exports.wrap = wrap;
+  var IS_STREAM = _emberMetalSymbol.default('IS_STREAM');
 
+  exports.IS_STREAM = IS_STREAM;
   /**
     @module ember-metal
   */
@@ -23570,9 +23572,8 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-me
   var ProxyMixin;
 
   BasicStream.prototype = {
-    isStream: true,
-
     _init: function (label) {
+      this[IS_STREAM] = true;
       this.label = makeLabel(label);
       this.isActive = false;
       this.isDirty = true;
@@ -23972,7 +23973,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   */
 
   function isStream(object) {
-    return object && object.isStream;
+    return object && object[_emberMetalStreamsStream.IS_STREAM];
   }
 
   /*
@@ -23989,7 +23990,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function subscribe(object, callback, context) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       return object.subscribe(callback, context);
     }
   }
@@ -24007,7 +24008,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function unsubscribe(object, callback, context) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       object.unsubscribe(callback, context);
     }
   }
@@ -24024,7 +24025,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function read(object) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       return object.value();
     } else {
       return object;
@@ -24319,7 +24320,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   function setValue(object, value) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       object.setValue(value);
     }
   }
@@ -41597,7 +41598,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+70268469',
+        revision: 'Ember@2.6.0-canary+d262a69e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51128,7 +51129,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+70268469
+ * @version   2.6.0-canary+d262a69e
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
