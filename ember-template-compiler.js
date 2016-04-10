@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+422662df
+ * @version   2.6.0-canary+06e1d707
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4001,7 +4001,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+422662df
+    @version 2.6.0-canary+06e1d707
     @public
   */
 
@@ -4043,11 +4043,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+422662df'
+    @default '2.6.0-canary+06e1d707'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+422662df';
+  Ember.VERSION = '2.6.0-canary+06e1d707';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11920,7 +11920,8 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
 
         _emberMetalDebug.deprecate(deprecationMessage(moduleName, node, param), false, {
           id: 'ember-template-compiler.deprecate-render-model',
-          until: '3.0.0'
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x#toc_model-param-in-code-render-code-helper'
         });
       });
     });
@@ -12806,7 +12807,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+422662df',
+        revision: 'Ember@2.6.0-canary+06e1d707',
         loc: program.loc,
         moduleName: options.moduleName
       };
