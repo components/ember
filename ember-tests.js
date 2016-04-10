@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+fad3662a
+ * @version   2.6.0-canary+2affd3b9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -60066,7 +60066,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     QUnit.test('escaped inline form (double curlies) escapes link title', function () {
       var _EmberView$create4;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{link-to view.title}}'), _EmberView$create4));
+      view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{link-to view.title "index"}}'), _EmberView$create4));
 
       _emberRuntimeTestsUtils.runAppend(view);
 
@@ -60076,7 +60076,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     QUnit.test('escaped inline form with (-html-safe) does not escape link title', function () {
       var _EmberView$create5;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.title = '<b>blah</b>', _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{link-to (-html-safe view.title)}}'), _EmberView$create5));
+      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.title = '<b>blah</b>', _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create5));
 
       _emberRuntimeTestsUtils.runAppend(view);
 
@@ -60086,7 +60086,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     QUnit.test('unescaped inline form (triple curlies) does not escape link title', function () {
       var _EmberView$create6;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = '<b>blah</b>', _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{{link-to view.title}}}'), _EmberView$create6));
+      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = '<b>blah</b>', _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{{link-to view.title "index"}}}'), _EmberView$create6));
 
       _emberRuntimeTestsUtils.runAppend(view);
 
@@ -60112,7 +60112,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     QUnit.test('able to safely extend the built-in component and use the normal path', function () {
       var _EmberView$create8;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.title = 'my custom link-to component', _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{custom-link-to view.title}}'), _EmberView$create8));
+      view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.title = 'my custom link-to component', _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create8));
 
       _emberRuntimeTestsUtils.runAppend(view);
 
@@ -73887,7 +73887,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+fad3662a', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+2affd3b9', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
