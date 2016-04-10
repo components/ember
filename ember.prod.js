@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+d262a69e
+ * @version   2.6.0-canary+fad3662a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12116,7 +12116,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+d262a69e';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+fad3662a';
   }
 
   /**
@@ -16255,7 +16255,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
   exports.computed = computed;
   exports.cacheFor = cacheFor;
 });
-enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/is_empty', 'ember-metal/is_none', 'ember-metal/alias'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalIs_empty, _emberMetalIs_none, _emberMetalAlias) {
+enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/is_empty', 'ember-metal/is_none', 'ember-metal/alias', 'ember-metal/expand_properties'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalIs_empty, _emberMetalIs_none, _emberMetalAlias, _emberMetalExpand_properties) {
   'use strict';
 
   exports.empty = empty;
@@ -16288,15 +16288,24 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
 
   function generateComputedWithProperties(macro) {
     return function () {
+      var expandedProperties = [];
+      var computedFunc = _emberMetalComputed.computed(function () {
+        return macro.apply(this, [getProperties(this, expandedProperties)]);
+      });
+
+      function extractProperty(entry) {
+        expandedProperties.push(entry);
+      }
+
       for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
         properties[_key] = arguments[_key];
       }
 
-      var computedFunc = _emberMetalComputed.computed(function () {
-        return macro.apply(this, [getProperties(this, properties)]);
-      });
+      for (var i = 0; i < properties.length; i++) {
+        _emberMetalExpand_properties.default(properties[i], extractProperty);
+      }
 
-      return computedFunc.property.apply(computedFunc, properties);
+      return computedFunc.property.apply(computedFunc, expandedProperties);
     };
   }
 
@@ -16685,22 +16694,30 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
     A computed property that performs a logical `and` on the
     original values for the provided dependent properties.
   
+    You may pass in more than two properties and even use
+    property brace expansion.  The computed property will
+    returns the first falsy value or last truthy value
+    just like JavaScript's `||` operator.
+  
     Example
   
     ```javascript
     var Hamster = Ember.Object.extend({
-      readyForCamp: Ember.computed.and('hasTent', 'hasBackpack')
+      readyForCamp: Ember.computed.and('hasTent', 'hasBackpack'),
+      readyForHike: Ember.computed.and('hasWalkingStick', 'hasBackpack')
     });
   
-    var hamster = Hamster.create();
+    var tomster = Hamster.create();
   
-    hamster.get('readyForCamp'); // false
-    hamster.set('hasTent', true);
-    hamster.get('readyForCamp'); // false
-    hamster.set('hasBackpack', true);
-    hamster.get('readyForCamp'); // true
-    hamster.set('hasBackpack', 'Yes');
-    hamster.get('readyForCamp'); // 'Yes'
+    tomster.get('readyForCamp'); // false
+    tomster.set('hasTent', true);
+    tomster.get('readyForCamp'); // false
+    tomster.set('hasBackpack', true);
+    tomster.get('readyForCamp'); // true
+    tomster.set('hasBackpack', 'Yes');
+    tomster.get('readyForCamp'); // 'Yes'
+    tomster.set('hasWalkingStick', null);
+    tomster.get('readyForHike'); // null
     ```
   
     @method and
@@ -16715,7 +16732,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
     for (var key in properties) {
       value = properties[key];
       if (properties.hasOwnProperty(key) && !value) {
-        return false;
+        return value;
       }
     }
     return value;
@@ -16726,20 +16743,28 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
   
+    You may pass in more than two properties and even use
+    property brace expansion.  The computed property will
+    returns the first truthy value or last falsy value just
+    like JavaScript's `||` operator.
+  
     Example
   
     ```javascript
     var Hamster = Ember.Object.extend({
-      readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella')
+      readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella'),
+      readyForBeach: Ember.computed.or('{hasSunscreen,hasUmbrella}')
     });
   
-    var hamster = Hamster.create();
+    var tomster = Hamster.create();
   
-    hamster.get('readyForRain'); // false
-    hamster.set('hasUmbrella', true);
-    hamster.get('readyForRain'); // true
-    hamster.set('hasJacket', 'Yes');
-    hamster.get('readyForRain'); // 'Yes'
+    tomster.get('readyForRain'); // undefined
+    tomster.set('hasUmbrella', true);
+    tomster.get('readyForRain'); // true
+    tomster.set('hasJacket', 'Yes');
+    tomster.get('readyForRain'); // 'Yes'
+    tomster.set('hasSunscreen', 'Check');
+    tomster.get('readyForBeach'); // 'Check'
     ```
   
     @method or
@@ -16929,7 +16954,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+d262a69e
+    @version 2.6.0-canary+fad3662a
     @public
   */
 
@@ -16971,11 +16996,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+d262a69e'
+    @default '2.6.0-canary+fad3662a'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+d262a69e';
+  Ember.VERSION = '2.6.0-canary+fad3662a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -40552,7 +40577,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+d262a69e',
+        revision: 'Ember@2.6.0-canary+fad3662a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -48717,7 +48742,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+d262a69e
+ * @version   2.6.0-canary+fad3662a
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

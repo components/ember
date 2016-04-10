@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+d262a69e
+ * @version   2.6.0-canary+fad3662a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -60866,7 +60866,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'isLesserOrEqualThenOne'), false, 'is not lte');
   });
 
-  _emberMetalTestsProps_helper.testBoth('computed.and', function (get, set) {
+  _emberMetalTestsProps_helper.testBoth('computed.and two properties', function (get, set) {
     var obj = { one: true, two: true };
     _emberMetalProperties.defineProperty(obj, 'oneAndTwo', _emberMetalComputed_macros.and('one', 'two'));
 
@@ -60876,13 +60876,52 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
     equal(get(obj, 'oneAndTwo'), false, 'one and not two');
 
+    set(obj, 'one', null);
+    set(obj, 'two', 'Yes');
+
+    equal(get(obj, 'oneAndTwo'), null, 'returns falsy value as in &&');
+
     set(obj, 'one', true);
     set(obj, 'two', 2);
 
     equal(get(obj, 'oneAndTwo'), 2, 'returns truthy value as in &&');
   });
 
-  _emberMetalTestsProps_helper.testBoth('computed.or', function (get, set) {
+  _emberMetalTestsProps_helper.testBoth('computed.and three properties', function (get, set) {
+    var obj = { one: true, two: true, three: true };
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.and('one', 'two', 'three'));
+
+    equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
+
+    set(obj, 'one', false);
+
+    equal(get(obj, 'oneTwoThree'), false, 'one and not two and not three');
+
+    set(obj, 'one', true);
+    set(obj, 'two', 2);
+    set(obj, 'three', 3);
+
+    equal(get(obj, 'oneTwoThree'), 3, 'returns truthy value as in &&');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('computed.and expand properties', function (get, set) {
+    var obj = { one: true, two: true, three: true };
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.and('{one,two,three}'));
+
+    equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
+
+    set(obj, 'one', false);
+
+    equal(get(obj, 'oneTwoThree'), false, 'one and not two and not three');
+
+    set(obj, 'one', true);
+    set(obj, 'two', 2);
+    set(obj, 'three', 3);
+
+    equal(get(obj, 'oneTwoThree'), 3, 'returns truthy value as in &&');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('computed.or two properties', function (get, set) {
     var obj = { one: true, two: true };
     _emberMetalProperties.defineProperty(obj, 'oneOrTwo', _emberMetalComputed_macros.or('one', 'two'));
 
@@ -60894,7 +60933,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
     set(obj, 'two', false);
 
-    equal(get(obj, 'oneOrTwo'), false, 'nore one nore two');
+    equal(get(obj, 'oneOrTwo'), false, 'nor one nor two');
 
     set(obj, 'two', null);
 
@@ -60907,6 +60946,68 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     set(obj, 'one', 1);
 
     equal(get(obj, 'oneOrTwo'), 1, 'returns truthy value as in ||');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('computed.or three properties', function (get, set) {
+    var obj = { one: true, two: true, three: true };
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.or('one', 'two', 'three'));
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'one', false);
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'two', false);
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'three', false);
+
+    equal(get(obj, 'oneTwoThree'), false, 'one or two or three');
+
+    set(obj, 'three', null);
+
+    equal(get(obj, 'oneTwoThree'), null, 'returns last falsy value as in ||');
+
+    set(obj, 'two', true);
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'one', 1);
+
+    equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('computed.or expand properties', function (get, set) {
+    var obj = { one: true, two: true, three: true };
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.or('{one,two,three}'));
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'one', false);
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'two', false);
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'three', false);
+
+    equal(get(obj, 'oneTwoThree'), false, 'one or two or three');
+
+    set(obj, 'three', null);
+
+    equal(get(obj, 'oneTwoThree'), null, 'returns last falsy value as in ||');
+
+    set(obj, 'two', true);
+
+    equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
+
+    set(obj, 'one', 1);
+
+    equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
   });
 
   _emberMetalTestsProps_helper.testBoth('computed.collect', function (get, set) {
@@ -73342,7 +73443,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+d262a69e', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+fad3662a', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
