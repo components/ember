@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.4
+ * @version   2.5.0-beta.4+2841986d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3493,10 +3493,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
 
   var DEEP_EACH_REGEX = /\.@each\.[^.]+\./;
 
-  // ..........................................................
-  // COMPUTED PROPERTY
-  //
-
   /**
     A computed property transforms an object literal with object's accessor function(s) into a property.
   
@@ -3599,7 +3595,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
   
     @class ComputedProperty
     @namespace Ember
-    @constructor
     @public
   */
   function ComputedProperty(config, opts) {
@@ -3758,7 +3753,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     @chainable
     @public
   */
-
   ComputedPropertyPrototype.meta = function (meta) {
     if (arguments.length === 0) {
       return this._meta || {};
@@ -3789,33 +3783,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     }
   };
 
-  /**
-    Access the value of the function backing the computed property.
-    If this property has already been cached, return the cached result.
-    Otherwise, call the function passing the property name as an argument.
-  
-    ```javascript
-    let Person = Ember.Object.extend({
-      fullName: Ember.computed('firstName', 'lastName', function(keyName) {
-        // the keyName parameter is 'fullName' in this case.
-        return this.get('firstName') + ' ' + this.get('lastName');
-      })
-    });
-  
-  
-    let tom = Person.create({
-      firstName: 'Tom',
-      lastName: 'Dale'
-    });
-  
-    tom.get('fullName') // 'Tom Dale'
-    ```
-  
-    @method get
-    @param {String} keyName The key being accessed.
-    @return {Object} The return value of the function backing the CP.
-    @public
-  */
   ComputedPropertyPrototype.get = function (obj, keyName) {
     if (this._volatile) {
       return this._getter.call(obj, keyName);
@@ -3847,54 +3814,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     return ret;
   };
 
-  /**
-    Set the value of a computed property. If the function that backs your
-    computed property does not accept arguments then the default action for
-    setting would be to define the property on the current object, and set
-    the value of the property to the value being set.
-  
-    Generally speaking if you intend for your computed property to be set
-    you should pass `set(key, value)` function in hash as argument to `Ember.computed()` along with `get(key)` function.
-  
-    ```javascript
-    let Person = Ember.Object.extend({
-      // these will be supplied by `create`
-      firstName: null,
-      lastName: null,
-  
-      fullName: Ember.computed('firstName', 'lastName', {
-        // getter
-        get() {
-          let firstName = this.get('firstName');
-          let lastName = this.get('lastName');
-  
-          return firstName + ' ' + lastName;
-        },
-        // setter
-        set(key, value) {
-          let [firstName, lastName] = value.split(' ');
-  
-          this.set('firstName', firstName);
-          this.set('lastName', lastName);
-  
-          return value;
-        }
-      })
-    });
-  
-    let person = Person.create();
-  
-    person.set('fullName', 'Peter Wagenet');
-    person.get('firstName'); // 'Peter'
-    person.get('lastName');  // 'Wagenet'
-    ```
-  
-    @method set
-    @param {String} keyName The key being accessed.
-    @param {Object} newValue The new value being assigned.
-    @return {Object} The return value of the function backing the CP.
-    @public
-  */
   ComputedPropertyPrototype.set = function computedPropertySetEntry(obj, keyName, value) {
     if (this._readOnly) {
       this._throwReadOnlyError(obj, keyName);
@@ -4816,8 +4735,6 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
     Ember may overwrite this namespace and therefore, you should avoid adding any
     new properties.
   
-    You can also use the shorthand `Em` instead of `Ember`.
-  
     At the heart of Ember is Ember-Runtime, a set of core functions that provide
     cross-platform compatibility and object property observing.  Ember-Runtime is
     small and performance-focused so you can use it alongside other
@@ -4826,7 +4743,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.4
+    @version 2.5.0-beta.4+2841986d
     @public
   */
 
@@ -4868,11 +4785,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.4'
+    @default '2.5.0-beta.4+2841986d'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.4';
+  Ember.VERSION = '2.5.0-beta.4+2841986d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5695,9 +5612,11 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var KNOWN_FEATURES = {};exports.KNOWN_FEATURES = KNOWN_FEATURES;
   // jshint ignore:line
+  var FEATURES = _emberMetalAssign.default(KNOWN_FEATURES, _emberMetalCore.default.ENV.FEATURES);
 
+  exports.FEATURES = FEATURES;
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
     build tools to exclude experimental features from beta/stable builds.
@@ -9048,9 +8967,9 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Ember.defineProperty(contact, 'lastName', undefined, 'Jolley');
   
     // define a computed property
-    Ember.defineProperty(contact, 'fullName', Ember.computed(function() {
+    Ember.defineProperty(contact, 'fullName', Ember.computed('firstName', 'lastName', function() {
       return this.firstName+' '+this.lastName;
-    }).property('firstName', 'lastName'));
+    }));
     ```
   
     @private
@@ -10683,11 +10602,13 @@ enifed('ember-metal/streams/proxy-stream', ['exports', 'ember-runtime/system/obj
 
   exports.default = ProxyStream;
 });
-enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency', 'ember-metal/utils', 'require'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency, _emberMetalUtils, _require) {
+enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency', 'ember-metal/utils', 'require', 'ember-metal/symbol'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency, _emberMetalUtils, _require, _emberMetalSymbol) {
   'use strict';
 
   exports.wrap = wrap;
+  var IS_STREAM = _emberMetalSymbol.default('IS_STREAM');
 
+  exports.IS_STREAM = IS_STREAM;
   /**
     @module ember-metal
   */
@@ -10706,9 +10627,8 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-me
   var ProxyMixin;
 
   BasicStream.prototype = {
-    isStream: true,
-
     _init: function (label) {
+      this[IS_STREAM] = true;
       this.label = makeLabel(label);
       this.isActive = false;
       this.isDirty = true;
@@ -11108,7 +11028,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   */
 
   function isStream(object) {
-    return object && object.isStream;
+    return object && object[_emberMetalStreamsStream.IS_STREAM];
   }
 
   /*
@@ -11125,7 +11045,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function subscribe(object, callback, context) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       return object.subscribe(callback, context);
     }
   }
@@ -11143,7 +11063,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function unsubscribe(object, callback, context) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       object.unsubscribe(callback, context);
     }
   }
@@ -11160,7 +11080,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function read(object) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       return object.value();
     } else {
       return object;
@@ -11455,7 +11375,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   function setValue(object, value) {
-    if (object && object.isStream) {
+    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
       object.setValue(value);
     }
   }
@@ -14873,7 +14793,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       on the array. Just get an equivalent property on this object and it will
       return an enumerable that maps automatically to the named key on the
       member objects.
-       @each should only be used in a non-terminal context. Example:
+       `@each` should only be used in a non-terminal context. Example:
        ```javascript
       myMethod: computed('posts.@each.author', function(){
         ...
@@ -15342,6 +15262,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
       ```
        @property firstObject
       @return {Object} the object or undefined
+      @readOnly
       @public
     */
     firstObject: _emberMetalComputed.computed('[]', function () {
@@ -15370,6 +15291,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
       ```
        @property lastObject
       @return {Object} the last object or undefined
+      @readOnly
       @public
     */
     lastObject: _emberMetalComputed.computed('[]', function () {
@@ -19736,14 +19658,14 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
   if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
-    A = A = function () {
-      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-      return arr;
+    A = A = function (arr) {
+      return arr || [];
     };
   } else {
-    exports.A = A = function () {
-      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-
+    exports.A = A = function (arr) {
+      if (!arr) {
+        arr = [];
+      }
       return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
     };
   }
@@ -23052,4 +22974,3 @@ requireModule("ember-runtime");
 }());
 
 ;module.exports = Ember;
-//# sourceMappingURL=ember-runtime.map

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.4
+ * @version   2.5.0-beta.4+2841986d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2770,41 +2770,6 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
   });
-
-  QUnit.test('with an aborted transition', function () {
-    expect(6);
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.AboutRoute = _emberRoutingSystemRoute.default.extend({
-      beforeModel: function (transition) {
-        aboutDefer = _emberRuntimeExtRsvp.default.defer();
-        return aboutDefer.promise.then(function () {
-          transition.abort();
-        });
-      }
-    });
-
-    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('\n    {{link-to \'About\' \'about\' id=\'about-link\'}}\n  ');
-
-    bootApplication();
-
-    var $about = _emberViewsSystemJquery.default('#about-link');
-
-    _emberMetalRun_loop.default($about, 'click');
-
-    assertHasClass('active', $about, false);
-    assertHasClass('ember-transitioning-in', $about, true);
-    assertHasClass('ember-transitioning-out', $about, false);
-
-    _emberMetalRun_loop.default(aboutDefer, 'resolve');
-
-    assertHasClass('active', $about, false);
-    assertHasClass('ember-transitioning-in', $about, false);
-    assertHasClass('ember-transitioning-out', $about, false);
-  });
 });
 enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location) {
   'use strict';
@@ -4836,6 +4801,30 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     });
 
     equal(link.attr('href'), '/bar/one/two/three');
+  });
+
+  QUnit.test('GJ: {{link-to}} to a parent root model hook which performs a `transitionTo` has correct active class #13256', function () {
+    expect(1);
+
+    Router.map(function () {
+      this.route('parent', function () {
+        this.route('child');
+      });
+    });
+
+    App.ParentRoute = _emberRoutingSystemRoute.default.extend({
+      afterModel: function (transition) {
+        this.transitionTo('parent.child');
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('\n    {{link-to \'Parent\' \'parent\' id=\'parent-link\'}}\n  ');
+
+    bootApplication();
+
+    _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#parent-link'), 'click');
+
+    shouldBeActive('#parent-link');
   });
 });
 enifed('ember/tests/homepage_example_test', ['exports', 'ember-metal/core', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-template-compiler', 'ember-views/system/jquery', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberMetalComputed, _emberTemplateCompiler, _emberViewsSystemJquery, _emberRuntimeSystemNative_array) {
@@ -12481,11 +12470,10 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
   'use strict';
 
-  var oldWarn, oldRunInDebug, origEnvFeatures, origEnableOptional;
+  var oldWarn, oldRunInDebug, origEnvFeatures, origEnableOptional, features, knownFeatures;
 
   function confirmWarns(expectedMsg) {
     var featuresWereStripped = true;
-    var FEATURES = _emberMetalCore.default.ENV.FEATURES;
 
     _emberMetalDebug.setDebugFunction('warn', function (msg, test) {
       if (!test) {
@@ -12498,11 +12486,11 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     });
 
     // Should trigger our 1 warning
-    _emberDebug._warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
+    _emberDebug._warnIfUsingStrippedFeatureFlags(features, knownFeatures, featuresWereStripped);
 
     // Shouldn't trigger any warnings now that we're "in canary"
     featuresWereStripped = false;
-    _emberDebug._warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
+    _emberDebug._warnIfUsingStrippedFeatureFlags(features, knownFeatures, featuresWereStripped);
   }
 
   QUnit.module('ember-debug - _warnIfUsingStrippedFeatureFlags', {
@@ -12511,6 +12499,12 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
       oldRunInDebug = _emberMetalDebug.getDebugFunction('runInDebug');
       origEnvFeatures = _emberMetalCore.default.ENV.FEATURES;
       origEnableOptional = _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES;
+
+      knownFeatures = {
+        'fred': null,
+        'barney': null,
+        'wilma': null
+      };
     },
 
     teardown: function () {
@@ -12525,19 +12519,30 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     expect(1);
 
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = true;
-    _emberMetalCore.default.ENV.FEATURES = {};
+    features = {};
 
     confirmWarns('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
   });
 
-  QUnit.test('Enabling a FEATURES flag in non-canary, debug build causes a warning', function () {
+  QUnit.test('Enabling a known FEATURE flag in non-canary, debug build causes a warning', function () {
     expect(1);
 
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    _emberMetalCore.default.ENV.FEATURES = {
+    features = {
       'fred': true,
       'barney': false,
       'wilma': null
+    };
+
+    confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+  });
+
+  QUnit.test('Enabling an unknown FEATURE flag in non-canary debug build does not cause a warning', function () {
+    expect(0);
+
+    _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
+    features = {
+      'some-ember-data-feature-flag': true
     };
 
     confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
@@ -34773,7 +34778,7 @@ enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams
     });
     var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
 
-    assert.ok(result.isStream, 'a stream is returned');
+    assert.ok(_emberMetalStreamsUtils.isStream(result), 'a stream is returned');
     assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
   });
 
@@ -39701,27 +39706,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as either a template or a view.');
   });
 
-  QUnit.test('{{render}} helper should not have assertion if template is supplied in block-form', function () {
-    var _EmberView$create4;
-
-    var template = '<h1>HI</h1>{{#render \'good\'}} {{name}}{{/render}}';
-    var controller = _emberRuntimeControllersController.default.extend();
-    appInstance.register('controller:good', _emberRuntimeControllersController.default.extend({ name: 'Rob' }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = appInstance, _EmberView$create4.controller = controller.create(), _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create4));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HI Rob');
-  });
-
   QUnit.test('{{render}} helper should not have assertion if view exists without a template', function () {
-    var _EmberView$create5;
+    var _EmberView$create4;
 
     var template = '<h1>HI</h1>{{render \'oops\'}}';
     var controller = _emberRuntimeControllersController.default.extend();
 
-    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller.create(), _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create5));
+    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = appInstance, _EmberView$create4.controller = controller.create(), _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create4));
 
     appInstance.register('view:oops', _emberViewsViewsView.default.extend());
 
@@ -39731,7 +39722,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render given template with a supplied model', function () {
-    var _Controller$create, _EmberView$create6;
+    var _Controller$create, _EmberView$create5;
 
     var template = '<h1>HI</h1>{{render \'post\' post}}';
     var post = {
@@ -39744,7 +39735,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     var controller = Controller.create((_Controller$create = {}, _Controller$create[_containerOwner.OWNER] = appInstance, _Controller$create));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create6));
+    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create5));
 
     var postController;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -39769,7 +39760,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper with a supplied model should not fire observers on the controller', function () {
-    var _EmberController$create, _EmberView$create7;
+    var _EmberController$create, _EmberView$create6;
 
     var template = '<h1>HI</h1>{{render \'post\' post}}';
     var post = {
@@ -39777,7 +39768,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     };
     var controller = _emberRuntimeControllersController.default.create((_EmberController$create = {}, _EmberController$create[_containerOwner.OWNER] = appInstance, _EmberController$create.post = post, _EmberController$create));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
+    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create6));
 
     var PostController = _emberRuntimeControllersController.default.extend({
       modelDidChange: _emberMetalMixin.observer('model', function () {
@@ -39795,7 +39786,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
-    var _Controller$create2, _EmberView$create8;
+    var _Controller$create2, _EmberView$create7;
 
     var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
@@ -39803,7 +39794,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = appInstance, _EmberView$create8.controller = controller, _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create8));
+    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('<p>BYE</p>');
 
@@ -39813,7 +39804,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render with given controller', function () {
-    var _Controller$create3, _EmberView$create9;
+    var _Controller$create3, _EmberView$create8;
 
     var template = '{{render "home" controller="posts"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
@@ -39829,7 +39820,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       }
     }));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create9));
+    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = appInstance, _EmberView$create8.controller = controller, _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create8));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
 
@@ -39844,7 +39835,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should rerender with given controller', function () {
-    var _Controller$create4, _EmberView$create10;
+    var _Controller$create4, _EmberView$create9;
 
     var template = '{{render "home" controller="posts"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
@@ -39860,7 +39851,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       }
     }));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create10));
+    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create9));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
 
@@ -39879,13 +39870,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render a template without a model only once', function () {
-    var _Controller$create5, _EmberView$create11;
+    var _Controller$create5, _EmberView$create10;
 
     var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create11));
+    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create10));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('<p>BYE</p>');
 
@@ -39895,7 +39886,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render templates with models multiple times', function () {
-    var _Controller$create6, _EmberView$create12;
+    var _Controller$create6, _EmberView$create11;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
     var post1 = {
@@ -39912,7 +39903,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
+    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create11));
 
     var postController1, postController2;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -39942,7 +39933,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should not leak controllers', function () {
-    var _Controller$create7, _EmberView$create13;
+    var _Controller$create7, _EmberView$create12;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}}';
     var post1 = {
@@ -39955,7 +39946,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
+    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
 
     var postController;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -39976,13 +39967,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
-    var _EmberController$create2, _EmberView$create14;
+    var _EmberController$create2, _EmberView$create13;
 
     var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
 
     var controller = _emberRuntimeControllersController.default.create((_EmberController$create2 = {}, _EmberController$create2[_containerOwner.OWNER] = appInstance, _EmberController$create2.zero = false, _EmberController$create2));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
+    view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
 
     var postController1, postController2;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -40007,7 +39998,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render templates both with and without models', function () {
-    var _Controller$create8, _EmberView$create15;
+    var _Controller$create8, _EmberView$create14;
 
     var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
     var post = {
@@ -40020,7 +40011,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = controller, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
+    view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
 
     var postController1, postController2;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -40050,7 +40041,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should link child controllers to the parent controller', function () {
-    var _Controller$create9, _EmberView$create16;
+    var _Controller$create9, _EmberView$create15;
 
     var parentTriggered = 0;
     var template = '<h1>HI</h1>{{render "posts"}}';
@@ -40066,7 +40057,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = controller, _EmberView$create16.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create16));
+    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = controller, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
 
     _emberMetalCore.default.TEMPLATES['posts'] = _emberTemplateCompilerSystemCompile.default('<button id="parent-action" {{action "parentPlease"}}>Go to {{parentController.role}}</button>');
 
@@ -40131,7 +40122,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} works with dot notation', function () {
-    var _ContextController$create, _EmberView$create17;
+    var _ContextController$create, _EmberView$create16;
 
     var template = '{{render "blog.post"}}';
 
@@ -40149,7 +40140,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     });
     appInstance.register('controller:blog.post', BlogPostController);
 
-    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = contextController, _EmberView$create17.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create17));
+    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = contextController, _EmberView$create16.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create16));
 
     _emberMetalCore.default.TEMPLATES['blog.post'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
 
@@ -40179,13 +40170,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('throws an assertion if {{render}} is called with a literal for a model', function () {
-    var _Controller$create12, _EmberView$create18;
+    var _Controller$create12, _EmberView$create17;
 
     var template = '<h1>HI</h1>{{render "home" "model"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create12 = {}, _Controller$create12[_containerOwner.OWNER] = appInstance, _Controller$create12));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.controller = controller, _EmberView$create18.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create18));
+    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = controller, _EmberView$create17.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create17));
 
     _emberMetalCore.default.TEMPLATES['home'] = _emberTemplateCompilerSystemCompile.default('<p>BYE</p>');
 
@@ -40195,13 +40186,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should let view provide its own template', function () {
-    var _Controller$create13, _EmberView$create19;
+    var _Controller$create13, _EmberView$create18;
 
     var template = '{{render \'fish\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create13 = {}, _Controller$create13[_containerOwner.OWNER] = appInstance, _Controller$create13));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create19 = {}, _EmberView$create19[_containerOwner.OWNER] = appInstance, _EmberView$create19.controller = controller, _EmberView$create19.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create19));
+    view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.controller = controller, _EmberView$create18.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create18));
 
     appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
     appInstance.register('template:other', _emberTemplateCompilerSystemCompile.default('Hello other!'));
@@ -40216,13 +40207,13 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should not require view to provide its own template', function () {
-    var _Controller$create14, _EmberView$create20;
+    var _Controller$create14, _EmberView$create19;
 
     var template = '{{render \'fish\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create14 = {}, _Controller$create14[_containerOwner.OWNER] = appInstance, _Controller$create14));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create20 = {}, _EmberView$create20[_containerOwner.OWNER] = appInstance, _EmberView$create20.controller = controller, _EmberView$create20.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create20));
+    view = _emberViewsViewsView.default.create((_EmberView$create19 = {}, _EmberView$create19[_containerOwner.OWNER] = appInstance, _EmberView$create19.controller = controller, _EmberView$create19.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create19));
 
     appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
 
@@ -40234,7 +40225,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should set router as target when parentController is not found', function () {
-    var _EmberView$create21;
+    var _EmberView$create20;
 
     expect(2);
 
@@ -40242,7 +40233,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     var template = '{{render \'post\' post1}}';
 
-    view = _emberViewsViewsView.default.create((_EmberView$create21 = {}, _EmberView$create21[_containerOwner.OWNER] = appInstance, _EmberView$create21.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create21));
+    view = _emberViewsViewsView.default.create((_EmberView$create20 = {}, _EmberView$create20[_containerOwner.OWNER] = appInstance, _EmberView$create20.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create20));
 
     var postController = undefined;
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -50595,6 +50586,19 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-meta
     equal(_emberRuntimeSystemNamespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
   });
 });
+enifed('ember-runtime/tests/system/native_array/a_test', ['exports', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array'], function (exports, _emberRuntimeMixinsArray, _emberRuntimeSystemNative_array) {
+  'use strict';
+
+  QUnit.module('Ember.A');
+
+  QUnit.test('Ember.A', function () {
+    deepEqual(_emberRuntimeSystemNative_array.A([1, 2]), [1, 2], 'array values were not be modified');
+    deepEqual(_emberRuntimeSystemNative_array.A(), [], 'returned an array with no arguments');
+    deepEqual(_emberRuntimeSystemNative_array.A(null), [], 'returned an array with a null argument');
+    ok(_emberRuntimeMixinsArray.default.detect(_emberRuntimeSystemNative_array.A()), 'returned an ember array');
+    ok(_emberRuntimeMixinsArray.default.detect(_emberRuntimeSystemNative_array.A([1, 2])), 'returned an ember array');
+  });
+});
 enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports', 'ember-metal/utils', 'ember-runtime/system/native_array', 'ember-runtime/tests/suites/copyable'], function (exports, _emberMetalUtils, _emberRuntimeSystemNative_array, _emberRuntimeTestsSuitesCopyable) {
   'use strict';
 
@@ -52776,6 +52780,25 @@ enifed('ember-template-compiler/tests/plugins/assert-no-each-in-test', ['exports
     ok(true);
   });
 });
+enifed('ember-template-compiler/tests/plugins/deprecate-render-block-test', ['exports', 'ember-template-compiler', 'ember-metal/features'], function (exports, _emberTemplateCompiler, _emberMetalFeatures) {
+  'use strict';
+
+  // jscs:disable
+
+  QUnit.module('ember-template-compiler: deprecate-render-block');
+
+  QUnit.test('Using `render` with a block issues a deprecation', function () {
+    expect(1);
+
+    var expectedMessage = 'Usage of `render` in block form is deprecated (\'baz/foo-bar\' @ L1:C0) .';
+
+    expectDeprecation(function () {
+      _emberTemplateCompiler.compile('{{#render "foo-bar"}}{{/render}}', {
+        moduleName: 'baz/foo-bar'
+      });
+    }, expectedMessage);
+  });
+});
 enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
   'use strict';
 
@@ -52981,7 +53004,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-beta.4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-beta.4+2841986d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
