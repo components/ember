@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+f1983ccf
+ * @version   2.6.0-canary+6b78bcb1
  */
 
 var enifed, requireModule, require, Ember;
@@ -74971,12 +74971,12 @@ enifed('ember-template-compiler/tests/plugins/deprecate-render-block-test', ['ex
 
     QUnit.module('ember-template-compiler: deprecate-render-block');
 
-    QUnit.test('Using `render` with a block issues a deprecation', function () {
+    QUnit.test('Using `render` with a block throws an error', function () {
       expect(1);
 
-      var expectedMessage = 'Usage of `render` in block form is deprecated (\'baz/foo-bar\' @ L1:C0) .';
+      var expectedMessage = 'Usage of `render` in block form is unsupported (\'baz/foo-bar\' @ L1:C0) .';
 
-      expectDeprecation(function () {
+      throws(function () {
         _emberTemplateCompiler.compile('{{#render "foo-bar"}}{{/render}}', {
           moduleName: 'baz/foo-bar'
         });
@@ -75176,7 +75176,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+f1983ccf', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+6b78bcb1', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
