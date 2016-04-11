@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+58441800
+ * @version   2.6.0-canary+ddd0de81
  */
 
 var enifed, requireModule, require, Ember;
@@ -24820,6 +24820,245 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
+enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: attrs lookup', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it should be able to lookup attrs without `attrs.` - template access'] = function testItShouldBeAbleToLookupAttrsWithoutAttrsTemplateAccess() {
+      var _this = this;
+
+      this.registerComponent('foo-bar', { template: '{{first}}' });
+
+      this.render('{{foo-bar first=firstAttr}}', {
+        firstAttr: 'first attr'
+      });
+
+      this.assertText('first attr');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('first attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstAttr', 'second attr');
+      });
+
+      this.assertText('second attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstAttr', 'first attr');
+      });
+
+      this.assertText('first attr');
+    };
+
+    _class.prototype['@test it should be able to lookup attrs without `attrs.` - component access'] = function testItShouldBeAbleToLookupAttrsWithoutAttrsComponentAccess(assert) {
+      var _this2 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{first}}' });
+
+      this.render('{{foo-bar first=firstAttr}}', {
+        firstAttr: 'first attr'
+      });
+
+      assert.equal(instance.get('first'), 'first attr');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'first attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'firstAttr', 'second attr');
+      });
+
+      assert.equal(instance.get('first'), 'second attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'firstAttr', 'first attr');
+      });
+
+      this.assertText('first attr');
+    };
+
+    _class.prototype['@htmlbars should be able to modify a provided attr into local state #11571 / #11559'] = function htmlbarsShouldBeAbleToModifyAProvidedAttrIntoLocalState1157111559(assert) {
+      var _this3 = this;
+
+      var instance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          this.set('first', this.getAttr('first').toUpperCase());
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{first}}' });
+
+      this.render('{{foo-bar first=firstAttr}}', {
+        firstAttr: 'first attr'
+      });
+
+      assert.equal(instance.get('first'), 'FIRST ATTR', 'component lookup uses local state');
+      this.assertText('FIRST ATTR');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'FIRST ATTR', 'component lookup uses local state during rerender');
+      this.assertText('FIRST ATTR');
+
+      // TODO: For some reason didReceiveAttrs is not called after this mutation occurs,
+      // See https://github.com/emberjs/ember.js/pull/13203
+      // this.runTask(() => set(this.context, 'firstAttr', 'second attr'));
+      // assert.equal(instance.get('first'), 'SECOND ATTR', 'component lookup uses modified local state');
+      // this.assertText('SECOND ATTR');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'firstAttr', 'first attr');
+      });
+
+      assert.equal(instance.get('first'), 'FIRST ATTR', 'component lookup uses reset local state');
+      this.assertText('FIRST ATTR');
+    };
+
+    _class.prototype['@htmlbars should be able to access unspecified attr #12035'] = function htmlbarsShouldBeAbleToAccessUnspecifiedAttr12035(assert) {
+      var _this4 = this;
+
+      var instance = undefined;
+      var wootVal = 'yes';
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          assert.equal(this.get('woot'), wootVal, 'found attr in didReceiveAttrs');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar woot=woot}}', {
+        woot: wootVal
+      });
+
+      assert.equal(instance.get('woot'), 'yes', 'component found attr');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      assert.equal(instance.get('woot'), 'yes', 'component found attr after rerender');
+
+      this.runTask(function () {
+        wootVal = 'nope';
+        _emberMetalProperty_set.set(_this4.context, 'woot', wootVal);
+      });
+
+      assert.equal(instance.get('woot'), 'nope', 'component found attr after attr change');
+
+      this.runTask(function () {
+        wootVal = 'yes';
+        _emberMetalProperty_set.set(_this4.context, 'woot', wootVal);
+      });
+
+      assert.equal(instance.get('woot'), 'yes', 'component found attr after reset');
+    };
+
+    _class.prototype['@htmlbars getAttr() should return the same value as get()'] = function htmlbarsGetAttrShouldReturnTheSameValueAsGet(assert) {
+      var _this5 = this;
+
+      assert.expect(20);
+      var instance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          var rootFirst = this.get('first');
+          var rootSecond = this.get('second');
+          var attrFirst = this.getAttr('first');
+          var attrSecond = this.getAttr('second');
+
+          equal(rootFirst, attrFirst, 'root property matches attrs value');
+          equal(rootSecond, attrSecond, 'root property matches attrs value');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar first=first second=second}}', {
+        first: 'first',
+        second: 'second'
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'first', 'third');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'second', 'fourth');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'fourth', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'first', 'first');
+        _emberMetalProperty_set.set(_this5.context, 'second', 'second');
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
   /* globals EmberDev */
   'use strict';
@@ -39015,145 +39254,6 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     });
   }
 });
-enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-metal/run_loop', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberMetalRun_loop, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var owner, view;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('component - attrs lookup', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.registerOptionsForType('component', { singleton: false });
-        owner.registerOptionsForType('view', { singleton: false });
-        owner.registerOptionsForType('template', { instantiate: false });
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        _emberRuntimeTestsUtils.runDestroy(view);
-        owner = view = null;
-      }
-    });
-
-    QUnit.test('should be able to lookup attrs without `attrs.` - template access', function () {
-      var _EmberView$extend;
-
-      owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('{{first}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default('{{foo-bar first="first attr"}}'), _EmberView$extend)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'first attr');
-    });
-
-    QUnit.test('should be able to lookup attrs without `attrs.` - component access', function () {
-      var _EmberView$extend2;
-
-      var component;
-
-      owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberTemplateCompilerSystemCompile.default('{{foo-bar first="first attr"}}'), _EmberView$extend2)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(component.get('first'), 'first attr');
-    });
-
-    QUnit.test('should be able to modify a provided attr into local state #11571 / #11559', function () {
-      var _EmberView$extend3;
-
-      var component;
-
-      owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        },
-
-        didReceiveAttrs: function () {
-          this.set('first', this.getAttr('first').toUpperCase());
-        }
-      }));
-      owner.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('{{first}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend3 = {}, _EmberView$extend3[_containerOwner.OWNER] = owner, _EmberView$extend3.template = _emberTemplateCompilerSystemCompile.default('{{foo-bar first="first attr"}}'), _EmberView$extend3)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
-      equal(component.get('first'), 'FIRST ATTR', 'component lookup uses local state');
-    });
-
-    QUnit.test('should be able to access unspecified attr #12035', function () {
-      var _EmberView$extend4;
-
-      var component;
-
-      owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        },
-
-        didReceiveAttrs: function () {
-          equal(this.get('woot'), 'yes', 'found attr in didReceiveAttrs');
-        }
-      }));
-      // owner.register('template:components/foo-bar', compile('{{first}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend4 = {}, _EmberView$extend4[_containerOwner.OWNER] = owner, _EmberView$extend4.template = _emberTemplateCompilerSystemCompile.default('{{foo-bar woot="yes"}}'), _EmberView$extend4)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      // equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
-      equal(component.get('woot'), 'yes', 'component found attr');
-    });
-
-    QUnit.test('should not need to call _super in `didReceiveAttrs` (GH #11992)', function () {
-      var _EmberView$extend5;
-
-      expect(12);
-      var firstValue = 'first';
-      var secondValue = 'second';
-
-      owner.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
-        didReceiveAttrs: function () {
-          var rootFirst = this.get('first');
-          var rootSecond = this.get('second');
-          var attrFirst = this.getAttr('first');
-          var attrSecond = this.getAttr('second');
-
-          equal(rootFirst, attrFirst, 'root property matches attrs value');
-          equal(rootSecond, attrSecond, 'root property matches attrs value');
-
-          equal(rootFirst, firstValue, 'matches known value');
-          equal(rootSecond, secondValue, 'matches known value');
-        }
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend5 = {}, _EmberView$extend5[_containerOwner.OWNER] = owner, _EmberView$extend5.first = firstValue, _EmberView$extend5.second = secondValue, _EmberView$extend5.template = _emberTemplateCompilerSystemCompile.default('{{foo-bar first=view.first second=view.second}}'), _EmberView$extend5)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      firstValue = 'asdf';
-      _emberMetalRun_loop.default(view, 'set', 'first', firstValue);
-
-      secondValue = 'jkl;';
-      _emberMetalRun_loop.default(view, 'set', 'second', secondValue);
-    });
-  }
-});
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
   'use strict';
 
@@ -39711,6 +39811,245 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
     // from inside the attrs hash out into state and passes it as attrs into a child
     // component. The hooks should run correctly.
   }
+});
+enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: attrs lookup', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it should be able to lookup attrs without `attrs.` - template access'] = function testItShouldBeAbleToLookupAttrsWithoutAttrsTemplateAccess() {
+      var _this = this;
+
+      this.registerComponent('foo-bar', { template: '{{first}}' });
+
+      this.render('{{foo-bar first=firstAttr}}', {
+        firstAttr: 'first attr'
+      });
+
+      this.assertText('first attr');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('first attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstAttr', 'second attr');
+      });
+
+      this.assertText('second attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstAttr', 'first attr');
+      });
+
+      this.assertText('first attr');
+    };
+
+    _class.prototype['@test it should be able to lookup attrs without `attrs.` - component access'] = function testItShouldBeAbleToLookupAttrsWithoutAttrsComponentAccess(assert) {
+      var _this2 = this;
+
+      var instance = undefined;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{first}}' });
+
+      this.render('{{foo-bar first=firstAttr}}', {
+        firstAttr: 'first attr'
+      });
+
+      assert.equal(instance.get('first'), 'first attr');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'first attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'firstAttr', 'second attr');
+      });
+
+      assert.equal(instance.get('first'), 'second attr');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'firstAttr', 'first attr');
+      });
+
+      this.assertText('first attr');
+    };
+
+    _class.prototype['@htmlbars should be able to modify a provided attr into local state #11571 / #11559'] = function htmlbarsShouldBeAbleToModifyAProvidedAttrIntoLocalState1157111559(assert) {
+      var _this3 = this;
+
+      var instance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          this.set('first', this.getAttr('first').toUpperCase());
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{first}}' });
+
+      this.render('{{foo-bar first=firstAttr}}', {
+        firstAttr: 'first attr'
+      });
+
+      assert.equal(instance.get('first'), 'FIRST ATTR', 'component lookup uses local state');
+      this.assertText('FIRST ATTR');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'FIRST ATTR', 'component lookup uses local state during rerender');
+      this.assertText('FIRST ATTR');
+
+      // TODO: For some reason didReceiveAttrs is not called after this mutation occurs,
+      // See https://github.com/emberjs/ember.js/pull/13203
+      // this.runTask(() => set(this.context, 'firstAttr', 'second attr'));
+      // assert.equal(instance.get('first'), 'SECOND ATTR', 'component lookup uses modified local state');
+      // this.assertText('SECOND ATTR');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'firstAttr', 'first attr');
+      });
+
+      assert.equal(instance.get('first'), 'FIRST ATTR', 'component lookup uses reset local state');
+      this.assertText('FIRST ATTR');
+    };
+
+    _class.prototype['@htmlbars should be able to access unspecified attr #12035'] = function htmlbarsShouldBeAbleToAccessUnspecifiedAttr12035(assert) {
+      var _this4 = this;
+
+      var instance = undefined;
+      var wootVal = 'yes';
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          assert.equal(this.get('woot'), wootVal, 'found attr in didReceiveAttrs');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar woot=woot}}', {
+        woot: wootVal
+      });
+
+      assert.equal(instance.get('woot'), 'yes', 'component found attr');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      assert.equal(instance.get('woot'), 'yes', 'component found attr after rerender');
+
+      this.runTask(function () {
+        wootVal = 'nope';
+        _emberMetalProperty_set.set(_this4.context, 'woot', wootVal);
+      });
+
+      assert.equal(instance.get('woot'), 'nope', 'component found attr after attr change');
+
+      this.runTask(function () {
+        wootVal = 'yes';
+        _emberMetalProperty_set.set(_this4.context, 'woot', wootVal);
+      });
+
+      assert.equal(instance.get('woot'), 'yes', 'component found attr after reset');
+    };
+
+    _class.prototype['@htmlbars getAttr() should return the same value as get()'] = function htmlbarsGetAttrShouldReturnTheSameValueAsGet(assert) {
+      var _this5 = this;
+
+      assert.expect(20);
+      var instance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          var rootFirst = this.get('first');
+          var rootSecond = this.get('second');
+          var attrFirst = this.getAttr('first');
+          var attrSecond = this.getAttr('second');
+
+          equal(rootFirst, attrFirst, 'root property matches attrs value');
+          equal(rootSecond, attrSecond, 'root property matches attrs value');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar first=first second=second}}', {
+        first: 'first',
+        second: 'second'
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'first', 'third');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'second', 'fourth');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'fourth', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'first', 'first');
+        _emberMetalProperty_set.set(_this5.context, 'second', 'second');
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
   /* globals EmberDev */
@@ -75687,7 +76026,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+58441800', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+ddd0de81', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
