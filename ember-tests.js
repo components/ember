@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.4+0947bfc3
+ * @version   2.4.4+8877bae1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12274,6 +12274,15 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     };
 
     confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+  });
+
+  QUnit.test('`ENV.FEATURES` being undefined does not cause an error', function () {
+    expect(0);
+
+    _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
+    features = undefined;
+
+    confirmWarns();
   });
 });
 enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperUtils) {
@@ -51514,7 +51523,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.4+0947bfc3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.4+8877bae1', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
