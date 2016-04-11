@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.5.0-beta.4"
+        "version": "v2.5.0"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -2100,8 +2100,6 @@
                 "Ember.ApplicationInstance": 1,
                 "Ember.ApplicationInstance.BootOptions": 1,
                 "Ember.Application": 1,
-                "Ember.EngineInstance": 1,
-                "Ember.Engine": 1,
                 "Ember.DefaultResolver": 1,
                 "Ember": 1,
                 "Ember.Debug": 1,
@@ -2218,8 +2216,6 @@
                 "Ember.ApplicationInstance": 1,
                 "Ember.ApplicationInstance.BootOptions": 1,
                 "Ember.Application": 1,
-                "Ember.EngineInstance": 1,
-                "Ember.Engine": 1,
                 "Ember.DefaultResolver": 1
             },
             "fors": {},
@@ -2248,7 +2244,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-debug/lib/index.js",
-            "line": 221
+            "line": 231
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -2346,7 +2342,7 @@
             "tag": "module",
             "file": "packages/ember-metal/lib/run_loop.js",
             "line": 38,
-            "description": "This namespace contains all Ember methods and functions. Future versions of\nEmber may overwrite this namespace and therefore, you should avoid adding any\nnew properties.\n\nYou can also use the shorthand `Em` instead of `Ember`.\n\nAt the heart of Ember is Ember-Runtime, a set of core functions that provide\ncross-platform compatibility and object property observing.  Ember-Runtime is\nsmall and performance-focused so you can use it alongside other\ncross-platform libraries such as jQuery. For more details, see\n[Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).",
+            "description": "This namespace contains all Ember methods and functions. Future versions of\nEmber may overwrite this namespace and therefore, you should avoid adding any\nnew properties.\n\nAt the heart of Ember is Ember-Runtime, a set of core functions that provide\ncross-platform compatibility and object property observing.  Ember-Runtime is\nsmall and performance-focused so you can use it alongside other\ncross-platform libraries such as jQuery. For more details, see\n[Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).",
             "module": "ember"
         },
         "ember-routing-htmlbars": {
@@ -2619,49 +2615,6 @@
             "access": "public",
             "tagname": ""
         },
-        "Ember.EngineInstance": {
-            "name": "Ember.EngineInstance",
-            "shortname": "Ember.EngineInstance",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "submodule": "ember-application",
-            "namespace": "",
-            "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 12,
-            "description": "The `EngineInstance` encapsulates all of the stateful aspects of a\nrunning `Engine`.",
-            "access": "public",
-            "tagname": "",
-            "extends": "Ember.Object",
-            "uses": [
-                "RegistryProxyMixin",
-                "ContainerProxyMixin"
-            ]
-        },
-        "Ember.Engine": {
-            "name": "Ember.Engine",
-            "shortname": "Ember.Engine",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "submodule": "ember-application",
-            "namespace": "Ember",
-            "file": "packages/ember-application/lib/system/engine.js",
-            "line": 27,
-            "description": "The `Engine` class contains core functionality for both applications and\nengines.\n\nEach engine manages a registry that's used for dependency injection and\nexposed through `RegistryProxy`.\n\nEngines also manage initializers and instance initializers.\n\nEngines can spawn `EngineInstance` instances via `buildInstance()`.",
-            "extends": "Ember.Namespace",
-            "uses": [
-                "RegistryProxy"
-            ],
-            "access": "public",
-            "tagname": ""
-        },
         "Ember.DefaultResolver": {
             "name": "Ember.DefaultResolver",
             "shortname": "Ember.DefaultResolver",
@@ -2695,7 +2648,7 @@
             "line": 10,
             "access": "public",
             "tagname": "",
-            "description": "This namespace contains all Ember methods and functions. Future versions of\nEmber may overwrite this namespace and therefore, you should avoid adding any\nnew properties.\n\nYou can also use the shorthand `Em` instead of `Ember`.\n\nAt the heart of Ember is Ember-Runtime, a set of core functions that provide\ncross-platform compatibility and object property observing.  Ember-Runtime is\nsmall and performance-focused so you can use it alongside other\ncross-platform libraries such as jQuery. For more details, see\n[Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).",
+            "description": "This namespace contains all Ember methods and functions. Future versions of\nEmber may overwrite this namespace and therefore, you should avoid adding any\nnew properties.\n\nAt the heart of Ember is Ember-Runtime, a set of core functions that provide\ncross-platform compatibility and object property observing.  Ember-Runtime is\nsmall and performance-focused so you can use it alongside other\ncross-platform libraries such as jQuery. For more details, see\n[Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).",
             "static": 1,
             "version": "VERSION_STRING_PLACEHOLDER"
         },
@@ -2711,7 +2664,7 @@
             "submodule": "ember-debug",
             "namespace": "",
             "file": "packages/ember-debug/lib/index.js",
-            "line": 221,
+            "line": 231,
             "access": "public",
             "tagname": ""
         },
@@ -2839,7 +2792,7 @@
             "module": "ember-metal",
             "namespace": "Ember.stream",
             "file": "packages/ember-metal/lib/streams/stream.js",
-            "line": 15,
+            "line": 19,
             "access": "private",
             "tagname": "",
             "is_constructor": 1
@@ -2901,9 +2854,8 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 34,
+            "line": 30,
             "description": "A computed property transforms an object literal with object's accessor function(s) into a property.\n\nBy default the function backing the computed property will only be called\nonce and the result will be cached. You can specify various properties\nthat your computed property depends on. This will force the cached\nresult to be recomputed if the dependencies are modified.\n\nIn the following example we declare a computed property - `fullName` - by calling\n`.Ember.computed()` with property dependencies (`firstName` and `lastName`) as leading arguments and getter accessor function. The `fullName` getter function\nwill be called once (regardless of how many times it is accessed) as long\nas its dependencies have not changed. Once `firstName` or `lastName` are updated\nany future calls (or anything bound) to `fullName` will incorporate the new\nvalues.\n\n```javascript\nlet Person = Ember.Object.extend({\n  // these will be supplied by `create`\n  firstName: null,\n  lastName: null,\n\n  fullName: Ember.computed('firstName', 'lastName', function() {\n    let firstName = this.get('firstName'),\n        lastName  = this.get('lastName');\n\n    return firstName + ' ' + lastName;\n  })\n});\n\nlet tom = Person.create({\n  firstName: 'Tom',\n  lastName: 'Dale'\n});\n\ntom.get('fullName') // 'Tom Dale'\n```\n\nYou can also define what Ember should do when setting a computed property by providing additional function (`set`) in hash argument.\nIf you try to set a computed property, it will try to invoke setter accessor function with the key and\nvalue you want to set it to as arguments.\n\n```javascript\nlet Person = Ember.Object.extend({\n  // these will be supplied by `create`\n  firstName: null,\n  lastName: null,\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    get(key) {\n      let firstName = this.get('firstName'),\n          lastName  = this.get('lastName');\n\n      return firstName + ' ' + lastName;\n    },\n    set(key, value) {\n      let [firstName, lastName] = value.split(' ');\n\n      this.set('firstName', firstName);\n      this.set('lastName', lastName);\n\n      return value;\n    }\n  })\n});\n\nlet person = Person.create();\n\nperson.set('fullName', 'Peter Wagenet');\nperson.get('firstName'); // 'Peter'\nperson.get('lastName');  // 'Wagenet'\n```\n\nYou can overwrite computed property with normal property (no longer computed), that won't change if dependencies change, if you set computed property and it won't have setter accessor function defined.\n\nYou can also mark computed property as `.readOnly()` and block all attempts to set it.\n\n```javascript\nlet Person = Ember.Object.extend({\n  // these will be supplied by `create`\n  firstName: null,\n  lastName: null,\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    get(key) {\n      let firstName = this.get('firstName');\n      let lastName  = this.get('lastName');\n\n      return firstName + ' ' + lastName;\n    }\n  }).readOnly()\n});\n\nlet person = Person.create();\nperson.set('fullName', 'Peter Wagenet'); // Uncaught Error: Cannot set read-only property \"fullName\" on object: <(...):emberXXX>\n```\n\nAdditional resources:\n- [New CP syntax RFC](https://github.com/emberjs/rfcs/blob/master/text/0011-improved-cp-syntax.md)\n- [New computed syntax explained in \"Ember 1.12 released\" ](http://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)",
-            "is_constructor": 1,
             "access": "public",
             "tagname": ""
         },
@@ -2919,7 +2871,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 539,
+            "line": 458,
             "description": "This helper returns a new property descriptor that wraps the passed\ncomputed property function. You can use this helper to define properties\nwith mixins or via `Ember.defineProperty()`.\n\nIf you pass a function as an argument, it will be used as a getter. A computed\nproperty defined in this way might look like this:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', function() {\n    return `${this.get('firstName')} ${this.get('lastName')}`;\n  })\n});\n\nlet client = Person.create();\n\nclient.get('fullName'); // 'Betty Jones'\n\nclient.set('lastName', 'Fuller');\nclient.get('fullName'); // 'Betty Fuller'\n```\n\nYou can pass a hash with two functions, `get` and `set`, as an\nargument to provide both a getter and setter:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    get(key) {\n      return `${this.get('firstName')} ${this.get('lastName')}`;\n    },\n    set(key, value) {\n      let [firstName, lastName] = value.split(/\\s+/);\n      this.setProperties({ firstName, lastName });\n      return value;\n    }\n  });\n})\n\nlet client = Person.create();\nclient.get('firstName'); // 'Betty'\n\nclient.set('fullName', 'Carroll Fuller');\nclient.get('firstName'); // 'Carroll'\n```\n\nThe `set` function should accept two parameters, `key` and `value`. The value\nreturned from `set` will be the new value of the property.\n\n_Note: This is the preferred way to define computed properties when writing third-party\nlibraries that depend on or use Ember, since there is no guarantee that the user\nwill have [prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._\n\nThe alternative syntax, with prototype extensions, might look like:\n\n```js\nfullName() {\n  return this.get('firstName') + ' ' + this.get('lastName');\n}.property('firstName', 'lastName')\n```",
             "is_constructor": 1,
             "static": 1,
@@ -5505,7 +5457,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 24,
+            "line": 25,
             "description": "The base `Engine` for which this is an instance.",
             "itemtype": "property",
             "name": "engine",
@@ -5518,7 +5470,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 52,
+            "line": 53,
             "description": "Unregister a factory.\n\nOverrides `RegistryProxy#unregister` in order to clear any cached instances\nof the unregistered factory.",
             "access": "public",
             "tagname": "",
@@ -5537,7 +5489,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 67,
+            "line": 68,
             "access": "private",
             "tagname": "",
             "class": "Ember.EngineInstance",
@@ -5546,7 +5498,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 51,
+            "line": 52,
             "description": "Create an EngineInstance for this application.",
             "access": "private",
             "tagname": "",
@@ -5563,7 +5515,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 63,
+            "line": 64,
             "description": "Build and configure the registry for the current application.",
             "access": "private",
             "tagname": "",
@@ -5580,7 +5532,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 76,
+            "line": 77,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5592,7 +5544,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 84,
+            "line": 85,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5604,7 +5556,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 92,
+            "line": 93,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5616,7 +5568,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 115,
+            "line": 116,
             "access": "private",
             "tagname": "",
             "since": "1.12.0",
@@ -5629,7 +5581,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 148,
+            "line": 149,
             "description": "The goal of initializers should be to register dependencies and injections.\nThis phase runs once. Because these initializers may load code, they are\nallowed to defer application readiness and advance it. If you need to access\nthe container or store you should use an InstanceInitializer that will be run\nafter all initializers and therefore after all code is loaded and the app is\nready.\n\nInitializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the initializer is registered.\nThis must be a unique name, as trying to register two initializers with the\nsame name will result in an error.\n\n```javascript\nEmber.Application.initializer({\n  name: 'namedInitializer',\n\n  initialize: function(application) {\n    Ember.debug('Running namedInitializer!');\n  }\n});\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\nAn example of ordering initializers, we create an initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'first',\n\n  initialize: function(application) {\n    Ember.debug('First initializer!');\n  }\n});\n\n// DEBUG: First initializer!\n```\n\nWe add another initializer named `second`, specifying that it should run\nafter the initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'second',\n  after: 'first',\n\n  initialize: function(application) {\n    Ember.debug('Second initializer!');\n  }\n});\n\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nAfterwards we add a further initializer named `pre`, this time specifying\nthat it should run before the initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'pre',\n  before: 'first',\n\n  initialize: function(application) {\n    Ember.debug('Pre initializer!');\n  }\n});\n\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nFinally we add an initializer named `post`, specifying it should run after\nboth the `first` and the `second` initializers:\n\n```javascript\nEmber.Application.initializer({\n  name: 'post',\n  after: ['first', 'second'],\n\n  initialize: function(application) {\n    Ember.debug('Post initializer!');\n  }\n});\n\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n// DEBUG: Post initializer!\n```\n\n* `initialize` is a callback function that receives one argument,\n  `application`, on which you can operate.\n\nExample of using `application` to register an adapter:\n\n```javascript\nEmber.Application.initializer({\n  name: 'api-adapter',\n\n  initialize: function(application) {\n    application.register('api-adapter:main', ApiAdapter);\n  }\n});\n```",
             "itemtype": "method",
             "name": "initializer",
@@ -5649,7 +5601,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 268,
+            "line": 269,
             "description": "Instance initializers run after all initializers have run. Because\ninstance initializers run after the app is fully set up. We have access\nto the store, container, and other items. However, these initializers run\nafter code has loaded and are not allowed to defer readiness.\n\nInstance initializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the instanceInitializer is\nregistered. This must be a unique name, as trying to register two\ninstanceInitializer with the same name will result in an error.\n\n```javascript\nEmber.Application.instanceInitializer({\n  name: 'namedinstanceInitializer',\n\n  initialize: function(application) {\n    Ember.debug('Running namedInitializer!');\n  }\n});\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\n* See Ember.Application.initializer for discussion on the usage of before\nand after.\n\nExample instanceInitializer to preload data into the store.\n\n```javascript\nEmber.Application.initializer({\n  name: 'preload-data',\n\n  initialize: function(application) {\n    var userConfig, userConfigEncoded, store;\n    // We have a HTML escaped JSON representation of the user's basic\n    // configuration generated server side and stored in the DOM of the main\n    // index.html file. This allows the app to have access to a set of data\n    // without making any additional remote calls. Good for basic data that is\n    // needed for immediate rendering of the page. Keep in mind, this data,\n    // like all local models and data can be manipulated by the user, so it\n    // should not be relied upon for security or authorization.\n    //\n    // Grab the encoded data from the meta tag\n    userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');\n    // Unescape the text, then parse the resulting JSON into a real object\n    userConfig = JSON.parse(unescape(userConfigEncoded));\n    // Lookup the store\n    store = application.lookup('service:store');\n    // Push the encoded JSON into the store\n    store.pushPayload(userConfig);\n  }\n});\n```",
             "itemtype": "method",
             "name": "instanceInitializer",
@@ -5668,7 +5620,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 333,
+            "line": 334,
             "description": "This creates a registry with the default Ember naming conventions.\n\nIt also configures the registry:\n\n* registered views are created every time they are looked up (they are\n  not singletons)\n* registered templates are not factories; the registered value is\n  returned directly.\n* the router receives the application as its `namespace` property\n* all controllers receive the router as their `target` and `controllers`\n  properties\n* all controllers receive the application as their `namespace` property\n* the application view receives the application controller as its\n  `controller` property\n* the application view receives the application template as its\n  `defaultTemplate` property",
             "access": "public",
             "tagname": "",
@@ -5693,7 +5645,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 369,
+            "line": 370,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "deprecated": true,
             "deprecationMessage": "Use 'Resolver' instead",
@@ -5708,7 +5660,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 379,
+            "line": 380,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "itemtype": "property",
             "name": "resolver",
@@ -5721,7 +5673,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine.js",
-            "line": 388,
+            "line": 389,
             "description": "This function defines the default lookup rules for container lookups:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after classifying the name.\n  For example, `controller:post` looks up `App.PostController` by default.\n* if the default lookup fails, look for registered classes on the container\n\nThis allows the application to register default injections in the container\nthat could be overridden by the normal naming convention.",
             "access": "private",
             "tagname": "",
@@ -6052,7 +6004,7 @@
         {
             "file": "packages/ember-debug/lib/deprecate.js",
             "line": 86,
-            "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only). Ember build tools will remove any calls to\n`Ember.deprecate()` when doing a production build.",
+            "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only).\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "deprecate",
             "params": [
@@ -6081,7 +6033,7 @@
         {
             "file": "packages/ember-debug/lib/index.js",
             "line": 32,
-            "description": "Define an assertion that will throw an exception if the condition is not\nmet. Ember build tools will remove any calls to `Ember.assert()` when\ndoing an Ember.js framework production build and will make the assertion a\nno-op for an application production build. Example:\n\n```javascript\n// Test for truthiness\nEmber.assert('Must pass a valid object', obj);\n\n// Fail unconditionally\nEmber.assert('This code path should never be run');\n```",
+            "description": "Define an assertion that will throw an exception if the condition is not met.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\n// Test for truthiness\nEmber.assert('Must pass a valid object', obj);\n\n// Fail unconditionally\nEmber.assert('This code path should never be run');\n```",
             "itemtype": "method",
             "name": "assert",
             "params": [
@@ -6105,7 +6057,7 @@
         {
             "file": "packages/ember-debug/lib/index.js",
             "line": 73,
-            "description": "Display a debug notice. Ember build tools will remove any calls to\n`Ember.debug()` when doing a production build.\n\n```javascript\nEmber.debug('I\\'m a debug notice!');\n```",
+            "description": "Display a debug notice.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\nEmber.debug('I\\'m a debug notice!');\n```",
             "itemtype": "method",
             "name": "debug",
             "params": [
@@ -6123,8 +6075,8 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 89,
-            "description": "Display an info notice.",
+            "line": 91,
+            "description": "Display an info notice.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "info",
             "access": "private",
@@ -6135,8 +6087,8 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 99,
-            "description": "Alias an old, deprecated method with its new counterpart.\n\nDisplay a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only) when the assigned method is called.\n\nEmber build tools will not remove calls to `Ember.deprecateFunc()`, though\nno warnings will be shown in production.\n\n```javascript\nEmber.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);\n```",
+            "line": 104,
+            "description": "Alias an old, deprecated method with its new counterpart.\n\nDisplay a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only) when the assigned method is called.\n\n* In a production build, this method is defined as an empty function (NOP).\n\n```javascript\nEmber.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);\n```",
             "itemtype": "method",
             "name": "deprecateFunc",
             "params": [
@@ -6169,8 +6121,8 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 136,
-            "description": "Run a function meant for debugging. Ember build tools will remove any calls to\n`Ember.runInDebug()` when doing a production build.\n\n```javascript\nEmber.runInDebug(() => {\n  Ember.Component.reopen({\n    didInsertElement() {\n      console.log(\"I'm happy\");\n    }\n  });\n});\n```",
+            "line": 140,
+            "description": "Run a function meant for debugging.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\nEmber.runInDebug(() => {\n  Ember.Component.reopen({\n    didInsertElement() {\n      console.log(\"I'm happy\");\n    }\n  });\n});\n```",
             "itemtype": "method",
             "name": "runInDebug",
             "params": [
@@ -6189,7 +6141,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 167,
+            "line": 173,
             "description": "Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or\nany specific FEATURES flag is truthy.\n\nThis method is called automatically in debug canary builds.",
             "access": "private",
             "tagname": "",
@@ -6205,7 +6157,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 228,
+            "line": 238,
             "description": "Allows for runtime registration of handler functions that override the default deprecation behavior.\nDeprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).\nThe following example demonstrates its usage by registering a handler that throws an error if the\nmessage contains the word \"should\", otherwise defers to the default handler.\n\n```javascript\nEmber.Debug.registerDeprecationHandler((message, options, next) => {\n  if (message.indexOf('should') !== -1) {\n    throw new Error(`Deprecation message with should: ${message}`);\n  } else {\n    // defer to whatever handler was registered before this one\n    next(message, options);\n  }\n}\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the deprecation call.</li>\n  <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>\n      <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6226,7 +6178,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 264,
+            "line": 274,
             "description": "Allows for runtime registration of handler functions that override the default warning behavior.\nWarnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).\nThe following example demonstrates its usage by registering a handler that does nothing overriding Ember's\ndefault warning behavior.\n\n```javascript\n// next is not called, so no warnings get the default behavior\nEmber.Debug.registerWarnHandler(() => {});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the warn call. </li>\n  <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6248,7 +6200,7 @@
         {
             "file": "packages/ember-debug/lib/warn.js",
             "line": 26,
-            "description": "Display a warning with the provided message. Ember build tools will\nremove any calls to `Ember.warn()` when doing a production build.",
+            "description": "Display a warning with the provided message.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "warn",
             "params": [
@@ -7014,7 +6966,7 @@
         {
             "file": "packages/ember-htmlbars/lib/keywords/mut.js",
             "line": 47,
-            "description": "The `mut` helper lets you __clearly specify__ that a child `Component` can update the\n(mutable) value passed to it, which will __change the value of the parent component__.\n\nThis is very helpful for passing mutable values to a `Component` of any size, but\ncritical to understanding the logic of a large/complex `Component`.\n\nTo specify that a parameter is mutable, when invoking the child `Component`:\n\n```handlebars\n<my-child child-click-count={{mut totalClicks}} />\n```\n\nThe child `Component` can then modify the parent's value as needed:\n\n```javascript\n// my-child.js\nexport default Component.extend({\n  click() {\n    this.attrs.childClickCount.update(this.attrs.childClickCount.value + 1);\n  }\n});\n```\n\nSee a [2.0 blog post](http://emberjs.com/blog/2015/05/10/run-up-to-two-oh.html#toc_the-code-mut-code-helper) for\nadditional information on using `{{mut}}`.",
+            "description": "The `mut` helper lets you __clearly specify__ that a child `Component` can update the\n(mutable) value passed to it, which will __change the value of the parent component__.\n\nThis is very helpful for passing mutable values to a `Component` of any size, but\ncritical to understanding the logic of a large/complex `Component`.\n\nTo specify that a parameter is mutable, when invoking the child `Component`:\n\n```handlebars\n{{my-child childClickCount=(mut totalClicks)}}\n```\n\nThe child `Component` can then modify the parent's value as needed:\n\n```javascript\n// my-child.js\nexport default Component.extend({\n  click() {\n    this.get('childClickCount').update(this.get('childClickCount').value + 1);\n  }\n});\n```\n\nAdditionally, the `mut` helper can be combined with the `action` helper to\nmutate a value. For example:\n\n```handlebars\n{{my-child childClickCount=totalClicks click-count-change=(action (mut \"totalClicks\"))}}\n```\n\nThe child `Component` would invoke the action with the new click value:\n\n```javascript\n// my-child.js\nexport default Component.extend({\n  click() {\n    this.get('clickCountChange')(this.get('childClickCount') + 1);\n  }\n});\n```\n\nThe `mut` helper changes the `totalClicks` value to what was provided as the action argument.\n\nSee a [2.0 blog post](http://emberjs.com/blog/2015/05/10/run-up-to-two-oh.html#toc_the-code-mut-code-helper) for\nadditional information on using `{{mut}}`.",
             "access": "public",
             "tagname": "",
             "itemtype": "method",
@@ -7365,7 +7317,7 @@
         },
         {
             "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 302,
+            "line": 303,
             "description": "Generate a new stream by providing a source stream and a function that can\nbe used to transform the stream's value. In the case of a non-stream object,\nreturns the result of the function.\n\nThe value to transform would typically be available to the function you pass\nto `chain()` via scope. For example:\n\n```javascript\n    var source = ...;  // stream returning a number\n                           // or a numeric (non-stream) object\n    var result = chain(source, function() {\n      var currentValue = read(source);\n      return currentValue + 1;\n    });\n```\n\nIn the example, result is a stream if source is a stream, or a number of\nsource was numeric.",
             "access": "private",
             "tagname": "",
@@ -7606,7 +7558,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 170,
+            "line": 165,
             "description": "Call on a computed property to set it into non-cached mode. When in this\nmode the computed property will not automatically cache the return value.\n\nIt also does not automatically fire any change events. You must manually notify\nany changes if you want to observe this property.\n\nDependency keys have no effect on volatile properties as they are for cache\ninvalidation and notification when cached value is invalidated.\n\n```javascript\nlet outsideService = Ember.Object.extend({\n  value: Ember.computed(function() {\n    return OutsideService.getValue();\n  }).volatile()\n}).create();\n```",
             "itemtype": "method",
             "name": "volatile",
@@ -7624,7 +7576,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 198,
+            "line": 193,
             "description": "Call on a computed property to set it into read-only mode. When in this\nmode the computed property will throw an error when set.\n\n```javascript\nlet Person = Ember.Object.extend({\n  guid: Ember.computed(function() {\n    return 'guid-guid-guid';\n  }).readOnly()\n});\n\nlet person = Person.create();\n\nperson.set('guid', 'new-guid'); // will throw an exception\n```",
             "itemtype": "method",
             "name": "readOnly",
@@ -7642,7 +7594,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 225,
+            "line": 220,
             "description": "Sets the dependent keys on this computed property. Pass any number of\narguments containing key paths that this computed property depends on.\n\n```javascript\nlet President = Ember.Object.extend({\n  fullName: Ember.computed(function() {\n    return this.get('firstName') + ' ' + this.get('lastName');\n\n    // Tell Ember that this computed property depends on firstName\n    // and lastName\n  }).property('firstName', 'lastName')\n});\n\nlet president = President.create({\n  firstName: 'Barack',\n  lastName: 'Obama'\n});\n\npresident.get('fullName'); // 'Barack Obama'\n```",
             "itemtype": "method",
             "name": "property",
@@ -7668,7 +7620,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 276,
+            "line": 271,
             "description": "In some cases, you may want to annotate computed properties with additional\nmetadata about how they function or what values they operate on. For example,\ncomputed property functions may close over variables that are then no longer\navailable for introspection.\n\nYou can pass a hash of these values to a computed property like this:\n\n```\nperson: Ember.computed(function() {\n  let personId = this.get('personId');\n  return App.Person.create({ id: personId });\n}).meta({ type: App.Person })\n```\n\nThe hash that you pass to the `meta()` function will be saved on the\ncomputed property descriptor under the `_meta` key. Ember runtime\nexposes a public API for retrieving these values from classes,\nvia the `metaForProperty()` function.",
             "itemtype": "method",
             "name": "meta",
@@ -7689,60 +7641,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 332,
-            "description": "Access the value of the function backing the computed property.\nIf this property has already been cached, return the cached result.\nOtherwise, call the function passing the property name as an argument.\n\n```javascript\nlet Person = Ember.Object.extend({\n  fullName: Ember.computed('firstName', 'lastName', function(keyName) {\n    // the keyName parameter is 'fullName' in this case.\n    return this.get('firstName') + ' ' + this.get('lastName');\n  })\n});\n\n\nlet tom = Person.create({\n  firstName: 'Tom',\n  lastName: 'Dale'\n});\n\ntom.get('fullName') // 'Tom Dale'\n```",
-            "itemtype": "method",
-            "name": "get",
-            "params": [
-                {
-                    "name": "keyName",
-                    "description": "The key being accessed.",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "The return value of the function backing the CP.",
-                "type": "Object"
-            },
-            "access": "public",
-            "tagname": "",
-            "class": "Ember.ComputedProperty",
-            "module": "ember",
-            "submodule": "ember-metal",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-metal/lib/computed.js",
-            "line": 390,
-            "description": "Set the value of a computed property. If the function that backs your\ncomputed property does not accept arguments then the default action for\nsetting would be to define the property on the current object, and set\nthe value of the property to the value being set.\n\nGenerally speaking if you intend for your computed property to be set\nyou should pass `set(key, value)` function in hash as argument to `Ember.computed()` along with `get(key)` function.\n\n```javascript\nlet Person = Ember.Object.extend({\n  // these will be supplied by `create`\n  firstName: null,\n  lastName: null,\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    // getter\n    get() {\n      let firstName = this.get('firstName');\n      let lastName = this.get('lastName');\n\n      return firstName + ' ' + lastName;\n    },\n    // setter\n    set(key, value) {\n      let [firstName, lastName] = value.split(' ');\n\n      this.set('firstName', firstName);\n      this.set('lastName', lastName);\n\n      return value;\n    }\n  })\n});\n\nlet person = Person.create();\n\nperson.set('fullName', 'Peter Wagenet');\nperson.get('firstName'); // 'Peter'\nperson.get('lastName');  // 'Wagenet'\n```",
-            "itemtype": "method",
-            "name": "set",
-            "params": [
-                {
-                    "name": "keyName",
-                    "description": "The key being accessed.",
-                    "type": "String"
-                },
-                {
-                    "name": "newValue",
-                    "description": "The new value being assigned.",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "The return value of the function backing the CP.",
-                "type": "Object"
-            },
-            "access": "public",
-            "tagname": "",
-            "class": "Ember.ComputedProperty",
-            "module": "ember",
-            "submodule": "ember-metal",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-metal/lib/computed.js",
-            "line": 641,
+            "line": 560,
             "description": "Returns the cached value for a property, if one exists.\nThis can be useful for peeking at the value of a computed\nproperty that is generated lazily, without accidentally causing\nit to be created.",
             "itemtype": "method",
             "name": "cacheFor",
@@ -8237,7 +8136,7 @@
         },
         {
             "file": "packages/ember-metal/lib/core.js",
-            "line": 60,
+            "line": 58,
             "description": "The semantic version.",
             "itemtype": "property",
             "name": "VERSION",
@@ -8252,7 +8151,7 @@
         },
         {
             "file": "packages/ember-metal/lib/core.js",
-            "line": 71,
+            "line": 69,
             "description": "The hash of environment variables used to control various configuration\nsettings. To specify your own or override default settings, add the\ndesired properties to a global hash named `EmberENV` (or `ENV` for\nbackwards compatibility with earlier versions of Ember). The `EmberENV`\nhash must be created before loading Ember.",
             "itemtype": "property",
             "name": "ENV",
@@ -8265,7 +8164,7 @@
         },
         {
             "file": "packages/ember-metal/lib/core.js",
-            "line": 105,
+            "line": 103,
             "description": "Determines whether Ember should add to `Array`, `Function`, and `String`\nnative object prototypes, a few extra methods in order to provide a more\nfriendly API.\n\nWe generally recommend leaving this option set to true however, if you need\nto turn it off, you can add the configuration property\n`EXTEND_PROTOTYPES` to `EmberENV` and set it to `false`.\n\nNote, when disabled (the default configuration for Ember Addons), you will\ninstead have to access all methods and functions from the Ember\nnamespace.",
             "itemtype": "property",
             "name": "EXTEND_PROTOTYPES",
@@ -8279,7 +8178,7 @@
         },
         {
             "file": "packages/ember-metal/lib/core.js",
-            "line": 130,
+            "line": 128,
             "description": "The `LOG_STACKTRACE_ON_DEPRECATION` property, when true, tells Ember to log\na full stack trace during deprecation warnings.",
             "itemtype": "property",
             "name": "LOG_STACKTRACE_ON_DEPRECATION",
@@ -8293,7 +8192,7 @@
         },
         {
             "file": "packages/ember-metal/lib/core.js",
-            "line": 141,
+            "line": 139,
             "description": "The `LOG_VERSION` property, when true, tells Ember to log versions of all\ndependent libraries in use.",
             "itemtype": "property",
             "name": "LOG_VERSION",
@@ -8307,7 +8206,7 @@
         },
         {
             "file": "packages/ember-metal/lib/core.js",
-            "line": 152,
+            "line": 150,
             "description": "An empty function useful for some operations. Always returns `this`.",
             "itemtype": "method",
             "name": "K",
@@ -8650,7 +8549,7 @@
         },
         {
             "file": "packages/ember-metal/lib/features.js",
-            "line": 19,
+            "line": 20,
             "description": "Determine whether the specified `feature` is enabled. Used by Ember's\nbuild tools to exclude experimental features from beta/stable builds.\n\nYou can define the following configuration options:\n\n* `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly\n  enabled/disabled.",
             "itemtype": "method",
             "name": "isEnabled",
@@ -9864,7 +9763,7 @@
         {
             "file": "packages/ember-metal/lib/properties.js",
             "line": 70,
-            "description": "NOTE: This is a low-level method used by other parts of the API. You almost\nnever want to call this method directly. Instead you should use\n`Ember.mixin()` to define new properties.\n\nDefines a property on an object. This method works much like the ES5\n`Object.defineProperty()` method except that it can also accept computed\nproperties and other special descriptors.\n\nNormally this method takes only three parameters. However if you pass an\ninstance of `Descriptor` as the third param then you can pass an\noptional value as the fourth parameter. This is often more efficient than\ncreating new descriptor hashes for each property.\n\n## Examples\n\n```javascript\n// ES5 compatible mode\nEmber.defineProperty(contact, 'firstName', {\n  writable: true,\n  configurable: false,\n  enumerable: true,\n  value: 'Charles'\n});\n\n// define a simple property\nEmber.defineProperty(contact, 'lastName', undefined, 'Jolley');\n\n// define a computed property\nEmber.defineProperty(contact, 'fullName', Ember.computed(function() {\n  return this.firstName+' '+this.lastName;\n}).property('firstName', 'lastName'));\n```",
+            "description": "NOTE: This is a low-level method used by other parts of the API. You almost\nnever want to call this method directly. Instead you should use\n`Ember.mixin()` to define new properties.\n\nDefines a property on an object. This method works much like the ES5\n`Object.defineProperty()` method except that it can also accept computed\nproperties and other special descriptors.\n\nNormally this method takes only three parameters. However if you pass an\ninstance of `Descriptor` as the third param then you can pass an\noptional value as the fourth parameter. This is often more efficient than\ncreating new descriptor hashes for each property.\n\n## Examples\n\n```javascript\n// ES5 compatible mode\nEmber.defineProperty(contact, 'firstName', {\n  writable: true,\n  configurable: false,\n  enumerable: true,\n  value: 'Charles'\n});\n\n// define a simple property\nEmber.defineProperty(contact, 'lastName', undefined, 'Jolley');\n\n// define a computed property\nEmber.defineProperty(contact, 'fullName', Ember.computed('firstName', 'lastName', function() {\n  return this.firstName+' '+this.lastName;\n}));\n```",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -13390,7 +13289,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1001,
+            "line": 996,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nin your application. These mappings are defined within the\nsupplied callback function using `this.route`.\n\nThe first parameter is the name of the route which is used by default as the\npath name as well.\n\nThe second parameter is the optional options hash. Available options are:\n  * `path`: allows you to provide your own path as well as mark dynamic\n    segments.\n  * `resetNamespace`: false by default; when nesting routes, ember will\n    combine the route names to form the fully-qualified route name, which is\n    used with `{{link-to}}` or manually transitioning to routes. Setting\n    `resetNamespace: true` will cause the route not to inherit from its\n    parent route's names. This is handy for resources which can be accessed\n    in multiple places as well as preventing extremely long route names.\n    Keep in mind that the actual URL path behavior is still retained.\n\nThe third parameter is a function, which can be used to nest routes.\nNested routes, by default, will have the parent route tree's route name and\npath prepended to it's own.\n\n```javascript\nApp.Router.map(function(){\n  this.route('post', { path: '/post/:post_id' }, function() {\n    this.route('edit');\n    this.route('comments', { resetNamespace: true }, function() {\n      this.route('new');\n    });\n  });\n});\n```\n\nFor more detailed documentation and examples please see\n[the guides](http://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -14305,8 +14204,7 @@
         {
             "file": "packages/ember-runtime/lib/mixins/array.js",
             "line": 528,
-            "description": "Returns a special object that can be used to observe individual properties\non the array. Just get an equivalent property on this object and it will\nreturn an enumerable that maps automatically to the named key on the\nmember objects.",
-            "each": "should only be used in a non-terminal context. Example:\n\n```javascript\nmyMethod: computed('posts.@each.author', function(){\n  ...\n});\n```\n\nIf you merely want to watch for the array being changed, like an object being\nreplaced, added or removed, use `[]` instead of `@each`.\n\n```javascript\nmyMethod: computed('posts.[]', function(){\n  ...\n});\n```",
+            "description": "Returns a special object that can be used to observe individual properties\non the array. Just get an equivalent property on this object and it will\nreturn an enumerable that maps automatically to the named key on the\nmember objects.\n\n`@each` should only be used in a non-terminal context. Example:\n\n```javascript\nmyMethod: computed('posts.@each.author', function(){\n  ...\n});\n```\n\nIf you merely want to watch for the array being changed, like an object being\nreplaced, added or removed, use `[]` instead of `@each`.\n\n```javascript\nmyMethod: computed('posts.[]', function(){\n  ...\n});\n```",
             "itemtype": "property",
             "name": "@each",
             "access": "public",
@@ -14567,6 +14465,7 @@
                 "description": "the object or undefined",
                 "type": "Object"
             },
+            "readonly": "",
             "access": "public",
             "tagname": "",
             "class": "Ember.Enumerable",
@@ -14576,7 +14475,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 172,
+            "line": 173,
             "description": "Helper method returns the last object from a collection. If your enumerable\ncontains only one object, this method should always return that object.\nIf your enumerable is empty, this method should return `undefined`.\n\n```javascript\nvar arr = ['a', 'b', 'c'];\narr.get('lastObject');  // 'c'\n\nvar arr = [];\narr.get('lastObject');  // undefined\n```",
             "itemtype": "property",
             "name": "lastObject",
@@ -14584,6 +14483,7 @@
                 "description": "the last object or undefined",
                 "type": "Object"
             },
+            "readonly": "",
             "access": "public",
             "tagname": "",
             "class": "Ember.Enumerable",
@@ -14593,7 +14493,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 211,
+            "line": 213,
             "description": "Returns `true` if the passed object can be found in the receiver. The\ndefault version will iterate through the enumerable until the object\nis found. You may want to override this with a more efficient version.\n\n```javascript\nvar arr = ['a', 'b', 'c'];\n\narr.contains('a'); // true\narr.contains('z'); // false\n```",
             "itemtype": "method",
             "name": "contains",
@@ -14617,7 +14517,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 236,
+            "line": 238,
             "description": "Iterates through the enumerable, calling the passed function on each\nitem. This method corresponds to the `forEach()` method defined in\nJavaScript 1.6.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as `this` on the context. This is a good way\nto give your iterator function access to the current object.",
             "itemtype": "method",
             "name": "forEach",
@@ -14647,7 +14547,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 287,
+            "line": 289,
             "description": "Alias for `mapBy`",
             "itemtype": "method",
             "name": "getEach",
@@ -14671,7 +14571,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 297,
+            "line": 299,
             "description": "Sets the value on the named property for each member. This is more\nefficient than using other methods defined on this helper. If the object\nimplements Ember.Observable, the value will be changed to `set(),` otherwise\nit will be set directly. `null` objects are skipped.",
             "itemtype": "method",
             "name": "setEach",
@@ -14700,7 +14600,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 315,
+            "line": 317,
             "description": "Maps all of the items in the enumeration to another value, returning\na new array. This method corresponds to `map()` defined in JavaScript 1.6.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nIt should return the mapped value.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as `this` on the context. This is a good way\nto give your iterator function access to the current object.",
             "itemtype": "method",
             "name": "map",
@@ -14730,7 +14630,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 352,
+            "line": 354,
             "description": "Similar to map, this specialized function returns the value of the named\nproperty on all items in the enumeration.",
             "itemtype": "method",
             "name": "mapBy",
@@ -14754,7 +14654,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 367,
+            "line": 369,
             "description": "Returns an array with all of the items in the enumeration that the passed\nfunction returns true for. This method corresponds to `filter()` defined in\nJavaScript 1.6.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nIt should return `true` to include the item in the results, `false`\notherwise.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as `this` on the context. This is a good way\nto give your iterator function access to the current object.",
             "itemtype": "method",
             "name": "filter",
@@ -14784,7 +14684,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 408,
+            "line": 410,
             "description": "Returns an array with all of the items in the enumeration where the passed\nfunction returns false. This method is the inverse of filter().\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- *item* is the current item in the iteration.\n- *index* is the current index in the iteration\n- *enumerable* is the enumerable object itself.\n\nIt should return a falsey value to include the item in the results.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as \"this\" on the context. This is a good way\nto give your iterator function access to the current object.",
             "itemtype": "method",
             "name": "reject",
@@ -14814,7 +14714,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 441,
+            "line": 443,
             "description": "Returns an array with just the items with the matched property. You\ncan pass an optional second argument with the target value. Otherwise\nthis will match any property that evaluates to `true`.",
             "itemtype": "method",
             "name": "filterBy",
@@ -14844,7 +14744,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 456,
+            "line": 458,
             "description": "Returns an array with the items that do not have truthy values for\nkey.  You can pass an optional second argument with the target value.  Otherwise\nthis will match any property that evaluates to false.",
             "itemtype": "method",
             "name": "rejectBy",
@@ -14874,7 +14774,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 481,
+            "line": 483,
             "description": "Returns the first item in the array for which the callback returns true.\nThis method works similar to the `filter()` method defined in JavaScript 1.6\nexcept that it will stop working on the array once a match is found.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nIt should return the `true` to include the item in the results, `false`\notherwise.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as `this` on the context. This is a good way\nto give your iterator function access to the current object.",
             "itemtype": "method",
             "name": "find",
@@ -14904,7 +14804,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 538,
+            "line": 540,
             "description": "Returns the first item with a property matching the passed value. You\ncan pass an optional second argument with the target value. Otherwise\nthis will match any property that evaluates to `true`.\n\nThis method works much like the more generic `find()` method.",
             "itemtype": "method",
             "name": "findBy",
@@ -14934,7 +14834,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 555,
+            "line": 557,
             "description": "Returns `true` if the passed function returns true for every item in the\nenumeration. This corresponds with the `every()` method in JavaScript 1.6.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nIt should return the `true` or `false`.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as `this` on the context. This is a good way\nto give your iterator function access to the current object.\n\nExample Usage:\n\n```javascript\nif (people.every(isEngineer)) {\n  Paychecks.addBigBonus();\n}\n```",
             "itemtype": "method",
             "name": "every",
@@ -14964,7 +14864,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 594,
+            "line": 596,
             "description": "Returns `true` if the passed property resolves to the value of the second\nargument for all items in the enumerable. This method is often simpler/faster\nthan using a callback.",
             "itemtype": "method",
             "name": "isEvery",
@@ -14995,7 +14895,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 610,
+            "line": 612,
             "description": "Returns `true` if the passed function returns true for any item in the\nenumeration. This corresponds with the `some()` method in JavaScript 1.6.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(item, index, enumerable);\n```\n\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nIt should return the `true` to include the item in the results, `false`\notherwise.\n\nNote that in addition to a callback, you can also pass an optional target\nobject that will be set as `this` on the context. This is a good way\nto give your iterator function access to the current object.\n\nUsage Example:\n\n```javascript\nif (people.any(isManager)) {\n  Paychecks.addBiggerBonus();\n}\n```",
             "itemtype": "method",
             "name": "any",
@@ -15025,7 +14925,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 668,
+            "line": 670,
             "description": "Returns `true` if the passed property resolves to the value of the second\nargument for any item in the enumerable. This method is often simpler/faster\nthan using a callback.",
             "itemtype": "method",
             "name": "isAny",
@@ -15056,7 +14956,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 684,
+            "line": 686,
             "description": "This will combine the values of the enumerator into a single value. It\nis a useful way to collect a summary value from an enumeration. This\ncorresponds to the `reduce()` method defined in JavaScript 1.8.\n\nThe callback method you provide should have the following signature (all\nparameters are optional):\n\n```javascript\nfunction(previousValue, item, index, enumerable);\n```\n\n- `previousValue` is the value returned by the last call to the iterator.\n- `item` is the current item in the iteration.\n- `index` is the current index in the iteration.\n- `enumerable` is the enumerable object itself.\n\nReturn the new cumulative value.\n\nIn addition to the callback you can also pass an `initialValue`. An error\nwill be raised if you do not pass an initial value and the enumerator is\nempty.\n\nNote that unlike the other methods, this method does not allow you to\npass a target object to set as this for the callback. It's part of the\nspec. Sorry.",
             "itemtype": "method",
             "name": "reduce",
@@ -15090,7 +14990,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 732,
+            "line": 734,
             "description": "Invokes the named method on every object in the receiver that\nimplements it. This method corresponds to the implementation in\nPrototype 1.6.",
             "itemtype": "method",
             "name": "invoke",
@@ -15119,7 +15019,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 757,
+            "line": 759,
             "description": "Simply converts the enumerable into a genuine array. The order is not\nguaranteed. Corresponds to the method implemented by Prototype.",
             "itemtype": "method",
             "name": "toArray",
@@ -15136,7 +15036,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 775,
+            "line": 777,
             "description": "Returns a copy of the array with all `null` and `undefined` elements removed.\n\n```javascript\nvar arr = ['a', null, 'c', undefined];\narr.compact();  // ['a', 'c']\n```",
             "itemtype": "method",
             "name": "compact",
@@ -15153,7 +15053,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 793,
+            "line": 795,
             "description": "Returns a new enumerable that excludes the passed value. The default\nimplementation returns an array regardless of the receiver type unless\nthe receiver does not contain the value.\n\n```javascript\nvar arr = ['a', 'b', 'a', 'c'];\narr.without('a');  // ['b', 'c']\n```",
             "itemtype": "method",
             "name": "without",
@@ -15177,7 +15077,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 824,
+            "line": 826,
             "description": "Returns a new enumerable that contains only unique values. The default\nimplementation returns an array regardless of the receiver type.\n\n```javascript\nvar arr = ['a', 'a', 'b', 'b'];\narr.uniq();  // ['a', 'b']\n```\n\nThis only works on primitive data types, e.g. Strings, Numbers, etc.",
             "itemtype": "method",
             "name": "uniq",
@@ -15194,7 +15094,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 851,
+            "line": 853,
             "description": "This property will trigger anytime the enumerable's content changes.\nYou can observe this property to be notified of changes to the enumerable's\ncontent.\n\nFor plain enumerables, this property is read only. `Array` overrides\nthis method.",
             "itemtype": "property",
             "name": "[]",
@@ -15211,7 +15111,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 872,
+            "line": 874,
             "description": "Registers an enumerable observer. Must implement `Ember.EnumerableObserver`\nmixin.",
             "itemtype": "method",
             "name": "addEnumerableObserver",
@@ -15240,7 +15140,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 901,
+            "line": 903,
             "description": "Removes a registered enumerable observer.",
             "itemtype": "method",
             "name": "removeEnumerableObserver",
@@ -15269,7 +15169,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 929,
+            "line": 931,
             "description": "Becomes true whenever the array currently has observers watching changes\non the array.",
             "itemtype": "property",
             "name": "hasEnumerableObservers",
@@ -15283,7 +15183,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 942,
+            "line": 944,
             "description": "Invoke this method just before the contents of your enumerable will\nchange. You can either omit the parameters completely or pass the objects\nto be removed or added if available or just a count.",
             "itemtype": "method",
             "name": "enumerableContentWillChange",
@@ -15309,7 +15209,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 995,
+            "line": 997,
             "description": "Invoke this method when the contents of your enumerable has changed.\nThis will notify any observers watching for content changes. If you are\nimplementing an ordered enumerable (such as an array), also pass the\nstart and end values where the content changed so that it can be used to\nnotify range observers.",
             "itemtype": "method",
             "name": "enumerableContentDidChange",
@@ -15335,7 +15235,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/enumerable.js",
-            "line": 1050,
+            "line": 1052,
             "description": "Converts the enumerable into an array and sorts by the keys\nspecified in the argument.\n\nYou may provide multiple arguments to sort by multiple properties.",
             "itemtype": "method",
             "name": "sortBy",
@@ -18580,6 +18480,174 @@
             "namespace": "Ember"
         },
         {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 483,
+            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
+            "itemtype": "method",
+            "name": "didReceiveAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 494,
+            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
+            "itemtype": "event",
+            "name": "didReceiveAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 505,
+            "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "method",
+            "name": "didRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 514,
+            "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "event",
+            "name": "didRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 523,
+            "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "method",
+            "name": "willRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 532,
+            "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "event",
+            "name": "willRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 541,
+            "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "method",
+            "name": "didUpdateAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 550,
+            "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "didUpdateAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 559,
+            "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "method",
+            "name": "willUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 568,
+            "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "willUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 577,
+            "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "didUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/components/component.js",
+            "line": 586,
+            "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
+            "itemtype": "event",
+            "name": "didUpdate",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-views",
+            "namespace": "Ember"
+        },
+        {
             "file": "packages/ember-views/lib/mixins/aria_role_support.js",
             "line": 16,
             "description": "The WAI-ARIA role of the control represented by this view. For example, a\nbutton may have a role of type 'button', or a pane may have a role of\ntype 'alertdialog'. This property is used by assistive software to help\nvisually challenged users navigate rich web applications.\n\nThe full list of valid WAI-ARIA roles is available at:\n[http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)",
@@ -20340,15 +20408,11 @@
     "warnings": [
         {
             "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:302"
+            "line": " packages/ember-metal/lib/streams/utils.js:303"
         },
         {
             "message": "unknown tag: version",
             "line": " packages/ember-metal/lib/core.js:10"
-        },
-        {
-            "message": "unknown tag: each",
-            "line": " packages/ember-runtime/lib/mixins/array.js:528"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -20396,7 +20460,7 @@
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-application/lib/system/engine-instance.js:67"
+            "line": " packages/ember-application/lib/system/engine-instance.js:68"
         },
         {
             "message": "Missing item type\nThis private helper is used internally to handle `isVisible: false` for\nEmber.View and Ember.Component.",
