@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+1cc4e45f
+ * @version   2.6.0-canary+03a49197
  */
 
 var enifed, requireModule, require, Ember;
@@ -10239,35 +10239,31 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
           }
   }
 });
-enifed('ember-htmlbars/helpers/concat', ['exports', 'ember-htmlbars/helper', 'glimmer-runtime'], function (exports, _emberHtmlbarsHelper, _glimmerRuntime) {
-  'use strict';
-
+enifed('ember-htmlbars/helpers/concat', ['exports'], function (exports) {
   /**
   @module ember
   @submodule ember-templates
   */
 
   /**
-    Concatenates the given arguments into a string.
-  
+    Concatenates input params together.
     Example:
-  
     ```handlebars
     {{some-component name=(concat firstName " " lastName)}}
-  
     {{! would pass name="<first name value> <last name value>" to the component}}
     ```
-  
     @public
     @method concat
     @for Ember.Templates.helpers
     @since 1.13.0
   */
-  function concat(args) {
-    return args.map(_glimmerRuntime.normalizeTextValue).join('');
-  }
+  'use strict';
 
-  exports.default = _emberHtmlbarsHelper.helper(concat);
+  exports.default = concat;
+
+  function concat(params) {
+    return params.join('');
+  }
 });
 enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should_display'], function (exports, _emberViewsStreamsShould_display) {
   /**
@@ -12809,7 +12805,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+1cc4e45f';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+03a49197';
   }
 
   /**
@@ -17737,7 +17733,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+1cc4e45f
+    @version 2.6.0-canary+03a49197
     @public
   */
 
@@ -17779,11 +17775,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+1cc4e45f'
+    @default '2.6.0-canary+03a49197'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+1cc4e45f';
+  Ember.VERSION = '2.6.0-canary+03a49197';
 
   /**
     The hash of environment variables used to control various configuration
@@ -41701,7 +41697,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+1cc4e45f',
+        revision: 'Ember@2.6.0-canary+03a49197',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51232,7 +51228,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+1cc4e45f
+ * @version   2.6.0-canary+03a49197
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
