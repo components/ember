@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+456d3a5e
+ * @version   2.6.0-canary+604c291d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24811,7 +24811,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString) {
   /* globals EmberDev */
   'use strict';
 
@@ -24819,7 +24819,35 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']),
       _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
       _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']);
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'], ['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}'], ['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}'], ['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}']),
+      _templateObject12 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject13 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject17 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject18 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject19 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject20 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject21 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}']),
+      _templateObject23 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}'], ['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}']),
+      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'], ['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}']),
+      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject30 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject32 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -25514,17 +25542,17 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
       var _this23 = this;
 
-      this.registerComponent('foo-bar', { template: '{{yield}}' });
+      this.registerComponent('foo-bar', { template: '{{yield}} - In component' });
 
       this.render('{{#foo-bar}}hello{{/foo-bar}}');
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
 
       this.runTask(function () {
         return _this23.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
@@ -25911,6 +25939,1145 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       this.assertComponentElement(this.firstChild, { content: 'true' });
+    };
+
+    _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
+      var _this33 = this;
+
+      this.registerComponent('some-component', {
+        template: 'some-component'
+      });
+
+      this.render('{{some-prop}} {{some-component}}', {
+        'some-component': 'not-some-component',
+        'some-prop': 'some-prop'
+      });
+
+      this.assertText('some-prop some-component');
+
+      this.runTask(function () {
+        return _this33.rerender();
+      });
+
+      this.assertText('some-prop some-component');
+    };
+
+    _class.prototype['@test component without dash is not looked up'] = function testComponentWithoutDashIsNotLookedUp() {
+      var _this34 = this;
+
+      this.registerComponent('somecomponent', {
+        template: 'somecomponent'
+      });
+
+      this.render('{{somecomponent}}', {
+        'somecomponent': 'notsomecomponent'
+      });
+
+      this.assertText('notsomecomponent');
+
+      this.runTask(function () {
+        return _this34.rerender();
+      });
+
+      this.assertText('notsomecomponent');
+
+      this.runTask(function () {
+        return _this34.context.set('somecomponent', 'not not notsomecomponent');
+      });
+
+      this.assertText('not not notsomecomponent');
+
+      this.runTask(function () {
+        return _this34.context.set('somecomponent', 'notsomecomponent');
+      });
+
+      this.assertText('notsomecomponent');
+    };
+
+    _class.prototype['@test non-block with properties on attrs'] = function testNonBlockWithPropertiesOnAttrs() {
+      var _this35 = this;
+
+      this.registerComponent('non-block', {
+        template: 'In layout - someProp: {{attrs.someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this35.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this35.context.set('prop', 'other thing there');
+      });
+
+      this.assertText('In layout - someProp: other thing there');
+
+      this.runTask(function () {
+        return _this35.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here');
+    };
+
+    _class.prototype['@skip non-block with properties overridden in init'] = function skipNonBlockWithPropertiesOverriddenInInit() {
+      var _this36 = this;
+
+      var instance = undefined;
+      this.registerComponent('non-block', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            instance = this;
+            this.someProp = 'value set in instance';
+          }
+        }),
+        template: 'In layout - someProp: {{someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something passed when invoked'
+      });
+
+      this.assertText('In layout - someProp: value set in instance');
+
+      this.runTask(function () {
+        return _this36.rerender();
+      });
+
+      this.assertText('In layout - someProp: value set in instance');
+
+      this.runTask(function () {
+        return _this36.context.set('prop', 'updated something passed when invoked');
+      });
+
+      this.assertText('In layout - someProp: updated something passed when invoked');
+
+      this.runTask(function () {
+        return instance.set('someProp', 'update value set in instance');
+      });
+
+      this.assertText('In layout - someProp: update value set in instance');
+
+      this.runTask(function () {
+        return _this36.context.set('prop', 'something passed when invoked');
+      });
+      this.runTask(function () {
+        return instance.set('someProp', 'value set in instance');
+      });
+
+      this.assertText('In layout - someProp: value set in instance');
+    };
+
+    _class.prototype['@htmlbars rerendering component with attrs from parent'] = function htmlbarsRerenderingComponentWithAttrsFromParent(assert) {
+      var _this37 = this;
+
+      var willUpdate = 0;
+      var didReceiveAttrs = 0;
+
+      this.registerComponent('non-block', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            didReceiveAttrs++;
+          },
+
+          willUpdate: function () {
+            willUpdate++;
+          }
+        }),
+        template: 'In layout - someProp: {{someProp}}'
+      });
+
+      this.render('{{non-block someProp=someProp}}', {
+        someProp: 'wycats'
+      });
+
+      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
+      this.assertText('In layout - someProp: wycats');
+
+      this.runTask(function () {
+        return _this37.rerender();
+      });
+
+      this.assertText('In layout - someProp: wycats');
+      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
+      assert.equal(willUpdate, 1, 'The willUpdate hook fired once');
+
+      this.runTask(function () {
+        return _this37.context.set('someProp', 'tomdale');
+      });
+
+      this.assertText('In layout - someProp: tomdale');
+      assert.equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
+      assert.equal(willUpdate, 2, 'The willUpdate hook fired again');
+
+      this.runTask(function () {
+        return _this37.rerender();
+      });
+
+      this.assertText('In layout - someProp: tomdale');
+      assert.equal(didReceiveAttrs, 4, 'The didReceiveAttrs hook fired again');
+      assert.equal(willUpdate, 3, 'The willUpdate hook fired again');
+
+      this.runTask(function () {
+        return _this37.context.set('someProp', 'wycats');
+      });
+
+      this.assertText('In layout - someProp: wycats');
+      assert.equal(didReceiveAttrs, 5, 'The didReceiveAttrs hook fired again in the R step');
+      assert.equal(willUpdate, 4, 'The willUpdate hook fired again in the R step');
+    };
+
+    _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
+      var _this38 = this;
+
+      this.registerComponent('non-block', {
+        template: 'In layout - someProp: {{someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this38.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this38.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else');
+
+      this.runTask(function () {
+        return _this38.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here');
+    };
+
+    _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
+      var _this39 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{someProp}} - {{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
+      var _this40 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this40.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this40.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this40.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@htmlbars static arbitrary number of positional parameters'] = function htmlbarsStaticArbitraryNumberOfPositionalParameters(assert) {
+      var _this41 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8));
+
+      assert.equal(this.$('#args-3').text(), 'Foo4Bar');
+      assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
+      assert.equal(this.$('#helper').text(), 'Foo4Bar5Baz');
+
+      this.runTask(function () {
+        return _this41.rerender();
+      });
+
+      assert.equal(this.$('#args-3').text(), 'Foo4Bar');
+      assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
+      assert.equal(this.$('#helper').text(), 'Foo4Bar5Baz');
+    };
+
+    _class.prototype['@htmlbars arbitrary positional parameter conflict with hash parameter is reported'] = function htmlbarsArbitraryPositionalParameterConflictWithHashParameterIsReported() {
+      var _this42 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      expectAssertion(function () {
+        _this42.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+          numbers: [1, 2, 3]
+        });
+      }, 'You cannot specify positional parameters and the hash argument `names`.');
+    };
+
+    _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
+      var _this43 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      this.render('{{sample-component names=things}}', {
+        things: _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar'])
+      });
+
+      this.assertText('Foo4Bar');
+
+      this.runTask(function () {
+        return _this43.rerender();
+      });
+
+      this.assertText('Foo4Bar');
+
+      this.runTask(function () {
+        return _this43.context.get('things').pushObject(5);
+      });
+
+      this.assertText('Foo4Bar5');
+
+      this.runTask(function () {
+        return _this43.context.get('things').shiftObject();
+      });
+
+      this.assertText('4Bar5');
+
+      this.runTask(function () {
+        return _this43.context.get('things').clear();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this43.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+      });
+
+      this.assertText('Foo4Bar');
+    };
+
+    _class.prototype['@htmlbars can use hash parameter instead of positional param'] = function htmlbarsCanUseHashParameterInsteadOfPositionalParam(assert) {
+      var _this44 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['first', 'second']
+        }),
+        template: '{{first}} - {{second}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+
+      assert.equal(this.$('#two-positional').text(), 'one - two');
+      assert.equal(this.$('#one-positional').text(), 'one - two');
+      assert.equal(this.$('#no-positional').text(), 'one - two');
+
+      this.runTask(function () {
+        return _this44.rerender();
+      });
+
+      assert.equal(this.$('#two-positional').text(), 'one - two');
+      assert.equal(this.$('#one-positional').text(), 'one - two');
+      assert.equal(this.$('#no-positional').text(), 'one - two');
+    };
+
+    _class.prototype['@htmlbars dynamic arbitrary number of positional parameters'] = function htmlbarsDynamicArbitraryNumberOfPositionalParameters(assert) {
+      var _this45 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'n'
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11), {
+        user1: 'Foo',
+        user2: 4
+      });
+
+      assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
+      assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
+
+      this.runTask(function () {
+        return _this45.rerender();
+      });
+
+      assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
+      assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
+
+      this.runTask(function () {
+        return _this45.context.set('user1', 'Bar');
+      });
+
+      assert.equal(this.$('#direct').text(), 'Bar4', 'direct');
+      //assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
+
+      this.runTask(function () {
+        return _this45.context.set('user2', '5');
+      });
+
+      assert.equal(this.$('#direct').text(), 'Bar5', 'direct');
+      //assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
+
+      this.runTask(function () {
+        _this45.context.set('user1', 'Foo');
+        _this45.context.set('user2', 4);
+      });
+
+      assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
+      assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
+    };
+
+    _class.prototype['@htmlbars with ariaRole specified'] = function htmlbarsWithAriaRoleSpecified() {
+      var _this46 = this;
+
+      this.registerComponent('aria-test', {
+        template: 'Here!'
+      });
+
+      this.render('{{aria-test ariaRole=role}}', {
+        role: 'main'
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
+
+      this.runTask(function () {
+        return _this46.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
+
+      this.runTask(function () {
+        return _this46.context.set('role', 'input');
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
+
+      this.runTask(function () {
+        return _this46.context.set('role', 'main');
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
+    };
+
+    _class.prototype['@htmlbars `template` specified in component is overriden by block'] = function htmlbarsTemplateSpecifiedInComponentIsOverridenByBlock() {
+      var _this47 = this;
+
+      this.registerComponent('with-template', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          template: _emberGlimmerTestsUtilsHelpers.compile('Should not be used')
+        }),
+        template: '[In layout - {{name}}] {{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12), {
+        name: 'Whoop, whoop!'
+      });
+
+      this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
+
+      this.runTask(function () {
+        return _this47.rerender();
+      });
+
+      this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
+
+      this.runTask(function () {
+        return _this47.context.set('name', 'Ole, ole');
+      });
+
+      this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
+
+      this.runTask(function () {
+        return _this47.context.set('name', 'Whoop, whoop!');
+      });
+
+      this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
+    };
+
+    _class.prototype['@htmlbars hasBlock is true when block supplied'] = function htmlbarsHasBlockIsTrueWhenBlockSupplied() {
+      var _this48 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14));
+
+      this.assertText('In template');
+
+      this.runTask(function () {
+        return _this48.rerender();
+      });
+
+      this.assertText('In template');
+    };
+
+    _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
+      var _this49 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13)
+      });
+
+      this.render('{{with-block}}');
+
+      this.assertText('No Block!');
+
+      this.runTask(function () {
+        return _this49.rerender();
+      });
+
+      this.assertText('No Block!');
+    };
+
+    _class.prototype['@htmlbars hasBlockParams is true when block param supplied'] = function htmlbarsHasBlockParamsIsTrueWhenBlockParamSupplied() {
+      var _this50 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16));
+
+      this.assertText('In template - In Component');
+
+      this.runTask(function () {
+        return _this50.rerender();
+      });
+
+      this.assertText('In template - In Component');
+    };
+
+    _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
+      var _this51 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject17)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject18));
+
+      this.assertText('In block No Block Param!');
+
+      this.runTask(function () {
+        return _this51.rerender();
+      });
+
+      this.assertText('In block No Block Param!');
+    };
+
+    _class.prototype['@htmlbars static named positional parameters'] = function htmlbarsStaticNamedPositionalParameters() {
+      var _this52 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}}{{age}}'
+      });
+
+      this.render('{{sample-component "Quint" 4}}');
+
+      this.assertText('Quint4');
+
+      this.runTask(function () {
+        return _this52.rerender();
+      });
+
+      this.assertText('Quint4');
+    };
+
+    _class.prototype['@htmlbars dynamic named positional parameters'] = function htmlbarsDynamicNamedPositionalParameters() {
+      var _this53 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}}{{age}}'
+      });
+
+      this.render('{{sample-component myName myAge}}', {
+        myName: 'Quint',
+        myAge: 4
+      });
+
+      this.assertText('Quint4');
+
+      this.runTask(function () {
+        return _this53.rerender();
+      });
+
+      this.assertText('Quint4');
+
+      this.runTask(function () {
+        return _this53.context.set('myName', 'Sergio');
+      });
+
+      this.assertText('Sergio4');
+
+      this.runTask(function () {
+        return _this53.context.set('myAge', 2);
+      });
+
+      this.assertText('Sergio2');
+
+      this.runTask(function () {
+        _this53.context.set('myName', 'Quint');
+        _this53.context.set('myAge', 4);
+      });
+
+      this.assertText('Quint4');
+    };
+
+    _class.prototype['@htmlbars if a value is passed as a non-positional parameter, it raises an assertion'] = function htmlbarsIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
+      var _this54 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{name}}'
+      });
+
+      expectAssertion(function () {
+        _this54.render('{{sample-component notMyName name=myName}}', {
+          myName: 'Quint',
+          notMyName: 'Sergio'
+        });
+      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+    };
+
+    _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
+      var _this55 = this;
+
+      this.registerComponent('my-if', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject19)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject20), {
+        activated: true
+      });
+
+      this.assertText('Yes:Hello42');
+
+      this.runTask(function () {
+        return _this55.rerender();
+      });
+
+      this.assertText('Yes:Hello42');
+
+      this.runTask(function () {
+        return _this55.context.set('activated', false);
+      });
+
+      this.assertText('No:Goodbye');
+
+      this.runTask(function () {
+        return _this55.context.set('activated', true);
+      });
+
+      this.assertText('Yes:Hello42');
+    };
+
+    _class.prototype['@htmlbars expression hasBlock inverse'] = function htmlbarsExpressionHasBlockInverse(assert) {
+      var _this56 = this;
+
+      this.registerComponent('check-inverse', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject21)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject22));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this56.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars expression hasBlock default'] = function htmlbarsExpressionHasBlockDefault(assert) {
+      var _this57 = this;
+
+      this.registerComponent('check-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this57.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars non-expression hasBlock'] = function htmlbarsNonExpressionHasBlock(assert) {
+      var _this58 = this;
+
+      this.registerComponent('check-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject25)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this58.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars expression hasBlockParams'] = function htmlbarsExpressionHasBlockParams(assert) {
+      var _this59 = this;
+
+      this.registerComponent('check-params', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this59.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars non-expression hasBlockParams'] = function htmlbarsNonExpressionHasBlockParams(assert) {
+      var _this60 = this;
+
+      this.registerComponent('check-params', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this60.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars component in template of a yielding component should have the proper parentView'] = function htmlbarsComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
+      var _this61 = this;
+
+      var outer = undefined,
+          innerTemplate = undefined,
+          innerLayout = undefined;
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          }
+        }),
+        template: '{{x-inner-in-layout}}{{yield}}'
+      });
+
+      this.registerComponent('x-inner-in-template', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerTemplate = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-inner-in-layout', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerLayout = this;
+          }
+        })
+      });
+
+      this.render('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}');
+
+      assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
+      assert.equal(innerLayout.parentView, outer, 'receives the wrapping component as its parentView in layout');
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+
+      this.runTask(function () {
+        return _this61.rerender();
+      });
+
+      assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
+      assert.equal(innerLayout.parentView, outer, 'receives the wrapping component as its parentView in layout');
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+    };
+
+    _class.prototype['@htmlbars newly-added sub-components get correct parentView'] = function htmlbarsNewlyAddedSubComponentsGetCorrectParentView(assert) {
+      var _this62 = this;
+
+      var outer = undefined,
+          inner = undefined;
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            inner = this;
+          }
+        })
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29), {
+        showInner: false
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+
+      this.runTask(function () {
+        return _this62.rerender();
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
+
+      this.runTask(function () {
+        return _this62.context.set('showInner', true);
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+      assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
+
+      this.runTask(function () {
+        return _this62.context.set('showInner', false);
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+    };
+
+    _class.prototype['@htmlbars component should receive the viewRegistry from the parentView'] = function htmlbarsComponentShouldReceiveTheViewRegistryFromTheParentView(assert) {
+      var _this63 = this;
+
+      var outer = undefined,
+          innerTemplate = undefined,
+          innerLayout = undefined;
+
+      var viewRegistry = {};
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          }
+        }),
+        template: '{{x-inner-in-layout}}{{yield}}'
+      });
+
+      this.registerComponent('x-inner-in-template', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerTemplate = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-inner-in-layout', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerLayout = this;
+          }
+        })
+      });
+
+      this.render('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}', {
+        _viewRegistry: viewRegistry
+      });
+
+      assert.equal(innerTemplate._viewRegistry, viewRegistry);
+      assert.equal(innerLayout._viewRegistry, viewRegistry);
+      assert.equal(outer._viewRegistry, viewRegistry);
+
+      this.runTask(function () {
+        return _this63.rerender();
+      });
+
+      assert.equal(innerTemplate._viewRegistry, viewRegistry);
+      assert.equal(innerLayout._viewRegistry, viewRegistry);
+      assert.equal(outer._viewRegistry, viewRegistry);
+    };
+
+    _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
+      var _this64 = this;
+
+      expectDeprecation(/modified value twice in a single render/);
+
+      var outer = undefined,
+          middle = undefined;
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          },
+          value: 1
+        }),
+        template: '{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'
+      });
+
+      this.registerComponent('x-middle', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            middle = this;
+          },
+          value: null
+        }),
+        template: '<div id="middle-value">{{value}}</div>{{yield}}'
+      });
+
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          value: null,
+          pushDataUp: _emberMetalCore.default.observer('value', function () {
+            middle.set('value', this.get('value'));
+          })
+        }),
+        template: '<div id="inner-value">{{value}}</div>'
+      });
+
+      this.render('{{x-outer}}');
+
+      assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
+      assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
+
+      this.runTask(function () {
+        return _this64.rerender();
+      });
+
+      assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
+      assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
+
+      this.runTask(function () {
+        return outer.set('value', 2);
+      });
+
+      assert.equal(this.$('#inner-value').text(), '2', 'second render of inner');
+      assert.equal(this.$('#middle-value').text(), '2', 'second render of middle');
+
+      this.runTask(function () {
+        return outer.set('value', 3);
+      });
+
+      assert.equal(this.$('#inner-value').text(), '3', 'third render of inner');
+      assert.equal(this.$('#middle-value').text(), '3', 'third render of middle');
+
+      this.runTask(function () {
+        return outer.set('value', 1);
+      });
+
+      assert.equal(this.$('#inner-value').text(), '1', 'reset render of inner');
+      assert.equal(this.$('#middle-value').text(), '1', 'reset render of middle');
+    };
+
+    _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
+      var _this65 = this;
+
+      this.registerComponent('non-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30)
+      });
+
+      this.registerComponent('child-non-block', {
+        template: 'Child: {{item}}.'
+      });
+
+      var items = _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']);
+
+      this.render('{{non-block items=items}}', { items: items });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
+
+      this.runTask(function () {
+        return _this65.rerender();
+      });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
+
+      this.runTask(function () {
+        return _this65.context.get('items').pushObject('Sergio');
+      });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
+
+      this.runTask(function () {
+        return _this65.context.get('items').shiftObject();
+      });
+
+      this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
+
+      this.runTask(function () {
+        return _this65.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+      });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
+    };
+
+    _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
+      var _this66 = this;
+
+      var clickyThing = undefined;
+
+      this.registerComponent('some-clicky-thing', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          tagName: 'button',
+          classNames: ['foo', 'bar'],
+          init: function () {
+            this._super.apply(this, arguments);
+            clickyThing = this;
+          }
+        }),
+        // I am getting a `Cannot read property 'asLayout' of undefined` in
+        // Glimmer if I do not specify a template here :(
+        template: '{{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31));
+
+      // TODO: ember-view is no longer viewable in the classNames array. Bug or
+      // feature?
+      var expectedClassNames = ['ember-view', 'foo', 'bar', 'baz'];
+
+      assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class'));
+      // `ember-view` is no longer in classNames.
+      // assert.deepEqual(clickyThing.get('classNames'), expectedClassNames, 'classNames are properly combined');
+      this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
+
+      this.runTask(function () {
+        return _this66.rerender();
+      });
+
+      assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
+      // `ember-view` is no longer in classNames.
+      // assert.deepEqual(clickyThing.get('classNames'), expectedClassNames, 'classNames are properly combined (rerender)');
+      this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
+    };
+
+    _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
+      var clickyThing = undefined;
+      this.registerComponent('some-clicky-thing', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          concatenatedProperties: ['blahzz'],
+          blahzz: ['blark', 'pory'],
+          init: function () {
+            this._super.apply(this, arguments);
+            clickyThing = this;
+          }
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
+
+      this.assertText('blarkporybaz- Click Me');
+
+      // Errors here cause `blahzz` has become just `baz` and `Don't know how to
+      // {{#each baz}}`
+      // this.runTask(() => this.rerender());
+
+      // this.assertText('blarkporybaz- Click Me');
     };
 
     return _class;
@@ -37751,35 +38918,22 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     });
   }
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/native_array', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemNative_array, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
-  var owner, view;
+  var owner, component;
 
   function commonSetup() {
     owner = _containerTestsTestHelpersBuildOwner.default();
     owner.registerOptionsForType('component', { singleton: false });
-    owner.registerOptionsForType('view', { singleton: false });
     owner.registerOptionsForType('template', { instantiate: false });
     owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
   }
 
   function commonTeardown() {
     _emberRuntimeTestsUtils.runDestroy(owner);
-    _emberRuntimeTestsUtils.runDestroy(view);
-    owner = view = null;
-  }
-
-  function appendViewFor(template) {
-    var _EmberView$extend;
-
-    var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    var view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$extend)).create(hash);
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    return view;
+    _emberRuntimeTestsUtils.runDestroy(component);
+    owner = component = null;
   }
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
@@ -37795,478 +38949,8 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     });
 
-    QUnit.test('non-block without properties', function () {
-      var _EmberView$extend2;
-
-      expect(1);
-
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberTemplateCompilerSystemCompile.default('{{non-block}}'), _EmberView$extend2)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout');
-    });
-
-    QUnit.test('GlimmerComponent cannot be invoked with curly braces', function () {
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout'));
-      owner.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend());
-
-      expectAssertion(function () {
-        view = appendViewFor('{{non-block}}');
-      }, /cannot invoke the 'non-block' component with curly braces/);
-    });
-
-    QUnit.test('block without properties', function () {
-      var _EmberView$extend3;
-
-      expect(1);
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('In layout - {{yield}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend3 = {}, _EmberView$extend3[_containerOwner.OWNER] = owner, _EmberView$extend3.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In template{{/with-block}}'), _EmberView$extend3)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - In template');
-    });
-
-    QUnit.test('non-block with properties on attrs', function () {
-      var _EmberView$extend4;
-
-      expect(1);
-
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend4 = {}, _EmberView$extend4[_containerOwner.OWNER] = owner, _EmberView$extend4.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something here"}}'), _EmberView$extend4)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here');
-    });
-
-    QUnit.test('non-block with properties on attrs and component class', function () {
-      var _EmberView$extend5;
-
-      owner.register('component:non-block', _emberViewsComponentsComponent.default.extend());
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend5 = {}, _EmberView$extend5[_containerOwner.OWNER] = owner, _EmberView$extend5.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something here"}}'), _EmberView$extend5)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here');
-    });
-
-    QUnit.test('non-block with properties on overridden in init', function () {
-      var _EmberView$extend6;
-
-      owner.register('component:non-block', _emberViewsComponentsComponent.default.extend({
-        someProp: null,
-
-        init: function () {
-          this._super.apply(this, arguments);
-          this.someProp = 'value set in init';
-        }
-      }));
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend6 = {}, _EmberView$extend6[_containerOwner.OWNER] = owner, _EmberView$extend6.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something passed when invoked"}}'), _EmberView$extend6)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'In layout - someProp: value set in init');
-    });
-
-    QUnit.test('lookup of component takes priority over property', function () {
-      var _EmberView$extend7;
-
-      expect(1);
-
-      owner.register('template:components/some-component', _emberTemplateCompilerSystemCompile.default('some-component'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend7 = {}, _EmberView$extend7[_containerOwner.OWNER] = owner, _EmberView$extend7.template = _emberTemplateCompilerSystemCompile.default('{{some-prop}} {{some-component}}'), _EmberView$extend7.context = {
-        'some-component': 'not-some-component',
-        'some-prop': 'some-prop'
-      }, _EmberView$extend7)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'some-prop some-component');
-    });
-
-    QUnit.test('component without dash is not looked up', function () {
-      var _EmberView$extend8;
-
-      expect(1);
-
-      owner.register('template:components/somecomponent', _emberTemplateCompilerSystemCompile.default('somecomponent'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend8 = {}, _EmberView$extend8[_containerOwner.OWNER] = owner, _EmberView$extend8.template = _emberTemplateCompilerSystemCompile.default('{{somecomponent}}'), _EmberView$extend8.context = {
-        'somecomponent': 'notsomecomponent'
-      }, _EmberView$extend8)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'notsomecomponent');
-    });
-
-    QUnit.test('rerendering component with attrs from parent', function () {
-      var _EmberView$extend9;
-
-      var willUpdate = 0;
-      var didReceiveAttrs = 0;
-
-      owner.register('component:non-block', _emberViewsComponentsComponent.default.extend({
-        didReceiveAttrs: function () {
-          didReceiveAttrs++;
-        },
-
-        willUpdate: function () {
-          willUpdate++;
-        }
-      }));
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend9 = {}, _EmberView$extend9[_containerOwner.OWNER] = owner, _EmberView$extend9.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp=view.someProp}}'), _EmberView$extend9.someProp = 'wycats', _EmberView$extend9)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: wycats');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('someProp', 'tomdale');
-      });
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: tomdale');
-      equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      equal(willUpdate, 1, 'The willUpdate hook fired once');
-
-      _emberMetalRun_loop.default(view, 'rerender');
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: tomdale');
-      equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
-      equal(willUpdate, 2, 'The willUpdate hook fired again');
-    });
-
-    QUnit.test('[DEPRECATED] non-block with properties on self', function () {
-      var _EmberView$extend10;
-
-      // TODO: attrs
-      // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
-
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend10 = {}, _EmberView$extend10[_containerOwner.OWNER] = owner, _EmberView$extend10.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something here"}}'), _EmberView$extend10)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here');
-    });
-
-    QUnit.test('block with properties on attrs', function () {
-      var _EmberView$extend11;
-
-      expect(1);
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}} - {{yield}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend11 = {}, _EmberView$extend11[_containerOwner.OWNER] = owner, _EmberView$extend11.template = _emberTemplateCompilerSystemCompile.default('{{#with-block someProp="something here"}}In template{{/with-block}}'), _EmberView$extend11)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
-    });
-
-    QUnit.test('[DEPRECATED] block with properties on self', function () {
-      var _EmberView$extend12;
-
-      // TODO: attrs
-      // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}} - {{yield}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend12 = {}, _EmberView$extend12[_containerOwner.OWNER] = owner, _EmberView$extend12.template = _emberTemplateCompilerSystemCompile.default('{{#with-block someProp="something here"}}In template{{/with-block}}'), _EmberView$extend12)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
-    });
-
-    QUnit.test('with ariaRole specified', function () {
-      var _EmberView$extend13;
-
-      expect(1);
-
-      owner.register('template:components/aria-test', _emberTemplateCompilerSystemCompile.default('Here!'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend13 = {}, _EmberView$extend13[_containerOwner.OWNER] = owner, _EmberView$extend13.template = _emberTemplateCompilerSystemCompile.default('{{aria-test id="aria-test" ariaRole="main"}}'), _EmberView$extend13)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#aria-test').attr('role'), 'main', 'role attribute is applied');
-    });
-
-    QUnit.test('`template` specified in a component is overridden by block', function () {
-      var _EmberView$extend14;
-
-      expect(1);
-
-      owner.register('component:with-block', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{yield}}'),
-        template: _emberTemplateCompilerSystemCompile.default('Oh, noes!')
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend14 = {}, _EmberView$extend14[_containerOwner.OWNER] = owner, _EmberView$extend14.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}Whoop, whoop!{{/with-block}}'), _EmberView$extend14)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'Whoop, whoop!', 'block provided always overrides template property');
-    });
-
-    QUnit.test('hasBlock is true when block supplied', function () {
-      var _EmberView$extend15;
-
-      expect(1);
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend15 = {}, _EmberView$extend15[_containerOwner.OWNER] = owner, _EmberView$extend15.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In template{{/with-block}}'), _EmberView$extend15)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In template');
-    });
-
-    QUnit.test('hasBlock is false when no block supplied', function () {
-      var _EmberView$extend16;
-
-      expect(1);
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend16 = {}, _EmberView$extend16[_containerOwner.OWNER] = owner, _EmberView$extend16.template = _emberTemplateCompilerSystemCompile.default('{{with-block}}'), _EmberView$extend16)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'No Block!');
-    });
-
-    QUnit.test('hasBlockParams is true when block param supplied', function () {
-      var _EmberView$extend17;
-
-      expect(1);
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}{{yield this}} - In Component{{else}}{{yield}} No Block!{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend17 = {}, _EmberView$extend17[_containerOwner.OWNER] = owner, _EmberView$extend17.template = _emberTemplateCompilerSystemCompile.default('{{#with-block as |something|}}In template{{/with-block}}'), _EmberView$extend17)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In template - In Component');
-    });
-
-    QUnit.test('hasBlockParams is false when no block param supplied', function () {
-      var _EmberView$extend18;
-
-      expect(1);
-
-      owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}{{yield this}}{{else}}{{yield}} No Block Param!{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend18 = {}, _EmberView$extend18[_containerOwner.OWNER] = owner, _EmberView$extend18.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In block{{/with-block}}'), _EmberView$extend18)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In block No Block Param!');
-    });
-
-    QUnit.test('static named positional parameters', function () {
-      var _EmberView$extend19;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend19 = {}, _EmberView$extend19[_containerOwner.OWNER] = owner, _EmberView$extend19.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Quint" 4}}'), _EmberView$extend19)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
-    });
-
-    QUnit.test('dynamic named positional parameters', function () {
-      var _EmberView$extend20;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend20 = {}, _EmberView$extend20[_containerOwner.OWNER] = owner, _EmberView$extend20.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component myName myAge}}'), _EmberView$extend20.context = {
-        myName: 'Quint',
-        myAge: 4
-      }, _EmberView$extend20)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
-        _emberMetalProperty_set.set(view.context, 'myAge', '5');
-      });
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Edward5');
-    });
-
-    QUnit.test('if a value is passed as a non-positional parameter, it takes precedence over the named one', function () {
-      var _EmberView$extend21;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: ['name']
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend21 = {}, _EmberView$extend21[_containerOwner.OWNER] = owner, _EmberView$extend21.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component notMyName name=myName}}'), _EmberView$extend21.context = {
-        myName: 'Quint',
-        notMyName: 'Sergio'
-      }, _EmberView$extend21)).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
-    });
-
-    QUnit.test('static arbitrary number of positional parameters', function () {
-      var _EmberView$extend22;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: 'names'
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend22 = {}, _EmberView$extend22[_containerOwner.OWNER] = owner, _EmberView$extend22.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" id="args-3"}}{{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}{{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'), _EmberView$extend22)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#args-3').text(), 'Foo4Bar');
-      equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
-      equal(view.$('#helper').text(), 'Foo4Bar5Baz');
-    });
-
-    QUnit.test('arbitrary positional parameter conflict with hash parameter is reported', function () {
-      var _EmberView$extend23;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: 'names'
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend23 = {}, _EmberView$extend23[_containerOwner.OWNER] = owner, _EmberView$extend23.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}'), _EmberView$extend23.context = {
-        numbers: [1, 2, 3]
-      }, _EmberView$extend23)).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, 'You cannot specify positional parameters and the hash argument `names`.');
-    });
-
-    QUnit.test('can use hash parameter instead of arbitrary positional param [GH #12444]', function () {
-      var _EmberView$extend24;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: 'names'
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend24 = {}, _EmberView$extend24[_containerOwner.OWNER] = owner, _EmberView$extend24.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component names=things id="args-3"}}'), _EmberView$extend24.context = {
-        things: ['Foo', 4, 'Bar']
-      }, _EmberView$extend24)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#args-3').text(), 'Foo4Bar');
-    });
-
-    QUnit.test('can use hash parameter instead of positional param', function () {
-      var _EmberView$extend25;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: ['first', 'second']
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.first}} - {{attrs.second}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend25 = {}, _EmberView$extend25[_containerOwner.OWNER] = owner, _EmberView$extend25.layout = _emberTemplateCompilerSystemCompile.default('\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}\n\n    '), _EmberView$extend25.context = {
-        things: ['Foo', 4, 'Bar']
-      }, _EmberView$extend25)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#two-positional').text(), 'one - two');
-      equal(view.$('#one-positional').text(), 'one - two');
-      equal(view.$('#no-positional').text(), 'one - two');
-    });
-
-    QUnit.test('dynamic arbitrary number of positional parameters', function () {
-      var _EmberView$extend26;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: 'n'
-      });
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.n as |name|}}{{name}}{{/each}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend26 = {}, _EmberView$extend26[_containerOwner.OWNER] = owner, _EmberView$extend26.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component user1 user2 id="direct"}}{{component "sample-component" user1 user2 id="helper"}}'), _EmberView$extend26.context = {
-        user1: 'Foo',
-        user2: 4
-      }, _EmberView$extend26)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#direct').text(), 'Foo4');
-      equal(view.$('#helper').text(), 'Foo4');
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view.context, 'user1', 'Bar');
-        _emberMetalProperty_set.set(view.context, 'user2', '5');
-      });
-
-      equal(view.$('#direct').text(), 'Bar5');
-      equal(view.$('#helper').text(), 'Bar5');
-
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view.context, 'user2', '6');
-      });
-
-      equal(view.$('#direct').text(), 'Bar6');
-      equal(view.$('#helper').text(), 'Bar6');
-    });
-
     QUnit.test('moduleName is available on _renderNode when a layout is present', function () {
-      var _EmberView$extend27;
+      var _Component$extend;
 
       expect(1);
 
@@ -38281,13 +38965,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
         }
       }));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend27 = {}, _EmberView$extend27[_containerOwner.OWNER] = owner, _EmberView$extend27.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component}}'), _EmberView$extend27)).create();
+      component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component}}'), _Component$extend)).create();
 
-      _emberRuntimeTestsUtils.runAppend(view);
+      _emberRuntimeTestsUtils.runAppend(component);
     });
 
     QUnit.test('moduleName is available on _renderNode when no layout is present', function () {
-      var _EmberView$extend28;
+      var _Component$extend2;
 
       expect(1);
 
@@ -38298,350 +38982,11 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
         }
       }));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend28 = {}, _EmberView$extend28[_containerOwner.OWNER] = owner, _EmberView$extend28.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
+      component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
         moduleName: templateModuleName
-      }), _EmberView$extend28)).create();
+      }), _Component$extend2)).create();
 
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    QUnit.test('{{component}} helper works with positional params', function () {
-      var _EmberView$extend29;
-
-      var SampleComponent = _emberViewsComponentsComponent.default.extend();
-      SampleComponent.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-
-      owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
-      owner.register('component:sample-component', SampleComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend29 = {}, _EmberView$extend29[_containerOwner.OWNER] = owner, _EmberView$extend29.layout = _emberTemplateCompilerSystemCompile.default('{{component "sample-component" myName myAge}}'), _EmberView$extend29.context = {
-        myName: 'Quint',
-        myAge: 4
-      }, _EmberView$extend29)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
-        _emberMetalProperty_set.set(view.context, 'myAge', '5');
-      });
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Edward5');
-    });
-
-    QUnit.test('yield to inverse', function () {
-      var _EmberView$extend30;
-
-      owner.register('template:components/my-if', _emberTemplateCompilerSystemCompile.default('{{#if predicate}}Yes:{{yield someValue}}{{else}}No:{{yield to="inverse"}}{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend30 = {}, _EmberView$extend30[_containerOwner.OWNER] = owner, _EmberView$extend30.layout = _emberTemplateCompilerSystemCompile.default('{{#my-if predicate=activated someValue=42 as |result|}}Hello{{result}}{{else}}Goodbye{{/my-if}}'), _EmberView$extend30.context = {
-        activated: true
-      }, _EmberView$extend30)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Yes:Hello42');
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view.context, 'activated', false);
-      });
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'No:Goodbye');
-    });
-
-    QUnit.test('parameterized hasBlock inverse', function () {
-      var _EmberView$extend31;
-
-      owner.register('template:components/check-inverse', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlock "inverse")}}Yes{{else}}No{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend31 = {}, _EmberView$extend31[_containerOwner.OWNER] = owner, _EmberView$extend31.layout = _emberTemplateCompilerSystemCompile.default('{{#check-inverse id="expect-no"}}{{/check-inverse}}  {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'), _EmberView$extend31)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
-    });
-
-    QUnit.test('parameterized hasBlock default', function () {
-      var _EmberView$extend32;
-
-      owner.register('template:components/check-block', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlock)}}Yes{{else}}No{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend32 = {}, _EmberView$extend32[_containerOwner.OWNER] = owner, _EmberView$extend32.layout = _emberTemplateCompilerSystemCompile.default('{{check-block id="expect-no"}}  {{#check-block id="expect-yes"}}{{/check-block}}'), _EmberView$extend32)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
-    });
-
-    QUnit.test('non-expression hasBlock ', function () {
-      var _EmberView$extend33;
-
-      owner.register('template:components/check-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}Yes{{else}}No{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend33 = {}, _EmberView$extend33[_containerOwner.OWNER] = owner, _EmberView$extend33.layout = _emberTemplateCompilerSystemCompile.default('{{check-block id="expect-no"}}  {{#check-block id="expect-yes"}}{{/check-block}}'), _EmberView$extend33)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
-    });
-
-    QUnit.test('parameterized hasBlockParams', function () {
-      var _EmberView$extend34;
-
-      owner.register('template:components/check-params', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlockParams)}}Yes{{else}}No{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend34 = {}, _EmberView$extend34[_containerOwner.OWNER] = owner, _EmberView$extend34.layout = _emberTemplateCompilerSystemCompile.default('{{#check-params id="expect-no"}}{{/check-params}}  {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'), _EmberView$extend34)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
-    });
-
-    QUnit.test('non-expression hasBlockParams', function () {
-      var _EmberView$extend35;
-
-      owner.register('template:components/check-params', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}Yes{{else}}No{{/if}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend35 = {}, _EmberView$extend35[_containerOwner.OWNER] = owner, _EmberView$extend35.layout = _emberTemplateCompilerSystemCompile.default('{{#check-params id="expect-no"}}{{/check-params}}  {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'), _EmberView$extend35)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
-    });
-
-    QUnit.test('components in template of a yielding component should have the proper parentView', function () {
-      var _EmberView$extend36;
-
-      var outer, innerTemplate, innerLayout;
-
-      owner.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          outer = this;
-        }
-      }));
-
-      owner.register('component:x-inner-in-template', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          innerTemplate = this;
-        }
-      }));
-
-      owner.register('component:x-inner-in-layout', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          innerLayout = this;
-        }
-      }));
-
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner-in-layout}}{{yield}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend36 = {}, _EmberView$extend36[_containerOwner.OWNER] = owner, _EmberView$extend36.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}'), _EmberView$extend36)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
-      equal(innerLayout.parentView, outer, 'receives the wrapping component as its parentView in layout');
-      equal(outer.parentView, view, 'x-outer receives the ambient scope as its parentView');
-    });
-
-    QUnit.test('newly-added sub-components get correct parentView', function () {
-      var _EmberView$extend37;
-
-      var outer, inner;
-
-      owner.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          outer = this;
-        }
-      }));
-
-      owner.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          inner = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend37 = {}, _EmberView$extend37[_containerOwner.OWNER] = owner, _EmberView$extend37.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{#if view.showInner}}{{x-inner}}{{/if}}{{/x-outer}}'), _EmberView$extend37.showInner = false, _EmberView$extend37)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      _emberMetalRun_loop.default(function () {
-        view.set('showInner', true);
-      });
-
-      equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
-      equal(outer.parentView, view, 'x-outer receives the ambient scope as its parentView');
-    });
-
-    QUnit.test('components should receive the viewRegistry from the parent view', function () {
-      var _EmberView$extend38;
-
-      var outer, innerTemplate, innerLayout;
-
-      var viewRegistry = {};
-
-      owner.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          outer = this;
-        }
-      }));
-
-      owner.register('component:x-inner-in-template', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          innerTemplate = this;
-        }
-      }));
-
-      owner.register('component:x-inner-in-layout', _emberViewsComponentsComponent.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          innerLayout = this;
-        }
-      }));
-
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner-in-layout}}{{yield}}'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend38 = {}, _EmberView$extend38[_containerOwner.OWNER] = owner, _EmberView$extend38._viewRegistry = viewRegistry, _EmberView$extend38.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}'), _EmberView$extend38)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(innerTemplate._viewRegistry, viewRegistry);
-      equal(innerLayout._viewRegistry, viewRegistry);
-      equal(outer._viewRegistry, viewRegistry);
-    });
-
-    QUnit.test('comopnent should rerender when a property is changed during children\'s rendering', function () {
-      var _EmberView$extend39;
-
-      expectDeprecation(/modified value twice in a single render/);
-
-      var outer, middle;
-
-      owner.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
-        value: 1,
-        grabReference: _emberMetalCore.default.on('init', function () {
-          outer = this;
-        })
-      }));
-
-      owner.register('component:x-middle', _emberViewsComponentsComponent.default.extend({
-        value: null,
-        grabReference: _emberMetalCore.default.on('init', function () {
-          middle = this;
-        })
-      }));
-
-      owner.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
-        value: null,
-        pushDataUp: _emberMetalCore.default.observer('value', function () {
-          middle.set('value', this.get('value'));
-        })
-      }));
-
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'));
-      owner.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('<div id="middle-value">{{value}}</div>{{yield}}'));
-      owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('<div id="inner-value">{{value}}</div>'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend39 = {}, _EmberView$extend39[_containerOwner.OWNER] = owner, _EmberView$extend39.template = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberView$extend39)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('#inner-value').text(), '1', 'initial render of inner');
-      equal(view.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-      _emberMetalRun_loop.default(function () {
-        return outer.set('value', 2);
-      });
-
-      equal(view.$('#inner-value').text(), '2', 'second render of inner');
-      equal(view.$('#middle-value').text(), '2', 'second render of middle');
-
-      _emberMetalRun_loop.default(function () {
-        return outer.set('value', 3);
-      });
-
-      equal(view.$('#inner-value').text(), '3', 'third render of inner');
-      equal(view.$('#middle-value').text(), '3', 'third render of middle');
-    });
-
-    QUnit.test('non-block with each rendering child components', function () {
-      var _EmberView$extend40;
-
-      expect(2);
-
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout. {{#each attrs.items as |item|}}[{{child-non-block item=item}}]{{/each}}'));
-      owner.register('template:components/child-non-block', _emberTemplateCompilerSystemCompile.default('Child: {{attrs.item}}.'));
-
-      var items = _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend40 = {}, _EmberView$extend40[_containerOwner.OWNER] = owner, _EmberView$extend40.template = _emberTemplateCompilerSystemCompile.default('{{non-block items=view.items}}'), _EmberView$extend40.items = items, _EmberView$extend40)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
-
-      _emberMetalRun_loop.default(function () {
-        items.pushObject('James');
-      });
-
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: James.]');
-    });
-
-    QUnit.test('specifying classNames results in correct class', function (assert) {
-      var _EmberView$extend41;
-
-      expect(3);
-
-      var clickyThing = undefined;
-      owner.register('component:some-clicky-thing', _emberViewsComponentsComponent.default.extend({
-        tagName: 'button',
-        classNames: ['foo', 'bar'],
-        init: function () {
-          this._super.apply(this, arguments);
-          clickyThing = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend41 = {}, _EmberView$extend41[_containerOwner.OWNER] = owner, _EmberView$extend41.template = _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing classNames="baz"}}Click Me{{/some-clicky-thing}}'), _EmberView$extend41)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      var button = view.$('button');
-      ok(button.is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + button.attr('class'));
-
-      var expectedClassNames = ['ember-view', 'foo', 'bar', 'baz'];
-      assert.deepEqual(clickyThing.get('classNames'), expectedClassNames, 'classNames are properly combined');
-
-      var buttonClassNames = button.attr('class');
-      assert.deepEqual(buttonClassNames.split(' '), expectedClassNames, 'all classes are set 1:1 in DOM');
-    });
-
-    QUnit.test('specifying custom concatenatedProperties avoids clobbering', function (assert) {
-      var _EmberView$extend42;
-
-      expect(1);
-
-      var clickyThing = undefined;
-      owner.register('component:some-clicky-thing', _emberViewsComponentsComponent.default.extend({
-        concatenatedProperties: ['blahzz'],
-        blahzz: ['blark', 'pory'],
-        init: function () {
-          this._super.apply(this, arguments);
-          clickyThing = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend42 = {}, _EmberView$extend42[_containerOwner.OWNER] = owner, _EmberView$extend42.template = _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing blahzz="baz"}}Click Me{{/some-clicky-thing}}'), _EmberView$extend42)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      assert.deepEqual(clickyThing.get('blahzz'), ['blark', 'pory', 'baz'], 'property is properly combined');
+      _emberRuntimeTestsUtils.runAppend(component);
     });
   }
 });
@@ -39000,7 +39345,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
     // component. The hooks should run correctly.
   }
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString) {
   /* globals EmberDev */
   'use strict';
 
@@ -39008,7 +39353,35 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']),
       _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
       _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']);
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'], ['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}'], ['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}'], ['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}']),
+      _templateObject12 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject13 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject17 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject18 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject19 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject20 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject21 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}']),
+      _templateObject23 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}'], ['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}']),
+      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'], ['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}']),
+      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject30 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject32 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -39703,17 +40076,17 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
       var _this23 = this;
 
-      this.registerComponent('foo-bar', { template: '{{yield}}' });
+      this.registerComponent('foo-bar', { template: '{{yield}} - In component' });
 
       this.render('{{#foo-bar}}hello{{/foo-bar}}');
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
 
       this.runTask(function () {
         return _this23.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello' });
+      this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
@@ -40100,6 +40473,1145 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       this.assertComponentElement(this.firstChild, { content: 'true' });
+    };
+
+    _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
+      var _this33 = this;
+
+      this.registerComponent('some-component', {
+        template: 'some-component'
+      });
+
+      this.render('{{some-prop}} {{some-component}}', {
+        'some-component': 'not-some-component',
+        'some-prop': 'some-prop'
+      });
+
+      this.assertText('some-prop some-component');
+
+      this.runTask(function () {
+        return _this33.rerender();
+      });
+
+      this.assertText('some-prop some-component');
+    };
+
+    _class.prototype['@test component without dash is not looked up'] = function testComponentWithoutDashIsNotLookedUp() {
+      var _this34 = this;
+
+      this.registerComponent('somecomponent', {
+        template: 'somecomponent'
+      });
+
+      this.render('{{somecomponent}}', {
+        'somecomponent': 'notsomecomponent'
+      });
+
+      this.assertText('notsomecomponent');
+
+      this.runTask(function () {
+        return _this34.rerender();
+      });
+
+      this.assertText('notsomecomponent');
+
+      this.runTask(function () {
+        return _this34.context.set('somecomponent', 'not not notsomecomponent');
+      });
+
+      this.assertText('not not notsomecomponent');
+
+      this.runTask(function () {
+        return _this34.context.set('somecomponent', 'notsomecomponent');
+      });
+
+      this.assertText('notsomecomponent');
+    };
+
+    _class.prototype['@test non-block with properties on attrs'] = function testNonBlockWithPropertiesOnAttrs() {
+      var _this35 = this;
+
+      this.registerComponent('non-block', {
+        template: 'In layout - someProp: {{attrs.someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this35.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this35.context.set('prop', 'other thing there');
+      });
+
+      this.assertText('In layout - someProp: other thing there');
+
+      this.runTask(function () {
+        return _this35.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here');
+    };
+
+    _class.prototype['@skip non-block with properties overridden in init'] = function skipNonBlockWithPropertiesOverriddenInInit() {
+      var _this36 = this;
+
+      var instance = undefined;
+      this.registerComponent('non-block', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            instance = this;
+            this.someProp = 'value set in instance';
+          }
+        }),
+        template: 'In layout - someProp: {{someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something passed when invoked'
+      });
+
+      this.assertText('In layout - someProp: value set in instance');
+
+      this.runTask(function () {
+        return _this36.rerender();
+      });
+
+      this.assertText('In layout - someProp: value set in instance');
+
+      this.runTask(function () {
+        return _this36.context.set('prop', 'updated something passed when invoked');
+      });
+
+      this.assertText('In layout - someProp: updated something passed when invoked');
+
+      this.runTask(function () {
+        return instance.set('someProp', 'update value set in instance');
+      });
+
+      this.assertText('In layout - someProp: update value set in instance');
+
+      this.runTask(function () {
+        return _this36.context.set('prop', 'something passed when invoked');
+      });
+      this.runTask(function () {
+        return instance.set('someProp', 'value set in instance');
+      });
+
+      this.assertText('In layout - someProp: value set in instance');
+    };
+
+    _class.prototype['@htmlbars rerendering component with attrs from parent'] = function htmlbarsRerenderingComponentWithAttrsFromParent(assert) {
+      var _this37 = this;
+
+      var willUpdate = 0;
+      var didReceiveAttrs = 0;
+
+      this.registerComponent('non-block', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            didReceiveAttrs++;
+          },
+
+          willUpdate: function () {
+            willUpdate++;
+          }
+        }),
+        template: 'In layout - someProp: {{someProp}}'
+      });
+
+      this.render('{{non-block someProp=someProp}}', {
+        someProp: 'wycats'
+      });
+
+      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
+      this.assertText('In layout - someProp: wycats');
+
+      this.runTask(function () {
+        return _this37.rerender();
+      });
+
+      this.assertText('In layout - someProp: wycats');
+      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
+      assert.equal(willUpdate, 1, 'The willUpdate hook fired once');
+
+      this.runTask(function () {
+        return _this37.context.set('someProp', 'tomdale');
+      });
+
+      this.assertText('In layout - someProp: tomdale');
+      assert.equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
+      assert.equal(willUpdate, 2, 'The willUpdate hook fired again');
+
+      this.runTask(function () {
+        return _this37.rerender();
+      });
+
+      this.assertText('In layout - someProp: tomdale');
+      assert.equal(didReceiveAttrs, 4, 'The didReceiveAttrs hook fired again');
+      assert.equal(willUpdate, 3, 'The willUpdate hook fired again');
+
+      this.runTask(function () {
+        return _this37.context.set('someProp', 'wycats');
+      });
+
+      this.assertText('In layout - someProp: wycats');
+      assert.equal(didReceiveAttrs, 5, 'The didReceiveAttrs hook fired again in the R step');
+      assert.equal(willUpdate, 4, 'The willUpdate hook fired again in the R step');
+    };
+
+    _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
+      var _this38 = this;
+
+      this.registerComponent('non-block', {
+        template: 'In layout - someProp: {{someProp}}'
+      });
+
+      this.render('{{non-block someProp=prop}}', {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this38.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here');
+
+      this.runTask(function () {
+        return _this38.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else');
+
+      this.runTask(function () {
+        return _this38.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here');
+    };
+
+    _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
+      var _this39 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{someProp}} - {{yield}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
+      var _this40 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this40.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this40.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this40.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@htmlbars static arbitrary number of positional parameters'] = function htmlbarsStaticArbitraryNumberOfPositionalParameters(assert) {
+      var _this41 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8));
+
+      assert.equal(this.$('#args-3').text(), 'Foo4Bar');
+      assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
+      assert.equal(this.$('#helper').text(), 'Foo4Bar5Baz');
+
+      this.runTask(function () {
+        return _this41.rerender();
+      });
+
+      assert.equal(this.$('#args-3').text(), 'Foo4Bar');
+      assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
+      assert.equal(this.$('#helper').text(), 'Foo4Bar5Baz');
+    };
+
+    _class.prototype['@htmlbars arbitrary positional parameter conflict with hash parameter is reported'] = function htmlbarsArbitraryPositionalParameterConflictWithHashParameterIsReported() {
+      var _this42 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      expectAssertion(function () {
+        _this42.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+          numbers: [1, 2, 3]
+        });
+      }, 'You cannot specify positional parameters and the hash argument `names`.');
+    };
+
+    _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
+      var _this43 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      this.render('{{sample-component names=things}}', {
+        things: _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar'])
+      });
+
+      this.assertText('Foo4Bar');
+
+      this.runTask(function () {
+        return _this43.rerender();
+      });
+
+      this.assertText('Foo4Bar');
+
+      this.runTask(function () {
+        return _this43.context.get('things').pushObject(5);
+      });
+
+      this.assertText('Foo4Bar5');
+
+      this.runTask(function () {
+        return _this43.context.get('things').shiftObject();
+      });
+
+      this.assertText('4Bar5');
+
+      this.runTask(function () {
+        return _this43.context.get('things').clear();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this43.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+      });
+
+      this.assertText('Foo4Bar');
+    };
+
+    _class.prototype['@htmlbars can use hash parameter instead of positional param'] = function htmlbarsCanUseHashParameterInsteadOfPositionalParam(assert) {
+      var _this44 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['first', 'second']
+        }),
+        template: '{{first}} - {{second}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9));
+
+      assert.equal(this.$('#two-positional').text(), 'one - two');
+      assert.equal(this.$('#one-positional').text(), 'one - two');
+      assert.equal(this.$('#no-positional').text(), 'one - two');
+
+      this.runTask(function () {
+        return _this44.rerender();
+      });
+
+      assert.equal(this.$('#two-positional').text(), 'one - two');
+      assert.equal(this.$('#one-positional').text(), 'one - two');
+      assert.equal(this.$('#no-positional').text(), 'one - two');
+    };
+
+    _class.prototype['@htmlbars dynamic arbitrary number of positional parameters'] = function htmlbarsDynamicArbitraryNumberOfPositionalParameters(assert) {
+      var _this45 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'n'
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject11), {
+        user1: 'Foo',
+        user2: 4
+      });
+
+      assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
+      assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
+
+      this.runTask(function () {
+        return _this45.rerender();
+      });
+
+      assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
+      assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
+
+      this.runTask(function () {
+        return _this45.context.set('user1', 'Bar');
+      });
+
+      assert.equal(this.$('#direct').text(), 'Bar4', 'direct');
+      //assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
+
+      this.runTask(function () {
+        return _this45.context.set('user2', '5');
+      });
+
+      assert.equal(this.$('#direct').text(), 'Bar5', 'direct');
+      //assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
+
+      this.runTask(function () {
+        _this45.context.set('user1', 'Foo');
+        _this45.context.set('user2', 4);
+      });
+
+      assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
+      assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
+    };
+
+    _class.prototype['@htmlbars with ariaRole specified'] = function htmlbarsWithAriaRoleSpecified() {
+      var _this46 = this;
+
+      this.registerComponent('aria-test', {
+        template: 'Here!'
+      });
+
+      this.render('{{aria-test ariaRole=role}}', {
+        role: 'main'
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
+
+      this.runTask(function () {
+        return _this46.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
+
+      this.runTask(function () {
+        return _this46.context.set('role', 'input');
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
+
+      this.runTask(function () {
+        return _this46.context.set('role', 'main');
+      });
+
+      this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
+    };
+
+    _class.prototype['@htmlbars `template` specified in component is overriden by block'] = function htmlbarsTemplateSpecifiedInComponentIsOverridenByBlock() {
+      var _this47 = this;
+
+      this.registerComponent('with-template', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          template: _emberHtmlbarsTestsUtilsHelpers.compile('Should not be used')
+        }),
+        template: '[In layout - {{name}}] {{yield}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12), {
+        name: 'Whoop, whoop!'
+      });
+
+      this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
+
+      this.runTask(function () {
+        return _this47.rerender();
+      });
+
+      this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
+
+      this.runTask(function () {
+        return _this47.context.set('name', 'Ole, ole');
+      });
+
+      this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
+
+      this.runTask(function () {
+        return _this47.context.set('name', 'Whoop, whoop!');
+      });
+
+      this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
+    };
+
+    _class.prototype['@htmlbars hasBlock is true when block supplied'] = function htmlbarsHasBlockIsTrueWhenBlockSupplied() {
+      var _this48 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject13)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14));
+
+      this.assertText('In template');
+
+      this.runTask(function () {
+        return _this48.rerender();
+      });
+
+      this.assertText('In template');
+    };
+
+    _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
+      var _this49 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject13)
+      });
+
+      this.render('{{with-block}}');
+
+      this.assertText('No Block!');
+
+      this.runTask(function () {
+        return _this49.rerender();
+      });
+
+      this.assertText('No Block!');
+    };
+
+    _class.prototype['@htmlbars hasBlockParams is true when block param supplied'] = function htmlbarsHasBlockParamsIsTrueWhenBlockParamSupplied() {
+      var _this50 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject15)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16));
+
+      this.assertText('In template - In Component');
+
+      this.runTask(function () {
+        return _this50.rerender();
+      });
+
+      this.assertText('In template - In Component');
+    };
+
+    _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
+      var _this51 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject17)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject18));
+
+      this.assertText('In block No Block Param!');
+
+      this.runTask(function () {
+        return _this51.rerender();
+      });
+
+      this.assertText('In block No Block Param!');
+    };
+
+    _class.prototype['@htmlbars static named positional parameters'] = function htmlbarsStaticNamedPositionalParameters() {
+      var _this52 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}}{{age}}'
+      });
+
+      this.render('{{sample-component "Quint" 4}}');
+
+      this.assertText('Quint4');
+
+      this.runTask(function () {
+        return _this52.rerender();
+      });
+
+      this.assertText('Quint4');
+    };
+
+    _class.prototype['@htmlbars dynamic named positional parameters'] = function htmlbarsDynamicNamedPositionalParameters() {
+      var _this53 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}}{{age}}'
+      });
+
+      this.render('{{sample-component myName myAge}}', {
+        myName: 'Quint',
+        myAge: 4
+      });
+
+      this.assertText('Quint4');
+
+      this.runTask(function () {
+        return _this53.rerender();
+      });
+
+      this.assertText('Quint4');
+
+      this.runTask(function () {
+        return _this53.context.set('myName', 'Sergio');
+      });
+
+      this.assertText('Sergio4');
+
+      this.runTask(function () {
+        return _this53.context.set('myAge', 2);
+      });
+
+      this.assertText('Sergio2');
+
+      this.runTask(function () {
+        _this53.context.set('myName', 'Quint');
+        _this53.context.set('myAge', 4);
+      });
+
+      this.assertText('Quint4');
+    };
+
+    _class.prototype['@htmlbars if a value is passed as a non-positional parameter, it raises an assertion'] = function htmlbarsIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
+      var _this54 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{name}}'
+      });
+
+      expectAssertion(function () {
+        _this54.render('{{sample-component notMyName name=myName}}', {
+          myName: 'Quint',
+          notMyName: 'Sergio'
+        });
+      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+    };
+
+    _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
+      var _this55 = this;
+
+      this.registerComponent('my-if', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject19)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject20), {
+        activated: true
+      });
+
+      this.assertText('Yes:Hello42');
+
+      this.runTask(function () {
+        return _this55.rerender();
+      });
+
+      this.assertText('Yes:Hello42');
+
+      this.runTask(function () {
+        return _this55.context.set('activated', false);
+      });
+
+      this.assertText('No:Goodbye');
+
+      this.runTask(function () {
+        return _this55.context.set('activated', true);
+      });
+
+      this.assertText('Yes:Hello42');
+    };
+
+    _class.prototype['@htmlbars expression hasBlock inverse'] = function htmlbarsExpressionHasBlockInverse(assert) {
+      var _this56 = this;
+
+      this.registerComponent('check-inverse', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject21)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject22));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this56.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars expression hasBlock default'] = function htmlbarsExpressionHasBlockDefault(assert) {
+      var _this57 = this;
+
+      this.registerComponent('check-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject23)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this57.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars non-expression hasBlock'] = function htmlbarsNonExpressionHasBlock(assert) {
+      var _this58 = this;
+
+      this.registerComponent('check-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject25)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this58.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars expression hasBlockParams'] = function htmlbarsExpressionHasBlockParams(assert) {
+      var _this59 = this;
+
+      this.registerComponent('check-params', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject26)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this59.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars non-expression hasBlockParams'] = function htmlbarsNonExpressionHasBlockParams(assert) {
+      var _this60 = this;
+
+      this.registerComponent('check-params', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject28)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27));
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+
+      this.runTask(function () {
+        return _this60.rerender();
+      });
+
+      assert.equal(this.$('#expect-no').text(), 'No');
+      assert.equal(this.$('#expect-yes').text(), 'Yes');
+    };
+
+    _class.prototype['@htmlbars component in template of a yielding component should have the proper parentView'] = function htmlbarsComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
+      var _this61 = this;
+
+      var outer = undefined,
+          innerTemplate = undefined,
+          innerLayout = undefined;
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          }
+        }),
+        template: '{{x-inner-in-layout}}{{yield}}'
+      });
+
+      this.registerComponent('x-inner-in-template', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerTemplate = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-inner-in-layout', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerLayout = this;
+          }
+        })
+      });
+
+      this.render('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}');
+
+      assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
+      assert.equal(innerLayout.parentView, outer, 'receives the wrapping component as its parentView in layout');
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+
+      this.runTask(function () {
+        return _this61.rerender();
+      });
+
+      assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
+      assert.equal(innerLayout.parentView, outer, 'receives the wrapping component as its parentView in layout');
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+    };
+
+    _class.prototype['@htmlbars newly-added sub-components get correct parentView'] = function htmlbarsNewlyAddedSubComponentsGetCorrectParentView(assert) {
+      var _this62 = this;
+
+      var outer = undefined,
+          inner = undefined;
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            inner = this;
+          }
+        })
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject29), {
+        showInner: false
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+
+      this.runTask(function () {
+        return _this62.rerender();
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
+
+      this.runTask(function () {
+        return _this62.context.set('showInner', true);
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+      assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
+
+      this.runTask(function () {
+        return _this62.context.set('showInner', false);
+      });
+
+      assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
+    };
+
+    _class.prototype['@htmlbars component should receive the viewRegistry from the parentView'] = function htmlbarsComponentShouldReceiveTheViewRegistryFromTheParentView(assert) {
+      var _this63 = this;
+
+      var outer = undefined,
+          innerTemplate = undefined,
+          innerLayout = undefined;
+
+      var viewRegistry = {};
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          }
+        }),
+        template: '{{x-inner-in-layout}}{{yield}}'
+      });
+
+      this.registerComponent('x-inner-in-template', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerTemplate = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-inner-in-layout', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerLayout = this;
+          }
+        })
+      });
+
+      this.render('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}', {
+        _viewRegistry: viewRegistry
+      });
+
+      assert.equal(innerTemplate._viewRegistry, viewRegistry);
+      assert.equal(innerLayout._viewRegistry, viewRegistry);
+      assert.equal(outer._viewRegistry, viewRegistry);
+
+      this.runTask(function () {
+        return _this63.rerender();
+      });
+
+      assert.equal(innerTemplate._viewRegistry, viewRegistry);
+      assert.equal(innerLayout._viewRegistry, viewRegistry);
+      assert.equal(outer._viewRegistry, viewRegistry);
+    };
+
+    _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
+      var _this64 = this;
+
+      expectDeprecation(/modified value twice in a single render/);
+
+      var outer = undefined,
+          middle = undefined;
+
+      this.registerComponent('x-outer', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            outer = this;
+          },
+          value: 1
+        }),
+        template: '{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'
+      });
+
+      this.registerComponent('x-middle', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            middle = this;
+          },
+          value: null
+        }),
+        template: '<div id="middle-value">{{value}}</div>{{yield}}'
+      });
+
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          value: null,
+          pushDataUp: _emberMetalCore.default.observer('value', function () {
+            middle.set('value', this.get('value'));
+          })
+        }),
+        template: '<div id="inner-value">{{value}}</div>'
+      });
+
+      this.render('{{x-outer}}');
+
+      assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
+      assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
+
+      this.runTask(function () {
+        return _this64.rerender();
+      });
+
+      assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
+      assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
+
+      this.runTask(function () {
+        return outer.set('value', 2);
+      });
+
+      assert.equal(this.$('#inner-value').text(), '2', 'second render of inner');
+      assert.equal(this.$('#middle-value').text(), '2', 'second render of middle');
+
+      this.runTask(function () {
+        return outer.set('value', 3);
+      });
+
+      assert.equal(this.$('#inner-value').text(), '3', 'third render of inner');
+      assert.equal(this.$('#middle-value').text(), '3', 'third render of middle');
+
+      this.runTask(function () {
+        return outer.set('value', 1);
+      });
+
+      assert.equal(this.$('#inner-value').text(), '1', 'reset render of inner');
+      assert.equal(this.$('#middle-value').text(), '1', 'reset render of middle');
+    };
+
+    _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
+      var _this65 = this;
+
+      this.registerComponent('non-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30)
+      });
+
+      this.registerComponent('child-non-block', {
+        template: 'Child: {{item}}.'
+      });
+
+      var items = _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']);
+
+      this.render('{{non-block items=items}}', { items: items });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
+
+      this.runTask(function () {
+        return _this65.rerender();
+      });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
+
+      this.runTask(function () {
+        return _this65.context.get('items').pushObject('Sergio');
+      });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
+
+      this.runTask(function () {
+        return _this65.context.get('items').shiftObject();
+      });
+
+      this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
+
+      this.runTask(function () {
+        return _this65.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+      });
+
+      this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
+    };
+
+    _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
+      var _this66 = this;
+
+      var clickyThing = undefined;
+
+      this.registerComponent('some-clicky-thing', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: 'button',
+          classNames: ['foo', 'bar'],
+          init: function () {
+            this._super.apply(this, arguments);
+            clickyThing = this;
+          }
+        }),
+        // I am getting a `Cannot read property 'asLayout' of undefined` in
+        // Glimmer if I do not specify a template here :(
+        template: '{{yield}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject31));
+
+      // TODO: ember-view is no longer viewable in the classNames array. Bug or
+      // feature?
+      var expectedClassNames = ['ember-view', 'foo', 'bar', 'baz'];
+
+      assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class'));
+      // `ember-view` is no longer in classNames.
+      // assert.deepEqual(clickyThing.get('classNames'), expectedClassNames, 'classNames are properly combined');
+      this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
+
+      this.runTask(function () {
+        return _this66.rerender();
+      });
+
+      assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
+      // `ember-view` is no longer in classNames.
+      // assert.deepEqual(clickyThing.get('classNames'), expectedClassNames, 'classNames are properly combined (rerender)');
+      this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
+    };
+
+    _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
+      var clickyThing = undefined;
+      this.registerComponent('some-clicky-thing', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          concatenatedProperties: ['blahzz'],
+          blahzz: ['blark', 'pory'],
+          init: function () {
+            this._super.apply(this, arguments);
+            clickyThing = this;
+          }
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject32)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject33));
+
+      this.assertText('blarkporybaz- Click Me');
+
+      // Errors here cause `blahzz` has become just `baz` and `Don't know how to
+      // {{#each baz}}`
+      // this.runTask(() => this.rerender());
+
+      // this.assertText('blarkporybaz- Click Me');
     };
 
     return _class;
@@ -73887,7 +75399,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+456d3a5e', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+604c291d', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
