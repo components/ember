@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+8c654ec9
+ * @version   2.6.0-canary+58441800
  */
 
 var enifed, requireModule, require, Ember;
@@ -12037,7 +12037,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     To specify that a parameter is mutable, when invoking the child `Component`:
   
     ```handlebars
-    <my-child child-click-count={{mut totalClicks}} />
+    {{my-child childClickCount=(mut totalClicks)}}
     ```
   
     The child `Component` can then modify the parent's value as needed:
@@ -12046,10 +12046,30 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     // my-child.js
     export default Component.extend({
       click() {
-        this.attrs.childClickCount.update(this.attrs.childClickCount.value + 1);
+        this.get('childClickCount').update(this.get('childClickCount').value + 1);
       }
     });
     ```
+  
+    Additionally, the `mut` helper can be combined with the `action` helper to
+    mutate a value. For example:
+  
+    ```handlebars
+    {{my-child childClickCount=totalClicks click-count-change=(action (mut "totalClicks"))}}
+    ```
+  
+    The child `Component` would invoke the action with the new click value:
+  
+    ```javascript
+    // my-child.js
+    export default Component.extend({
+      click() {
+        this.get('clickCountChange')(this.get('childClickCount') + 1);
+      }
+    });
+    ```
+  
+    The `mut` helper changes the `totalClicks` value to what was provided as the action argument.
   
     See a [2.0 blog post](http://emberjs.com/blog/2015/05/10/run-up-to-two-oh.html#toc_the-code-mut-code-helper) for
     additional information on using `{{mut}}`.
@@ -12121,7 +12141,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+8c654ec9';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+58441800';
   }
 
   /**
@@ -16959,7 +16979,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+8c654ec9
+    @version 2.6.0-canary+58441800
     @public
   */
 
@@ -17001,11 +17021,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+8c654ec9'
+    @default '2.6.0-canary+58441800'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+8c654ec9';
+  Ember.VERSION = '2.6.0-canary+58441800';
 
   /**
     The hash of environment variables used to control various configuration
@@ -40633,7 +40653,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+8c654ec9',
+        revision: 'Ember@2.6.0-canary+58441800',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -48798,7 +48818,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+8c654ec9
+ * @version   2.6.0-canary+58441800
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
