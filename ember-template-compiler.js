@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.4+2841986d
+ * @version   2.5.0-beta.4+399f2b53
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1526,7 +1526,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     if (featuresWereStripped) {
       _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
-      var keys = Object.keys(FEATURES);
+      var keys = Object.keys(FEATURES || {});
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         if (key === 'isEnabled' || !(key in knownFeatures)) {
@@ -3980,7 +3980,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-beta.4+2841986d
+    @version 2.5.0-beta.4+399f2b53
     @public
   */
 
@@ -4022,11 +4022,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-beta.4+2841986d'
+    @default '2.5.0-beta.4+399f2b53'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-beta.4+2841986d';
+  Ember.VERSION = '2.5.0-beta.4+399f2b53';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12752,7 +12752,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-beta.4+2841986d',
+        revision: 'Ember@2.5.0-beta.4+399f2b53',
         loc: program.loc,
         moduleName: options.moduleName
       };

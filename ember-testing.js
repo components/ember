@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-beta.4+2841986d
+ * @version   2.5.0-beta.4+399f2b53
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -485,7 +485,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     if (featuresWereStripped) {
       _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
-      var keys = Object.keys(FEATURES);
+      var keys = Object.keys(FEATURES || {});
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         if (key === 'isEnabled' || !(key in knownFeatures)) {
