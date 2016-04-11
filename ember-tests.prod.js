@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+604c291d
+ * @version   2.6.0-canary+a75c129c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24811,7 +24811,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
   /* globals EmberDev */
   'use strict';
 
@@ -27078,6 +27078,113 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       // this.runTask(() => this.rerender());
 
       // this.assertText('blarkporybaz- Click Me');
+    };
+
+    _class.prototype['@htmlbars a two way binding flows upstream through a CP when consumed in the template'] = function htmlbarsATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
+      var _this67 = this;
+
+      var component = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+
+        bar: _emberMetalComputed.computed({
+          get: function () {
+            return this._bar;
+          },
+
+          set: function (key, value) {
+            this._bar = value;
+            return this._bar;
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+
+        template: '{{bar}}'
+      });
+
+      this.render('{{localBar}} - {{foo-bar bar=localBar}}', {
+        localBar: 'initial value'
+      });
+
+      this.assertText('initial value - initial value');
+
+      this.runTask(function () {
+        return _this67.rerender();
+      });
+
+      this.assertText('initial value - initial value');
+
+      this.runTask(function () {
+        component.set('bar', 'updated value');
+      });
+
+      this.assertText('updated value - updated value');
+
+      this.runTask(function () {
+        _this67.component.set('localBar', 'initial value');
+      });
+
+      this.assertText('initial value - initial value');
+    };
+
+    // regression introduced in Ember 1.13
+
+    _class.prototype['@skip a two way binding flows upstream through a CP without template consumption'] = function skipATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
+      var _this68 = this;
+
+      var component = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+
+        bar: _emberMetalComputed.computed({
+          get: function () {
+            return this._bar;
+          },
+
+          set: function (key, value) {
+            this._bar = value;
+            return this._bar;
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: ''
+      });
+
+      this.render('{{localBar}}{{foo-bar bar=localBar}}', {
+        localBar: 'initial value'
+      });
+
+      this.assertText('initial value');
+
+      this.runTask(function () {
+        return _this68.rerender();
+      });
+
+      this.assertText('initial value');
+
+      this.runTask(function () {
+        component.set('bar', 'updated value');
+      });
+
+      this.assertText('updated value');
+
+      this.runTask(function () {
+        _this68.component.set('localBar', 'initial value');
+      });
+
+      this.assertText('initial value');
     };
 
     return _class;
@@ -39345,7 +39452,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
     // component. The hooks should run correctly.
   }
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
   /* globals EmberDev */
   'use strict';
 
@@ -41612,6 +41719,113 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       // this.runTask(() => this.rerender());
 
       // this.assertText('blarkporybaz- Click Me');
+    };
+
+    _class.prototype['@htmlbars a two way binding flows upstream through a CP when consumed in the template'] = function htmlbarsATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
+      var _this67 = this;
+
+      var component = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+
+        bar: _emberMetalComputed.computed({
+          get: function () {
+            return this._bar;
+          },
+
+          set: function (key, value) {
+            this._bar = value;
+            return this._bar;
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+
+        template: '{{bar}}'
+      });
+
+      this.render('{{localBar}} - {{foo-bar bar=localBar}}', {
+        localBar: 'initial value'
+      });
+
+      this.assertText('initial value - initial value');
+
+      this.runTask(function () {
+        return _this67.rerender();
+      });
+
+      this.assertText('initial value - initial value');
+
+      this.runTask(function () {
+        component.set('bar', 'updated value');
+      });
+
+      this.assertText('updated value - updated value');
+
+      this.runTask(function () {
+        _this67.component.set('localBar', 'initial value');
+      });
+
+      this.assertText('initial value - initial value');
+    };
+
+    // regression introduced in Ember 1.13
+
+    _class.prototype['@skip a two way binding flows upstream through a CP without template consumption'] = function skipATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
+      var _this68 = this;
+
+      var component = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+
+        bar: _emberMetalComputed.computed({
+          get: function () {
+            return this._bar;
+          },
+
+          set: function (key, value) {
+            this._bar = value;
+            return this._bar;
+          }
+        })
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: FooBarComponent,
+        template: ''
+      });
+
+      this.render('{{localBar}}{{foo-bar bar=localBar}}', {
+        localBar: 'initial value'
+      });
+
+      this.assertText('initial value');
+
+      this.runTask(function () {
+        return _this68.rerender();
+      });
+
+      this.assertText('initial value');
+
+      this.runTask(function () {
+        component.set('bar', 'updated value');
+      });
+
+      this.assertText('updated value');
+
+      this.runTask(function () {
+        _this68.component.set('localBar', 'initial value');
+      });
+
+      this.assertText('initial value');
     };
 
     return _class;
@@ -74955,7 +75169,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+604c291d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+a75c129c', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
