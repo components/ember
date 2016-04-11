@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+6b78bcb1
+ * @version   2.6.0-canary+ac90fcf1
  */
 
 var enifed, requireModule, require, Ember;
@@ -6665,7 +6665,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     if (featuresWereStripped) {
       _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
-      var keys = Object.keys(FEATURES);
+      var keys = Object.keys(FEATURES || {});
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         if (key === 'isEnabled' || !(key in knownFeatures)) {
@@ -12784,7 +12784,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+6b78bcb1';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+ac90fcf1';
   }
 
   /**
@@ -17712,7 +17712,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+6b78bcb1
+    @version 2.6.0-canary+ac90fcf1
     @public
   */
 
@@ -17754,11 +17754,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+6b78bcb1'
+    @default '2.6.0-canary+ac90fcf1'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+6b78bcb1';
+  Ember.VERSION = '2.6.0-canary+ac90fcf1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -41674,7 +41674,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+6b78bcb1',
+        revision: 'Ember@2.6.0-canary+ac90fcf1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51205,7 +51205,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+6b78bcb1
+ * @version   2.6.0-canary+ac90fcf1
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
