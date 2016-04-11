@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.4+8877bae1
+ * @version   2.4.5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9822,7 +9822,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     To specify that a parameter is mutable, when invoking the child `Component`:
   
     ```handlebars
-    <my-child child-click-count={{mut totalClicks}} />
+    {{my-child childClickCount=(mut totalClicks)}}
     ```
   
     The child `Component` can then modify the parent's value as needed:
@@ -9830,11 +9830,31 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     ```javascript
     // my-child.js
     export default Component.extend({
-      click: function() {
-        this.attrs.childClickCount.update(this.attrs.childClickCount.value + 1);
+      click() {
+        this.get('childClickCount').update(this.get('childClickCount').value + 1);
       }
     });
     ```
+  
+    Additionally, the `mut` helper can be combined with the `action` helper to
+    mutate a value. For example:
+  
+    ```handlebars
+    {{my-child childClickCount=totalClicks click-count-change=(action (mut "totalClicks"))}}
+    ```
+  
+    The child `Component` would invoke the action with the new click value:
+  
+    ```javascript
+    // my-child.js
+    export default Component.extend({
+      click() {
+        this.get('clickCountChange')(this.get('childClickCount') + 1);
+      }
+    });
+    ```
+  
+    The `mut` helper changes the `totalClicks` value to what was provided as the action argument.
   
     See a [2.0 blog post](http://emberjs.com/blog/2015/05/10/run-up-to-two-oh.html#toc_the-code-mut-code-helper) for
     additional information on using `{{mut}}`.
@@ -9905,7 +9925,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.4+8877bae1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.5';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15402,7 +15422,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.4+8877bae1
+    @version 2.4.5
     @public
   */
 
@@ -15444,11 +15464,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.4+8877bae1'
+    @default '2.4.5'
     @static
     @public
   */
-  Ember.VERSION = '2.4.4+8877bae1';
+  Ember.VERSION = '2.4.5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29369,7 +29389,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.4+8877bae1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.5';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29869,7 +29889,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.4+8877bae1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.5';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38925,7 +38945,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.4+8877bae1',
+        revision: 'Ember@2.4.5',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43092,7 +43112,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.4+8877bae1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.5';
 
   /**
   @module ember
