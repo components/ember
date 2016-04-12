@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5c7b9464
+ * @version   2.7.0-canary+dd3eb149
  */
 
 var enifed, requireModule, require, Ember;
@@ -30989,6 +30989,105 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{partial}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars should render other templates registered with the container'] = function htmlbarsShouldRenderOtherTemplatesRegisteredWithTheContainer() {
+      this.registerPartial('_subTemplateFromContainer', 'sub-template');
+
+      this.render('This {{partial "subTemplateFromContainer"}} is pretty great.');
+
+      this.assertStableRerender();
+
+      this.assertText('This sub-template is pretty great.');
+    };
+
+    _class.prototype['@htmlbars should render other slash-separated templates registered with the container'] = function htmlbarsShouldRenderOtherSlashSeparatedTemplatesRegisteredWithTheContainer() {
+      this.registerPartial('child/_subTemplateFromContainer', 'sub-template');
+
+      this.render('This {{partial "child/subTemplateFromContainer"}} is pretty great.');
+
+      this.assertStableRerender();
+
+      this.assertText('This sub-template is pretty great.');
+    };
+
+    _class.prototype['@htmlbars should use the current context'] = function htmlbarsShouldUseTheCurrentContext() {
+      var _this = this;
+
+      this.registerPartial('_person_name', '{{firstName}} {{lastName}}');
+
+      this.render('Who is {{partial "person_name"}}?', {
+        firstName: 'Kris',
+        lastName: 'Selden'
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('Who is Kris Selden?');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kelly');
+      });
+
+      this.assertText('Who is Kelly Selden?');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kris');
+      });
+
+      this.assertText('Who is Kris Selden?');
+    };
+
+    _class.prototype['@htmlbars Quoteless parameters passed to {{partial}} perform a bound property lookup of the partial name'] = function htmlbarsQuotelessParametersPassedToPartialPerformABoundPropertyLookupOfThePartialName() {
+      var _this2 = this;
+
+      this.registerPartial('_subTemplate', 'sub-template');
+      this.registerPartial('_otherTemplate', 'other-template');
+
+      this.render('This {{partial partialName}} is pretty {{partial nonexistent}}great.', { partialName: 'subTemplate' });
+
+      this.assertStableRerender();
+
+      this.assertText('This sub-template is pretty great.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'otherTemplate');
+      });
+
+      this.assertText('This other-template is pretty great.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'partialName', null);
+      });
+
+      this.assertText('This  is pretty great.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'subTemplate');
+      });
+
+      this.assertText('This sub-template is pretty great.');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-views/views/text_area', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsViewsText_area, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
@@ -33446,6 +33545,14 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         this.owner.register('helper:' + name, _emberGlimmerTestsUtilsHelpers.Helper.extend(funcOrClassBody));
       } else {
         throw new Error('Cannot register ' + funcOrClassBody + ' as a helper');
+      }
+    };
+
+    RenderingTest.prototype.registerPartial = function registerPartial(name, template) {
+      var owner = this.owner;
+
+      if (typeof template === 'string') {
+        owner.register('template:' + name, _emberGlimmerTestsUtilsHelpers.compile(template));
       }
     };
 
@@ -37408,99 +37515,6 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
       _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, view, 'controller.someNullProperty', 'foo');
 
       equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
-    });
-  }
-});
-enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var trim = _emberViewsSystemJquery.default.trim;
-
-  var MyApp, lookup, view, owner;
-  var originalLookup = _emberMetalCore.default.lookup;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('Support for {{partial}} helper', {
-      setup: function () {
-        _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-        MyApp = lookup.MyApp = _emberRuntimeSystemObject.default.create({});
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.registerOptionsForType('template', { instantiate: false });
-      },
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(view);
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        _emberMetalCore.default.lookup = originalLookup;
-        view = owner = null;
-      }
-    });
-
-    QUnit.test('should render other templates registered with the container', function () {
-      var _EmberView$create;
-
-      owner.register('template:_subTemplateFromContainer', _emberTemplateCompilerSystemCompile.default('sub-template'));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default('This {{partial "subTemplateFromContainer"}} is pretty great.'), _EmberView$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(trim(view.$().text()), 'This sub-template is pretty great.');
-    });
-
-    QUnit.test('should render other slash-separated templates registered with the container', function () {
-      var _EmberView$create2;
-
-      owner.register('template:child/_subTemplateFromContainer', _emberTemplateCompilerSystemCompile.default('sub-template'));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default('This {{partial "child/subTemplateFromContainer"}} is pretty great.'), _EmberView$create2));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(trim(view.$().text()), 'This sub-template is pretty great.');
-    });
-
-    QUnit.test('should use the current view\'s context', function () {
-      var _EmberView$create3;
-
-      owner.register('template:_person_name', _emberTemplateCompilerSystemCompile.default('{{firstName}} {{lastName}}'));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default('Who is {{partial "person_name"}}?'), _EmberView$create3));
-
-      view.set('controller', _emberRuntimeSystemObject.default.create({
-        firstName: 'Kris',
-        lastName: 'Selden'
-      }));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(trim(view.$().text()), 'Who is Kris Selden?');
-    });
-
-    QUnit.test('Quoteless parameters passed to {{template}} perform a bound property lookup of the partial name', function () {
-      var _EmberView$create4;
-
-      owner.register('template:_subTemplate', _emberTemplateCompilerSystemCompile.default('sub-template'));
-      owner.register('template:_otherTemplate', _emberTemplateCompilerSystemCompile.default('other-template'));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('This {{partial view.partialName}} is pretty {{partial nonexistent}}great.'), _EmberView$create4.partialName = 'subTemplate', _EmberView$create4));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(trim(view.$().text()), 'This sub-template is pretty great.');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('partialName', 'otherTemplate');
-      });
-
-      equal(trim(view.$().text()), 'This other-template is pretty great.');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('partialName', null);
-      });
-
-      equal(trim(view.$().text()), 'This  is pretty great.');
     });
   }
 });
@@ -45946,6 +45960,105 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{partial}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars should render other templates registered with the container'] = function htmlbarsShouldRenderOtherTemplatesRegisteredWithTheContainer() {
+      this.registerPartial('_subTemplateFromContainer', 'sub-template');
+
+      this.render('This {{partial "subTemplateFromContainer"}} is pretty great.');
+
+      this.assertStableRerender();
+
+      this.assertText('This sub-template is pretty great.');
+    };
+
+    _class.prototype['@htmlbars should render other slash-separated templates registered with the container'] = function htmlbarsShouldRenderOtherSlashSeparatedTemplatesRegisteredWithTheContainer() {
+      this.registerPartial('child/_subTemplateFromContainer', 'sub-template');
+
+      this.render('This {{partial "child/subTemplateFromContainer"}} is pretty great.');
+
+      this.assertStableRerender();
+
+      this.assertText('This sub-template is pretty great.');
+    };
+
+    _class.prototype['@htmlbars should use the current context'] = function htmlbarsShouldUseTheCurrentContext() {
+      var _this = this;
+
+      this.registerPartial('_person_name', '{{firstName}} {{lastName}}');
+
+      this.render('Who is {{partial "person_name"}}?', {
+        firstName: 'Kris',
+        lastName: 'Selden'
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('Who is Kris Selden?');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kelly');
+      });
+
+      this.assertText('Who is Kelly Selden?');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kris');
+      });
+
+      this.assertText('Who is Kris Selden?');
+    };
+
+    _class.prototype['@htmlbars Quoteless parameters passed to {{partial}} perform a bound property lookup of the partial name'] = function htmlbarsQuotelessParametersPassedToPartialPerformABoundPropertyLookupOfThePartialName() {
+      var _this2 = this;
+
+      this.registerPartial('_subTemplate', 'sub-template');
+      this.registerPartial('_otherTemplate', 'other-template');
+
+      this.render('This {{partial partialName}} is pretty {{partial nonexistent}}great.', { partialName: 'subTemplate' });
+
+      this.assertStableRerender();
+
+      this.assertText('This sub-template is pretty great.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'otherTemplate');
+      });
+
+      this.assertText('This other-template is pretty great.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'partialName', null);
+      });
+
+      this.assertText('This  is pretty great.');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'subTemplate');
+      });
+
+      this.assertText('This sub-template is pretty great.');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-views/views/text_area', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsViewsText_area, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
@@ -49618,6 +49731,14 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         this.owner.register('helper:' + name, _emberHtmlbarsTestsUtilsHelpers.Helper.extend(funcOrClassBody));
       } else {
         throw new Error('Cannot register ' + funcOrClassBody + ' as a helper');
+      }
+    };
+
+    RenderingTest.prototype.registerPartial = function registerPartial(name, template) {
+      var owner = this.owner;
+
+      if (typeof template === 'string') {
+        owner.register('template:' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template));
       }
     };
 
@@ -76712,7 +76833,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+5c7b9464', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+dd3eb149', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
