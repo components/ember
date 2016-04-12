@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+05de8a50
+ * @version   2.7.0-canary+3970129d
  */
 
 var enifed, requireModule, require, Ember;
@@ -796,7 +796,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   var defaultEventOptions = { canBubble: true, cancelable: true };
   keyboardEventTypes = ['keydown', 'keypress', 'keyup'];
-  mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mousenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
+  mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
 
   buildKeyboardEvent = function buildKeyboardEvent(type) {
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
