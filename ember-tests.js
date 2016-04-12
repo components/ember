@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+03a49197
+ * @version   2.6.0-canary+46649f27
  */
 
 var enifed, requireModule, require, Ember;
@@ -19812,47 +19812,52 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/core', 
   }
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
+    (function () {
+      // jscs:disable
 
-    QUnit.module('View Instrumentation', {
-      setup: function () {
-        _emberMetalRun_loop.default(function () {
-          App = _emberApplicationSystemApplication.default.create({
-            rootElement: '#qunit-fixture'
+      var subscriber = undefined;
+      QUnit.module('View Instrumentation', {
+        setup: function () {
+          _emberMetalRun_loop.default(function () {
+            App = _emberApplicationSystemApplication.default.create({
+              rootElement: '#qunit-fixture'
+            });
+            App.deferReadiness();
+
+            App.Router.reopen({
+              location: 'none'
+            });
           });
-          App.deferReadiness();
 
-          App.Router.reopen({
-            location: 'none'
-          });
-        });
-
-        $fixture = _emberViewsSystemJquery.default('#qunit-fixture');
-        setupExample();
-      },
-
-      teardown: function () {
-        _emberMetalRun_loop.default(App, 'destroy');
-        App = null;
-        _emberMetalCore.default.TEMPLATES = {};
-      }
-    });
-
-    QUnit.test('Nodes without view instances are instrumented', function (assert) {
-      var called = false;
-      var subscriber = _emberMetalInstrumentation.subscribe('render', {
-        before: function () {
-          called = true;
+          $fixture = _emberViewsSystemJquery.default('#qunit-fixture');
+          setupExample();
         },
-        after: function () {}
+
+        teardown: function () {
+          if (subscriber) {
+            _emberMetalInstrumentation.unsubscribe(subscriber);
+          }
+          _emberMetalRun_loop.default(App, 'destroy');
+          App = null;
+          _emberMetalCore.default.TEMPLATES = {};
+        }
       });
-      _emberMetalRun_loop.default(App, 'advanceReadiness');
-      assert.ok(called, 'Instrumentation called on first render');
-      called = false;
-      handleURL('/posts');
-      assert.ok(called, 'instrumentation called on transition to non-view backed route');
-      _emberMetalInstrumentation.unsubscribe(subscriber);
-    });
+
+      QUnit.test('Nodes without view instances are instrumented', function (assert) {
+        var called = false;
+        subscriber = _emberMetalInstrumentation.subscribe('render', {
+          before: function () {
+            called = true;
+          },
+          after: function () {}
+        });
+        _emberMetalRun_loop.default(App, 'advanceReadiness');
+        assert.ok(called, 'Instrumentation called on first render');
+        called = false;
+        handleURL('/posts');
+        assert.ok(called, 'instrumentation called on transition to non-view backed route');
+      });
+    })();
   }
 });
 enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory) {
@@ -60819,553 +60824,690 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-views/views/view', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberViewsViewsView, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
   'use strict';
 
-  var innerComponent, outerComponent, originalViewKeyword;
+  var innerComponent, outerComponent, originalViewKeyword, owner, view, dispatcher;
+
+  function buildResolver() {
+    var resolver = {
+      resolve: function () {},
+      expandLocalLookup: function (fullName, sourceFullName) {
+        var _sourceFullName$split = sourceFullName.split(':');
+
+        var sourceType = _sourceFullName$split[0];
+        var sourceName = _sourceFullName$split[1];
+
+        var _fullName$split = fullName.split(':');
+
+        var type = _fullName$split[0];
+        var name = _fullName$split[1];
+
+        if (type !== 'template' && sourceType === 'template' && sourceName.slice(0, 11) === 'components/') {
+          sourceName = sourceName.slice(11);
+        }
+
+        if (type === 'template' && sourceType === 'template' && name.slice(0, 11) === 'components/') {
+          name = name.slice(11);
+        }
+
+        var result = type + ':' + sourceName + '/' + name;
+
+        return result;
+      }
+    };
+
+    return resolver;
+  }
+
+  function registerTemplate(moduleName, snippet) {
+    owner.register('template:' + moduleName, _emberTemplateCompilerSystemCompile.default(snippet, { moduleName: moduleName }));
+  }
+
+  function registerComponent(name, factory) {
+    owner.register('component:' + name, factory);
+  }
+
+  function appendViewFor(template) {
+    var moduleName = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+
+    var _EmberView$extend;
+
+    var hash = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    var view = _emberViewsViewsView.default.extend((_EmberView$extend = {
+      template: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
+    }, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend)).create(hash);
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    return view;
+  }
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
+    (function () {
+      // jscs:disable
 
-    QUnit.module('ember-routing-htmlbars: action helper', {
-      setup: function () {
-        originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-      },
+      var subscriber = undefined;
+      QUnit.module('ember-routing-htmlbars: action helper', {
+        setup: function () {
+          originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+          owner = _containerTestsTestHelpersBuildOwner.default({
+            _registryOptions: {
+              resolver: buildResolver()
+            }
+          });
+          owner.registerOptionsForType('component', { singleton: false });
+          owner.registerOptionsForType('view', { singleton: false });
+          owner.registerOptionsForType('template', { instantiate: false });
+          owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+          dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+          dispatcher.setup();
+        },
 
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(innerComponent);
-        _emberRuntimeTestsUtils.runDestroy(outerComponent);
-        _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-      }
-    });
-
-    QUnit.test('action should be called', function (assert) {
-      assert.expect(1);
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
-        innerComponent: innerComponent,
-        outerSubmit: function () {
-          assert.ok(true, 'action is called');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('an error is triggered when bound action function is undefined', function (assert) {
-      assert.expect(1);
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({}).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
-        innerComponent: innerComponent
-      }).create();
-
-      throws(function () {
-        _emberRuntimeTestsUtils.runAppend(outerComponent);
-      }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
-    });
-
-    QUnit.test('action value is returned', function (assert) {
-      assert.expect(1);
-
-      var returnedValue = 'terrible tom';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          var actualReturnedValue = this.attrs.submit();
-          assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
-        innerComponent: innerComponent,
-        outerSubmit: function () {
-          return returnedValue;
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('action should be called on the correct scope', function (assert) {
-      assert.expect(1);
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
-        innerComponent: innerComponent,
-        isOuterComponent: true,
-        outerSubmit: function () {
-          assert.ok(this.isOuterComponent, 'action has the correct context');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('arguments to action are passed, curry', function (assert) {
-      assert.expect(4);
-
-      var first = 'mitch';
-      var second = 'martin';
-      var third = 'matt';
-      var fourth = 'wacky wycats';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit(fourth);
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        third: third,
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}\n      '),
-        innerComponent: innerComponent,
-        outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
-          assert.equal(actualFirst, first, 'action has the correct first arg');
-          assert.equal(actualSecond, second, 'action has the correct second arg');
-          assert.equal(actualThird, third, 'action has the correct third arg');
-          assert.equal(actualFourth, fourth, 'action has the correct fourth arg');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('arguments to action are bound', function (assert) {
-      assert.expect(1);
-
-      var value = 'lazy leah';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit value)}}\n      '),
-        innerComponent: innerComponent,
-        value: '',
-        outerSubmit: function (actualValue) {
-          assert.equal(actualValue, value, 'action has the correct first arg');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        outerComponent.set('value', value);
-      });
-
-      innerComponent.fireAction();
-    });
-
-    QUnit.test('array arguments are passed correctly to action', function (assert) {
-      assert.expect(3);
-
-      var first = 'foo';
-      var second = [3, 5];
-      var third = [4, 9];
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit(second, third);
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit first)}}\n      '),
-        innerComponent: innerComponent,
-        value: '',
-        outerSubmit: function (actualFirst, actualSecond, actualThird) {
-          assert.equal(actualFirst, first, 'action has the correct first arg');
-          assert.equal(actualSecond, second, 'action has the correct second arg');
-          assert.equal(actualThird, third, 'action has the correct third arg');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        outerComponent.set('first', first);
-        outerComponent.set('second', second);
-      });
-
-      innerComponent.fireAction();
-    });
-
-    QUnit.test('mut values can be wrapped in actions, are settable', function (assert) {
-      assert.expect(1);
-
-      var newValue = 'trollin trek';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit(newValue);
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut))}}\n      '),
-        innerComponent: innerComponent,
-        outerMut: 'patient peter'
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-        assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
-      });
-    });
-
-    QUnit.test('mut values can be wrapped in actions, are settable with a curry', function (assert) {
-      assert.expect(1);
-
-      var newValue = 'trollin trek';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut) \'' + newValue + '\')}}\n      '),
-        innerComponent: innerComponent,
-        outerMut: 'patient peter'
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-        assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
-      });
-    });
-
-    QUnit.test('action can create closures over actions', function (assert) {
-      assert.expect(3);
-
-      var first = 'raging robert';
-      var second = 'mild machty';
-      var returnValue = 'butch brian';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          var actualReturnedValue = this.attrs.submit(second);
-          assert.equal(actualReturnedValue, returnValue, 'return value is present');
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
-        innerComponent: innerComponent,
-        actions: {
-          outerAction: function (actualFirst, actualSecond) {
-            assert.equal(actualFirst, first, 'first argument is correct');
-            assert.equal(actualSecond, second, 'second argument is correct');
-            return returnValue;
+        teardown: function () {
+          _emberRuntimeTestsUtils.runDestroy(innerComponent);
+          _emberRuntimeTestsUtils.runDestroy(outerComponent);
+          _emberRuntimeTestsUtils.runDestroy(view);
+          _emberRuntimeTestsUtils.runDestroy(owner);
+          _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+          if (subscriber) {
+            _emberMetalInstrumentation.unsubscribe(subscriber);
           }
+          owner = view = null;
+          _emberRuntimeTestsUtils.runDestroy(dispatcher);
         }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
       });
-    });
 
-    QUnit.test('provides a helpful error if an action is not present', function (assert) {
-      assert.expect(1);
+      if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+        QUnit.test('action should fire interaction event', function (assert) {
+          assert.expect(2);
 
-      innerComponent = _emberViewsComponentsComponent.default.create();
+          subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+            before: function () {
+              assert.ok(true, 'instrumentation subscriber was called');
+            }
+          });
 
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
-        innerComponent: innerComponent,
-        actions: {
-          something: function () {
-            // this is present to ensure `actions` hash is present
-            // a different error is triggered if `actions` is missing
-            // completely
-          }
-        }
-      }).create();
-
-      throws(function () {
-        _emberRuntimeTestsUtils.runAppend(outerComponent);
-      }, /An action named 'doesNotExist' was not found in /);
-    });
-
-    QUnit.test('provides a helpful error if actions hash is not present', function (assert) {
-      assert.expect(1);
-
-      innerComponent = _emberViewsComponentsComponent.default.create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
-        innerComponent: innerComponent
-      }).create();
-
-      throws(function () {
-        _emberRuntimeTestsUtils.runAppend(outerComponent);
-      }, /An action named 'doesNotExist' was not found in /);
-    });
-
-    QUnit.test('action can create closures over actions with target', function (assert) {
-      assert.expect(1);
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' target=otherComponent)}}\n      '),
-        innerComponent: innerComponent,
-        otherComponent: _emberMetalComputed.computed(function () {
-          return {
+          registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+          registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
             actions: {
-              outerAction: function (actualFirst, actualSecond) {
-                assert.ok(true, 'action called on otherComponent');
+              fireAction: function () {
+                this.attrs.submit();
               }
             }
-          };
-        })
-      }).create();
+          }));
 
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('value can be used with action over actions', function (assert) {
-      assert.expect(1);
-
-      var newValue = 'yelping yehuda';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit({
-            readProp: newValue
-          });
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' value="readProp")}}\n      '),
-        innerComponent: innerComponent,
-        outerContent: {
-          readProp: newValue
-        },
-        actions: {
-          outerAction: function (actualValue) {
-            assert.equal(actualValue, newValue, 'value is read');
-          }
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('action will read the value of a first property', function (assert) {
-      assert.expect(1);
-
-      var newValue = 'irate igor';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit({
-            readProp: newValue
-          });
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction value="readProp")}}\n      '),
-        innerComponent: innerComponent,
-        outerAction: function (actualNewValue) {
-          assert.equal(actualNewValue, newValue, 'property is read');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('action will read the value of a curried first argument property', function (assert) {
-      assert.expect(1);
-
-      var newValue = 'kissing kris';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction objectArgument value="readProp")}}\n      '),
-        innerComponent: innerComponent,
-        objectArgument: {
-          readProp: newValue
-        },
-        outerAction: function (actualNewValue) {
-          assert.equal(actualNewValue, newValue, 'property is read');
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('action closure does not get auto-mut wrapped', function (assert) {
-      assert.expect(3);
-
-      var first = 'raging robert';
-      var second = 'mild machty';
-      var returnValue = 'butch brian';
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        middleComponent: middleComponent,
-
-        fireAction: function () {
-          var actualReturnedValue = this.attrs.submit(second);
-          assert.equal(actualReturnedValue, returnValue, 'return value is present');
-        }
-      }).create();
-
-      var middleComponent = _emberViewsComponentsComponent.default.extend({
-        innerComponent: innerComponent,
-
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=attrs.submit}}\n      ')
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        middleComponent: middleComponent,
-
-        layout: _emberTemplateCompilerSystemCompile.default('\n        {{view middleComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
-
-        actions: {
-          outerAction: function (actualFirst, actualSecond) {
-            assert.equal(actualFirst, first, 'first argument is correct');
-            assert.equal(actualSecond, second, 'second argument is correct');
-
-            return returnValue;
-          }
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      _emberMetalRun_loop.default(function () {
-        innerComponent.fireAction();
-      });
-    });
-
-    QUnit.test('action should be called within a run loop', function (assert) {
-      assert.expect(1);
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          this.attrs.submit();
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
-        innerComponent: innerComponent,
-        actions: {
-          submit: function (newValue) {
-            assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
-          }
-        }
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-      innerComponent.fireAction();
-    });
-
-    QUnit.test('objects that define INVOKE can be casted to actions', function (assert) {
-      assert.expect(2);
-
-      innerComponent = _emberViewsComponentsComponent.default.extend({
-        fireAction: function () {
-          assert.equal(this.attrs.submit(4, 5, 6), 123);
-        }
-      }).create();
-
-      outerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
-        innerComponent: innerComponent,
-        foo: 123,
-        submitTask: _emberMetalComputed.computed(function () {
-          var _ref,
-              _this = this;
-
-          return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
-            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-              args[_key] = arguments[_key];
+          registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+          registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+            innerComponent: innerComponent,
+            outerSubmit: function () {
+              assert.ok(true, 'action is called');
             }
+          }));
 
-            assert.deepEqual(args, [1, 2, 3, 4, 5, 6]);
-            return _this.foo;
-          }, _ref;
-        })
-      }).create();
+          view = appendViewFor('{{outer-component}}');
 
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
+          view.$('#instrument-button').trigger('click');
+        });
 
-      innerComponent.fireAction();
-    });
+        QUnit.test('instrumented action should return value', function (assert) {
+          assert.expect(1);
+
+          var returnedValue = 'Chris P is so krispy';
+
+          registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+          registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+            actions: {
+              fireAction: function () {
+                var actualReturnedValue = this.attrs.submit();
+                assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
+              }
+            }
+          }));
+
+          registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+          registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+            innerComponent: innerComponent,
+            outerSubmit: function () {
+              return returnedValue;
+            }
+          }));
+
+          view = appendViewFor('{{outer-component}}');
+
+          view.$('#instrument-button').trigger('click');
+        });
+      }
+
+      QUnit.test('action should be called', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
+          innerComponent: innerComponent,
+          outerSubmit: function () {
+            assert.ok(true, 'action is called');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('an error is triggered when bound action function is undefined', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({}).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
+          innerComponent: innerComponent
+        }).create();
+
+        throws(function () {
+          _emberRuntimeTestsUtils.runAppend(outerComponent);
+        }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
+      });
+
+      QUnit.test('action value is returned', function (assert) {
+        assert.expect(1);
+
+        var returnedValue = 'terrible tom';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            var actualReturnedValue = this.attrs.submit();
+            assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
+          innerComponent: innerComponent,
+          outerSubmit: function () {
+            return returnedValue;
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('action should be called on the correct scope', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
+          innerComponent: innerComponent,
+          isOuterComponent: true,
+          outerSubmit: function () {
+            assert.ok(this.isOuterComponent, 'action has the correct context');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('arguments to action are passed, curry', function (assert) {
+        assert.expect(4);
+
+        var first = 'mitch';
+        var second = 'martin';
+        var third = 'matt';
+        var fourth = 'wacky wycats';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit(fourth);
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          third: third,
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}\n      '),
+          innerComponent: innerComponent,
+          outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
+            assert.equal(actualFirst, first, 'action has the correct first arg');
+            assert.equal(actualSecond, second, 'action has the correct second arg');
+            assert.equal(actualThird, third, 'action has the correct third arg');
+            assert.equal(actualFourth, fourth, 'action has the correct fourth arg');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('arguments to action are bound', function (assert) {
+        assert.expect(1);
+
+        var value = 'lazy leah';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit value)}}\n      '),
+          innerComponent: innerComponent,
+          value: '',
+          outerSubmit: function (actualValue) {
+            assert.equal(actualValue, value, 'action has the correct first arg');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          outerComponent.set('value', value);
+        });
+
+        innerComponent.fireAction();
+      });
+
+      QUnit.test('array arguments are passed correctly to action', function (assert) {
+        assert.expect(3);
+
+        var first = 'foo';
+        var second = [3, 5];
+        var third = [4, 9];
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit(second, third);
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit first)}}\n      '),
+          innerComponent: innerComponent,
+          value: '',
+          outerSubmit: function (actualFirst, actualSecond, actualThird) {
+            assert.equal(actualFirst, first, 'action has the correct first arg');
+            assert.equal(actualSecond, second, 'action has the correct second arg');
+            assert.equal(actualThird, third, 'action has the correct third arg');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          outerComponent.set('first', first);
+          outerComponent.set('second', second);
+        });
+
+        innerComponent.fireAction();
+      });
+
+      QUnit.test('mut values can be wrapped in actions, are settable', function (assert) {
+        assert.expect(1);
+
+        var newValue = 'trollin trek';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit(newValue);
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut))}}\n      '),
+          innerComponent: innerComponent,
+          outerMut: 'patient peter'
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+          assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+        });
+      });
+
+      QUnit.test('mut values can be wrapped in actions, are settable with a curry', function (assert) {
+        assert.expect(1);
+
+        var newValue = 'trollin trek';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut) \'' + newValue + '\')}}\n      '),
+          innerComponent: innerComponent,
+          outerMut: 'patient peter'
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+          assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+        });
+      });
+
+      QUnit.test('action can create closures over actions', function (assert) {
+        assert.expect(3);
+
+        var first = 'raging robert';
+        var second = 'mild machty';
+        var returnValue = 'butch brian';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            var actualReturnedValue = this.attrs.submit(second);
+            assert.equal(actualReturnedValue, returnValue, 'return value is present');
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
+          innerComponent: innerComponent,
+          actions: {
+            outerAction: function (actualFirst, actualSecond) {
+              assert.equal(actualFirst, first, 'first argument is correct');
+              assert.equal(actualSecond, second, 'second argument is correct');
+              return returnValue;
+            }
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('provides a helpful error if an action is not present', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
+          innerComponent: innerComponent,
+          actions: {
+            something: function () {
+              // this is present to ensure `actions` hash is present
+              // a different error is triggered if `actions` is missing
+              // completely
+            }
+          }
+        }).create();
+
+        throws(function () {
+          _emberRuntimeTestsUtils.runAppend(outerComponent);
+        }, /An action named 'doesNotExist' was not found in /);
+      });
+
+      QUnit.test('provides a helpful error if actions hash is not present', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
+          innerComponent: innerComponent
+        }).create();
+
+        throws(function () {
+          _emberRuntimeTestsUtils.runAppend(outerComponent);
+        }, /An action named 'doesNotExist' was not found in /);
+      });
+
+      QUnit.test('action can create closures over actions with target', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' target=otherComponent)}}\n      '),
+          innerComponent: innerComponent,
+          otherComponent: _emberMetalComputed.computed(function () {
+            return {
+              actions: {
+                outerAction: function (actualFirst, actualSecond) {
+                  assert.ok(true, 'action called on otherComponent');
+                }
+              }
+            };
+          })
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('value can be used with action over actions', function (assert) {
+        assert.expect(1);
+
+        var newValue = 'yelping yehuda';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit({
+              readProp: newValue
+            });
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' value="readProp")}}\n      '),
+          innerComponent: innerComponent,
+          outerContent: {
+            readProp: newValue
+          },
+          actions: {
+            outerAction: function (actualValue) {
+              assert.equal(actualValue, newValue, 'value is read');
+            }
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('action will read the value of a first property', function (assert) {
+        assert.expect(1);
+
+        var newValue = 'irate igor';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit({
+              readProp: newValue
+            });
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction value="readProp")}}\n      '),
+          innerComponent: innerComponent,
+          outerAction: function (actualNewValue) {
+            assert.equal(actualNewValue, newValue, 'property is read');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('action will read the value of a curried first argument property', function (assert) {
+        assert.expect(1);
+
+        var newValue = 'kissing kris';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction objectArgument value="readProp")}}\n      '),
+          innerComponent: innerComponent,
+          objectArgument: {
+            readProp: newValue
+          },
+          outerAction: function (actualNewValue) {
+            assert.equal(actualNewValue, newValue, 'property is read');
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('action closure does not get auto-mut wrapped', function (assert) {
+        assert.expect(3);
+
+        var first = 'raging robert';
+        var second = 'mild machty';
+        var returnValue = 'butch brian';
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          middleComponent: middleComponent,
+
+          fireAction: function () {
+            var actualReturnedValue = this.attrs.submit(second);
+            assert.equal(actualReturnedValue, returnValue, 'return value is present');
+          }
+        }).create();
+
+        var middleComponent = _emberViewsComponentsComponent.default.extend({
+          innerComponent: innerComponent,
+
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=attrs.submit}}\n      ')
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          middleComponent: middleComponent,
+
+          layout: _emberTemplateCompilerSystemCompile.default('\n        {{view middleComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
+
+          actions: {
+            outerAction: function (actualFirst, actualSecond) {
+              assert.equal(actualFirst, first, 'first argument is correct');
+              assert.equal(actualSecond, second, 'second argument is correct');
+
+              return returnValue;
+            }
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        _emberMetalRun_loop.default(function () {
+          innerComponent.fireAction();
+        });
+      });
+
+      QUnit.test('action should be called within a run loop', function (assert) {
+        assert.expect(1);
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
+          innerComponent: innerComponent,
+          actions: {
+            submit: function (newValue) {
+              assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
+            }
+          }
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        innerComponent.fireAction();
+      });
+
+      QUnit.test('objects that define INVOKE can be casted to actions', function (assert) {
+        assert.expect(2);
+
+        innerComponent = _emberViewsComponentsComponent.default.extend({
+          fireAction: function () {
+            assert.equal(this.attrs.submit(4, 5, 6), 123);
+          }
+        }).create();
+
+        outerComponent = _emberViewsComponentsComponent.default.extend({
+          layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
+          innerComponent: innerComponent,
+          foo: 123,
+          submitTask: _emberMetalComputed.computed(function () {
+            var _ref,
+                _this = this;
+
+            return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+              for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+              }
+
+              assert.deepEqual(args, [1, 2, 3, 4, 5, 6]);
+              return _this.foo;
+            }, _ref;
+          })
+        }).create();
+
+        _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+        innerComponent.fireAction();
+      });
+    })();
   }
 });
 enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberMetalFeatures) {
@@ -76531,7 +76673,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.6.0-canary+03a49197', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.6.0-canary+46649f27', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -78548,7 +78690,7 @@ enifed('ember-views/tests/streams/streams-test', ['exports', 'ember-views/stream
     equal(_emberViewsStreamsShould_display.default(falseyCPArray), false, 'shouldDisplay([1].get("isFalsey") === true');
   });
 });
-enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
+enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/instrumentation', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalInstrumentation, _emberMetalFeatures) {
   'use strict';
 
   var owner, view, originalViewKeyword;
@@ -78580,6 +78722,59 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
         _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
       }
     });
+
+    if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+      QUnit.test('should instrument triggered events', function () {
+        var clicked = 0;
+
+        _emberMetalRun_loop.default(function () {
+          view = _emberViewsViewsView.default.create({
+            click: function (evt) {
+              clicked++;
+            },
+
+            template: _emberTemplateCompilerSystemCompile.default('<p>hello</p>')
+          }).appendTo(dispatcher.get('rootElement'));
+        });
+
+        view.$().trigger('click');
+
+        equal(clicked, 1, 'precond - The click handler was invoked');
+
+        var clickInstrumented = 0;
+        var clickSubscriber = _emberMetalInstrumentation.subscribe('interaction.click', {
+          before: function () {
+            clickInstrumented++;
+            equal(clicked, 1, 'invoked before event is handled');
+          },
+          after: function () {
+            clickInstrumented++;
+            equal(clicked, 2, 'invoked after event is handled');
+          }
+        });
+
+        var keypressInstrumented = 0;
+        var keypressSubscriber = _emberMetalInstrumentation.subscribe('interaction.keypress', {
+          before: function () {
+            keypressInstrumented++;
+          },
+          after: function () {
+            keypressInstrumented++;
+          }
+        });
+
+        try {
+          view.$().trigger('click');
+          view.$().trigger('change');
+          equal(clicked, 2, 'precond - The click handler was invoked');
+          equal(clickInstrumented, 2, 'The click was instrumented');
+          strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
+        } finally {
+          _emberMetalInstrumentation.unsubscribe(clickSubscriber);
+          _emberMetalInstrumentation.unsubscribe(keypressSubscriber);
+        }
+      });
+    }
 
     QUnit.test('should dispatch events to views', function () {
       var receivedEvent;
