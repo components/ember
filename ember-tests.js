@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3970129d
+ * @version   2.7.0-canary+5c7b9464
  */
 
 var enifed, requireModule, require, Ember;
@@ -76712,7 +76712,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+3970129d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+5c7b9464', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -83974,23 +83974,6 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 
       equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
     });
   }
-
-  QUnit.module('DeprecatedView');
-
-  QUnit.test('calling reopen on DeprecatedView delegates to View', function () {
-    expect(2);
-    var originalReopen = _emberViewsViewsView.default.reopen;
-    var obj = {};
-
-    _emberViewsViewsView.default.reopen = function (arg) {
-      ok(arg === obj);
-    };
-
-    expectNoDeprecation();
-    _emberViewsViewsView.DeprecatedView.reopen(obj);
-
-    _emberViewsViewsView.default.reopen = originalReopen;
-  });
 });
 enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer/index", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizerIndex, _htmlbarsUtilArrayUtils) {
   "use strict";
