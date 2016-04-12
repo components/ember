@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+46649f27
+ * @version   2.6.0-canary+03a49197
  */
 
 var enifed, requireModule, require, Ember;
@@ -12137,7 +12137,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+46649f27';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-canary+03a49197';
   }
 
   /**
@@ -16975,7 +16975,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+46649f27
+    @version 2.6.0-canary+03a49197
     @public
   */
 
@@ -17017,11 +17017,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+46649f27'
+    @default '2.6.0-canary+03a49197'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+46649f27';
+  Ember.VERSION = '2.6.0-canary+03a49197';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17840,7 +17840,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var KNOWN_FEATURES = {"features-stripped-test":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-application-engines":null,"ember-glimmer":null,"ember-runtime-computed-uniq-by":null,"ember-improved-instrumentation":null};exports.KNOWN_FEATURES = KNOWN_FEATURES;
+  var KNOWN_FEATURES = {"features-stripped-test":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-application-engines":null,"ember-glimmer":null,"ember-runtime-computed-uniq-by":null};exports.KNOWN_FEATURES = KNOWN_FEATURES;
   // jshint ignore:line
   var FEATURES = _emberMetalAssign.default(KNOWN_FEATURES, _emberMetalCore.default.ENV.FEATURES);
 
@@ -18172,7 +18172,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-
 
   exports.default = InjectedProperty;
 });
-enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalFeatures) {
+enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   'use strict';
 
   exports.instrument = instrument;
@@ -18290,26 +18290,14 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     }
   }
 
-  var flaggedInstrument;
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
-    exports.flaggedInstrument = flaggedInstrument = instrument;
-  } else {
-    exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
-      return callback();
-    };
-  }
-  exports.flaggedInstrument = flaggedInstrument;
-
   function withFinalizer(callback, finalizer, payload, binding) {
-    var result = undefined;
     try {
-      result = callback.call(binding);
+      return callback.call(binding);
     } catch (e) {
       payload.exception = e;
-      result = payload;
+      return payload;
     } finally {
-      finalizer();
-      return result;
+      return finalizer();
     }
   }
 
@@ -18349,9 +18337,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
       var timestamp = time();
       for (i = 0, l = listeners.length; i < l; i++) {
         listener = listeners[i];
-        if (typeof listener.after === 'function') {
-          listener.after(name, timestamp, payload, beforeValues[i]);
-        }
+        listener.after(name, timestamp, payload, beforeValues[i]);
       }
 
       if (STRUCTURED_PROFILE) {
@@ -30198,7 +30184,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
     return _emberRoutingHtmlbarsKeywordsClosureAction.default(morph, env, scope, params, hash, template, inverse, visitor);
   };
 });
-enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/instrumentation'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalSymbol, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop, _emberMetalInstrumentation) {
+enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalSymbol, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop) {
   'use strict';
 
   exports.default = closureAction;
@@ -30255,7 +30241,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
         valuePath = _emberMetalStreamsUtils.read(hash.value);
       }
 
-      return createClosureAction(this, target, action, valuePath, actionArguments);
+      return createClosureAction(target, action, valuePath, actionArguments);
     }, function () {
       return _emberHtmlbarsHooksSubexpr.labelForSubexpr(params, hash, 'action');
     });
@@ -30268,7 +30254,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
     return s;
   }
 
-  function createClosureAction(stream, target, action, valuePath, actionArguments) {
+  function createClosureAction(target, action, valuePath, actionArguments) {
     var closureAction;
 
     if (actionArguments.length > 0) {
@@ -30286,10 +30272,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
 
-        var payload = { target: target, args: args, label: _emberMetalStreamsUtils.labelFor(stream) };
-        return _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
-          return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
-        });
+        return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
       };
     } else {
       closureAction = function () {
@@ -30301,10 +30284,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
 
-        var payload = { target: target, args: args, label: _emberMetalStreamsUtils.labelFor(stream) };
-        return _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
-          return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
-        });
+        return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
       };
     }
 
@@ -40669,7 +40649,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+46649f27',
+        revision: 'Ember@2.6.0-canary+03a49197',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44615,7 +44595,7 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/assign', 
 
   exports.default = destroying;
 });
-enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/states/default', 'ember-metal/assign', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/property_get'], function (exports, _emberViewsViewsStatesDefault, _emberMetalAssign, _emberViewsSystemJquery, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalProperty_get) {
+enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/states/default', 'ember-metal/assign', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-metal/property_get'], function (exports, _emberViewsViewsStatesDefault, _emberMetalAssign, _emberViewsSystemJquery, _emberMetalRun_loop, _emberMetalProperty_get) {
   'use strict';
 
   var hasElement = Object.create(_emberViewsViewsStatesDefault.default);
@@ -44658,13 +44638,11 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
     },
 
     // Handle events from `Ember.EventDispatcher`
-    handleEvent: function (view, eventName, event) {
+    handleEvent: function (view, eventName, evt) {
       if (view.has(eventName)) {
         // Handler should be able to re-dispatch events, so we don't
         // preventDefault or stopPropagation.
-        return _emberMetalInstrumentation.flaggedInstrument('interaction.' + eventName, { event: event, view: view }, function () {
-          return _emberMetalRun_loop.default.join(view, view.trigger, eventName, event);
-        });
+        return _emberMetalRun_loop.default.join(view, view.trigger, eventName, evt);
       } else {
         return true; // continue event propagation
       }
@@ -48836,7 +48814,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.6.0-canary+46649f27
+ * @version   2.6.0-canary+03a49197
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

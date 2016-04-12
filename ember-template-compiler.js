@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-canary+46649f27
+ * @version   2.6.0-canary+03a49197
  */
 
 var enifed, requireModule, require, Ember;
@@ -4026,7 +4026,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-canary+46649f27
+    @version 2.6.0-canary+03a49197
     @public
   */
 
@@ -4068,11 +4068,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-canary+46649f27'
+    @default '2.6.0-canary+03a49197'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-canary+46649f27';
+  Ember.VERSION = '2.6.0-canary+03a49197';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4903,7 +4903,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var KNOWN_FEATURES = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-application-engines": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null, "ember-improved-instrumentation": null };exports.KNOWN_FEATURES = KNOWN_FEATURES;
+  var KNOWN_FEATURES = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-application-engines": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null };exports.KNOWN_FEATURES = KNOWN_FEATURES;
   // jshint ignore:line
   var FEATURES = _emberMetalAssign.default(KNOWN_FEATURES, _emberMetalCore.default.ENV.FEATURES);
 
@@ -5238,7 +5238,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-
 
   exports.default = InjectedProperty;
 });
-enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalFeatures) {
+enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   'use strict';
 
   exports.instrument = instrument;
@@ -5356,26 +5356,14 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     }
   }
 
-  var flaggedInstrument;
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
-    exports.flaggedInstrument = flaggedInstrument = instrument;
-  } else {
-    exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
-      return callback();
-    };
-  }
-  exports.flaggedInstrument = flaggedInstrument;
-
   function withFinalizer(callback, finalizer, payload, binding) {
-    var result = undefined;
     try {
-      result = callback.call(binding);
+      return callback.call(binding);
     } catch (e) {
       payload.exception = e;
-      result = payload;
+      return payload;
     } finally {
-      finalizer();
-      return result;
+      return finalizer();
     }
   }
 
@@ -5415,9 +5403,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
       var timestamp = time();
       for (i = 0, l = listeners.length; i < l; i++) {
         listener = listeners[i];
-        if (typeof listener.after === 'function') {
-          listener.after(name, timestamp, payload, beforeValues[i]);
-        }
+        listener.after(name, timestamp, payload, beforeValues[i]);
       }
 
       if (STRUCTURED_PROFILE) {
@@ -12904,7 +12890,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-canary+46649f27',
+        revision: 'Ember@2.6.0-canary+03a49197',
         loc: program.loc,
         moduleName: options.moduleName
       };
