@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0
+ * @version   2.5.0+3c51b938
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -52569,7 +52569,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0+3c51b938', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -53641,6 +53641,39 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
         ok(typeof e.clientX === 'number' && e.clientX > 0, 'clientX is correct');
         ok(typeof e.clientY === 'number' && e.clientY > 0, 'clientY is correct');
       });
+    });
+  });
+
+  QUnit.test('`triggerEvent` with mouseenter triggers native events with simulated X/Y coordinates', function () {
+    expect(5);
+
+    var triggerEvent, wait, evt;
+
+    App.IndexView = _emberViewsViewsView.default.extend({
+      classNames: 'index-view',
+
+      didInsertElement: function () {
+        this.element.addEventListener('mouseenter', function (e) {
+          return evt = e;
+        });
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompilerSystemCompile.default('some text');
+
+    _emberMetalRun_loop.default(App, App.advanceReadiness);
+
+    triggerEvent = App.testHelpers.triggerEvent;
+    wait = App.testHelpers.wait;
+
+    return wait().then(function () {
+      return triggerEvent('.index-view', 'mouseenter');
+    }).then(function () {
+      ok(evt instanceof window.Event, 'The event is an instance of MouseEvent');
+      ok(typeof evt.screenX === 'number' && evt.screenX > 0, 'screenX is correct');
+      ok(typeof evt.screenY === 'number' && evt.screenY > 0, 'screenY is correct');
+      ok(typeof evt.clientX === 'number' && evt.clientX > 0, 'clientX is correct');
+      ok(typeof evt.clientY === 'number' && evt.clientY > 0, 'clientY is correct');
     });
   });
 
