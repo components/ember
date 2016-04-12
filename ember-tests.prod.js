@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.1
+ * @version   2.6.0-beta.1+672b52ea
  */
 
 var enifed, requireModule, require, Ember;
@@ -54670,6 +54670,43 @@ enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ex
     }, expectedMessage);
   });
 });
+enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-metal/core', 'ember-template-compiler', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins', 'ember-metal/features'], function (exports, _emberMetalCore, _emberTemplateCompiler, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPlugins, _emberMetalFeatures) {
+  'use strict';
+
+  function registerAstPlugin(plugin) {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', plugin);
+  }
+
+  function removeAstPlugin(plugin) {
+    var index = _emberTemplateCompilerPlugins.default['ast'].indexOf(plugin);
+    _emberTemplateCompilerPlugins.default['ast'].splice(index, 1);
+  }
+
+  var legacyViewSupportOriginalValue = undefined;
+
+  // jscs:disable
+
+  QUnit.module('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support', {
+    setup: function () {
+      legacyViewSupportOriginalValue = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+      registerAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+    },
+
+    teardown: function () {
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = legacyViewSupportOriginalValue;
+      removeAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+    }
+  });
+
+  QUnit.test('Can transform an inline {{link-to}} without error', function () {
+    expect(0);
+
+    _emberTemplateCompiler.compile('{{link-to \'foo\' \'index\'}}', {
+      moduleName: 'foo/bar/baz'
+    });
+  });
+});
 enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler', 'ember-metal/features'], function (exports, _emberTemplateCompiler, _emberMetalFeatures) {
   'use strict';
 
@@ -54836,7 +54873,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-beta.1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-beta.1+672b52ea', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -55917,6 +55954,39 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     });
   });
 
+  QUnit.test('`triggerEvent` with mouseenter triggers native events with simulated X/Y coordinates', function () {
+    expect(5);
+
+    var triggerEvent, wait, evt;
+
+    App.IndexView = _emberViewsViewsView.default.extend({
+      classNames: 'index-view',
+
+      didInsertElement: function () {
+        this.element.addEventListener('mouseenter', function (e) {
+          return evt = e;
+        });
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompilerSystemCompile.default('some text');
+
+    _emberMetalRun_loop.default(App, App.advanceReadiness);
+
+    triggerEvent = App.testHelpers.triggerEvent;
+    wait = App.testHelpers.wait;
+
+    return wait().then(function () {
+      return triggerEvent('.index-view', 'mouseenter');
+    }).then(function () {
+      ok(evt instanceof window.Event, 'The event is an instance of MouseEvent');
+      ok(typeof evt.screenX === 'number' && evt.screenX > 0, 'screenX is correct');
+      ok(typeof evt.screenY === 'number' && evt.screenY > 0, 'screenY is correct');
+      ok(typeof evt.clientX === 'number' && evt.clientX > 0, 'clientX is correct');
+      ok(typeof evt.clientY === 'number' && evt.clientY > 0, 'clientY is correct');
+    });
+  });
+
   QUnit.test('`wait` waits for outstanding timers', function () {
     expect(1);
 
@@ -56683,23 +56753,6 @@ enifed('ember-views/tests/compat/attrs_proxy_test', ['exports', 'ember-views/vie
     });
 
     equal(view.$().text(), 'qux - 2', 'observer is fired on update');
-  });
-});
-enifed('ember-views/tests/compat/metamorph_test', ['exports', 'ember-views/views/view', 'ember-views/compat/metamorph_view'], function (exports, _emberViewsViewsView, _emberViewsCompatMetamorph_view) {
-  'use strict';
-
-  QUnit.module('ember-views: _Metamorph [DEPRECATED]');
-
-  QUnit.test('Instantiating _MetamorphView triggers deprecation', function () {
-    expectDeprecation(function () {
-      _emberViewsViewsView.default.extend(_emberViewsCompatMetamorph_view._Metamorph).create();
-    }, /Using Ember\._Metamorph is deprecated./);
-  });
-
-  QUnit.test('Instantiating _MetamorphView triggers deprecation', function () {
-    expectDeprecation(function () {
-      _emberViewsCompatMetamorph_view.default.create();
-    }, /Using Ember\._MetamorphView is deprecated./);
   });
 });
 enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
@@ -61983,23 +62036,6 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 
     });
     equal(childView.get('childProp'), 'new-value', 'pre-cond - new value is propagated to CP');
     equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
-  });
-
-  QUnit.module('DeprecatedView');
-
-  QUnit.test('calling reopen on DeprecatedView delegates to View', function () {
-    expect(2);
-    var originalReopen = _emberViewsViewsView.default.reopen;
-    var obj = {};
-
-    _emberViewsViewsView.default.reopen = function (arg) {
-      ok(arg === obj);
-    };
-
-    expectNoDeprecation();
-    _emberViewsViewsView.DeprecatedView.reopen(obj);
-
-    _emberViewsViewsView.default.reopen = originalReopen;
   });
 });
 enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer/index", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizerIndex, _htmlbarsUtilArrayUtils) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.1
+ * @version   2.6.0-beta.1+672b52ea
  */
 
 var enifed, requireModule, require, Ember;
@@ -10335,7 +10335,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.1+672b52ea';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -15258,7 +15258,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.1
+    @version 2.6.0-beta.1+672b52ea
     @public
   */
 
@@ -15300,11 +15300,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.1'
+    @default '2.6.0-beta.1+672b52ea'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.1';
+  Ember.VERSION = '2.6.0-beta.1+672b52ea';
 
   /**
     The hash of environment variables used to control various configuration
@@ -39061,8 +39061,8 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
 
   exports.default = calculateLocationDisplay;
 
-  function calculateLocationDisplay(moduleName) {
-    var loc = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  function calculateLocationDisplay(moduleName, _loc) {
+    var loc = _loc || {};
 
     var _ref = loc.start || {};
 
@@ -39166,7 +39166,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.1',
+        revision: 'Ember@2.6.0-beta.1+672b52ea',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39399,7 +39399,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   var defaultEventOptions = { canBubble: true, cancelable: true };
   keyboardEventTypes = ['keydown', 'keypress', 'keyup'];
-  mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mousenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
+  mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
 
   buildKeyboardEvent = function buildKeyboardEvent(type) {
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -40630,48 +40630,6 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
   exports.default = _emberMetalMixin.Mixin.create(AttrsProxyMixin);
 });
-enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/debug', 'ember-views/views/view', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberViewsViewsView, _emberMetalMixin) {
-  'use strict';
-
-  /**
-   @module ember
-   @submodule ember-views
-  */
-
-  // The `morph` and `outerHTML` properties are internal only
-  // and not observable.
-
-  /**
-   @class _Metamorph
-   @namespace Ember
-   @private
-  */
-  var _Metamorph = _emberMetalMixin.Mixin.create({
-    tagName: '',
-    __metamorphType: 'Ember._Metamorph',
-
-    instrumentName: 'metamorph',
-
-    init: function () {
-      this._super.apply(this, arguments);
-      _emberMetalDebug.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated. ' + 'You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName, { id: 'ember-views.metamorph-tag-name', until: '2.4.0' });
-
-      _emberMetalDebug.deprecate('Using ' + this.__metamorphType + ' is deprecated.', false, { id: 'ember-views.metamorph', until: '2.4.0' });
-    }
-  });
-
-  exports._Metamorph = _Metamorph;
-  /**
-   @class _MetamorphView
-   @namespace Ember
-   @extends Ember.View
-   @uses Ember._Metamorph
-   @private
-  */
-  exports.default = _emberViewsViewsView.default.extend(_Metamorph, {
-    __metamorphType: 'Ember._MetamorphView'
-  });
-});
 enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/system/object', 'ember-htmlbars/system/lookup-helper', 'container/owner'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeSystemObject, _emberHtmlbarsSystemLookupHelper, _containerOwner) {
   'use strict';
 
@@ -41261,7 +41219,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
 
   exports.default = Component;
 });
-enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/compat/metamorph_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViews, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsCompatMetamorph_view) {
+enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-metal-views', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberMetalViews, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area) {
   /**
   @module ember
   @submodule ember-views
@@ -41290,14 +41248,6 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
   ViewUtils.getViewClientRects = _emberViewsSystemUtils.getViewClientRects;
   ViewUtils.getViewBoundingClientRect = _emberViewsSystemUtils.getViewBoundingClientRect;
 
-  if (_emberRuntime.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-    _emberRuntime.default.CoreView = _emberViewsViewsCore_view.DeprecatedCoreView;
-    _emberRuntime.default.View = _emberViewsViewsView.DeprecatedView;
-    _emberRuntime.default.View.states = _emberViewsViewsStates.states;
-    _emberRuntime.default.View.cloneStates = _emberViewsViewsStates.cloneStates;
-    _emberRuntime.default.View._Renderer = _emberMetalViews.Renderer;
-  }
-
   _emberRuntime.default._Renderer = _emberMetalViews.Renderer;
 
   _emberRuntime.default.Checkbox = _emberViewsViewsCheckbox.default;
@@ -41308,12 +41258,6 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
   _emberRuntime.default.ComponentLookup = _emberViewsComponent_lookup.default;
   _emberRuntime.default.Component = _emberViewsComponentsComponent.default;
   _emberRuntime.default.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
-
-  // Deprecated:
-  if (_emberRuntime.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-    _emberRuntime.default._Metamorph = _emberViewsCompatMetamorph_view._Metamorph;
-    _emberRuntime.default._MetamorphView = _emberViewsCompatMetamorph_view.default;
-  }
 
   // END EXPORTS
 
@@ -44293,14 +44237,6 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-me
     isViewFactory: true
   });
 
-  var DeprecatedCoreView = CoreView.extend({
-    init: function () {
-      _emberMetalDebug.deprecate('Ember.CoreView is deprecated. Please use Ember.View.', false, { id: 'ember-views.core-view', until: '2.4.0' });
-      this._super.apply(this, arguments);
-    }
-  });
-
-  exports.DeprecatedCoreView = DeprecatedCoreView;
   var _domHelper;
   function domHelper() {
     return _domHelper = _domHelper || _require.default('ember-htmlbars/system/dom-helper').default;
@@ -44699,7 +44635,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-metal/computed', 'embe
     max: null
   });
 });
-enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/legacy_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalDebug, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsLegacy_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsTemplate_rendering_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support, _emberMetalDeprecate_property) {
+enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/legacy_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support', 'ember-metal/deprecate_property'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsLegacy_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsTemplate_rendering_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support, _emberMetalDeprecate_property) {
   // jQuery, Ember.lookup,
   // Ember.ENV
   'use strict';
@@ -45403,34 +45339,12 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     views: {}
   });
 
-  function viewDeprecationMessage() {
-    _emberMetalDebug.deprecate('Ember.View is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
-      url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view',
-      id: 'ember-views.view-deprecated',
-      until: '2.4.0'
-    });
-  }
-
-  var DeprecatedView = View.extend({
-    init: function () {
-      viewDeprecationMessage();
-      this._super.apply(this, arguments);
-    }
-  });
-
-  DeprecatedView.reopen = function () {
-    viewDeprecationMessage();
-    View.reopen.apply(View, arguments);
-    return this;
-  };
-
   exports.default = View;
   exports.ViewContextSupport = _emberViewsMixinsView_context_support.default;
   exports.ViewChildViewsSupport = _emberViewsMixinsView_child_views_support.default;
   exports.ViewStateSupport = _emberViewsMixinsView_state_support.default;
   exports.TemplateRenderingSupport = _emberViewsMixinsTemplate_rendering_support.default;
   exports.ClassNamesSupport = _emberViewsMixinsClass_names_support.default;
-  exports.DeprecatedView = DeprecatedView;
 });
 // for the side effect of extending Ember.run.queues
 enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
