@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3d4b8d3d
+ * @version   2.7.0-canary+05de8a50
  */
 
 var enifed, requireModule, require, Ember;
@@ -76502,6 +76502,45 @@ enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ex
     });
   }
 });
+enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-metal/core', 'ember-template-compiler', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins', 'ember-metal/features'], function (exports, _emberMetalCore, _emberTemplateCompiler, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPlugins, _emberMetalFeatures) {
+  'use strict';
+
+  function registerAstPlugin(plugin) {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', plugin);
+  }
+
+  function removeAstPlugin(plugin) {
+    var index = _emberTemplateCompilerPlugins.default['ast'].indexOf(plugin);
+    _emberTemplateCompilerPlugins.default['ast'].splice(index, 1);
+  }
+
+  var legacyViewSupportOriginalValue = undefined;
+
+  if (!_emberMetalFeatures.default('ember-glimmer')) {
+    // jscs:disable
+
+    QUnit.module('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support', {
+      setup: function () {
+        legacyViewSupportOriginalValue = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+        _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+        registerAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+      },
+
+      teardown: function () {
+        _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = legacyViewSupportOriginalValue;
+        removeAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+      }
+    });
+
+    QUnit.test('Can transform an inline {{link-to}} without error', function () {
+      expect(0);
+
+      _emberTemplateCompiler.compile('{{link-to \'foo\' \'index\'}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    });
+  }
+});
 enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler', 'ember-metal/features'], function (exports, _emberTemplateCompiler, _emberMetalFeatures) {
   'use strict';
 
@@ -76673,7 +76712,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+3d4b8d3d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+05de8a50', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
