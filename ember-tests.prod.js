@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d65fcaae
+ * @version   2.7.0-canary+3d4b8d3d
  */
 
 var enifed, requireModule, require, Ember;
@@ -76229,7 +76229,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+d65fcaae', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+3d4b8d3d', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -78090,23 +78090,6 @@ enifed('ember-views/tests/compat/attrs_proxy_test', ['exports', 'ember-views/vie
       equal(view.$().text(), 'qux - 2', 'observer is fired on update');
     });
   }
-});
-enifed('ember-views/tests/compat/metamorph_test', ['exports', 'ember-views/views/view', 'ember-views/compat/metamorph_view'], function (exports, _emberViewsViewsView, _emberViewsCompatMetamorph_view) {
-  'use strict';
-
-  QUnit.module('ember-views: _Metamorph [DEPRECATED]');
-
-  QUnit.test('Instantiating _MetamorphView triggers deprecation', function () {
-    expectDeprecation(function () {
-      _emberViewsViewsView.default.extend(_emberViewsCompatMetamorph_view._Metamorph).create();
-    }, /Using Ember\._Metamorph is deprecated./);
-  });
-
-  QUnit.test('Instantiating _MetamorphView triggers deprecation', function () {
-    expectDeprecation(function () {
-      _emberViewsCompatMetamorph_view.default.create();
-    }, /Using Ember\._MetamorphView is deprecated./);
-  });
 });
 enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d65fcaae
+ * @version   2.7.0-canary+3d4b8d3d
  */
 
 var enifed, requireModule, require, Ember;
@@ -12805,7 +12805,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+d65fcaae';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+3d4b8d3d';
   }
 
   /**
@@ -17733,7 +17733,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.7.0-canary+d65fcaae
+    @version 2.7.0-canary+3d4b8d3d
     @public
   */
 
@@ -17775,11 +17775,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+d65fcaae'
+    @default '2.7.0-canary+3d4b8d3d'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+d65fcaae';
+  Ember.VERSION = '2.7.0-canary+3d4b8d3d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -41717,7 +41717,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+d65fcaae',
+        revision: 'Ember@2.7.0-canary+3d4b8d3d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43265,48 +43265,6 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
   exports.default = _emberMetalMixin.Mixin.create(AttrsProxyMixin);
 });
-enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/debug', 'ember-views/views/view', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberViewsViewsView, _emberMetalMixin) {
-  'use strict';
-
-  /**
-   @module ember
-   @submodule ember-views
-  */
-
-  // The `morph` and `outerHTML` properties are internal only
-  // and not observable.
-
-  /**
-   @class _Metamorph
-   @namespace Ember
-   @private
-  */
-  var _Metamorph = _emberMetalMixin.Mixin.create({
-    tagName: '',
-    __metamorphType: 'Ember._Metamorph',
-
-    instrumentName: 'metamorph',
-
-    init: function () {
-      this._super.apply(this, arguments);
-      _emberMetalDebug.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated. ' + 'You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName, { id: 'ember-views.metamorph-tag-name', until: '2.4.0' });
-
-      _emberMetalDebug.deprecate('Using ' + this.__metamorphType + ' is deprecated.', false, { id: 'ember-views.metamorph', until: '2.4.0' });
-    }
-  });
-
-  exports._Metamorph = _Metamorph;
-  /**
-   @class _MetamorphView
-   @namespace Ember
-   @extends Ember.View
-   @uses Ember._Metamorph
-   @private
-  */
-  exports.default = _emberViewsViewsView.default.extend(_Metamorph, {
-    __metamorphType: 'Ember._MetamorphView'
-  });
-});
 enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/system/object', 'ember-htmlbars/system/lookup-helper', 'container/owner'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeSystemObject, _emberHtmlbarsSystemLookupHelper, _containerOwner) {
   'use strict';
 
@@ -43896,7 +43854,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
 
   exports.default = Component;
 });
-enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/compat/metamorph_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViews, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsCompatMetamorph_view) {
+enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViews, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area) {
   /**
   @module ember
   @submodule ember-views
@@ -43943,12 +43901,6 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
   _emberRuntime.default.ComponentLookup = _emberViewsComponent_lookup.default;
   _emberRuntime.default.Component = _emberViewsComponentsComponent.default;
   _emberRuntime.default.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
-
-  // Deprecated:
-  if (_emberRuntime.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-    _emberRuntime.default._Metamorph = _emberViewsCompatMetamorph_view._Metamorph;
-    _emberRuntime.default._MetamorphView = _emberViewsCompatMetamorph_view.default;
-  }
 
   // END EXPORTS
 
@@ -51250,7 +51202,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+d65fcaae
+ * @version   2.7.0-canary+3d4b8d3d
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
