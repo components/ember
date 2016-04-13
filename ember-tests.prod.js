@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dd3eb149
+ * @version   2.7.0-canary+3a100486
  */
 
 var enifed, requireModule, require, Ember;
@@ -53847,6 +53847,12 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal'], function (expo
       _emberMetal.default.create(null);
     }, 'Ember.create is deprecated in favor of Object.create');
   });
+
+  QUnit.test('Ember.Backburner is deprecated', function () {
+    expectDeprecation(function () {
+      new _emberMetal.default.Backburner(['foo']);
+    }, 'Usage of Ember.Backburner is deprecated.');
+  });
 });
 enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (exports, _emberMetalMap) {
   'use strict';
@@ -76389,7 +76395,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+dd3eb149', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+3a100486', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

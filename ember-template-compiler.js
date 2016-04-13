@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dd3eb149
+ * @version   2.7.0-canary+3a100486
  */
 
 var enifed, requireModule, require, Ember;
@@ -4026,7 +4026,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.7.0-canary+dd3eb149
+    @version 2.7.0-canary+3a100486
     @public
   */
 
@@ -4068,11 +4068,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+dd3eb149'
+    @default '2.7.0-canary+3a100486'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+dd3eb149';
+  Ember.VERSION = '2.7.0-canary+3a100486';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5132,9 +5132,21 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   @for Ember
   @private
   */
-  _emberMetalCore.default.Backburner = _backburner.default;
-  // this is the new go forward, once Ember Data updates to using `_Backburner` we
-  // can remove the non-underscored version.
+  _emberMetalCore.default.Backburner = function () {
+    _emberMetalDebug.deprecate('Usage of Ember.Backburner is deprecated.', false, {
+      id: 'ember-metal.ember-backburner',
+      until: '2.8.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
+    });
+
+    function BackburnerAlias(args) {
+      return _backburner.default.apply(this, args);
+    }
+
+    BackburnerAlias.prototype = _backburner.default.prototype;
+
+    return new BackburnerAlias(arguments);
+  };
   _emberMetalCore.default._Backburner = _backburner.default;
 
   _emberMetalCore.default.libraries = new _emberMetalLibraries.default();
@@ -12904,7 +12916,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+dd3eb149',
+        revision: 'Ember@2.7.0-canary+3a100486',
         loc: program.loc,
         moduleName: options.moduleName
       };
