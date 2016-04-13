@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+98844b6b
+ * @version   2.7.0-canary+f1416d78
  */
 
 var enifed, requireModule, require, Ember;
@@ -30989,14 +30989,19 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{partial}}', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -31083,6 +31088,62 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       });
 
       this.assertText('This sub-template is pretty great.');
+    };
+
+    _class.prototype['@htmlbars dynamic partials in {{#each}}'] = function htmlbarsDynamicPartialsInEach() {
+      var _this3 = this;
+
+      this.registerPartial('_odd', 'ODD{{i}}');
+      this.registerPartial('_even', 'EVEN{{i}}');
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
+        items: ['even', 'odd', 'even', 'odd'],
+        type: 'number'
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'type', 'integer');
+      });
+
+      this.assertText('integer: EVEN0integer: ODD1integer: EVEN2integer: ODD3');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'type', 'number');
+      });
+
+      this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
+    };
+
+    _class.prototype['@htmlbars dynamic partials in {{#with}}'] = function htmlbarsDynamicPartialsInWith() {
+      var _this4 = this;
+
+      this.registerPartial('_thing', '{{template.name}}');
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        item: false
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('Nothing!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'item', {
+          name: 'thing'
+        });
+      });
+
+      this.assertText('thing');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'item', false);
+      });
+
+      this.assertText('Nothing!');
     };
 
     return _class;
@@ -45960,14 +46021,19 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
+enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{partial}}', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -46054,6 +46120,62 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       });
 
       this.assertText('This sub-template is pretty great.');
+    };
+
+    _class.prototype['@htmlbars dynamic partials in {{#each}}'] = function htmlbarsDynamicPartialsInEach() {
+      var _this3 = this;
+
+      this.registerPartial('_odd', 'ODD{{i}}');
+      this.registerPartial('_even', 'EVEN{{i}}');
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
+        items: ['even', 'odd', 'even', 'odd'],
+        type: 'number'
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'type', 'integer');
+      });
+
+      this.assertText('integer: EVEN0integer: ODD1integer: EVEN2integer: ODD3');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'type', 'number');
+      });
+
+      this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
+    };
+
+    _class.prototype['@htmlbars dynamic partials in {{#with}}'] = function htmlbarsDynamicPartialsInWith() {
+      var _this4 = this;
+
+      this.registerPartial('_thing', '{{template.name}}');
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        item: false
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('Nothing!');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'item', {
+          name: 'thing'
+        });
+      });
+
+      this.assertText('thing');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'item', false);
+      });
+
+      this.assertText('Nothing!');
     };
 
     return _class;
@@ -76395,7 +76517,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+98844b6b', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+f1416d78', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
