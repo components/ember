@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3a100486
+ * @version   2.7.0-canary+98844b6b
  */
 
 var enifed, requireModule, require, Ember;
@@ -25239,7 +25239,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
     };
 
-    _class.prototype['@htmlbars elementId cannot change'] = function htmlbarsElementIdCannotChange(assert) {
+    _class.prototype['@test elementId cannot change'] = function testElementIdCannotChange(assert) {
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         elementId: 'blahzorz',
@@ -26719,7 +26719,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
     };
 
-    _class.prototype['@htmlbars with ariaRole specified'] = function htmlbarsWithAriaRoleSpecified() {
+    _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
       var _this46 = this;
 
       this.registerComponent('aria-test', {
@@ -26751,7 +26751,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
-    _class.prototype['@htmlbars `template` specified in component is overriden by block'] = function htmlbarsTemplateSpecifiedInComponentIsOverridenByBlock() {
+    _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
       var _this47 = this;
 
       this.registerComponent('with-template', {
@@ -40210,7 +40210,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
     };
 
-    _class.prototype['@htmlbars elementId cannot change'] = function htmlbarsElementIdCannotChange(assert) {
+    _class.prototype['@test elementId cannot change'] = function testElementIdCannotChange(assert) {
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         elementId: 'blahzorz',
@@ -41690,7 +41690,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
     };
 
-    _class.prototype['@htmlbars with ariaRole specified'] = function htmlbarsWithAriaRoleSpecified() {
+    _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
       var _this46 = this;
 
       this.registerComponent('aria-test', {
@@ -41722,7 +41722,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
-    _class.prototype['@htmlbars `template` specified in component is overriden by block'] = function htmlbarsTemplateSpecifiedInComponentIsOverridenByBlock() {
+    _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
       var _this47 = this;
 
       this.registerComponent('with-template', {
@@ -76395,7 +76395,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+3a100486', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+98844b6b', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
