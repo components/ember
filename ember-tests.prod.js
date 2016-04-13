@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8750fc2b
+ * @version   2.7.0-canary+489ae093
  */
 
 var enifed, requireModule, require, Ember;
@@ -60788,6 +60788,74 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
           view.$('#instrument-button').trigger('click');
         });
 
+        QUnit.test('interaction event subscriber should be passed parameters', function (assert) {
+          assert.expect(2);
+
+          var actionParam = 'So krispy';
+
+          subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+            before: function (name, timestamp, payload) {
+              assert.equal(payload.args[0], actionParam, 'instrumentation subscriber before function was passed closure action parameters');
+            },
+            after: function (name, timestamp, payload) {
+              assert.equal(payload.args[0], actionParam, 'instrumentation subscriber after function was passed closure action parameters');
+            }
+          });
+
+          registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+          registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+            actions: {
+              fireAction: function () {
+                this.attrs.submit(actionParam);
+              }
+            }
+          }));
+
+          registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+          registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+            innerComponent: innerComponent,
+            outerSubmit: function () {}
+          }));
+
+          view = appendViewFor('{{outer-component}}');
+
+          view.$('#instrument-button').trigger('click');
+        });
+
+        QUnit.test('interaction event subscriber should be passed target', function (assert) {
+          assert.expect(2);
+
+          subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+            before: function (name, timestamp, payload) {
+              assert.equal(payload.target.get('myProperty'), 'outer-thing', 'instrumentation subscriber before function was passed target');
+            },
+            after: function (name, timestamp, payload) {
+              assert.equal(payload.target.get('myProperty'), 'outer-thing', 'instrumentation subscriber after function was passed target');
+            }
+          });
+
+          registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+          registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+            myProperty: 'inner-thing',
+            actions: {
+              fireAction: function () {
+                this.attrs.submit();
+              }
+            }
+          }));
+
+          registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+          registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+            myProperty: 'outer-thing',
+            innerComponent: innerComponent,
+            outerSubmit: function () {}
+          }));
+
+          view = appendViewFor('{{outer-component}}');
+
+          view.$('#instrument-button').trigger('click');
+        });
+
         QUnit.test('instrumented action should return value', function (assert) {
           assert.expect(1);
 
@@ -76517,7 +76585,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+8750fc2b', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+489ae093', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
