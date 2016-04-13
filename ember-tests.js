@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4e7eed0f
+ * @version   2.7.0-canary+f3131e31
  */
 
 var enifed, requireModule, require, Ember;
@@ -77029,7 +77029,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+4e7eed0f', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+f3131e31', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -82499,37 +82499,6 @@ enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-me
       equal(elem.tagName.toString().toLowerCase(), 'span', 'has tagName from view');
     });
   }
-});
-enifed('ember-views/tests/views/view/current_state_deprecation_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _emberMetalRun_loop) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('views/view/current_state_deprecation', {
-    setup: function () {
-      view = _emberViewsViewsView.default.create();
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(view, 'destroy');
-    }
-  });
-
-  QUnit.test('deprecates when calling currentState', function () {
-    expect(2);
-
-    view = _emberViewsViewsView.default.create();
-
-    expectDeprecation(function () {
-      equal(view.currentState, view._currentState);
-    }, 'Usage of `currentState` is deprecated, use `_currentState` instead.');
-  });
-
-  QUnit.test('doesn\'t deprecate when calling _currentState', function () {
-    expect(1);
-
-    view = _emberViewsViewsView.default.create();
-    ok(view._currentState, '_currentState can be used without deprecation');
-  });
 });
 enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
