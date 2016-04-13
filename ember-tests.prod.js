@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+489ae093
+ * @version   2.7.0-canary+4e7eed0f
  */
 
 var enifed, requireModule, require, Ember;
@@ -29180,7 +29180,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('hello | hello world');
     };
 
-    _class.prototype['@htmlbars class-based helper can recompute a new value'] = function htmlbarsClassBasedHelperCanRecomputeANewValue() {
+    _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
       var _this3 = this;
 
       var destroyCount = 0;
@@ -29220,7 +29220,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
     };
 
-    _class.prototype['@htmlbars class-based helper with static arguments can recompute a new value'] = function htmlbarsClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
+    _class.prototype['@test class-based helper with static arguments can recompute a new value'] = function testClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
       var _this4 = this;
 
       var destroyCount = 0;
@@ -29260,7 +29260,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
     };
 
-    _class.prototype['@htmlbars simple helper is called for param changes'] = function htmlbarsSimpleHelperIsCalledForParamChanges() {
+    _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
       var _this5 = this;
 
       var computeCount = 0;
@@ -29305,7 +29305,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
     };
 
-    _class.prototype['@htmlbars class-based helper compute is called for param changes'] = function htmlbarsClassBasedHelperComputeIsCalledForParamChanges() {
+    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
       var _this6 = this;
 
       var createCount = 0;
@@ -44212,7 +44212,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('hello | hello world');
     };
 
-    _class.prototype['@htmlbars class-based helper can recompute a new value'] = function htmlbarsClassBasedHelperCanRecomputeANewValue() {
+    _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
       var _this3 = this;
 
       var destroyCount = 0;
@@ -44252,7 +44252,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
     };
 
-    _class.prototype['@htmlbars class-based helper with static arguments can recompute a new value'] = function htmlbarsClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
+    _class.prototype['@test class-based helper with static arguments can recompute a new value'] = function testClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
       var _this4 = this;
 
       var destroyCount = 0;
@@ -44292,7 +44292,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
     };
 
-    _class.prototype['@htmlbars simple helper is called for param changes'] = function htmlbarsSimpleHelperIsCalledForParamChanges() {
+    _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
       var _this5 = this;
 
       var computeCount = 0;
@@ -44337,7 +44337,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
     };
 
-    _class.prototype['@htmlbars class-based helper compute is called for param changes'] = function htmlbarsClassBasedHelperComputeIsCalledForParamChanges() {
+    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
       var _this6 = this;
 
       var createCount = 0;
@@ -76585,7 +76585,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+489ae093', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+4e7eed0f', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
