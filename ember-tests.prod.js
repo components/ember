@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f1416d78
+ * @version   2.7.0-canary+8750fc2b
  */
 
 var enifed, requireModule, require, Ember;
@@ -30081,7 +30081,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       this.assertText('banana');
     };
 
-    _class.prototype['@htmlbars should handle object values as nulls'] = function htmlbarsShouldHandleObjectValuesAsNulls() {
+    _class.prototype['@test should handle object values as nulls'] = function testShouldHandleObjectValuesAsNulls() {
       var _this10 = this;
 
       this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
@@ -30109,7 +30109,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       this.assertText('[] []');
     };
 
-    _class.prototype['@htmlbars should handle object keys as nulls'] = function htmlbarsShouldHandleObjectKeysAsNulls() {
+    _class.prototype['@test should handle object keys as nulls'] = function testShouldHandleObjectKeysAsNulls() {
       var _this11 = this;
 
       this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
@@ -30141,7 +30141,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       this.assertText('[] []');
     };
 
-    _class.prototype['@htmlbars should handle object values and keys as nulls'] = function htmlbarsShouldHandleObjectValuesAndKeysAsNulls() {
+    _class.prototype['@test should handle object values and keys as nulls'] = function testShouldHandleObjectValuesAndKeysAsNulls() {
       this.render('[{{get colors \'apple\'}}] [{{if true (get colors key)}}]', {
         colors: null,
         key: null
@@ -45113,7 +45113,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       this.assertText('banana');
     };
 
-    _class.prototype['@htmlbars should handle object values as nulls'] = function htmlbarsShouldHandleObjectValuesAsNulls() {
+    _class.prototype['@test should handle object values as nulls'] = function testShouldHandleObjectValuesAsNulls() {
       var _this10 = this;
 
       this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
@@ -45141,7 +45141,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       this.assertText('[] []');
     };
 
-    _class.prototype['@htmlbars should handle object keys as nulls'] = function htmlbarsShouldHandleObjectKeysAsNulls() {
+    _class.prototype['@test should handle object keys as nulls'] = function testShouldHandleObjectKeysAsNulls() {
       var _this11 = this;
 
       this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
@@ -45173,7 +45173,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       this.assertText('[] []');
     };
 
-    _class.prototype['@htmlbars should handle object values and keys as nulls'] = function htmlbarsShouldHandleObjectValuesAndKeysAsNulls() {
+    _class.prototype['@test should handle object values and keys as nulls'] = function testShouldHandleObjectValuesAndKeysAsNulls() {
       this.render('[{{get colors \'apple\'}}] [{{if true (get colors key)}}]', {
         colors: null,
         key: null
@@ -76517,7 +76517,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+f1416d78', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+8750fc2b', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
