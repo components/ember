@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a7d5c8c0
+ * @version   2.7.0-canary+5020f54a
  */
 
 var enifed, requireModule, require, Ember;
@@ -32001,6 +32001,312 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/yield-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{yield}} helper', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test can yield to block'] = function testCanYieldToBlock() {
+      var _this = this;
+
+      this.registerComponent('yield-comp', { template: '[In layout:] {{yield}}' });
+
+      this.render('{{#yield-comp}}[In Block:] {{object.title}}{{/yield-comp}}', { object: { title: 'Seattle' } });
+      this.assertText('[In layout:] [In Block:] Seattle');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'object.title', 'Vancouver');
+      });
+      this.assertText('[In layout:] [In Block:] Vancouver');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'object', { title: 'Seattle' });
+      });
+      this.assertText('[In layout:] [In Block:] Seattle');
+    };
+
+    _class.prototype['@test templates should yield to block inside a nested component'] = function testTemplatesShouldYieldToBlockInsideANestedComponent() {
+      var _this2 = this;
+
+      this.registerComponent('outer-comp', { template: '<div>[In layout:] {{yield}}</div>' });
+      this.registerComponent('inner-comp', { template: '{{#outer-comp}}[In Block:] {{object.title}}{{/outer-comp}}' });
+
+      this.render('{{inner-comp object=object}}', { object: { title: 'Seattle' } });
+      this.assertText('[In layout:] [In Block:] Seattle');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'object.title', 'Vancouver');
+      });
+      this.assertText('[In layout:] [In Block:] Vancouver');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'object', { title: 'Seattle' });
+      });
+      this.assertText('[In layout:] [In Block:] Seattle');
+    };
+
+    _class.prototype['@test templates should yield to block, when the yield is embedded in a each helper'] = function testTemplatesShouldYieldToBlockWhenTheYieldIsEmbeddedInAEachHelper() {
+      var _this3 = this;
+
+      var list = [1, 2, 3];
+
+      this.registerComponent('outer-comp', { template: '{{#each list as |item|}}{{yield}}{{/each}}' });
+
+      this.render('{{#outer-comp list=list}}Hello{{/outer-comp}}', { list: list });
+      this.assertText('HelloHelloHello');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'list', [4, 5]);
+      });
+      this.assertText('HelloHello');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'list', list);
+      });
+      this.assertText('HelloHelloHello');
+    };
+
+    _class.prototype['@test templates should yield to block, when the yield is embedded in a if helper'] = function testTemplatesShouldYieldToBlockWhenTheYieldIsEmbeddedInAIfHelper() {
+      var _this4 = this;
+
+      this.registerComponent('outer-comp', { template: '{{#if boolean}}{{yield}}{{/if}}' });
+
+      this.render('{{#outer-comp boolean=boolean}}Hello{{/outer-comp}}', { boolean: true });
+      this.assertText('Hello');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'boolean', false);
+      });
+      this.assertText('');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'boolean', true);
+      });
+      this.assertText('Hello');
+    };
+
+    _class.prototype['@test simple curlies inside of a yielded clock should work when the yield is nested inside of another view'] = function testSimpleCurliesInsideOfAYieldedClockShouldWorkWhenTheYieldIsNestedInsideOfAnotherView() {
+      var _this5 = this;
+
+      this.registerComponent('kiwi-comp', { template: '{{#if falsy}}{{else}}{{yield}}{{/if}}' });
+
+      this.render('{{#kiwi-comp}}{{text}}{{/kiwi-comp}}', { text: 'ohai' });
+      this.assertText('ohai');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'text', 'portland');
+      });
+      this.assertText('portland');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'text', 'ohai');
+      });
+      this.assertText('ohai');
+    };
+
+    _class.prototype['@test nested simple curlies inside of a yielded block should work when the yield is nested inside of another view'] = function testNestedSimpleCurliesInsideOfAYieldedBlockShouldWorkWhenTheYieldIsNestedInsideOfAnotherView() {
+      var _this6 = this;
+
+      this.registerComponent('parent-comp', { template: '{{#if falsy}}{{else}}{{yield}}{{/if}}' });
+      this.registerComponent('child-comp', { template: '{{#if falsy}}{{else}}{{text}}{{/if}}' });
+
+      this.render('{{#parent-comp}}{{child-comp text=text}}{{/parent-comp}}', { text: 'ohai' });
+      this.assertText('ohai');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'text', 'portland');
+      });
+      this.assertText('portland');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'text', 'ohai');
+      });
+      this.assertText('ohai');
+    };
+
+    _class.prototype['@test yielding to a non-existent block is not an error'] = function testYieldingToANonExistentBlockIsNotAnError() {
+      var _this7 = this;
+
+      this.registerComponent('yielding-comp', { template: 'Hello:{{yield}}' });
+      this.registerComponent('outer-comp', { template: '{{yielding-comp}} {{title}}' });
+
+      this.render('{{outer-comp title=title}}', { title: 'Mr. Selden' });
+
+      this.assertText('Hello: Mr. Selden');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'title', 'Mr. Chag');
+      });
+      this.assertText('Hello: Mr. Chag');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'title', 'Mr. Selden');
+      });
+      this.assertText('Hello: Mr. Selden');
+    };
+
+    _class.prototype['@test yield uses the original context'] = function testYieldUsesTheOriginalContext() {
+      var _this8 = this;
+
+      var KiwiCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({ boundText: 'Inner' });
+
+      this.registerComponent('kiwi-comp', { ComponentClass: KiwiCompComponent, template: '<p>{{boundText}}</p><p>{{yield}}</p>' });
+
+      this.render('{{#kiwi-comp}}{{boundText}}{{/kiwi-comp}}', { boundText: 'Original' });
+      this.assertText('InnerOriginal');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'boundText', 'Otherworld');
+      });
+      this.assertText('InnerOtherworld');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'boundText', 'Original');
+      });
+      this.assertText('InnerOriginal');
+    };
+
+    _class.prototype['@test outer block param doesn\'t mask inner component property'] = function testOuterBlockParamDoesnTMaskInnerComponentProperty() {
+      var _this9 = this;
+
+      var KiwiCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({ boundText: 'Inner' });
+
+      this.registerComponent('kiwi-comp', { ComponentClass: KiwiCompComponent, template: '<p>{{boundText}}</p><p>{{yield}}</p>' });
+
+      this.render('{{#with boundText as |item|}}{{#kiwi-comp}}{{item}}{{/kiwi-comp}}{{/with}}', { boundText: 'Outer' });
+      this.assertText('InnerOuter');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'boundText', 'Otherworld');
+      });
+      this.assertText('InnerOtherworld');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'boundText', 'Outer');
+      });
+      this.assertText('InnerOuter');
+    };
+
+    _class.prototype['@test inner block param doesn\'t mask yield property'] = function testInnerBlockParamDoesnTMaskYieldProperty() {
+      var _this10 = this;
+
+      var KiwiCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({ boundText: 'Inner' });
+
+      this.registerComponent('kiwi-comp', { ComponentClass: KiwiCompComponent, template: '{{#with boundText as |item|}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}' });
+
+      this.render('{{#kiwi-comp}}{{item}}{{/kiwi-comp}}', { item: 'Outer' });
+      this.assertText('InnerOuter');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'item', 'Otherworld');
+      });
+      this.assertText('InnerOtherworld');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'item', 'Outer');
+      });
+      this.assertText('InnerOuter');
+    };
+
+    _class.prototype['@test can bind a block param to a component and use it in yield'] = function testCanBindABlockParamToAComponentAndUseItInYield() {
+      var _this11 = this;
+
+      this.registerComponent('kiwi-comp', { template: '<p>{{content}}</p><p>{{yield}}</p>' });
+
+      this.render('{{#with boundText as |item|}}{{#kiwi-comp content=item}}{{item}}{{/kiwi-comp}}{{/with}}', { boundText: 'Outer' });
+      this.assertText('OuterOuter');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'boundText', 'Update');
+      });
+      this.assertText('UpdateUpdate');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'boundText', 'Outer');
+      });
+      this.assertText('OuterOuter');
+    };
+
+    // INUR not need with no data update
+
+    _class.prototype['@htmlbars yield should not introduce a view'] = function htmlbarsYieldShouldNotIntroduceAView() {
+      var ParentCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({ isParentComponent: true });
+
+      var ChildCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        didReceiveAttrs: function () {
+          this._super();
+          var parentView = this.get('parentView');
+
+          ok(parentView.get('isParentComponent'));
+        }
+      });
+
+      this.registerComponent('parent-comp', { ComponentClass: ParentCompComponent, template: '{{yield}}' });
+      this.registerComponent('child-comp', { ComponentClass: ChildCompComponent });
+
+      this.render('{{#parent-comp}}{{child-comp}}{{/parent-comp}}');
+    };
+
+    _class.prototype['@test yield with nested components (#3220)'] = function testYieldWithNestedComponents3220() {
+      var _this12 = this;
+
+      this.registerComponent('inner-component', { template: '{{yield}}' });
+      this.registerComponent('outer-component', { template: '{{#inner-component}}<span>{{yield}}</span>{{/inner-component}}' });
+
+      this.render('{{#outer-component}}Hello {{boundText}}{{/outer-component}}', { boundText: 'world' });
+      this.assertText('Hello world');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'boundText', 'update');
+      });
+      this.assertText('Hello update');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'boundText', 'world');
+      });
+      this.assertText('Hello world');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -38794,7 +39100,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/native_array', 'ember-views/components/component', 'ember-htmlbars/helpers', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemNative_array, _emberViewsComponentsComponent, _emberHtmlbarsHelpers, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
+enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
   'use strict';
 
   var view, owner, originalViewKeyword;
@@ -38826,261 +39132,6 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
         commonTeardown();
         _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
       }
-    });
-
-    QUnit.test('a view with a layout set renders its template where the {{yield}} helper appears', function () {
-      var ViewWithLayout = _emberViewsViewsView.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<div class="wrapper"><h1>{{attrs.title}}</h1>{{yield}}</div>')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        withLayout: ViewWithLayout,
-        template: _emberTemplateCompilerSystemCompile.default('{{#view view.withLayout title="My Fancy Page"}}<div class="page-body">Show something interesting here</div>{{/view}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div.wrapper div.page-body').length, 1, 'page-body is embedded within wrapping my-page');
-    });
-
-    QUnit.test('block should work properly even when templates are not hard-coded', function () {
-      var _EmberView$create;
-
-      owner.register('template:nester', _emberTemplateCompilerSystemCompile.default('<div class="wrapper"><h1>{{attrs.title}}</h1>{{yield}}</div>'));
-      owner.register('template:nested', _emberTemplateCompilerSystemCompile.default('{{#view "with-layout" title="My Fancy Page"}}<div class="page-body">Show something interesting here</div>{{/view}}'));
-
-      owner.register('view:with-layout', _emberViewsViewsView.default.extend({
-        layoutName: 'nester'
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.templateName = 'nested', _EmberView$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div.wrapper div.page-body').length, 1, 'page-body is embedded within wrapping my-page');
-    });
-
-    QUnit.test('templates should yield to block, when the yield is embedded in a hierarchy of virtual views', function () {
-      var TimesView = _emberViewsViewsView.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<div class="times">{{#each view.index as |item|}}{{yield}}{{/each}}</div>'),
-        n: null,
-        index: _emberMetalComputed.computed(function () {
-          var n = this.attrs.n;
-          var indexArray = _emberRuntimeSystemNative_array.A();
-          for (var i = 0; i < n; i++) {
-            indexArray[i] = i;
-          }
-          return indexArray;
-        })
-      });
-
-      view = _emberViewsViewsView.default.create({
-        timesView: TimesView,
-        template: _emberTemplateCompilerSystemCompile.default('<div id="container"><div class="title">Counting to 5</div>{{#view view.timesView n=5}}<div class="times-item">Hello</div>{{/view}}</div>')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div#container div.times-item').length, 5, 'times-item is embedded within wrapping container 5 times, as expected');
-    });
-
-    QUnit.test('templates should yield to block, when the yield is embedded in a hierarchy of non-virtual views', function () {
-      var NestingView = _emberViewsViewsView.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{#view tagName="div" classNames="nesting"}}{{yield}}{{/view}}')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        nestingView: NestingView,
-        template: _emberTemplateCompilerSystemCompile.default('<div id="container">{{#view view.nestingView}}<div id="block">Hello</div>{{/view}}</div>')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div#container div.nesting div#block').length, 1, 'nesting view yields correctly even within a view hierarchy in the nesting view');
-    });
-
-    QUnit.test('block should not be required', function () {
-      var YieldingView = _emberViewsViewsView.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{#view tagName="div" classNames="yielding"}}{{yield}}{{/view}}')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        yieldingView: YieldingView,
-        template: _emberTemplateCompilerSystemCompile.default('<div id="container">{{view view.yieldingView}}</div>')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div#container div.yielding').length, 1, 'yielding view is rendered as expected');
-    });
-
-    QUnit.test('yield uses the outer context', function () {
-      var component = _emberViewsComponentsComponent.default.extend({
-        boundText: 'inner',
-        layout: _emberTemplateCompilerSystemCompile.default('<p>{{boundText}}</p><p>{{yield}}</p>')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        controller: { boundText: 'outer', component: component },
-        template: _emberTemplateCompilerSystemCompile.default('{{#view component}}{{boundText}}{{/view}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, 'Yield points at the right context');
-    });
-
-    QUnit.test('outer keyword doesn\'t mask inner component property', function () {
-      var component = _emberViewsComponentsComponent.default.extend({
-        item: 'inner',
-        layout: _emberTemplateCompilerSystemCompile.default('<p>{{item}}</p><p>{{yield}}</p>')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        controller: { boundText: 'outer', component: component },
-        template: _emberTemplateCompilerSystemCompile.default('{{#with boundText as |item|}}{{#view component}}{{item}}{{/view}}{{/with}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, 'inner component property isn\'t masked by outer keyword');
-    });
-
-    QUnit.test('inner keyword doesn\'t mask yield property', function () {
-      var component = _emberViewsComponentsComponent.default.extend({
-        boundText: 'inner',
-        layout: _emberTemplateCompilerSystemCompile.default('{{#with boundText as |item|}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        controller: { item: 'outer', component: component },
-        template: _emberTemplateCompilerSystemCompile.default('{{#view component}}{{item}}{{/view}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, 'outer property isn\'t masked by inner keyword');
-    });
-
-    QUnit.test('can bind a keyword to a component and use it in yield', function () {
-      var component = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<p>{{attrs.content}}</p><p>{{yield}}</p>')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        controller: { boundText: 'outer', component: component },
-        template: _emberTemplateCompilerSystemCompile.default('{{#with boundText as |item|}}{{#view component content=item}}{{item}}{{/view}}{{/with}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div p:contains(outer) + p:contains(outer)').length, 1, 'component and yield have keyword');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('controller.boundText', 'update');
-      });
-
-      equal(view.$('div p:contains(update) + p:contains(update)').length, 1, 'keyword has correctly propagated update');
-    });
-
-    QUnit.test('yield view should be a virtual view', function () {
-      var component = _emberViewsComponentsComponent.default.extend({
-        isParentComponent: true,
-
-        layout: _emberTemplateCompilerSystemCompile.default('{{yield}}')
-      });
-
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#view component}}{{view includedComponent}}{{/view}}'),
-        controller: {
-          component: component,
-          includedComponent: _emberViewsComponentsComponent.default.extend({
-            didInsertElement: function () {
-              var parentView = this.get('parentView');
-
-              ok(parentView.get('isParentComponent'), 'parent view is the parent component');
-            }
-          })
-        }
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    QUnit.test('yield should work for views even if parentView is null', function () {
-      view = _emberViewsViewsView.default.create({
-        layout: _emberTemplateCompilerSystemCompile.default('Layout: {{yield}}'),
-        template: _emberTemplateCompilerSystemCompile.default('View Content')
-      });
-
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-
-      equal(view.$().text(), 'Layout: View Content');
-    });
-
-    QUnit.test('simple bindings inside of a yielded template should work properly when the yield is nested inside of another view', function () {
-      view = _emberViewsViewsView.default.create({
-        layout: _emberTemplateCompilerSystemCompile.default('{{#if view.falsy}}{{else}}{{yield}}{{/if}}'),
-        template: _emberTemplateCompilerSystemCompile.default('{{view.text}}'),
-        text: 'ohai'
-      });
-
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-
-      equal(view.$().text(), 'ohai');
-    });
-
-    QUnit.test('nested simple bindings inside of a yielded template should work properly when the yield is nested inside of another view', function () {
-      view = _emberViewsViewsView.default.create({
-        layout: _emberTemplateCompilerSystemCompile.default('{{#if view.falsy}}{{else}}{{yield}}{{/if}}'),
-        template: _emberTemplateCompilerSystemCompile.default('{{#if view.falsy}}{{else}}{{view.text}}{{/if}}'),
-        text: 'ohai'
-      });
-
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-
-      equal(view.$().text(), 'ohai');
-    });
-
-    QUnit.module('ember-htmlbars: Component {{yield}}', {
-      setup: function () {
-        commonSetup();
-        originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-      },
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(view);
-        delete _emberHtmlbarsHelpers.default['inner-component'];
-        delete _emberHtmlbarsHelpers.default['outer-component'];
-        _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-      }
-    });
-
-    QUnit.test('yield with nested components (#3220)', function () {
-      var _EmberView$extend;
-
-      var InnerComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{yield}}')
-      });
-
-      owner.register('component:inner-component', InnerComponent);
-
-      var OuterComponent = _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{#inner-component}}<span>{{yield}}</span>{{/inner-component}}')
-      });
-
-      owner.register('component:outer-component', OuterComponent);
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default('{{#outer-component}}Hello world{{/outer-component}}'), _EmberView$extend)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$('div > span').text(), 'Hello world');
     });
 
     QUnit.test('view keyword works inside component yield', function () {
@@ -47063,6 +47114,312 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       });
 
       this.assertText('bork');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/yield-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{yield}} helper', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test can yield to block'] = function testCanYieldToBlock() {
+      var _this = this;
+
+      this.registerComponent('yield-comp', { template: '[In layout:] {{yield}}' });
+
+      this.render('{{#yield-comp}}[In Block:] {{object.title}}{{/yield-comp}}', { object: { title: 'Seattle' } });
+      this.assertText('[In layout:] [In Block:] Seattle');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'object.title', 'Vancouver');
+      });
+      this.assertText('[In layout:] [In Block:] Vancouver');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'object', { title: 'Seattle' });
+      });
+      this.assertText('[In layout:] [In Block:] Seattle');
+    };
+
+    _class.prototype['@test templates should yield to block inside a nested component'] = function testTemplatesShouldYieldToBlockInsideANestedComponent() {
+      var _this2 = this;
+
+      this.registerComponent('outer-comp', { template: '<div>[In layout:] {{yield}}</div>' });
+      this.registerComponent('inner-comp', { template: '{{#outer-comp}}[In Block:] {{object.title}}{{/outer-comp}}' });
+
+      this.render('{{inner-comp object=object}}', { object: { title: 'Seattle' } });
+      this.assertText('[In layout:] [In Block:] Seattle');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'object.title', 'Vancouver');
+      });
+      this.assertText('[In layout:] [In Block:] Vancouver');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'object', { title: 'Seattle' });
+      });
+      this.assertText('[In layout:] [In Block:] Seattle');
+    };
+
+    _class.prototype['@test templates should yield to block, when the yield is embedded in a each helper'] = function testTemplatesShouldYieldToBlockWhenTheYieldIsEmbeddedInAEachHelper() {
+      var _this3 = this;
+
+      var list = [1, 2, 3];
+
+      this.registerComponent('outer-comp', { template: '{{#each list as |item|}}{{yield}}{{/each}}' });
+
+      this.render('{{#outer-comp list=list}}Hello{{/outer-comp}}', { list: list });
+      this.assertText('HelloHelloHello');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'list', [4, 5]);
+      });
+      this.assertText('HelloHello');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'list', list);
+      });
+      this.assertText('HelloHelloHello');
+    };
+
+    _class.prototype['@test templates should yield to block, when the yield is embedded in a if helper'] = function testTemplatesShouldYieldToBlockWhenTheYieldIsEmbeddedInAIfHelper() {
+      var _this4 = this;
+
+      this.registerComponent('outer-comp', { template: '{{#if boolean}}{{yield}}{{/if}}' });
+
+      this.render('{{#outer-comp boolean=boolean}}Hello{{/outer-comp}}', { boolean: true });
+      this.assertText('Hello');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'boolean', false);
+      });
+      this.assertText('');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'boolean', true);
+      });
+      this.assertText('Hello');
+    };
+
+    _class.prototype['@test simple curlies inside of a yielded clock should work when the yield is nested inside of another view'] = function testSimpleCurliesInsideOfAYieldedClockShouldWorkWhenTheYieldIsNestedInsideOfAnotherView() {
+      var _this5 = this;
+
+      this.registerComponent('kiwi-comp', { template: '{{#if falsy}}{{else}}{{yield}}{{/if}}' });
+
+      this.render('{{#kiwi-comp}}{{text}}{{/kiwi-comp}}', { text: 'ohai' });
+      this.assertText('ohai');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'text', 'portland');
+      });
+      this.assertText('portland');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'text', 'ohai');
+      });
+      this.assertText('ohai');
+    };
+
+    _class.prototype['@test nested simple curlies inside of a yielded block should work when the yield is nested inside of another view'] = function testNestedSimpleCurliesInsideOfAYieldedBlockShouldWorkWhenTheYieldIsNestedInsideOfAnotherView() {
+      var _this6 = this;
+
+      this.registerComponent('parent-comp', { template: '{{#if falsy}}{{else}}{{yield}}{{/if}}' });
+      this.registerComponent('child-comp', { template: '{{#if falsy}}{{else}}{{text}}{{/if}}' });
+
+      this.render('{{#parent-comp}}{{child-comp text=text}}{{/parent-comp}}', { text: 'ohai' });
+      this.assertText('ohai');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'text', 'portland');
+      });
+      this.assertText('portland');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'text', 'ohai');
+      });
+      this.assertText('ohai');
+    };
+
+    _class.prototype['@test yielding to a non-existent block is not an error'] = function testYieldingToANonExistentBlockIsNotAnError() {
+      var _this7 = this;
+
+      this.registerComponent('yielding-comp', { template: 'Hello:{{yield}}' });
+      this.registerComponent('outer-comp', { template: '{{yielding-comp}} {{title}}' });
+
+      this.render('{{outer-comp title=title}}', { title: 'Mr. Selden' });
+
+      this.assertText('Hello: Mr. Selden');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'title', 'Mr. Chag');
+      });
+      this.assertText('Hello: Mr. Chag');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'title', 'Mr. Selden');
+      });
+      this.assertText('Hello: Mr. Selden');
+    };
+
+    _class.prototype['@test yield uses the original context'] = function testYieldUsesTheOriginalContext() {
+      var _this8 = this;
+
+      var KiwiCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({ boundText: 'Inner' });
+
+      this.registerComponent('kiwi-comp', { ComponentClass: KiwiCompComponent, template: '<p>{{boundText}}</p><p>{{yield}}</p>' });
+
+      this.render('{{#kiwi-comp}}{{boundText}}{{/kiwi-comp}}', { boundText: 'Original' });
+      this.assertText('InnerOriginal');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'boundText', 'Otherworld');
+      });
+      this.assertText('InnerOtherworld');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'boundText', 'Original');
+      });
+      this.assertText('InnerOriginal');
+    };
+
+    _class.prototype['@test outer block param doesn\'t mask inner component property'] = function testOuterBlockParamDoesnTMaskInnerComponentProperty() {
+      var _this9 = this;
+
+      var KiwiCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({ boundText: 'Inner' });
+
+      this.registerComponent('kiwi-comp', { ComponentClass: KiwiCompComponent, template: '<p>{{boundText}}</p><p>{{yield}}</p>' });
+
+      this.render('{{#with boundText as |item|}}{{#kiwi-comp}}{{item}}{{/kiwi-comp}}{{/with}}', { boundText: 'Outer' });
+      this.assertText('InnerOuter');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'boundText', 'Otherworld');
+      });
+      this.assertText('InnerOtherworld');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this9.context, 'boundText', 'Outer');
+      });
+      this.assertText('InnerOuter');
+    };
+
+    _class.prototype['@test inner block param doesn\'t mask yield property'] = function testInnerBlockParamDoesnTMaskYieldProperty() {
+      var _this10 = this;
+
+      var KiwiCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({ boundText: 'Inner' });
+
+      this.registerComponent('kiwi-comp', { ComponentClass: KiwiCompComponent, template: '{{#with boundText as |item|}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}' });
+
+      this.render('{{#kiwi-comp}}{{item}}{{/kiwi-comp}}', { item: 'Outer' });
+      this.assertText('InnerOuter');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'item', 'Otherworld');
+      });
+      this.assertText('InnerOtherworld');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'item', 'Outer');
+      });
+      this.assertText('InnerOuter');
+    };
+
+    _class.prototype['@test can bind a block param to a component and use it in yield'] = function testCanBindABlockParamToAComponentAndUseItInYield() {
+      var _this11 = this;
+
+      this.registerComponent('kiwi-comp', { template: '<p>{{content}}</p><p>{{yield}}</p>' });
+
+      this.render('{{#with boundText as |item|}}{{#kiwi-comp content=item}}{{item}}{{/kiwi-comp}}{{/with}}', { boundText: 'Outer' });
+      this.assertText('OuterOuter');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'boundText', 'Update');
+      });
+      this.assertText('UpdateUpdate');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'boundText', 'Outer');
+      });
+      this.assertText('OuterOuter');
+    };
+
+    // INUR not need with no data update
+
+    _class.prototype['@htmlbars yield should not introduce a view'] = function htmlbarsYieldShouldNotIntroduceAView() {
+      var ParentCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({ isParentComponent: true });
+
+      var ChildCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        didReceiveAttrs: function () {
+          this._super();
+          var parentView = this.get('parentView');
+
+          ok(parentView.get('isParentComponent'));
+        }
+      });
+
+      this.registerComponent('parent-comp', { ComponentClass: ParentCompComponent, template: '{{yield}}' });
+      this.registerComponent('child-comp', { ComponentClass: ChildCompComponent });
+
+      this.render('{{#parent-comp}}{{child-comp}}{{/parent-comp}}');
+    };
+
+    _class.prototype['@test yield with nested components (#3220)'] = function testYieldWithNestedComponents3220() {
+      var _this12 = this;
+
+      this.registerComponent('inner-component', { template: '{{yield}}' });
+      this.registerComponent('outer-component', { template: '{{#inner-component}}<span>{{yield}}</span>{{/inner-component}}' });
+
+      this.render('{{#outer-component}}Hello {{boundText}}{{/outer-component}}', { boundText: 'world' });
+      this.assertText('Hello world');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'boundText', 'update');
+      });
+      this.assertText('Hello update');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this12.context, 'boundText', 'world');
+      });
+      this.assertText('Hello world');
     };
 
     return _class;
@@ -76655,7 +77012,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+a7d5c8c0', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+5020f54a', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
