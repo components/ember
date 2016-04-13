@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f3131e31
+ * @version   2.7.0-canary+a7d5c8c0
  */
 
 var enifed, requireModule, require, Ember;
@@ -29002,9 +29002,8 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     _class.prototype['@test it updates for bound arguments'] = function testItUpdatesForBoundArguments() {
       var _this = this;
 
-      this.render('{{concat first second}}', {
-        first: 'one',
-        second: 'two'
+      this.render('{{concat model.first model.second}}', {
+        model: { first: 'one', second: 'two' }
       });
 
       this.assertText('onetwo');
@@ -29016,20 +29015,19 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('onetwo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'first', 'three');
+        return _emberMetalProperty_set.set(_this.context, 'model.first', 'three');
       });
 
       this.assertText('threetwo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'second', 'four');
+        return _emberMetalProperty_set.set(_this.context, 'model.second', 'four');
       });
 
       this.assertText('threefour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this.context, 'first', 'one');
-        _emberMetalProperty_set.set(_this.context, 'second', 'two');
+        return _emberMetalProperty_set.set(_this.context, 'model', { first: 'one', second: 'two' });
       });
 
       this.assertText('onetwo');
@@ -29038,11 +29036,13 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     _class.prototype['@test it can be used as a sub-expression'] = function testItCanBeUsedAsASubExpression() {
       var _this2 = this;
 
-      this.render('{{concat (concat first second) (concat third fourth)}}', {
-        first: 'one',
-        second: 'two',
-        third: 'three',
-        fourth: 'four'
+      this.render('{{concat (concat model.first model.second) (concat model.third model.fourth)}}', {
+        model: {
+          first: 'one',
+          second: 'two',
+          third: 'three',
+          fourth: 'four'
+        }
       });
 
       this.assertText('onetwothreefour');
@@ -29054,22 +29054,25 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('onetwothreefour');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'first', 'five');
+        return _emberMetalProperty_set.set(_this2.context, 'model.first', 'five');
       });
 
       this.assertText('fivetwothreefour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this2.context, 'second', 'six');
-        _emberMetalProperty_set.set(_this2.context, 'third', 'seven');
+        _emberMetalProperty_set.set(_this2.context, 'model.second', 'six');
+        _emberMetalProperty_set.set(_this2.context, 'model.third', 'seven');
       });
 
       this.assertText('fivesixsevenfour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this2.context, 'first', 'one');
-        _emberMetalProperty_set.set(_this2.context, 'second', 'two');
-        _emberMetalProperty_set.set(_this2.context, 'third', 'three');
+        _emberMetalProperty_set.set(_this2.context, 'model', {
+          first: 'one',
+          second: 'two',
+          third: 'three',
+          fourth: 'four'
+        });
       });
 
       this.assertText('onetwothreefour');
@@ -29084,9 +29087,11 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
         return actual === expected;
       });
 
-      this.render('{{#if (x-eq (concat first second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
-        first: 'one',
-        second: 'two'
+      this.render('{{#if (x-eq (concat model.first model.second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
+        model: {
+          first: 'one',
+          second: 'two'
+        }
       });
 
       this.assertText('Truthy!');
@@ -29098,13 +29103,13 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('Truthy!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'first', 'three');
+        return _emberMetalProperty_set.set(_this3.context, 'model.first', 'three');
       });
 
       this.assertText('False');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'first', 'one');
+        return _emberMetalProperty_set.set(_this3.context, 'model', { first: 'one', second: 'two' });
       });
 
       this.assertText('Truthy!');
@@ -29272,8 +29277,8 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         return value + '-value';
       });
 
-      this.render('{{hello-world name}}', {
-        name: 'bob'
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
       });
 
       this.assertText('bob-value');
@@ -29289,7 +29294,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this5.context, 'model.name', 'sal');
       });
 
       this.assertText('sal-value');
@@ -29297,7 +29302,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'name', 'bob');
+        return _emberMetalProperty_set.set(_this5.context, 'model', { name: 'bob' });
       });
 
       this.assertText('bob-value');
@@ -29324,8 +29329,8 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         }
       });
 
-      this.render('{{hello-world name}}', {
-        name: 'bob'
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
       });
 
       this.assertText('bob-value');
@@ -29341,7 +29346,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this6.context, 'model.name', 'sal');
       });
 
       this.assertText('sal-value');
@@ -29349,7 +29354,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'name', 'bob');
+        return _emberMetalProperty_set.set(_this6.context, 'model', { name: 'bob' });
       });
 
       this.assertText('bob-value');
@@ -29365,9 +29370,11 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
       });
 
-      this.render('{{hello-world name "rich" first=age last="sam"}}', {
-        name: 'bob',
-        age: 42
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -29379,20 +29386,19 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this7.context, 'model.name', 'sal');
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'age', 28);
+        return _emberMetalProperty_set.set(_this7.context, 'model.age', 28);
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this7.context, 'name', 'bob');
-        _emberMetalProperty_set.set(_this7.context, 'age', 42);
+        return _emberMetalProperty_set.set(_this7.context, 'model', { name: 'bob', age: 42 });
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -29407,9 +29413,11 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         }
       });
 
-      this.render('{{hello-world name "rich" first=age last="sam"}}', {
-        name: 'bob',
-        age: 42
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -29421,20 +29429,19 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this8.context, 'model.name', 'sal');
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'age', 28);
+        return _emberMetalProperty_set.set(_this8.context, 'model.age', 28);
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this8.context, 'name', 'bob');
-        _emberMetalProperty_set.set(_this8.context, 'age', 42);
+        return _emberMetalProperty_set.set(_this8.context, 'model', { name: 'bob', age: 42 });
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -29449,8 +29456,8 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         }
       });
 
-      this.render('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   reason\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}', {
-        reason: 'force'
+      this.render('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   model.reason\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}', {
+        model: { reason: 'force' }
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -29462,13 +29469,13 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this9.context, 'reason', 'Nickleback');
+        return _emberMetalProperty_set.set(_this9.context, 'model.reason', 'Nickleback');
       });
 
       this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this9.context, 'reason', 'force');
+        return _emberMetalProperty_set.set(_this9.context, 'model', { reason: 'force' });
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -30287,7 +30294,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsComponentsComponent) {
+enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -30336,8 +30343,10 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
     _class.prototype['@test binds values when variables are used'] = function testBindsValuesWhenVariablesAreUsed() {
       var _this3 = this;
 
-      this.render('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
-        firstName: 'Marisa'
+      this.render('{{#with (hash name=model.firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        model: {
+          firstName: 'Marisa'
+        }
       });
 
       this.assertText('Marisa Arbeo');
@@ -30349,13 +30358,13 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       this.assertText('Marisa Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Sergio');
+        return _emberMetalProperty_set.set(_this3.context, 'model.firstName', 'Sergio');
       });
 
       this.assertText('Sergio Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Marisa');
+        return _emberMetalProperty_set.set(_this3.context, 'model', { firstName: 'Marisa' });
       });
 
       this.assertText('Marisa Arbeo');
@@ -30364,9 +30373,11 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
     _class.prototype['@test binds multiple values when variables are used'] = function testBindsMultipleValuesWhenVariablesAreUsed() {
       var _this4 = this;
 
-      this.render('{{#with (hash name=firstName lastName=lastName) as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
-        firstName: 'Marisa',
-        lastName: 'Arbeo'
+      this.render('{{#with (hash name=model.firstName lastName=model.lastName) as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        model: {
+          firstName: 'Marisa',
+          lastName: 'Arbeo'
+        }
       });
 
       this.assertText('Marisa Arbeo');
@@ -30378,19 +30389,19 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       this.assertText('Marisa Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'firstName', 'Sergio');
+        return _emberMetalProperty_set.set(_this4.context, 'model.firstName', 'Sergio');
       });
 
       this.assertText('Sergio Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'lastName', 'Smith');
+        return _emberMetalProperty_set.set(_this4.context, 'model.lastName', 'Smith');
       });
 
       this.assertText('Sergio Smith');
 
       this.runTask(function () {
-        return _emberMetalSet_properties.default(_this4.context, {
+        return _emberMetalProperty_set.set(_this4.context, 'model', {
           firstName: 'Marisa',
           lastName: 'Arbeo'
         });
@@ -30402,8 +30413,8 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
     _class.prototype['@test hash helpers can be nested'] = function testHashHelpersCanBeNested() {
       var _this5 = this;
 
-      this.render('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}', {
-        firstName: 'Balint'
+      this.render('{{#with (hash person=(hash name=model.firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}', {
+        model: { firstName: 'Balint' }
       });
 
       this.assertText('Balint');
@@ -30415,13 +30426,13 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       this.assertText('Balint');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Chad');
+        return _emberMetalProperty_set.set(_this5.context, 'model.firstName', 'Chad');
       });
 
       this.assertText('Chad');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Balint');
+        return _emberMetalProperty_set.set(_this5.context, 'model', { firstName: 'Balint' });
       });
 
       this.assertText('Balint');
@@ -30435,13 +30446,13 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
         init: function () {
           this._super();
           fooBarInstance = this;
-          this.firstName = 'Chad';
+          this.model = { firstName: 'Chad' };
         }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (hash firstName=firstName)}}'
+        template: '{{yield (hash firstName=model.firstName)}}'
       });
 
       this.render('{{#foo-bar as |values|}}{{values.firstName}}{{/foo-bar}}');
@@ -30455,13 +30466,13 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       this.assertText('Chad');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model.firstName', 'Godfrey');
       });
 
       this.assertText('Godfrey');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model', { firstName: 'Chad' });
       });
 
       this.assertText('Chad');
@@ -30475,17 +30486,17 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
         init: function () {
           this._super();
           fooBarInstance = this;
-          this.firstName = 'Chad';
+          this.model = { firstName: 'Chad' };
         }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (hash firstName=firstName lastName=lastName)}}'
+        template: '{{yield (hash firstName=model.firstName lastName=lastName)}}'
       });
 
-      this.render('{{#foo-bar lastName=lastName as |values|}}{{values.firstName}} {{values.lastName}}{{/foo-bar}}', {
-        lastName: 'Hietala'
+      this.render('{{#foo-bar lastName=model.lastName as |values|}}{{values.firstName}} {{values.lastName}}{{/foo-bar}}', {
+        model: { lastName: 'Hietala' }
       });
 
       this.assertText('Chad Hietala');
@@ -30497,15 +30508,15 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       this.assertText('Chad Hietala');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
-        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Chan');
+        _emberMetalProperty_set.set(fooBarInstance, 'model.firstName', 'Godfrey');
+        _emberMetalProperty_set.set(_this7.context, 'model.lastName', 'Chan');
       });
 
       this.assertText('Godfrey Chan');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
-        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Hietala');
+        _emberMetalProperty_set.set(fooBarInstance, 'model', { firstName: 'Chad' });
+        _emberMetalProperty_set.set(_this7.context, 'model', { lastName: 'Hietala' });
       });
 
       this.assertText('Chad Hietala');
@@ -30992,8 +31003,8 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
 enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -31035,11 +31046,13 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
     _class.prototype['@htmlbars should use the current context'] = function htmlbarsShouldUseTheCurrentContext() {
       var _this = this;
 
-      this.registerPartial('_person_name', '{{firstName}} {{lastName}}');
+      this.registerPartial('_person_name', '{{model.firstName}} {{model.lastName}}');
 
       this.render('Who is {{partial "person_name"}}?', {
-        firstName: 'Kris',
-        lastName: 'Selden'
+        model: {
+          firstName: 'Kris',
+          lastName: 'Selden'
+        }
       });
 
       this.assertStableRerender();
@@ -31047,13 +31060,13 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('Who is Kris Selden?');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kelly');
+        return _emberMetalProperty_set.set(_this.context, 'model.firstName', 'Kelly');
       });
 
       this.assertText('Who is Kelly Selden?');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kris');
+        return _emberMetalProperty_set.set(_this.context, 'model', { firstName: 'Kris', lastName: 'Selden' });
       });
 
       this.assertText('Who is Kris Selden?');
@@ -31065,26 +31078,28 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.registerPartial('_subTemplate', 'sub-template');
       this.registerPartial('_otherTemplate', 'other-template');
 
-      this.render('This {{partial partialName}} is pretty {{partial nonexistent}}great.', { partialName: 'subTemplate' });
+      this.render('This {{partial templates.partialName}} is pretty {{partial nonexistent}}great.', {
+        templates: { partialName: 'subTemplate' }
+      });
 
       this.assertStableRerender();
 
       this.assertText('This sub-template is pretty great.');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'otherTemplate');
+        return _emberMetalProperty_set.set(_this2.context, 'templates.partialName', 'otherTemplate');
       });
 
       this.assertText('This other-template is pretty great.');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'partialName', null);
+        return _emberMetalProperty_set.set(_this2.context, 'templates.partialName', null);
       });
 
       this.assertText('This  is pretty great.');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'subTemplate');
+        return _emberMetalProperty_set.set(_this2.context, 'templates', { partialName: 'subTemplate' });
       });
 
       this.assertText('This sub-template is pretty great.');
@@ -31097,8 +31112,10 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.registerPartial('_even', 'EVEN{{i}}');
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
-        items: ['even', 'odd', 'even', 'odd'],
-        type: 'number'
+        model: {
+          items: ['even', 'odd', 'even', 'odd'],
+          type: 'number'
+        }
       });
 
       this.assertStableRerender();
@@ -31106,13 +31123,16 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'type', 'integer');
+        return _emberMetalProperty_set.set(_this3.context, 'model.type', 'integer');
       });
 
       this.assertText('integer: EVEN0integer: ODD1integer: EVEN2integer: ODD3');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'type', 'number');
+        return _emberMetalProperty_set.set(_this3.context, 'model', {
+          items: ['even', 'odd', 'even', 'odd'],
+          type: 'number'
+        });
       });
 
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
@@ -31121,10 +31141,10 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
     _class.prototype['@htmlbars dynamic partials in {{#with}}'] = function htmlbarsDynamicPartialsInWith() {
       var _this4 = this;
 
-      this.registerPartial('_thing', '{{template.name}}');
+      this.registerPartial('_thing', '{{t}}');
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
-        item: false
+        item: { thing: false }
       });
 
       this.assertStableRerender();
@@ -31132,15 +31152,13 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('Nothing!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'item', {
-          name: 'thing'
-        });
+        return _emberMetalProperty_set.set(_this4.context, 'item.thing', 'thing');
       });
 
       this.assertText('thing');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'item', false);
+        return _emberMetalProperty_set.set(_this4.context, 'item', { thing: false });
       });
 
       this.assertText('Nothing!');
@@ -31211,18 +31229,20 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
     _class.prototype['@htmlbars Should bind its contents to the specified value'] = function htmlbarsShouldBindItsContentsToTheSpecifiedValue() {
       var _this2 = this;
 
-      this.render('{{textarea value=val}}', { val: 'A beautiful day in Seattle' });
+      this.render('{{textarea value=model.val}}', {
+        model: { val: 'A beautiful day in Seattle' }
+      });
       ok(this.$('textarea').val('A beautiful day in Seattle'));
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'Auckland');
+        return _emberMetalProperty_set.set(_this2.context, 'model.val', 'Auckland');
       });
       ok(this.$('textarea').val('Auckland'));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'A beautiful day in Seattle');
+        return _emberMetalProperty_set.set(_this2.context, 'model', { val: 'A beautiful day in Seattle' });
       });
       ok(this.$('textarea').val('A beautiful day in Seattle'));
     };
@@ -31234,7 +31254,8 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}']);
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}'], ['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -31345,8 +31366,8 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
     _class.prototype['@test should render on attributes'] = function testShouldRenderOnAttributes() {
       var _this5 = this;
 
-      this.render('<a href="{{unbound foo}}"></a>', {
-        foo: 'BORK'
+      this.render('<a href="{{unbound model.foo}}"></a>', {
+        model: { foo: 'BORK' }
       });
 
       this.assertHTML('<a href="BORK"></a>');
@@ -31358,13 +31379,13 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertHTML('<a href="BORK"></a>');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'foo', 'OOF');
+        return _emberMetalProperty_set.set(_this5.context, 'model.foo', 'OOF');
       });
 
       this.assertHTML('<a href="BORK"></a>');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'foo', 'BORK');
+        return _emberMetalProperty_set.set(_this5.context, 'model', { foo: 'BORK' });
       });
 
       this.assertHTML('<a href="BORK"></a>');
@@ -31592,10 +31613,12 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
         return prefix + '-' + value + '-' + suffix;
       });
 
-      this.render('{{unbound (surround prefix value "bar")}} {{surround prefix value "bar"}} {{unbound (surround "bar" value suffix)}} {{surround "bar" value suffix}}', {
-        prefix: 'before',
-        value: 'core',
-        suffix: 'after'
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        model: {
+          prefix: 'before',
+          value: 'core',
+          suffix: 'after'
+        }
       });
 
       this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
@@ -31607,7 +31630,7 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
 
       this.runTask(function () {
-        _emberMetalSet_properties.default(_this11.context, {
+        _emberMetalSet_properties.default(_this11.context.model, {
           prefix: 'beforeChanged',
           value: 'coreChanged',
           suffix: 'afterChanged'
@@ -31617,7 +31640,7 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertText('before-core-bar beforeChanged-coreChanged-bar bar-core-after bar-coreChanged-afterChanged');
 
       this.runTask(function () {
-        _emberMetalSet_properties.default(_this11.context, {
+        _emberMetalProperty_set.set(_this11.context, 'model', {
           prefix: 'before',
           value: 'core',
           suffix: 'after'
@@ -31634,10 +31657,12 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
         return params.join('');
       });
 
-      this.render('{{fauxconcat foo bar bing}} {{unbound (fauxconcat foo bar bing)}}', {
-        foo: 'a',
-        bar: 'b',
-        bing: 'c'
+      this.render('{{fauxconcat model.foo model.bar model.bing}} {{unbound (fauxconcat model.foo model.bar model.bing)}}', {
+        model: {
+          foo: 'a',
+          bar: 'b',
+          bing: 'c'
+        }
       });
 
       this.assertText('abc abc');
@@ -31649,13 +31674,17 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertText('abc abc');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'bar', 'X');
+        return _emberMetalProperty_set.set(_this12.context, 'model.bar', 'X');
       });
 
       this.assertText('aXc abc');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'bar', 'b');
+        return _emberMetalProperty_set.set(_this12.context, 'model', {
+          foo: 'a',
+          bar: 'b',
+          bing: 'c'
+        });
       });
 
       this.assertText('abc abc');
@@ -31856,10 +31885,12 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
     _class.prototype['@test should be able to render bound form of a helper inside unbound form of same helper'] = function testShouldBeAbleToRenderBoundFormOfAHelperInsideUnboundFormOfSameHelper() {
       var _this16 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
-        foo: true,
-        notfoo: false,
-        bar: true
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), {
+        model: {
+          foo: true,
+          notfoo: false,
+          bar: true
+        }
       });
 
       this.assertText('truetrue');
@@ -31871,13 +31902,17 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertText('truetrue');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'bar', false);
+        return _emberMetalProperty_set.set(_this16.context, 'model.bar', false);
       });
 
       this.assertText('falsefalse');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'bar', true);
+        return _emberMetalProperty_set.set(_this16.context, 'model', {
+          foo: true,
+          notfoo: false,
+          bar: true
+        });
       });
 
       this.assertText('truetrue');
@@ -31892,12 +31927,12 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
           this._super.apply(this, arguments);
           fooBarInstance = this;
         },
-        foo: 'bork'
+        model: { foo: 'bork' }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (unbound foo)}}'
+        template: '{{yield (unbound model.foo)}}'
       });
 
       this.render('{{#foo-bar as |value|}}{{value}}{{/foo-bar}}');
@@ -31911,13 +31946,13 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model.foo', 'oof');
       });
 
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model', { foo: 'bork' });
       });
 
       this.assertText('bork');
@@ -31932,12 +31967,12 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
           this._super.apply(this, arguments);
           fooBarInstance = this;
         },
-        foo: 'bork'
+        model: { foo: 'bork' }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (unbound (hash foo=foo))}}'
+        template: '{{yield (unbound (hash foo=model.foo))}}'
       });
 
       this.render('{{#foo-bar as |value|}}{{value.foo}}{{/foo-bar}}');
@@ -31951,13 +31986,13 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model.foo', 'oof');
       });
 
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model', { foo: 'bork' });
       });
 
       this.assertText('bork');
@@ -44034,9 +44069,8 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
     _class.prototype['@test it updates for bound arguments'] = function testItUpdatesForBoundArguments() {
       var _this = this;
 
-      this.render('{{concat first second}}', {
-        first: 'one',
-        second: 'two'
+      this.render('{{concat model.first model.second}}', {
+        model: { first: 'one', second: 'two' }
       });
 
       this.assertText('onetwo');
@@ -44048,20 +44082,19 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.assertText('onetwo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'first', 'three');
+        return _emberMetalProperty_set.set(_this.context, 'model.first', 'three');
       });
 
       this.assertText('threetwo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'second', 'four');
+        return _emberMetalProperty_set.set(_this.context, 'model.second', 'four');
       });
 
       this.assertText('threefour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this.context, 'first', 'one');
-        _emberMetalProperty_set.set(_this.context, 'second', 'two');
+        return _emberMetalProperty_set.set(_this.context, 'model', { first: 'one', second: 'two' });
       });
 
       this.assertText('onetwo');
@@ -44070,11 +44103,13 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
     _class.prototype['@test it can be used as a sub-expression'] = function testItCanBeUsedAsASubExpression() {
       var _this2 = this;
 
-      this.render('{{concat (concat first second) (concat third fourth)}}', {
-        first: 'one',
-        second: 'two',
-        third: 'three',
-        fourth: 'four'
+      this.render('{{concat (concat model.first model.second) (concat model.third model.fourth)}}', {
+        model: {
+          first: 'one',
+          second: 'two',
+          third: 'three',
+          fourth: 'four'
+        }
       });
 
       this.assertText('onetwothreefour');
@@ -44086,22 +44121,25 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.assertText('onetwothreefour');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'first', 'five');
+        return _emberMetalProperty_set.set(_this2.context, 'model.first', 'five');
       });
 
       this.assertText('fivetwothreefour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this2.context, 'second', 'six');
-        _emberMetalProperty_set.set(_this2.context, 'third', 'seven');
+        _emberMetalProperty_set.set(_this2.context, 'model.second', 'six');
+        _emberMetalProperty_set.set(_this2.context, 'model.third', 'seven');
       });
 
       this.assertText('fivesixsevenfour');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this2.context, 'first', 'one');
-        _emberMetalProperty_set.set(_this2.context, 'second', 'two');
-        _emberMetalProperty_set.set(_this2.context, 'third', 'three');
+        _emberMetalProperty_set.set(_this2.context, 'model', {
+          first: 'one',
+          second: 'two',
+          third: 'three',
+          fourth: 'four'
+        });
       });
 
       this.assertText('onetwothreefour');
@@ -44116,9 +44154,11 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
         return actual === expected;
       });
 
-      this.render('{{#if (x-eq (concat first second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
-        first: 'one',
-        second: 'two'
+      this.render('{{#if (x-eq (concat model.first model.second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
+        model: {
+          first: 'one',
+          second: 'two'
+        }
       });
 
       this.assertText('Truthy!');
@@ -44130,13 +44170,13 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.assertText('Truthy!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'first', 'three');
+        return _emberMetalProperty_set.set(_this3.context, 'model.first', 'three');
       });
 
       this.assertText('False');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'first', 'one');
+        return _emberMetalProperty_set.set(_this3.context, 'model', { first: 'one', second: 'two' });
       });
 
       this.assertText('Truthy!');
@@ -44304,8 +44344,8 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
         return value + '-value';
       });
 
-      this.render('{{hello-world name}}', {
-        name: 'bob'
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
       });
 
       this.assertText('bob-value');
@@ -44321,7 +44361,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this5.context, 'model.name', 'sal');
       });
 
       this.assertText('sal-value');
@@ -44329,7 +44369,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'name', 'bob');
+        return _emberMetalProperty_set.set(_this5.context, 'model', { name: 'bob' });
       });
 
       this.assertText('bob-value');
@@ -44356,8 +44396,8 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
         }
       });
 
-      this.render('{{hello-world name}}', {
-        name: 'bob'
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
       });
 
       this.assertText('bob-value');
@@ -44373,7 +44413,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this6.context, 'model.name', 'sal');
       });
 
       this.assertText('sal-value');
@@ -44381,7 +44421,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'name', 'bob');
+        return _emberMetalProperty_set.set(_this6.context, 'model', { name: 'bob' });
       });
 
       this.assertText('bob-value');
@@ -44397,9 +44437,11 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
         return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
       });
 
-      this.render('{{hello-world name "rich" first=age last="sam"}}', {
-        name: 'bob',
-        age: 42
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -44411,20 +44453,19 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this7.context, 'model.name', 'sal');
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'age', 28);
+        return _emberMetalProperty_set.set(_this7.context, 'model.age', 28);
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this7.context, 'name', 'bob');
-        _emberMetalProperty_set.set(_this7.context, 'age', 42);
+        return _emberMetalProperty_set.set(_this7.context, 'model', { name: 'bob', age: 42 });
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -44439,9 +44480,11 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
         }
       });
 
-      this.render('{{hello-world name "rich" first=age last="sam"}}', {
-        name: 'bob',
-        age: 42
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -44453,20 +44496,19 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'name', 'sal');
+        return _emberMetalProperty_set.set(_this8.context, 'model.name', 'sal');
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'age', 28);
+        return _emberMetalProperty_set.set(_this8.context, 'model.age', 28);
       });
 
       this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this8.context, 'name', 'bob');
-        _emberMetalProperty_set.set(_this8.context, 'age', 42);
+        return _emberMetalProperty_set.set(_this8.context, 'model', { name: 'bob', age: 42 });
       });
 
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
@@ -44481,8 +44523,8 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
         }
       });
 
-      this.render('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   reason\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}', {
-        reason: 'force'
+      this.render('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   model.reason\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}', {
+        model: { reason: 'force' }
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -44494,13 +44536,13 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this9.context, 'reason', 'Nickleback');
+        return _emberMetalProperty_set.set(_this9.context, 'model.reason', 'Nickleback');
       });
 
       this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this9.context, 'reason', 'force');
+        return _emberMetalProperty_set.set(_this9.context, 'model', { reason: 'force' });
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -45319,7 +45361,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsComponentsComponent) {
+enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -45368,8 +45410,10 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
     _class.prototype['@test binds values when variables are used'] = function testBindsValuesWhenVariablesAreUsed() {
       var _this3 = this;
 
-      this.render('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
-        firstName: 'Marisa'
+      this.render('{{#with (hash name=model.firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        model: {
+          firstName: 'Marisa'
+        }
       });
 
       this.assertText('Marisa Arbeo');
@@ -45381,13 +45425,13 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       this.assertText('Marisa Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Sergio');
+        return _emberMetalProperty_set.set(_this3.context, 'model.firstName', 'Sergio');
       });
 
       this.assertText('Sergio Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'firstName', 'Marisa');
+        return _emberMetalProperty_set.set(_this3.context, 'model', { firstName: 'Marisa' });
       });
 
       this.assertText('Marisa Arbeo');
@@ -45396,9 +45440,11 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
     _class.prototype['@test binds multiple values when variables are used'] = function testBindsMultipleValuesWhenVariablesAreUsed() {
       var _this4 = this;
 
-      this.render('{{#with (hash name=firstName lastName=lastName) as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
-        firstName: 'Marisa',
-        lastName: 'Arbeo'
+      this.render('{{#with (hash name=model.firstName lastName=model.lastName) as |person|}}{{person.name}} {{person.lastName}}{{/with}}', {
+        model: {
+          firstName: 'Marisa',
+          lastName: 'Arbeo'
+        }
       });
 
       this.assertText('Marisa Arbeo');
@@ -45410,19 +45456,19 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       this.assertText('Marisa Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'firstName', 'Sergio');
+        return _emberMetalProperty_set.set(_this4.context, 'model.firstName', 'Sergio');
       });
 
       this.assertText('Sergio Arbeo');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'lastName', 'Smith');
+        return _emberMetalProperty_set.set(_this4.context, 'model.lastName', 'Smith');
       });
 
       this.assertText('Sergio Smith');
 
       this.runTask(function () {
-        return _emberMetalSet_properties.default(_this4.context, {
+        return _emberMetalProperty_set.set(_this4.context, 'model', {
           firstName: 'Marisa',
           lastName: 'Arbeo'
         });
@@ -45434,8 +45480,8 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
     _class.prototype['@test hash helpers can be nested'] = function testHashHelpersCanBeNested() {
       var _this5 = this;
 
-      this.render('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}', {
-        firstName: 'Balint'
+      this.render('{{#with (hash person=(hash name=model.firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}', {
+        model: { firstName: 'Balint' }
       });
 
       this.assertText('Balint');
@@ -45447,13 +45493,13 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       this.assertText('Balint');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Chad');
+        return _emberMetalProperty_set.set(_this5.context, 'model.firstName', 'Chad');
       });
 
       this.assertText('Chad');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'firstName', 'Balint');
+        return _emberMetalProperty_set.set(_this5.context, 'model', { firstName: 'Balint' });
       });
 
       this.assertText('Balint');
@@ -45467,13 +45513,13 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
         init: function () {
           this._super();
           fooBarInstance = this;
-          this.firstName = 'Chad';
+          this.model = { firstName: 'Chad' };
         }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (hash firstName=firstName)}}'
+        template: '{{yield (hash firstName=model.firstName)}}'
       });
 
       this.render('{{#foo-bar as |values|}}{{values.firstName}}{{/foo-bar}}');
@@ -45487,13 +45533,13 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       this.assertText('Chad');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model.firstName', 'Godfrey');
       });
 
       this.assertText('Godfrey');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model', { firstName: 'Chad' });
       });
 
       this.assertText('Chad');
@@ -45507,17 +45553,17 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
         init: function () {
           this._super();
           fooBarInstance = this;
-          this.firstName = 'Chad';
+          this.model = { firstName: 'Chad' };
         }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (hash firstName=firstName lastName=lastName)}}'
+        template: '{{yield (hash firstName=model.firstName lastName=lastName)}}'
       });
 
-      this.render('{{#foo-bar lastName=lastName as |values|}}{{values.firstName}} {{values.lastName}}{{/foo-bar}}', {
-        lastName: 'Hietala'
+      this.render('{{#foo-bar lastName=model.lastName as |values|}}{{values.firstName}} {{values.lastName}}{{/foo-bar}}', {
+        model: { lastName: 'Hietala' }
       });
 
       this.assertText('Chad Hietala');
@@ -45529,15 +45575,15 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       this.assertText('Chad Hietala');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Godfrey');
-        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Chan');
+        _emberMetalProperty_set.set(fooBarInstance, 'model.firstName', 'Godfrey');
+        _emberMetalProperty_set.set(_this7.context, 'model.lastName', 'Chan');
       });
 
       this.assertText('Godfrey Chan');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(fooBarInstance, 'firstName', 'Chad');
-        _emberMetalProperty_set.set(_this7.context, 'lastName', 'Hietala');
+        _emberMetalProperty_set.set(fooBarInstance, 'model', { firstName: 'Chad' });
+        _emberMetalProperty_set.set(_this7.context, 'model', { lastName: 'Hietala' });
       });
 
       this.assertText('Chad Hietala');
@@ -46024,8 +46070,8 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
 enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each items as |template i|}}\n        {{type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item as |template|}}\n        {{partial template.name}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -46067,11 +46113,13 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
     _class.prototype['@htmlbars should use the current context'] = function htmlbarsShouldUseTheCurrentContext() {
       var _this = this;
 
-      this.registerPartial('_person_name', '{{firstName}} {{lastName}}');
+      this.registerPartial('_person_name', '{{model.firstName}} {{model.lastName}}');
 
       this.render('Who is {{partial "person_name"}}?', {
-        firstName: 'Kris',
-        lastName: 'Selden'
+        model: {
+          firstName: 'Kris',
+          lastName: 'Selden'
+        }
       });
 
       this.assertStableRerender();
@@ -46079,13 +46127,13 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('Who is Kris Selden?');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kelly');
+        return _emberMetalProperty_set.set(_this.context, 'model.firstName', 'Kelly');
       });
 
       this.assertText('Who is Kelly Selden?');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'firstName', 'Kris');
+        return _emberMetalProperty_set.set(_this.context, 'model', { firstName: 'Kris', lastName: 'Selden' });
       });
 
       this.assertText('Who is Kris Selden?');
@@ -46097,26 +46145,28 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.registerPartial('_subTemplate', 'sub-template');
       this.registerPartial('_otherTemplate', 'other-template');
 
-      this.render('This {{partial partialName}} is pretty {{partial nonexistent}}great.', { partialName: 'subTemplate' });
+      this.render('This {{partial templates.partialName}} is pretty {{partial nonexistent}}great.', {
+        templates: { partialName: 'subTemplate' }
+      });
 
       this.assertStableRerender();
 
       this.assertText('This sub-template is pretty great.');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'otherTemplate');
+        return _emberMetalProperty_set.set(_this2.context, 'templates.partialName', 'otherTemplate');
       });
 
       this.assertText('This other-template is pretty great.');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'partialName', null);
+        return _emberMetalProperty_set.set(_this2.context, 'templates.partialName', null);
       });
 
       this.assertText('This  is pretty great.');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'partialName', 'subTemplate');
+        return _emberMetalProperty_set.set(_this2.context, 'templates', { partialName: 'subTemplate' });
       });
 
       this.assertText('This sub-template is pretty great.');
@@ -46129,8 +46179,10 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.registerPartial('_even', 'EVEN{{i}}');
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
-        items: ['even', 'odd', 'even', 'odd'],
-        type: 'number'
+        model: {
+          items: ['even', 'odd', 'even', 'odd'],
+          type: 'number'
+        }
       });
 
       this.assertStableRerender();
@@ -46138,13 +46190,16 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'type', 'integer');
+        return _emberMetalProperty_set.set(_this3.context, 'model.type', 'integer');
       });
 
       this.assertText('integer: EVEN0integer: ODD1integer: EVEN2integer: ODD3');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'type', 'number');
+        return _emberMetalProperty_set.set(_this3.context, 'model', {
+          items: ['even', 'odd', 'even', 'odd'],
+          type: 'number'
+        });
       });
 
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
@@ -46153,10 +46208,10 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
     _class.prototype['@htmlbars dynamic partials in {{#with}}'] = function htmlbarsDynamicPartialsInWith() {
       var _this4 = this;
 
-      this.registerPartial('_thing', '{{template.name}}');
+      this.registerPartial('_thing', '{{t}}');
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), {
-        item: false
+        item: { thing: false }
       });
 
       this.assertStableRerender();
@@ -46164,15 +46219,13 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('Nothing!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'item', {
-          name: 'thing'
-        });
+        return _emberMetalProperty_set.set(_this4.context, 'item.thing', 'thing');
       });
 
       this.assertText('thing');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'item', false);
+        return _emberMetalProperty_set.set(_this4.context, 'item', { thing: false });
       });
 
       this.assertText('Nothing!');
@@ -46243,18 +46296,20 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
     _class.prototype['@htmlbars Should bind its contents to the specified value'] = function htmlbarsShouldBindItsContentsToTheSpecifiedValue() {
       var _this2 = this;
 
-      this.render('{{textarea value=val}}', { val: 'A beautiful day in Seattle' });
+      this.render('{{textarea value=model.val}}', {
+        model: { val: 'A beautiful day in Seattle' }
+      });
       ok(this.$('textarea').val('A beautiful day in Seattle'));
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'Auckland');
+        return _emberMetalProperty_set.set(_this2.context, 'model.val', 'Auckland');
       });
       ok(this.$('textarea').val('Auckland'));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'val', 'A beautiful day in Seattle');
+        return _emberMetalProperty_set.set(_this2.context, 'model', { val: 'A beautiful day in Seattle' });
       });
       ok(this.$('textarea').val('A beautiful day in Seattle'));
     };
@@ -46266,7 +46321,8 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound foo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound notfoo)}}\n        {{#if bar}}true{{/if}}\n        {{#unless bar}}false{{/unless}}\n      {{/unless}}']);
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}'], ['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -46377,8 +46433,8 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
     _class.prototype['@test should render on attributes'] = function testShouldRenderOnAttributes() {
       var _this5 = this;
 
-      this.render('<a href="{{unbound foo}}"></a>', {
-        foo: 'BORK'
+      this.render('<a href="{{unbound model.foo}}"></a>', {
+        model: { foo: 'BORK' }
       });
 
       this.assertHTML('<a href="BORK"></a>');
@@ -46390,13 +46446,13 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertHTML('<a href="BORK"></a>');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'foo', 'OOF');
+        return _emberMetalProperty_set.set(_this5.context, 'model.foo', 'OOF');
       });
 
       this.assertHTML('<a href="BORK"></a>');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'foo', 'BORK');
+        return _emberMetalProperty_set.set(_this5.context, 'model', { foo: 'BORK' });
       });
 
       this.assertHTML('<a href="BORK"></a>');
@@ -46624,10 +46680,12 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
         return prefix + '-' + value + '-' + suffix;
       });
 
-      this.render('{{unbound (surround prefix value "bar")}} {{surround prefix value "bar"}} {{unbound (surround "bar" value suffix)}} {{surround "bar" value suffix}}', {
-        prefix: 'before',
-        value: 'core',
-        suffix: 'after'
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        model: {
+          prefix: 'before',
+          value: 'core',
+          suffix: 'after'
+        }
       });
 
       this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
@@ -46639,7 +46697,7 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertText('before-core-bar before-core-bar bar-core-after bar-core-after');
 
       this.runTask(function () {
-        _emberMetalSet_properties.default(_this11.context, {
+        _emberMetalSet_properties.default(_this11.context.model, {
           prefix: 'beforeChanged',
           value: 'coreChanged',
           suffix: 'afterChanged'
@@ -46649,7 +46707,7 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertText('before-core-bar beforeChanged-coreChanged-bar bar-core-after bar-coreChanged-afterChanged');
 
       this.runTask(function () {
-        _emberMetalSet_properties.default(_this11.context, {
+        _emberMetalProperty_set.set(_this11.context, 'model', {
           prefix: 'before',
           value: 'core',
           suffix: 'after'
@@ -46666,10 +46724,12 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
         return params.join('');
       });
 
-      this.render('{{fauxconcat foo bar bing}} {{unbound (fauxconcat foo bar bing)}}', {
-        foo: 'a',
-        bar: 'b',
-        bing: 'c'
+      this.render('{{fauxconcat model.foo model.bar model.bing}} {{unbound (fauxconcat model.foo model.bar model.bing)}}', {
+        model: {
+          foo: 'a',
+          bar: 'b',
+          bing: 'c'
+        }
       });
 
       this.assertText('abc abc');
@@ -46681,13 +46741,17 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertText('abc abc');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'bar', 'X');
+        return _emberMetalProperty_set.set(_this12.context, 'model.bar', 'X');
       });
 
       this.assertText('aXc abc');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'bar', 'b');
+        return _emberMetalProperty_set.set(_this12.context, 'model', {
+          foo: 'a',
+          bar: 'b',
+          bing: 'c'
+        });
       });
 
       this.assertText('abc abc');
@@ -46888,10 +46952,12 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
     _class.prototype['@test should be able to render bound form of a helper inside unbound form of same helper'] = function testShouldBeAbleToRenderBoundFormOfAHelperInsideUnboundFormOfSameHelper() {
       var _this16 = this;
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), {
-        foo: true,
-        notfoo: false,
-        bar: true
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3), {
+        model: {
+          foo: true,
+          notfoo: false,
+          bar: true
+        }
       });
 
       this.assertText('truetrue');
@@ -46903,13 +46969,17 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertText('truetrue');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'bar', false);
+        return _emberMetalProperty_set.set(_this16.context, 'model.bar', false);
       });
 
       this.assertText('falsefalse');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'bar', true);
+        return _emberMetalProperty_set.set(_this16.context, 'model', {
+          foo: true,
+          notfoo: false,
+          bar: true
+        });
       });
 
       this.assertText('truetrue');
@@ -46924,12 +46994,12 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
           this._super.apply(this, arguments);
           fooBarInstance = this;
         },
-        foo: 'bork'
+        model: { foo: 'bork' }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (unbound foo)}}'
+        template: '{{yield (unbound model.foo)}}'
       });
 
       this.render('{{#foo-bar as |value|}}{{value}}{{/foo-bar}}');
@@ -46943,13 +47013,13 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model.foo', 'oof');
       });
 
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model', { foo: 'bork' });
       });
 
       this.assertText('bork');
@@ -46964,12 +47034,12 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
           this._super.apply(this, arguments);
           fooBarInstance = this;
         },
-        foo: 'bork'
+        model: { foo: 'bork' }
       });
 
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
-        template: '{{yield (unbound (hash foo=foo))}}'
+        template: '{{yield (unbound (hash foo=model.foo))}}'
       });
 
       this.render('{{#foo-bar as |value|}}{{value.foo}}{{/foo-bar}}');
@@ -46983,13 +47053,13 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'oof');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model.foo', 'oof');
       });
 
       this.assertText('bork');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(fooBarInstance, 'foo', 'bork');
+        return _emberMetalProperty_set.set(fooBarInstance, 'model', { foo: 'bork' });
       });
 
       this.assertText('bork');
@@ -76585,7 +76655,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+f3131e31', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+a7d5c8c0', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
