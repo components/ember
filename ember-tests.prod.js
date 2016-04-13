@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5020f54a
+ * @version   2.7.0-canary+473eaf33
  */
 
 var enifed, requireModule, require, Ember;
@@ -23266,23 +23266,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
   });
 
-  QUnit.test('Ember.deprecate throws deprecation if second argument is a function and it returns true', function (assert) {
-    assert.expect(1);
-
-    throws(function () {
-      _emberMetalCore.default.deprecate('This deprecation is not thrown, but argument deprecation is thrown', function () {
-        return true;
-      }, { id: 'test', until: 'forever' });
-    });
-  });
-
-  QUnit.test('Ember.deprecate throws if second argument is a function and it returns false', function () {
+  QUnit.test('Ember.deprecate does not invoke a function as the second argument', function () {
     expect(1);
-    throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
-        return false;
-      }, { id: 'test', until: 'forever' });
-    });
+
+    _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
+      ok(false, 'this function should not be invoked');
+    }, { id: 'test', until: 'forever' });
+
+    ok(true, 'deprecations were not thrown');
   });
 
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
@@ -23311,24 +23302,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
   });
 
-  QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function (assert) {
+  QUnit.test('Ember.assert does not throw if second argument is a function', function (assert) {
     assert.expect(1);
 
-    // Shouldn't trigger an assertion, but deprecation from using function as test is expected.
-    expectDeprecation(function () {
-      return _emberMetalCore.default.assert('Assertion is thrown', function () {
-        return true;
-      });
-    }, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'));
-  });
-
-  QUnit.test('Ember.assert throws if second argument is a function and it returns false', function () {
-    expect(1);
-    throws(function () {
-      _emberMetalCore.default.assert('Assertion is thrown', function () {
-        return false;
-      });
+    _emberMetalCore.default.assert('Assertion is thrown', function () {
+      return true;
     });
+
+    ok(true, 'assertions were not thrown');
   });
 
   QUnit.test('Ember.assert does not throw if second argument is truthy', function () {
@@ -23459,42 +23440,6 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
 
     _emberMetalCore.default.warn('foo', false, {});
-  });
-
-  QUnit.test('Ember.deprecate triggers a deprecation when test argument is a function', function (assert) {
-    assert.expect(1);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.deprecate'), 'proper deprecation is triggered when test argument is a function');
-    });
-
-    _emberDebugDeprecate.default('Deprecation is thrown', function () {
-      return true;
-    }, { id: 'test', until: 'forever' });
-  });
-
-  QUnit.test('Ember.warn triggers a deprecation when test argument is a function', function (assert) {
-    assert.expect(1);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.warn'), 'proper deprecation is triggered when test argument is a function');
-    });
-
-    _emberMetalCore.default.warn('Warning is thrown', function () {
-      return true;
-    }, { id: 'test' });
-  });
-
-  QUnit.test('Ember.assert triggers a deprecation when test argument is a function', function (assert) {
-    assert.expect(1);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'), 'proper deprecation is triggered when test argument is a function');
-    });
-
-    _emberMetalCore.default.assert('Assertion is thrown', function () {
-      return true;
-    });
   });
 });
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
@@ -77012,7 +76957,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+5020f54a', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+473eaf33', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
