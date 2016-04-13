@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+473eaf33
+ * @version   2.7.0-canary+cab96895
  */
 
 var enifed, requireModule, require, Ember;
@@ -26081,94 +26081,82 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
     };
 
-    _class.prototype['@htmlbars should not escape HTML in triple mustaches'] = function htmlbarsShouldNotEscapeHTMLInTripleMustaches(assert) {
+    _class.prototype['@test should not escape HTML in triple mustaches'] = function testShouldNotEscapeHTMLInTripleMustaches(assert) {
       var _this30 = this;
 
+      var expectedHtmlBold = 'you need to be more <b>bold</b>';
+      var expectedHtmlItalic = 'you are so <i>super</i>';
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super.apply(this, arguments);
           component = this;
         },
-        output: 'you need to be more <b>bold</b>'
+        output: expectedHtmlBold
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{{output}}}' });
 
       this.render('{{foo-bar}}');
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
         return _this30.rerender();
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', 'you are so <i>super</i>');
+        return _emberMetalProperty_set.set(component, 'output', expectedHtmlItalic);
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'i', content: 'super' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlItalic);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', 'you need to be more <b>bold</b>');
+        return _emberMetalProperty_set.set(component, 'output', expectedHtmlBold);
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
     _class.prototype['@htmlbars should not escape HTML if string is a htmlSafe'] = function htmlbarsShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
       var _this31 = this;
 
+      var expectedHtmlBold = 'you need to be more <b>bold</b>';
+      var expectedHtmlItalic = 'you are so <i>super</i>';
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super.apply(this, arguments);
           component = this;
         },
-        output: _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>')
+        output: _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold)
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{output}}' });
 
       this.render('{{foo-bar}}');
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
         return _this31.rerender();
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe('you are so <i>super</i>'));
+        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlItalic));
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'i', content: 'super' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlItalic);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>'));
+        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold));
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
@@ -41199,94 +41187,82 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
     };
 
-    _class.prototype['@htmlbars should not escape HTML in triple mustaches'] = function htmlbarsShouldNotEscapeHTMLInTripleMustaches(assert) {
+    _class.prototype['@test should not escape HTML in triple mustaches'] = function testShouldNotEscapeHTMLInTripleMustaches(assert) {
       var _this30 = this;
 
+      var expectedHtmlBold = 'you need to be more <b>bold</b>';
+      var expectedHtmlItalic = 'you are so <i>super</i>';
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super.apply(this, arguments);
           component = this;
         },
-        output: 'you need to be more <b>bold</b>'
+        output: expectedHtmlBold
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{{output}}}' });
 
       this.render('{{foo-bar}}');
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
         return _this30.rerender();
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', 'you are so <i>super</i>');
+        return _emberMetalProperty_set.set(component, 'output', expectedHtmlItalic);
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'i', content: 'super' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlItalic);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', 'you need to be more <b>bold</b>');
+        return _emberMetalProperty_set.set(component, 'output', expectedHtmlBold);
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
     _class.prototype['@htmlbars should not escape HTML if string is a htmlSafe'] = function htmlbarsShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
       var _this31 = this;
 
+      var expectedHtmlBold = 'you need to be more <b>bold</b>';
+      var expectedHtmlItalic = 'you are so <i>super</i>';
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super.apply(this, arguments);
           component = this;
         },
-        output: _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>')
+        output: _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold)
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{output}}' });
 
       this.render('{{foo-bar}}');
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
         return _this31.rerender();
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe('you are so <i>super</i>'));
+        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlItalic));
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'i', content: 'super' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlItalic);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>'));
+        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold));
       });
 
-      assert.strictEqual(this.firstChild.childNodes.length, 4);
-
-      this.assertElement(this.firstChild.childNodes[2], { tagName: 'b', content: 'bold' });
+      _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
@@ -77401,7 +77377,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+473eaf33', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+cab96895', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
