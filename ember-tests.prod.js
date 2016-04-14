@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+265da6d6
+ * @version   2.7.0-canary+4f4bc179
  */
 
 var enifed, requireModule, require, Ember;
@@ -74332,6 +74332,17 @@ enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime
 
     equal(obj.other, undefined); // doesn't support multiple pojo' to the constructor
   });
+
+  QUnit.test('toString should be not be added as a property when calling toString()', function () {
+    var obj = new _emberRuntimeSystemCore_object.default({
+      firstName: 'Foo',
+      lastName: 'Bar'
+    });
+
+    obj.toString();
+
+    notOk(obj.hasOwnProperty('toString'), 'Calling toString() should not create a toString class property');
+  });
 });
 enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemLazy_load) {
   'use strict';
@@ -76948,7 +76959,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+265da6d6', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+4f4bc179', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
