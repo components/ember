@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8efc15cb
+ * @version   2.7.0-canary+265da6d6
  */
 
 var enifed, requireModule, require, Ember;
@@ -53823,13 +53823,28 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
     equal(_emberMetalProperty_get.get(obj, 'foo'), 'bar', 'should return the overriden value');
   });
 
-  QUnit.test('getting on an object without a container should fail assertion', function () {
+  QUnit.test('getting on an object without an owner or container should fail assertion', function () {
     var obj = {};
     _emberMetalProperties.defineProperty(obj, 'foo', new _emberMetalInjected_property.default('type', 'name'));
 
     expectAssertion(function () {
       _emberMetalProperty_get.get(obj, 'foo');
     }, /Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container./);
+  });
+
+  QUnit.test('getting on an object without an owner but with a container should not fail', function () {
+    var obj = {
+      container: {
+        lookup: function (key) {
+          ok(true, 'should call container.lookup');
+          return key;
+        }
+      }
+    };
+
+    _emberMetalProperties.defineProperty(obj, 'foo', new _emberMetalInjected_property.default('type', 'name'));
+
+    equal(_emberMetalProperty_get.get(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
   });
 
   QUnit.test('getting should return a lookup on the container', function () {
@@ -76933,7 +76948,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+8efc15cb', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+265da6d6', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

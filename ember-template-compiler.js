@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8efc15cb
+ * @version   2.7.0-canary+265da6d6
  */
 
 var enifed, requireModule, require, Ember;
@@ -3992,7 +3992,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.7.0-canary+8efc15cb
+    @version 2.7.0-canary+265da6d6
     @public
   */
 
@@ -4034,11 +4034,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+8efc15cb'
+    @default '2.7.0-canary+265da6d6'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+8efc15cb';
+  Ember.VERSION = '2.7.0-canary+265da6d6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5193,7 +5193,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-
 
   function injectedPropertyGet(keyName) {
     var desc = this[keyName];
-    var owner = _containerOwner.getOwner(this);
+    var owner = _containerOwner.getOwner(this) || this.container; // fallback to `container` for backwards compat
 
     _emberMetalDebug.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
     _emberMetalDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
@@ -12882,7 +12882,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+8efc15cb',
+        revision: 'Ember@2.7.0-canary+265da6d6',
         loc: program.loc,
         moduleName: options.moduleName
       };
