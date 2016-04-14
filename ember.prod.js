@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+cab96895
+ * @version   2.7.0-canary+d61128ba
  */
 
 var enifed, requireModule, require, Ember;
@@ -12144,7 +12144,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+cab96895';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+d61128ba';
   }
 
   /**
@@ -16982,7 +16982,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.7.0-canary+cab96895
+    @version 2.7.0-canary+d61128ba
     @public
   */
 
@@ -17024,11 +17024,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+cab96895'
+    @default '2.7.0-canary+d61128ba'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+cab96895';
+  Ember.VERSION = '2.7.0-canary+d61128ba';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29452,14 +29452,14 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
        The first parameter is the name of the route which is used by default as the
       path name as well.
        The second parameter is the optional options hash. Available options are:
+      
         * `path`: allows you to provide your own path as well as mark dynamic
           segments.
         * `resetNamespace`: false by default; when nesting routes, ember will
           combine the route names to form the fully-qualified route name, which is
           used with `{{link-to}}` or manually transitioning to routes. Setting
           `resetNamespace: true` will cause the route not to inherit from its
-          parent route's names. This is handy for resources which can be accessed
-          in multiple places as well as preventing extremely long route names.
+          parent route's names. This is handy for preventing extremely long route names.
           Keep in mind that the actual URL path behavior is still retained.
        The third parameter is a function, which can be used to nest routes.
       Nested routes, by default, will have the parent route tree's route name and
@@ -40683,7 +40683,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+cab96895',
+        revision: 'Ember@2.7.0-canary+d61128ba',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -48768,7 +48768,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+cab96895
+ * @version   2.7.0-canary+d61128ba
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
