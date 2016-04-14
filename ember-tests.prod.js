@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.1+672b52ea
+ * @version   2.6.0-beta.1+916f0f78
  */
 
 var enifed, requireModule, require, Ember;
@@ -12270,23 +12270,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
   });
 
-  QUnit.test('Ember.deprecate throws deprecation if second argument is a function and it returns true', function (assert) {
-    assert.expect(1);
-
-    throws(function () {
-      _emberMetalCore.default.deprecate('This deprecation is not thrown, but argument deprecation is thrown', function () {
-        return true;
-      }, { id: 'test', until: 'forever' });
-    });
-  });
-
-  QUnit.test('Ember.deprecate throws if second argument is a function and it returns false', function () {
+  QUnit.test('Ember.deprecate does not invoke a function as the second argument', function () {
     expect(1);
-    throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
-        return false;
-      }, { id: 'test', until: 'forever' });
-    });
+
+    _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
+      ok(false, 'this function should not be invoked');
+    }, { id: 'test', until: 'forever' });
+
+    ok(true, 'deprecations were not thrown');
   });
 
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
@@ -12315,24 +12306,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
   });
 
-  QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function (assert) {
+  QUnit.test('Ember.assert does not throw if second argument is a function', function (assert) {
     assert.expect(1);
 
-    // Shouldn't trigger an assertion, but deprecation from using function as test is expected.
-    expectDeprecation(function () {
-      return _emberMetalCore.default.assert('Assertion is thrown', function () {
-        return true;
-      });
-    }, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'));
-  });
-
-  QUnit.test('Ember.assert throws if second argument is a function and it returns false', function () {
-    expect(1);
-    throws(function () {
-      _emberMetalCore.default.assert('Assertion is thrown', function () {
-        return false;
-      });
+    _emberMetalCore.default.assert('Assertion is thrown', function () {
+      return true;
     });
+
+    ok(true, 'assertions were not thrown');
   });
 
   QUnit.test('Ember.assert does not throw if second argument is truthy', function () {
@@ -12463,42 +12444,6 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
 
     _emberMetalCore.default.warn('foo', false, {});
-  });
-
-  QUnit.test('Ember.deprecate triggers a deprecation when test argument is a function', function (assert) {
-    assert.expect(1);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.deprecate'), 'proper deprecation is triggered when test argument is a function');
-    });
-
-    _emberDebugDeprecate.default('Deprecation is thrown', function () {
-      return true;
-    }, { id: 'test', until: 'forever' });
-  });
-
-  QUnit.test('Ember.warn triggers a deprecation when test argument is a function', function (assert) {
-    assert.expect(1);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.warn'), 'proper deprecation is triggered when test argument is a function');
-    });
-
-    _emberMetalCore.default.warn('Warning is thrown', function () {
-      return true;
-    }, { id: 'test' });
-  });
-
-  QUnit.test('Ember.assert triggers a deprecation when test argument is a function', function (assert) {
-    assert.expect(1);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'), 'proper deprecation is triggered when test argument is a function');
-    });
-
-    _emberMetalCore.default.assert('Assertion is thrown', function () {
-      return true;
-    });
   });
 });
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
@@ -32004,13 +31949,28 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
     equal(_emberMetalProperty_get.get(obj, 'foo'), 'bar', 'should return the overriden value');
   });
 
-  QUnit.test('getting on an object without a container should fail assertion', function () {
+  QUnit.test('getting on an object without an owner or container should fail assertion', function () {
     var obj = {};
     _emberMetalProperties.defineProperty(obj, 'foo', new _emberMetalInjected_property.default('type', 'name'));
 
     expectAssertion(function () {
       _emberMetalProperty_get.get(obj, 'foo');
     }, /Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container./);
+  });
+
+  QUnit.test('getting on an object without an owner but with a container should not fail', function () {
+    var obj = {
+      container: {
+        lookup: function (key) {
+          ok(true, 'should call container.lookup');
+          return key;
+        }
+      }
+    };
+
+    _emberMetalProperties.defineProperty(obj, 'foo', new _emberMetalInjected_property.default('type', 'name'));
+
+    equal(_emberMetalProperty_get.get(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
   });
 
   QUnit.test('getting should return a lookup on the container', function () {
@@ -52270,6 +52230,17 @@ enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime
 
     equal(obj.other, undefined); // doesn't support multiple pojo' to the constructor
   });
+
+  QUnit.test('toString should be not be added as a property when calling toString()', function () {
+    var obj = new _emberRuntimeSystemCore_object.default({
+      firstName: 'Foo',
+      lastName: 'Bar'
+    });
+
+    obj.toString();
+
+    notOk(obj.hasOwnProperty('toString'), 'Calling toString() should not create a toString class property');
+  });
 });
 enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemLazy_load) {
   'use strict';
@@ -54873,7 +54844,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-beta.1+672b52ea', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-beta.1+916f0f78', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -60262,37 +60233,6 @@ enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-me
     ok(elem, 'has element now');
     equal(elem.innerHTML, 'foo', 'has innerHTML from context');
     equal(elem.tagName.toString().toLowerCase(), 'span', 'has tagName from view');
-  });
-});
-enifed('ember-views/tests/views/view/current_state_deprecation_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _emberMetalRun_loop) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('views/view/current_state_deprecation', {
-    setup: function () {
-      view = _emberViewsViewsView.default.create();
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(view, 'destroy');
-    }
-  });
-
-  QUnit.test('deprecates when calling currentState', function () {
-    expect(2);
-
-    view = _emberViewsViewsView.default.create();
-
-    expectDeprecation(function () {
-      equal(view.currentState, view._currentState);
-    }, 'Usage of `currentState` is deprecated, use `_currentState` instead.');
-  });
-
-  QUnit.test('doesn\'t deprecate when calling _currentState', function () {
-    expect(1);
-
-    view = _emberViewsViewsView.default.create();
-    ok(view._currentState, '_currentState can be used without deprecation');
   });
 });
 enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
