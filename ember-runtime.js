@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0+7d3838a4
+ * @version   2.5.0+1fb2a2ef
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4743,7 +4743,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0+7d3838a4
+    @version 2.5.0+1fb2a2ef
     @public
   */
 
@@ -4785,11 +4785,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0+7d3838a4'
+    @default '2.5.0+1fb2a2ef'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0+7d3838a4';
+  Ember.VERSION = '2.5.0+1fb2a2ef';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7085,11 +7085,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
   exports.Map = Map;
   exports.MapWithDefault = MapWithDefault;
 });
-enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
-  'use strict';
-
-  exports.default = merge;
-
+enifed('ember-metal/merge', ['exports'], function (exports) {
   /**
     Merge the contents of two objects together into the first object.
   
@@ -7107,14 +7103,11 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
     @return {Object}
     @public
   */
+  'use strict';
+
+  exports.default = merge;
 
   function merge(original, updates) {
-    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, {
-        id: 'ember-metal.merge', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-merge'
-      });
-    }
-
     if (!updates || typeof updates !== 'object') {
       return original;
     }

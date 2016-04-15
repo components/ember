@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0+7d3838a4
+ * @version   2.5.0+1fb2a2ef
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -31224,17 +31224,6 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
     equal(map.add(obj), map, 'when it is already in the set');
   });
 });
-enifed('ember-metal/tests/merge_test', ['exports', 'ember-metal/merge', 'ember-metal/features'], function (exports, _emberMetalMerge, _emberMetalFeatures) {
-  'use strict';
-
-  QUnit.module('Ember.merge');
-
-  QUnit.test('Ember.merge should be deprecated', function () {
-    expectDeprecation(function () {
-      _emberMetalMerge.default({ a: 1 }, { b: 2 });
-    }, 'Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.');
-  });
-});
 enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
 
@@ -53039,7 +53028,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0+7d3838a4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0+1fb2a2ef', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
