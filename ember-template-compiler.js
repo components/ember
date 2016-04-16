@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c3a1dc5e
+ * @version   2.7.0-canary+fe04b2f3
  */
 
 var enifed, requireModule, require, Ember;
@@ -4144,7 +4144,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+c3a1dc5e
+    @version 2.7.0-canary+fe04b2f3
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -4171,11 +4171,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+c3a1dc5e'
+    @default '2.7.0-canary+fe04b2f3'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+c3a1dc5e';
+  Ember.VERSION = '2.7.0-canary+fe04b2f3';
 
   // ..........................................................
   // BOOTSTRAP
@@ -12948,7 +12948,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+c3a1dc5e',
+        revision: 'Ember@2.7.0-canary+fe04b2f3',
         loc: program.loc,
         moduleName: options.moduleName
       };
