@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+75cd6e3a
+ * @version   2.7.0-canary+45248e2f
  */
 
 var enifed, requireModule, require, Ember;
@@ -113,7 +113,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
+enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-metal/logger', 'ember-environment', 'ember-debug/handlers'], function (exports, _emberMetalError, _emberMetalLogger, _emberEnvironment, _emberDebugHandlers) {
   /*global __fail__*/
 
   'use strict';
@@ -163,7 +163,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   }
 
   registerHandler(function logDeprecationStackTrace(message, options, next) {
-    if (_emberMetalCore.default.LOG_STACKTRACE_ON_DEPRECATION) {
+    if (_emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION) {
       var stackStr = '';
       var error = captureErrorForStack();
       var stack = undefined;
@@ -190,7 +190,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   });
 
   registerHandler(function raiseOnDeprecation(message, options, next) {
-    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    if (_emberEnvironment.ENV.RAISE_ON_DEPRECATION) {
       var updatedMessage = formatMessage(message);
 
       throw new _emberMetalError.default(updatedMessage);
@@ -292,7 +292,7 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn) {
+enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecate, _emberDebugWarn) {
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
@@ -467,7 +467,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
 
   function _warnIfUsingStrippedFeatureFlags(FEATURES, knownFeatures, featuresWereStripped) {
     if (featuresWereStripped) {
-      _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+      _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
       var keys = Object.keys(FEATURES || {});
       for (var i = 0; i < keys.length; i++) {
@@ -491,11 +491,11 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     }
 
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
-    _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
+    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
-    var isFirefox = _emberMetalEnvironment.default.isFirefox;
-    var isChrome = _emberMetalEnvironment.default.isChrome;
+    var isFirefox = _emberEnvironment.environment.isFirefox;
+    var isChrome = _emberEnvironment.environment.isChrome;
 
     if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
       window.addEventListener('load', function () {
@@ -1385,7 +1385,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
 });
 
 // import Test from "ember-testing/test";  // ES6TODO: fix when cycles are supported
-enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/system/jquery', 'ember-metal/environment'], function (exports, _emberMetalDebug, _emberViewsSystemJquery, _emberMetalEnvironment) {
+enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/system/jquery', 'ember-environment'], function (exports, _emberMetalDebug, _emberViewsSystemJquery, _emberEnvironment) {
   'use strict';
 
   /**
@@ -1407,7 +1407,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
     $('<input type="checkbox">').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
-  if (_emberMetalEnvironment.default.hasDOM) {
+  if (_emberEnvironment.environment.hasDOM) {
     $(function () {
       /*
         Determine whether a checkbox checked using jQuery's "click" method will have
