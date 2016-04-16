@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+45248e2f
+ * @version   2.7.0-canary+c3a1dc5e
  */
 
 var enifed, requireModule, require, Ember;
@@ -4915,7 +4915,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+45248e2f
+    @version 2.7.0-canary+c3a1dc5e
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -4942,11 +4942,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+45248e2f'
+    @default '2.7.0-canary+c3a1dc5e'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+45248e2f';
+  Ember.VERSION = '2.7.0-canary+c3a1dc5e';
 
   // ..........................................................
   // BOOTSTRAP
@@ -5956,6 +5956,13 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember-m
     },
     set: function (value) {
       return _emberEnvironment.ENV.LOG_BINDINGS = !!value;
+    },
+    enumerable: false
+  });
+
+  Object.defineProperty(_emberMetalCore.default, 'ENV', {
+    get: function () {
+      return _emberEnvironment.ENV;
     },
     enumerable: false
   });
