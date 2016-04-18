@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+97a2d961
+ * @version   2.7.0-canary+53894424
  */
 
 var enifed, requireModule, require, Ember;
@@ -9488,8 +9488,6 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
   });
 
   QUnit.test('validateFullName throws an error if name is incorrect', function () {
-    expect(2);
-
     var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -9499,12 +9497,8 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
 
     registry.register('controller:post', PostController);
     throws(function () {
-      registry.validateFullName('post');
+      registry.resolve('post');
     }, /TypeError: Invalid Fullname, expected: `type:name` got: post/);
-
-    throws(function () {
-      registry.validateFullName('route:http://foo.bar.com/baz');
-    }, /TypeError: Invalid Fullname, expected: `type:name` got: route:http:\/\/foo.bar.com\/baz/);
   });
 
   QUnit.test('The registry normalizes names when injecting', function () {
@@ -9573,14 +9567,6 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
     registry.injection('controller:apple', 'badApple', 'controller:second-apple');
 
     ok(registry.has('controller:apple'));
-  });
-
-  QUnit.test('registry.has should not error for invalid fullNames)', function () {
-    expect(1);
-
-    var registry = new _container.Registry();
-
-    ok(!registry.has('foo:bar:baz'));
   });
 
   QUnit.test('once resolved, always return the same result', function () {
@@ -77043,7 +77029,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+97a2d961', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+53894424', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
