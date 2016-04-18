@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5dacafaf
+ * @version   2.7.0-canary+a8f6972d
  */
 
 var enifed, requireModule, require, Ember;
@@ -12303,7 +12303,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+5dacafaf';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+a8f6972d';
   }
 
   /**
@@ -17120,7 +17120,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+5dacafaf
+    @version 2.7.0-canary+a8f6972d
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17147,11 +17147,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+5dacafaf'
+    @default '2.7.0-canary+a8f6972d'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+5dacafaf';
+  Ember.VERSION = '2.7.0-canary+a8f6972d';
 
   // ..........................................................
   // BOOTSTRAP
@@ -17846,7 +17846,7 @@ enifed('ember-metal/features', ['exports', 'ember-environment', 'ember-metal/ass
     @since 1.1.0
     @public
   */
-  var KNOWN_FEATURES = {"features-stripped-test":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-application-engines":null,"ember-glimmer":null,"ember-runtime-computed-uniq-by":null,"ember-improved-instrumentation":null};exports.KNOWN_FEATURES = KNOWN_FEATURES;
+  var KNOWN_FEATURES = {"features-stripped-test":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-application-engines":null,"ember-route-serializers":null,"ember-glimmer":null,"ember-runtime-computed-uniq-by":null,"ember-improved-instrumentation":null};exports.KNOWN_FEATURES = KNOWN_FEATURES;
   // jshint ignore:line
   var FEATURES = _emberMetalAssign.default(KNOWN_FEATURES, _emberEnvironment.ENV.FEATURES);
 
@@ -26266,7 +26266,7 @@ enifed("ember-routing/system/controller_for", ["exports"], function (exports) {
     return container.lookup("controller:" + controllerName, lookupOptions);
   }
 });
-enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug'], function (exports, _emberMetalDebug) {
+enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
   'use strict';
 
   /**
@@ -26280,6 +26280,10 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug'], function (e
     this.matches = [];
     this.explicitIndex = undefined;
     this.options = options;
+
+    if (_emberMetalFeatures.default('ember-route-serializers')) {
+      this.router = options && options.router;
+    }
   }
 
   exports.default = DSL;
@@ -26299,6 +26303,10 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug'], function (e
       if (this.enableLoadingSubstates) {
         createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
         createRoute(this, name + '_error', { path: dummyErrorRoute });
+      }
+
+      if (_emberMetalFeatures.default('ember-route-serializers') && options.serialize && this.router) {
+        this.router._serializeMethods[name] = options.serialize;
       }
 
       if (callback) {
@@ -26455,13 +26463,49 @@ enifed('ember-routing/system/query_params', ['exports', 'ember-runtime/system/ob
     values: null
   });
 });
-enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/get_properties', 'ember-metal/is_none', 'ember-metal/computed', 'ember-metal/assign', 'ember-runtime/utils', 'ember-metal/run_loop', 'ember-runtime/copy', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-routing/system/generate_controller', 'ember-routing/utils', 'container/owner', 'ember-metal/is_empty'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalGet_properties, _emberMetalIs_none, _emberMetalComputed, _emberMetalAssign, _emberRuntimeUtils, _emberMetalRun_loop, _emberRuntimeCopy, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRoutingSystemGenerate_controller, _emberRoutingUtils, _containerOwner, _emberMetalIs_empty) {
+enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/get_properties', 'ember-metal/is_none', 'ember-metal/computed', 'ember-metal/assign', 'ember-runtime/utils', 'ember-metal/run_loop', 'ember-runtime/copy', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-routing/system/generate_controller', 'ember-routing/utils', 'container/owner', 'ember-metal/is_empty', 'ember-metal/symbol'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalGet_properties, _emberMetalIs_none, _emberMetalComputed, _emberMetalAssign, _emberRuntimeUtils, _emberMetalRun_loop, _emberRuntimeCopy, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRoutingSystemGenerate_controller, _emberRoutingUtils, _containerOwner, _emberMetalIs_empty, _emberMetalSymbol) {
   'use strict';
+
+  exports.hasDefaultSerialize = hasDefaultSerialize;
 
   var slice = Array.prototype.slice;
 
   function K() {
     return this;
+  }
+
+  function defaultSerialize(model, params) {
+    if (params.length < 1) {
+      return;
+    }
+    if (!model) {
+      return;
+    }
+
+    var name = params[0];
+    var object = {};
+
+    if (params.length === 1) {
+      if (name in model) {
+        object[name] = _emberMetalProperty_get.get(model, name);
+      } else if (/_id$/.test(name)) {
+        object[name] = _emberMetalProperty_get.get(model, 'id');
+      }
+    } else {
+      object = _emberMetalGet_properties.default(model, params);
+    }
+
+    return object;
+  }
+
+  var DEFAULT_SERIALIZE = _emberMetalSymbol.default('DEFAULT_SERIALIZE');
+
+  if (_emberMetalFeatures.default('ember-route-serializers')) {
+    defaultSerialize[DEFAULT_SERIALIZE] = true;
+  }
+
+  function hasDefaultSerialize(route) {
+    return !!route.serialize[DEFAULT_SERIALIZE];
   }
 
   /**
@@ -27879,29 +27923,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @return {Object} the serialized parameters
       @public
     */
-    serialize: function (model, params) {
-      if (params.length < 1) {
-        return;
-      }
-      if (!model) {
-        return;
-      }
-
-      var name = params[0];
-      var object = {};
-
-      if (params.length === 1) {
-        if (name in model) {
-          object[name] = _emberMetalProperty_get.get(model, name);
-        } else if (/_id$/.test(name)) {
-          object[name] = _emberMetalProperty_get.get(model, 'id');
-        }
-      } else {
-        object = _emberMetalGet_properties.default(model, params);
-      }
-
-      return object;
-    },
+    serialize: defaultSerialize,
 
     /**
       A hook you can use to setup the controller for the current route.
@@ -28527,7 +28549,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
   exports.default = Route;
 });
 // FEATURES, A, deprecate, assert, Logger
-enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-metal/utils', 'ember-routing/system/router_state', 'container/owner', 'ember-metal/dictionary', 'router', 'router/transition'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberMetalUtils, _emberRoutingSystemRouter_state, _containerOwner, _emberMetalDictionary, _router4, _routerTransition) {
+enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-metal/utils', 'ember-routing/system/router_state', 'container/owner', 'ember-metal/dictionary', 'router', 'router/transition'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberMetalError, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberMetalUtils, _emberRoutingSystemRouter_state, _containerOwner, _emberMetalDictionary, _router4, _routerTransition) {
   'use strict';
 
   exports.triggerEvent = triggerEvent;
@@ -28599,10 +28621,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
 
     _buildDSL: function () {
       var moduleBasedResolver = this._hasModuleBasedResolver();
-
-      return new _emberRoutingSystemDsl.default(null, {
+      var options = {
         enableLoadingSubstates: !!moduleBasedResolver
-      });
+      };
+
+      if (_emberMetalFeatures.default('ember-route-serializers')) {
+        options.router = this;
+      }
+
+      return new _emberRoutingSystemDsl.default(null, options);
     },
 
     init: function () {
@@ -28612,6 +28639,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       this._qpCache = new _emberMetalEmpty_object.default();
       this._resetQueuedQueryParameterChanges();
       this._handledErrors = _emberMetalDictionary.default(null);
+
+      if (_emberMetalFeatures.default('ember-route-serializers')) {
+        this._serializeMethods = new _emberMetalEmpty_object.default();
+      }
     },
 
     /*
@@ -29038,6 +29069,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
           handler = owner.lookup(routeName);
 
           if (_emberMetalProperty_get.get(_this2, 'namespace.LOG_ACTIVE_GENERATION')) {}
+        }
+
+        if (_emberMetalFeatures.default('ember-route-serializers')) {
+
+          if (_this2._serializeMethods[name]) {
+            handler.serialize = _this2._serializeMethods[name];
+          }
         }
 
         handler.routeName = name;
@@ -40716,7 +40754,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+5dacafaf',
+        revision: 'Ember@2.7.0-canary+a8f6972d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -48792,7 +48830,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+5dacafaf
+ * @version   2.7.0-canary+a8f6972d
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5dacafaf
+ * @version   2.7.0-canary+a8f6972d
  */
 
 var enifed, requireModule, require, Ember;
@@ -4144,7 +4144,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+5dacafaf
+    @version 2.7.0-canary+a8f6972d
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -4171,11 +4171,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+5dacafaf'
+    @default '2.7.0-canary+a8f6972d'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+5dacafaf';
+  Ember.VERSION = '2.7.0-canary+a8f6972d';
 
   // ..........................................................
   // BOOTSTRAP
@@ -4882,7 +4882,7 @@ enifed('ember-metal/features', ['exports', 'ember-environment', 'ember-metal/ass
     @since 1.1.0
     @public
   */
-  var KNOWN_FEATURES = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-application-engines": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null, "ember-improved-instrumentation": null };exports.KNOWN_FEATURES = KNOWN_FEATURES;
+  var KNOWN_FEATURES = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null, "ember-improved-instrumentation": null };exports.KNOWN_FEATURES = KNOWN_FEATURES;
   // jshint ignore:line
   var FEATURES = _emberMetalAssign.default(KNOWN_FEATURES, _emberEnvironment.ENV.FEATURES);
 
@@ -12948,7 +12948,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+5dacafaf',
+        revision: 'Ember@2.7.0-canary+a8f6972d',
         loc: program.loc,
         moduleName: options.moduleName
       };
