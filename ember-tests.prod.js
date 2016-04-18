@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a8f6972d
+ * @version   2.7.0-canary+53894424
  */
 
 var enifed, requireModule, require, Ember;
@@ -5700,6 +5700,35 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers"
         rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>B</p></div>', "Updating");
     });
+    test("updating a curly with a safe and unsafe string", function () {
+        var safeString = {
+            string: '<p>hello world</p>',
+            toHTML: function () {
+                return this.string;
+            },
+            toString: function () {
+                return this.string;
+            }
+        };
+        var unsafeString = '<b>Big old world!</b>';
+        var object = {
+            value: safeString
+        };
+        var template = compile('<div>{{value}}</div>');
+        render(template, object);
+        var valueNode = root.firstChild.firstChild.firstChild;
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "no change");
+        strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
+        object.value = unsafeString;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div>&lt;b&gt;Big old world!&lt;/b&gt;</div>', "After replacing with unsafe string");
+        notStrictEqual(root.firstChild.firstChild, valueNode, "The text node was blown away");
+        object.value = safeString;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "original input causes no problem");
+    });
     test("dynamically scoped keywords can be passed to render, and used in curlies", function (assert) {
         var template = compile("{{view.name}}");
         var view = { name: 'Godfrey' };
@@ -6690,13 +6719,31 @@ enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], func
   });
   test("blocks", function () {
     var ast = _glimmerSyntax.parse("\n  {{#if foo}}\n    {{#if bar}}\n        test\n        {{else}}\n      test\n  {{/if    }}\n       {{/if\n      }}\n    ");
-    locEqual(ast.body[1], 2, 2, 9, 8, 'outer block');
-    locEqual(ast.body[1].program.body[0], 3, 4, 7, 13, 'nested block');
+    var _ast$body = ast.body;
+    var block = _ast$body[1];
+    var _block$program$body = block.program.body;
+    var nestedBlock = _block$program$body[0];
+    var _nestedBlock$program$body = nestedBlock.program.body;
+    var nestedBlockText = _nestedBlock$program$body[0];
+
+    var nestedInverse = nestedBlock.inverse;
+    locEqual(block, 2, 2, 9, 8, 'outer block');
+    locEqual(nestedBlock, 3, 4, 7, 13, 'nested block');
+    locEqual(nestedBlockText, 4, 0, 5, 0);
+    locEqual(nestedInverse, 5, 8, 7, 2);
   });
   test("mustache", function () {
     var ast = _glimmerSyntax.parse("\n    {{foo}}\n    {{#if foo}}\n      bar: {{bar\n        }}\n    {{/if}}\n  ");
-    locEqual(ast.body[1], 2, 4, 2, 11, 'outer mustache');
-    locEqual(ast.body[3].program.body[1], 4, 11, 5, 10, 'inner mustache');
+    var _ast$body2 = ast.body;
+    var foo = _ast$body2[1];
+    var innerBlock = _ast$body2[3];
+    var _innerBlock$program$body = innerBlock.program.body;
+    var barText = _innerBlock$program$body[0];
+    var bar = _innerBlock$program$body[1];
+
+    locEqual(foo, 2, 4, 2, 11, 'outer mustache');
+    locEqual(barText, 4, 0, 4, 11);
+    locEqual(bar, 4, 11, 5, 10, 'inner mustache');
   });
   test("element modifier", function () {
     var ast = _glimmerSyntax.parse("\n    <div {{bind-attr\n      foo\n      bar=wat}}></div>\n  ");
@@ -6704,8 +6751,8 @@ enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], func
   });
   test("html elements", function () {
     var ast = _glimmerSyntax.parse("\n    <section>\n      <br>\n      <div>\n        <hr />\n      </div>\n    </section>\n  ");
-    var _ast$body = ast.body;
-    var section = _ast$body[1];
+    var _ast$body3 = ast.body;
+    var section = _ast$body3[1];
     var _section$children = section.children;
     var br = _section$children[1];
     var div = _section$children[3];
@@ -6719,8 +6766,8 @@ enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], func
   });
   test("html elements with nested blocks", function () {
     var ast = _glimmerSyntax.parse("\n    <div>\n      {{#if isSingleError}}\n        Single error here!\n      {{else if errors}}\n        Multiple errors here!\n      {{else}}\n        No errors found!\n      {{/if}} <p>Hi there!</p>\n    </div>\n  ");
-    var _ast$body2 = ast.body;
-    var div = _ast$body2[1];
+    var _ast$body4 = ast.body;
+    var div = _ast$body4[1];
     var _div$children2 = div.children;
     var ifBlock = _div$children2[1];
     var p = _div$children2[3];
@@ -6739,18 +6786,18 @@ enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], func
   });
   test("block + newline + element ", function () {
     var ast = _glimmerSyntax.parse("\n    {{#if stuff}}\n    {{/if}}\n    <p>Hi!</p>\n  ");
-    var _ast$body3 = ast.body;
-    var ifBlock = _ast$body3[1];
-    var p = _ast$body3[3];
+    var _ast$body5 = ast.body;
+    var ifBlock = _ast$body5[1];
+    var p = _ast$body5[3];
 
     locEqual(ifBlock, 2, 4, 3, 11, 'if block');
     locEqual(p, 4, 4, 4, 14, 'p element');
   });
   test("mustache + newline + element ", function () {
     var ast = _glimmerSyntax.parse("\n    {{foo}}\n    <p>Hi!</p>\n  ");
-    var _ast$body4 = ast.body;
-    var fooMustache = _ast$body4[1];
-    var p = _ast$body4[3];
+    var _ast$body6 = ast.body;
+    var fooMustache = _ast$body6[1];
+    var p = _ast$body6[3];
 
     locEqual(fooMustache, 2, 4, 2, 11, 'if block');
     locEqual(p, 3, 4, 3, 14, 'p element');
@@ -6767,12 +6814,43 @@ enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], func
   });
   test("html elements after mustache", function () {
     var ast = _glimmerSyntax.parse("\n    {{foo-bar}} <p>Hi!</p>\n  ");
-    var _ast$body5 = ast.body;
-    var mustache = _ast$body5[1];
-    var p = _ast$body5[3];
+    var _ast$body7 = ast.body;
+    var mustache = _ast$body7[1];
+    var p = _ast$body7[3];
 
     locEqual(mustache, 2, 4, 2, 15, '{{foo-bar}}');
     locEqual(p, 2, 16, 2, 26, 'div element');
+  });
+  test("text", function () {
+    var ast = _glimmerSyntax.parse("\n    foo!\n    <div>blah</div>\n  ");
+    var _ast$body8 = ast.body;
+    var fooText = _ast$body8[0];
+    var div = _ast$body8[1];
+    var _div$children3 = div.children;
+    var blahText = _div$children3[0];
+
+    locEqual(fooText, 1, 0, 3, 4);
+    locEqual(blahText, 3, 9, 3, 13);
+  });
+  test("comment", function () {
+    var ast = _glimmerSyntax.parse("\n    <div><!-- blah blah blah blah --></div>\n  ");
+    var _ast$body9 = ast.body;
+    var div = _ast$body9[1];
+    var _div$children4 = div.children;
+    var comment = _div$children4[0];
+
+    locEqual(comment, 2, 12, 2, 36);
+  });
+  test("element attribute", function () {
+    var ast = _glimmerSyntax.parse("\n    <div data-foo=\"blah\"\n      data-derp=\"lolol\">\n      Hi, fivetanley!\n    </div>\n  ");
+    var _ast$body10 = ast.body;
+    var div = _ast$body10[1];
+    var _div$attributes = div.attributes;
+    var dataFoo = _div$attributes[0];
+    var dataDerp = _div$attributes[1];
+
+    locEqual(dataFoo, 2, 10, 2, 24);
+    locEqual(dataDerp, 3, 7, 3, 23);
   });
 });
 
@@ -26116,7 +26194,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
-    _class.prototype['@htmlbars should not escape HTML if string is a htmlSafe'] = function htmlbarsShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
+    _class.prototype['@test should not escape HTML if string is a htmlSafe'] = function testShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
       var _this31 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
@@ -41230,7 +41308,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
-    _class.prototype['@htmlbars should not escape HTML if string is a htmlSafe'] = function htmlbarsShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
+    _class.prototype['@test should not escape HTML if string is a htmlSafe'] = function testShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
       var _this31 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
@@ -76951,7 +77029,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+a8f6972d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+53894424', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
