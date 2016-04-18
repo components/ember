@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+97a2d961
+ * @version   2.7.0-canary+fd694216
  */
 
 var enifed, requireModule, require, Ember;
@@ -11046,6 +11046,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
   'use strict';
 
   exports.default = linkRenderNode;
+  exports.linkParamsFor = linkParamsFor;
 
   function linkRenderNode(renderNode, env, scope, path, params, hash) {
     if (renderNode.streamUnsubscribers) {
@@ -11055,18 +11056,10 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     var keyword = env.hooks.keywords[path];
     if (keyword && keyword.link) {
       keyword.link(renderNode.getState(), params, hash);
+    } else if (path === 'unbound') {
+      return true;
     } else {
-      switch (path) {
-        case 'unbound':
-          return true;
-        case 'unless':
-        case 'if':
-          params[0] = shouldDisplay(params[0], toBool);break;
-        case 'each':
-          params[0] = eachParam(params[0]);break;
-        case 'with':
-          params[0] = shouldDisplay(params[0], identity);break;
-      }
+      linkParamsFor(path, params);
     }
 
     // If there is a dot in the path, we need to subscribe to the arguments in the
@@ -11101,6 +11094,18 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     // recomputed on subsequent re-renders because they are
     // streams.
     return true;
+  }
+
+  function linkParamsFor(path, params) {
+    switch (path) {
+      case 'unless':
+      case 'if':
+        params[0] = shouldDisplay(params[0], toBool);break;
+      case 'each':
+        params[0] = eachParam(params[0]);break;
+      case 'with':
+        params[0] = shouldDisplay(params[0], identity);break;
+    }
   }
 
   function eachParam(list) {
@@ -11166,7 +11171,7 @@ enifed('ember-htmlbars/hooks/lookup-helper', ['exports', 'ember-htmlbars/system/
     return _emberHtmlbarsSystemLookupHelper.default(helperName, scope.getSelf(), env);
   }
 });
-enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/system/invoke-helper', 'ember-metal/streams/utils'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/system/invoke-helper', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/link-render-node'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberMetalStreamsUtils, _emberHtmlbarsHooksLinkRenderNode) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -11184,6 +11189,8 @@ enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup
     if (keyword) {
       return keyword(null, env, scope, params, hash, null, null);
     }
+
+    _emberHtmlbarsHooksLinkRenderNode.linkParamsFor(helperName, params);
 
     var label = labelForSubexpr(params, hash, helperName);
     var helper = _emberHtmlbarsSystemLookupHelper.default(helperName, scope.getSelf(), env);
@@ -12311,7 +12318,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+97a2d961';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+fd694216';
   }
 
   /**
@@ -17128,7 +17135,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+97a2d961
+    @version 2.7.0-canary+fd694216
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17155,11 +17162,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+97a2d961'
+    @default '2.7.0-canary+fd694216'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+97a2d961';
+  Ember.VERSION = '2.7.0-canary+fd694216';
 
   // ..........................................................
   // BOOTSTRAP
@@ -40762,7 +40769,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+97a2d961',
+        revision: 'Ember@2.7.0-canary+fd694216',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -48838,7 +48845,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+97a2d961
+ * @version   2.7.0-canary+fd694216
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

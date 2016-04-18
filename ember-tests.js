@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+97a2d961
+ * @version   2.7.0-canary+fd694216
  */
 
 var enifed, requireModule, require, Ember;
@@ -30591,7 +30591,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest2) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest2) {
     _inherits(_class2, _TogglingHelperConditionalsTest2);
 
     function _class2() {
@@ -30611,7 +30611,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class2;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest3) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest3) {
     _inherits(_class3, _TogglingHelperConditionalsTest3);
 
     function _class3() {
@@ -30631,7 +30631,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class3;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used with another helper', (function (_TogglingHelperConditionalsTest4) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_TogglingHelperConditionalsTest4) {
     _inherits(_class4, _TogglingHelperConditionalsTest4);
 
     function _class4() {
@@ -45705,7 +45705,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     return _class;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest2) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest2) {
     _inherits(_class2, _TogglingHelperConditionalsTest2);
 
     function _class2() {
@@ -45725,7 +45725,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     return _class2;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{if}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest3) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest3) {
     _inherits(_class3, _TogglingHelperConditionalsTest3);
 
     function _class3() {
@@ -45745,7 +45745,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     return _class3;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used with another helper', (function (_TogglingHelperConditionalsTest4) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_TogglingHelperConditionalsTest4) {
     _inherits(_class4, _TogglingHelperConditionalsTest4);
 
     function _class4() {
@@ -77487,7 +77487,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+97a2d961', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+fd694216', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
