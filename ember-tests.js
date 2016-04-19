@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8aa3f734
+ * @version   2.7.0-canary+fd52d75b
  */
 
 var enifed, requireModule, require, Ember;
@@ -29176,6 +29176,172 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  // copied from ember-htmlbars/tests/integration/local-lookup-test.js
+  function buildResolver() {
+    var resolver = {
+      resolve: function () {},
+      expandLocalLookup: function (fullName, sourceFullName) {
+        var _sourceFullName$split = sourceFullName.split(':');
+
+        var sourceType = _sourceFullName$split[0];
+        var sourceName = _sourceFullName$split[1];
+
+        var _fullName$split = fullName.split(':');
+
+        var type = _fullName$split[0];
+        var name = _fullName$split[1];
+
+        if (type !== 'template' && sourceType === 'template' && sourceName.slice(0, 11) === 'components/') {
+          sourceName = sourceName.slice(11);
+        }
+
+        if (type === 'template' && sourceType === 'template' && name.slice(0, 11) === 'components/') {
+          name = name.slice(11);
+        }
+
+        var result = type + ':' + sourceName + '/' + name;
+
+        return result;
+      }
+    };
+
+    return resolver;
+  }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: local lookup', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype.getOwnerOptions = function getOwnerOptions() {
+      return {
+        _registryOptions: {
+          resolver: buildResolver()
+        }
+      };
+    };
+
+    _class.prototype['@htmlbars it can lookup a local template'] = function htmlbarsItCanLookupALocalTemplate() {
+      var _this = this;
+
+      this.registerComponent('x-outer/x-inner', { template: 'Nested template says: {{yield}}' });
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+
+      this.render('{{x-outer}}');
+
+      this.assertText('Nested template says: Hi!', 'Initial render works');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('Nested template says: Hi!', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars it can lookup a local component template'] = function htmlbarsItCanLookupALocalComponentTemplate() {
+      var _this2 = this;
+
+      this.registerTemplate('components/x-outer/x-inner', 'Nested template says: {{yield}}');
+      this.registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
+
+      this.render('{{x-outer}}');
+
+      this.assertText('Nested template says: Hi!', 'Initial render works');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Nested template says: Hi!', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars it can lookup a local helper'] = function htmlbarsItCanLookupALocalHelper() {
+      var _this3 = this;
+
+      this.registerHelper('x-outer/x-helper', function () {
+        return 'Who dis?';
+      });
+      this.registerComponent('x-outer', { template: 'Who dat? {{x-helper}}' });
+
+      this.render('{{x-outer}}');
+
+      this.assertText('Who dat? Who dis?', 'Initial render works');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Who dat? Who dis?', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars it overrides global helper lookup'] = function htmlbarsItOverridesGlobalHelperLookup() {
+      var _this4 = this;
+
+      this.registerHelper('x-outer/x-helper', function () {
+        return 'Who dis?';
+      });
+
+      this.registerHelper('x-helper', function () {
+        return 'I dunno';
+      });
+
+      this.registerComponent('x-outer', { template: 'Who dat? {{x-helper}}' });
+
+      this.render('{{x-outer}} {{x-helper}}');
+
+      this.assertText('Who dat? Who dis? I dunno', 'Initial render works');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('Who dat? Who dis? I dunno', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars lookup without match issues standard assertion (with local helper name)'] = function htmlbarsLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
+      var _this5 = this;
+
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+
+      expectAssertion(function () {
+        _this5.render('{{x-outer}}');
+      }, /A helper named 'x-inner' could not be found/);
+    };
+
+    _class.prototype['@htmlbars overrides global lookup'] = function htmlbarsOverridesGlobalLookup() {
+      var _this6 = this;
+
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+      this.registerComponent('x-outer/x-inner', { template: 'Nested template says (from local): {{yield}}' });
+      this.registerComponent('x-inner', { template: 'Nested template says (from global): {{yield}}' });
+
+      this.render('{{#x-inner}}Hi!{{/x-inner}} {{x-outer}} {{#x-outer/x-inner}}Hi!{{/x-outer/x-inner}}');
+
+      this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -34777,7 +34943,9 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     ApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
-      this.application.register('template:' + name, _emberGlimmerTestsUtilsHelpers.compile(template));
+      this.application.register('template:' + name, _emberGlimmerTestsUtilsHelpers.compile(template, {
+        moduleName: name
+      }));
     };
 
     ApplicationTest.prototype.registerController = function registerController(name, controller) {
@@ -34809,12 +34977,16 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
       _TestCase2.call(this);
       var dom = new _emberGlimmerTestsUtilsHelpers.DOMHelper(document);
-      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
+      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default(this.getOwnerOptions());
       var env = this.env = new _emberGlimmerTestsUtilsEnvironment.default((_ref = { dom: dom, owner: owner }, _ref[_containerOwner.OWNER] = owner, _ref));
       this.renderer = _emberGlimmerTestsUtilsHelpers.InteractiveRenderer.create((_InteractiveRenderer$create = { dom: dom, env: env }, _InteractiveRenderer$create[_containerOwner.OWNER] = owner, _InteractiveRenderer$create));
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
     }
+
+    RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
+      return {};
+    };
 
     RenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
@@ -34830,7 +35002,9 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       var renderer = this.renderer;
       var owner = this.owner;
 
-      owner.register('template:-top-level', _emberGlimmerTestsUtilsHelpers.compile(templateStr));
+      owner.register('template:-top-level', _emberGlimmerTestsUtilsHelpers.compile(templateStr, {
+        moduleName: '-top-level'
+      }));
 
       var attrs = _emberMetalAssign.default({}, context, (_assign = {
         tagName: ''
@@ -34881,7 +35055,21 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
 
       if (typeof template === 'string') {
-        owner.register('template:components/' + name, _emberGlimmerTestsUtilsHelpers.compile(template));
+        owner.register('template:components/' + name, _emberGlimmerTestsUtilsHelpers.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
+    RenderingTest.prototype.registerTemplate = function registerTemplate(name, template) {
+      var owner = this.owner;
+
+      if (typeof template === 'string') {
+        owner.register('template:' + name, _emberGlimmerTestsUtilsHelpers.compile(template, {
+          moduleName: name
+        }));
+      } else {
+        throw new Error('Registered template "' + name + '" must be a string');
       }
     };
 
@@ -44627,6 +44815,172 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  // copied from ember-htmlbars/tests/integration/local-lookup-test.js
+  function buildResolver() {
+    var resolver = {
+      resolve: function () {},
+      expandLocalLookup: function (fullName, sourceFullName) {
+        var _sourceFullName$split = sourceFullName.split(':');
+
+        var sourceType = _sourceFullName$split[0];
+        var sourceName = _sourceFullName$split[1];
+
+        var _fullName$split = fullName.split(':');
+
+        var type = _fullName$split[0];
+        var name = _fullName$split[1];
+
+        if (type !== 'template' && sourceType === 'template' && sourceName.slice(0, 11) === 'components/') {
+          sourceName = sourceName.slice(11);
+        }
+
+        if (type === 'template' && sourceType === 'template' && name.slice(0, 11) === 'components/') {
+          name = name.slice(11);
+        }
+
+        var result = type + ':' + sourceName + '/' + name;
+
+        return result;
+      }
+    };
+
+    return resolver;
+  }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: local lookup', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype.getOwnerOptions = function getOwnerOptions() {
+      return {
+        _registryOptions: {
+          resolver: buildResolver()
+        }
+      };
+    };
+
+    _class.prototype['@htmlbars it can lookup a local template'] = function htmlbarsItCanLookupALocalTemplate() {
+      var _this = this;
+
+      this.registerComponent('x-outer/x-inner', { template: 'Nested template says: {{yield}}' });
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+
+      this.render('{{x-outer}}');
+
+      this.assertText('Nested template says: Hi!', 'Initial render works');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('Nested template says: Hi!', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars it can lookup a local component template'] = function htmlbarsItCanLookupALocalComponentTemplate() {
+      var _this2 = this;
+
+      this.registerTemplate('components/x-outer/x-inner', 'Nested template says: {{yield}}');
+      this.registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
+
+      this.render('{{x-outer}}');
+
+      this.assertText('Nested template says: Hi!', 'Initial render works');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Nested template says: Hi!', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars it can lookup a local helper'] = function htmlbarsItCanLookupALocalHelper() {
+      var _this3 = this;
+
+      this.registerHelper('x-outer/x-helper', function () {
+        return 'Who dis?';
+      });
+      this.registerComponent('x-outer', { template: 'Who dat? {{x-helper}}' });
+
+      this.render('{{x-outer}}');
+
+      this.assertText('Who dat? Who dis?', 'Initial render works');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Who dat? Who dis?', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars it overrides global helper lookup'] = function htmlbarsItOverridesGlobalHelperLookup() {
+      var _this4 = this;
+
+      this.registerHelper('x-outer/x-helper', function () {
+        return 'Who dis?';
+      });
+
+      this.registerHelper('x-helper', function () {
+        return 'I dunno';
+      });
+
+      this.registerComponent('x-outer', { template: 'Who dat? {{x-helper}}' });
+
+      this.render('{{x-outer}} {{x-helper}}');
+
+      this.assertText('Who dat? Who dis? I dunno', 'Initial render works');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('Who dat? Who dis? I dunno', 'Re-render works');
+    };
+
+    _class.prototype['@htmlbars lookup without match issues standard assertion (with local helper name)'] = function htmlbarsLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
+      var _this5 = this;
+
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+
+      expectAssertion(function () {
+        _this5.render('{{x-outer}}');
+      }, /A helper named 'x-inner' could not be found/);
+    };
+
+    _class.prototype['@htmlbars overrides global lookup'] = function htmlbarsOverridesGlobalLookup() {
+      var _this6 = this;
+
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+      this.registerComponent('x-outer/x-inner', { template: 'Nested template says (from local): {{yield}}' });
+      this.registerComponent('x-inner', { template: 'Nested template says (from global): {{yield}}' });
+
+      this.render('{{#x-inner}}Hi!{{/x-inner}} {{x-outer}} {{#x-outer/x-inner}}Hi!{{/x-outer/x-inner}}');
+
+      this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -48846,179 +49200,6 @@ enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/r
     });
   }
 });
-enifed('ember-htmlbars/tests/integration/local-lookup-test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var owner, view;
-
-  function buildResolver() {
-    var resolver = {
-      resolve: function () {},
-      expandLocalLookup: function (fullName, sourceFullName) {
-        var _sourceFullName$split = sourceFullName.split(':');
-
-        var sourceType = _sourceFullName$split[0];
-        var sourceName = _sourceFullName$split[1];
-
-        var _fullName$split = fullName.split(':');
-
-        var type = _fullName$split[0];
-        var name = _fullName$split[1];
-
-        if (type !== 'template' && sourceType === 'template' && sourceName.slice(0, 11) === 'components/') {
-          sourceName = sourceName.slice(11);
-        }
-
-        if (type === 'template' && sourceType === 'template' && name.slice(0, 11) === 'components/') {
-          name = name.slice(11);
-        }
-
-        var result = type + ':' + sourceName + '/' + name;
-
-        return result;
-      }
-    };
-
-    return resolver;
-  }
-
-  function commonSetup() {
-    owner = _containerTestsTestHelpersBuildOwner.default({
-      _registryOptions: {
-        resolver: buildResolver()
-      }
-    });
-    owner.registerOptionsForType('component', { singleton: false });
-    owner.registerOptionsForType('view', { singleton: false });
-    owner.registerOptionsForType('template', { instantiate: false });
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-  }
-
-  function commonTeardown() {
-    _emberRuntimeTestsUtils.runDestroy(view);
-    _emberRuntimeTestsUtils.runDestroy(owner);
-    owner = view = null;
-  }
-
-  function appendViewFor(template) {
-    var moduleName = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-    var _EmberView$extend;
-
-    var hash = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-    var view = _emberViewsViewsView.default.extend((_EmberView$extend = {
-      template: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
-    }, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend)).create(hash);
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    return view;
-  }
-
-  function registerTemplate(moduleName, snippet) {
-    owner.register('template:' + moduleName, _emberTemplateCompilerSystemCompile.default(snippet, { moduleName: moduleName }));
-  }
-
-  function registerComponent(name, factory) {
-    owner.register('component:' + name, factory);
-  }
-
-  function registerHelper(name, helper) {
-    owner.register('helper:' + name, helper);
-  }
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('component - local lookup', {
-      setup: function () {
-        commonSetup();
-      },
-
-      teardown: function () {
-        commonTeardown();
-      }
-    });
-
-    // jscs:disable validateIndentation
-
-    QUnit.test('local component lookup with matching template', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerTemplate('components/x-outer/x-inner', 'Nested template says: {{yield}}');
-
-      view = appendViewFor('{{x-outer}}', 'route-template');
-
-      equal(view.$().text(), 'Nested template says: Hi!');
-    });
-
-    QUnit.test('local component lookup with matching component', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerComponent('x-outer/x-inner', _emberViewsComponentsComponent.default.extend({
-        tagName: 'span'
-      }));
-
-      view = appendViewFor('{{x-outer}}', 'route-template');
-
-      equal(view.$('span').text(), 'Hi!');
-    });
-
-    QUnit.test('local helper lookup', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', 'Who dat? {{x-helper}}');
-      registerHelper('x-outer/x-helper', _emberHtmlbarsHelper.helper(function () {
-        return 'Who dis?';
-      }));
-
-      view = appendViewFor('{{x-outer}}', 'route-template');
-
-      equal(view.$().text(), 'Who dat? Who dis?');
-    });
-
-    QUnit.test('local helper lookup overrides global lookup', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', 'Who dat? {{x-helper}}');
-      registerHelper('x-outer/x-helper', _emberHtmlbarsHelper.helper(function () {
-        return 'Who dis?';
-      }));
-      registerHelper('x-helper', _emberHtmlbarsHelper.helper(function () {
-        return 'I dunno';
-      }));
-
-      view = appendViewFor('{{x-outer}} {{x-helper}}', 'route-template');
-
-      equal(view.$().text(), 'Who dat? Who dis? I dunno');
-    });
-
-    QUnit.test('lookup without match issues standard assertion (with local helper name)', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-
-      expectAssertion(function () {
-        appendViewFor('{{x-outer}}', 'route-template');
-      }, /A helper named 'x-inner' could not be found/);
-    });
-
-    QUnit.test('local lookup overrides global lookup', function () {
-      expect(1);
-
-      registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
-      registerTemplate('components/x-outer/x-inner', 'Nested template says (from local): {{yield}}');
-      registerTemplate('components/x-inner', 'Nested template says (from global): {{yield}}');
-
-      view = appendViewFor('{{#x-inner}}Hi!{{/x-inner}} {{x-outer}} {{#x-outer/x-inner}}Hi!{{/x-outer/x-inner}}', 'route-template');
-
-      equal(view.$().text(), 'Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
-    });
-  }
-});
 enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
@@ -51443,7 +51624,9 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     ApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
-      this.application.register('template:' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template));
+      this.application.register('template:' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template, {
+        moduleName: name
+      }));
     };
 
     ApplicationTest.prototype.registerController = function registerController(name, controller) {
@@ -51475,12 +51658,16 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
       _TestCase2.call(this);
       var dom = new _emberHtmlbarsTestsUtilsHelpers.DOMHelper(document);
-      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
+      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default(this.getOwnerOptions());
       var env = this.env = new _emberHtmlbarsTestsUtilsEnvironment.default((_ref = { dom: dom, owner: owner }, _ref[_containerOwner.OWNER] = owner, _ref));
       this.renderer = _emberHtmlbarsTestsUtilsHelpers.InteractiveRenderer.create((_InteractiveRenderer$create = { dom: dom, env: env }, _InteractiveRenderer$create[_containerOwner.OWNER] = owner, _InteractiveRenderer$create));
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
     }
+
+    RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
+      return {};
+    };
 
     RenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
@@ -51496,7 +51683,9 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       var renderer = this.renderer;
       var owner = this.owner;
 
-      owner.register('template:-top-level', _emberHtmlbarsTestsUtilsHelpers.compile(templateStr));
+      owner.register('template:-top-level', _emberHtmlbarsTestsUtilsHelpers.compile(templateStr, {
+        moduleName: '-top-level'
+      }));
 
       var attrs = _emberMetalAssign.default({}, context, (_assign = {
         tagName: ''
@@ -51547,7 +51736,21 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
 
       if (typeof template === 'string') {
-        owner.register('template:components/' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template));
+        owner.register('template:components/' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
+    RenderingTest.prototype.registerTemplate = function registerTemplate(name, template) {
+      var owner = this.owner;
+
+      if (typeof template === 'string') {
+        owner.register('template:' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template, {
+          moduleName: name
+        }));
+      } else {
+        throw new Error('Registered template "' + name + '" must be a string');
       }
     };
 
@@ -78714,7 +78917,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+8aa3f734', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+fd52d75b', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
