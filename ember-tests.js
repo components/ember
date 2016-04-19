@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+352f143a
+ * @version   2.7.0-canary+8aa3f734
  */
 
 var enifed, requireModule, require, Ember;
@@ -25171,6 +25171,862 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty', 'ember-views/system/event_dispatcher'], function (exports, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty, _emberViewsSystemEvent_dispatcher) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}'], ['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}'], ['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}'], ['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
+      _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
+      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test renders with component helper'] = function testRendersWithComponentHelper() {
+      var _this = this;
+
+      var expectedText = 'Hodi';
+
+      this.registerComponent('-looked-up', {
+        template: expectedText
+      });
+
+      this.render('{{component (component "-looked-up")}}');
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with component helper with invocation params, hash'] = function testRendersWithComponentHelperWithInvocationParamsHash() {
+      var _this2 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.assertText('Hodi Hodari');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Hodi Hodari');
+    };
+
+    _class.prototype['@test renders with component helper with curried params, hash'] = function testRendersWithComponentHelperWithCurriedParamsHash() {
+      var _this3 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertText('Hola Hodari');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Hola Hodari');
+    };
+
+    _class.prototype['@test updates when component path is bound'] = function testUpdatesWhenComponentPathIsBound() {
+      var _this4 = this;
+
+      this.registerComponent('-mandarin', {
+        template: 'ni hao'
+      });
+
+      this.registerComponent('-hindi', {
+        template: 'Namaste'
+      });
+
+      this.render('{{component (component model.lookupComponent)}}', {
+        model: {
+          lookupComponent: '-mandarin'
+        }
+      });
+
+      this.assertText('ni hao');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('ni hao');
+
+      this.runTask(function () {
+        return _this4.context.set('model.lookupComponent', '-hindi');
+      });
+
+      this.assertText('Namaste');
+
+      this.runTask(function () {
+        return _this4.context.set('model', { lookupComponent: '-mandarin' });
+      });
+
+      this.assertText('ni hao');
+    };
+
+    _class.prototype['@test updates when curried hash argument is bound'] = function testUpdatesWhenCurriedHashArgumentIsBound() {
+      var _this5 = this;
+
+      this.registerComponent('-looked-up', {
+        template: '{{greeting}}'
+      });
+
+      this.render('{{component (component "-looked-up" greeting=model.greeting)}}', {
+        model: {
+          greeting: 'Hodi'
+        }
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this5.context.set('model.greeting', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this5.context.set('model', { greeting: 'Hodi' });
+      });
+
+      this.assertText('Hodi');
+    };
+
+    _class.prototype['@test updates when curried hash arguments is bound in block form'] = function testUpdatesWhenCurriedHashArgumentsIsBoundInBlockForm() {
+      var _this6 = this;
+
+      this.registerComponent('-looked-up', {
+        template: '{{greeting}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), {
+        model: {
+          greeting: 'Hodi'
+        }
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this6.context.set('model.greeting', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this6.context.set('model', { greeting: 'Hodi' });
+      });
+
+      this.assertText('Hodi');
+    };
+
+    _class.prototype['@test nested components overwrite named positional parameters'] = function testNestedComponentsOverwriteNamedPositionalParameters() {
+      var _this7 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}} {{age}}'
+      });
+
+      this.render('{{component (component (component "-looked-up" "Sergio" 29) "Marvin" 21) "Hodari"}}');
+
+      this.assertText('Hodari 21');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Hodari 21');
+    };
+
+    _class.prototype['@test nested components overwrite hash parameters'] = function testNestedComponentsOverwriteHashParameters() {
+      var _this8 = this;
+
+      this.registerComponent('-looked-up', {
+        template: '{{greeting}} {{name}} {{age}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        model: {
+          greeting: 'Hodi'
+        }
+      });
+
+      this.assertText('Hodi Sigmundur 33');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('Hodi Sigmundur 33');
+
+      this.runTask(function () {
+        return _this8.context.set('model.greeting', 'Kaixo');
+      });
+
+      this.assertText('Kaixo Sigmundur 33');
+
+      this.runTask(function () {
+        return _this8.context.set('model', { greeting: 'Hodi' });
+      });
+
+      this.assertText('Hodi Sigmundur 33');
+    };
+
+    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+      var _this9 = this;
+
+      this.registerComponent('-inner-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['comp']
+        }),
+        template: '{{component comp "Inner"}}'
+      });
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}} {{age}}'
+      });
+
+      this.render('{{component "-inner-component" (component "-looked-up" model.outerName model.outerAge)}}', {
+        model: {
+          outerName: 'Outer',
+          outerAge: 28
+        }
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this9.context.set('outerAge', 29);
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        return _this9.context.set('outerName', 'Not outer');
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        _this9.context.set('model', {
+          outerName: 'Outer',
+          outerAge: 28
+        });
+      });
+
+      this.assertText('Inner 28');
+    };
+
+    _class.prototype['@skip bound outer hash parameters get updated in the right scope'] = function skipBoundOuterHashParametersGetUpdatedInTheRightScope() {
+      var _this10 = this;
+
+      this.registerComponent('-inner-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['comp']
+        }),
+        template: '{{component comp name="Inner"}}'
+      });
+
+      this.registerComponent('-looked-up', {
+        template: '{{name}} {{age}}'
+      });
+
+      this.render('{{component "-inner-component" (component "-looked-up" name=model.outerName age=model.outerAge)}}', {
+        model: {
+          outerName: 'Outer',
+          outerAge: 28
+        }
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this10.context.set('model.outerAge', 29);
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        return _this10.context.set('model.outerName', 'Not outer');
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        _this10.context.set('model', {
+          outerName: 'Outer',
+          outerAge: 28
+        });
+      });
+
+      this.assertText('Inner 28');
+    };
+
+    _class.prototype['@test conflicting positional and hash parameters raise and assertion if in the same closure'] = function testConflictingPositionalAndHashParametersRaiseAndAssertionIfInTheSameClosure() {
+      var _this11 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      expectAssertion(function () {
+        _this11.render('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
+      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+    };
+
+    _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if rerendered'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfRerendered() {
+      var _this12 = this;
+
+      // In some cases, rerendering with a positional param used to cause an
+      // assertion. This test checks it does not.
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render('{{component (component "-looked-up" model.name greeting="Hodi")}}', {
+        model: {
+          name: 'Hodari'
+        }
+      });
+
+      this.assertText('Hodi Hodari');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('Hodi Hodari');
+
+      this.runTask(function () {
+        return _this12.context.set('model.name', 'Sergio');
+      });
+
+      this.assertText('Hodi Sergio');
+
+      this.runTask(function () {
+        return _this12.context.set('model', { name: 'Hodari' });
+      });
+
+      this.assertText('Hodi Hodari');
+    };
+
+    _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if in different closure'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfInDifferentClosure() {
+      var _this13 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
+
+      this.assertText('Hodi Sergio');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('Hodi Sergio');
+    };
+
+    _class.prototype['@test raises an asserton when component path is null'] = function testRaisesAnAssertonWhenComponentPathIsNull() {
+      var _this14 = this;
+
+      expectAssertion(function () {
+        _this14.render('{{component (component lookupComponent)}}');
+      });
+    };
+
+    _class.prototype['@test raises an assertion when component path is not a component name (static)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameStatic() {
+      var _this15 = this;
+
+      expectAssertion(function () {
+        _this15.render('{{component (component "not-a-component")}}');
+      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
+    };
+
+    _class.prototype['@test raises an assertion when component path is not a component name (dynamic)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameDynamic() {
+      var _this16 = this;
+
+      expectAssertion(function () {
+        _this16.render('{{component (component compName)}}', {
+          compName: 'not-a-component'
+        });
+      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
+    };
+
+    _class.prototype['@test renders with dot path'] = function testRendersWithDotPath() {
+      var _this17 = this;
+
+      var expectedText = 'Hodi';
+      this.registerComponent('-looked-up', {
+        template: expectedText
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with dot path and attr'] = function testRendersWithDotPathAndAttr() {
+      var _this18 = this;
+
+      var expectedText = 'Hodi';
+      this.registerComponent('-looked-up', {
+        template: '{{expectedText}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        model: {
+          expectedText: expectedText
+        }
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this18.context.set('model.expectedText', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this18.context.set('model', { expectedText: expectedText });
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with dot path and curried over attr'] = function testRendersWithDotPathAndCurriedOverAttr() {
+      var _this19 = this;
+
+      var expectedText = 'Hodi';
+      this.registerComponent('-looked-up', {
+        template: '{{expectedText}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7), {
+        model: {
+          expectedText: expectedText
+        }
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this19.context.set('model.expectedText', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this19.context.set('model', { expectedText: expectedText });
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with dot path and with rest positional parameters'] = function testRendersWithDotPathAndWithRestPositionalParameters() {
+      var _this20 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{params}}'
+      });
+
+      var expectedText = 'Hodi';
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8), {
+        model: {
+          expectedText: expectedText
+        }
+      });
+
+      this.assertText(expectedText + ',Hola');
+
+      this.runTask(function () {
+        return _this20.rerender();
+      });
+
+      this.assertText(expectedText + ',Hola');
+
+      this.runTask(function () {
+        return _this20.context.set('model.expectedText', 'Kaixo');
+      });
+
+      this.assertText('Kaixo,Hola');
+
+      this.runTask(function () {
+        return _this20.context.set('model', { expectedText: expectedText });
+      });
+
+      this.assertText(expectedText + ',Hola');
+    };
+
+    _class.prototype['@test renders with dot path and rest parameter does not leak'] = function testRendersWithDotPathAndRestParameterDoesNotLeak(assert) {
+      // In the original implementation, positional parameters were not handled
+      // correctly causing the first positional parameter to be the closure
+      // component itself.
+      var value = false;
+
+      this.registerComponent('my-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            value = this.getAttr('value');
+          }
+        }).reopenClass({
+          positionalParams: ['value']
+        })
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+
+      assert.ok(_emberMetalIs_empty.default(value), 'value is an empty parameter');
+    };
+
+    _class.prototype['@test renders with dot path and updates attributes'] = function testRendersWithDotPathAndUpdatesAttributes(assert) {
+      var _this21 = this;
+
+      this.registerComponent('my-nested-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            this.set('myProp', this.getAttr('my-parent-attr'));
+          }
+        }),
+        template: '<span id="nested-prop">{{myProp}}</span>'
+      });
+
+      this.registerComponent('my-component', {
+        template: '{{yield (hash my-nested-component=(component "my-nested-component" my-parent-attr=my-attr))}}'
+      });
+
+      this.registerComponent('my-action-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            changeValue: function () {
+              this.incrementProperty('myProp');
+            }
+          }
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
+      });
+
+      this.render('{{my-action-component myProp=model.myProp}}', {
+        model: {
+          myProp: 1
+        }
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '1');
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '1');
+
+      this.runTask(function () {
+        return _this21.$('button').click();
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '2');
+
+      this.runTask(function () {
+        return _this21.$('button').click();
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '3');
+
+      this.runTask(function () {
+        return _this21.context.set('model', { myProp: 1 });
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '1');
+    };
+
+    _class.prototype['@test adding parameters to a closure component\'s instance does not add it to other instances'] = function testAddingParametersToAClosureComponentSInstanceDoesNotAddItToOtherInstances() {
+      var _this22 = this;
+
+      // If parameters and attributes are not handled correctly, setting a value
+      // in an invokation can leak to others invocation.
+      this.registerComponent('select-box', {
+        template: '{{yield (hash option=(component "select-box-option"))}}'
+      });
+
+      this.registerComponent('select-box-option', {
+        template: '{{label}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11));
+
+      this.assertText('Foo');
+
+      this.runTask(function () {
+        return _this22.rerender();
+      });
+
+      this.assertText('Foo');
+    };
+
+    _class.prototype['@test parameters in a closure are mutable when closure is a param'] = function testParametersInAClosureAreMutableWhenClosureIsAParam(assert) {
+      var _this23 = this;
+
+      // This checks that a `(mut)` is added to parameters and attributes to
+      // contextual components when it is a param.
+      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+      dispatcher.setup();
+
+      this.registerComponent('change-button', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['val']
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13), {
+        model: {
+          val2: 8
+        }
+      });
+
+      assert.equal(this.$('.value').text(), '8');
+
+      this.runTask(function () {
+        return _this23.rerender();
+      });
+
+      assert.equal(this.$('.value').text(), '8');
+
+      this.runTask(function () {
+        return _this23.$('.my-button').click();
+      });
+
+      assert.equal(this.$('.value').text(), '10');
+
+      this.runTask(function () {
+        return _this23.context.set('model', { val2: 8 });
+      });
+
+      assert.equal(this.$('.value').text(), '8');
+
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  var ClosureComponentMutableParamsTest = (function (_RenderingTest2) {
+    _inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
+
+    function ClosureComponentMutableParamsTest() {
+      _classCallCheck(this, ClosureComponentMutableParamsTest);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    ClosureComponentMutableParamsTest.prototype.render = function render(templateStr) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      _RenderingTest2.prototype.render.call(this, templateStr + '<span class="value">{{model.val2}}</span>', _emberMetalAssign.default(context, { model: { val2: 8 } }));
+    };
+
+    return ClosureComponentMutableParamsTest;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+  var MutableParamTestGenerator = (function () {
+    function MutableParamTestGenerator(cases) {
+      _classCallCheck(this, MutableParamTestGenerator);
+
+      this.cases = cases;
+    }
+
+    MutableParamTestGenerator.prototype.generate = function generate(_ref2) {
+      var _ref;
+
+      var title = _ref2.title;
+      var setup = _ref2.setup;
+
+      return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
+        var _this24 = this;
+
+        var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+        dispatcher.setup();
+
+        this.registerComponent('change-button', {
+          ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+            positionalParams: ['val']
+          }),
+          template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14)
+        });
+
+        setup.call(this, assert);
+
+        assert.equal(this.$('.value').text(), '8');
+
+        this.runTask(function () {
+          return _this24.rerender();
+        });
+
+        assert.equal(this.$('.value').text(), '8');
+
+        this.runTask(function () {
+          return _this24.$('.my-button').click();
+        });
+
+        assert.equal(this.$('.value').text(), '10');
+
+        this.runTask(function () {
+          return _this24.context.set('model', { val2: 8 });
+        });
+
+        assert.equal(this.$('.value').text(), '8');
+
+        _emberRuntimeTestsUtils.runDestroy(dispatcher);
+      }, _ref;
+    };
+
+    return MutableParamTestGenerator;
+  })();
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(ClosureComponentMutableParamsTest, new MutableParamTestGenerator([{
+    title: 'param',
+    setup: function () {
+      this.render('{{component (component "change-button" model.val2)}}');
+    }
+  }, {
+    title: 'nested param',
+    setup: function () {
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['components']
+        }),
+        template: '{{component components.comp}}'
+      });
+
+      this.render('{{my-comp (hash comp=(component "change-button" model.val2))}}');
+    }
+  }, {
+    title: 'hash value',
+    setup: function () {
+      this.registerComponent('my-comp', {
+        template: '{{component component}}'
+      });
+
+      this.render('{{my-comp component=(component "change-button" val=model.val2)}}');
+    }
+  }, {
+    title: 'nested hash value',
+    setup: function () {
+      this.registerComponent('my-comp', {
+        template: '{{component components.button}}'
+      });
+
+      this.render('{{my-comp components=(hash button=(component "change-button" val=model.val2))}}');
+    }
+  }]));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
+});
 enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
   /* globals EmberDev */
   'use strict';
@@ -36402,559 +37258,6 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     }
   }
 });
-enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var component = undefined,
-      owner = undefined;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('ember-htmlbars: closure component helper', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-
-        owner.registerOptionsForType('template', { instantiate: false });
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(component);
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        owner = component = null;
-      }
-    });
-
-    QUnit.test('renders with component helper', function () {
-      var _Component$extend;
-
-      var expectedText = 'Hodi';
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up")}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.template = template, _Component$extend)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with component helper with invocation params, hash', function () {
-      var _Component$extend2;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up") "Hodari" greeting="Hodi"}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.template = template, _Component$extend2)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodi Hodari', '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with component helper with curried params, hash', function () {
-      var _Component$extend3;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" greeting="Hodi") greeting="Hola"}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_containerOwner.OWNER] = owner, _Component$extend3.template = template, _Component$extend3)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hola Hodari', '-looked-up component rendered');
-    });
-
-    QUnit.test('updates when component path is bound', function () {
-      var _Component$extend4;
-
-      var Mandarin = _emberViewsComponentsComponent.default.extend();
-      owner.register('component:-mandarin', Mandarin);
-      owner.register('template:components/-mandarin', _emberTemplateCompilerSystemCompile.default('ni hao'));
-      owner.register('template:components/-hindi', _emberTemplateCompilerSystemCompile.default('Namaste'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_containerOwner.OWNER] = owner, _Component$extend4.template = template, _Component$extend4.lookupComponent = '-mandarin', _Component$extend4)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      equal(component.$().text(), 'ni hao', 'mandarin lookupComponent renders greeting');
-      _emberMetalRun_loop.default(function () {
-        component.set('lookupComponent', '-hindi');
-      });
-      equal(component.$().text(), 'Namaste', 'hindi lookupComponent renders greeting');
-    });
-
-    QUnit.test('updates when curried hash argument is bound', function () {
-      var _Component$extend5;
-
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" greeting=greeting)}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend5 = {}, _Component$extend5[_containerOwner.OWNER] = owner, _Component$extend5.template = template, _Component$extend5)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), '', '-looked-up component rendered');
-      _emberMetalRun_loop.default(function () {
-        component.set('greeting', 'Hodi');
-      });
-      equal(component.$().text(), 'Hodi', 'greeting is bound');
-    });
-
-    QUnit.test('updates when curried hash arguments is bound in block form', function () {
-      var _Component$extend6;
-
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash comp=(component "-looked-up" greeting=greeting)) as |my|}}\n      {{#my.comp}}{{/my.comp}}\n    {{/with}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.template = template, _Component$extend6)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text().trim(), '', '-looked-up component rendered');
-      _emberMetalRun_loop.default(function () {
-        component.set('greeting', 'Hodi');
-      });
-      equal(component.$().text().trim(), 'Hodi', 'greeting is bound');
-    });
-
-    QUnit.test('nested components overwrites named positional parameters', function () {
-      var _Component$extend7;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component\n        (component (component "-looked-up" "Sergio" 28)\n                   "Marvin" 21)\n        "Hodari"}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.template = template, _Component$extend7)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodari 21', '-looked-up component rendered');
-    });
-
-    QUnit.test('nested components overwrites hash parameters', function () {
-      var _Component$extend8;
-
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component (component "-looked-up"\n                                greeting="Hola" name="Dolores" age=33)\n                            greeting="Hej" name="Sigmundur")\n                  greeting=greeting}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.template = template, _Component$extend8.greeting = 'Hodi', _Component$extend8)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      equal(component.$().text(), 'Hodi Sigmundur 33', '-looked-up component rendered');
-    });
-
-    QUnit.test('bound outer named parameters get updated in the right scope', function () {
-      var _Component$extend9;
-
-      var InnerComponent = _emberViewsComponentsComponent.default.extend();
-      InnerComponent.reopenClass({
-        positionalParams: ['comp']
-      });
-      owner.register('component:-inner-component', InnerComponent);
-      owner.register('template:components/-inner-component', _emberTemplateCompilerSystemCompile.default('{{component comp "Inner"}}'));
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" outerName outerAge)}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend9 = {}, _Component$extend9[_containerOwner.OWNER] = owner, _Component$extend9.template = template, _Component$extend9.outerName = 'Outer', _Component$extend9.outerAge = 28, _Component$extend9)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
-    });
-
-    QUnit.test('bound outer hash parameters get updated in the right scope', function () {
-      var _Component$extend10;
-
-      var InnerComponent = _emberViewsComponentsComponent.default.extend();
-      InnerComponent.reopenClass({
-        positionalParams: ['comp']
-      });
-      owner.register('component:-inner-component', InnerComponent);
-      owner.register('template:components/-inner-component', _emberTemplateCompilerSystemCompile.default('{{component comp name="Inner"}}'));
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({});
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" name=outerName age=outerAge)}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend10 = {}, _Component$extend10[_containerOwner.OWNER] = owner, _Component$extend10.template = template, _Component$extend10.outerName = 'Outer', _Component$extend10.outerAge = 28, _Component$extend10)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
-    });
-
-    QUnit.test('conflicting positional and hash parameters raise and assertion if in the same closure', function () {
-      var _Component$extend11;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend11 = {}, _Component$extend11[_containerOwner.OWNER] = owner, _Component$extend11.template = template, _Component$extend11)).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
-    });
-
-    QUnit.test('conflicting positional and hash parameters does not raise and assertion if rerendered', function () {
-      var _Component$extend12;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" name greeting="Hodi")}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.template = template, _Component$extend12.name = 'Hodari', _Component$extend12)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodi Hodari', 'component is rendered');
-
-      _emberMetalRun_loop.default(function () {
-        return component.set('name', 'Sergio');
-      });
-
-      equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
-    });
-
-    QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
-      var _Component$extend13;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      owner.register('component:-looked-up', LookedUp);
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.template = template, _Component$extend13)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
-    });
-
-    QUnit.test('raises an assertion when component path is null', function () {
-      var _Component$extend14;
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.template = template, _Component$extend14)).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      });
-    });
-
-    QUnit.test('raises an assertion when component path is not a component name', function () {
-      var _Component$extend15, _Component$extend16;
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "not-a-component")}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.template = template, _Component$extend15)).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
-
-      template = _emberTemplateCompilerSystemCompile.default('{{component (component compName)}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend16 = {}, _Component$extend16[_containerOwner.OWNER] = owner, _Component$extend16.template = template, _Component$extend16.compName = 'not-a-component', _Component$extend16)).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
-    });
-
-    QUnit.test('renders with dot path', function () {
-      var _Component$extend17;
-
-      var expectedText = 'Hodi';
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend17 = {}, _Component$extend17[_containerOwner.OWNER] = owner, _Component$extend17.template = template, _Component$extend17)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with dot path and attr', function () {
-      var _Component$extend18;
-
-      var expectedText = 'Hodi';
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend18 = {}, _Component$extend18[_containerOwner.OWNER] = owner, _Component$extend18.template = template, _Component$extend18)).create({
-        expectedText: expectedText
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with dot path curried over attr', function () {
-      var _Component$extend19;
-
-      var expectedText = 'Hodi';
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19)).create({
-        expectedText: expectedText
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with dot path and with rest positional parameters', function () {
-      var _Component$extend20;
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: 'params'
-      });
-      owner.register('component:-looked-up', LookedUp);
-      var expectedText = 'Hodi';
-      owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{params}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText "Hola"}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend20 = {}, _Component$extend20[_containerOwner.OWNER] = owner, _Component$extend20.template = template, _Component$extend20)).create({
-        expectedText: expectedText
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText + ',Hola', '-looked-up component rendered with rest params');
-    });
-
-    QUnit.test('renders with dot path and rest parameter does not leak', function () {
-      var _Component$extend21;
-
-      var value = false;
-      var MyComponent = _emberViewsComponentsComponent.default.extend({
-        didReceiveAttrs: function () {
-          value = this.getAttr('value');
-        }
-      });
-
-      MyComponent.reopenClass({
-        positionalParams: ['value']
-      });
-
-      owner.register('component:my-component', MyComponent);
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash my-component=(component \'my-component\')) as |c|}}\n      {{c.my-component }}\n     {{/with}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      ok(_emberMetalIs_empty.default(value), 'value is an empty parameter');
-    });
-
-    QUnit.test('renders with dot path and updates attributes', function () {
-      var _Component$extend22;
-
-      owner.register('component:my-nested-component', _emberViewsComponentsComponent.default.extend({
-        didReceiveAttrs: function () {
-          this.set('myProp', this.getAttr('my-parent-attr'));
-        }
-      }));
-
-      owner.register('template:components/my-nested-component', _emberTemplateCompilerSystemCompile.default('<span id=\'nested-prop\'>{{myProp}}</span>'));
-
-      owner.register('template:components/my-component', _emberTemplateCompilerSystemCompile.default('{{yield (hash my-nested-component=(component \'my-nested-component\' my-parent-attr=attrs.my-attr))}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                           {{api.my-nested-component}}\n                         {{/my-component}}\n                         <br>\n                         <button onclick={{action \'changeValue\'}}>Change value</button>');
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend22 = {}, _Component$extend22[_containerOwner.OWNER] = owner, _Component$extend22.template = template, _Component$extend22.myProp = 1, _Component$extend22.actions = {
-        changeValue: function () {
-          this.incrementProperty('myProp');
-        }
-      }, _Component$extend22)).create({});
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      component.$('button').click();
-
-      equal(component.$('#nested-prop').text(), '2', 'value got updated');
-
-      component.$('button').click();
-
-      equal(component.$('#nested-prop').text(), '3', 'value got updated again');
-    });
-
-    QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
-      var _Component$extend23;
-
-      owner.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
-
-      owner.register('template:components/select-box-option', _emberTemplateCompilerSystemCompile.default('{{label}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend23 = {}, _Component$extend23[_containerOwner.OWNER] = owner, _Component$extend23.template = template, _Component$extend23)).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Foo', 'there is only one Foo');
-    });
-
-    QUnit.test('parameters in a closure are mutable when closure is a param', function (assert) {
-      var _Component$extend24;
-
-      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-
-      var ChangeButton = _emberViewsComponentsComponent.default.extend().reopenClass({
-        positionalParams: ['val']
-      });
-
-      owner.register('component:change-button', ChangeButton);
-      owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "change-button" val2)}}<span class="value">{{val2}}</span>');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend24 = {}, _Component$extend24[_containerOwner.OWNER] = owner, _Component$extend24.template = template, _Component$extend24)).create({
-        val2: 8
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      assert.equal(component.$('.value').text(), '8', 'initial state is right');
-
-      _emberMetalRun_loop.default(function () {
-        return component.$('.my-button').click();
-      });
-
-      assert.equal(component.$('.value').text(), '10', 'Value gets updated');
-
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-    });
-
-    QUnit.test('parameters in a closure are mutable when closure is in a nested param', function (assert) {
-      var _Component$extend25;
-
-      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-
-      var ChangeButton = _emberViewsComponentsComponent.default.extend().reopenClass({
-        positionalParams: ['val']
-      });
-
-      owner.register('component:change-button', ChangeButton);
-      owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
-
-      owner.register('component:my-comp', _emberViewsComponentsComponent.default.extend().reopenClass({
-        positionalParams: ['components']
-      }));
-      owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component components.comp}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{my-comp (hash comp=(component "change-button" val2))}}<span class="value">{{val2}}</span>');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend25 = {}, _Component$extend25[_containerOwner.OWNER] = owner, _Component$extend25.template = template, _Component$extend25)).create({
-        val2: 8
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      assert.equal(component.$('.value').text(), '8', 'initial state is right');
-
-      _emberMetalRun_loop.default(function () {
-        return component.$('.my-button').click();
-      });
-
-      assert.equal(component.$('.value').text(), '10', 'Value gets updated');
-
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-    });
-
-    QUnit.test('parameters in a closure are mutable when closure is a hash value', function (assert) {
-      var _Component$extend26;
-
-      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-
-      owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
-
-      owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component component}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{my-comp component=(component "change-button" val=val2)}}<span class="value">{{val2}}</span>');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend26 = {}, _Component$extend26[_containerOwner.OWNER] = owner, _Component$extend26.template = template, _Component$extend26)).create({
-        val2: 8
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      assert.equal(component.$('.value').text(), '8', 'initial state is right');
-
-      _emberMetalRun_loop.default(function () {
-        return component.$('.my-button').click();
-      });
-
-      assert.equal(component.$('.value').text(), '10', 'Value gets updated');
-
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-    });
-
-    QUnit.test('parameters in a closure are mutable when closure is a nested hash value', function (assert) {
-      var _Component$extend27;
-
-      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-
-      owner.register('template:components/change-button', _emberTemplateCompilerSystemCompile.default('<button {{action (action (mut val) 10)}} class="my-button">Change to 10</button>'));
-
-      owner.register('template:components/my-comp', _emberTemplateCompilerSystemCompile.default('{{component components.button}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{my-comp components=(hash button=(component "change-button" val=val2))}}<span class="value">{{val2}}</span>');
-
-      component = _emberViewsComponentsComponent.default.extend((_Component$extend27 = {}, _Component$extend27[_containerOwner.OWNER] = owner, _Component$extend27.template = template, _Component$extend27)).create({
-        val2: 8
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      assert.equal(component.$('.value').text(), '8', 'initial state is right');
-
-      _emberMetalRun_loop.default(function () {
-        return component.$('.my-button').click();
-      });
-
-      assert.equal(component.$('.value').text(), '10', 'Value gets updated');
-
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-    });
-  }
-});
 enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-environment', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberEnvironment, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
@@ -40318,6 +40621,862 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty', 'ember-views/system/event_dispatcher'], function (exports, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty, _emberViewsSystemEvent_dispatcher) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}'], ['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}'], ['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}'], ['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
+      _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
+      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test renders with component helper'] = function testRendersWithComponentHelper() {
+      var _this = this;
+
+      var expectedText = 'Hodi';
+
+      this.registerComponent('-looked-up', {
+        template: expectedText
+      });
+
+      this.render('{{component (component "-looked-up")}}');
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with component helper with invocation params, hash'] = function testRendersWithComponentHelperWithInvocationParamsHash() {
+      var _this2 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.assertText('Hodi Hodari');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('Hodi Hodari');
+    };
+
+    _class.prototype['@test renders with component helper with curried params, hash'] = function testRendersWithComponentHelperWithCurriedParamsHash() {
+      var _this3 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertText('Hola Hodari');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Hola Hodari');
+    };
+
+    _class.prototype['@test updates when component path is bound'] = function testUpdatesWhenComponentPathIsBound() {
+      var _this4 = this;
+
+      this.registerComponent('-mandarin', {
+        template: 'ni hao'
+      });
+
+      this.registerComponent('-hindi', {
+        template: 'Namaste'
+      });
+
+      this.render('{{component (component model.lookupComponent)}}', {
+        model: {
+          lookupComponent: '-mandarin'
+        }
+      });
+
+      this.assertText('ni hao');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('ni hao');
+
+      this.runTask(function () {
+        return _this4.context.set('model.lookupComponent', '-hindi');
+      });
+
+      this.assertText('Namaste');
+
+      this.runTask(function () {
+        return _this4.context.set('model', { lookupComponent: '-mandarin' });
+      });
+
+      this.assertText('ni hao');
+    };
+
+    _class.prototype['@test updates when curried hash argument is bound'] = function testUpdatesWhenCurriedHashArgumentIsBound() {
+      var _this5 = this;
+
+      this.registerComponent('-looked-up', {
+        template: '{{greeting}}'
+      });
+
+      this.render('{{component (component "-looked-up" greeting=model.greeting)}}', {
+        model: {
+          greeting: 'Hodi'
+        }
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this5.context.set('model.greeting', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this5.context.set('model', { greeting: 'Hodi' });
+      });
+
+      this.assertText('Hodi');
+    };
+
+    _class.prototype['@test updates when curried hash arguments is bound in block form'] = function testUpdatesWhenCurriedHashArgumentsIsBoundInBlockForm() {
+      var _this6 = this;
+
+      this.registerComponent('-looked-up', {
+        template: '{{greeting}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3), {
+        model: {
+          greeting: 'Hodi'
+        }
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('Hodi');
+
+      this.runTask(function () {
+        return _this6.context.set('model.greeting', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this6.context.set('model', { greeting: 'Hodi' });
+      });
+
+      this.assertText('Hodi');
+    };
+
+    _class.prototype['@test nested components overwrite named positional parameters'] = function testNestedComponentsOverwriteNamedPositionalParameters() {
+      var _this7 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}} {{age}}'
+      });
+
+      this.render('{{component (component (component "-looked-up" "Sergio" 29) "Marvin" 21) "Hodari"}}');
+
+      this.assertText('Hodari 21');
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertText('Hodari 21');
+    };
+
+    _class.prototype['@test nested components overwrite hash parameters'] = function testNestedComponentsOverwriteHashParameters() {
+      var _this8 = this;
+
+      this.registerComponent('-looked-up', {
+        template: '{{greeting}} {{name}} {{age}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        model: {
+          greeting: 'Hodi'
+        }
+      });
+
+      this.assertText('Hodi Sigmundur 33');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('Hodi Sigmundur 33');
+
+      this.runTask(function () {
+        return _this8.context.set('model.greeting', 'Kaixo');
+      });
+
+      this.assertText('Kaixo Sigmundur 33');
+
+      this.runTask(function () {
+        return _this8.context.set('model', { greeting: 'Hodi' });
+      });
+
+      this.assertText('Hodi Sigmundur 33');
+    };
+
+    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+      var _this9 = this;
+
+      this.registerComponent('-inner-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['comp']
+        }),
+        template: '{{component comp "Inner"}}'
+      });
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name', 'age']
+        }),
+        template: '{{name}} {{age}}'
+      });
+
+      this.render('{{component "-inner-component" (component "-looked-up" model.outerName model.outerAge)}}', {
+        model: {
+          outerName: 'Outer',
+          outerAge: 28
+        }
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this9.context.set('outerAge', 29);
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        return _this9.context.set('outerName', 'Not outer');
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        _this9.context.set('model', {
+          outerName: 'Outer',
+          outerAge: 28
+        });
+      });
+
+      this.assertText('Inner 28');
+    };
+
+    _class.prototype['@skip bound outer hash parameters get updated in the right scope'] = function skipBoundOuterHashParametersGetUpdatedInTheRightScope() {
+      var _this10 = this;
+
+      this.registerComponent('-inner-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['comp']
+        }),
+        template: '{{component comp name="Inner"}}'
+      });
+
+      this.registerComponent('-looked-up', {
+        template: '{{name}} {{age}}'
+      });
+
+      this.render('{{component "-inner-component" (component "-looked-up" name=model.outerName age=model.outerAge)}}', {
+        model: {
+          outerName: 'Outer',
+          outerAge: 28
+        }
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('Inner 28');
+
+      this.runTask(function () {
+        return _this10.context.set('model.outerAge', 29);
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        return _this10.context.set('model.outerName', 'Not outer');
+      });
+
+      this.assertText('Inner 29');
+
+      this.runTask(function () {
+        _this10.context.set('model', {
+          outerName: 'Outer',
+          outerAge: 28
+        });
+      });
+
+      this.assertText('Inner 28');
+    };
+
+    _class.prototype['@test conflicting positional and hash parameters raise and assertion if in the same closure'] = function testConflictingPositionalAndHashParametersRaiseAndAssertionIfInTheSameClosure() {
+      var _this11 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      expectAssertion(function () {
+        _this11.render('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
+      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+    };
+
+    _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if rerendered'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfRerendered() {
+      var _this12 = this;
+
+      // In some cases, rerendering with a positional param used to cause an
+      // assertion. This test checks it does not.
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render('{{component (component "-looked-up" model.name greeting="Hodi")}}', {
+        model: {
+          name: 'Hodari'
+        }
+      });
+
+      this.assertText('Hodi Hodari');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('Hodi Hodari');
+
+      this.runTask(function () {
+        return _this12.context.set('model.name', 'Sergio');
+      });
+
+      this.assertText('Hodi Sergio');
+
+      this.runTask(function () {
+        return _this12.context.set('model', { name: 'Hodari' });
+      });
+
+      this.assertText('Hodi Hodari');
+    };
+
+    _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if in different closure'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfInDifferentClosure() {
+      var _this13 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['name']
+        }),
+        template: '{{greeting}} {{name}}'
+      });
+
+      this.render('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
+
+      this.assertText('Hodi Sergio');
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertText('Hodi Sergio');
+    };
+
+    _class.prototype['@test raises an asserton when component path is null'] = function testRaisesAnAssertonWhenComponentPathIsNull() {
+      var _this14 = this;
+
+      expectAssertion(function () {
+        _this14.render('{{component (component lookupComponent)}}');
+      });
+    };
+
+    _class.prototype['@test raises an assertion when component path is not a component name (static)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameStatic() {
+      var _this15 = this;
+
+      expectAssertion(function () {
+        _this15.render('{{component (component "not-a-component")}}');
+      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
+    };
+
+    _class.prototype['@test raises an assertion when component path is not a component name (dynamic)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameDynamic() {
+      var _this16 = this;
+
+      expectAssertion(function () {
+        _this16.render('{{component (component compName)}}', {
+          compName: 'not-a-component'
+        });
+      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
+    };
+
+    _class.prototype['@test renders with dot path'] = function testRendersWithDotPath() {
+      var _this17 = this;
+
+      var expectedText = 'Hodi';
+      this.registerComponent('-looked-up', {
+        template: expectedText
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with dot path and attr'] = function testRendersWithDotPathAndAttr() {
+      var _this18 = this;
+
+      var expectedText = 'Hodi';
+      this.registerComponent('-looked-up', {
+        template: '{{expectedText}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        model: {
+          expectedText: expectedText
+        }
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this18.context.set('model.expectedText', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this18.context.set('model', { expectedText: expectedText });
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with dot path and curried over attr'] = function testRendersWithDotPathAndCurriedOverAttr() {
+      var _this19 = this;
+
+      var expectedText = 'Hodi';
+      this.registerComponent('-looked-up', {
+        template: '{{expectedText}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7), {
+        model: {
+          expectedText: expectedText
+        }
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText(expectedText);
+
+      this.runTask(function () {
+        return _this19.context.set('model.expectedText', 'Hola');
+      });
+
+      this.assertText('Hola');
+
+      this.runTask(function () {
+        return _this19.context.set('model', { expectedText: expectedText });
+      });
+
+      this.assertText(expectedText);
+    };
+
+    _class.prototype['@test renders with dot path and with rest positional parameters'] = function testRendersWithDotPathAndWithRestPositionalParameters() {
+      var _this20 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{params}}'
+      });
+
+      var expectedText = 'Hodi';
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8), {
+        model: {
+          expectedText: expectedText
+        }
+      });
+
+      this.assertText(expectedText + ',Hola');
+
+      this.runTask(function () {
+        return _this20.rerender();
+      });
+
+      this.assertText(expectedText + ',Hola');
+
+      this.runTask(function () {
+        return _this20.context.set('model.expectedText', 'Kaixo');
+      });
+
+      this.assertText('Kaixo,Hola');
+
+      this.runTask(function () {
+        return _this20.context.set('model', { expectedText: expectedText });
+      });
+
+      this.assertText(expectedText + ',Hola');
+    };
+
+    _class.prototype['@test renders with dot path and rest parameter does not leak'] = function testRendersWithDotPathAndRestParameterDoesNotLeak(assert) {
+      // In the original implementation, positional parameters were not handled
+      // correctly causing the first positional parameter to be the closure
+      // component itself.
+      var value = false;
+
+      this.registerComponent('my-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            value = this.getAttr('value');
+          }
+        }).reopenClass({
+          positionalParams: ['value']
+        })
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9));
+
+      assert.ok(_emberMetalIs_empty.default(value), 'value is an empty parameter');
+    };
+
+    _class.prototype['@test renders with dot path and updates attributes'] = function testRendersWithDotPathAndUpdatesAttributes(assert) {
+      var _this21 = this;
+
+      this.registerComponent('my-nested-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            this.set('myProp', this.getAttr('my-parent-attr'));
+          }
+        }),
+        template: '<span id="nested-prop">{{myProp}}</span>'
+      });
+
+      this.registerComponent('my-component', {
+        template: '{{yield (hash my-nested-component=(component "my-nested-component" my-parent-attr=my-attr))}}'
+      });
+
+      this.registerComponent('my-action-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            changeValue: function () {
+              this.incrementProperty('myProp');
+            }
+          }
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
+      });
+
+      this.render('{{my-action-component myProp=model.myProp}}', {
+        model: {
+          myProp: 1
+        }
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '1');
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '1');
+
+      this.runTask(function () {
+        return _this21.$('button').click();
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '2');
+
+      this.runTask(function () {
+        return _this21.$('button').click();
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '3');
+
+      this.runTask(function () {
+        return _this21.context.set('model', { myProp: 1 });
+      });
+
+      assert.equal(this.$('#nested-prop').text(), '1');
+    };
+
+    _class.prototype['@test adding parameters to a closure component\'s instance does not add it to other instances'] = function testAddingParametersToAClosureComponentSInstanceDoesNotAddItToOtherInstances() {
+      var _this22 = this;
+
+      // If parameters and attributes are not handled correctly, setting a value
+      // in an invokation can leak to others invocation.
+      this.registerComponent('select-box', {
+        template: '{{yield (hash option=(component "select-box-option"))}}'
+      });
+
+      this.registerComponent('select-box-option', {
+        template: '{{label}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject11));
+
+      this.assertText('Foo');
+
+      this.runTask(function () {
+        return _this22.rerender();
+      });
+
+      this.assertText('Foo');
+    };
+
+    _class.prototype['@test parameters in a closure are mutable when closure is a param'] = function testParametersInAClosureAreMutableWhenClosureIsAParam(assert) {
+      var _this23 = this;
+
+      // This checks that a `(mut)` is added to parameters and attributes to
+      // contextual components when it is a param.
+      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+      dispatcher.setup();
+
+      this.registerComponent('change-button', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['val']
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject13), {
+        model: {
+          val2: 8
+        }
+      });
+
+      assert.equal(this.$('.value').text(), '8');
+
+      this.runTask(function () {
+        return _this23.rerender();
+      });
+
+      assert.equal(this.$('.value').text(), '8');
+
+      this.runTask(function () {
+        return _this23.$('.my-button').click();
+      });
+
+      assert.equal(this.$('.value').text(), '10');
+
+      this.runTask(function () {
+        return _this23.context.set('model', { val2: 8 });
+      });
+
+      assert.equal(this.$('.value').text(), '8');
+
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  var ClosureComponentMutableParamsTest = (function (_RenderingTest2) {
+    _inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
+
+    function ClosureComponentMutableParamsTest() {
+      _classCallCheck(this, ClosureComponentMutableParamsTest);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    ClosureComponentMutableParamsTest.prototype.render = function render(templateStr) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      _RenderingTest2.prototype.render.call(this, templateStr + '<span class="value">{{model.val2}}</span>', _emberMetalAssign.default(context, { model: { val2: 8 } }));
+    };
+
+    return ClosureComponentMutableParamsTest;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
+
+  var MutableParamTestGenerator = (function () {
+    function MutableParamTestGenerator(cases) {
+      _classCallCheck(this, MutableParamTestGenerator);
+
+      this.cases = cases;
+    }
+
+    MutableParamTestGenerator.prototype.generate = function generate(_ref2) {
+      var _ref;
+
+      var title = _ref2.title;
+      var setup = _ref2.setup;
+
+      return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
+        var _this24 = this;
+
+        var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+        dispatcher.setup();
+
+        this.registerComponent('change-button', {
+          ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+            positionalParams: ['val']
+          }),
+          template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14)
+        });
+
+        setup.call(this, assert);
+
+        assert.equal(this.$('.value').text(), '8');
+
+        this.runTask(function () {
+          return _this24.rerender();
+        });
+
+        assert.equal(this.$('.value').text(), '8');
+
+        this.runTask(function () {
+          return _this24.$('.my-button').click();
+        });
+
+        assert.equal(this.$('.value').text(), '10');
+
+        this.runTask(function () {
+          return _this24.context.set('model', { val2: 8 });
+        });
+
+        assert.equal(this.$('.value').text(), '8');
+
+        _emberRuntimeTestsUtils.runDestroy(dispatcher);
+      }, _ref;
+    };
+
+    return MutableParamTestGenerator;
+  })();
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(ClosureComponentMutableParamsTest, new MutableParamTestGenerator([{
+    title: 'param',
+    setup: function () {
+      this.render('{{component (component "change-button" model.val2)}}');
+    }
+  }, {
+    title: 'nested param',
+    setup: function () {
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: ['components']
+        }),
+        template: '{{component components.comp}}'
+      });
+
+      this.render('{{my-comp (hash comp=(component "change-button" model.val2))}}');
+    }
+  }, {
+    title: 'hash value',
+    setup: function () {
+      this.registerComponent('my-comp', {
+        template: '{{component component}}'
+      });
+
+      this.render('{{my-comp component=(component "change-button" val=model.val2)}}');
+    }
+  }, {
+    title: 'nested hash value',
+    setup: function () {
+      this.registerComponent('my-comp', {
+        template: '{{component components.button}}'
+      });
+
+      this.render('{{my-comp components=(hash button=(component "change-button" val=model.val2))}}');
+    }
+  }]));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
 enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
   /* globals EmberDev */
@@ -77555,7 +78714,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+352f143a', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+8aa3f734', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
