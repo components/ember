@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4fe49ef4
+ * @version   2.7.0-canary+6c5475f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -30558,7 +30558,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@htmlbars simple helper not usable with a block'] = function htmlbarsSimpleHelperNotUsableWithABlock() {
+    _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
       var _this10 = this;
 
       this.registerHelper('some-helper', function () {});
@@ -46197,7 +46197,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@htmlbars simple helper not usable with a block'] = function htmlbarsSimpleHelperNotUsableWithABlock() {
+    _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
       var _this10 = this;
 
       this.registerHelper('some-helper', function () {});
@@ -78917,7 +78917,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+4fe49ef4', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+6c5475f6', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
