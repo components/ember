@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f4cb6e4c
+ * @version   2.7.0-canary+642b6f9d
  */
 
 var enifed, requireModule, require, Ember;
@@ -8399,10 +8399,14 @@ enifed('ember-glimmer/ember-routing-view/index', ['exports', 'ember-metal/assign
 
   exports.OutletView = OutletView;
 });
-enifed('ember-glimmer/ember-template-compiler/system/compile', ['exports', 'ember-glimmer/ember-template-compiler/system/template', 'require'], function (exports, _emberGlimmerEmberTemplateCompilerSystemTemplate, _require) {
+enifed('ember-glimmer/ember-template-compiler/system/compile', ['exports', 'ember-glimmer/ember-template-compiler/system/template', 'require', 'ember-template-compiler/plugins/transform-old-binding-syntax'], function (exports, _emberGlimmerEmberTemplateCompilerSystemTemplate, _require, _emberTemplateCompilerPluginsTransformOldBindingSyntax) {
   'use strict';
 
   exports.default = compile;
+
+  var DEFAULT_PLUGINS = {
+    ast: [_emberTemplateCompilerPluginsTransformOldBindingSyntax.default]
+  };
 
   var compileSpec = undefined;
 
@@ -8415,7 +8419,21 @@ enifed('ember-glimmer/ember-template-compiler/system/compile', ['exports', 'embe
       throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
     }
 
-    return _emberGlimmerEmberTemplateCompilerSystemTemplate.default(compileSpec(string, options));
+    return _emberGlimmerEmberTemplateCompilerSystemTemplate.default(compileSpec(string, compileOptions(options)));
+  }
+
+  function compileOptions(options) {
+    options = options || {};
+    if (!options.plugins) {
+      options.plugins = DEFAULT_PLUGINS;
+    } else {
+      Object.keys(DEFAULT_PLUGINS).forEach(function (typeKey) {
+        options.plugins[typeKey] = options.plugins[typeKey] || [];
+        options.plugins[typeKey] = options.plugins[typeKey].concat(DEFAULT_PLUGINS[typeKey]);
+      });
+    }
+
+    return options;
   }
 });
 enifed('ember-glimmer/ember-template-compiler/system/template', ['exports', 'ember-runtime/system/object', 'glimmer-runtime'], function (exports, _emberRuntimeSystemObject, _glimmerRuntime) {
@@ -12954,7 +12972,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+f4cb6e4c';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+642b6f9d';
   }
 
   /**
@@ -17860,7 +17878,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+f4cb6e4c
+    @version 2.7.0-canary+642b6f9d
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17887,11 +17905,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+f4cb6e4c'
+    @default '2.7.0-canary+642b6f9d'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+f4cb6e4c';
+  Ember.VERSION = '2.7.0-canary+642b6f9d';
 
   // ..........................................................
   // BOOTSTRAP
@@ -40635,6 +40653,7 @@ enifed('ember-template-compiler/index', ['exports', 'ember-environment', 'ember-
   exports.compile = _emberTemplateCompilerSystemCompile.default;
   exports.template = _emberTemplateCompilerSystemTemplate.default;
   exports.registerPlugin = _emberTemplateCompilerPlugins.registerPlugin;
+  exports.plugins = _emberTemplateCompilerPlugins.default;
 });
 
 // used for adding Ember.Handlebars.compile for backwards compat
@@ -41775,7 +41794,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+f4cb6e4c',
+        revision: 'Ember@2.7.0-canary+642b6f9d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51205,7 +51224,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+f4cb6e4c
+ * @version   2.7.0-canary+642b6f9d
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

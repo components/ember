@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f4cb6e4c
+ * @version   2.7.0-canary+642b6f9d
  */
 
 var enifed, requireModule, require, Ember;
@@ -26577,7 +26577,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
     };
 
-    _class.prototype['@htmlbars it should not allow attributeBindings to be set'] = function htmlbarsItShouldNotAllowAttributeBindingsToBeSet() {
+    _class.prototype['@test it should not allow attributeBindings to be set'] = function testItShouldNotAllowAttributeBindingsToBeSet() {
       var _this17 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
@@ -35037,7 +35037,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       var owner = this.owner;
 
       if (typeof template === 'string') {
-        owner.register('template:' + name, _emberGlimmerTestsUtilsHelpers.compile(template));
+        var moduleName = 'template:' + name;
+        owner.register(moduleName, _emberGlimmerTestsUtilsHelpers.compile(template, { moduleName: moduleName }));
       }
     };
 
@@ -42216,7 +42217,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
     };
 
-    _class.prototype['@htmlbars it should not allow attributeBindings to be set'] = function htmlbarsItShouldNotAllowAttributeBindingsToBeSet() {
+    _class.prototype['@test it should not allow attributeBindings to be set'] = function testItShouldNotAllowAttributeBindingsToBeSet() {
       var _this17 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
@@ -51718,7 +51719,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       var owner = this.owner;
 
       if (typeof template === 'string') {
-        owner.register('template:' + name, _emberHtmlbarsTestsUtilsHelpers.compile(template));
+        var moduleName = 'template:' + name;
+        owner.register(moduleName, _emberHtmlbarsTestsUtilsHelpers.compile(template, { moduleName: moduleName }));
       }
     };
 
@@ -78469,7 +78471,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+f4cb6e4c', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+642b6f9d', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

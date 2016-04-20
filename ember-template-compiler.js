@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f4cb6e4c
+ * @version   2.7.0-canary+642b6f9d
  */
 
 var enifed, requireModule, require, Ember;
@@ -4143,7 +4143,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+f4cb6e4c
+    @version 2.7.0-canary+642b6f9d
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -4170,11 +4170,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+f4cb6e4c'
+    @default '2.7.0-canary+642b6f9d'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+f4cb6e4c';
+  Ember.VERSION = '2.7.0-canary+642b6f9d';
 
   // ..........................................................
   // BOOTSTRAP
@@ -11798,6 +11798,7 @@ enifed('ember-template-compiler/index', ['exports', 'ember-environment', 'ember-
   exports.compile = _emberTemplateCompilerSystemCompile.default;
   exports.template = _emberTemplateCompilerSystemTemplate.default;
   exports.registerPlugin = _emberTemplateCompilerPlugins.registerPlugin;
+  exports.plugins = _emberTemplateCompilerPlugins.default;
 });
 
 // used for adding Ember.Handlebars.compile for backwards compat
@@ -12938,7 +12939,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+f4cb6e4c',
+        revision: 'Ember@2.7.0-canary+642b6f9d',
         loc: program.loc,
         moduleName: options.moduleName
       };
