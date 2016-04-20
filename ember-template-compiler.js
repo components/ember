@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+437e8416
+ * @version   2.7.0-canary+783a656e
  */
 
 var enifed, requireModule, require, Ember;
@@ -82,10 +82,9 @@ var mainContext = this;
 
       var deps = mod.deps;
       var callback = mod.callback;
-      var length = deps.length;
-      var reified = new Array(length);
+      var reified = new Array(deps.length);
 
-      for (var i = 0; i < length; i++) {
+      for (var i = 0; i < deps.length; i++) {
         if (deps[i] === 'exports') {
           reified[i] = exports;
         } else if (deps[i] === 'require') {
@@ -1978,7 +1977,7 @@ enifed("ember-metal/assign", ["exports"], function (exports) {
       args[_key - 1] = arguments[_key];
     }
 
-    for (var i = 0, l = args.length; i < l; i++) {
+    for (var i = 0; i < args.length; i++) {
       var arg = args[i];
       if (!arg) {
         continue;
@@ -1986,7 +1985,7 @@ enifed("ember-metal/assign", ["exports"], function (exports) {
 
       var updates = Object.keys(arg);
 
-      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
+      for (var _i = 0; _i < updates.length; _i++) {
         var prop = updates[_i];
         original[prop] = arg[prop];
       }
@@ -2538,7 +2537,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     remove: function (key, node) {
       var nodes = this.chains[key];
       if (nodes) {
-        for (var i = 0, l = nodes.length; i < l; i++) {
+        for (var i = 0; i < nodes.length; i++) {
           if (nodes[i] === node) {
             nodes.splice(i, 1);
             break;
@@ -2550,7 +2549,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     has: function (key, node) {
       var nodes = this.chains[key];
       if (nodes) {
-        for (var i = 0, l = nodes.length; i < l; i++) {
+        for (var i = 0; i < nodes.length; i++) {
           if (nodes[i] === node) {
             return true;
           }
@@ -2586,7 +2585,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
         affected = [];
       }
 
-      for (var i = 0, l = nodes.length; i < l; i++) {
+      for (var i = 0; i < nodes.length; i++) {
         nodes[i].notify(revalidate, affected);
       }
 
@@ -2595,7 +2594,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       }
 
       // we gather callbacks so we don't notify them during revalidation
-      for (var i = 0, l = affected.length; i < l; i += 2) {
+      for (var i = 0; i < affected.length; i += 2) {
         var obj = affected[i];
         var path = affected[i + 1];
         callback(obj, path);
@@ -3098,7 +3097,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     };
 
     args = [];
-    for (var i = 0, l = arguments.length; i < l; i++) {
+    for (var i = 0; i < arguments.length; i++) {
       _emberMetalExpand_properties.default(arguments[i], addArg);
     }
 
@@ -4144,7 +4143,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+437e8416
+    @version 2.7.0-canary+783a656e
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -4171,11 +4170,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+437e8416'
+    @default '2.7.0-canary+783a656e'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+437e8416';
+  Ember.VERSION = '2.7.0-canary+783a656e';
 
   // ..........................................................
   // BOOTSTRAP
@@ -4290,13 +4289,13 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], functi
   function addDependentKeys(desc, obj, keyName, meta) {
     // the descriptor has a list of dependent keys, so
     // add all of its dependent keys.
-    var idx, len, depKey;
+    var idx, depKey;
     var depKeys = desc._dependentKeys;
     if (!depKeys) {
       return;
     }
 
-    for (idx = 0, len = depKeys.length; idx < len; idx++) {
+    for (idx = 0; idx < depKeys.length; idx++) {
       depKey = depKeys[idx];
       // Increment the number of times depKey depends on keyName.
       meta.writeDeps(depKey, keyName, (meta.peekDeps(depKey, keyName) || 0) + 1);
@@ -4309,12 +4308,12 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], functi
     // the descriptor has a list of dependent keys, so
     // remove all of its dependent keys.
     var depKeys = desc._dependentKeys;
-    var idx, len, depKey;
+    var idx, depKey;
     if (!depKeys) {
       return;
     }
 
-    for (idx = 0, len = depKeys.length; idx < len; idx++) {
+    for (idx = 0; idx < depKeys.length; idx++) {
       depKey = depKeys[idx];
       // Decrement the number of times depKey depends on keyName.
       meta.writeDeps(depKey, keyName, (meta.peekDeps(depKey, keyName) || 0) - 1);
@@ -4745,7 +4744,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
       return ret;
     }
 
-    for (var i = 0, l = actions.length; i < l; i += 3) {
+    for (var i = 0; i < actions.length; i += 3) {
       var target = actions[i];
       var method = actions[i + 1];
       ret.push([target, method]);
@@ -4954,7 +4953,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
       i = 0;
       propertyNames = arguments[1];
     }
-    for (var len = propertyNames.length; i < len; i++) {
+    for (; i < propertyNames.length; i++) {
       ret[propertyNames[i]] = _emberMetalProperty_get.get(obj, propertyNames[i]);
     }
     return ret;
@@ -5350,7 +5349,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     var listeners = [];
     var subscriber;
 
-    for (var i = 0, l = subscribers.length; i < l; i++) {
+    for (var i = 0; i < subscribers.length; i++) {
       subscriber = subscribers[i];
       if (subscriber.regex.test(name)) {
         listeners.push(subscriber.object);
@@ -5449,19 +5448,18 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
       console.time(timeName);
     }
 
-    var l = listeners.length;
-    var beforeValues = new Array(l);
+    var beforeValues = new Array(listeners.length);
     var i, listener;
     var timestamp = time();
-    for (i = 0; i < l; i++) {
+    for (i = 0; i < listeners.length; i++) {
       listener = listeners[i];
       beforeValues[i] = listener.before(name, timestamp, payload);
     }
 
     return function _instrumentEnd() {
-      var i, l, listener;
+      var i, listener;
       var timestamp = time();
-      for (i = 0, l = listeners.length; i < l; i++) {
+      for (i = 0; i < listeners.length; i++) {
         listener = listeners[i];
         if (typeof listener.after === 'function') {
           listener.after(name, timestamp, payload, beforeValues[i]);
@@ -5492,7 +5490,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     var path;
     var regex = [];
 
-    for (var i = 0, l = paths.length; i < l; i++) {
+    for (var i = 0; i < paths.length; i++) {
       path = paths[i];
       if (path === '*') {
         regex.push('[^\\.]*');
@@ -5529,7 +5527,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
   function unsubscribe(subscriber) {
     var index;
 
-    for (var i = 0, l = subscribers.length; i < l; i++) {
+    for (var i = 0; i < subscribers.length; i++) {
       if (subscribers[i] === subscriber) {
         index = i;
       }
@@ -6120,10 +6118,9 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
       }
 
       var list = this.list;
-      var length = arguments.length;
       var i;
 
-      if (length === 2) {
+      if (arguments.length === 2) {
         for (i = 0; i < list.length; i++) {
           fn.call(arguments[1], list[i]);
         }
@@ -6319,11 +6316,10 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
         return;
       }
 
-      var length = arguments.length;
       var map = this;
       var cb, thisArg;
 
-      if (length === 2) {
+      if (arguments.length === 2) {
         thisArg = arguments[1];
         cb = function (key) {
           callback.call(thisArg, map.get(key), key, map);
@@ -6459,9 +6455,8 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
 
     var props = Object.keys(updates);
     var prop;
-    var length = props.length;
 
-    for (var i = 0; i < length; i++) {
+    for (var i = 0; i < props.length; i++) {
       prop = props[i];
       original[prop] = updates[prop];
     }
@@ -7226,7 +7221,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
       delete values[keyName];
     }
 
-    for (var i = 0, l = mixins.length; i < l; i++) {
+    for (var i = 0; i < mixins.length; i++) {
       currentMixin = mixins[i];
       _emberMetalDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
@@ -7347,7 +7342,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     var paths = observerOrListener[pathsKey];
 
     if (paths) {
-      for (var i = 0, l = paths.length; i < l; i++) {
+      for (var i = 0; i < paths.length; i++) {
         updateMethod(obj, paths[i], null, key);
       }
     }
@@ -7387,7 +7382,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     // * Copying `toString` in broken browsers
     mergeMixins(mixins, m, descs, values, obj, keys);
 
-    for (var i = 0, l = keys.length; i < l; i++) {
+    for (var i = 0; i < keys.length; i++) {
       key = keys[i];
       if (key === 'constructor' || !values.hasOwnProperty(key)) {
         continue;
@@ -7573,11 +7568,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
       this.mixins = [];
     }
 
-    var len = arguments.length;
     var mixins = this.mixins;
     var idx;
 
-    for (idx = 0; idx < len; idx++) {
+    for (idx = 0; idx < arguments.length; idx++) {
       currentMixin = arguments[idx];
       _emberMetalDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
@@ -7852,7 +7846,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
   function _immediateObserver() {
     _emberMetalDebug.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
 
-    for (var i = 0, l = arguments.length; i < l; i++) {
+    for (var i = 0; i < arguments.length; i++) {
       var arg = arguments[i];
       _emberMetalDebug.assert('Immediate observers must observe internal properties only, not properties on other objects.', typeof arg !== 'string' || arg.indexOf('.') === -1);
     }
@@ -8108,9 +8102,9 @@ enifed('ember-metal/observer_set', ['exports', 'ember-metal/utils', 'ember-metal
 
   ObserverSet.prototype.flush = function () {
     var observers = this.observers;
-    var i, len, observer, sender;
+    var i, observer, sender;
     this.clear();
-    for (i = 0, len = observers.length; i < len; ++i) {
+    for (i = 0; i < observers.length; ++i) {
       observer = observers[i];
       sender = observer.sender;
       if (sender.isDestroying || sender.isDestroyed) {
@@ -8773,9 +8767,8 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   function _getPath(root, path) {
     var obj = root;
     var parts = path.split('.');
-    var len = parts.length;
 
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < parts.length; i++) {
       if (obj == null) {
         return obj;
       }
@@ -9743,7 +9736,7 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
       var props = Object.keys(properties);
       var propertyName;
 
-      for (var i = 0, l = props.length; i < l; i++) {
+      for (var i = 0; i < props.length; i++) {
         propertyName = props[i];
 
         _emberMetalProperty_set.set(obj, propertyName, properties[propertyName]);
@@ -10239,7 +10232,7 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-me
         var dependencies = this.dependencies;
 
         if (dependencies) {
-          for (var i = 0, l = dependencies.length; i < l; i++) {
+          for (var i = 0; i < dependencies.length; i++) {
             dependencies[i](prune);
           }
         }
@@ -10443,9 +10436,8 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    */
 
   function readArray(array) {
-    var length = array.length;
-    var ret = new Array(length);
-    for (var i = 0; i < length; i++) {
+    var ret = new Array(array.length);
+    for (var i = 0; i < array.length; i++) {
       ret[i] = read(array[i]);
     }
     return ret;
@@ -10485,10 +10477,9 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   */
 
   function scanArray(array) {
-    var length = array.length;
     var containsStream = false;
 
-    for (var i = 0; i < length; i++) {
+    for (var i = 0; i < array.length; i++) {
       if (isStream(array[i])) {
         containsStream = true;
         break;
@@ -10563,7 +10554,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
     if (hasStream) {
       var stream = new ConcatStream(array, separator);
 
-      for (var i = 0, l = array.length; i < l; i++) {
+      for (var i = 0; i < array.length; i++) {
         addDependency(stream, array[i]);
       }
 
@@ -10576,7 +10567,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   function labelsFor(streams) {
     var labels = [];
 
-    for (var i = 0, l = streams.length; i < l; i++) {
+    for (var i = 0; i < streams.length; i++) {
       var stream = streams[i];
       labels.push(labelFor(stream));
     }
@@ -10646,7 +10637,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
       return label + '(' + labelsFor(streams) + ')';
     });
 
-    for (var i = 0, l = streams.length; i < l; i++) {
+    for (var i = 0; i < streams.length; i++) {
       stream.addDependency(streams[i]);
     }
 
@@ -11103,10 +11094,9 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   function _wrap(func, superFunc) {
     function superWrapper() {
       var orig = this._super;
-      var length = arguments.length;
       var ret = undefined;
       this._super = superFunc;
-      switch (length) {
+      switch (arguments.length) {
         case 0:
           ret = func.call(this);break;
         case 1:
@@ -11122,8 +11112,8 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
         default:
           // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
           // we may want to keep this around till this ages out on mobile
-          var args = new Array(length);
-          for (var x = 0; x < length; x++) {
+          var args = new Array(arguments.length);
+          for (var x = 0; x < arguments.length; x++) {
             args[x] = arguments[x];
           }
           ret = func.apply(this, args);
@@ -11889,8 +11879,8 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
     if (!hash || !hash.pairs) {
       return;
     }
-    var i, l, pair, paths;
-    for (i = 0, l = hash.pairs.length; i < l; i++) {
+    var i, pair, paths;
+    for (i = 0; i < hash.pairs.length; i++) {
       pair = hash.pairs[i];
       paths = pair.value.params;
       assertPaths(moduleName, pair, paths);
@@ -11901,8 +11891,8 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
     if (!paths) {
       return;
     }
-    var i, l, path;
-    for (i = 0, l = paths.length; i < l; i++) {
+    var i, path;
+    for (i = 0; i < paths.length; i++) {
       path = paths[i];
       assertPath(moduleName, node, path);
     }
@@ -12225,7 +12215,7 @@ enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['e
   }
 
   function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
+    for (var i = 0; i < list.length; i++) {
       callback(list[i]);
     }
   }
@@ -12274,7 +12264,7 @@ enifed('ember-template-compiler/plugins/transform-component-curly-to-readonly', 
   }
 
   function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
+    for (var i = 0; i < list.length; i++) {
       callback(list[i]);
     }
   }
@@ -12425,7 +12415,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
   };
 
   function hashPairForKey(hash, key) {
-    for (var i = 0, l = hash.pairs.length; i < l; i++) {
+    for (var i = 0; i < hash.pairs.length; i++) {
       var pair = hash.pairs[i];
       if (pair.key === key) {
         return pair;
@@ -12437,7 +12427,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
 
   function removeFromHash(hash, pairToRemove) {
     var newPairs = [];
-    for (var i = 0, l = hash.pairs.length; i < l; i++) {
+    for (var i = 0; i < hash.pairs.length; i++) {
       var pair = hash.pairs[i];
 
       if (pair !== pairToRemove) {
@@ -12498,7 +12488,7 @@ enifed('ember-template-compiler/plugins/transform-item-class', ['exports'], func
   }
 
   function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
+    for (var i = 0; i < list.length; i++) {
       callback(list[i]);
     }
   }
@@ -12556,7 +12546,7 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
   }
 
   function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
+    for (var i = 0; i < list.length; i++) {
       callback(list[i]);
     }
   }
@@ -12647,7 +12637,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
   };
 
   function buildSexprs(microsyntax, sexprs, b) {
-    for (var i = 0, l = microsyntax.length; i < l; i++) {
+    for (var i = 0; i < microsyntax.length; i++) {
       var _microsyntax$i = microsyntax[i];
       var propName = _microsyntax$i[0];
       var activeClass = _microsyntax$i[1];
@@ -12695,7 +12685,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
   }
 
   function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
+    for (var i = 0; i < list.length; i++) {
       callback(list[i], i);
     }
   }
@@ -12703,7 +12693,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
   function parseMicrosyntax(string) {
     var segments = string.split(' ');
 
-    for (var i = 0, l = segments.length; i < l; i++) {
+    for (var i = 0; i < segments.length; i++) {
       segments[i] = segments[i].split(':');
     }
 
@@ -12762,7 +12752,7 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     var lastIndex = undefined;
     var nodeCount = 0;
 
-    for (var i = 0, l = body.length; i < l; i++) {
+    for (var i = 0; i < body.length; i++) {
       var curr = body[i];
 
       // text node with whitespace only
@@ -12948,7 +12938,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+437e8416',
+        revision: 'Ember@2.7.0-canary+783a656e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12970,7 +12960,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     var problems = {};
 
-    for (var i = 0, l = body.length; i < l; i++) {
+    for (var i = 0; i < body.length; i++) {
       var curr = body[i];
 
       // text node with whitespace only

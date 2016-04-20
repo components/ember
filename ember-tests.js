@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+437e8416
+ * @version   2.7.0-canary+783a656e
  */
 
 var enifed, requireModule, require, Ember;
@@ -82,10 +82,9 @@ var mainContext = this;
 
       var deps = mod.deps;
       var callback = mod.callback;
-      var length = deps.length;
-      var reified = new Array(length);
+      var reified = new Array(deps.length);
 
-      for (var i = 0; i < length; i++) {
+      for (var i = 0; i < deps.length; i++) {
         if (deps[i] === 'exports') {
           reified[i] = exports;
         } else if (deps[i] === 'require') {
@@ -36944,7 +36943,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
       quotedTemplate: _emberTemplateCompilerSystemCompile.default('<iframe src=\'{{url}}\'></iframe>'),
       multipartTemplate: _emberTemplateCompilerSystemCompile.default('<iframe src=\'{{protocol}}{{path}}\'></iframe>') }];
 
-    for (var i = 0, l = badTags.length; i < l; i++) {
+    for (var i = 0; i < badTags.length; i++) {
       /* jshint -W083 */
       (function () {
         var subject = badTags[i];
@@ -56314,7 +56313,7 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
     var mapHasEntries = function (entries, theMap) {
       theMap = theMap || map;
 
-      for (var i = 0, l = entries.length; i < l; i++) {
+      for (var i = 0; i < entries.length; i++) {
         equal(theMap.get(entries[i][0]), entries[i][1]);
         equal(theMap.has(entries[i][0]), true);
       }
@@ -77086,7 +77085,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
 
     _emberMetalRun_loop.default(function () {
       var keys = Object.keys(objs);
-      for (var i = 0, l = keys.length; i < l; i++) {
+      for (var i = 0; i < keys.length; i++) {
         objs[keys[i]].destroy();
       }
     });
@@ -78914,7 +78913,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+437e8416', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+783a656e', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {

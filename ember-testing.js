@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+437e8416
+ * @version   2.7.0-canary+783a656e
  */
 
 var enifed, requireModule, require, Ember;
@@ -82,10 +82,9 @@ var mainContext = this;
 
       var deps = mod.deps;
       var callback = mod.callback;
-      var length = deps.length;
-      var reified = new Array(length);
+      var reified = new Array(deps.length);
 
-      for (var i = 0; i < length; i++) {
+      for (var i = 0; i < deps.length; i++) {
         if (deps[i] === 'exports') {
           reified[i] = exports;
         } else if (deps[i] === 'require') {
@@ -1829,7 +1828,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/run_loop', 'ember-runtime/
         protoWrap(Test.Promise.prototype, name, helper(this, name), helpers[name].meta.wait);
       }
 
-      for (var i = 0, l = injectHelpersCallbacks.length; i < l; i++) {
+      for (var i = 0; i < injectHelpersCallbacks.length; i++) {
         injectHelpersCallbacks[i](this);
       }
     },
