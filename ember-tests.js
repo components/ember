@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+783a656e
+ * @version   2.7.0-canary+f4cb6e4c
  */
 
 var enifed, requireModule, require, Ember;
@@ -30566,7 +30566,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@htmlbars class-based helper not usable with a block'] = function htmlbarsClassBasedHelperNotUsableWithABlock() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this11 = this;
 
       this.registerHelper('some-helper', {
@@ -46205,7 +46205,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@htmlbars class-based helper not usable with a block'] = function htmlbarsClassBasedHelperNotUsableWithABlock() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this11 = this;
 
       this.registerHelper('some-helper', {
@@ -78913,7 +78913,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+783a656e', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+f4cb6e4c', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
