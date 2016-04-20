@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6c5475f6
+ * @version   2.7.0-canary+437e8416
  */
 
 var enifed, requireModule, require, Ember;
@@ -10202,12 +10202,10 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/features'], function (exports, _emberMetalCore, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalFeatures) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/template_registry', 'ember-routing/system/controller_for'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsTemplate_registry, _emberRoutingSystemController_for) {
   'use strict';
 
-  var compile = _emberMetalCore.default.HTMLBars.compile;
-
-  var App, appInstance, router;
+  var App, TEMPLATES, appInstance, router;
 
   function setupApp(klass) {
     _emberMetalRun_loop.default(function () {
@@ -10227,13 +10225,14 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
 
   QUnit.module('Application Lifecycle', {
     setup: function () {
+      TEMPLATES = _emberHtmlbarsTemplate_registry.getTemplates();
       setupApp(_emberApplicationSystemApplication.default.extend());
     },
 
     teardown: function () {
       router = null;
       _emberMetalRun_loop.default(App, 'destroy');
-      _emberMetalCore.default.TEMPLATES = {};
+      _emberHtmlbarsTemplate_registry.setTemplates({});
     }
   });
 
@@ -10278,13 +10277,13 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
 
     handleURL('/');
 
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'home').get('selectedMenuItem'), 'home');
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'application').get('selectedMenuItem'), 'home');
+    equal(_emberRoutingSystemController_for.default(appInstance, 'home').get('selectedMenuItem'), 'home');
+    equal(_emberRoutingSystemController_for.default(appInstance, 'application').get('selectedMenuItem'), 'home');
 
     App.reset();
 
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'home').get('selectedMenuItem'), null);
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'application').get('selectedMenuItem'), null);
+    equal(_emberRoutingSystemController_for.default(appInstance, 'home').get('selectedMenuItem'), null);
+    equal(_emberRoutingSystemController_for.default(appInstance, 'application').get('selectedMenuItem'), null);
   });
 
   QUnit.test('Destroying the application resets the router before the appInstance is destroyed', function () {
@@ -10315,13 +10314,13 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
 
     handleURL('/');
 
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'home').get('selectedMenuItem'), 'home');
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'application').get('selectedMenuItem'), 'home');
+    equal(_emberRoutingSystemController_for.default(appInstance, 'home').get('selectedMenuItem'), 'home');
+    equal(_emberRoutingSystemController_for.default(appInstance, 'application').get('selectedMenuItem'), 'home');
 
     _emberMetalRun_loop.default(App, 'destroy');
 
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'home').get('selectedMenuItem'), null);
-    equal(_emberMetalCore.default.controllerFor(appInstance, 'application').get('selectedMenuItem'), null);
+    equal(_emberRoutingSystemController_for.default(appInstance, 'home').get('selectedMenuItem'), null);
+    equal(_emberRoutingSystemController_for.default(appInstance, 'application').get('selectedMenuItem'), null);
   });
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
@@ -10351,8 +10350,8 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
         }
       });
 
-      _emberMetalCore.default.TEMPLATES['application'] = compile('{{foo-bar}}');
-      _emberMetalCore.default.TEMPLATES['components/foo-bar'] = compile('<div id=\'wowza-thingy\'></div>');
+      TEMPLATES['application'] = _emberTemplateCompiler.compile('{{foo-bar}}');
+      TEMPLATES['components/foo-bar'] = _emberTemplateCompiler.compile('<div id=\'wowza-thingy\'></div>');
 
       _emberMetalRun_loop.default(App, 'advanceReadiness');
 
@@ -10385,8 +10384,8 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
         }
       });
 
-      _emberMetalCore.default.TEMPLATES['application'] = compile('{{foo-bar}}');
-      _emberMetalCore.default.TEMPLATES['components/foo-bar'] = compile('<div id=\'herky-thingy\'></div>');
+      TEMPLATES['application'] = _emberTemplateCompiler.compile('{{foo-bar}}');
+      TEMPLATES['components/foo-bar'] = _emberTemplateCompiler.compile('<div id=\'herky-thingy\'></div>');
 
       _emberMetalRun_loop.default(App, 'advanceReadiness');
 
@@ -18765,7 +18764,7 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/core', 'e
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-views/views/view', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-metal/features'], function (exports, _emberMetalCore, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompiler, _emberViewsViewsView, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberMetalFeatures) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-views/views/view', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompiler, _emberViewsViewsView, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
   'use strict';
 
   var Router, App, templates, router, container, counter;
@@ -18777,7 +18776,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
 
   function bootApplication(startingURL) {
     for (var name in templates) {
-      _emberMetalCore.default.TEMPLATES[name] = _emberTemplateCompiler.compile(templates[name]);
+      _emberHtmlbarsTemplate_registry.set(name, _emberTemplateCompiler.compile(templates[name]));
     }
 
     if (startingURL) {
@@ -18800,7 +18799,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
           name: 'App',
           rootElement: '#qunit-fixture',
           // fake a modules resolver
-          Resolver: _emberMetalCore.default.DefaultResolver.extend({ moduleBasedResolver: true })
+          Resolver: _emberApplicationSystemResolver.default.extend({ moduleBasedResolver: true })
         });
 
         App.deferReadiness();
@@ -18828,7 +18827,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
         App.destroy();
         App = null;
 
-        _emberMetalCore.default.TEMPLATES = {};
+        _emberHtmlbarsTemplate_registry.setTemplates({});
       });
 
       _emberRoutingLocationNone_location.default.reopen({
@@ -19189,13 +19188,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       });
     });
 
-    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
 
-    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+    App.MomSallyRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return _emberMetalCore.default.RSVP.reject({
+        return _emberRuntimeExtRsvp.default.reject({
           msg: 'did it broke?'
         });
       },
@@ -19223,13 +19222,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       });
     });
 
-    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
 
-    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+    App.MomSallyRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return _emberMetalCore.default.RSVP.reject({
+        return _emberRuntimeExtRsvp.default.reject({
           msg: 'did it broke?'
         });
       },
@@ -19264,13 +19263,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       });
     });
 
-    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
 
-    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+    App.MomSallyRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return _emberMetalCore.default.RSVP.reject({
+        return _emberRuntimeExtRsvp.default.reject({
           msg: 'did it broke?'
         });
       },
@@ -19288,7 +19287,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       }
     });
 
-    App.MomThisRouteThrowsRoute = _emberMetalCore.default.Route.extend({
+    App.MomThisRouteThrowsRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(3, 'MomThisRouteThrows#model');
 
@@ -19318,9 +19317,9 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       });
     });
 
-    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
 
-    App.MomRoute = _emberMetalCore.default.Route.extend({
+    App.MomRoute = _emberRoutingSystemRoute.default.extend({
       actions: {
         error: function (err) {
           step(3, 'MomRoute#error');
@@ -19330,11 +19329,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       }
     });
 
-    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+    App.MomSallyRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return _emberMetalCore.default.RSVP.reject({
+        return _emberRuntimeExtRsvp.default.reject({
           msg: 'did it broke?'
         });
       },
@@ -19368,13 +19367,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       });
     });
 
-    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
 
-    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+    App.MomSallyRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return _emberMetalCore.default.RSVP.reject({
+        return _emberRuntimeExtRsvp.default.reject({
           msg: 'did it broke?'
         });
       },
@@ -19413,13 +19412,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       });
     });
 
-    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
 
-    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+    App.MomSallyRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return _emberMetalCore.default.RSVP.reject({
+        return _emberRuntimeExtRsvp.default.reject({
           msg: 'did it broke?'
         });
       },
@@ -19437,11 +19436,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
       }
     });
 
-    App.MomThisRouteThrowsRoute = _emberMetalCore.default.Route.extend({
+    App.MomThisRouteThrowsRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
         step(3, 'MomThisRouteThrows#model');
 
-        return _emberMetalCore.default.RSVP.reject(handledError);
+        return _emberRuntimeExtRsvp.default.reject(handledError);
       }
     });
 
@@ -78617,14 +78616,13 @@ enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports
 enifed('ember-template-compiler/tests/plugins/assert-no-each-in-test', ['exports', 'ember-environment', 'ember-template-compiler', 'ember-metal/features'], function (exports, _emberEnvironment, _emberTemplateCompiler, _emberMetalFeatures) {
   'use strict';
 
-  var legacyViewSupportOriginalValue = undefined;
+  var legacyViewSupportOriginalValue = _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
     // jscs:disable
 
     QUnit.module('ember-template-compiler: assert-no-each-in-test without legacy view support', {
       setup: function () {
-        legacyViewSupportOriginalValue = _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
         _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
       },
 
@@ -78645,7 +78643,6 @@ enifed('ember-template-compiler/tests/plugins/assert-no-each-in-test', ['exports
 
     QUnit.module('ember-template-compiler: assert-no-each-in-test with legacy view support', {
       setup: function () {
-        legacyViewSupportOriginalValue = _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
         _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
       },
 
@@ -78917,7 +78914,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+6c5475f6', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+437e8416', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
