@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6739196d
+ * @version   2.7.0-canary+642b6f9d
  */
 
 var enifed, requireModule, require, Ember;
@@ -4981,7 +4981,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     test("HTML tag with empty attribute", function () {
         var template = compile("<div class=''>content</div>");
         render(template, {});
-        _glimmerTestHelpers.equalTokens(root, '<div>content</div>');
+        _glimmerTestHelpers.equalTokens(root, '<div class="">content</div>');
     });
     test("HTML boolean attribute 'disabled'", function () {
         var template = compile('<input disabled>');
@@ -5536,14 +5536,21 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     });
     test("Namespaced and non-namespaced elements as siblings", function () {
         compilesTo('<svg></svg><svg></svg><div></div>');
-        equal(root.childNodes[0].namespaceURI, SVG_NAMESPACE, "creates the first svg element with a namespace");
-        equal(root.childNodes[1].namespaceURI, SVG_NAMESPACE, "creates the second svg element with a namespace");
-        equal(root.childNodes[2].namespaceURI, XHTML_NAMESPACE, "creates the div element without a namespace");
+        var _root$childNodes = root.childNodes;
+        var first = _root$childNodes[0];
+        var second = _root$childNodes[1];
+        var third = _root$childNodes[2];
+
+        equal(first.namespaceURI, SVG_NAMESPACE, "creates the first svg element with a namespace");
+        equal(second.namespaceURI, SVG_NAMESPACE, "creates the second svg element with a namespace");
+        equal(third.namespaceURI, XHTML_NAMESPACE, "creates the div element without a namespace");
     });
     test("Namespaced and non-namespaced elements with nesting", function () {
         compilesTo('<div><svg></svg></div><div></div>');
-        var firstDiv = root.firstChild;
-        var secondDiv = root.lastChild;
+        var _root$childNodes2 = root.childNodes;
+        var firstDiv = _root$childNodes2[0];
+        var secondDiv = _root$childNodes2[1];
+
         var svg = firstDiv.firstChild;
         equal(firstDiv.namespaceURI, XHTML_NAMESPACE, "first div's namespace is xhtmlNamespace");
         equal(svg.namespaceURI, SVG_NAMESPACE, "svg's namespace is svgNamespace");
@@ -5559,7 +5566,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     });
 });
 
-enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "glimmer-test-helpers", "glimmer-object-reference"], function (exports, _glimmerRuntime, _glimmerTestHelpers, _glimmerObjectReference) {
+enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-object-reference"], function (exports, _glimmerTestHelpers, _glimmerObjectReference) {
     "use strict";
 
     var _templateObject = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li></ul>"]),
@@ -5720,259 +5727,6 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         object.value = safeString;
         rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "original input causes no problem");
-    });
-    function makeSafeString(value) {
-        return {
-            string: value,
-            toHTML: function () {
-                return this.string;
-            },
-            toString: function () {
-                return this.string;
-            }
-        };
-    }
-    // Test cases to matrix:
-    // const helper returns const SafeString
-    // non-const
-    // safe string
-    // unsafe string
-    // swapping between safe and unsafe
-    // swapping between unsafe and safe
-    function makeElement(tag, content) {
-        var el = document.createElement(tag);
-        el.appendChild(document.createTextNode(content));
-        return el;
-    }
-    function makeFragment(nodes) {
-        var frag = document.createDocumentFragment();
-        nodes.forEach(function (node) {
-            return frag.appendChild(node);
-        });
-        return frag;
-    }
-    [{
-        name: 'double curlies',
-        template: '<div>{{value}}</div>',
-        values: [{
-            input: 'hello',
-            expected: '<div>hello</div>',
-            description: 'plain string'
-        }, {
-            input: '<b>hello</b>',
-            expected: '<div>&lt;b&gt;hello&lt;/b&gt;</div>',
-            description: 'string containing HTML'
-        }, {
-            input: null,
-            expected: '<div></div>',
-            description: 'null literal'
-        }, {
-            input: undefined,
-            expected: '<div></div>',
-            description: 'undefined literal'
-        }, {
-            input: makeSafeString('<b>hello</b>'),
-            expected: '<div><b>hello</b></div>',
-            description: 'safe string containing HTML'
-        }, {
-            input: makeElement('p', 'hello'),
-            expected: '<div><p>hello</p></div>',
-            description: 'DOM node containing and element with text'
-        }, {
-            input: makeFragment([makeElement('p', 'one'), makeElement('p', 'two')]),
-            expected: '<div><p>one</p><p>two</p></div>',
-            description: 'DOM fragment containing multiple nodes'
-        }, {
-            input: 'not modified',
-            expected: '<div>not modified</div>',
-            description: 'plain string (not modified, first render)'
-        }, {
-            input: 'not modified',
-            expected: '<div>not modified</div>',
-            description: 'plain string (not modified, second render)'
-        }, {
-            input: 0,
-            expected: '<div>0</div>',
-            description: 'number literal (0)'
-        }, {
-            input: true,
-            expected: '<div>true</div>',
-            description: 'boolean literal (true)'
-        }, {
-            input: {
-                toString: function () {
-                    return 'I am an Object';
-                }
-            },
-            expected: '<div>I am an Object</div>',
-            description: 'object with a toString function'
-        }]
-    }, {
-        name: 'triple curlies',
-        template: '<div>{{{value}}}</div>',
-        values: [{
-            input: 'hello',
-            expected: '<div>hello</div>',
-            description: 'plain string'
-        }, {
-            input: '<b>hello</b>',
-            expected: '<div><b>hello</b></div>',
-            description: 'string containing HTML'
-        }, {
-            input: null,
-            expected: '<div></div>',
-            description: 'null literal'
-        }, {
-            input: undefined,
-            expected: '<div></div>',
-            description: 'undefined literal'
-        }, {
-            input: makeSafeString('<b>hello</b>'),
-            expected: '<div><b>hello</b></div>',
-            description: 'safe string containing HTML'
-        }, {
-            input: makeElement('p', 'hello'),
-            expected: '<div><p>hello</p></div>',
-            description: 'DOM node containing and element with text'
-        }, {
-            input: makeFragment([makeElement('p', 'one'), makeElement('p', 'two')]),
-            expected: '<div><p>one</p><p>two</p></div>',
-            description: 'DOM fragment containing multiple nodes'
-        }, {
-            input: 'not modified',
-            expected: '<div>not modified</div>',
-            description: 'plain string (not modified, first render)'
-        }, {
-            input: 'not modified',
-            expected: '<div>not modified</div>',
-            description: 'plain string (not modified, second render)'
-        }, {
-            input: 0,
-            expected: '<div>0</div>',
-            description: 'number literal (0)'
-        }, {
-            input: true,
-            expected: '<div>true</div>',
-            description: 'boolean literal (true)'
-        }, {
-            input: {
-                toString: function () {
-                    return 'I am an Object';
-                }
-            },
-            expected: '<div>I am an Object</div>',
-            description: 'object with a toString function'
-        }]
-    }].forEach(function (config) {
-        test("updating " + config.name + " produces expected result", function () {
-            var template = compile(config.template);
-            var context = {
-                value: undefined
-            };
-            config.values.forEach(function (testCase, index) {
-                context.value = testCase.input;
-                if (index === 0) {
-                    render(template, context);
-                    _glimmerTestHelpers.equalTokens(root, testCase.expected, "expected initial render (" + testCase.description + ")");
-                } else {
-                    rerender();
-                    _glimmerTestHelpers.equalTokens(root, testCase.expected, "expected updated render (" + testCase.description + ")");
-                }
-            });
-        });
-    });
-    test("updating a triple curly with a safe and unsafe string", function () {
-        var safeString = makeSafeString('<p>hello world</p>');
-        var unsafeString = '<b>Big old world!</b>';
-        var object = {
-            value: safeString
-        };
-        var template = compile('<div>{{{value}}}</div>');
-        render(template, object);
-        var valueNode = root.firstChild.firstChild.firstChild;
-        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "no change");
-        strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The nodes were not blown away");
-        object.value = unsafeString;
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><b>Big old world!</b></div>', "Normal strings may contain HTML");
-        notStrictEqual(root.firstChild.firstChild.firstChild, valueNode, "The nodes were blown away");
-        object.value = safeString;
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "original input causes no problem");
-    });
-    test("triple curlies with empty string initial value", function (assert) {
-        var input = {
-            value: ''
-        };
-        var template = compile('<div>{{{value}}}</div>');
-        render(template, input);
-        _glimmerTestHelpers.equalTokens(root, '<div></div>', "Initial render");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div></div>', "no change");
-        input.value = '<b>Bold and spicy</b>';
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><b>Bold and spicy</b></div>', "markup is updated");
-        input.value = '';
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div></div>', "back to empty string");
-    });
-    test("double curlies with const SafeString", function (assert) {
-        var rawString = '<b>bold</b> and spicy';
-        env.registerInternalHelper('const-foobar', function (args) {
-            return new _glimmerRuntime.ValueReference(makeSafeString(rawString));
-        });
-        var template = compile('<div>{{const-foobar}}</div>');
-        var input = {};
-        render(template, input);
-        var valueNode = root.firstChild.firstChild;
-        _glimmerTestHelpers.equalTokens(root, '<div><b>bold</b> and spicy</div>', "initial render");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><b>bold</b> and spicy</div>', "no change");
-        strictEqual(root.firstChild.firstChild, valueNode, "The nodes were not blown away");
-    });
-    test("double curlies with const Node", function (assert) {
-        var rawString = '<b>bold</b> and spicy';
-        env.registerInternalHelper('const-foobar', function (args) {
-            return new _glimmerRuntime.ValueReference(document.createTextNode(rawString));
-        });
-        var template = compile('<div>{{const-foobar}}</div>');
-        var input = {};
-        render(template, input);
-        var valueNode = root.firstChild.firstChild;
-        _glimmerTestHelpers.equalTokens(root, '<div>&lt;b&gt;bold&lt;/b&gt; and spicy</div>', "initial render");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div>&lt;b&gt;bold&lt;/b&gt; and spicy</div>', "no change");
-        strictEqual(root.firstChild.firstChild, valueNode, "The node was not blown away");
-    });
-    test("triple curlies with const SafeString", function (assert) {
-        var rawString = '<b>bold</b> and spicy';
-        env.registerInternalHelper('const-foobar', function (args) {
-            return new _glimmerRuntime.ValueReference(makeSafeString(rawString));
-        });
-        var template = compile('<div>{{{const-foobar}}}</div>');
-        var input = {};
-        render(template, input);
-        var valueNode = root.firstChild.firstChild;
-        _glimmerTestHelpers.equalTokens(root, '<div><b>bold</b> and spicy</div>', "initial render");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><b>bold</b> and spicy</div>', "no change");
-        strictEqual(root.firstChild.firstChild, valueNode, "The nodes were not blown away");
-    });
-    test("triple curlies with const Node", function (assert) {
-        var rawString = '<b>bold</b> and spicy';
-        env.registerInternalHelper('const-foobar', function (args) {
-            return new _glimmerRuntime.ValueReference(document.createTextNode(rawString));
-        });
-        var template = compile('<div>{{{const-foobar}}}</div>');
-        var input = {};
-        render(template, input);
-        var valueNode = root.firstChild;
-        _glimmerTestHelpers.equalTokens(root, '<div>&lt;b&gt;bold&lt;/b&gt; and spicy</div>', "initial render");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div>&lt;b&gt;bold&lt;/b&gt; and spicy</div>', "no change");
-        strictEqual(root.firstChild, valueNode, "The node was not blown away");
     });
     test("dynamically scoped keywords can be passed to render, and used in curlies", function (assert) {
         var template = compile("{{view.name}}");
@@ -6239,20 +5993,6 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
     });
-    test("class attribute is removed if the binding becomes falsy", function () {
-        var template = compile("<div class={{value}}>hello</div>");
-        var object = { value: "foo" };
-        render(template, object);
-        _glimmerTestHelpers.equalTokens(root, "<div class='foo'>hello</div>");
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div class='foo'>hello</div>");
-        object.value = null;
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div>hello</div>");
-        object.value = 'foo';
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div class='foo'>hello</div>");
-    });
     test("attribute nodes follow the normal dirtying rules", function () {
         var template = compile("<div data-value='{{value}}'>hello</div>");
         var object = { value: "world" };
@@ -6263,9 +6003,6 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         _glimmerTestHelpers.equalTokens(root, "<div data-value='universe'>hello</div>", "Revalidating without dirtying");
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='universe'>hello</div>", "Revalidating after dirtying");
-        object.value = null;
-        rerender();
-        _glimmerTestHelpers.equalTokens(root, "<div data-value=''>hello</div>", "Revalidating after dirtying");
         object.value = "world";
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='world'>hello</div>", "Revalidating after dirtying");
@@ -8172,10 +7909,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             this.helpers[name] = function (args) {
                 return new HelperReference(helper, args);
             };
-        };
-
-        TestEnvironment.prototype.registerInternalHelper = function registerInternalHelper(name, helper) {
-            this.helpers[name] = helper;
         };
 
         TestEnvironment.prototype.registerComponent = function registerComponent(name, definition) {
@@ -78738,7 +78471,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+6739196d', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+642b6f9d', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
