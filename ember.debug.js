@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+30623c9b
+ * @version   2.7.0-canary+b5dc0129
  */
 
 var enifed, requireModule, require, Ember;
@@ -7638,16 +7638,18 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       var _name = keys[i];
       var value = attrs[_name];
 
-      // Do we have to support passing both class /and/ classNames...?
-      if (_name === 'class') {
-        _name = 'classNames';
-      }
-
       merged[_name] = value;
     }
 
     return merged;
   }
+
+  var ComponentStateBucket = function ComponentStateBucket(component) {
+    _classCallCheck(this, ComponentStateBucket);
+
+    this.component = component;
+    this.classRef = null;
+  };
 
   var CurlyComponentManager = (function () {
     function CurlyComponentManager() {
@@ -7671,14 +7673,25 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       // component.trigger('willInsertElement');
       // component.trigger('willRender');
 
-      return component;
+      var bucket = new ComponentStateBucket(component);
+
+      if (args.named.has('class')) {
+        bucket.classRef = args.named.get('class');
+      }
+
+      return bucket;
     };
 
-    CurlyComponentManager.prototype.getSelf = function getSelf(component) {
+    CurlyComponentManager.prototype.getSelf = function getSelf(_ref2) {
+      var component = _ref2.component;
+
       return new _emberGlimmerUtilsReferences.RootReference(component);
     };
 
-    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(component, element, operations) {
+    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref3, element, operations) {
+      var component = _ref3.component;
+      var classRef = _ref3.classRef;
+
       component.element = element;
 
       var attributeBindings = component.attributeBindings;
@@ -7689,6 +7702,10 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
         attributeBindings.forEach(function (binding) {
           _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, binding, operations);
         });
+      }
+
+      if (classRef) {
+        operations.addAttribute('class', classRef);
       }
 
       if (classNames) {
@@ -7706,13 +7723,17 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       component._transitionTo('hasElement');
     };
 
-    CurlyComponentManager.prototype.didCreate = function didCreate(component) {
+    CurlyComponentManager.prototype.didCreate = function didCreate(_ref4) {
+      var component = _ref4.component;
+
       // component.trigger('didInsertElement');
       // component.trigger('didRender');
       component._transitionTo('inDOM');
     };
 
-    CurlyComponentManager.prototype.update = function update(component, args, dynamicScope) {
+    CurlyComponentManager.prototype.update = function update(_ref5, args, dynamicScope) {
+      var component = _ref5.component;
+
       var attrs = args.named.value();
       var props = attrsToProps(args.named.keys, attrs);
 
@@ -7727,12 +7748,16 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       // component.trigger('willRender');
     };
 
-    CurlyComponentManager.prototype.didUpdate = function didUpdate(component) {
-      // component.trigger('didUpdate');
-      // component.trigger('didRender');
+    CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref6) {
+      var component = _ref6.component;
     };
 
-    CurlyComponentManager.prototype.getDestructor = function getDestructor(component) {
+    // component.trigger('didUpdate');
+    // component.trigger('didRender');
+
+    CurlyComponentManager.prototype.getDestructor = function getDestructor(_ref7) {
+      var component = _ref7.component;
+
       return component;
     };
 
@@ -12972,7 +12997,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+30623c9b';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+b5dc0129';
   }
 
   /**
@@ -17872,7 +17897,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+30623c9b
+    @version 2.7.0-canary+b5dc0129
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17899,11 +17924,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+30623c9b'
+    @default '2.7.0-canary+b5dc0129'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+30623c9b';
+  Ember.VERSION = '2.7.0-canary+b5dc0129';
 
   // ..........................................................
   // BOOTSTRAP
@@ -41788,7 +41813,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+30623c9b',
+        revision: 'Ember@2.7.0-canary+b5dc0129',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51218,7 +51243,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+30623c9b
+ * @version   2.7.0-canary+b5dc0129
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
