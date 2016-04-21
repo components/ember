@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+da56d7a0
+ * @version   2.7.0-canary+30623c9b
  */
 
 var enifed, requireModule, require, Ember;
@@ -12972,7 +12972,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+da56d7a0';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+30623c9b';
   }
 
   /**
@@ -17202,32 +17202,40 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
   @submodule ember-metal
   */
 
-  function getProperties(self, propertyNames) {
-    var ret = {};
-    for (var i = 0; i < propertyNames.length; i++) {
-      ret[propertyNames[i]] = _emberMetalProperty_get.get(self, propertyNames[i]);
+  function expandPropertiesToArray(properties) {
+    var expandedProperties = [];
+
+    function extractProperty(entry) {
+      expandedProperties.push(entry);
     }
-    return ret;
+
+    for (var i = 0; i < properties.length; i++) {
+      _emberMetalExpand_properties.default(properties[i], extractProperty);
+    }
+
+    return expandedProperties;
   }
 
-  function generateComputedWithProperties(macro) {
+  function generateComputedWithPredicate(predicate) {
     return function () {
-      var expandedProperties = [];
-      var computedFunc = _emberMetalComputed.computed(function () {
-        return macro.apply(this, [getProperties(this, expandedProperties)]);
-      });
-
-      function extractProperty(entry) {
-        expandedProperties.push(entry);
-      }
-
       for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
         properties[_key] = arguments[_key];
       }
 
-      for (var i = 0; i < properties.length; i++) {
-        _emberMetalExpand_properties.default(properties[i], extractProperty);
-      }
+      var expandedProperties = expandPropertiesToArray(properties);
+
+      var computedFunc = _emberMetalComputed.computed(function () {
+        var lastIdx = expandedProperties.length - 1;
+
+        for (var i = 0; i < lastIdx; i++) {
+          var value = _emberMetalProperty_get.get(this, expandedProperties[i]);
+          if (!predicate(value)) {
+            return value;
+          }
+        }
+
+        return _emberMetalProperty_get.get(this, expandedProperties[lastIdx]);
+      });
 
       return computedFunc.property.apply(computedFunc, expandedProperties);
     };
@@ -17651,14 +17659,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
     a logical `and` on the values of all the original values for properties.
     @public
   */
-  var and = generateComputedWithProperties(function (properties) {
-    var value;
-    for (var key in properties) {
-      value = properties[key];
-      if (properties.hasOwnProperty(key) && !value) {
-        return value;
-      }
-    }
+  var and = generateComputedWithPredicate(function (value) {
     return value;
   });
 
@@ -17698,15 +17699,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/debug', 'ember-me
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  var or = generateComputedWithProperties(function (properties) {
-    var value;
-    for (var key in properties) {
-      value = properties[key];
-      if (properties.hasOwnProperty(key) && value) {
-        return value;
-      }
-    }
-    return value;
+  var or = generateComputedWithPredicate(function (value) {
+    return !value;
   });
 
   exports.or = or;
@@ -17878,7 +17872,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+da56d7a0
+    @version 2.7.0-canary+30623c9b
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17905,11 +17899,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+da56d7a0'
+    @default '2.7.0-canary+30623c9b'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+da56d7a0';
+  Ember.VERSION = '2.7.0-canary+30623c9b';
 
   // ..........................................................
   // BOOTSTRAP
@@ -41794,7 +41788,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+da56d7a0',
+        revision: 'Ember@2.7.0-canary+30623c9b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51224,7 +51218,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+da56d7a0
+ * @version   2.7.0-canary+30623c9b
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
