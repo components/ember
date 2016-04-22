@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+46ef73a3
+ * @version   2.7.0-canary+6dfa78e6
  */
 
 var enifed, requireModule, require, Ember;
@@ -52193,122 +52193,6 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     });
   }
 });
-enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/system/render-env', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsSystemRenderEnv, _emberRuntimeTestsUtils, _emberMetalRun_loop, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
-  'use strict';
-
-  var owner, view, components;
-
-  function commonSetup() {
-    owner = _containerTestsTestHelpersBuildOwner.default();
-    owner.registerOptionsForType('component', { singleton: false });
-    owner.registerOptionsForType('view', { singleton: false });
-    owner.registerOptionsForType('template', { instantiate: false });
-    owner.registerOptionsForType('helper', { instantiate: false });
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-  }
-
-  function commonTeardown() {
-    _emberRuntimeTestsUtils.runDestroy(owner);
-    _emberRuntimeTestsUtils.runDestroy(view);
-    owner = view = null;
-  }
-
-  function appendViewFor(template) {
-    var _EmberView$extend;
-
-    var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    var view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$extend)).create(hash);
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    return view;
-  }
-
-  function constructComponent(label) {
-    return _emberViewsComponentsComponent.default.extend({
-      init: function () {
-        this.label = label;
-        components[label] = this;
-        this._super.apply(this, arguments);
-      }
-    });
-  }
-
-  function extractEnv(component) {
-    return component._renderNode.lastResult.env;
-  }
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('ember-htmlbars: RenderEnv', {
-      setup: function () {
-        commonSetup();
-      },
-
-      teardown: function () {
-        commonTeardown();
-      }
-    });
-
-    QUnit.test('non-block component test', function () {
-      components = {};
-
-      owner.register('component:non-block', constructComponent('nonblock'));
-      owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout'));
-
-      view = appendViewFor('{{non-block}}');
-
-      ok(view.env instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: View environment should be an instance of RenderEnv');
-      ok(extractEnv(components.nonblock) instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: {{#non-block}} environment should be an instance of RenderEnv');
-
-      _emberMetalRun_loop.default(components.nonblock, 'rerender');
-
-      ok(view.env instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: View environment should be an instance of RenderEnv');
-      ok(extractEnv(components.nonblock) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{#non-block}} environment should be an instance of RenderEnv');
-    });
-
-    QUnit.test('block component test', function () {
-      components = {};
-
-      owner.register('component:block-component', constructComponent('block'));
-      owner.register('template:components/block-component', _emberTemplateCompilerSystemCompile.default('In layout {{yield}}'));
-
-      view = appendViewFor('{{#block-component}}content{{/block-component}}');
-
-      ok(view.env instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: View environment should be an instance of RenderEnv');
-      ok(extractEnv(components.block) instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: {{#block-component}} environment should be an instance of RenderEnv');
-
-      _emberMetalRun_loop.default(components.block, 'rerender');
-
-      ok(view.env instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: View environment should be an instance of RenderEnv');
-      ok(extractEnv(components.block) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{#block-component}} environment should be an instance of RenderEnv');
-    });
-
-    QUnit.test('block component with child component test', function () {
-      components = {};
-
-      owner.register('component:block-component', constructComponent('block'));
-      owner.register('component:child-component', constructComponent('child'));
-
-      owner.register('template:components/block-component', _emberTemplateCompilerSystemCompile.default('In layout {{yield}}'));
-      owner.register('template:components/child-component', _emberTemplateCompilerSystemCompile.default('Child Component'));
-
-      view = appendViewFor('{{#block-component}}{{child-component}}{{/block-component}}');
-
-      ok(view.env instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: View environment should be an instance of RenderEnv');
-      ok(extractEnv(components.block) instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: {{#block-component}} environment should be an instance of RenderEnv');
-      ok(extractEnv(components.child) instanceof _emberHtmlbarsSystemRenderEnv.default, 'initial render: {{child-component}} environment should be an instance of RenderEnv');
-
-      _emberMetalRun_loop.default(components.block, 'rerender');
-
-      ok(view.env instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: View environment should be an instance of RenderEnv');
-      ok(extractEnv(components.block) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{#block-component}} environment should be an instance of RenderEnv');
-      ok(extractEnv(components.child) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{child-component}} environment should be an instance of RenderEnv');
-    });
-  }
-});
 enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
   'use strict';
 
@@ -79475,7 +79359,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+46ef73a3', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+6dfa78e6', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
