@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+58a232bf
+ * @version   2.7.0-canary+b79fa2fd
  */
 
 var enifed, requireModule, require, Ember;
@@ -4981,7 +4981,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     test("HTML tag with empty attribute", function () {
         var template = compile("<div class=''>content</div>");
         render(template, {});
-        _glimmerTestHelpers.equalTokens(root, '<div>content</div>');
+        _glimmerTestHelpers.equalTokens(root, "<div class=''>content</div>");
     });
     test("HTML boolean attribute 'disabled'", function () {
         var template = compile('<input disabled>');
@@ -6239,7 +6239,7 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
     });
-    test("class attribute is removed if the binding becomes falsy", function () {
+    test("class attribute is removed if the binding becomes null or undefined", function () {
         var template = compile("<div class={{value}}>hello</div>");
         var object = { value: "foo" };
         render(template, object);
@@ -6247,6 +6247,12 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='foo'>hello</div>");
         object.value = null;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div>hello</div>");
+        object.value = 0;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div class='0'>hello</div>");
+        object.value = undefined;
         rerender();
         _glimmerTestHelpers.equalTokens(root, "<div>hello</div>");
         object.value = 'foo';
@@ -8329,7 +8335,6 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _classCallCheck(this, CurlyComponentSyntax);
 
             _StatementSyntax.call(this);
-            // interface for OpenComponent
             this.shadow = null;
             this.args = args;
             this.definition = definition;
@@ -8370,11 +8375,20 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return DynamicComponentReference;
     })();
 
-    function dynamicComponentFactoryFor(args, vm) {
+    var DynamicComponentDefinition = function DynamicComponentDefinition(rawArgs) {
+        _classCallCheck(this, DynamicComponentDefinition);
+
+        this.rawArgs = rawArgs;
+        this.factory = dynamicComponentFor;
+        this.args = _glimmerRuntime.ArgsSyntax.fromPositionalArgs(rawArgs.positional.slice(0, 1));
+    };
+
+    function dynamicComponentFor(args, vm) {
         var nameRef = args.positional.at(0);
         var env = vm.env;
         return new DynamicComponentReference({ nameRef: nameRef, env: env });
     }
+    ;
 
     var DynamicComponentSyntax = (function (_StatementSyntax2) {
         _inherits(DynamicComponentSyntax, _StatementSyntax2);
@@ -8386,10 +8400,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _classCallCheck(this, DynamicComponentSyntax);
 
             _StatementSyntax2.call(this);
-            // interface for OpenComponent
-            this.definition = dynamicComponentFactoryFor;
             this.shadow = null;
-            this.args = args;
+            this.definition = new DynamicComponentDefinition(args);
+            this.args = _glimmerRuntime.ArgsSyntax.build(args.positional.slice(1), args.named);
             this.templates = templates || _glimmerRuntime.Templates.empty();
         }
 
@@ -79752,7 +79765,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+58a232bf', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+b79fa2fd', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
