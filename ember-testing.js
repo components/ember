@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f3dad17b
+ * @version   2.7.0-canary+58a232bf
  */
 
 var enifed, requireModule, require, Ember;
@@ -598,6 +598,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
     _emberMetalDebug.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
+// reexports
 enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-debug/handlers'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberDebugHandlers) {
   'use strict';
 
@@ -1306,6 +1307,8 @@ enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/ini
   _emberMetalCore.default.Test.QUnitAdapter = _emberTestingAdaptersQunit.default;
   _emberMetalCore.default.setupForTesting = _emberTestingSetup_for_testing.default;
 });
+// reexports
+
 // to setup initializer
 // to handle various edge cases
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
