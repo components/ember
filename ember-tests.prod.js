@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6bee9eb5
+ * @version   2.7.0-canary+2be1736f
  */
 
 var enifed, requireModule, require, Ember;
@@ -66408,7 +66408,7 @@ enifed('ember-routing-views/tests/main_test', ['exports', 'ember-routing-views']
     link.get('currentWhen');
   });
 });
-enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberMetalComputed_macros, _emberRuntimeComputedReduce_computed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
   'use strict';
 
   QUnit.module('CP macros');
@@ -66418,8 +66418,8 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
       bestLannister: null,
       lannisters: null,
 
-      bestLannisterUnspecified: _emberMetalComputed_macros.empty('bestLannister'),
-      noLannistersKnown: _emberMetalComputed_macros.empty('lannisters')
+      bestLannisterUnspecified: _emberRuntimeComputedComputed_macros.empty('bestLannister'),
+      noLannistersKnown: _emberRuntimeComputedComputed_macros.empty('lannisters')
     }).create({
       lannisters: _emberRuntimeSystemNative_array.A()
     });
@@ -66439,8 +66439,8 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
       bestLannister: null,
       lannisters: null,
 
-      bestLannisterSpecified: _emberMetalComputed_macros.notEmpty('bestLannister'),
-      LannistersKnown: _emberMetalComputed_macros.notEmpty('lannisters')
+      bestLannisterSpecified: _emberRuntimeComputedComputed_macros.notEmpty('bestLannister'),
+      LannistersKnown: _emberRuntimeComputedComputed_macros.notEmpty('lannisters')
     }).create({
       lannisters: _emberRuntimeSystemNative_array.A()
     });
@@ -66457,20 +66457,20 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.not', function (get, set) {
     var obj = { foo: true };
-    _emberMetalProperties.defineProperty(obj, 'notFoo', _emberMetalComputed_macros.not('foo'));
+    _emberMetalProperties.defineProperty(obj, 'notFoo', _emberRuntimeComputedComputed_macros.not('foo'));
     equal(get(obj, 'notFoo'), false);
 
     obj = { foo: { bar: true } };
-    _emberMetalProperties.defineProperty(obj, 'notFoo', _emberMetalComputed_macros.not('foo.bar'));
+    _emberMetalProperties.defineProperty(obj, 'notFoo', _emberRuntimeComputedComputed_macros.not('foo.bar'));
     equal(get(obj, 'notFoo'), false);
   });
 
   _emberMetalTestsProps_helper.testBoth('computed.empty', function (get, set) {
     var obj = { foo: [], bar: undefined, baz: null, quz: '' };
-    _emberMetalProperties.defineProperty(obj, 'fooEmpty', _emberMetalComputed_macros.empty('foo'));
-    _emberMetalProperties.defineProperty(obj, 'barEmpty', _emberMetalComputed_macros.empty('bar'));
-    _emberMetalProperties.defineProperty(obj, 'bazEmpty', _emberMetalComputed_macros.empty('baz'));
-    _emberMetalProperties.defineProperty(obj, 'quzEmpty', _emberMetalComputed_macros.empty('quz'));
+    _emberMetalProperties.defineProperty(obj, 'fooEmpty', _emberRuntimeComputedComputed_macros.empty('foo'));
+    _emberMetalProperties.defineProperty(obj, 'barEmpty', _emberRuntimeComputedComputed_macros.empty('bar'));
+    _emberMetalProperties.defineProperty(obj, 'bazEmpty', _emberRuntimeComputedComputed_macros.empty('baz'));
+    _emberMetalProperties.defineProperty(obj, 'quzEmpty', _emberRuntimeComputedComputed_macros.empty('quz'));
 
     equal(get(obj, 'fooEmpty'), true);
     set(obj, 'foo', [1]);
@@ -66484,10 +66484,10 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.bool', function (get, set) {
     var obj = { foo: function () {}, bar: 'asdf', baz: null, quz: false };
-    _emberMetalProperties.defineProperty(obj, 'fooBool', _emberMetalComputed_macros.bool('foo'));
-    _emberMetalProperties.defineProperty(obj, 'barBool', _emberMetalComputed_macros.bool('bar'));
-    _emberMetalProperties.defineProperty(obj, 'bazBool', _emberMetalComputed_macros.bool('baz'));
-    _emberMetalProperties.defineProperty(obj, 'quzBool', _emberMetalComputed_macros.bool('quz'));
+    _emberMetalProperties.defineProperty(obj, 'fooBool', _emberRuntimeComputedComputed_macros.bool('foo'));
+    _emberMetalProperties.defineProperty(obj, 'barBool', _emberRuntimeComputedComputed_macros.bool('bar'));
+    _emberMetalProperties.defineProperty(obj, 'bazBool', _emberRuntimeComputedComputed_macros.bool('baz'));
+    _emberMetalProperties.defineProperty(obj, 'quzBool', _emberRuntimeComputedComputed_macros.bool('quz'));
     equal(get(obj, 'fooBool'), true);
     equal(get(obj, 'barBool'), true);
     equal(get(obj, 'bazBool'), false);
@@ -66548,7 +66548,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.match', function (get, set) {
     var obj = { name: 'Paul' };
-    _emberMetalProperties.defineProperty(obj, 'isPaul', _emberMetalComputed_macros.match('name', /Paul/));
+    _emberMetalProperties.defineProperty(obj, 'isPaul', _emberRuntimeComputedComputed_macros.match('name', /Paul/));
 
     equal(get(obj, 'isPaul'), true, 'is Paul');
 
@@ -66559,7 +66559,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.notEmpty', function (get, set) {
     var obj = { items: [1] };
-    _emberMetalProperties.defineProperty(obj, 'hasItems', _emberMetalComputed_macros.notEmpty('items'));
+    _emberMetalProperties.defineProperty(obj, 'hasItems', _emberRuntimeComputedComputed_macros.notEmpty('items'));
 
     equal(get(obj, 'hasItems'), true, 'is not empty');
 
@@ -66570,7 +66570,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.equal', function (get, set) {
     var obj = { name: 'Paul' };
-    _emberMetalProperties.defineProperty(obj, 'isPaul', _emberMetalComputed_macros.equal('name', 'Paul'));
+    _emberMetalProperties.defineProperty(obj, 'isPaul', _emberRuntimeComputedComputed_macros.equal('name', 'Paul'));
 
     equal(get(obj, 'isPaul'), true, 'is Paul');
 
@@ -66581,7 +66581,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.gt', function (get, set) {
     var obj = { number: 2 };
-    _emberMetalProperties.defineProperty(obj, 'isGreaterThenOne', _emberMetalComputed_macros.gt('number', 1));
+    _emberMetalProperties.defineProperty(obj, 'isGreaterThenOne', _emberRuntimeComputedComputed_macros.gt('number', 1));
 
     equal(get(obj, 'isGreaterThenOne'), true, 'is gt');
 
@@ -66596,7 +66596,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.gte', function (get, set) {
     var obj = { number: 2 };
-    _emberMetalProperties.defineProperty(obj, 'isGreaterOrEqualThenOne', _emberMetalComputed_macros.gte('number', 1));
+    _emberMetalProperties.defineProperty(obj, 'isGreaterOrEqualThenOne', _emberRuntimeComputedComputed_macros.gte('number', 1));
 
     equal(get(obj, 'isGreaterOrEqualThenOne'), true, 'is gte');
 
@@ -66611,7 +66611,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.lt', function (get, set) {
     var obj = { number: 0 };
-    _emberMetalProperties.defineProperty(obj, 'isLesserThenOne', _emberMetalComputed_macros.lt('number', 1));
+    _emberMetalProperties.defineProperty(obj, 'isLesserThenOne', _emberRuntimeComputedComputed_macros.lt('number', 1));
 
     equal(get(obj, 'isLesserThenOne'), true, 'is lt');
 
@@ -66626,7 +66626,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.lte', function (get, set) {
     var obj = { number: 0 };
-    _emberMetalProperties.defineProperty(obj, 'isLesserOrEqualThenOne', _emberMetalComputed_macros.lte('number', 1));
+    _emberMetalProperties.defineProperty(obj, 'isLesserOrEqualThenOne', _emberRuntimeComputedComputed_macros.lte('number', 1));
 
     equal(get(obj, 'isLesserOrEqualThenOne'), true, 'is lte');
 
@@ -66641,7 +66641,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.and two properties', function (get, set) {
     var obj = { one: true, two: true };
-    _emberMetalProperties.defineProperty(obj, 'oneAndTwo', _emberMetalComputed_macros.and('one', 'two'));
+    _emberMetalProperties.defineProperty(obj, 'oneAndTwo', _emberRuntimeComputedComputed_macros.and('one', 'two'));
 
     equal(get(obj, 'oneAndTwo'), true, 'one and two');
 
@@ -66662,7 +66662,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.and three properties', function (get, set) {
     var obj = { one: true, two: true, three: true };
-    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.and('one', 'two', 'three'));
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberRuntimeComputedComputed_macros.and('one', 'two', 'three'));
 
     equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
 
@@ -66679,7 +66679,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.and expand properties', function (get, set) {
     var obj = { one: true, two: true, three: true };
-    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.and('{one,two,three}'));
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberRuntimeComputedComputed_macros.and('{one,two,three}'));
 
     equal(get(obj, 'oneTwoThree'), true, 'one and two and three');
 
@@ -66696,7 +66696,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.or two properties', function (get, set) {
     var obj = { one: true, two: true };
-    _emberMetalProperties.defineProperty(obj, 'oneOrTwo', _emberMetalComputed_macros.or('one', 'two'));
+    _emberMetalProperties.defineProperty(obj, 'oneOrTwo', _emberRuntimeComputedComputed_macros.or('one', 'two'));
 
     equal(get(obj, 'oneOrTwo'), true, 'one or two');
 
@@ -66723,7 +66723,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.or three properties', function (get, set) {
     var obj = { one: true, two: true, three: true };
-    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.or('one', 'two', 'three'));
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberRuntimeComputedComputed_macros.or('one', 'two', 'three'));
 
     equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
@@ -66754,7 +66754,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.or expand properties', function (get, set) {
     var obj = { one: true, two: true, three: true };
-    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberMetalComputed_macros.or('{one,two,three}'));
+    _emberMetalProperties.defineProperty(obj, 'oneTwoThree', _emberRuntimeComputedComputed_macros.or('{one,two,three}'));
 
     equal(get(obj, 'oneTwoThree'), true, 'one or two or three');
 
@@ -66783,30 +66783,13 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
   });
 
-  _emberMetalTestsProps_helper.testBoth('computed.collect', function (get, set) {
-    var obj = { one: 'foo', two: 'bar', three: null };
-    _emberMetalProperties.defineProperty(obj, 'all', _emberRuntimeComputedReduce_computed_macros.collect('one', 'two', 'three', 'four'));
-
-    deepEqual(get(obj, 'all'), ['foo', 'bar', null, null], 'have all of them');
-
-    set(obj, 'four', true);
-
-    deepEqual(get(obj, 'all'), ['foo', 'bar', null, true], 'have all of them');
-
-    var a = [];
-    set(obj, 'one', 0);
-    set(obj, 'three', a);
-
-    deepEqual(get(obj, 'all'), [0, 'bar', a, true], 'have all of them');
-  });
-
   _emberMetalTestsProps_helper.testBoth('computed.oneWay', function (get, set) {
     var obj = {
       firstName: 'Teddy',
       lastName: 'Zeenny'
     };
 
-    _emberMetalProperties.defineProperty(obj, 'nickName', _emberMetalComputed_macros.oneWay('firstName'));
+    _emberMetalProperties.defineProperty(obj, 'nickName', _emberRuntimeComputedComputed_macros.oneWay('firstName'));
 
     equal(get(obj, 'firstName'), 'Teddy');
     equal(get(obj, 'lastName'), 'Zeenny');
@@ -66830,7 +66813,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
       lastName: 'Zeenny'
     };
 
-    _emberMetalProperties.defineProperty(obj, 'nickName', _emberMetalComputed_macros.readOnly('firstName'));
+    _emberMetalProperties.defineProperty(obj, 'nickName', _emberRuntimeComputedComputed_macros.readOnly('firstName'));
 
     equal(get(obj, 'firstName'), 'Teddy');
     equal(get(obj, 'lastName'), 'Zeenny');
@@ -66856,10 +66839,10 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
       return 'apple';
     }));
 
-    _emberMetalProperties.defineProperty(obj, 'barAlias', _emberMetalComputed_macros.deprecatingAlias('bar'));
-    _emberMetalProperties.defineProperty(obj, 'bazAlias', _emberMetalComputed_macros.deprecatingAlias('baz'));
-    _emberMetalProperties.defineProperty(obj, 'quzAlias', _emberMetalComputed_macros.deprecatingAlias('quz'));
-    _emberMetalProperties.defineProperty(obj, 'bayAlias', _emberMetalComputed_macros.deprecatingAlias('bay'));
+    _emberMetalProperties.defineProperty(obj, 'barAlias', _emberRuntimeComputedComputed_macros.deprecatingAlias('bar'));
+    _emberMetalProperties.defineProperty(obj, 'bazAlias', _emberRuntimeComputedComputed_macros.deprecatingAlias('baz'));
+    _emberMetalProperties.defineProperty(obj, 'quzAlias', _emberRuntimeComputedComputed_macros.deprecatingAlias('quz'));
+    _emberMetalProperties.defineProperty(obj, 'bayAlias', _emberRuntimeComputedComputed_macros.deprecatingAlias('bay'));
 
     expectDeprecation(function () {
       equal(get(obj, 'barAlias'), 'asdf');
@@ -66898,7 +66881,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'quz'), null);
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalComputed, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/properties', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalProperties, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalComputed, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var obj;
@@ -68340,6 +68323,25 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     obj.get('array').popObject();
 
     equal(obj.get('total'), 6, 'recomputes when elements are removed');
+  });
+
+  QUnit.module('collect');
+
+  _emberMetalTestsProps_helper.testBoth('works', function (get, set) {
+    var obj = { one: 'foo', two: 'bar', three: null };
+    _emberMetalProperties.defineProperty(obj, 'all', _emberRuntimeComputedReduce_computed_macros.collect('one', 'two', 'three', 'four'));
+
+    deepEqual(get(obj, 'all'), ['foo', 'bar', null, null], 'have all of them');
+
+    set(obj, 'four', true);
+
+    deepEqual(get(obj, 'all'), ['foo', 'bar', null, true], 'have all of them');
+
+    var a = [];
+    set(obj, 'one', 0);
+    set(obj, 'three', a);
+
+    deepEqual(get(obj, 'all'), [0, 'bar', a, true], 'have all of them');
   });
 });
 enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/property_get', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberMetalMixin, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalProperty_get, _containerTestsTestHelpersBuildOwner) {
@@ -76298,7 +76300,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports
     equal(array.get('firstObject'), '5', 'returns first arranged object');
   });
 });
-enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports', 'ember-metal/property_set', 'ember-metal/computed_macros', 'ember-metal/run_loop', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetalProperty_set, _emberMetalComputed_macros, _emberMetalRun_loop, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports', 'ember-metal/property_set', 'ember-runtime/computed/computed_macros', 'ember-metal/run_loop', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetalProperty_set, _emberRuntimeComputedComputed_macros, _emberMetalRun_loop, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
   'use strict';
 
   QUnit.module('ArrayProxy - content change');
@@ -76317,7 +76319,7 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports',
 
   QUnit.test('should update length for null content when there is a computed property watching length', function () {
     var proxy = _emberRuntimeSystemArray_proxy.default.extend({
-      isEmpty: _emberMetalComputed_macros.not('length')
+      isEmpty: _emberRuntimeComputedComputed_macros.not('length')
     }).create({
       content: _emberRuntimeSystemNative_array.A([1, 2, 3])
     });
@@ -79279,7 +79281,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+6bee9eb5', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+2be1736f', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
