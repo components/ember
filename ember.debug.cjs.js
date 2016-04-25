@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.1+662ce68a
+ * @version   2.6.0-beta.1+64d036b4
  */
 
 var enifed, requireModule, require, Ember;
@@ -1682,7 +1682,7 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
 
   exports.privatize = privatize;
 
-  var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
+  var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
 
   /**
    A registry used to store factory and option information keyed
@@ -1992,7 +1992,9 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
      @return {Boolean}
      */
     has: function (fullName, options) {
-      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      if (!this.isValidFullName(fullName)) {
+        return false;
+      }
 
       var source = undefined;
 
@@ -2285,10 +2287,15 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
     },
 
     validateFullName: function (fullName) {
-      if (!VALID_FULL_NAME_REGEXP.test(fullName)) {
+      if (!this.isValidFullName(fullName)) {
         throw new TypeError('Invalid Fullname, expected: `type:name` got: ' + fullName);
       }
+
       return true;
+    },
+
+    isValidFullName: function (fullName) {
+      return !!VALID_FULL_NAME_REGEXP.test(fullName);
     },
 
     validateInjections: function (injections) {
@@ -9023,6 +9030,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
   'use strict';
 
   exports.default = linkRenderNode;
+  exports.linkParamsFor = linkParamsFor;
 
   function linkRenderNode(renderNode, env, scope, path, params, hash) {
     if (renderNode.streamUnsubscribers) {
@@ -9032,18 +9040,10 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     var keyword = env.hooks.keywords[path];
     if (keyword && keyword.link) {
       keyword.link(renderNode.getState(), params, hash);
+    } else if (path === 'unbound') {
+      return true;
     } else {
-      switch (path) {
-        case 'unbound':
-          return true;
-        case 'unless':
-        case 'if':
-          params[0] = shouldDisplay(params[0], toBool);break;
-        case 'each':
-          params[0] = eachParam(params[0]);break;
-        case 'with':
-          params[0] = shouldDisplay(params[0], identity);break;
-      }
+      linkParamsFor(path, params);
     }
 
     // If there is a dot in the path, we need to subscribe to the arguments in the
@@ -9078,6 +9078,18 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     // recomputed on subsequent re-renders because they are
     // streams.
     return true;
+  }
+
+  function linkParamsFor(path, params) {
+    switch (path) {
+      case 'unless':
+      case 'if':
+        params[0] = shouldDisplay(params[0], toBool);break;
+      case 'each':
+        params[0] = eachParam(params[0]);break;
+      case 'with':
+        params[0] = shouldDisplay(params[0], identity);break;
+    }
   }
 
   function eachParam(list) {
@@ -9143,7 +9155,7 @@ enifed('ember-htmlbars/hooks/lookup-helper', ['exports', 'ember-htmlbars/system/
     return _emberHtmlbarsSystemLookupHelper.default(helperName, scope.getSelf(), env);
   }
 });
-enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/system/invoke-helper', 'ember-metal/streams/utils'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/system/invoke-helper', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/link-render-node'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberMetalStreamsUtils, _emberHtmlbarsHooksLinkRenderNode) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -9161,6 +9173,8 @@ enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup
     if (keyword) {
       return keyword(null, env, scope, params, hash, null, null);
     }
+
+    _emberHtmlbarsHooksLinkRenderNode.linkParamsFor(helperName, params);
 
     var label = labelForSubexpr(params, hash, helperName);
     var helper = _emberHtmlbarsSystemLookupHelper.default(helperName, scope.getSelf(), env);
@@ -10301,7 +10315,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.1+662ce68a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.1+64d036b4';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -15224,7 +15238,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.1+662ce68a
+    @version 2.6.0-beta.1+64d036b4
     @public
   */
 
@@ -15266,11 +15280,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.1+662ce68a'
+    @default '2.6.0-beta.1+64d036b4'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.1+662ce68a';
+  Ember.VERSION = '2.6.0-beta.1+64d036b4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25316,14 +25330,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       App.ApplicationRoute = Ember.Route.extend({
         actions: {
           loading: function(transition, route) {
-            var view = Ember.View.create({
-              classNames: ['app-loading']
-            })
-            .append();
-             this.router.one('didTransition', function() {
-              view.destroy();
+            let controller = this.controllerFor('foo');
+            controller.set('currentlyLoading', true);
+             transition.finally(function() {
+              controller.set('currentlyLoading', false);
             });
-             return true; // Bubble the loading event
           }
         }
       });
@@ -28584,7 +28595,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
     return _emberRoutingHtmlbarsKeywordsClosureAction.default(morph, env, scope, params, hash, template, inverse, visitor);
   };
 });
-enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/instrumentation'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalSymbol, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop, _emberMetalInstrumentation) {
+enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/is_none'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalSymbol, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalIs_none) {
   'use strict';
 
   exports.default = closureAction;
@@ -28599,8 +28610,14 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
       var rawAction = params[0];
       var actionArguments = _emberMetalStreamsUtils.readArray(params.slice(1, params.length));
 
-      var target, action, valuePath;
-      if (rawAction[INVOKE]) {
+      var target = undefined,
+          action = undefined,
+          valuePath = undefined;
+
+      if (_emberMetalIs_none.default(rawAction)) {
+        var label = _emberHtmlbarsHooksSubexpr.labelForSubexpr(params, hash, 'action');
+        throw new _emberMetalError.default('Action passed is null or undefined in ' + label + ' from ' + _emberMetalStreamsUtils.read(scope.getSelf()) + '.');
+      } else if (rawAction[INVOKE]) {
         // on-change={{action (mut name)}}
         target = rawAction;
         action = rawAction[INVOKE];
@@ -39120,7 +39137,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.1+662ce68a',
+        revision: 'Ember@2.6.0-beta.1+64d036b4',
         loc: program.loc,
         moduleName: options.moduleName
       };
