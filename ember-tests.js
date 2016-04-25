@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2be1736f
+ * @version   2.7.0-canary+6c53fc9e
  */
 
 var enifed, requireModule, require, Ember;
@@ -26311,18 +26311,27 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _templateObject19 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
       _templateObject20 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
       _templateObject21 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}']),
+      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
       _templateObject23 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}'], ['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}']),
-      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'], ['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}']),
-      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject30 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject32 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject26 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject27 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject28 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject29 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject30 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject31 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject36 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject38 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject39 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject40 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject41 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject42 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -28002,7 +28011,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
-    _class.prototype['@htmlbars hasBlock is true when block supplied'] = function htmlbarsHasBlockIsTrueWhenBlockSupplied() {
+    _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
       var _this50 = this;
 
       this.registerComponent('with-block', {
@@ -28038,7 +28047,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('No Block!');
     };
 
-    _class.prototype['@htmlbars hasBlockParams is true when block param supplied'] = function htmlbarsHasBlockParamsIsTrueWhenBlockParamSupplied() {
+    _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
       var _this52 = this;
 
       this.registerComponent('with-block', {
@@ -28188,108 +28197,229 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Yes:Hello42');
     };
 
-    _class.prototype['@htmlbars expression hasBlock inverse'] = function htmlbarsExpressionHasBlockInverse(assert) {
-      var _this58 = this;
-
+    _class.prototype['@test expression hasBlock inverse'] = function testExpressionHasBlockInverse(assert) {
       this.registerComponent('check-inverse', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject21)
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject22));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this58.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars expression hasBlock default'] = function htmlbarsExpressionHasBlockDefault(assert) {
-      var _this59 = this;
-
+    _class.prototype['@test expression hasBlock default'] = function testExpressionHasBlockDefault(assert) {
       this.registerComponent('check-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23)
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this59.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars non-expression hasBlock'] = function htmlbarsNonExpressionHasBlock(assert) {
-      var _this60 = this;
-
-      this.registerComponent('check-block', {
+    _class.prototype['@test expression hasBlockParams inverse'] = function testExpressionHasBlockParamsInverse(assert) {
+      this.registerComponent('check-inverse', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject25)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26));
+
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'No' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test expression hasBlockParams default'] = function testExpressionHasBlockParamsDefault(assert) {
+      this.registerComponent('check-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28));
+
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test non-expression hasBlock'] = function testNonExpressionHasBlock(assert) {
+      this.registerComponent('check-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29)
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this60.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars expression hasBlockParams'] = function htmlbarsExpressionHasBlockParams(assert) {
-      var _this61 = this;
-
+    _class.prototype['@test expression hasBlockParams'] = function testExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this61.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars non-expression hasBlockParams'] = function htmlbarsNonExpressionHasBlockParams(assert) {
-      var _this62 = this;
-
+    _class.prototype['@test non-expression hasBlockParams'] = function testNonExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this62.rerender();
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock expression in an attribute'] = function testHasBlockExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlock}}></button>'
       });
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32));
+
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock inverse expression in an attribute'] = function testHasBlockInverseExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlock "inverse"}}></button>'
+      }, '');
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
+
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams expression in an attribute'] = function testHasBlockParamsExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlockParams}}></button>'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams inverse expression in an attribute'] = function testHasBlockParamsInverseExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlockParams "inverse"}}></button>'
+      }, '');
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'false' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock as a param to a helper'] = function testHasBlockAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if hasBlock "true" "false"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock as an expression param to a helper'] = function testHasBlockAsAnExpressionParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlock) "true" "false"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock inverse as a param to a helper'] = function testHasBlockInverseAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlock "inverse") "true" "false"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams as a param to a helper'] = function testHasBlockParamsAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if hasBlockParams "true" "false"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams as an expression param to a helper'] = function testHasBlockParamsAsAnExpressionParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlockParams) "true" "false"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams inverse as a param to a helper'] = function testHasBlockParamsInverseAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlockParams "inverse") "true" "false"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'false' });
+
+      this.assertStableRerender();
     };
 
     _class.prototype['@htmlbars component in template of a yielding component should have the proper parentView'] = function htmlbarsComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this63 = this;
+      var _this58 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -28330,7 +28460,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -28339,7 +28469,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars newly-added sub-components get correct parentView'] = function htmlbarsNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this64 = this;
+      var _this59 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -28362,34 +28492,34 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject38), {
         showInner: false
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this59.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this64.context.set('showInner', true);
+        return _this59.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this64.context.set('showInner', false);
+        return _this59.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@htmlbars component should receive the viewRegistry from the parentView'] = function htmlbarsComponentShouldReceiveTheViewRegistryFromTheParentView(assert) {
-      var _this65 = this;
+      var _this60 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -28434,7 +28564,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer._viewRegistry, viewRegistry);
 
       this.runTask(function () {
-        return _this65.rerender();
+        return _this60.rerender();
       });
 
       assert.equal(innerTemplate._viewRegistry, viewRegistry);
@@ -28443,7 +28573,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this66 = this;
+      var _this61 = this;
 
       expectDeprecation(/modified value twice in a single render/);
 
@@ -28488,7 +28618,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this61.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -28517,10 +28647,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this67 = this;
+      var _this62 = this;
 
       this.registerComponent('non-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject39)
       });
 
       this.registerComponent('child-non-block', {
@@ -28534,32 +28664,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this67.context.get('items').pushObject('Sergio');
+        return _this62.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this67.context.get('items').shiftObject();
+        return _this62.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this67.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this62.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this68 = this;
+      var _this63 = this;
 
       var clickyThing = undefined;
 
@@ -28577,7 +28707,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{yield}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40));
 
       // TODO: ember-view is no longer viewable in the classNames array. Bug or
       // feature?
@@ -28589,7 +28719,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this63.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -28609,10 +28739,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
             clickyThing = this;
           }
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject41)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject42));
 
       this.assertText('blarkporybaz- Click Me');
 
@@ -28624,7 +28754,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars a two way binding flows upstream through a CP when consumed in the template'] = function htmlbarsATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this69 = this;
+      var _this64 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -28658,7 +28788,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -28670,7 +28800,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this69.component.set('localBar', 'initial value');
+        _this64.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
@@ -28679,7 +28809,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     // regression introduced in Ember 1.13
 
     _class.prototype['@skip a two way binding flows upstream through a CP without template consumption'] = function skipATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this70 = this;
+      var _this65 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -28712,7 +28842,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this70.rerender();
+        return _this65.rerender();
       });
 
       this.assertText('initial value');
@@ -28724,7 +28854,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this70.component.set('localBar', 'initial value');
+        _this65.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
@@ -41962,18 +42092,27 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _templateObject19 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
       _templateObject20 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
       _templateObject21 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse id="expect-no"}}{{/check-inverse}}\n      {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}']),
+      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
       _templateObject23 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}'], ['\n      {{check-block id="expect-no"}}\n      {{#check-block id="expect-yes"}}{{/check-block}}']),
-      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'], ['\n      {{#check-params id="expect-no"}}{{/check-params}}\n      {{#check-params id="expect-yes" as |foo|}}{{/check-params}}']),
-      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject30 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject32 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject26 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject27 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject28 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject29 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject30 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject31 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject36 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject38 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject39 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject40 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject41 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject42 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -43653,7 +43792,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
-    _class.prototype['@htmlbars hasBlock is true when block supplied'] = function htmlbarsHasBlockIsTrueWhenBlockSupplied() {
+    _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
       var _this50 = this;
 
       this.registerComponent('with-block', {
@@ -43689,7 +43828,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('No Block!');
     };
 
-    _class.prototype['@htmlbars hasBlockParams is true when block param supplied'] = function htmlbarsHasBlockParamsIsTrueWhenBlockParamSupplied() {
+    _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
       var _this52 = this;
 
       this.registerComponent('with-block', {
@@ -43839,108 +43978,229 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Yes:Hello42');
     };
 
-    _class.prototype['@htmlbars expression hasBlock inverse'] = function htmlbarsExpressionHasBlockInverse(assert) {
-      var _this58 = this;
-
+    _class.prototype['@test expression hasBlock inverse'] = function testExpressionHasBlockInverse(assert) {
       this.registerComponent('check-inverse', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject21)
       });
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject22));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this58.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars expression hasBlock default'] = function htmlbarsExpressionHasBlockDefault(assert) {
-      var _this59 = this;
-
+    _class.prototype['@test expression hasBlock default'] = function testExpressionHasBlockDefault(assert) {
       this.registerComponent('check-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject23)
       });
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this59.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars non-expression hasBlock'] = function htmlbarsNonExpressionHasBlock(assert) {
-      var _this60 = this;
-
-      this.registerComponent('check-block', {
+    _class.prototype['@test expression hasBlockParams inverse'] = function testExpressionHasBlockParamsInverse(assert) {
+      this.registerComponent('check-inverse', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject25)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject26));
+
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'No' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test expression hasBlockParams default'] = function testExpressionHasBlockParamsDefault(assert) {
+      this.registerComponent('check-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27)
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject28));
+
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test non-expression hasBlock'] = function testNonExpressionHasBlock(assert) {
+      this.registerComponent('check-block', {
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject29)
       });
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this60.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars expression hasBlockParams'] = function htmlbarsExpressionHasBlockParams(assert) {
-      var _this61 = this;
-
+    _class.prototype['@test expression hasBlockParams'] = function testExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject26)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this61.rerender();
-      });
-
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars non-expression hasBlockParams'] = function htmlbarsNonExpressionHasBlockParams(assert) {
-      var _this62 = this;
-
+    _class.prototype['@test non-expression hasBlockParams'] = function testNonExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject28)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject31)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30));
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
 
-      this.runTask(function () {
-        return _this62.rerender();
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock expression in an attribute'] = function testHasBlockExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlock}}></button>'
       });
 
-      assert.equal(this.$('#expect-no').text(), 'No');
-      assert.equal(this.$('#expect-yes').text(), 'Yes');
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject32));
+
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock inverse expression in an attribute'] = function testHasBlockInverseExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlock "inverse"}}></button>'
+      }, '');
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject33));
+
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams expression in an attribute'] = function testHasBlockParamsExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlockParams}}></button>'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject34));
+
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams inverse expression in an attribute'] = function testHasBlockParamsInverseExpressionInAnAttribute(assert) {
+      this.registerComponent('check-attr', {
+        template: '<button name={{hasBlockParams "inverse"}}></button>'
+      }, '');
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject34));
+
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
+      _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'false' }, '');
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock as a param to a helper'] = function testHasBlockAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if hasBlock "true" "false"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject35));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock as an expression param to a helper'] = function testHasBlockAsAnExpressionParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlock) "true" "false"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject35));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlock inverse as a param to a helper'] = function testHasBlockInverseAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlock "inverse") "true" "false"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams as a param to a helper'] = function testHasBlockParamsAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if hasBlockParams "true" "false"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams as an expression param to a helper'] = function testHasBlockParamsAsAnExpressionParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlockParams) "true" "false"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'true' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test hasBlockParams inverse as a param to a helper'] = function testHasBlockParamsInverseAsAParamToAHelper(assert) {
+      this.registerComponent('check-helper', {
+        template: '{{if (hasBlockParams "inverse") "true" "false"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37));
+
+      this.assertComponentElement(this.firstChild, { content: 'false' });
+      this.assertComponentElement(this.nthChild(1), { content: 'false' });
+
+      this.assertStableRerender();
     };
 
     _class.prototype['@htmlbars component in template of a yielding component should have the proper parentView'] = function htmlbarsComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this63 = this;
+      var _this58 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -43981,7 +44241,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -43990,7 +44250,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars newly-added sub-components get correct parentView'] = function htmlbarsNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this64 = this;
+      var _this59 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -44013,34 +44273,34 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         })
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject29), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject38), {
         showInner: false
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this59.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this64.context.set('showInner', true);
+        return _this59.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this64.context.set('showInner', false);
+        return _this59.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@htmlbars component should receive the viewRegistry from the parentView'] = function htmlbarsComponentShouldReceiveTheViewRegistryFromTheParentView(assert) {
-      var _this65 = this;
+      var _this60 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -44085,7 +44345,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer._viewRegistry, viewRegistry);
 
       this.runTask(function () {
-        return _this65.rerender();
+        return _this60.rerender();
       });
 
       assert.equal(innerTemplate._viewRegistry, viewRegistry);
@@ -44094,7 +44354,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this66 = this;
+      var _this61 = this;
 
       expectDeprecation(/modified value twice in a single render/);
 
@@ -44139,7 +44399,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this61.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -44168,10 +44428,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this67 = this;
+      var _this62 = this;
 
       this.registerComponent('non-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject39)
       });
 
       this.registerComponent('child-non-block', {
@@ -44185,32 +44445,32 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this67.context.get('items').pushObject('Sergio');
+        return _this62.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this67.context.get('items').shiftObject();
+        return _this62.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this67.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this62.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this68 = this;
+      var _this63 = this;
 
       var clickyThing = undefined;
 
@@ -44228,7 +44488,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{yield}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject31));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject40));
 
       // TODO: ember-view is no longer viewable in the classNames array. Bug or
       // feature?
@@ -44240,7 +44500,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this63.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -44260,10 +44520,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
             clickyThing = this;
           }
         }),
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject32)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject41)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject33));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject42));
 
       this.assertText('blarkporybaz- Click Me');
 
@@ -44275,7 +44535,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars a two way binding flows upstream through a CP when consumed in the template'] = function htmlbarsATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this69 = this;
+      var _this64 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -44309,7 +44569,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -44321,7 +44581,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this69.component.set('localBar', 'initial value');
+        _this64.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
@@ -44330,7 +44590,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     // regression introduced in Ember 1.13
 
     _class.prototype['@skip a two way binding flows upstream through a CP without template consumption'] = function skipATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this70 = this;
+      var _this65 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -44363,7 +44623,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this70.rerender();
+        return _this65.rerender();
       });
 
       this.assertText('initial value');
@@ -44375,7 +44635,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this70.component.set('localBar', 'initial value');
+        _this65.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
@@ -79782,7 +80042,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+2be1736f', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+6c53fc9e', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
