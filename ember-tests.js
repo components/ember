@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b79fa2fd
+ * @version   2.7.0-canary+6bee9eb5
  */
 
 var enifed, requireModule, require, Ember;
@@ -63808,7 +63808,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-views/views/view', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberViewsViewsView, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
   'use strict';
 
   var innerComponent, outerComponent, originalViewKeyword, owner, view, dispatcher;
@@ -63855,13 +63855,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   function appendViewFor(template) {
     var moduleName = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
 
-    var _EmberView$extend;
+    var _EmberComponent$extend;
 
     var hash = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-    var view = _emberViewsViewsView.default.extend((_EmberView$extend = {
-      template: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
-    }, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend)).create(hash);
+    var view = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend = {
+      layout: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
+    }, _EmberComponent$extend[_containerOwner.OWNER] = owner, _EmberComponent$extend)).create(hash);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -64069,6 +64069,21 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
         throws(function () {
           _emberRuntimeTestsUtils.runAppend(outerComponent);
         }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
+      });
+
+      QUnit.test('[#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo', function (assert) {
+        var _EmberComponent$extend2, _EmberComponent$extend3;
+
+        registerComponent('inner-component', _emberViewsComponentsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2)));
+        registerTemplate('components/inner-component', '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>');
+
+        view = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend3 = {
+          layout: _emberTemplateCompilerSystemCompile.default('{{inner-component}}')
+        }, _EmberComponent$extend3[_containerOwner.OWNER] = owner, _EmberComponent$extend3)).create();
+
+        throws(function () {
+          _emberRuntimeTestsUtils.runAppend(view);
+        }, /Action passed is null or undefined in \(action [^)]*\) from .*\./);
       });
 
       QUnit.test('action value is returned', function (assert) {
@@ -79765,7 +79780,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+b79fa2fd', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+6bee9eb5', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
