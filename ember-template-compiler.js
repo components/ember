@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6c53fc9e
+ * @version   2.7.0-canary+db018039
  */
 
 var enifed, requireModule, require, Ember;
@@ -3466,7 +3466,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+6c53fc9e
+    @version 2.7.0-canary+db018039
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -3493,11 +3493,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+6c53fc9e'
+    @default '2.7.0-canary+db018039'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+6c53fc9e';
+  Ember.VERSION = '2.7.0-canary+db018039';
 
   // ..........................................................
   // BOOTSTRAP
@@ -11413,40 +11413,17 @@ enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-m
   */
   TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
     var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
 
-    walker.visit(ast, function (node) {
-      if (validate(node)) {
-        processExpression(b, node);
+    this.syntax.traverse(ast, {
+      SubExpression: function (node) {
+        if (isComponentClosure(node)) {
+          mutParameters(b, node);
+        }
       }
     });
 
     return ast;
   };
-
-  function processExpression(builder, node) {
-    processSubExpressionsInNode(builder, node);
-
-    if (isComponentClosure(node)) {
-      mutParameters(builder, node);
-    }
-  }
-
-  function processSubExpressionsInNode(builder, node) {
-    for (var i = 0; i < node.params.length; i++) {
-      if (node.params[i].type === 'SubExpression') {
-        processExpression(builder, node.params[i]);
-      }
-    }
-
-    each(node.hash.pairs, function (pair) {
-      var value = pair.value;
-
-      if (value.type === 'SubExpression') {
-        processExpression(builder, value);
-      }
-    });
-  }
 
   function isComponentClosure(node) {
     return node.type === 'SubExpression' && node.path.original === 'component';
@@ -11466,10 +11443,6 @@ enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-m
         pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
       }
     });
-  }
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
   }
 
   function each(list, callback) {
@@ -12242,7 +12215,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+6c53fc9e',
+        revision: 'Ember@2.7.0-canary+db018039',
         loc: program.loc,
         moduleName: options.moduleName
       };
