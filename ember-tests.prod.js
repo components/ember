@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2b353c46
+ * @version   2.7.0-canary+2b8144be
  */
 
 var enifed, requireModule, require, Ember;
@@ -34098,6 +34098,190 @@ enifed('ember-glimmer/tests/integration/helpers/yield-test', ['exports', 'ember-
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Input element tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype.runAttributeTest = function runAttributeTest(attributeName, values) {
+      var _this = this;
+
+      var template = '<input ' + attributeName + '={{value}}>';
+      this.render(template, { value: values[0] });
+      this.assertAttributeHasValue(attributeName, values[0], attributeName + ' is set on initial render');
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+      this.assertAttributeHasValue(attributeName, values[0], attributeName + ' is set on noop rerender');
+
+      this.setComponentValue(values[1]);
+      this.assertAttributeHasValue(attributeName, values[1], attributeName + ' is set on rerender');
+
+      this.setComponentValue(values[0]);
+      this.assertAttributeHasValue(attributeName, values[0], attributeName + ' can be set back to the initial value');
+    };
+
+    _class.prototype.runPropertyTest = function runPropertyTest(propertyName, values) {
+      var _this2 = this;
+
+      var attributeName = propertyName;
+      var template = '<input ' + attributeName + '={{value}}>';
+      this.render(template, { value: values[0] });
+      this.assertPropertyHasValue(propertyName, values[0], propertyName + ' is set on initial render');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+      this.assertPropertyHasValue(propertyName, values[0], propertyName + ' is set on noop rerender');
+
+      this.setComponentValue(values[1]);
+      this.assertPropertyHasValue(propertyName, values[1], propertyName + ' is set on rerender');
+
+      this.setComponentValue(values[0]);
+      this.assertPropertyHasValue(propertyName, values[0], propertyName + ' can be set back to the initial value');
+    };
+
+    _class.prototype['@test input disabled attribute'] = function testInputDisabledAttribute() {
+      this.runPropertyTest('disabled', [false, true]);
+    };
+
+    _class.prototype['@test input value attribute'] = function testInputValueAttribute() {
+      this.runPropertyTest('value', ['foo', 'bar']);
+    };
+
+    _class.prototype['@htmlbars input placeholder attribute'] = function htmlbarsInputPlaceholderAttribute() {
+      this.runAttributeTest('placeholder', ['foo', 'bar']);
+    };
+
+    _class.prototype['@test input name attribute'] = function testInputNameAttribute() {
+      this.runAttributeTest('name', ['nam', 'name']);
+    };
+
+    _class.prototype['@htmlbars input maxlength attribute'] = function htmlbarsInputMaxlengthAttribute() {
+      this.runAttributeTest('maxlength', [2, 3]);
+    };
+
+    _class.prototype['@test input size attribute'] = function testInputSizeAttribute() {
+      this.runAttributeTest('size', [2, 3]);
+    };
+
+    _class.prototype['@htmlbars input tabindex attribute'] = function htmlbarsInputTabindexAttribute() {
+      this.runAttributeTest('tabindex', [2, 3]);
+    };
+
+    _class.prototype['@htmlbars cursor position is not lost when updating content'] = function htmlbarsCursorPositionIsNotLostWhenUpdatingContent() {
+      var template = '<input value={{value}}>';
+      this.render(template, { value: 'hola' });
+
+      this.setDOMValue('hello');
+      this.setSelectionRange(1, 3);
+
+      this.setComponentValue('hello');
+
+      this.assertSelectionRange(1, 3);
+
+      // Note: We should eventually get around to testing reseting, however
+      // browsers handle `selectionStart` and `selectionEnd` differently
+      // when are synthetically testing movement of the cursor.
+    };
+
+    _class.prototype['@test input can be updated multiple times'] = function testInputCanBeUpdatedMultipleTimes() {
+      var template = '<input value={{value}}>';
+      this.render(template, { value: 'hola' });
+
+      this.assertValue('hola', 'Value is initialised');
+
+      this.setComponentValue('');
+      this.assertValue('', 'Value is set in the DOM');
+
+      this.setDOMValue('hola');
+      this.setComponentValue('hola');
+      this.assertValue('hola', 'Value is updated the first time');
+
+      this.setComponentValue('');
+      this.assertValue('', 'Value is updated the second time');
+    };
+
+    _class.prototype['@skip DOM is SSOT if value is set'] = function skipDOMIsSSOTIfValueIsSet() {
+      var template = '<input value={{value}}>';
+      this.render(template, { value: 'hola' });
+
+      this.assertValue('hola', 'Value is initialised');
+
+      this.setComponentValue('hello');
+
+      this.assertValue('hello', 'Value is initialised');
+
+      this.setDOMValue('hola');
+
+      this.assertValue('hola', 'DOM is used');
+
+      this.setComponentValue('hello');
+
+      this.assertValue('hola', 'DOM is used');
+    };
+
+    // private helpers and assertions
+
+    _class.prototype.setDOMValue = function setDOMValue(value) {
+      this.inputElement().value = value;
+    };
+
+    _class.prototype.setComponentValue = function setComponentValue(value) {
+      var _this3 = this;
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'value', value);
+      });
+    };
+
+    _class.prototype.setSelectionRange = function setSelectionRange(start, end) {
+      this.inputElement().selectionStart = start;
+      this.inputElement().selectionEnd = end;
+    };
+
+    _class.prototype.inputElement = function inputElement() {
+      return this.$inputElement()[0];
+    };
+
+    _class.prototype.$inputElement = function $inputElement() {
+      return this.$('input');
+    };
+
+    _class.prototype.assertValue = function assertValue(value, message) {
+      this.assertPropertyHasValue('value', value, message);
+    };
+
+    _class.prototype.assertAttributeHasValue = function assertAttributeHasValue(attribute, value, message) {
+      this.assert.equal(this.$inputElement().attr(attribute), value, attribute + ' ' + message);
+    };
+
+    _class.prototype.assertPropertyHasValue = function assertPropertyHasValue(property, value, message) {
+      this.assert.equal(this.$inputElement().prop(property), value, property + ' ' + message);
+    };
+
+    _class.prototype.assertSelectionRange = function assertSelectionRange(start, end) {
+      this.assert.equal(this.inputElement().selectionStart, start);
+      this.assert.equal(this.inputElement().selectionEnd, end);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -49882,182 +50066,189 @@ enifed('ember-htmlbars/tests/integration/helpers/yield-test', ['exports', 'ember
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
+enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  var view = undefined,
-      controller = undefined,
-      owner = undefined,
-      $input = undefined,
-      input = undefined;
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
-  function commonSetup() {
-    owner = _containerTestsTestHelpersBuildOwner.default();
-    owner.register('component:-text-field', _emberViewsViewsText_field.default);
-    owner.register('component:-checkbox', _emberViewsViewsCheckbox.default);
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-    owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-    var dispatcher = owner.lookup('event_dispatcher:main');
-    dispatcher.setup({}, '#qunit-fixture');
-  }
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Input element tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
 
-    QUnit.module('<input>', {
-      setup: function () {
-        var _View$extend;
+    function _class() {
+      _classCallCheck(this, _class);
 
-        commonSetup();
+      _RenderingTest.apply(this, arguments);
+    }
 
-        controller = {
-          value: 'hello',
-          placeholder: 'Enter some text',
-          name: 'some-name',
-          max: 30,
-          size: 30,
-          tab: 5
-        };
+    _class.prototype.runAttributeTest = function runAttributeTest(attributeName, values) {
+      var _this = this;
 
-        view = _emberViewsViewsView.default.extend((_View$extend = {}, _View$extend[_containerOwner.OWNER] = owner, _View$extend.controller = controller, _View$extend.template = _emberTemplateCompilerSystemCompile.default('<input value={{value}}\n                                disabled={{disabled}}\n                                placeholder={{placeholder}}\n                                name={{name}}\n                                maxlength={{max}}\n                                size={{size}}\n                                tabindex={{tab}}>'), _View$extend)).create();
+      var template = '<input ' + attributeName + '={{value}}>';
+      this.render(template, { value: values[0] });
+      this.assertAttributeHasValue(attributeName, values[0], attributeName + ' is set on initial render');
 
-        _emberRuntimeTestsUtils.runAppend(view);
-
-        $input = view.$('input');
-        input = $input[0];
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(view);
-        _emberRuntimeTestsUtils.runDestroy(owner);
-      }
-    });
-
-    QUnit.test('should insert a text field into DOM', function (assert) {
-      assert.equal($input.length, 1, 'A single text field was inserted');
-    });
-
-    QUnit.test('should become disabled if the disabled attribute is true', function (assert) {
-      assert.ok($input.is(':not(:disabled)'), 'There are no disabled text fields');
-
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'disabled', true);
+      this.runTask(function () {
+        return _this.rerender();
       });
+      this.assertAttributeHasValue(attributeName, values[0], attributeName + ' is set on noop rerender');
 
-      assert.ok($input.is(':disabled'), 'The text field is disabled');
+      this.setComponentValue(values[1]);
+      this.assertAttributeHasValue(attributeName, values[1], attributeName + ' is set on rerender');
 
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'disabled', false);
+      this.setComponentValue(values[0]);
+      this.assertAttributeHasValue(attributeName, values[0], attributeName + ' can be set back to the initial value');
+    };
+
+    _class.prototype.runPropertyTest = function runPropertyTest(propertyName, values) {
+      var _this2 = this;
+
+      var attributeName = propertyName;
+      var template = '<input ' + attributeName + '={{value}}>';
+      this.render(template, { value: values[0] });
+      this.assertPropertyHasValue(propertyName, values[0], propertyName + ' is set on initial render');
+
+      this.runTask(function () {
+        return _this2.rerender();
       });
+      this.assertPropertyHasValue(propertyName, values[0], propertyName + ' is set on noop rerender');
 
-      assert.ok($input.is(':not(:disabled)'), 'There are no disabled text fields');
-    });
+      this.setComponentValue(values[1]);
+      this.assertPropertyHasValue(propertyName, values[1], propertyName + ' is set on rerender');
 
-    QUnit.test('input value is updated when setting value property of view', function (assert) {
-      assert.equal($input.val(), 'hello', 'renders text field with value');
+      this.setComponentValue(values[0]);
+      this.assertPropertyHasValue(propertyName, values[0], propertyName + ' can be set back to the initial value');
+    };
 
-      var id = $input.prop('id');
+    _class.prototype['@test input disabled attribute'] = function testInputDisabledAttribute() {
+      this.runPropertyTest('disabled', [false, true]);
+    };
 
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'value', 'bye!');
+    _class.prototype['@test input value attribute'] = function testInputValueAttribute() {
+      this.runPropertyTest('value', ['foo', 'bar']);
+    };
+
+    _class.prototype['@htmlbars input placeholder attribute'] = function htmlbarsInputPlaceholderAttribute() {
+      this.runAttributeTest('placeholder', ['foo', 'bar']);
+    };
+
+    _class.prototype['@test input name attribute'] = function testInputNameAttribute() {
+      this.runAttributeTest('name', ['nam', 'name']);
+    };
+
+    _class.prototype['@htmlbars input maxlength attribute'] = function htmlbarsInputMaxlengthAttribute() {
+      this.runAttributeTest('maxlength', [2, 3]);
+    };
+
+    _class.prototype['@test input size attribute'] = function testInputSizeAttribute() {
+      this.runAttributeTest('size', [2, 3]);
+    };
+
+    _class.prototype['@htmlbars input tabindex attribute'] = function htmlbarsInputTabindexAttribute() {
+      this.runAttributeTest('tabindex', [2, 3]);
+    };
+
+    _class.prototype['@htmlbars cursor position is not lost when updating content'] = function htmlbarsCursorPositionIsNotLostWhenUpdatingContent() {
+      var template = '<input value={{value}}>';
+      this.render(template, { value: 'hola' });
+
+      this.setDOMValue('hello');
+      this.setSelectionRange(1, 3);
+
+      this.setComponentValue('hello');
+
+      this.assertSelectionRange(1, 3);
+
+      // Note: We should eventually get around to testing reseting, however
+      // browsers handle `selectionStart` and `selectionEnd` differently
+      // when are synthetically testing movement of the cursor.
+    };
+
+    _class.prototype['@test input can be updated multiple times'] = function testInputCanBeUpdatedMultipleTimes() {
+      var template = '<input value={{value}}>';
+      this.render(template, { value: 'hola' });
+
+      this.assertValue('hola', 'Value is initialised');
+
+      this.setComponentValue('');
+      this.assertValue('', 'Value is set in the DOM');
+
+      this.setDOMValue('hola');
+      this.setComponentValue('hola');
+      this.assertValue('hola', 'Value is updated the first time');
+
+      this.setComponentValue('');
+      this.assertValue('', 'Value is updated the second time');
+    };
+
+    _class.prototype['@skip DOM is SSOT if value is set'] = function skipDOMIsSSOTIfValueIsSet() {
+      var template = '<input value={{value}}>';
+      this.render(template, { value: 'hola' });
+
+      this.assertValue('hola', 'Value is initialised');
+
+      this.setComponentValue('hello');
+
+      this.assertValue('hello', 'Value is initialised');
+
+      this.setDOMValue('hola');
+
+      this.assertValue('hola', 'DOM is used');
+
+      this.setComponentValue('hello');
+
+      this.assertValue('hola', 'DOM is used');
+    };
+
+    // private helpers and assertions
+
+    _class.prototype.setDOMValue = function setDOMValue(value) {
+      this.inputElement().value = value;
+    };
+
+    _class.prototype.setComponentValue = function setComponentValue(value) {
+      var _this3 = this;
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'value', value);
       });
+    };
 
-      assert.equal($input.val(), 'bye!', 'updates text field after value changes');
-      assert.equal($input.prop('id'), id, 'the component hasn\'t changed');
-    });
+    _class.prototype.setSelectionRange = function setSelectionRange(start, end) {
+      this.inputElement().selectionStart = start;
+      this.inputElement().selectionEnd = end;
+    };
 
-    QUnit.test('input placeholder is updated when setting placeholder property of view', function (assert) {
-      assert.equal($input.attr('placeholder'), 'Enter some text', 'renders text field with placeholder');
+    _class.prototype.inputElement = function inputElement() {
+      return this.$inputElement()[0];
+    };
 
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'placeholder', 'Text, please enter it');
-      });
+    _class.prototype.$inputElement = function $inputElement() {
+      return this.$('input');
+    };
 
-      assert.equal($input.attr('placeholder'), 'Text, please enter it', 'updates text field after placeholder changes');
-    });
+    _class.prototype.assertValue = function assertValue(value, message) {
+      this.assertPropertyHasValue('value', value, message);
+    };
 
-    QUnit.test('input name is updated when setting name property of view', function (assert) {
-      assert.equal($input.attr('name'), 'some-name', 'renders text field with name');
+    _class.prototype.assertAttributeHasValue = function assertAttributeHasValue(attribute, value, message) {
+      this.assert.equal(this.$inputElement().attr(attribute), value, attribute + ' ' + message);
+    };
 
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'name', 'other-name');
-      });
+    _class.prototype.assertPropertyHasValue = function assertPropertyHasValue(property, value, message) {
+      this.assert.equal(this.$inputElement().prop(property), value, property + ' ' + message);
+    };
 
-      assert.equal($input.attr('name'), 'other-name', 'updates text field after name changes');
-    });
+    _class.prototype.assertSelectionRange = function assertSelectionRange(start, end) {
+      this.assert.equal(this.inputElement().selectionStart, start);
+      this.assert.equal(this.inputElement().selectionEnd, end);
+    };
 
-    QUnit.test('input maxlength is updated when setting maxlength property of view', function (assert) {
-      assert.equal($input.attr('maxlength'), '30', 'renders text field with maxlength');
-
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'max', 40);
-      });
-
-      assert.equal($input.attr('maxlength'), '40', 'updates text field after maxlength changes');
-    });
-
-    QUnit.test('input size is updated when setting size property of view', function (assert) {
-      assert.equal($input.attr('size'), '30', 'renders text field with size');
-
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'size', 40);
-      });
-
-      assert.equal($input.attr('size'), '40', 'updates text field after size changes');
-    });
-
-    QUnit.test('input tabindex is updated when setting tabindex property of view', function (assert) {
-      assert.equal($input.attr('tabindex'), '5', 'renders text field with the tabindex');
-
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'tab', 3);
-      });
-
-      assert.equal($input.attr('tabindex'), '3', 'updates text field after tabindex changes');
-    });
-
-    QUnit.test('cursor position is not lost when updating content', function (assert) {
-      _emberMetalRun_loop.default(function (_) {
-        // Since we can't simulate an actual keypress we can not do a proper integration test.
-        // Instead, we will simulate the underlying issue caused by the keypress by
-        // desyncing the attr morph's last know value from the DOM and re-setting the
-        // controller's value to the input's current value.
-
-        input.value = 'hola';
-        input.selectionStart = 1;
-        input.selectionEnd = 3;
-
-        _emberMetalProperty_set.set(controller, 'value', 'hola');
-      });
-
-      assert.equal(input.selectionStart, 1, 'cursor position was not lost');
-      assert.equal(input.selectionEnd, 3, 'cursor position was not lost');
-    });
-
-    QUnit.test('input can be updated multiple times', function (assert) {
-      assert.equal($input.val(), 'hello', 'precondition - renders text field with value');
-
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'value', '');
-      });
-      assert.equal($input.val(), '', 'updates first time');
-
-      // Simulates setting the input to the same value as it already is which won't cause a rerender
-      _emberMetalRun_loop.default(function (_) {
-        return input.value = 'derp';
-      });
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'value', 'derp');
-      });
-      assert.equal($input.val(), 'derp', 'updates second time');
-
-      _emberMetalRun_loop.default(function (_) {
-        return _emberMetalProperty_set.set(controller, 'value', '');
-      });
-      assert.equal($input.val(), '', 'updates third time');
-    });
-  }
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
@@ -79547,7 +79738,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+2b353c46', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+2b8144be', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
