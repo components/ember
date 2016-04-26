@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a2aaedb7
+ * @version   2.7.0-canary+2a0627dd
  */
 
 var enifed, requireModule, require, Ember;
@@ -3466,7 +3466,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+a2aaedb7
+    @version 2.7.0-canary+2a0627dd
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -3493,11 +3493,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+a2aaedb7'
+    @default '2.7.0-canary+2a0627dd'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+a2aaedb7';
+  Ember.VERSION = '2.7.0-canary+2a0627dd';
 
   // ..........................................................
   // BOOTSTRAP
@@ -4490,6 +4490,21 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember-m
   Object.defineProperty(_emberMetalCore.default, 'ENV', {
     get: function () {
       return _emberEnvironment.ENV;
+    },
+    enumerable: false
+  });
+
+  /**
+    The context that Ember searches for namespace instances on.
+  
+    @private
+   */
+  Object.defineProperty(_emberMetalCore.default, 'lookup', {
+    get: function () {
+      return _emberEnvironment.context.lookup;
+    },
+    set: function (value) {
+      return _emberEnvironment.context.lookup = value;
     },
     enumerable: false
   });
@@ -12215,7 +12230,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+a2aaedb7',
+        revision: 'Ember@2.7.0-canary+2a0627dd',
         loc: program.loc,
         moduleName: options.moduleName
       };
