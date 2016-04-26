@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d4993597
+ * @version   2.7.0-canary+a2aaedb7
  */
 
 var enifed, requireModule, require, Ember;
@@ -28418,7 +28418,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars component in template of a yielding component should have the proper parentView'] = function htmlbarsComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
+    _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
       var _this58 = this;
 
       var outer = undefined,
@@ -28468,7 +28468,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
-    _class.prototype['@htmlbars newly-added sub-components get correct parentView'] = function htmlbarsNewlyAddedSubComponentsGetCorrectParentView(assert) {
+    _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
       var _this59 = this;
 
       var outer = undefined,
@@ -28701,10 +28701,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
             this._super.apply(this, arguments);
             clickyThing = this;
           }
-        }),
-        // I am getting a `Cannot read property 'asLayout' of undefined` in
-        // Glimmer if I do not specify a template here :(
-        template: '{{yield}}'
+        })
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40));
@@ -35741,7 +35738,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -35750,11 +35747,15 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   exports.moduleFor = moduleFor;
   exports.strip = strip;
 
+  var _templateObject = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
+
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var packageTag = '@' + _emberGlimmerTestsUtilsPackageName.default + ' ';
 
@@ -36097,6 +36098,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.renderer = _emberGlimmerTestsUtilsHelpers.InteractiveRenderer.create((_InteractiveRenderer$create = { dom: dom, env: env }, _InteractiveRenderer$create[_containerOwner.OWNER] = owner, _InteractiveRenderer$create));
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
+
+      owner.register(_containerRegistry.privatize(_templateObject), _emberGlimmerTemplatesComponent.default);
     }
 
     RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
@@ -44199,7 +44202,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars component in template of a yielding component should have the proper parentView'] = function htmlbarsComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
+    _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
       var _this58 = this;
 
       var outer = undefined,
@@ -44249,7 +44252,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
-    _class.prototype['@htmlbars newly-added sub-components get correct parentView'] = function htmlbarsNewlyAddedSubComponentsGetCorrectParentView(assert) {
+    _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
       var _this59 = this;
 
       var outer = undefined,
@@ -44482,10 +44485,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
             this._super.apply(this, arguments);
             clickyThing = this;
           }
-        }),
-        // I am getting a `Cannot read property 'asLayout' of undefined` in
-        // Glimmer if I do not specify a template here :(
-        template: '{{yield}}'
+        })
       });
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject40));
@@ -52412,7 +52412,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     });
   }
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -52421,11 +52421,15 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   exports.moduleFor = moduleFor;
   exports.strip = strip;
 
+  var _templateObject = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
+
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var packageTag = '@' + _emberHtmlbarsTestsUtilsPackageName.default + ' ';
 
@@ -52768,6 +52772,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.renderer = _emberHtmlbarsTestsUtilsHelpers.InteractiveRenderer.create((_InteractiveRenderer$create = { dom: dom, env: env }, _InteractiveRenderer$create[_containerOwner.OWNER] = owner, _InteractiveRenderer$create));
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
+
+      owner.register(_containerRegistry.privatize(_templateObject), _emberGlimmerTemplatesComponent.default);
     }
 
     RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
@@ -80042,7 +80048,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+d4993597', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+a2aaedb7', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
