@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2b8144be
+ * @version   2.7.0-canary+2dc2a19f
  */
 
 var enifed, requireModule, require, Ember;
@@ -34289,7 +34289,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
 
       this.setComponentValue('hello');
 
-      this.assertValue('hola', 'DOM is used');
+      this.assertValue('hello', 'DOM is used');
     };
 
     // private helpers and assertions
@@ -50257,7 +50257,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
 
       this.setComponentValue('hello');
 
-      this.assertValue('hola', 'DOM is used');
+      this.assertValue('hello', 'DOM is used');
     };
 
     // private helpers and assertions
@@ -80239,7 +80239,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+2b8144be', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+2dc2a19f', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
