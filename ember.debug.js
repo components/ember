@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2a0627dd
+ * @version   2.7.0-canary+2b353c46
  */
 
 var enifed, requireModule, require, Ember;
@@ -687,12 +687,12 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     /*
       Join the passed method with an existing queue and execute immediately,
       if there isn't one use `Backburner#run`.
-        The join method is like the run method except that it will schedule into
+       The join method is like the run method except that it will schedule into
       an existing queue if one already exists. In either case, the join method will
       immediately execute the passed in function and return its result.
-       @method join 
+       @method join
       @param {Object} target
-      @param {Function} method The method to be executed 
+      @param {Function} method The method to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -731,10 +731,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
     /*
       Defer the passed function to run inside the specified queue.
-       @method defer 
-      @param {String} queueName 
+       @method defer
+      @param {String} queueName
       @param {Object} target
-      @param {Function|String} method The method or method name to be executed 
+      @param {Function|String} method The method or method name to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -860,7 +860,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         }
       }
 
-      var executeAt = Date.now() + parseInt(wait, 10);
+      var executeAt = Date.now() + parseInt(wait !== wait ? 0 : wait, 10);
 
       if (_backburnerUtils.isString(method)) {
         method = target[method];
@@ -13085,7 +13085,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+2a0627dd';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+2b353c46';
   }
 
   /**
@@ -17313,7 +17313,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+2a0627dd
+    @version 2.7.0-canary+2b353c46
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17340,11 +17340,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+2a0627dd'
+    @default '2.7.0-canary+2b353c46'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+2a0627dd';
+  Ember.VERSION = '2.7.0-canary+2b353c46';
 
   // ..........................................................
   // BOOTSTRAP
@@ -41926,7 +41926,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+2a0627dd',
+        revision: 'Ember@2.7.0-canary+2b353c46',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51358,7 +51358,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+2a0627dd
+ * @version   2.7.0-canary+2b353c46
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
