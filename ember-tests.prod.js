@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2779fd6f
+ * @version   2.7.0-canary+79d9bd87
  */
 
 var enifed, requireModule, require, Ember;
@@ -20353,7 +20353,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
   /*globals EmberDev */
 
   'use strict';
@@ -20439,7 +20439,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
       app = lookup.TestApp = _emberApplicationSystemApplication.default.create({ rootElement: '#two', router: false });
     });
 
-    _emberMetalCore.default.BOOTED = false;
+    _emberRuntimeSystemNamespace.setSearchDisabled(false);
     app.Foo = _emberRuntimeSystemObject.default.extend();
     equal(app.Foo.toString(), 'TestApp.Foo', 'Classes pick up their parent namespace');
   });
@@ -20777,7 +20777,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     equal(warning, null);
   });
 });
-// Ember.libraries, Ember.BOOTED
+// Ember.libraries
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/system/compile'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
@@ -77427,7 +77427,7 @@ enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal/run
     });
   }
 });
-enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace) {
+enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace) {
   'use strict';
 
   var originalLookup = _emberEnvironment.context.lookup;
@@ -77435,12 +77435,12 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-meta
 
   QUnit.module('Namespace', {
     setup: function () {
-      _emberMetalCore.default.BOOTED = false;
+      _emberRuntimeSystemNamespace.setSearchDisabled(false);
 
       lookup = _emberEnvironment.context.lookup = {};
     },
     teardown: function () {
-      _emberMetalCore.default.BOOTED = false;
+      _emberRuntimeSystemNamespace.setSearchDisabled(false);
 
       for (var prop in lookup) {
         if (lookup[prop]) {
@@ -77509,7 +77509,7 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-meta
   });
 
   QUnit.test('Calling namespace.nameClasses() eagerly names all classes', function () {
-    _emberMetalCore.default.BOOTED = true;
+    _emberRuntimeSystemNamespace.setSearchDisabled(true);
 
     var namespace = lookup.NS = _emberRuntimeSystemNamespace.default.create();
 
@@ -77555,7 +77555,6 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-meta
     equal(_emberRuntimeSystemNamespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
   });
 });
-// Ember.BOOTED
 enifed('ember-runtime/tests/system/native_array/a_test', ['exports', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array'], function (exports, _emberRuntimeMixinsArray, _emberRuntimeSystemNative_array) {
   'use strict';
 
@@ -79960,7 +79959,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+2779fd6f', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+79d9bd87', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
