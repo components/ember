@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.6.0-beta.1"
+        "version": "v2.6.0-beta.2"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -1767,18 +1767,6 @@
                 "Ember": 1
             }
         },
-        "packages/ember-views/lib/compat/metamorph_view.js": {
-            "name": "packages/ember-views/lib/compat/metamorph_view.js",
-            "modules": {},
-            "classes": {
-                "Ember._Metamorph": 1,
-                "Ember._MetamorphView": 1
-            },
-            "fors": {},
-            "namespaces": {
-                "Ember": 1
-            }
-        },
         "packages/ember-views/lib/components/component.js": {
             "name": "packages/ember-views/lib/components/component.js",
             "modules": {},
@@ -2135,8 +2123,6 @@
                 "Ember.Test.Adapter": 1,
                 "Ember.Test.QUnitAdapter": 1,
                 "Ember.Test": 1,
-                "Ember._Metamorph": 1,
-                "Ember._MetamorphView": 1,
                 "Ember.Component": 1,
                 "Ember.AriaRoleSupport": 1,
                 "Ember.ClassNamesSupport": 1,
@@ -2175,7 +2161,7 @@
             },
             "tag": "module",
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 27
+            "line": 23
         },
         "ember-application": {
             "name": "ember-application",
@@ -2214,7 +2200,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-debug/lib/index.js",
-            "line": 231
+            "line": 215
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -2388,8 +2374,6 @@
             "submodules": {},
             "elements": {},
             "classes": {
-                "Ember._Metamorph": 1,
-                "Ember._MetamorphView": 1,
                 "Ember.Component": 1,
                 "Ember.AriaRoleSupport": 1,
                 "Ember.ClassNamesSupport": 1,
@@ -2414,7 +2398,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 27,
+            "line": 23,
             "description": "An `Ember.Component` is a view that is completely\nisolated. Properties accessed in its templates go\nto the view object and actions are targeted at\nthe view object. There is no access to the\nsurrounding context or outer controller; all\ncontextual information must be passed in.\n\nThe easiest way to create an `Ember.Component` is via\na template. If you name a template\n`components/my-foo`, you will be able to use\n`{{my-foo}}` in other templates, which will make\nan instance of the isolated component.\n\n```handlebars\n{{app-profile person=currentUser}}\n```\n\n```handlebars\n<!-- app-profile template -->\n<h1>{{person.title}}</h1>\n<img src={{person.avatar}}>\n<p class='signature'>{{person.signature}}</p>\n```\n\nYou can use `yield` inside a template to\ninclude the **contents** of any block attached to\nthe component. The block will be executed in the\ncontext of the surrounding context or outer controller:\n\n```handlebars\n{{#app-profile person=currentUser}}\n  <p>Admin mode</p>\n  {{! Executed in the controller's context. }}\n{{/app-profile}}\n```\n\n```handlebars\n<!-- app-profile template -->\n<h1>{{person.title}}</h1>\n{{! Executed in the components context. }}\n{{yield}} {{! block contents }}\n```\n\nIf you want to customize the component, in order to\nhandle events or actions, you implement a subclass\nof `Ember.Component` named after the name of the\ncomponent. Note that `Component` needs to be appended to the name of\nyour subclass like `AppProfileComponent`.\n\nFor example, you could implement the action\n`hello` for the `app-profile` component:\n\n```javascript\nApp.AppProfileComponent = Ember.Component.extend({\n  actions: {\n    hello: function(name) {\n      console.log(\"Hello\", name);\n    }\n  }\n});\n```\n\nAnd then use it in the component's template:\n\n```handlebars\n<!-- app-profile template -->\n\n<h1>{{person.title}}</h1>\n{{yield}} <!-- block contents -->\n\n<button {{action 'hello' person.name}}>\n  Say Hello to {{person.name}}\n</button>\n```\n\nComponents must have a `-` in their name to avoid\nconflicts with built-in controls that wrap HTML\nelements. This is consistent with the same\nrequirement in web components."
         },
         "ember-runtime": {
@@ -2678,7 +2662,7 @@
             "submodule": "ember-debug",
             "namespace": "",
             "file": "packages/ember-debug/lib/index.js",
-            "line": 231,
+            "line": 215,
             "access": "public",
             "tagname": ""
         },
@@ -3939,44 +3923,6 @@
             "access": "public",
             "tagname": ""
         },
-        "Ember._Metamorph": {
-            "name": "Ember._Metamorph",
-            "shortname": "Ember._Metamorph",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [
-                "Ember._MetamorphView"
-            ],
-            "module": "ember",
-            "submodule": "ember-views",
-            "namespace": "Ember",
-            "file": "packages/ember-views/lib/compat/metamorph_view.js",
-            "line": 13,
-            "access": "private",
-            "tagname": ""
-        },
-        "Ember._MetamorphView": {
-            "name": "Ember._MetamorphView",
-            "shortname": "Ember._MetamorphView",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "submodule": "ember-views",
-            "namespace": "Ember",
-            "file": "packages/ember-views/lib/compat/metamorph_view.js",
-            "line": 41,
-            "extends": "Ember.View",
-            "uses": [
-                "Ember._Metamorph"
-            ],
-            "access": "private",
-            "tagname": ""
-        },
         "Ember.Component": {
             "name": "Ember.Component",
             "shortname": "Ember.Component",
@@ -4262,7 +4208,7 @@
             "submodule": "ember-views",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 27,
+            "line": 23,
             "description": "`Ember.View` is the class in Ember responsible for encapsulating templates of\nHTML content, combining templates with data to render as sections of a page's\nDOM, and registering and responding to user-initiated events.\n\n## HTML Tag\n\nThe default HTML tag name used for a view's DOM representation is `div`. This\ncan be customized by setting the `tagName` property. The following view\nclass:\n\n```javascript\nParagraphView = Ember.View.extend({\n  tagName: 'em'\n});\n```\n\nWould result in instances with the following HTML:\n\n```html\n<em id=\"ember1\" class=\"ember-view\"></em>\n```\n\n## HTML `class` Attribute\n\nThe HTML `class` attribute of a view's tag can be set by providing a\n`classNames` property that is set to an array of strings:\n\n```javascript\nMyView = Ember.View.extend({\n  classNames: ['my-class', 'my-other-class']\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view my-class my-other-class\"></div>\n```\n\n`class` attribute values can also be set by providing a `classNameBindings`\nproperty set to an array of properties names for the view. The return value\nof these properties will be added as part of the value for the view's `class`\nattribute. These properties can be computed properties:\n\n```javascript\nMyView = Ember.View.extend({\n  classNameBindings: ['propertyA', 'propertyB'],\n  propertyA: 'from-a',\n  propertyB: Ember.computed(function() {\n    if (someLogic) { return 'from-b'; }\n  })\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view from-a from-b\"></div>\n```\n\nIf the value of a class name binding returns a boolean the property name\nitself will be used as the class name if the property is true. The class name\nwill not be added if the value is `false` or `undefined`.\n\n```javascript\nMyView = Ember.View.extend({\n  classNameBindings: ['hovered'],\n  hovered: true\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view hovered\"></div>\n```\n\nWhen using boolean class name bindings you can supply a string value other\nthan the property name for use as the `class` HTML attribute by appending the\npreferred value after a \":\" character when defining the binding:\n\n```javascript\nMyView = Ember.View.extend({\n  classNameBindings: ['awesome:so-very-cool'],\n  awesome: true\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view so-very-cool\"></div>\n```\n\nBoolean value class name bindings whose property names are in a\ncamelCase-style format will be converted to a dasherized format:\n\n```javascript\nMyView = Ember.View.extend({\n  classNameBindings: ['isUrgent'],\n  isUrgent: true\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view is-urgent\"></div>\n```\n\nClass name bindings can also refer to object values that are found by\ntraversing a path relative to the view itself:\n\n```javascript\nMyView = Ember.View.extend({\n  classNameBindings: ['messages.empty']\n  messages: Ember.Object.create({\n    empty: true\n  })\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view empty\"></div>\n```\n\nIf you want to add a class name for a property which evaluates to true and\nand a different class name if it evaluates to false, you can pass a binding\nlike this:\n\n```javascript\n// Applies 'enabled' class when isEnabled is true and 'disabled' when isEnabled is false\nEmber.View.extend({\n  classNameBindings: ['isEnabled:enabled:disabled']\n  isEnabled: true\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view enabled\"></div>\n```\n\nWhen isEnabled is `false`, the resulting HTML representation looks like\nthis:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nThis syntax offers the convenience to add a class if a property is `false`:\n\n```javascript\n// Applies no class when isEnabled is true and class 'disabled' when isEnabled is false\nEmber.View.extend({\n  classNameBindings: ['isEnabled::disabled']\n  isEnabled: true\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\"></div>\n```\n\nWhen the `isEnabled` property on the view is set to `false`, it will result\nin view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nUpdates to the value of a class name binding will result in automatic\nupdate of the  HTML `class` attribute in the view's rendered HTML\nrepresentation. If the value becomes `false` or `undefined` the class name\nwill be removed.\n\nBoth `classNames` and `classNameBindings` are concatenated properties. See\n[Ember.Object](/api/classes/Ember.Object.html) documentation for more\ninformation about concatenated properties.\n\n## HTML Attributes\n\nThe HTML attribute section of a view's tag can be set by providing an\n`attributeBindings` property set to an array of property names on the view.\nThe return value of these properties will be used as the value of the view's\nHTML associated attribute:\n\n```javascript\nAnchorView = Ember.View.extend({\n  tagName: 'a',\n  attributeBindings: ['href'],\n  href: 'http://google.com'\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nOne property can be mapped on to another by placing a \":\" between\nthe source property and the destination property:\n\n```javascript\nAnchorView = Ember.View.extend({\n  tagName: 'a',\n  attributeBindings: ['url:href'],\n  url: 'http://google.com'\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nNamespaced attributes (e.g. `xlink:href`) are supported, but have to be\nmapped, since `:` is not a valid character for properties in Javascript:\n\n```javascript\nUseView = Ember.View.extend({\n  tagName: 'use',\n  attributeBindings: ['xlinkHref:xlink:href'],\n  xlinkHref: '#triangle'\n});\n```\nWill result in view instances with an HTML representation of:\n\n```html\n<use xlink:href=\"#triangle\"></use>\n```\n\nIf the return value of an `attributeBindings` monitored property is a boolean\nthe property's value will be set as a coerced string:\n\n```javascript\nMyTextInput = Ember.View.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n  disabled: false\n});\n```\n\nWill result in a view instance with an HTML representation of:\n\n```html\n<input id=\"ember1\" class=\"ember-view\" disabled=\"false\" />\n```\n\n`attributeBindings` can refer to computed properties:\n\n```javascript\nMyTextInput = Ember.View.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n  disabled: Ember.computed(function() {\n    if (someLogic) {\n      return true;\n    } else {\n      return false;\n    }\n  })\n});\n```\n\nTo prevent setting an attribute altogether, use `null` or `undefined` as the\nreturn value of the `attributeBindings` monitored property:\n\n```javascript\nMyTextInput = Ember.View.extend({\n  tagName: 'form',\n  attributeBindings: ['novalidate'],\n  novalidate: null\n});\n```\n\nUpdates to the property of an attribute binding will result in automatic\nupdate of the  HTML attribute in the view's rendered HTML representation.\n\n`attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)\ndocumentation for more information about concatenated properties.\n\n## Templates\n\nThe HTML contents of a view's rendered representation are determined by its\ntemplate. Templates can be any function that accepts an optional context\nparameter and returns a string of HTML that will be inserted within the\nview's tag. Most typically in Ember this function will be a compiled\ntemplate.\n\n```javascript\nAView = Ember.View.extend({\n  template: Ember.HTMLBars.compile('I am the template')\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\">I am the template</div>\n```\n\nWithin an Ember application is more common to define a Handlebars templates as\npart of a page:\n\n```html\n<script type='text/x-handlebars' data-template-name='some-template'>\n  Hello\n</script>\n```\n\nAnd associate it by name using a view's `templateName` property:\n\n```javascript\nAView = Ember.View.extend({\n  templateName: 'some-template'\n});\n```\n\nIf you have nested routes, your Handlebars template will look like this:\n\n```html\n<script type='text/x-handlebars' data-template-name='posts/new'>\n  <h1>New Post</h1>\n</script>\n```\n\nAnd `templateName` property:\n\n```javascript\nAView = Ember.View.extend({\n  templateName: 'posts/new'\n});\n```\n\nUsing a value for `templateName` that does not have a template\nwith a matching `data-template-name` attribute will throw an error.\n\nFor views classes that may have a template later defined (e.g. as the block\nportion of a `{{view}}` helper call in another template or in\na subclass), you can provide a `defaultTemplate` property set to compiled\ntemplate function. If a template is not later provided for the view instance\nthe `defaultTemplate` value will be used:\n\n```javascript\nAView = Ember.View.extend({\n  defaultTemplate: Ember.HTMLBars.compile('I was the default'),\n  template: null,\n  templateName: null\n});\n```\n\nWill result in instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\">I was the default</div>\n```\n\nIf a `template` or `templateName` is provided it will take precedence over\n`defaultTemplate`:\n\n```javascript\nAView = Ember.View.extend({\n  defaultTemplate: Ember.HTMLBars.compile('I was the default')\n});\n\naView = AView.create({\n  template: Ember.HTMLBars.compile('I was the template, not default')\n});\n```\n\nWill result in the following HTML representation when rendered:\n\n```html\n<div id=\"ember1\" class=\"ember-view\">I was the template, not default</div>\n```\n\n## View Context\n\nThe default context of the compiled template is the view's controller:\n\n```javascript\nAView = Ember.View.extend({\n  template: Ember.HTMLBars.compile('Hello {{excitedGreeting}}')\n});\n\naController = Ember.Object.create({\n  firstName: 'Barry',\n  excitedGreeting: Ember.computed('content.firstName', function() {\n    return this.get('content.firstName') + '!!!';\n  })\n});\n\naView = AView.create({\n  controller: aController\n});\n```\n\nWill result in an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\">Hello Barry!!!</div>\n```\n\nA context can also be explicitly supplied through the view's `context`\nproperty. If the view has neither `context` nor `controller` properties, the\n`parentView`'s context will be used.\n\n## Layouts\n\nViews can have a secondary template that wraps their main template. Like\nprimary templates, layouts can be any function that  accepts an optional\ncontext parameter and returns a string of HTML that will be inserted inside\nview's tag. Views whose HTML element is self closing (e.g. `<input />`)\ncannot have a layout and this property will be ignored.\n\nMost typically in Ember a layout will be a compiled template.\n\nA view's layout can be set directly with the `layout` property or reference\nan existing template by name with the `layoutName` property.\n\nA template used as a layout must contain a single use of the\n`{{yield}}` helper. The HTML contents of a view's rendered `template` will be\ninserted at this location:\n\n```javascript\nAViewWithLayout = Ember.View.extend({\n  layout: Ember.HTMLBars.compile(\"<div class='my-decorative-class'>{{yield}}</div>\"),\n  template: Ember.HTMLBars.compile(\"I got wrapped\")\n});\n```\n\nWill result in view instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\">\n  <div class=\"my-decorative-class\">\n    I got wrapped\n  </div>\n</div>\n```\n\nSee [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)\nfor more information.\n\n## Responding to Browser Events\n\nViews can respond to user-initiated events in one of three ways: method\nimplementation, through an event manager, and through `{{action}}` helper use\nin their template or layout.\n\n### Method Implementation\n\nViews can respond to user-initiated events by implementing a method that\nmatches the event name. A `jQuery.Event` object will be passed as the\nargument to this method.\n\n```javascript\nAView = Ember.View.extend({\n  click: function(event) {\n    // will be called when an instance's\n    // rendered element is clicked\n  }\n});\n```\n\n### Event Managers\n\nViews can define an object as their `eventManager` property. This object can\nthen implement methods that match the desired event names. Matching events\nthat occur on the view's rendered HTML or the rendered HTML of any of its DOM\ndescendants will trigger this method. A `jQuery.Event` object will be passed\nas the first argument to the method and an  `Ember.View` object as the\nsecond. The `Ember.View` will be the view whose rendered HTML was interacted\nwith. This may be the view with the `eventManager` property or one of its\ndescendant views.\n\n```javascript\nAView = Ember.View.extend({\n  eventManager: Ember.Object.create({\n    doubleClick: function(event, view) {\n      // will be called when an instance's\n      // rendered element or any rendering\n      // of this view's descendant\n      // elements is clicked\n    }\n  })\n});\n```\n\nAn event defined for an event manager takes precedence over events of the\nsame name handled through methods on the view.\n\n```javascript\nAView = Ember.View.extend({\n  mouseEnter: function(event) {\n    // will never trigger.\n  },\n  eventManager: Ember.Object.create({\n    mouseEnter: function(event, view) {\n      // takes precedence over AView#mouseEnter\n    }\n  })\n});\n```\n\nSimilarly a view's event manager will take precedence for events of any views\nrendered as a descendant. A method name that matches an event name will not\nbe called if the view instance was rendered inside the HTML representation of\na view that has an `eventManager` property defined that handles events of the\nname. Events not handled by the event manager will still trigger method calls\non the descendant.\n\n```javascript\nvar App = Ember.Application.create();\nApp.OuterView = Ember.View.extend({\n  template: Ember.HTMLBars.compile(\"outer {{#view 'inner'}}inner{{/view}} outer\"),\n  eventManager: Ember.Object.create({\n    mouseEnter: function(event, view) {\n      // view might be instance of either\n      // OuterView or InnerView depending on\n      // where on the page the user interaction occurred\n    }\n  })\n});\n\nApp.InnerView = Ember.View.extend({\n  click: function(event) {\n    // will be called if rendered inside\n    // an OuterView because OuterView's\n    // eventManager doesn't handle click events\n  },\n  mouseEnter: function(event) {\n    // will never be called if rendered inside\n    // an OuterView.\n  }\n});\n```\n\n### `{{action}}` Helper\n\nSee [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).\n\n### Event Names\n\nAll of the event handling approaches described above respond to the same set\nof events. The names of the built-in events are listed below. (The hash of\nbuilt-in events exists in `Ember.EventDispatcher`.) Additional, custom events\ncan be registered by using `Ember.Application.customEvents`.\n\nTouch events:\n\n* `touchStart`\n* `touchMove`\n* `touchEnd`\n* `touchCancel`\n\nKeyboard events\n\n* `keyDown`\n* `keyUp`\n* `keyPress`\n\nMouse events\n\n* `mouseDown`\n* `mouseUp`\n* `contextMenu`\n* `click`\n* `doubleClick`\n* `mouseMove`\n* `focusIn`\n* `focusOut`\n* `mouseEnter`\n* `mouseLeave`\n\nForm events:\n\n* `submit`\n* `change`\n* `focusIn`\n* `focusOut`\n* `input`\n\nHTML5 drag and drop events:\n\n* `dragStart`\n* `drag`\n* `dragEnter`\n* `dragLeave`\n* `dragOver`\n* `dragEnd`\n* `drop`\n\n## `{{view}}` Helper\n\nOther `Ember.View` instances can be included as part of a view's template by\nusing the `{{view}}` helper. See [Ember.Templates.helpers.view](/api/classes/Ember.Templates.helpers.html#method_view)\nfor additional information.",
             "extends": "Ember.CoreView",
             "deprecated": true,
@@ -6405,7 +6351,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 32,
+            "line": 30,
             "description": "Define an assertion that will throw an exception if the condition is not met.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\n// Test for truthiness\nEmber.assert('Must pass a valid object', obj);\n\n// Fail unconditionally\nEmber.assert('This code path should never be run');\n```",
             "itemtype": "method",
             "name": "assert",
@@ -6429,7 +6375,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 73,
+            "line": 57,
             "description": "Display a debug notice.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\nEmber.debug('I\\'m a debug notice!');\n```",
             "itemtype": "method",
             "name": "debug",
@@ -6448,7 +6394,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 91,
+            "line": 75,
             "description": "Display an info notice.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "info",
@@ -6460,7 +6406,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 104,
+            "line": 88,
             "description": "Alias an old, deprecated method with its new counterpart.\n\nDisplay a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only) when the assigned method is called.\n\n* In a production build, this method is defined as an empty function (NOP).\n\n```javascript\nEmber.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);\n```",
             "itemtype": "method",
             "name": "deprecateFunc",
@@ -6494,7 +6440,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 140,
+            "line": 124,
             "description": "Run a function meant for debugging.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\nEmber.runInDebug(() => {\n  Ember.Component.reopen({\n    didInsertElement() {\n      console.log(\"I'm happy\");\n    }\n  });\n});\n```",
             "itemtype": "method",
             "name": "runInDebug",
@@ -6514,7 +6460,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 173,
+            "line": 157,
             "description": "Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or\nany specific FEATURES flag is truthy.\n\nThis method is called automatically in debug canary builds.",
             "access": "private",
             "tagname": "",
@@ -6530,7 +6476,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 237,
+            "line": 221,
             "description": "Allows for runtime registration of handler functions that override the default deprecation behavior.\nDeprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).\nThe following example demonstrates its usage by registering a handler that throws an error if the\nmessage contains the word \"should\", otherwise defers to the default handler.\n\n```javascript\nEmber.Debug.registerDeprecationHandler((message, options, next) => {\n  if (message.indexOf('should') !== -1) {\n    throw new Error(`Deprecation message with should: ${message}`);\n  } else {\n    // defer to whatever handler was registered before this one\n    next(message, options);\n  }\n}\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the deprecation call.</li>\n  <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>\n      <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6551,7 +6497,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 273,
+            "line": 257,
             "description": "Allows for runtime registration of handler functions that override the default warning behavior.\nWarnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).\nThe following example demonstrates its usage by registering a handler that does nothing overriding Ember's\ndefault warning behavior.\n\n```javascript\n// next is not called, so no warnings get the default behavior\nEmber.Debug.registerWarnHandler(() => {});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the warn call. </li>\n  <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -9710,7 +9656,7 @@
         },
         {
             "file": "packages/ember-metal/lib/merge.js",
-            "line": 4,
+            "line": 1,
             "description": "Merge the contents of two objects together into the first object.\n\n```javascript\nEmber.merge({first: 'Tom'}, {last: 'Dale'}); // {first: 'Tom', last: 'Dale'}\nvar a = {first: 'Yehuda'};\nvar b = {last: 'Katz'};\nEmber.merge(a, b); // a == {first: 'Yehuda', last: 'Katz'}, b == {last: 'Katz'}\n```",
             "itemtype": "method",
             "name": "merge",
@@ -12735,7 +12681,7 @@
         {
             "file": "packages/ember-routing/lib/system/route.js",
             "line": 605,
-            "description": "The `loading` action is fired on the route when a route's `model`\nhook returns a promise that is not already resolved. The current\n`Transition` object is the first parameter and the route that\ntriggered the loading event is the second parameter.\n\n```javascript\nApp.ApplicationRoute = Ember.Route.extend({\n  actions: {\n    loading: function(transition, route) {\n      var view = Ember.View.create({\n        classNames: ['app-loading']\n      })\n      .append();\n\n      this.router.one('didTransition', function() {\n        view.destroy();\n      });\n\n      return true; // Bubble the loading event\n    }\n  }\n});\n```",
+            "description": "The `loading` action is fired on the route when a route's `model`\nhook returns a promise that is not already resolved. The current\n`Transition` object is the first parameter and the route that\ntriggered the loading event is the second parameter.\n\n```javascript\nApp.ApplicationRoute = Ember.Route.extend({\n  actions: {\n    loading: function(transition, route) {\n      let controller = this.controllerFor('foo');\n      controller.set('currentlyLoading', true);\n\n      transition.finally(function() {\n        controller.set('currentlyLoading', false);\n      });\n    }\n  }\n});\n```",
             "itemtype": "event",
             "name": "loading",
             "params": [
@@ -12760,7 +12706,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 637,
+            "line": 633,
             "description": "When attempting to transition into a route, any of the hooks\nmay return a promise that rejects, at which point an `error`\naction will be fired on the partially-entered routes, allowing\nfor per-route error handling logic, or shared error handling\nlogic defined on a parent route.\n\nHere is an example of an error handler that will be invoked\nfor rejected promises from the various hooks on the route,\nas well as any unhandled errors from child routes:\n\n```javascript\nApp.AdminRoute = Ember.Route.extend({\n  beforeModel: function() {\n    return Ember.RSVP.reject('bad things!');\n  },\n\n  actions: {\n    error: function(error, transition) {\n      // Assuming we got here due to the error in `beforeModel`,\n      // we can expect that error === \"bad things!\",\n      // but a promise model rejecting would also\n      // call this hook, as would any errors encountered\n      // in `afterModel`.\n\n      // The `error` hook is also provided the failed\n      // `transition`, which can be stored and later\n      // `.retry()`d if desired.\n\n      this.transitionTo('login');\n    }\n  }\n});\n```\n\n`error` actions that bubble up all the way to `ApplicationRoute`\nwill fire a default error handler that logs the error. You can\nspecify your own global default error handler by overriding the\n`error` handler on `ApplicationRoute`:\n\n```javascript\nApp.ApplicationRoute = Ember.Route.extend({\n  actions: {\n    error: function(error, transition) {\n      this.controllerFor('banner').displayError(error.message);\n    }\n  }\n});\n```",
             "itemtype": "event",
             "name": "error",
@@ -12785,7 +12731,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 692,
+            "line": 688,
             "description": "This event is triggered when the router enters the route. It is\nnot executed when the model for the route changes.\n\n```javascript\nApp.ApplicationRoute = Ember.Route.extend({\n  collectAnalytics: function(){\n    collectAnalytics();\n  }.on('activate')\n});\n```",
             "itemtype": "event",
             "name": "activate",
@@ -12799,7 +12745,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 709,
+            "line": 705,
             "description": "This event is triggered when the router completely exits this\nroute. It is not executed when the model for the route changes.\n\n```javascript\nApp.IndexRoute = Ember.Route.extend({\n  trackPageLeaveAnalytics: function(){\n    trackPageLeaveAnalytics();\n  }.on('deactivate')\n});\n```",
             "itemtype": "event",
             "name": "deactivate",
@@ -12813,7 +12759,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 726,
+            "line": 722,
             "description": "The controller associated with this route.\n\nExample\n\n```javascript\nApp.FormRoute = Ember.Route.extend({\n  actions: {\n    willTransition: function(transition) {\n      if (this.controller.get('userHasEnteredData') &&\n          !confirm('Are you sure you want to abandon progress?')) {\n        transition.abort();\n      } else {\n        // Bubble the `willTransition` action so that\n        // parent routes can decide whether or not to abort.\n        return true;\n      }\n    }\n  }\n});\n```",
             "itemtype": "property",
             "name": "controller",
@@ -12828,7 +12774,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 855,
+            "line": 851,
             "description": "This hook is executed when the router completely exits this route. It is\nnot executed when the model for the route changes.",
             "itemtype": "method",
             "name": "deactivate",
@@ -12841,7 +12787,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 864,
+            "line": 860,
             "description": "This hook is executed when the router enters the route. It is not executed\nwhen the model for the route changes.",
             "itemtype": "method",
             "name": "activate",
@@ -12854,7 +12800,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 873,
+            "line": 869,
             "description": "Transition the application into another route. The route may\nbe either a single route or route path:\n\n```javascript\nthis.transitionTo('blogPosts');\nthis.transitionTo('blogPosts.recentEntries');\n```\n\nOptionally supply a model for the route in question. The model\nwill be serialized into the URL using the `serialize` hook of\nthe route:\n\n```javascript\nthis.transitionTo('blogPost', aPost);\n```\n\nIf a literal is passed (such as a number or a string), it will\nbe treated as an identifier instead. In this case, the `model`\nhook of the route will be triggered:\n\n```javascript\nthis.transitionTo('blogPost', 1);\n```\n\nMultiple models will be applied last to first recursively up the\nroute tree.\n\n```javascript\nApp.Router.map(function() {\n  this.route('blogPost', { path:':blogPostId' }, function() {\n    this.route('blogComment', { path: ':blogCommentId', resetNamespace: true });\n  });\n});\n\nthis.transitionTo('blogComment', aPost, aComment);\nthis.transitionTo('blogComment', 1, 13);\n```\n\nIt is also possible to pass a URL (a string that starts with a\n`/`). This is intended for testing and debugging purposes and\nshould rarely be used in production code.\n\n```javascript\nthis.transitionTo('/');\nthis.transitionTo('/blog/post/1/comment/13');\nthis.transitionTo('/blog/posts?sort=title');\n```\n\nAn options hash with a `queryParams` property may be provided as\nthe final argument to add query parameters to the destination URL.\n\n```javascript\nthis.transitionTo('blogPost', 1, {\n  queryParams: {showComments: 'true'}\n});\n\n// if you just want to transition the query parameters without changing the route\nthis.transitionTo({queryParams: {sort: 'date'}});\n```\n\nSee also [replaceWith](#method_replaceWith).\n\nSimple Transition Example\n\n```javascript\nApp.Router.map(function() {\n  this.route('index');\n  this.route('secret');\n  this.route('fourOhFour', { path: '*:' });\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  actions: {\n    moveToSecret: function(context) {\n      if (authorized()) {\n        this.transitionTo('secret', context);\n      } else {\n        this.transitionTo('fourOhFour');\n      }\n    }\n  }\n});\n```\n\nTransition to a nested route\n\n```javascript\nApp.Router.map(function() {\n  this.route('articles', { path: '/articles' }, function() {\n    this.route('new');\n  });\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  actions: {\n    transitionToNewArticle: function() {\n      this.transitionTo('articles.new');\n    }\n  }\n});\n```\n\nMultiple Models Example\n\n```javascript\nApp.Router.map(function() {\n  this.route('index');\n\n  this.route('breakfast', { path: ':breakfastId' }, function() {\n    this.route('cereal', { path: ':cerealId', resetNamespace: true });\n  });\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  actions: {\n    moveToChocolateCereal: function() {\n      var cereal = { cerealId: 'ChocolateYumminess' };\n      var breakfast = { breakfastId: 'CerealAndMilk' };\n\n      this.transitionTo('cereal', breakfast, cereal);\n    }\n  }\n});\n```\n\nNested Route with Query String Example\n\n```javascript\nApp.Router.map(function() {\n  this.route('fruits', function() {\n    this.route('apples');\n  });\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  actions: {\n    transitionToApples: function() {\n      this.transitionTo('fruits.apples', {queryParams: {color: 'red'}});\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "transitionTo",
@@ -12889,7 +12835,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1032,
+            "line": 1028,
             "description": "Perform a synchronous transition into another route without attempting\nto resolve promises, update the URL, or abort any currently active\nasynchronous transitions (i.e. regular transitions caused by\n`transitionTo` or URL changes).\n\nThis method is handy for performing intermediate transitions on the\nway to a final destination route, and is called internally by the\ndefault implementations of the `error` and `loading` handlers.",
             "itemtype": "method",
             "name": "intermediateTransitionTo",
@@ -12915,7 +12861,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1054,
+            "line": 1050,
             "description": "Refresh the model on this route and any child routes, firing the\n`beforeModel`, `model`, and `afterModel` hooks in a similar fashion\nto how routes are entered when transitioning in from other route.\nThe current route params (e.g. `article_id`) will be passed in\nto the respective model hooks, and if a different model is returned,\n`setupController` and associated route hooks will re-fire as well.\n\nAn example usage of this method is re-querying the server for the\nlatest information using the same parameters as when the route\nwas first entered.\n\nNote that this will cause `model` hooks to fire even on routes\nthat were provided a model object when the route was initially\nentered.",
             "itemtype": "method",
             "name": "refresh",
@@ -12933,7 +12879,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1080,
+            "line": 1076,
             "description": "Transition into another route while replacing the current URL, if possible.\nThis will replace the current history entry instead of adding a new one.\nBeside that, it is identical to `transitionTo` in all other respects. See\n'transitionTo' for additional information regarding multiple models.\n\nExample\n\n```javascript\nApp.Router.map(function() {\n  this.route('index');\n  this.route('secret');\n});\n\nApp.SecretRoute = Ember.Route.extend({\n  afterModel: function() {\n    if (!authorized()){\n      this.replaceWith('index');\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "replaceWith",
@@ -12962,7 +12908,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1116,
+            "line": 1112,
             "description": "Sends an action to the router, which will delegate it to the currently\nactive route hierarchy per the bubbling rules explained under `actions`.\n\nExample\n\n```javascript\nApp.Router.map(function() {\n  this.route('index');\n});\n\nApp.ApplicationRoute = Ember.Route.extend({\n  actions: {\n    track: function(arg) {\n      console.log(arg, 'was clicked');\n    }\n  }\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  actions: {\n    trackIfDebug: function(arg) {\n      if (debug) {\n        this.send('track', arg);\n      }\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "send",
@@ -12987,7 +12933,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1164,
+            "line": 1160,
             "description": "This hook is the entry point for router.js",
             "access": "private",
             "tagname": "",
@@ -13000,7 +12946,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1244,
+            "line": 1240,
             "description": "This hook is the first of the route entry validation hooks\ncalled when an attempt is made to transition into a route\nor one of its children. It is called before `model` and\n`afterModel`, and is appropriate for cases when:\n\n1) A decision can be made to redirect elsewhere without\n   needing to resolve the model first.\n2) Any async operations need to occur first before the\n   model is attempted to be resolved.\n\nThis hook is provided the current `transition` attempt\nas a parameter, which can be used to `.abort()` the transition,\nsave it for a later `.retry()`, or retrieve values set\non it from a previous hook. You can also just call\n`this.transitionTo` to another route to implicitly\nabort the `transition`.\n\nYou can return a promise from this hook to pause the\ntransition until the promise resolves (or rejects). This could\nbe useful, for instance, for retrieving async code from\nthe server that is required to enter a route.\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  beforeModel: function(transition) {\n    if (!App.Post) {\n      return Ember.$.getScript('/models/post.js');\n    }\n  }\n});\n```\n\nIf `App.Post` doesn't exist in the above example,\n`beforeModel` will use jQuery's `getScript`, which\nreturns a promise that resolves after the server has\nsuccessfully retrieved and executed the code from the\nserver. Note that if an error were to occur, it would\nbe passed to the `error` hook on `Ember.Route`, but\nit's also possible to handle errors specific to\n`beforeModel` right from within the hook (to distinguish\nfrom the shared error handling behavior of the `error`\nhook):\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  beforeModel: function(transition) {\n    if (!App.Post) {\n      var self = this;\n      return Ember.$.getScript('post.js').then(null, function(e) {\n        self.transitionTo('help');\n\n        // Note that the above transitionTo will implicitly\n        // halt the transition. If you were to return\n        // nothing from this promise reject handler,\n        // according to promise semantics, that would\n        // convert the reject into a resolve and the\n        // transition would continue. To propagate the\n        // error so that it'd be handled by the `error`\n        // hook, you would have to\n        return Ember.RSVP.reject(e);\n      });\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "beforeModel",
@@ -13024,7 +12970,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1321,
+            "line": 1317,
             "description": "This hook is called after this route's model has resolved.\nIt follows identical async/promise semantics to `beforeModel`\nbut is provided the route's resolved model in addition to\nthe `transition`, and is therefore suited to performing\nlogic that can only take place after the model has already\nresolved.\n\n```javascript\nApp.PostsRoute = Ember.Route.extend({\n  afterModel: function(posts, transition) {\n    if (posts.get('length') === 1) {\n      this.transitionTo('post.show', posts.get('firstObject'));\n    }\n  }\n});\n```\n\nRefer to documentation for `beforeModel` for a description\nof transition-pausing semantics when a promise is returned\nfrom this hook.",
             "itemtype": "method",
             "name": "afterModel",
@@ -13053,7 +12999,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1355,
+            "line": 1351,
             "description": "A hook you can implement to optionally redirect to another route.\n\nIf you call `this.transitionTo` from inside of this hook, this route\nwill not be entered in favor of the other hook.\n\n`redirect` and `afterModel` behave very similarly and are\ncalled almost at the same time, but they have an important\ndistinction in the case that, from one of these hooks, a\nredirect into a child route of this route occurs: redirects\nfrom `afterModel` essentially invalidate the current attempt\nto enter this route, and will result in this route's `beforeModel`,\n`model`, and `afterModel` hooks being fired again within\nthe new, redirecting transition. Redirects that occur within\nthe `redirect` hook, on the other hand, will _not_ cause\nthese hooks to be fired again the second time around; in\nother words, by the time the `redirect` hook has been called,\nboth the resolved model and attempted entry into this route\nare considered to be fully validated.",
             "itemtype": "method",
             "name": "redirect",
@@ -13078,7 +13024,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1382,
+            "line": 1378,
             "description": "Called when the context is changed by router.js.",
             "access": "private",
             "tagname": "",
@@ -13091,7 +13037,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1392,
+            "line": 1388,
             "description": "A hook you can implement to convert the URL into the model for\nthis route.\n\n```javascript\nApp.Router.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n```\n\nThe model for the `post` route is `store.findRecord('post', params.post_id)`.\n\nBy default, if your route has a dynamic segment ending in `_id`:\n\n* The model class is determined from the segment (`post_id`'s\n  class is `App.Post`)\n* The find method is called on the model class with the value of\n  the dynamic segment.\n\nNote that for routes with dynamic segments, this hook is not always\nexecuted. If the route is entered through a transition (e.g. when\nusing the `link-to` Handlebars helper or the `transitionTo` method\nof routes), and a model context is already provided this hook\nis not called.\n\nA model context does not include a primitive string or number,\nwhich does cause the model hook to be called.\n\nRoutes without dynamic segments will always execute the model hook.\n\n```javascript\n// no dynamic segment, model hook always called\nthis.transitionTo('posts');\n\n// model passed in, so model hook not called\nthePost = store.findRecord('post', 1);\nthis.transitionTo('post', thePost);\n\n// integer passed in, model hook is called\nthis.transitionTo('post', 1);\n\n// model id passed in, model hook is called\n// useful for forcing the hook to execute\nthePost = store.findRecord('post', 1);\nthis.transitionTo('post', thePost.id);\n```\n\n\nThis hook follows the asynchronous/promise semantics\ndescribed in the documentation for `beforeModel`. In particular,\nif a promise returned from `model` fails, the error will be\nhandled by the `error` hook on `Ember.Route`.\n\nExample\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  model: function(params) {\n    return this.store.findRecord('post', params.post_id);\n  }\n});\n```",
             "itemtype": "method",
             "name": "model",
@@ -13120,7 +13066,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1493,
+            "line": 1489,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -13148,7 +13094,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1506,
+            "line": 1502,
             "itemtype": "method",
             "name": "findModel",
             "params": [
@@ -13172,7 +13118,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1518,
+            "line": 1514,
             "description": "Store property provides a hook for data persistence libraries to inject themselves.\n\nBy default, this store property provides the exact same functionality previously\nin the model hook.\n\nCurrently, the required interface is:\n\n`store.find(modelName, findArguments)`",
             "itemtype": "method",
             "name": "store",
@@ -13192,7 +13138,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1553,
+            "line": 1549,
             "description": "A hook you can implement to convert the route's model into parameters\nfor the URL.\n\n```javascript\nApp.Router.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nApp.PostRoute = Ember.Route.extend({\n  model: function(params) {\n    // the server returns `{ id: 12 }`\n    return Ember.$.getJSON('/posts/' + params.post_id);\n  },\n\n  serialize: function(model) {\n    // this will make the URL `/posts/12`\n    return { post_id: model.id };\n  }\n});\n```\n\nThe default `serialize` method will insert the model's `id` into the\nroute's dynamic segment (in this case, `:post_id`) if the segment contains '_id'.\nIf the route has multiple dynamic segments or does not contain '_id', `serialize`\nwill return `Ember.getProperties(model, params)`\n\nThis method is called when `transitionTo` is called with a context\nin order to populate the URL.",
             "itemtype": "method",
             "name": "serialize",
@@ -13221,7 +13167,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1610,
+            "line": 1606,
             "description": "A hook you can use to setup the controller for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook.\n\nBy default, the `setupController` hook sets the `model` property of\nthe controller to the `model`.\n\nIf you implement the `setupController` hook in your Route, it will\nprevent this default behavior. If you want to preserve that behavior\nwhen implementing your `setupController` function, make sure to call\n`_super`:\n\n```javascript\nApp.PhotosRoute = Ember.Route.extend({\n  model: function() {\n    return this.store.findAll('photo');\n  },\n\n  setupController: function(controller, model) {\n    // Call _super for default behavior\n    this._super(controller, model);\n    // Implement your custom setup after\n    this.controllerFor('application').set('showingPhotos', true);\n  }\n});\n```\n\nThe provided controller will be one resolved based on the name\nof this route.\n\nIf no explicit controller is defined, Ember will automatically create one.\n\nAs an example, consider the router:\n\n```javascript\nApp.Router.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n```\n\nFor the `post` route, a controller named `App.PostController` would\nbe used if it is defined. If it is not defined, a basic `Ember.Controller`\ninstance would be used.\n\nExample\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  setupController: function(controller, model) {\n    controller.set('model', model);\n  }\n});\n```",
             "itemtype": "method",
             "name": "setupController",
@@ -13246,7 +13192,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1677,
+            "line": 1673,
             "description": "Returns the controller for a particular route or name.\n\nThe controller instance must already have been created, either through entering the\nassociated route or using `generateController`.\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  setupController: function(controller, post) {\n    this._super(controller, post);\n    this.controllerFor('posts').set('currentPost', post);\n  }\n});\n```",
             "itemtype": "method",
             "name": "controllerFor",
@@ -13270,7 +13216,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1716,
+            "line": 1712,
             "description": "Generates a controller for a route.\n\nExample\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  setupController: function(controller, post) {\n    this._super(controller, post);\n    this.generateController('posts', post);\n  }\n});\n```",
             "itemtype": "method",
             "name": "generateController",
@@ -13295,7 +13241,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1743,
+            "line": 1739,
             "description": "Returns the resolved model of a parent (or any ancestor) route\nin a route hierarchy.  During a transition, all routes\nmust resolve a model object, and if a route\nneeds access to a parent route's model in order to\nresolve a model (or just reuse the model from a parent),\nit can call `this.modelFor(theNameOfParentRoute)` to\nretrieve it. If the ancestor route's model was a promise,\nits resolved result is returned.\n\nExample\n\n```javascript\nApp.Router.map(function() {\n    this.route('post', { path: '/post/:post_id' }, function() {\n      this.route('comments', { resetNamespace: true });\n    });\n});\n\nApp.CommentsRoute = Ember.Route.extend({\n    afterModel: function() {\n      this.set('post', this.modelFor('post'));\n    }\n});\n```",
             "itemtype": "method",
             "name": "modelFor",
@@ -13319,7 +13265,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1790,
+            "line": 1786,
             "description": "A hook you can use to render the template for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook. By default, it renders the route's\ntemplate, configured with the controller for the route.\n\nThis method can be overridden to set up and render additional or\nalternative templates.\n\n```javascript\nApp.PostsRoute = Ember.Route.extend({\n  renderTemplate: function(controller, model) {\n    var favController = this.controllerFor('favoritePost');\n\n    // Render the `favoritePost` template into\n    // the outlet `posts`, and display the `favoritePost`\n    // controller.\n    this.render('favoritePost', {\n      outlet: 'posts',\n      controller: favController\n    });\n  }\n});\n```",
             "itemtype": "method",
             "name": "renderTemplate",
@@ -13344,7 +13290,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1825,
+            "line": 1821,
             "description": "`render` is used to render a template into a region of another template\n(indicated by an `{{outlet}}`). `render` is used both during the entry\nphase of routing (via the `renderTemplate` hook) and later in response to\nuser interaction.\n\nFor example, given the following minimal router and templates:\n\n```javascript\nRouter.map(function() {\n  this.route('photos');\n});\n```\n\n```handlebars\n<!-- application.hbs -->\n<div class='something-in-the-app-hbs'>\n  {{outlet \"anOutletName\"}}\n</div>\n```\n\n```handlebars\n<!-- photos.hbs -->\n<h1>Photos</h1>\n```\n\nYou can render `photos.hbs` into the `\"anOutletName\"` outlet of\n`application.hbs` by calling `render`:\n\n```javascript\n// posts route\nEmber.Route.extend({\n  renderTemplate: function() {\n    this.render('photos', {\n      into: 'application',\n      outlet: 'anOutletName'\n    })\n  }\n});\n```\n\n`render` additionally allows you to supply which `view`, `controller`, and\n`model` objects should be loaded and associated with the rendered template.\n\n\n```javascript\n// posts route\nEmber.Route.extend({\n  renderTemplate: function(controller, model){\n    this.render('posts', {    // the template to render, referenced by name\n      into: 'application',    // the template to render into, referenced by name\n      outlet: 'anOutletName', // the outlet inside `options.template` to render into.\n      view: 'aViewName',      // the view to use for this template, referenced by name\n      controller: 'someControllerName', // the controller to use for this template, referenced by name\n      model: model            // the model to set on `options.controller`.\n    })\n  }\n});\n```\n\nThe string values provided for the template name, view, and controller\nwill eventually pass through to the resolver for lookup. See\nEmber.Resolver for how these are mapped to JavaScript objects in your\napplication.\n\nNot all options need to be passed to `render`. Default values will be used\nbased on the name of the route specified in the router or the Route's\n`controllerName`, `viewName` and `templateName` properties.\n\nFor example:\n\n```javascript\n// router\nRouter.map(function() {\n  this.route('index');\n  this.route('post', { path: '/posts/:post_id' });\n});\n```\n\n```javascript\n// post route\nPostRoute = App.Route.extend({\n  renderTemplate: function() {\n    this.render(); // all defaults apply\n  }\n});\n```\n\nThe name of the `PostRoute`, defined by the router, is `post`.\n\nThe following equivalent default options will be applied when\nthe Route calls `render`:\n\n```javascript\n//\nthis.render('post', {  // the template name associated with 'post' Route\n  into: 'application', // the parent route to 'post' Route\n  outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,\n  view: 'post',        // the view associated with the 'post' Route\n  controller: 'post',  // the controller associated with the 'post' Route\n})\n```\n\nBy default the controller's `model` will be the route's model, so it does not\nneed to be passed unless you wish to change which model is being used.",
             "itemtype": "method",
             "name": "render",
@@ -13396,7 +13342,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1963,
+            "line": 1959,
             "description": "Disconnects a view that has been rendered into an outlet.\n\nYou may pass any or all of the following options to `disconnectOutlet`:\n\n* `outlet`: the name of the outlet to clear (default: 'main')\n* `parentView`: the name of the view containing the outlet to clear\n   (default: the view rendered by the parent route)\n\nExample:\n\n```javascript\nApp.ApplicationRoute = App.Route.extend({\n  actions: {\n    showModal: function(evt) {\n      this.render(evt.modalName, {\n        outlet: 'modal',\n        into: 'application'\n      });\n    },\n    hideModal: function(evt) {\n      this.disconnectOutlet({\n        outlet: 'modal',\n        parentView: 'application'\n      });\n    }\n  }\n});\n```\n\nAlternatively, you can pass the `outlet` name directly as a string.\n\nExample:\n\n```javascript\nhideModal: function(evt) {\n  this.disconnectOutlet('modal');\n}\n```",
             "itemtype": "method",
             "name": "disconnectOutlet",
@@ -13416,7 +13362,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2061,
+            "line": 2057,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -17446,7 +17392,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 549,
+            "line": 544,
             "description": "Creates a new subclass.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  say: function(thing) {\n    alert(thing);\n   }\n});\n```\n\nThis defines a new subclass of Ember.Object: `App.Person`. It contains one method: `say()`.\n\nYou can also create a subclass from any existing class by calling its `extend()` method.\nFor example, you might want to create a subclass of Ember's built-in `Ember.View` class:\n\n```javascript\nApp.PersonView = Ember.View.extend({\n  tagName: 'li',\n  classNameBindings: ['isAdministrator']\n});\n```\n\nWhen defining a subclass, you can override methods but still access the\nimplementation of your parent class by calling the special `_super()` method:\n\n```javascript\nApp.Person = Ember.Object.extend({\n  say: function(thing) {\n    var name = this.get('name');\n    alert(name + ' says: ' + thing);\n  }\n});\n\nApp.Soldier = App.Person.extend({\n  say: function(thing) {\n    this._super(thing + \", sir!\");\n  },\n  march: function(numberOfHours) {\n    alert(this.get('name') + ' marches for ' + numberOfHours + ' hours.');\n  }\n});\n\nvar yehuda = App.Soldier.create({\n  name: \"Yehuda Katz\"\n});\n\nyehuda.say(\"Yes\");  // alerts \"Yehuda Katz says: Yes, sir!\"\n```\n\nThe `create()` on line #17 creates an *instance* of the `App.Soldier` class.\nThe `extend()` on line #8 creates a *subclass* of `App.Person`. Any instance\nof the `App.Person` class will *not* have the `march()` method.\n\nYou can also pass `Mixin` classes to add additional properties to the subclass.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  say: function(thing) {\n    alert(this.get('name') + ' says: ' + thing);\n  }\n});\n\nApp.SingingMixin = Mixin.create({\n  sing: function(thing){\n    alert(this.get('name') + ' sings: la la la ' + thing);\n  }\n});\n\nApp.BroadwayStar = App.Person.extend(App.SingingMixin, {\n  dance: function() {\n    alert(this.get('name') + ' dances: tap tap tap tap ');\n  }\n});\n```\n\nThe `App.BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.",
             "itemtype": "method",
             "name": "extend",
@@ -17476,7 +17422,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 657,
+            "line": 652,
             "description": "Creates an instance of a class. Accepts either no arguments, or an object\ncontaining values to initialize the newly instantiated object with.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  helloWorld: function() {\n    alert(\"Hi, my name is \" + this.get('name'));\n  }\n});\n\nvar tom = App.Person.create({\n  name: 'Tom Dale'\n});\n\ntom.helloWorld(); // alerts \"Hi, my name is Tom Dale\".\n```\n\n`create` will call the `init` function if defined during\n`Ember.AnyObject.extend`\n\nIf no arguments are passed to `create`, it will not set values to the new\ninstance during initialization:\n\n```javascript\nvar noName = App.Person.create();\nnoName.helloWorld(); // alerts undefined\n```\n\nNOTE: For performance reasons, you cannot declare methods or computed\nproperties during `create`. You should instead declare methods and computed\nproperties when using `extend`.",
             "itemtype": "method",
             "name": "create",
@@ -17498,7 +17444,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 703,
+            "line": 698,
             "description": "Augments a constructor's prototype with additional\nproperties and functions:\n\n```javascript\nMyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\no = MyObject.create();\no.get('name'); // 'an object'\n\nMyObject.reopen({\n  say: function(msg){\n    console.log(msg);\n  }\n})\n\no2 = MyObject.create();\no2.say(\"hello\"); // logs \"hello\"\n\no.say(\"goodbye\"); // logs \"goodbye\"\n```\n\nTo add functions and properties to the constructor itself,\nsee `reopenClass`",
             "itemtype": "method",
             "name": "reopen",
@@ -17511,7 +17457,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 739,
+            "line": 734,
             "description": "Augments a constructor's own properties and functions:\n\n```javascript\nMyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\nMyObject.reopenClass({\n  canBuild: false\n});\n\nMyObject.canBuild; // false\no = MyObject.create();\n```\n\nIn other words, this creates static properties and functions for the class.\nThese are only available on the class and not on any instance of that class.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  name : \"\",\n  sayHello : function() {\n    alert(\"Hello. My name is \" + this.get('name'));\n  }\n});\n\nApp.Person.reopenClass({\n  species : \"Homo sapiens\",\n  createPerson: function(newPersonsName){\n    return App.Person.create({\n      name:newPersonsName\n    });\n  }\n});\n\nvar tom = App.Person.create({\n  name : \"Tom Dale\"\n});\nvar yehuda = App.Person.createPerson(\"Yehuda Katz\");\n\ntom.sayHello(); // \"Hello. My name is Tom Dale\"\nyehuda.sayHello(); // \"Hello. My name is Yehuda Katz\"\nalert(App.Person.species); // \"Homo sapiens\"\n```\n\nNote that `species` and `createPerson` are *not* valid on the `tom` and `yehuda`\nvariables. They are only valid on `App.Person`.\n\nTo add functions and properties to instances of\na constructor by extending the constructor's prototype\nsee `reopen`",
             "itemtype": "method",
             "name": "reopenClass",
@@ -17524,7 +17470,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 814,
+            "line": 809,
             "description": "In some cases, you may want to annotate computed properties with additional\nmetadata about how they function or what values they operate on. For\nexample, computed property functions may close over variables that are then\nno longer available for introspection.\n\nYou can pass a hash of these values to a computed property like this:\n\n```javascript\nperson: function() {\n  var personId = this.get('personId');\n  return App.Person.create({ id: personId });\n}.property().meta({ type: App.Person })\n```\n\nOnce you've done this, you can retrieve the values saved to the computed\nproperty from your class like this:\n\n```javascript\nMyClass.metaForProperty('person');\n```\n\nThis will return the original hash that was passed to `meta()`.",
             "static": 1,
             "itemtype": "method",
@@ -17545,7 +17491,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 875,
+            "line": 870,
             "description": "Iterate over each computed property for the class, passing its name\nand any associated metadata (see `metaForProperty`) to the callback.",
             "static": 1,
             "itemtype": "method",
@@ -17571,7 +17517,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 903,
+            "line": 898,
             "description": "Provides lookup-time type validation for injected properties.",
             "access": "private",
             "tagname": "",
@@ -17584,7 +17530,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 912,
+            "line": 907,
             "description": "Returns a hash of property names and container names that injected\nproperties will lookup on the container lazily.",
             "itemtype": "method",
             "name": "_lazyInjections",
@@ -20364,7 +20310,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 673,
+            "line": 669,
             "description": "Given a property name, returns a dasherized version of that\nproperty name if the property evaluates to a non-falsy value.\n\nFor example, if the view has property `isUrgent` that evaluates to true,\npassing `isUrgent` to this method will return `\"is-urgent\"`.",
             "itemtype": "method",
             "name": "_classStringForProperty",
@@ -20383,7 +20329,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 725,
+            "line": 715,
             "description": "Global views hash",
             "itemtype": "property",
             "name": "views",
@@ -20398,7 +20344,7 @@
         },
         {
             "file": "packages/ember-views/lib/index.js",
-            "line": 37,
+            "line": 29,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",

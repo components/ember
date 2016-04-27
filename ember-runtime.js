@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.1
+ * @version   2.6.0-beta.2
  */
 
 var enifed, requireModule, require, Ember;
@@ -1686,7 +1686,7 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
 
   exports.privatize = privatize;
 
-  var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
+  var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
 
   /**
    A registry used to store factory and option information keyed
@@ -1996,7 +1996,9 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
      @return {Boolean}
      */
     has: function (fullName, options) {
-      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      if (!this.isValidFullName(fullName)) {
+        return false;
+      }
 
       var source = undefined;
       if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
@@ -2290,10 +2292,15 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
     },
 
     validateFullName: function (fullName) {
-      if (!VALID_FULL_NAME_REGEXP.test(fullName)) {
+      if (!this.isValidFullName(fullName)) {
         throw new TypeError('Invalid Fullname, expected: `type:name` got: ' + fullName);
       }
+
       return true;
+    },
+
+    isValidFullName: function (fullName) {
+      return !!VALID_FULL_NAME_REGEXP.test(fullName);
     },
 
     validateInjections: function (injections) {
@@ -4774,7 +4781,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.1
+    @version 2.6.0-beta.2
     @public
   */
 
@@ -4816,11 +4823,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.1'
+    @default '2.6.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.1';
+  Ember.VERSION = '2.6.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5967,7 +5974,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-
 
   function injectedPropertyGet(keyName) {
     var desc = this[keyName];
-    var owner = _containerOwner.getOwner(this);
+    var owner = _containerOwner.getOwner(this) || this.container; // fallback to `container` for backwards compat
 
     _emberMetalDebug.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
     _emberMetalDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
@@ -7135,11 +7142,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
   exports.Map = Map;
   exports.MapWithDefault = MapWithDefault;
 });
-enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
-  'use strict';
-
-  exports.default = merge;
-
+enifed('ember-metal/merge', ['exports'], function (exports) {
   /**
     Merge the contents of two objects together into the first object.
   
@@ -7157,14 +7160,11 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
     @return {Object}
     @public
   */
+  'use strict';
+
+  exports.default = merge;
 
   function merge(original, updates) {
-    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, {
-        id: 'ember-metal.merge', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-merge'
-      });
-    }
-
     if (!updates || typeof updates !== 'object') {
       return original;
     }
@@ -18688,17 +18688,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
     var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
     var ret = '<' + this.constructor.toString() + ':' + _emberMetalUtils.guidFor(this) + extension + '>';
 
-    this.toString = makeToString(ret);
     return ret;
   }, _Mixin$create));
 
   CoreObject.PrototypeMixin.ownerConstructor = CoreObject;
-
-  function makeToString(ret) {
-    return function () {
-      return ret;
-    };
-  }
 
   CoreObject.__super__ = null;
 
