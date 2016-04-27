@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2dc2a19f
+ * @version   2.7.0-canary+5332777f
  */
 
 var enifed, requireModule, require, Ember;
@@ -8754,7 +8754,7 @@ enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/cor
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/unbound', 'container/owner'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersUnbound, _containerOwner) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/unbound', 'container/owner'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersClass, _emberGlimmerHelpersUnbound, _containerOwner) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -8771,8 +8771,27 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     hash: _emberGlimmerHelpersHash.default,
     loc: _emberGlimmerHelpersLoc.default,
     log: _emberGlimmerHelpersLog.default,
-    unbound: _emberGlimmerHelpersUnbound.default
+    unbound: _emberGlimmerHelpersUnbound.default,
+    '-class': _emberGlimmerHelpersClass.default
   };
+
+  function wrapClassAttribute(args) {
+    var hasClass = args.named.has('class');
+
+    if (hasClass) {
+      var _args$named$at = args.named.at('class');
+
+      var ref = _args$named$at.ref;
+      var type = _args$named$at.type;
+
+      if (type === 'get') {
+        var propName = ref.parts[ref.parts.length - 1];
+        var syntax = _glimmerRuntime.HelperSyntax.fromSpec(['helper', ['-class'], [['get', ref.parts], propName], null]);
+        args.named.add('class', syntax);
+      }
+    }
+    return args;
+  }
 
   var Environment = (function (_GlimmerEnvironment) {
     _inherits(Environment, _GlimmerEnvironment);
@@ -8810,6 +8829,7 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
           var definition = this.getComponentDefinition(path);
 
           if (definition) {
+            wrapClassAttribute(args);
             return new _emberGlimmerComponentsCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
           }
         }
@@ -9018,6 +9038,34 @@ enifed('ember-glimmer/helper', ['exports', 'ember-metal/symbol', 'ember-runtime/
   @public
   @since 1.13.0
 */
+enifed('ember-glimmer/helpers/-class', ['exports', 'ember-glimmer/utils/references', 'ember-runtime/system/string'], function (exports, _emberGlimmerUtilsReferences, _emberRuntimeSystemString) {
+  'use strict';
+
+  function classHelper(_ref) {
+    var positional = _ref.positional;
+
+    var path = positional.at(0);
+    var propName = positional.at(1);
+    var value = path.value();
+
+    if (value === true) {
+      return _emberRuntimeSystemString.dasherize(propName.value());
+    }
+
+    if (value === false) {
+      return null;
+    }
+
+    return value;
+  }
+
+  exports.default = {
+    isInternalHelper: true,
+    toReference: function (args) {
+      return new _emberGlimmerUtilsReferences.InternalHelperReference(classHelper, args);
+    }
+  };
+});
 enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/helper', 'glimmer-runtime'], function (exports, _emberGlimmerHelper, _glimmerRuntime) {
   'use strict';
 
@@ -9617,7 +9665,7 @@ enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features
     return lookupComponentPair(componentLookup, owner, name);
   }
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/tags', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-metal/debug', 'ember-runtime/system/string'], function (exports, _emberMetalProperty_get, _emberMetalTags, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberMetalDebug, _emberRuntimeSystemString) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/tags', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalTags, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalDebug) {
   'use strict';
 
   exports.applyClassNameBinding = applyClassNameBinding;
@@ -13085,7 +13133,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+2dc2a19f';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+5332777f';
   }
 
   /**
@@ -17313,7 +17361,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+2dc2a19f
+    @version 2.7.0-canary+5332777f
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -17340,11 +17388,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+2dc2a19f'
+    @default '2.7.0-canary+5332777f'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+2dc2a19f';
+  Ember.VERSION = '2.7.0-canary+5332777f';
 
   // ..........................................................
   // BOOTSTRAP
@@ -41926,7 +41974,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+2dc2a19f',
+        revision: 'Ember@2.7.0-canary+5332777f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51358,7 +51406,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+2dc2a19f
+ * @version   2.7.0-canary+5332777f
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
