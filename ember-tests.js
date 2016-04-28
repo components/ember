@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+79d9bd87
+ * @version   2.7.0-canary+701c1808
  */
 
 var enifed, requireModule, require, Ember;
@@ -5630,6 +5630,31 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         _glimmerTestHelpers.equalTokens(root, '<div><p>goodbye world</p></div>', "After updating and dirtying");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
     });
+    test("updating a single curly with siblings", function () {
+        var value = 'brave new ';
+        var context = { value: value };
+        var getDiv = function () {
+            return root.firstChild;
+        };
+        var template = compile('<div>hello {{value}}world</div>');
+        render(template, context);
+        equal(getDiv().firstChild.textContent, 'hello ');
+        equal(getDiv().childNodes[1].textContent, 'brave new ');
+        equal(getDiv().lastChild.textContent, 'world');
+        rerender();
+        equal(getDiv().firstChild.textContent, 'hello ');
+        equal(getDiv().childNodes[1].textContent, 'brave new ');
+        equal(getDiv().lastChild.textContent, 'world');
+        context.value = 'another ';
+        rerender();
+        equal(getDiv().firstChild.textContent, 'hello ');
+        equal(getDiv().childNodes[1].textContent, 'another ');
+        equal(getDiv().lastChild.textContent, 'world');
+        rerender({ value: value });
+        equal(getDiv().firstChild.textContent, 'hello ');
+        equal(getDiv().childNodes[1].textContent, 'brave new ');
+        equal(getDiv().lastChild.textContent, 'world');
+    });
     test("null and undefined produces empty text nodes", function () {
         var object = { v1: null, v2: undefined };
         var template = compile('<div><p>{{v1}}</p><p>{{v2}}</p></div>');
@@ -5659,18 +5684,68 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         strictEqual(root.firstChild.lastChild.firstChild, valueNode2, "The text node was not blown away");
     });
     test("updating a single trusting curly", function () {
-        var object = { value: '<p>hello world</p>' };
+        var value = '<p>hello world</p>';
+        var object = { value: value };
         var template = compile('<div>{{{value}}}</div>');
         render(template, object);
         var valueNode = root.firstChild.firstChild.firstChild;
-        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
+        _glimmerTestHelpers.equalTokens(root, "<div>" + value + "</div>", "Initial render");
         rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "no change");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
         object.value = '<span>goodbye world</span>';
         rerender();
-        _glimmerTestHelpers.equalTokens(root, '<div><span>goodbye world</span></div>', "After updating and dirtying");
+        _glimmerTestHelpers.equalTokens(root, "<div>" + object.value + "</div>", "After updating and dirtying");
         notStrictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was blown away");
+        object.value = 'a <span>good man</span> is hard to <b>fund</b>';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<div>" + object.value + "</div>", "After updating with many nodes and dirtying");
+        rerender({ value: value });
+        _glimmerTestHelpers.equalTokens(root, "<div>" + value + "</div>", "no change");
+    });
+    test("updating a single trusting curly with siblings", function () {
+        var value = '<b>brave new </b>';
+        var context = { value: value };
+        var getDiv = function () {
+            return root.firstChild;
+        };
+        var template = compile('<div>hello {{{value}}}world</div>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, '<div>hello <b>brave new </b>world</div>', 'Initial render');
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div>hello <b>brave new </b>world</div>', 'rerender');
+        context.value = 'big <b>wide</b> ';
+        rerender();
+        equal(getDiv().firstChild.textContent, 'hello ');
+        equal(getDiv().childNodes[1].textContent, 'big ');
+        equal(getDiv().childNodes[2].innerHTML, 'wide');
+        equal(getDiv().childNodes[3].textContent, ' ');
+        equal(getDiv().lastChild.textContent, 'world');
+        context.value = 'another ';
+        rerender();
+        equal(getDiv().firstChild.textContent, 'hello ');
+        equal(getDiv().childNodes[1].textContent, 'another ');
+        equal(getDiv().lastChild.textContent, 'world');
+        rerender({ value: value });
+        _glimmerTestHelpers.equalTokens(root, '<div>hello <b>brave new </b>world</div>', 'rerender');
+    });
+    test("updating a single trusting curly with previous sibling", function () {
+        var value = '<b>brave new </b>';
+        var context = { value: value };
+        var getDiv = function () {
+            return root.firstChild;
+        };
+        var template = compile('<div>hello {{{value}}}</div>');
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, '<div>hello <b>brave new </b></div>', 'Initial render');
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div>hello <b>brave new </b></div>', 'rerender');
+        context.value = 'another ';
+        rerender();
+        equal(getDiv().firstChild.textContent, 'hello ');
+        _glimmerTestHelpers.equalTokens(getDiv().lastChild.textContent, 'another ');
+        rerender({ value: value });
+        _glimmerTestHelpers.equalTokens(root, '<div>hello <b>brave new </b></div>', 'rerender');
     });
     // This is to catch a regression about not caching lastValue correctly
     test("Cycling between two values in a trusting curly", function () {
@@ -6784,6 +6859,13 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         equal(getDiv().namespaceURI, XHTML_NAMESPACE);
         equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE, 'foreignObject has SVG NS');
         equal(getSvg().firstChild.firstChild.namespaceURI, XHTML_NAMESPACE, 'span has XHTML NS');
+        context.content = '<path></path><circle></circle>';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, "<svg>" + context.content + "</svg><div></div>");
+        equal(getSvg().namespaceURI, SVG_NAMESPACE);
+        equal(getDiv().namespaceURI, XHTML_NAMESPACE);
+        equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE);
+        equal(getSvg().lastChild.namespaceURI, SVG_NAMESPACE);
         rerender({ content: content });
         _glimmerTestHelpers.equalTokens(root, "<svg>" + content + "</svg><div></div>");
         equal(getSvg().namespaceURI, SVG_NAMESPACE);
@@ -31637,7 +31719,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/text_field', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsText_field, _emberViewsComponentsComponent) {
+enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/text_field'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsText_field) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -32003,7 +32085,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       var _this9 = this;
 
       var fooBarInstance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
           fooBarInstance = this;
@@ -32251,7 +32333,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
+enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -32399,7 +32481,7 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       var _this6 = this;
 
       var fooBarInstance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
           fooBarInstance = this;
@@ -32439,7 +32521,7 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
       var _this7 = this;
 
       var fooBarInstance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
           fooBarInstance = this;
@@ -32513,7 +32595,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
 
       expectAssertion(function () {
         _this.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `if` helper expects two or three arguments/);
     };
 
     _class.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
@@ -32521,7 +32603,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
 
       expectAssertion(function () {
         _this2.render('{{if condition}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `if` helper expects two or three arguments/);
     };
 
     return _class;
@@ -32661,7 +32743,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
 
       expectAssertion(function () {
         _this3.render('{{unless condition \'a\' \'b\' \'c\'}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `unless` helper expects two or three arguments/);
     };
 
     _class7.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
@@ -32669,7 +32751,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
 
       expectAssertion(function () {
         _this4.render('{{unless condition}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `unless` helper expects two or three arguments/);
     };
 
     return _class7;
@@ -47716,7 +47798,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/text_field', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsText_field, _emberViewsComponentsComponent) {
+enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/text_field'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsText_field) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -48082,7 +48164,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       var _this9 = this;
 
       var fooBarInstance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
           fooBarInstance = this;
@@ -48330,7 +48412,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
+enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -48478,7 +48560,7 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       var _this6 = this;
 
       var fooBarInstance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
           fooBarInstance = this;
@@ -48518,7 +48600,7 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
       var _this7 = this;
 
       var fooBarInstance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
           fooBarInstance = this;
@@ -48592,7 +48674,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
       expectAssertion(function () {
         _this.render('{{if condition \'a\' \'b\' \'c\'}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `if` helper expects two or three arguments/);
     };
 
     _class.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
@@ -48600,7 +48682,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
       expectAssertion(function () {
         _this2.render('{{if condition}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `if` helper expects two or three arguments/);
     };
 
     return _class;
@@ -48740,7 +48822,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
       expectAssertion(function () {
         _this3.render('{{unless condition \'a\' \'b\' \'c\'}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `unless` helper expects two or three arguments/);
     };
 
     _class7.prototype['@test it raises when there are less than two arguments'] = function testItRaisesWhenThereAreLessThanTwoArguments() {
@@ -48748,7 +48830,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
       expectAssertion(function () {
         _this4.render('{{unless condition}}', { condition: true });
-      }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
+      }, /The inline form of the `unless` helper expects two or three arguments/);
     };
 
     return _class7;
@@ -80460,7 +80542,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+79d9bd87', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+701c1808', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
