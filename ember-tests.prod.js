@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+006dbf0c
+ * @version   2.7.0-canary+b76c4d6a
  */
 
 var enifed, requireModule, require, Ember;
@@ -4306,6 +4306,12 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
             }, 'In layout');
         });
     });
+    QUnit.test("Glimmer component with element modifier", function (assert) {
+        env.registerEmberishGlimmerComponent('non-block', null, "  <div>In layout</div>  ");
+        assert.throws(function () {
+            var view = appendViewFor('<non-block {{action}} />');
+        }, new Error("Compile Error: Element modifiers are not allowed in components"), "should throw error");
+    });
     QUnit.skip('block without properties', function () {
         env.registerEmberishGlimmerComponent('with-block', _glimmerTestHelpers.EmberishGlimmerComponent, '<with-block>In layout - {{yield}}</with-block>');
         appendViewFor('<with-block>In template</with-block>');
@@ -6972,6 +6978,88 @@ enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-runtime", "gl
         equal(getSvg().namespaceURI, SVG_NAMESPACE);
         equal(getSvg().firstChild.namespaceURI, SVG_NAMESPACE);
     });
+    QUnit.module("Updating Element Modifiers", {
+        setup: commonSetup
+    });
+    test("Updating a element modifier", function (assert) {
+        var manager = new _glimmerTestHelpers.TestModifierManager();
+        env.registerModifier('foo', manager);
+        var template = compile('<div {{foo bar}}></div>');
+        var input = {
+            bar: 'Super Metroid'
+        };
+        render(template, input);
+        var valueNode = root.firstChild;
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="installed - Super Metroid"></div>', "initial render");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 0);
+        equal(manager.destroyedModifiers.length, 0);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="updated - Super Metroid"></div>', "modifier updated");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 1);
+        equal(valueNode, manager.updatedElements[0]);
+        equal(manager.destroyedModifiers.length, 0);
+        input.bar = 'Super Mario';
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="updated - Super Mario"></div>', "no change");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 2);
+        equal(valueNode, manager.updatedElements[1]);
+        equal(manager.destroyedModifiers.length, 0);
+    });
+    test("Const input doesn't trigger update in a element modifier", function (assert) {
+        var manager = new _glimmerTestHelpers.TestModifierManager();
+        env.registerModifier('foo', manager);
+        var template = compile('<div {{foo "bar"}}></div>');
+        var input = {};
+        render(template, input);
+        var valueNode = root.firstChild;
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="installed - bar"></div>', "initial render");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 0);
+        equal(manager.destroyedModifiers.length, 0);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="installed - bar"></div>', "no change");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 0);
+        equal(manager.destroyedModifiers.length, 0);
+    });
+    test("Destructor is triggered on element modifiers", function (assert) {
+        var manager = new _glimmerTestHelpers.TestModifierManager();
+        env.registerModifier('foo', manager);
+        var template = compile('{{#if bar}}<div {{foo bar}}></div>{{else}}<div></div>{{/if}}');
+        var input = {
+            bar: true
+        };
+        render(template, input);
+        var valueNode = root.firstChild;
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="installed - true"></div>', "initial render");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 0);
+        equal(manager.destroyedModifiers.length, 0);
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="updated - true"></div>', "modifier updated");
+        equal(manager.installedElements.length, 1);
+        equal(valueNode, manager.installedElements[0]);
+        equal(manager.updatedElements.length, 1);
+        equal(manager.destroyedModifiers.length, 0);
+        input.bar = false;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div></div>', "no more modifier");
+        equal(manager.destroyedModifiers.length, 1);
+        input.bar = true;
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div data-modifier="installed - true"></div>', "back to default render");
+        equal(manager.installedElements.length, 2);
+        equal(manager.destroyedModifiers.length, 1);
+    });
 });
 
 enifed('glimmer-syntax/tests/generation/print-test', ['exports', 'glimmer-syntax'], function (exports, _glimmerSyntax) {
@@ -7802,6 +7890,7 @@ enifed('glimmer-test-helpers/index', ['exports', 'glimmer-test-helpers/lib/helpe
   exports.BasicComponent = _glimmerTestHelpersLibEnvironment.BasicComponent;
   exports.EmberishCurlyComponent = _glimmerTestHelpersLibEnvironment.EmberishCurlyComponent;
   exports.EmberishGlimmerComponent = _glimmerTestHelpersLibEnvironment.EmberishGlimmerComponent;
+  exports.TestModifierManager = _glimmerTestHelpersLibEnvironment.TestModifierManager;
   exports.TestEnvironment = _glimmerTestHelpersLibEnvironment.TestEnvironment;
   exports.TestDynamicScope = _glimmerTestHelpersLibEnvironment.TestDynamicScope;
   exports.equalsElement = _glimmerTestHelpersLibEnvironment.equalsElement;
@@ -8233,6 +8322,71 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return HelperReference;
     })();
 
+    var InertModifierManager = (function () {
+        function InertModifierManager() {
+            _classCallCheck(this, InertModifierManager);
+        }
+
+        InertModifierManager.prototype.install = function install(element, args, dom) {
+            return;
+        };
+
+        InertModifierManager.prototype.update = function update(modifier, element, args, dom) {
+            return;
+        };
+
+        InertModifierManager.prototype.getDestructor = function getDestructor(modifier) {
+            return null;
+        };
+
+        return InertModifierManager;
+    })();
+
+    var TestModifierManager = (function () {
+        function TestModifierManager() {
+            _classCallCheck(this, TestModifierManager);
+
+            this.installedElements = [];
+            this.updatedElements = [];
+            this.destroyedModifiers = [];
+        }
+
+        TestModifierManager.prototype.install = function install(element, args, dom) {
+            var manager = this;
+            this.installedElements.push(element);
+            var param = args.positional.at(0).value();
+            dom.setAttribute(element, 'data-modifier', "installed - " + param);
+            var modifier = undefined;
+            modifier = {
+                element: element,
+                args: args,
+                dom: dom,
+                destructor: {
+                    destroy: function () {
+                        manager.destroyedModifiers.push(modifier);
+                        dom.removeAttribute(element, 'data-modifier');
+                    }
+                }
+            };
+            return modifier;
+        };
+
+        TestModifierManager.prototype.update = function update(modifier, element, args, dom) {
+            this.updatedElements.push(modifier.element);
+            var param = args.positional.at(0).value();
+            dom.setAttribute(element, 'data-modifier', "updated - " + param);
+            return;
+        };
+
+        TestModifierManager.prototype.getDestructor = function getDestructor(modifier) {
+            return modifier.destructor;
+        };
+
+        return TestModifierManager;
+    })();
+
+    exports.TestModifierManager = TestModifierManager;
+
     var TestEnvironment = (function (_Environment) {
         _inherits(TestEnvironment, _Environment);
 
@@ -8241,6 +8395,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
             _Environment.call(this, dom || new _glimmerRuntime.DOMHelper(document));
             this.helpers = _glimmerUtil.dict();
+            this.modifiers = _glimmerUtil.dict();
             this.components = _glimmerUtil.dict();
             this.registerHelper("if", function (_ref) {
                 var cond = _ref[0];
@@ -8254,6 +8409,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                 var no = _ref2[2];
                 return cond ? no : yes;
             });
+            this.registerModifier("action", new InertModifierManager());
         }
 
         TestEnvironment.prototype.registerHelper = function registerHelper(name, helper) {
@@ -8264,6 +8420,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         TestEnvironment.prototype.registerInternalHelper = function registerInternalHelper(name, helper) {
             this.helpers[name] = helper;
+        };
+
+        TestEnvironment.prototype.registerModifier = function registerModifier(name, modifier) {
+            this.modifiers[name] = modifier;
         };
 
         TestEnvironment.prototype.registerComponent = function registerComponent(name, definition) {
@@ -8341,6 +8501,18 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         TestEnvironment.prototype.getComponentDefinition = function getComponentDefinition(name) {
             return this.components[name[0]];
+        };
+
+        TestEnvironment.prototype.hasModifier = function hasModifier(modifierName) {
+            return modifierName.length === 1 && modifierName[0] in this.modifiers;
+        };
+
+        TestEnvironment.prototype.lookupModifier = function lookupModifier(modifierName) {
+            var name = modifierName[0];
+
+            var modifier = this.modifiers[name];
+            if (!modifier) throw new Error("Modifier for " + modifierName.join('.') + " not found.");
+            return modifier;
         };
 
         TestEnvironment.prototype.compile = function compile(template) {
@@ -31485,7 +31657,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@htmlbars simple helper not usable within element'] = function htmlbarsSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
       var _this12 = this;
 
       this.registerHelper('some-helper', function () {});
@@ -31495,7 +31667,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       }, /Helpers may not be used in the element form/);
     };
 
-    _class.prototype['@htmlbars class-based helper not usable within element'] = function htmlbarsClassBasedHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
       var _this13 = this;
 
       this.registerHelper('some-helper', {
@@ -47564,7 +47736,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@htmlbars simple helper not usable within element'] = function htmlbarsSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
       var _this12 = this;
 
       this.registerHelper('some-helper', function () {});
@@ -47574,7 +47746,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       }, /Helpers may not be used in the element form/);
     };
 
-    _class.prototype['@htmlbars class-based helper not usable within element'] = function htmlbarsClassBasedHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
       var _this13 = this;
 
       this.registerHelper('some-helper', {
@@ -80041,7 +80213,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+006dbf0c', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+b76c4d6a', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
