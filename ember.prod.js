@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c6996a5e
+ * @version   2.7.0-canary+0e0909f7
  */
 
 var enifed, requireModule, require, Ember;
@@ -12760,7 +12760,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+c6996a5e';
+    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.7.0-canary+0e0909f7';
   }
 
   /**
@@ -16900,7 +16900,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+c6996a5e
+    @version 2.7.0-canary+0e0909f7
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -16927,11 +16927,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+c6996a5e'
+    @default '2.7.0-canary+0e0909f7'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+c6996a5e';
+  Ember.VERSION = '2.7.0-canary+0e0909f7';
 
   // ..........................................................
   // BOOTSTRAP
@@ -41114,7 +41114,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.7.0-canary+c6996a5e',
+        revision: 'Ember@2.7.0-canary+0e0909f7',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -49188,7 +49188,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.7.0-canary+c6996a5e
+ * @version   2.7.0-canary+0e0909f7
  */
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {

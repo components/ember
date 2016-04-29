@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c6996a5e
+ * @version   2.7.0-canary+0e0909f7
  */
 
 var enifed, requireModule, require, Ember;
@@ -25640,7 +25640,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
       this.assertText('FIRST ATTR');
     };
 
-    _class.prototype['@htmlbars should be able to access unspecified attr #12035'] = function htmlbarsShouldBeAbleToAccessUnspecifiedAttr12035(assert) {
+    _class.prototype['@test should be able to access unspecified attr #12035'] = function testShouldBeAbleToAccessUnspecifiedAttr12035(assert) {
       var _this4 = this;
 
       var instance = undefined;
@@ -26849,9 +26849,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
-    _class.prototype['@htmlbars class is applied before didInsertElement'] = function htmlbarsClassIsAppliedBeforeDidInsertElement(assert) {
+    _class.prototype['@test class is applied before didInsertElement'] = function testClassIsAppliedBeforeDidInsertElement(assert) {
       var componentClass = undefined;
-      // Glimmer is failing due to life cycle hooks not being implemented
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         didInsertElement: function () {
           componentClass = this.element.className;
@@ -35039,7 +35038,7 @@ enifed('ember-glimmer/tests/integration/helpers/yield-test', ['exports', 'ember-
 
     // INUR not need with no data update
 
-    _class.prototype['@htmlbars yield should not introduce a view'] = function htmlbarsYieldShouldNotIntroduceAView() {
+    _class.prototype['@test yield should not introduce a view'] = function testYieldShouldNotIntroduceAView() {
       var ParentCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({ isParentComponent: true });
 
       var ChildCompComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -42245,7 +42244,7 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
       this.assertText('FIRST ATTR');
     };
 
-    _class.prototype['@htmlbars should be able to access unspecified attr #12035'] = function htmlbarsShouldBeAbleToAccessUnspecifiedAttr12035(assert) {
+    _class.prototype['@test should be able to access unspecified attr #12035'] = function testShouldBeAbleToAccessUnspecifiedAttr12035(assert) {
       var _this4 = this;
 
       var instance = undefined;
@@ -43454,9 +43453,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
-    _class.prototype['@htmlbars class is applied before didInsertElement'] = function htmlbarsClassIsAppliedBeforeDidInsertElement(assert) {
+    _class.prototype['@test class is applied before didInsertElement'] = function testClassIsAppliedBeforeDidInsertElement(assert) {
       var componentClass = undefined;
-      // Glimmer is failing due to life cycle hooks not being implemented
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         didInsertElement: function () {
           componentClass = this.element.className;
@@ -51644,7 +51642,7 @@ enifed('ember-htmlbars/tests/integration/helpers/yield-test', ['exports', 'ember
 
     // INUR not need with no data update
 
-    _class.prototype['@htmlbars yield should not introduce a view'] = function htmlbarsYieldShouldNotIntroduceAView() {
+    _class.prototype['@test yield should not introduce a view'] = function testYieldShouldNotIntroduceAView() {
       var ParentCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({ isParentComponent: true });
 
       var ChildCompComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -81318,7 +81316,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+c6996a5e', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+0e0909f7', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
