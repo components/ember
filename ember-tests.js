@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+60ef23cf
+ * @version   2.7.0-canary+c6996a5e
  */
 
 var enifed, requireModule, require, Ember;
@@ -3663,6 +3663,26 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         appendViewFor(_glimmerTestHelpers.stripTight(_templateObject2), { zomg: "zomg" });
         _glimmerTestHelpers.equalsElement(view.element, 'div', {}, _glimmerTestHelpers.stripTight(_templateObject3));
     });
+    QUnit.test('`false` class name do not render', function (assert) {
+        appendViewFor('<div class={{isFalse}}>FALSE</div>', { isFalse: false });
+        assert.strictEqual(view.element.getAttribute('class'), null);
+        assert.strictEqual(view.element.className, '');
+    });
+    QUnit.test('`null` class name do not render', function (assert) {
+        appendViewFor('<div class={{isNull}}>NULL</div>', { isNull: null });
+        assert.strictEqual(view.element.getAttribute('class'), null);
+        assert.strictEqual(view.element.className, '');
+    });
+    QUnit.test('`undefined` class name do not render', function (assert) {
+        appendViewFor('<div class={{isUndefined}}>UNDEFINED</div>', { isUndefined: undefined });
+        assert.strictEqual(view.element.getAttribute('class'), null);
+        assert.strictEqual(view.element.className, '');
+    });
+    QUnit.test('`0` class names do render', function (assert) {
+        appendViewFor('<div class={{isZero}}>ZERO</div>', { isZero: 0 });
+        assert.strictEqual(view.element.getAttribute('class'), '0');
+        assert.strictEqual(view.element.className, '0');
+    });
     QUnit.test('component with slashed name', function (assert) {
         var SampleComponent = _glimmerTestHelpers.EmberishCurlyComponent.extend();
         env.registerEmberishCurlyComponent('fizz-bar/baz-bar', SampleComponent, '{{@hey}}');
@@ -4521,6 +4541,46 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         assertFired(instance, 'didUpdate', 2);
         assertFired(instance, 'didRender', 3);
     });
+    QUnit.test('Curly component hooks (force recompute)', function () {
+        var instance = undefined;
+
+        var NonBlock = (function (_EmberishCurlyComponent8) {
+            _inherits(NonBlock, _EmberishCurlyComponent8);
+
+            function NonBlock() {
+                _classCallCheck(this, NonBlock);
+
+                _EmberishCurlyComponent8.apply(this, arguments);
+            }
+
+            NonBlock.prototype.init = function init() {
+                instance = this;
+            };
+
+            return NonBlock;
+        })(_glimmerTestHelpers.EmberishCurlyComponent);
+
+        env.registerEmberishCurlyComponent('non-block', _glimmerTestHelpers.inspectHooks(NonBlock), 'In layout - someProp: {{@someProp}}');
+        appendViewFor('{{non-block someProp="wycats"}}');
+        assertFired(instance, 'didReceiveAttrs', 1);
+        assertFired(instance, 'willRender', 1);
+        assertFired(instance, 'didInsertElement', 1);
+        assertFired(instance, 'didRender', 1);
+        assertEmberishElement('div', 'In layout - someProp: wycats');
+        rerender();
+        assertEmberishElement('div', 'In layout - someProp: wycats');
+        assertFired(instance, 'didReceiveAttrs', 1);
+        assertFired(instance, 'willRender', 1);
+        assertFired(instance, 'didRender', 1);
+        instance.recompute();
+        rerender();
+        assertEmberishElement('div', 'In layout - someProp: wycats');
+        assertFired(instance, 'didReceiveAttrs', 2);
+        assertFired(instance, 'willUpdate', 1);
+        assertFired(instance, 'willRender', 2);
+        assertFired(instance, 'didUpdate', 1);
+        assertFired(instance, 'didRender', 2);
+    });
     QUnit.test('Glimmer component hooks', function () {
         var instance = undefined;
 
@@ -4562,6 +4622,46 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         assertFired(instance, 'willRender', 3);
         assertFired(instance, 'didUpdate', 2);
         assertFired(instance, 'didRender', 3);
+    });
+    QUnit.test('Glimmer component hooks (force recompute)', function () {
+        var instance = undefined;
+
+        var NonBlock = (function (_EmberishGlimmerComponent7) {
+            _inherits(NonBlock, _EmberishGlimmerComponent7);
+
+            function NonBlock() {
+                _classCallCheck(this, NonBlock);
+
+                _EmberishGlimmerComponent7.apply(this, arguments);
+            }
+
+            NonBlock.prototype.init = function init() {
+                instance = this;
+            };
+
+            return NonBlock;
+        })(_glimmerTestHelpers.EmberishGlimmerComponent);
+
+        env.registerEmberishGlimmerComponent('non-block', _glimmerTestHelpers.inspectHooks(NonBlock), '<div>In layout - someProp: {{@someProp}}</div>');
+        appendViewFor('{{non-block someProp="wycats"}}');
+        assertFired(instance, 'didReceiveAttrs', 1);
+        assertFired(instance, 'willRender', 1);
+        assertFired(instance, 'didInsertElement', 1);
+        assertFired(instance, 'didRender', 1);
+        assertEmberishElement('div', 'In layout - someProp: wycats');
+        rerender();
+        assertEmberishElement('div', 'In layout - someProp: wycats');
+        assertFired(instance, 'didReceiveAttrs', 1);
+        assertFired(instance, 'willRender', 1);
+        assertFired(instance, 'didRender', 1);
+        instance.recompute();
+        rerender();
+        assertEmberishElement('div', 'In layout - someProp: wycats');
+        assertFired(instance, 'didReceiveAttrs', 2);
+        assertFired(instance, 'willUpdate', 1);
+        assertFired(instance, 'willRender', 2);
+        assertFired(instance, 'didUpdate', 1);
+        assertFired(instance, 'didRender', 2);
     });
     // QUnit.skip('[DEPRECATED] non-block with properties on self', function() {
     //   // TODO: attrs
@@ -8025,6 +8125,7 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             }
 
             _GlimmerObject.call.apply(_GlimmerObject, [this].concat(args));
+            this.dirtinessTag = new _glimmerReference.DirtyableTag();
             this.tagName = null;
             this.attributeBindings = null;
             this.parentView = null;
@@ -8032,6 +8133,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         EmberishCurlyComponent.create = function create(args) {
             return _GlimmerObject.create.call(this, args);
+        };
+
+        EmberishCurlyComponent.prototype.recompute = function recompute() {
+            this.dirtinessTag.dirty();
         };
 
         EmberishCurlyComponent.prototype.didInitAttrs = function didInitAttrs(options) {};
@@ -8068,11 +8173,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             }
 
             _GlimmerObject2.call.apply(_GlimmerObject2, [this].concat(args));
+            this.dirtinessTag = new _glimmerReference.DirtyableTag();
             this.parentView = null;
         }
 
         EmberishGlimmerComponent.create = function create(args) {
             return _GlimmerObject2.create.call(this, args);
+        };
+
+        EmberishGlimmerComponent.prototype.recompute = function recompute() {
+            this.dirtinessTag.dirty();
         };
 
         EmberishGlimmerComponent.prototype.didInitAttrs = function didInitAttrs(options) {};
@@ -8118,6 +8228,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         BasicComponentManager.prototype.didCreate = function didCreate() {};
 
+        BasicComponentManager.prototype.getTag = function getTag() {
+            return null;
+        };
+
         BasicComponentManager.prototype.update = function update(component, attrs) {
             component.attrs = attrs.named.value();
         };
@@ -8161,6 +8275,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         EmberishGlimmerComponentManager.prototype.didCreate = function didCreate(component) {
             component.didInsertElement();
             component.didRender();
+        };
+
+        EmberishGlimmerComponentManager.prototype.getTag = function getTag(component) {
+            return component.dirtinessTag;
         };
 
         EmberishGlimmerComponentManager.prototype.update = function update(component, args) {
@@ -8225,6 +8343,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         EmberishCurlyComponentManager.prototype.didCreate = function didCreate(component) {
             component.didInsertElement();
             component.didRender();
+        };
+
+        EmberishCurlyComponentManager.prototype.getTag = function getTag(component) {
+            return component.dirtinessTag;
         };
 
         EmberishCurlyComponentManager.prototype.update = function update(component, args) {
@@ -29892,6 +30014,449 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  var LifeCycleHooksTest = (function (_RenderingTest) {
+    _inherits(LifeCycleHooksTest, _RenderingTest);
+
+    function LifeCycleHooksTest() {
+      _classCallCheck(this, LifeCycleHooksTest);
+
+      _RenderingTest.call(this);
+      this.hooks = [];
+      this.components = {};
+    }
+
+    /* abstract */
+
+    /* abstract */
+
+    LifeCycleHooksTest.prototype.invocationFor = function invocationFor(name) {
+      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      throw new Error('Not implemented: `invocationFor`');
+    };
+
+    /* abstract */
+
+    LifeCycleHooksTest.prototype.attrFor = function attrFor(name) {
+      throw new Error('Not implemented: `attrFor`');
+    };
+
+    LifeCycleHooksTest.prototype.registerComponent = function registerComponent(name, _ref) {
+      var _this = this;
+
+      var _ref$template = _ref.template;
+      var template = _ref$template === undefined ? null : _ref$template;
+
+      var pushComponent = function (instance) {
+        _this.components[name] = instance;
+      };
+
+      var pushHook = function (hookName, args) {
+        _this.hooks.push(hook(name, hookName, args));
+      };
+
+      var ComponentClass = this.ComponentClass.extend({
+        init: function () {
+          var _this2 = this,
+              _arguments = arguments;
+
+          expectDeprecation(function () {
+            _this2._super.apply(_this2, _arguments);
+          }, /didInitAttrs called/);
+
+          pushHook('init');
+          pushComponent(this);
+        },
+
+        didInitAttrs: function (options) {
+          pushHook('didInitAttrs', options);
+        },
+
+        didUpdateAttrs: function (options) {
+          pushHook('didUpdateAttrs', options);
+        },
+
+        willUpdate: function (options) {
+          pushHook('willUpdate', options);
+        },
+
+        didReceiveAttrs: function (options) {
+          pushHook('didReceiveAttrs', options);
+        },
+
+        willRender: function () {
+          pushHook('willRender');
+        },
+
+        didRender: function () {
+          pushHook('didRender');
+        },
+
+        didInsertElement: function () {
+          pushHook('didInsertElement');
+        },
+
+        didUpdate: function (options) {
+          pushHook('didUpdate', options);
+        }
+      });
+
+      _RenderingTest.prototype.registerComponent.call(this, name, { ComponentClass: ComponentClass, template: template });
+    };
+
+    LifeCycleHooksTest.prototype.assertHooks = function assertHooks(label) {
+      for (var _len = arguments.length, rawHooks = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        rawHooks[_key - 1] = arguments[_key];
+      }
+
+      var hooks = rawHooks.map(function (raw) {
+        return hook.apply(undefined, raw);
+      });
+      this.assert.deepEqual(json(this.hooks), json(hooks), label);
+      this.hooks = [];
+    };
+
+    LifeCycleHooksTest.prototype['@test lifecycle hooks are invoked in a predictable order'] = function testLifecycleHooksAreInvokedInAPredictableOrder() {
+      var _this3 = this;
+
+      var _boundHelpers = this.boundHelpers;
+      var attr = _boundHelpers.attr;
+      var invoke = _boundHelpers.invoke;
+
+      this.registerComponent('the-top', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, attr('twitter'), invoke('the-middle', { name: string('Tom Dale') }))
+      });
+
+      this.registerComponent('the-middle', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2, attr('name'), invoke('the-bottom', { website: string('tomdale.net') }))
+      });
+
+      this.registerComponent('the-bottom', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3, attr('website'))
+      });
+
+      this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      var topAttrs = { twitter: '@tomdale' };
+      var middleAttrs = { name: 'Tom Dale' };
+      var bottomAttrs = { website: 'tomdale.net' };
+
+      this.assertHooks('after initial render',
+
+      // Sync hooks
+
+      ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
+
+      this.runTask(function () {
+        return _this3.components['the-bottom'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      this.assertHooks('after no-op rerender (bottom)',
+
+      // Sync hooks
+
+      ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender']);
+
+      this.runTask(function () {
+        return _this3.components['the-middle'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      bottomAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'tomdale.net' } };
+
+      // The original implementation of the hooks in HTMLBars does a
+      // deeper walk than necessary (using the AlwaysDirty validator),
+      // resulting in executing the experimental "new hooks" too often.
+      //
+      // In particular, hooks were executed downstream from the original
+      // call to `rerender()` even if the rerendering component did not
+      // use `this.set()` to update the arguments of downstream components.
+      //
+      // Because Glimmer uses a pull-based model instead of a blunt
+      // push-based model, we can avoid a deeper traversal than is
+      // necessary.
+
+      if (this.isHTMLBars) {
+        this.assertHooks('after no-op rerender (middle)',
+
+        // Sync hooks
+
+        ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+        // Async hooks
+
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender']);
+      } else {
+        this.assertHooks('after no-op rerender (middle)',
+
+        // Sync hooks
+
+        ['the-middle', 'willUpdate'], ['the-middle', 'willRender'],
+
+        // Async hooks
+
+        ['the-middle', 'didUpdate'], ['the-middle', 'didRender']);
+      }
+
+      this.runTask(function () {
+        return _this3.components['the-top'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      middleAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Tom Dale' } };
+
+      if (this.isHTMLBars) {
+        this.assertHooks('after no-op rerender (top)',
+
+        // Sync hooks
+
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+        // Async hooks
+
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+      } else {
+        this.assertHooks('after no-op rerender (top)',
+
+        // Sync hooks
+
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+
+        // Async hooks
+
+        ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+      }
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'twitter', '@horsetomdale');
+      });
+
+      this.assertText('Twitter: @horsetomdale|Name: Tom Dale|Website: tomdale.net');
+
+      // Because the `twitter` attr is only used by the topmost component,
+      // and not passed down, we do not expect to see lifecycle hooks
+      // called for child components. If the `didReceiveAttrs` hook used
+      // the new attribute to rerender itself imperatively, that would result
+      // in lifecycle hooks being invoked for the child.
+
+      topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+
+      this.assertHooks('after update',
+
+      // Sync hooks
+
+      ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+
+      // Async hooks
+
+      ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+    };
+
+    LifeCycleHooksTest.prototype['@test passing values through attrs causes lifecycle hooks to fire if the attribute values have changed'] = function testPassingValuesThroughAttrsCausesLifecycleHooksToFireIfTheAttributeValuesHaveChanged() {
+      var _this4 = this;
+
+      var _boundHelpers2 = this.boundHelpers;
+      var attr = _boundHelpers2.attr;
+      var invoke = _boundHelpers2.invoke;
+
+      this.registerComponent('the-top', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4, invoke('the-middle', { twitterTop: expr(attr('twitter')) }))
+      });
+
+      this.registerComponent('the-middle', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5, invoke('the-bottom', { twitterMiddle: expr(attr('twitterTop')) }))
+      });
+
+      this.registerComponent('the-bottom', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6, attr('twitterMiddle'))
+      });
+
+      this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
+
+      this.assertText('Top: Middle: Bottom: @tomdale');
+
+      var topAttrs = { twitter: '@tomdale' };
+      var middleAttrs = { twitterTop: '@tomdale' };
+      var bottomAttrs = { twitterMiddle: '@tomdale' };
+
+      this.assertHooks('after initial render',
+
+      // Sync hooks
+
+      ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'twitter', '@horsetomdale');
+      });
+
+      this.assertText('Top: Middle: Bottom: @horsetomdale');
+
+      // Because the `twitter` attr is used by the all of the components,
+      // the lifecycle hooks are invoked for all components.
+
+      topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+      middleAttrs = { oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
+      bottomAttrs = { oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
+
+      this.assertHooks('after updating (root)',
+
+      // Sync hooks
+
+      ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('Top: Middle: Bottom: @horsetomdale');
+
+      // In this case, because the attrs are passed down, all child components are invoked.
+
+      topAttrs = { oldAttrs: { twitter: '@horsetomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+      middleAttrs = { oldAttrs: { twitterTop: '@horsetomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
+      bottomAttrs = { oldAttrs: { twitterMiddle: '@horsetomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
+
+      if (this.isHTMLBars) {
+        this.assertHooks('after no-op rernder (root)',
+
+        // Sync hooks
+
+        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+        // Async hooks
+
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+      } else {
+        this.assertHooks('after no-op rernder (root)');
+      }
+    };
+
+    _createClass(LifeCycleHooksTest, [{
+      key: 'ComponentClass',
+      get: function () {
+        throw new Error('Not implemented: `ComponentClass`');
+      }
+    }, {
+      key: 'boundHelpers',
+      get: function () {
+        return {
+          invoke: bind(this.invocationFor, this),
+          attr: bind(this.attrFor, this)
+        };
+      }
+    }]);
+
+    return LifeCycleHooksTest;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
+    _inherits(_class, _LifeCycleHooksTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _LifeCycleHooksTest.apply(this, arguments);
+    }
+
+    _class.prototype.invocationFor = function invocationFor(name) {
+      var _this5 = this;
+
+      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var attrs = Object.keys(namedArgs).map(function (k) {
+        return k + '=' + _this5.val(namedArgs[k]);
+      }).join(' ');
+      return '{{' + name + ' ' + attrs + '}}';
+    };
+
+    _class.prototype.attrFor = function attrFor(name) {
+      return '' + name;
+    };
+
+    /* private */
+
+    _class.prototype.val = function val(value) {
+      if (value.isString) {
+        return JSON.stringify(value.value);
+      } else if (value.isExpr) {
+        return '(readonly ' + value.value + ')';
+      } else {
+        throw new Error('Unknown value: ' + value);
+      }
+    };
+
+    _createClass(_class, [{
+      key: 'ComponentClass',
+      get: function () {
+        return _emberGlimmerTestsUtilsHelpers.Component;
+      }
+    }]);
+
+    return _class;
+  })(LifeCycleHooksTest));
+
+  function bind(func, thisArg) {
+    return function () {
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return func.apply(thisArg, args);
+    };
+  }
+
+  function string(value) {
+    return { isString: true, value: value };
+  }
+
+  function expr(value) {
+    return { isExpr: true, value: value };
+  }
+
+  function hook(name, hook, args) {
+    return { name: name, hook: hook, args: args };
+  }
+
+  function json(serializable) {
+    return JSON.parse(JSON.stringify(serializable));
+  }
+});
 enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
@@ -30053,6 +30618,60 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
       });
 
       this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Component willDestroyElement hook', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it calls willDestroyElement when removed by if'] = function testItCallsWillDestroyElementWhenRemovedByIf(assert) {
+      var _this = this;
+
+      var didInsertElementCount = 0;
+      var willDestroyElementCount = 0;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        didInsertElement: function () {
+          didInsertElementCount++;
+          assert.notEqual(this.element.parentNode, null, 'precond component is in DOM');
+        },
+        willDestroyElement: function () {
+          willDestroyElementCount++;
+          assert.notEqual(this.element.parentNode, null, 'has not been removed from DOM yet');
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{#if switch}}{{foo-bar}}{{/if}}', { switch: true });
+
+      assert.equal(didInsertElementCount, 1, 'didInsertElement was called once');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'switch', false);
+      });
+
+      assert.equal(willDestroyElementCount, 1, 'willDestroyElement was called once');
+
+      this.assertText('');
     };
 
     return _class;
@@ -36523,6 +37142,16 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     _createClass(TestCase, [{
+      key: 'isHTMLBars',
+      get: function () {
+        return _emberGlimmerTestsUtilsPackageName.default === 'htmlbars';
+      }
+    }, {
+      key: 'isGlimmer',
+      get: function () {
+        return _emberGlimmerTestsUtilsPackageName.default === 'glimmer';
+      }
+    }, {
       key: 'firstChild',
       get: function () {
         return this.nthChild(0);
@@ -36762,8 +37391,16 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   exports.RenderingTest = RenderingTest;
 
   function strip(_ref5) {
-    var str = _ref5[0];
+    for (var _len3 = arguments.length, values = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+      values[_key3 - 1] = arguments[_key3];
+    }
 
+    var strings = _ref5;
+
+    var str = strings.map(function (string, index) {
+      var interpolated = values[index];
+      return string + (interpolated !== undefined ? interpolated : '');
+    }).join('');
     return str.split('\n').map(function (s) {
       return s.trim();
     }).join('');
@@ -37829,6 +38466,17 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       owner.registerOptionsForType('helper', { instantiate: false });
       owner.registerOptionsForType('component', { singleton: false });
     }
+
+    RenderingTest.prototype.render = function render() {
+      var _AbstractRenderingTest$prototype$render;
+
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      (_AbstractRenderingTest$prototype$render = _AbstractRenderingTest.prototype.render).call.apply(_AbstractRenderingTest$prototype$render, [this].concat(args));
+      this.renderer._root = this.component;
+    };
 
     RenderingTest.prototype.runTask = function runTask(callback) {
       var _this = this;
@@ -45971,6 +46619,449 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
+  'use strict';
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  var LifeCycleHooksTest = (function (_RenderingTest) {
+    _inherits(LifeCycleHooksTest, _RenderingTest);
+
+    function LifeCycleHooksTest() {
+      _classCallCheck(this, LifeCycleHooksTest);
+
+      _RenderingTest.call(this);
+      this.hooks = [];
+      this.components = {};
+    }
+
+    /* abstract */
+
+    /* abstract */
+
+    LifeCycleHooksTest.prototype.invocationFor = function invocationFor(name) {
+      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      throw new Error('Not implemented: `invocationFor`');
+    };
+
+    /* abstract */
+
+    LifeCycleHooksTest.prototype.attrFor = function attrFor(name) {
+      throw new Error('Not implemented: `attrFor`');
+    };
+
+    LifeCycleHooksTest.prototype.registerComponent = function registerComponent(name, _ref) {
+      var _this = this;
+
+      var _ref$template = _ref.template;
+      var template = _ref$template === undefined ? null : _ref$template;
+
+      var pushComponent = function (instance) {
+        _this.components[name] = instance;
+      };
+
+      var pushHook = function (hookName, args) {
+        _this.hooks.push(hook(name, hookName, args));
+      };
+
+      var ComponentClass = this.ComponentClass.extend({
+        init: function () {
+          var _this2 = this,
+              _arguments = arguments;
+
+          expectDeprecation(function () {
+            _this2._super.apply(_this2, _arguments);
+          }, /didInitAttrs called/);
+
+          pushHook('init');
+          pushComponent(this);
+        },
+
+        didInitAttrs: function (options) {
+          pushHook('didInitAttrs', options);
+        },
+
+        didUpdateAttrs: function (options) {
+          pushHook('didUpdateAttrs', options);
+        },
+
+        willUpdate: function (options) {
+          pushHook('willUpdate', options);
+        },
+
+        didReceiveAttrs: function (options) {
+          pushHook('didReceiveAttrs', options);
+        },
+
+        willRender: function () {
+          pushHook('willRender');
+        },
+
+        didRender: function () {
+          pushHook('didRender');
+        },
+
+        didInsertElement: function () {
+          pushHook('didInsertElement');
+        },
+
+        didUpdate: function (options) {
+          pushHook('didUpdate', options);
+        }
+      });
+
+      _RenderingTest.prototype.registerComponent.call(this, name, { ComponentClass: ComponentClass, template: template });
+    };
+
+    LifeCycleHooksTest.prototype.assertHooks = function assertHooks(label) {
+      for (var _len = arguments.length, rawHooks = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        rawHooks[_key - 1] = arguments[_key];
+      }
+
+      var hooks = rawHooks.map(function (raw) {
+        return hook.apply(undefined, raw);
+      });
+      this.assert.deepEqual(json(this.hooks), json(hooks), label);
+      this.hooks = [];
+    };
+
+    LifeCycleHooksTest.prototype['@test lifecycle hooks are invoked in a predictable order'] = function testLifecycleHooksAreInvokedInAPredictableOrder() {
+      var _this3 = this;
+
+      var _boundHelpers = this.boundHelpers;
+      var attr = _boundHelpers.attr;
+      var invoke = _boundHelpers.invoke;
+
+      this.registerComponent('the-top', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, attr('twitter'), invoke('the-middle', { name: string('Tom Dale') }))
+      });
+
+      this.registerComponent('the-middle', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2, attr('name'), invoke('the-bottom', { website: string('tomdale.net') }))
+      });
+
+      this.registerComponent('the-bottom', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3, attr('website'))
+      });
+
+      this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      var topAttrs = { twitter: '@tomdale' };
+      var middleAttrs = { name: 'Tom Dale' };
+      var bottomAttrs = { website: 'tomdale.net' };
+
+      this.assertHooks('after initial render',
+
+      // Sync hooks
+
+      ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
+
+      this.runTask(function () {
+        return _this3.components['the-bottom'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      this.assertHooks('after no-op rerender (bottom)',
+
+      // Sync hooks
+
+      ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender']);
+
+      this.runTask(function () {
+        return _this3.components['the-middle'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      bottomAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'tomdale.net' } };
+
+      // The original implementation of the hooks in HTMLBars does a
+      // deeper walk than necessary (using the AlwaysDirty validator),
+      // resulting in executing the experimental "new hooks" too often.
+      //
+      // In particular, hooks were executed downstream from the original
+      // call to `rerender()` even if the rerendering component did not
+      // use `this.set()` to update the arguments of downstream components.
+      //
+      // Because Glimmer uses a pull-based model instead of a blunt
+      // push-based model, we can avoid a deeper traversal than is
+      // necessary.
+
+      if (this.isHTMLBars) {
+        this.assertHooks('after no-op rerender (middle)',
+
+        // Sync hooks
+
+        ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+        // Async hooks
+
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender']);
+      } else {
+        this.assertHooks('after no-op rerender (middle)',
+
+        // Sync hooks
+
+        ['the-middle', 'willUpdate'], ['the-middle', 'willRender'],
+
+        // Async hooks
+
+        ['the-middle', 'didUpdate'], ['the-middle', 'didRender']);
+      }
+
+      this.runTask(function () {
+        return _this3.components['the-top'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      middleAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Tom Dale' } };
+
+      if (this.isHTMLBars) {
+        this.assertHooks('after no-op rerender (top)',
+
+        // Sync hooks
+
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+        // Async hooks
+
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+      } else {
+        this.assertHooks('after no-op rerender (top)',
+
+        // Sync hooks
+
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+
+        // Async hooks
+
+        ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+      }
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'twitter', '@horsetomdale');
+      });
+
+      this.assertText('Twitter: @horsetomdale|Name: Tom Dale|Website: tomdale.net');
+
+      // Because the `twitter` attr is only used by the topmost component,
+      // and not passed down, we do not expect to see lifecycle hooks
+      // called for child components. If the `didReceiveAttrs` hook used
+      // the new attribute to rerender itself imperatively, that would result
+      // in lifecycle hooks being invoked for the child.
+
+      topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+
+      this.assertHooks('after update',
+
+      // Sync hooks
+
+      ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+
+      // Async hooks
+
+      ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+    };
+
+    LifeCycleHooksTest.prototype['@test passing values through attrs causes lifecycle hooks to fire if the attribute values have changed'] = function testPassingValuesThroughAttrsCausesLifecycleHooksToFireIfTheAttributeValuesHaveChanged() {
+      var _this4 = this;
+
+      var _boundHelpers2 = this.boundHelpers;
+      var attr = _boundHelpers2.attr;
+      var invoke = _boundHelpers2.invoke;
+
+      this.registerComponent('the-top', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4, invoke('the-middle', { twitterTop: expr(attr('twitter')) }))
+      });
+
+      this.registerComponent('the-middle', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5, invoke('the-bottom', { twitterMiddle: expr(attr('twitterTop')) }))
+      });
+
+      this.registerComponent('the-bottom', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6, attr('twitterMiddle'))
+      });
+
+      this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
+
+      this.assertText('Top: Middle: Bottom: @tomdale');
+
+      var topAttrs = { twitter: '@tomdale' };
+      var middleAttrs = { twitterTop: '@tomdale' };
+      var bottomAttrs = { twitterMiddle: '@tomdale' };
+
+      this.assertHooks('after initial render',
+
+      // Sync hooks
+
+      ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'twitter', '@horsetomdale');
+      });
+
+      this.assertText('Top: Middle: Bottom: @horsetomdale');
+
+      // Because the `twitter` attr is used by the all of the components,
+      // the lifecycle hooks are invoked for all components.
+
+      topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+      middleAttrs = { oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
+      bottomAttrs = { oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
+
+      this.assertHooks('after updating (root)',
+
+      // Sync hooks
+
+      ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+      // Async hooks
+
+      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('Top: Middle: Bottom: @horsetomdale');
+
+      // In this case, because the attrs are passed down, all child components are invoked.
+
+      topAttrs = { oldAttrs: { twitter: '@horsetomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+      middleAttrs = { oldAttrs: { twitterTop: '@horsetomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
+      bottomAttrs = { oldAttrs: { twitterMiddle: '@horsetomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
+
+      if (this.isHTMLBars) {
+        this.assertHooks('after no-op rernder (root)',
+
+        // Sync hooks
+
+        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+
+        // Async hooks
+
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+      } else {
+        this.assertHooks('after no-op rernder (root)');
+      }
+    };
+
+    _createClass(LifeCycleHooksTest, [{
+      key: 'ComponentClass',
+      get: function () {
+        throw new Error('Not implemented: `ComponentClass`');
+      }
+    }, {
+      key: 'boundHelpers',
+      get: function () {
+        return {
+          invoke: bind(this.invocationFor, this),
+          attr: bind(this.attrFor, this)
+        };
+      }
+    }]);
+
+    return LifeCycleHooksTest;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
+    _inherits(_class, _LifeCycleHooksTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _LifeCycleHooksTest.apply(this, arguments);
+    }
+
+    _class.prototype.invocationFor = function invocationFor(name) {
+      var _this5 = this;
+
+      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var attrs = Object.keys(namedArgs).map(function (k) {
+        return k + '=' + _this5.val(namedArgs[k]);
+      }).join(' ');
+      return '{{' + name + ' ' + attrs + '}}';
+    };
+
+    _class.prototype.attrFor = function attrFor(name) {
+      return '' + name;
+    };
+
+    /* private */
+
+    _class.prototype.val = function val(value) {
+      if (value.isString) {
+        return JSON.stringify(value.value);
+      } else if (value.isExpr) {
+        return '(readonly ' + value.value + ')';
+      } else {
+        throw new Error('Unknown value: ' + value);
+      }
+    };
+
+    _createClass(_class, [{
+      key: 'ComponentClass',
+      get: function () {
+        return _emberHtmlbarsTestsUtilsHelpers.Component;
+      }
+    }]);
+
+    return _class;
+  })(LifeCycleHooksTest));
+
+  function bind(func, thisArg) {
+    return function () {
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return func.apply(thisArg, args);
+    };
+  }
+
+  function string(value) {
+    return { isString: true, value: value };
+  }
+
+  function expr(value) {
+    return { isExpr: true, value: value };
+  }
+
+  function hook(name, hook, args) {
+    return { name: name, hook: hook, args: args };
+  }
+
+  function json(serializable) {
+    return JSON.parse(JSON.stringify(serializable));
+  }
+});
 enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
@@ -46132,6 +47223,60 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       });
 
       this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Component willDestroyElement hook', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it calls willDestroyElement when removed by if'] = function testItCallsWillDestroyElementWhenRemovedByIf(assert) {
+      var _this = this;
+
+      var didInsertElementCount = 0;
+      var willDestroyElementCount = 0;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        didInsertElement: function () {
+          didInsertElementCount++;
+          assert.notEqual(this.element.parentNode, null, 'precond component is in DOM');
+        },
+        willDestroyElement: function () {
+          willDestroyElementCount++;
+          assert.notEqual(this.element.parentNode, null, 'has not been removed from DOM yet');
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{#if switch}}{{foo-bar}}{{/if}}', { switch: true });
+
+      assert.equal(didInsertElementCount, 1, 'didInsertElement was called once');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'switch', false);
+      });
+
+      assert.equal(willDestroyElementCount, 1, 'willDestroyElement was called once');
+
+      this.assertText('');
     };
 
     return _class;
@@ -52701,64 +53846,6 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
     return _class3;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['exports', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
-  'use strict';
-
-  var component, originalViewKeyword;
-
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
-
-    QUnit.module('ember-htmlbars: destroy-element-hook tests', {
-      setup: function () {
-        originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-      },
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(component);
-        _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-      }
-    });
-
-    QUnit.test('willDestroyElement is only called once when a component leaves scope', function (assert) {
-      var innerChild, innerChildDestroyed;
-
-      component = _emberViewsComponentsComponent.default.create({
-        switch: true,
-
-        layout: _emberTemplateCompilerSystemCompile.default('\n     {{~#if switch~}}\n       {{~#view innerChild}}Truthy{{/view~}}\n     {{~/if~}}\n    '),
-
-        innerChild: _emberViewsComponentsComponent.default.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            innerChild = this;
-          },
-
-          willDestroyElement: function () {
-            if (innerChildDestroyed) {
-              throw new Error('willDestroyElement has already been called!!');
-            } else {
-              innerChildDestroyed = true;
-            }
-          }
-        })
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      assert.equal(component.$().text(), 'Truthy', 'precond - truthy template is displayed');
-      assert.equal(component.get('childViews.length'), 1);
-
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(component, 'switch', false);
-      });
-
-      _emberMetalRun_loop.default(function () {
-        assert.equal(innerChild.get('isDestroyed'), true, 'the innerChild has been destroyed');
-        assert.equal(component.$().text(), '', 'truthy template is removed');
-      });
-    });
-  }
-});
 enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 'ember-htmlbars/node-managers/view-node-manager', 'ember-metal/features'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager, _emberMetalFeatures) {
   'use strict';
 
@@ -53315,6 +54402,16 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     _createClass(TestCase, [{
+      key: 'isHTMLBars',
+      get: function () {
+        return _emberHtmlbarsTestsUtilsPackageName.default === 'htmlbars';
+      }
+    }, {
+      key: 'isGlimmer',
+      get: function () {
+        return _emberHtmlbarsTestsUtilsPackageName.default === 'glimmer';
+      }
+    }, {
       key: 'firstChild',
       get: function () {
         return this.nthChild(0);
@@ -53554,8 +54651,16 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   exports.RenderingTest = RenderingTest;
 
   function strip(_ref5) {
-    var str = _ref5[0];
+    for (var _len3 = arguments.length, values = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+      values[_key3 - 1] = arguments[_key3];
+    }
 
+    var strings = _ref5;
+
+    var str = strings.map(function (string, index) {
+      var interpolated = values[index];
+      return string + (interpolated !== undefined ? interpolated : '');
+    }).join('');
     return str.split('\n').map(function (s) {
       return s.trim();
     }).join('');
@@ -80714,7 +81819,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+60ef23cf', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+c6996a5e', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
