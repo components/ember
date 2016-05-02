@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.2+489bcd78
+ * @version   2.6.0-beta.2+e061924a
  */
 
 var enifed, requireModule, require, Ember;
@@ -8384,7 +8384,7 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-metal/cache', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberMetalCache, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-metal/cache', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberMetalCache, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent) {
   'use strict';
 
   exports.default = componentHook;
@@ -8424,6 +8424,9 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
 
     // Determine if this is an initial render or a re-render.
     if (state.manager) {
+      var templateMeta = state.manager.block.template.meta;
+      env.meta.moduleName = templateMeta && templateMeta.moduleName || env.meta && env.meta.moduleName;
+      _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, state.manager.component.constructor, params, attrs, false);
       state.manager.rerender(env, attrs, visitor);
       return;
     }
@@ -10315,7 +10318,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.2+489bcd78';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.2+e061924a';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -12697,36 +12700,40 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
   exports.processPositionalParams = processPositionalParams;
 
   function extractPositionalParams(renderNode, component, params, attrs) {
+    var raiseAssertions = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
+
     var positionalParams = component.positionalParams;
 
     if (positionalParams) {
-      processPositionalParams(renderNode, positionalParams, params, attrs);
+      processPositionalParams(renderNode, positionalParams, params, attrs, raiseAssertions);
     }
   }
 
   function processPositionalParams(renderNode, positionalParams, params, attrs) {
+    var raiseAssertions = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
+
     var isRest = typeof positionalParams === 'string';
 
     if (isRest) {
-      processRestPositionalParameters(renderNode, positionalParams, params, attrs);
+      processRestPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions);
     } else {
-      processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
+      processNamedPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions);
     }
   }
 
-  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
+  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions) {
     var limit = Math.min(params.length, positionalParams.length);
 
     for (var i = 0; i < limit; i++) {
       var param = params[i];
 
-      _emberMetalDebug.assert('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + positionalParams[i] + '`.', !(positionalParams[i] in attrs));
+      _emberMetalDebug.assert('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + positionalParams[i] + '`.', !(positionalParams[i] in attrs && raiseAssertions));
 
       attrs[positionalParams[i]] = param;
     }
   }
 
-  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
+  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs, raiseAssertions) {
     var nameInAttrs = (positionalParamsName in attrs);
 
     // when no params are used, do not override the specified `attrs.stringParamName` value
@@ -12735,7 +12742,7 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
     }
 
     // If there is already an attribute for that variable, do nothing
-    _emberMetalDebug.assert('You cannot specify positional parameters and the hash argument `' + positionalParamsName + '`.', !nameInAttrs);
+    _emberMetalDebug.assert('You cannot specify positional parameters and the hash argument `' + positionalParamsName + '`.', !(nameInAttrs && raiseAssertions));
 
     var paramsStream = new _emberMetalStreamsStream.Stream(function () {
       return _emberMetalStreamsUtils.readArray(params.slice(0));
@@ -15238,7 +15245,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.2+489bcd78
+    @version 2.6.0-beta.2+e061924a
     @public
   */
 
@@ -15280,11 +15287,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.2+489bcd78'
+    @default '2.6.0-beta.2+e061924a'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.2+489bcd78';
+  Ember.VERSION = '2.6.0-beta.2+e061924a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29162,7 +29169,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
     return true;
   }
 });
-enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/features', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to', 'require'], function (exports, _emberMetalFeatures, _emberMetalLogger, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo, _require) {
+enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/features', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to', 'require'], function (exports, _emberMetalFeatures, _emberMetalLogger, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo, _require) {
   /**
   @module ember
   @submodule ember-templates
@@ -29809,7 +29816,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/featur
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
       }
-      var onlyQueryParamsSupplied = params.length === 0;
+      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
       if (onlyQueryParamsSupplied) {
         return _emberMetalProperty_get.get(this, '_routing.currentRouteName');
       }
@@ -29922,7 +29929,10 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/featur
       }
 
       // Process the positional arguments, in order.
-      // 1. Inline link title was shifted off by AST.
+      // 1. Inline link title comes first, if present.
+      if (!this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK]) {
+        this.set('linkTitle', params.shift());
+      }
 
       // 2. `targetRouteName` is now always at index 0.
       this.set('targetRouteName', params[0]);
@@ -39129,7 +39139,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.2+489bcd78',
+        revision: 'Ember@2.6.0-beta.2+e061924a',
         loc: program.loc,
         moduleName: options.moduleName
       };
