@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9c6d2d88
+ * @version   2.7.0-canary+48f7b813
  */
 
 var enifed, requireModule, require, Ember;
@@ -28274,14 +28274,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       assert.equal(this.$('#direct').text(), 'Bar4', 'direct');
-      //assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
+      assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
 
       this.runTask(function () {
         return _this48.context.set('user2', '5');
       });
 
       assert.equal(this.$('#direct').text(), 'Bar5', 'direct');
-      //assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
+      assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
 
       this.runTask(function () {
         _this48.context.set('user1', 'Foo');
@@ -29859,48 +29859,58 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       var _this21 = this;
 
       this.registerComponent('foo-bar', {
-        template: 'hello {{name}} from foo-bar',
+        template: 'hello {{name}} ({{age}}) from foo-bar',
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
-          positionalParams: ['name']
+          positionalParams: ['name', 'age']
         })
       });
 
       this.registerComponent('foo-bar-baz', {
-        template: 'hello {{name}} from foo-bar-baz',
+        template: 'hello {{name}} ({{age}}) from foo-bar-baz',
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
-          positionalParams: ['name']
+          positionalParams: ['name', 'age']
         })
       });
 
-      this.render('{{component componentName name}}', { componentName: 'foo-bar', name: 'Alex' });
+      this.render('{{component componentName name age}}', {
+        componentName: 'foo-bar',
+        name: 'Alex',
+        age: 29
+      });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex (29) from foo-bar' });
 
       this.runTask(function () {
         return _this21.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex (29) from foo-bar' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this21.context, 'name', 'Ben');
       });
 
-      // TODO: this fails in htmlbars - https://github.com/emberjs/ember.js/issues/13158
-      // this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben (29) from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'age', 22);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben (22) from foo-bar' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar-baz');
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar-baz' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben (22) from foo-bar-baz' });
 
       this.runTask(function () {
         _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar');
         _emberMetalProperty_set.set(_this21.context, 'name', 'Alex');
+        _emberMetalProperty_set.set(_this21.context, 'age', 29);
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex (29) from foo-bar' });
     };
 
     _class.prototype['@htmlbars positional parameters does not pollute the attributes when changing components'] = function htmlbarsPositionalParametersDoesNotPolluteTheAttributesWhenChangingComponents(assert) {
@@ -44878,14 +44888,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       assert.equal(this.$('#direct').text(), 'Bar4', 'direct');
-      //assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
+      assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
 
       this.runTask(function () {
         return _this48.context.set('user2', '5');
       });
 
       assert.equal(this.$('#direct').text(), 'Bar5', 'direct');
-      //assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
+      assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
 
       this.runTask(function () {
         _this48.context.set('user1', 'Foo');
@@ -46463,48 +46473,58 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       var _this21 = this;
 
       this.registerComponent('foo-bar', {
-        template: 'hello {{name}} from foo-bar',
+        template: 'hello {{name}} ({{age}}) from foo-bar',
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
-          positionalParams: ['name']
+          positionalParams: ['name', 'age']
         })
       });
 
       this.registerComponent('foo-bar-baz', {
-        template: 'hello {{name}} from foo-bar-baz',
+        template: 'hello {{name}} ({{age}}) from foo-bar-baz',
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
-          positionalParams: ['name']
+          positionalParams: ['name', 'age']
         })
       });
 
-      this.render('{{component componentName name}}', { componentName: 'foo-bar', name: 'Alex' });
+      this.render('{{component componentName name age}}', {
+        componentName: 'foo-bar',
+        name: 'Alex',
+        age: 29
+      });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex (29) from foo-bar' });
 
       this.runTask(function () {
         return _this21.rerender();
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex (29) from foo-bar' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this21.context, 'name', 'Ben');
       });
 
-      // TODO: this fails in htmlbars - https://github.com/emberjs/ember.js/issues/13158
-      // this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben (29) from foo-bar' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'age', 22);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben (22) from foo-bar' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar-baz');
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Ben from foo-bar-baz' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Ben (22) from foo-bar-baz' });
 
       this.runTask(function () {
         _emberMetalProperty_set.set(_this21.context, 'componentName', 'foo-bar');
         _emberMetalProperty_set.set(_this21.context, 'name', 'Alex');
+        _emberMetalProperty_set.set(_this21.context, 'age', 29);
       });
 
-      this.assertComponentElement(this.firstChild, { content: 'hello Alex from foo-bar' });
+      this.assertComponentElement(this.firstChild, { content: 'hello Alex (29) from foo-bar' });
     };
 
     _class.prototype['@htmlbars positional parameters does not pollute the attributes when changing components'] = function htmlbarsPositionalParametersDoesNotPolluteTheAttributesWhenChangingComponents(assert) {
@@ -81326,7 +81346,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+9c6d2d88', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+48f7b813', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
