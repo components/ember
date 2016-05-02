@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+103e4b70
+ * @version   2.7.0-canary+9c6d2d88
  */
 
 var enifed, requireModule, require, Ember;
@@ -67531,6 +67531,16 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
 
       equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
     });
+
+    QUnit.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
+      var _EmberView$create9;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.title = 'my custom link-to component', _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default('{{custom-link-to view.title \'index\'}}'), _EmberView$create9));
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
+    });
   }
 });
 enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRoutingHtmlbarsTestsUtils, _emberMetalFeatures) {
@@ -81316,7 +81326,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+103e4b70', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+9c6d2d88', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
