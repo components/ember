@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.2
+ * @version   2.6.0-beta.2+34c45c56
  */
 
 var enifed, requireModule, require, Ember;
@@ -688,12 +688,12 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     /*
       Join the passed method with an existing queue and execute immediately,
       if there isn't one use `Backburner#run`.
-        The join method is like the run method except that it will schedule into
+       The join method is like the run method except that it will schedule into
       an existing queue if one already exists. In either case, the join method will
       immediately execute the passed in function and return its result.
-       @method join 
+       @method join
       @param {Object} target
-      @param {Function} method The method to be executed 
+      @param {Function} method The method to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -732,10 +732,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
     /*
       Defer the passed function to run inside the specified queue.
-       @method defer 
-      @param {String} queueName 
+       @method defer
+      @param {String} queueName
       @param {Object} target
-      @param {Function|String} method The method or method name to be executed 
+      @param {Function|String} method The method or method name to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -861,7 +861,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         }
       }
 
-      var executeAt = Date.now() + parseInt(wait, 10);
+      var executeAt = Date.now() + parseInt(wait !== wait ? 0 : wait, 10);
 
       if (_backburnerUtils.isString(method)) {
         method = target[method];
@@ -10315,7 +10315,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.2+34c45c56';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -14456,7 +14456,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     The alternative syntax, with prototype extensions, might look like:
   
     ```js
-    fullName() {
+    fullName: function() {
       return this.get('firstName') + ' ' + this.get('lastName');
     }.property('firstName', 'lastName')
     ```
@@ -15238,7 +15238,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.2
+    @version 2.6.0-beta.2+34c45c56
     @public
   */
 
@@ -15280,11 +15280,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.2'
+    @default '2.6.0-beta.2+34c45c56'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.2';
+  Ember.VERSION = '2.6.0-beta.2+34c45c56';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23539,6 +23539,25 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/debug', 'ember-met
         to `false`.
   
     Calling setURL or replaceURL will not trigger onUpdateURL callbacks.
+  
+    ## Custom implementation
+  
+    Ember scans `app/locations/*` for extending the Location API.
+  
+    Example:
+  
+    ```javascript
+    import Ember from 'ember';
+  
+    export default Ember.HistoryLocation.extend({
+      implementation: 'history-url-logging',
+  
+      pushState: function (path) {
+        console.log(path);
+        this._super.apply(this, arguments);
+      }
+    });
+    ```
   
     @class Location
     @namespace Ember
@@ -38320,40 +38339,17 @@ enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-m
   */
   TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
     var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
 
-    walker.visit(ast, function (node) {
-      if (validate(node)) {
-        processExpression(b, node);
+    this.syntax.traverse(ast, {
+      SubExpression: function (node) {
+        if (isComponentClosure(node)) {
+          mutParameters(b, node);
+        }
       }
     });
 
     return ast;
   };
-
-  function processExpression(builder, node) {
-    processSubExpressionsInNode(builder, node);
-
-    if (isComponentClosure(node)) {
-      mutParameters(builder, node);
-    }
-  }
-
-  function processSubExpressionsInNode(builder, node) {
-    for (var i = 0; i < node.params.length; i++) {
-      if (node.params[i].type === 'SubExpression') {
-        processExpression(builder, node.params[i]);
-      }
-    }
-
-    each(node.hash.pairs, function (pair) {
-      var value = pair.value;
-
-      if (value.type === 'SubExpression') {
-        processExpression(builder, value);
-      }
-    });
-  }
 
   function isComponentClosure(node) {
     return node.type === 'SubExpression' && node.path.original === 'component';
@@ -38373,10 +38369,6 @@ enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-m
         pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
       }
     });
-  }
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
   }
 
   function each(list, callback) {
@@ -39137,7 +39129,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.2',
+        revision: 'Ember@2.6.0-beta.2+34c45c56',
         loc: program.loc,
         moduleName: options.moduleName
       };

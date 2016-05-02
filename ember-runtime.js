@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.2
+ * @version   2.6.0-beta.2+34c45c56
  */
 
 var enifed, requireModule, require, Ember;
@@ -688,12 +688,12 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     /*
       Join the passed method with an existing queue and execute immediately,
       if there isn't one use `Backburner#run`.
-        The join method is like the run method except that it will schedule into
+       The join method is like the run method except that it will schedule into
       an existing queue if one already exists. In either case, the join method will
       immediately execute the passed in function and return its result.
-       @method join 
+       @method join
       @param {Object} target
-      @param {Function} method The method to be executed 
+      @param {Function} method The method to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -732,10 +732,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
     /*
       Defer the passed function to run inside the specified queue.
-       @method defer 
-      @param {String} queueName 
+       @method defer
+      @param {String} queueName
       @param {Object} target
-      @param {Function|String} method The method or method name to be executed 
+      @param {Function|String} method The method or method name to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -861,7 +861,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         }
       }
 
-      var executeAt = Date.now() + parseInt(wait, 10);
+      var executeAt = Date.now() + parseInt(wait !== wait ? 0 : wait, 10);
 
       if (_backburnerUtils.isString(method)) {
         method = target[method];
@@ -3999,7 +3999,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     The alternative syntax, with prototype extensions, might look like:
   
     ```js
-    fullName() {
+    fullName: function() {
       return this.get('firstName') + ' ' + this.get('lastName');
     }.property('firstName', 'lastName')
     ```
@@ -4781,7 +4781,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.2
+    @version 2.6.0-beta.2+34c45c56
     @public
   */
 
@@ -4823,11 +4823,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.2'
+    @default '2.6.0-beta.2+34c45c56'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.2';
+  Ember.VERSION = '2.6.0-beta.2+34c45c56';
 
   /**
     The hash of environment variables used to control various configuration
