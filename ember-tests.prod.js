@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+715fb540
+ * @version   2.7.0-canary+3cfc9614
  */
 
 var enifed, requireModule, require, Ember;
@@ -25469,12 +25469,16 @@ enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', '
         template: 'two way: {{twoWayTest}}, string: {{stringTest}}, object: {{twoWayObjectTest}}, string object: {{stringObjectTest}}'
       });
 
-      this.render('{{foo-bar direction=direction displacement=displacement}}', {
-        direction: 'down',
-        displacement: {
-          distance: 10
-        }
-      });
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _this.render('{{foo-bar direction=direction displacement=displacement}}', {
+          direction: 'down',
+          displacement: {
+            distance: 10
+          }
+        });
+      }, deprecationMessage);
 
       this.assertText('two way: down, string: down, object: 10, string object: 10');
 
@@ -34362,7 +34366,6 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
 
       this.render('{{unbound (repeat foo count=bar)}} {{repeat foo count=bar}} {{unbound (repeat foo count=2)}} {{repeat foo count=4}}', {
         foo: 'X',
-        numRepeatsBinding: 'bar',
         bar: 5
       });
 
@@ -41656,12 +41659,16 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
         template: 'two way: {{twoWayTest}}, string: {{stringTest}}, object: {{twoWayObjectTest}}, string object: {{stringObjectTest}}'
       });
 
-      this.render('{{foo-bar direction=direction displacement=displacement}}', {
-        direction: 'down',
-        displacement: {
-          distance: 10
-        }
-      });
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _this.render('{{foo-bar direction=direction displacement=displacement}}', {
+          direction: 'down',
+          displacement: {
+            distance: 10
+          }
+        });
+      }, deprecationMessage);
 
       this.assertText('two way: down, string: down, object: 10, string object: 10');
 
@@ -50976,7 +50983,6 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
 
       this.render('{{unbound (repeat foo count=bar)}} {{repeat foo count=bar}} {{unbound (repeat foo count=2)}} {{repeat foo count=4}}', {
         foo: 'X',
-        numRepeatsBinding: 'bar',
         bar: 5
       });
 
@@ -56565,7 +56571,24 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-environment'
     // a.bar -> a.foo
     var binding = new _emberMetalBinding.Binding('foo', 'bar');
 
-    performTest(binding, a, a, get, set);
+    var deprecationMessage = '`Ember.Binding` is deprecated. Consider using an' + ' `alias` computed property instead.';
+
+    expectDeprecation(function () {
+      performTest(binding, a, a, get, set);
+    }, deprecationMessage);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('Connecting a oneWay binding raises a deprecation', function (get, set) {
+    var a = { foo: 'FOO', bar: 'BAR' };
+
+    // a.bar -> a.foo
+    var binding = new _emberMetalBinding.Binding('foo', 'bar').oneWay();
+
+    var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.';
+
+    expectDeprecation(function () {
+      binding.connect(a);
+    }, deprecationMessage);
   });
 
   _emberMetalTestsProps_helper.testBoth('Connecting a binding between two objects', function (get, set) {
@@ -56575,7 +56598,11 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-environment'
     // b.bar -> a.foo
     var binding = new _emberMetalBinding.Binding('foo', 'b.bar');
 
-    performTest(binding, a, b, get, set);
+    var deprecationMessage = '`Ember.Binding` is deprecated. Consider using an' + ' `alias` computed property instead.';
+
+    expectDeprecation(function () {
+      performTest(binding, a, b, get, set);
+    }, deprecationMessage);
   });
 
   _emberMetalTestsProps_helper.testBoth('Connecting a binding to path', function (get, set) {
@@ -56589,7 +56616,11 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-environment'
     // globalB.b.bar -> a.foo
     var binding = new _emberMetalBinding.Binding('foo', 'GlobalB.b.bar');
 
-    performTest(binding, a, b, get, set);
+    var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+    expectDeprecation(function () {
+      performTest(binding, a, b, get, set);
+    }, deprecationMessage);
 
     // make sure modifications update
     b = { bar: 'BIFF' };
@@ -56608,11 +56639,14 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-environment'
     // b.bar -> a.foo
     var binding = new _emberMetalBinding.Binding('foo', 'b.bar');
 
-    performTest(binding, a, b, get, set, function () {
-      binding.connect(a);
+    var deprecationMessage = '`Ember.Binding` is deprecated. Consider using an' + ' `alias` computed property instead.';
 
-      binding.connect(a);
-    });
+    expectDeprecation(function () {
+      performTest(binding, a, b, get, set, function () {
+        binding.connect(a);
+        binding.connect(a);
+      });
+    }, deprecationMessage);
   });
 
   QUnit.test('inherited bindings should sync on create', function () {
@@ -56622,7 +56656,12 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-environment'
         _emberMetalBinding.bind(this, 'foo', 'bar.baz');
       };
 
-      a = new A();
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider using an' + ' `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        a = new A();
+      }, deprecationMessage);
+
       _emberMetalProperty_set.set(a, 'bar', { baz: 'BAZ' });
     });
 
@@ -56659,7 +56698,12 @@ enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/pro
       b = {
         a: a
       };
-      _emberMetalBinding.bind(b, 'foo', 'a.foo');
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(b, 'foo', 'a.foo');
+      }, deprecationMessage);
     });
 
     // reset after initial binding synchronization
@@ -56692,7 +56736,12 @@ enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/pro
       b = {
         a: a
       };
-      _emberMetalBinding.bind(b, 'foo', 'a.foo');
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(b, 'foo', 'a.foo');
+      }, deprecationMessage);
     });
 
     deepEqual(get(b, 'foo'), ['foo', 'bar'], 'the binding should sync');
@@ -56710,12 +56759,20 @@ enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/pro
       b = {
         a: a
       };
-      _emberMetalBinding.bind(b, 'foo', 'a.foo');
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(b, 'foo', 'a.foo');
+      }, deprecationMessage);
 
       c = {
         a: a
       };
-      _emberMetalBinding.bind(c, 'foo', 'a.foo');
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(c, 'foo', 'a.foo');
+      }, deprecationMessage);
     });
 
     _emberMetalObserver.addObserver(b, 'foo', function () {
@@ -56740,7 +56797,12 @@ enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/pro
       b = {
         a: a
       };
-      _emberMetalBinding.bind(b, 'foo', 'a.foo');
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(b, 'foo', 'a.foo');
+      }, deprecationMessage);
     });
 
     _emberMetalRun_loop.default(function () {
@@ -56757,7 +56819,12 @@ enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/pro
       b = {
         a: a
       };
-      _emberMetalBinding.bind(b, 'foo', 'a.foo');
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(b, 'foo', 'a.foo');
+      }, deprecationMessage);
     });
 
     _emberMetalRun_loop.default(function () {
@@ -70952,7 +71019,11 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
     var obj = { bar: { baz: 'BIFF' } };
 
     _emberMetalRun_loop.default(function () {
-      MyMixin.apply(obj);
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        MyMixin.apply(obj);
+      }, deprecationMessage);
     });
 
     ok(_emberMetalProperty_get.get(obj, 'fooBinding') instanceof _emberMetalBinding.Binding, 'should be a binding object');
@@ -70971,7 +71042,11 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
     obj = { bar: { baz: 'BIFF' } };
 
     _emberMetalRun_loop.default(function () {
-      MyMixin.apply(obj);
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        MyMixin.apply(obj);
+      }, deprecationMessage);
     });
 
     obj2 = Object.create(obj);
@@ -71953,9 +72028,13 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
         })
       });
 
-      bindObj = ObservableObject.extend({
-        priceBinding: 'DepObj.price'
-      }).create();
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        bindObj = ObservableObject.extend({
+          priceBinding: 'DepObj.price'
+        }).create();
+      }, deprecationMessage);
     });
 
     equal(bindObj.get('price'), 5, 'precond - binding propagates');
@@ -72252,7 +72331,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
     equal(encounteredError, false);
   });
 
-  QUnit.module('Bind function ', {
+  QUnit.module('Bind function', {
     setup: function () {
       objectA = ObservableObject.create({
         name: 'Sproutcore',
@@ -72282,7 +72361,11 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   QUnit.test('should bind property with method parameter as undefined', function () {
     // creating binding
     _emberMetalRun_loop.default(function () {
-      objectA.bind('name', 'Namespace.objectB.normal', undefined);
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        objectA.bind('name', 'Namespace.objectB.normal', undefined);
+      }, deprecationMessage);
     });
 
     // now make a change to see if the binding triggers.
@@ -72557,7 +72640,11 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-e
       toObject = _emberRuntimeSystemObject.default.create({ value: 'end' });
       root = { fromObject: fromObject, toObject: toObject };
       _emberMetalRun_loop.default(function () {
-        binding = _emberMetalBinding.bind(root, 'toObject.value', 'fromObject.value');
+        var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+        expectDeprecation(function () {
+          binding = _emberMetalBinding.bind(root, 'toObject.value', 'fromObject.value');
+        }, deprecationMessage);
       });
     }
   });
@@ -72604,8 +72691,15 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-e
 
     var root = { fromObject: fromObject, toObject: toObject };
     _emberMetalRun_loop.default(function () {
-      _emberMetalBinding.bind(root, 'toObject.value1', 'fromObject.value1');
-      _emberMetalBinding.bind(root, 'toObject.value2', 'fromObject.value2');
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(root, 'toObject.value1', 'fromObject.value1');
+      }, deprecationMessage);
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(root, 'toObject.value2', 'fromObject.value2');
+      }, deprecationMessage);
 
       // change both value1 + value2, then  flush bindings.  observer should only
       // fire after bindings are done flushing.
@@ -72648,8 +72742,16 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-e
         third = _emberRuntimeSystemObject.default.create({ input: 'third' });
 
         root = { first: first, second: second, third: third };
-        binding1 = _emberMetalBinding.bind(root, 'second.input', 'first.output');
-        binding2 = _emberMetalBinding.bind(root, 'second.output', 'third.input');
+
+        var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+        expectDeprecation(function () {
+          binding1 = _emberMetalBinding.bind(root, 'second.input', 'first.output');
+        }, deprecationMessage);
+
+        expectDeprecation(function () {
+          binding2 = _emberMetalBinding.bind(root, 'second.output', 'third.input');
+        }, deprecationMessage);
       });
     },
     teardown: function () {
@@ -72719,11 +72821,17 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-e
         this._super.apply(this, arguments);
         _emberMetalProperty_set.set(this, 'c', this.C.create({ owner: this }));
       }
-    }).create({
-      foo: 'baz',
-      fooBinding: 'a.foo',
-      a: a
     });
+
+    var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+    expectDeprecation(function () {
+      b = b.create({
+        foo: 'baz',
+        fooBinding: 'a.foo',
+        a: a
+      });
+    }, deprecationMessage);
 
     _emberMetalRun_loop.default.end();
 
@@ -72746,12 +72854,16 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-e
           value: 'originalValue'
         });
 
-        TestNamespace.toObject = _emberRuntimeSystemObject.default.extend({
-          valueBinding: _emberMetalBinding.Binding.from('TestNamespace.fromObject.value'),
-          relativeBinding: _emberMetalBinding.Binding.from('localValue')
-        }).create({
-          localValue: 'originalLocal'
-        });
+        var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+        expectDeprecation(function () {
+          TestNamespace.toObject = _emberRuntimeSystemObject.default.extend({
+            valueBinding: _emberMetalBinding.Binding.from('TestNamespace.fromObject.value'),
+            relativeBinding: _emberMetalBinding.Binding.from('localValue')
+          }).create({
+            localValue: 'originalLocal'
+          });
+        }, deprecationMessage);
       });
     },
     teardown: function () {
@@ -72953,8 +73065,12 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
 
   QUnit.test('bind(TestNamespace.fromObject.bar) should follow absolute path', function () {
     _emberMetalRun_loop.default(function () {
-      // create binding
-      testObject.bind('foo', 'TestNamespace.fromObject.bar');
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        // create binding
+        testObject.bind('foo', 'TestNamespace.fromObject.bar');
+      }, deprecationMessage);
 
       // now make a change to see if the binding triggers.
       _emberMetalProperty_set.set(fromObject, 'bar', 'changedValue');
@@ -72965,8 +73081,12 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
 
   QUnit.test('bind(.bar) should bind to relative path', function () {
     _emberMetalRun_loop.default(function () {
-      // create binding
-      testObject.bind('foo', 'bar');
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        // create binding
+        testObject.bind('foo', 'bar');
+      }, deprecationMessage);
 
       // now make a change to see if the binding triggers.
       _emberMetalProperty_set.set(testObject, 'bar', 'changedValue');
@@ -73012,11 +73132,15 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
   QUnit.module('fooBinding method', fooBindingModuleOpts);
 
   QUnit.test('fooBinding: TestNamespace.fromObject.bar should follow absolute path', function () {
-    // create binding
     _emberMetalRun_loop.default(function () {
-      testObject = TestObject.extend({
-        fooBinding: 'TestNamespace.fromObject.bar'
-      }).create();
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        // create binding
+        testObject = TestObject.extend({
+          fooBinding: 'TestNamespace.fromObject.bar'
+        }).create();
+      }, deprecationMessage);
 
       // now make a change to see if the binding triggers.
       _emberMetalProperty_set.set(fromObject, 'bar', 'changedValue');
@@ -73027,9 +73151,15 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
 
   QUnit.test('fooBinding: .bar should bind to relative path', function () {
     _emberMetalRun_loop.default(function () {
-      testObject = TestObject.extend({
-        fooBinding: 'bar'
-      }).create();
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        // create binding
+        testObject = TestObject.extend({
+          fooBinding: 'bar'
+        }).create();
+      }, deprecationMessage);
+
       // now make a change to see if the binding triggers.
       _emberMetalProperty_set.set(testObject, 'bar', 'changedValue');
     });
@@ -73039,9 +73169,14 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
 
   QUnit.test('fooBinding: should disconnect bindings when destroyed', function () {
     _emberMetalRun_loop.default(function () {
-      testObject = TestObject.extend({
-        fooBinding: 'TestNamespace.fromObject.bar'
-      }).create();
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        // create binding
+        testObject = TestObject.extend({
+          fooBinding: 'TestNamespace.fromObject.bar'
+        }).create();
+      }, deprecationMessage);
 
       _emberMetalProperty_set.set(TestNamespace.fromObject, 'bar', 'BAZ');
     });
@@ -73206,11 +73341,17 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['exports', 'ember-
 
   QUnit.test('Should propagate bindings after the RunLoop completes (using Ember.RunLoop)', function () {
     _emberMetalRun_loop.default(function () {
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
       //Binding of output of MyApp.first object to input of MyApp.second object
-      binding1 = _emberMetalBinding.Binding.from('first.output').to('second.input').connect(MyApp);
+      expectDeprecation(function () {
+        binding1 = _emberMetalBinding.Binding.from('first.output').to('second.input').connect(MyApp);
+      }, deprecationMessage);
 
       //Binding of output of MyApp.second object to input of MyApp.third object
-      binding2 = _emberMetalBinding.Binding.from('second.output').to('third.input').connect(MyApp);
+      expectDeprecation(function () {
+        binding2 = _emberMetalBinding.Binding.from('second.output').to('third.input').connect(MyApp);
+      }, deprecationMessage);
     });
 
     _emberMetalRun_loop.default(function () {
@@ -73235,11 +73376,17 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['exports', 'ember-
 
   QUnit.test('Should propagate bindings after the RunLoop completes', function () {
     _emberMetalRun_loop.default(function () {
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
       //Binding of output of MyApp.first object to input of MyApp.second object
-      binding1 = _emberMetalBinding.Binding.from('first.output').to('second.input').connect(MyApp);
+      expectDeprecation(function () {
+        binding1 = _emberMetalBinding.Binding.from('first.output').to('second.input').connect(MyApp);
+      }, deprecationMessage);
 
       //Binding of output of MyApp.second object to input of MyApp.third object
-      binding2 = _emberMetalBinding.Binding.from('second.output').to('third.input').connect(MyApp);
+      expectDeprecation(function () {
+        binding2 = _emberMetalBinding.Binding.from('second.output').to('third.input').connect(MyApp);
+      }, deprecationMessage);
     });
 
     _emberMetalRun_loop.default(function () {
@@ -79312,10 +79459,16 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
   });
 
   QUnit.test('allows bindings to be defined', function () {
-    var obj = _emberRuntimeSystemObject.default.create({
-      foo: 'foo',
-      barBinding: 'foo'
-    });
+    var obj = undefined;
+
+    var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+    expectDeprecation(function () {
+      obj = _emberRuntimeSystemObject.default.create({
+        foo: 'foo',
+        barBinding: 'foo'
+      });
+    }, deprecationMessage);
 
     equal(obj.get('bar'), 'foo', 'The binding value is correct');
   });
@@ -79537,7 +79690,11 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     });
 
     _emberMetalRun_loop.default(function () {
-      _emberMetalBinding.bind(foo, 'value', 'bar.value');
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        _emberMetalBinding.bind(foo, 'value', 'bar.value');
+      }, deprecationMessage);
     });
 
     ok(bar.get('value') === false, 'the initial value has been bound');
@@ -80201,8 +80358,14 @@ enifed('ember-runtime/tests/system/object/subclasses_test', ['exports', 'ember-m
         },
         aBinding: 'obj.a' // add chain
       });
-      // realize prototype
-      objWithChains = ObjectWithChains.create();
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+      expectDeprecation(function () {
+        // realize prototype
+        objWithChains = ObjectWithChains.create();
+      }, deprecationMessage);
+
       // should not copy chains from parent yet
       SubWithChains = ObjectWithChains.extend({
         hiBinding: 'obj.hi', // add chain
@@ -80211,9 +80374,13 @@ enifed('ember-runtime/tests/system/object/subclasses_test', ['exports', 'ember-m
         }).property('hi'), // observe chain
         greetingBinding: 'hello'
       });
+
       SubSub = SubWithChains.extend();
-      // should realize prototypes and copy forward chains
-      subSub = SubSub.create();
+
+      expectDeprecation(function () {
+        // should realize prototypes and copy forward chains
+        subSub = SubSub.create();
+      }, deprecationMessage);
     });
     equal(subSub.get('greeting'), 'hi world');
     _emberMetalRun_loop.default(function () {
@@ -81346,7 +81513,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+715fb540', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@2.7.0-canary+3cfc9614', 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -84687,9 +84854,14 @@ enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/syst
   QUnit.test('value binding works properly for inputs that haven\'t been created', function () {
     _emberMetalRun_loop.default(function () {
       textArea.destroy(); // destroy existing textarea
-      textArea = _emberViewsViewsText_area.default.create({
-        valueBinding: 'TestObject.value'
-      });
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        textArea = _emberViewsViewsText_area.default.create({
+          valueBinding: 'TestObject.value'
+        });
+      }, deprecationMessage);
     });
 
     equal(_emberMetalProperty_get.get(textArea, 'value'), null, 'precond - default value is null');
@@ -84908,9 +85080,14 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('value binding works properly for inputs that haven\'t been created', function () {
     _emberMetalRun_loop.default(function () {
       textField.destroy(); // destroy existing textField
-      textField = _emberViewsViewsText_field.default.create({
-        valueBinding: 'TestObject.value'
-      });
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        textField = _emberViewsViewsText_field.default.create({
+          valueBinding: 'TestObject.value'
+        });
+      }, deprecationMessage);
     });
 
     equal(_emberMetalProperty_get.get(textField, 'value'), null, 'precond - default value is null');
@@ -84933,9 +85110,15 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('value binding sets value on the element', function () {
     _emberMetalRun_loop.default(function () {
       textField.destroy(); // destroy existing textField
-      textField = _emberViewsViewsText_field.default.create({
-        valueBinding: 'TestObject.value'
-      });
+
+      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+      expectDeprecation(function () {
+        textField = _emberViewsViewsText_field.default.create({
+          valueBinding: 'TestObject.value'
+        });
+      }, deprecationMessage);
+
       textField.append();
     });
 
@@ -88095,10 +88278,14 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
           fakeThing: 'controllerPropertyValue'
         });
 
-        view = _emberViewsViewsView.default.create({
-          fooBinding: 'ViewTest.fakeController.fakeThing',
-          template: _emberTemplateCompiler.compile('{{view.foo}}')
-        });
+        var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
+
+        expectDeprecation(function () {
+          view = _emberViewsViewsView.default.create({
+            fooBinding: 'ViewTest.fakeController.fakeThing',
+            template: _emberTemplateCompiler.compile('{{view.foo}}')
+          });
+        }, deprecationMessage);
 
         ok(!view.get('element'), 'precond - does not have an element before appending');
 
