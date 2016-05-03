@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.6.0-beta.2"
+        "version": "v2.6.0-beta.3"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -2336,7 +2336,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 334,
+            "line": 335,
             "description": "`Ember.LinkComponent` renders an element whose `click` event triggers a\ntransition of the application's instance of `Ember.Router` to\na supplied route by name.\n\n`Ember.LinkComponent` components are invoked with {{#link-to}}. Properties\nof this class can be overridden with `reopen` to customize application-wide\nbehavior."
         },
         "ember-routing": {
@@ -2367,7 +2367,7 @@
             "namespace": "",
             "file": "packages/ember-routing/lib/system/router.js",
             "line": 39,
-            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks."
+            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.\n\n## Custom implementation\n\nEmber scans `app/locations/*` for extending the Location API.\n\nExample:\n\n```javascript\nimport Ember from 'ember';\n\nexport default Ember.HistoryLocation.extend({\n  implementation: 'history-url-logging',\n\n  pushState: function (path) {\n    console.log(path);\n    this._super.apply(this, arguments);\n  }\n});\n```"
         },
         "ember-views": {
             "name": "ember-views",
@@ -2870,7 +2870,7 @@
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/computed.js",
             "line": 458,
-            "description": "This helper returns a new property descriptor that wraps the passed\ncomputed property function. You can use this helper to define properties\nwith mixins or via `Ember.defineProperty()`.\n\nIf you pass a function as an argument, it will be used as a getter. A computed\nproperty defined in this way might look like this:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', function() {\n    return `${this.get('firstName')} ${this.get('lastName')}`;\n  })\n});\n\nlet client = Person.create();\n\nclient.get('fullName'); // 'Betty Jones'\n\nclient.set('lastName', 'Fuller');\nclient.get('fullName'); // 'Betty Fuller'\n```\n\nYou can pass a hash with two functions, `get` and `set`, as an\nargument to provide both a getter and setter:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    get(key) {\n      return `${this.get('firstName')} ${this.get('lastName')}`;\n    },\n    set(key, value) {\n      let [firstName, lastName] = value.split(/\\s+/);\n      this.setProperties({ firstName, lastName });\n      return value;\n    }\n  });\n})\n\nlet client = Person.create();\nclient.get('firstName'); // 'Betty'\n\nclient.set('fullName', 'Carroll Fuller');\nclient.get('firstName'); // 'Carroll'\n```\n\nThe `set` function should accept two parameters, `key` and `value`. The value\nreturned from `set` will be the new value of the property.\n\n_Note: This is the preferred way to define computed properties when writing third-party\nlibraries that depend on or use Ember, since there is no guarantee that the user\nwill have [prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._\n\nThe alternative syntax, with prototype extensions, might look like:\n\n```js\nfullName() {\n  return this.get('firstName') + ' ' + this.get('lastName');\n}.property('firstName', 'lastName')\n```",
+            "description": "This helper returns a new property descriptor that wraps the passed\ncomputed property function. You can use this helper to define properties\nwith mixins or via `Ember.defineProperty()`.\n\nIf you pass a function as an argument, it will be used as a getter. A computed\nproperty defined in this way might look like this:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', function() {\n    return `${this.get('firstName')} ${this.get('lastName')}`;\n  })\n});\n\nlet client = Person.create();\n\nclient.get('fullName'); // 'Betty Jones'\n\nclient.set('lastName', 'Fuller');\nclient.get('fullName'); // 'Betty Fuller'\n```\n\nYou can pass a hash with two functions, `get` and `set`, as an\nargument to provide both a getter and setter:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    get(key) {\n      return `${this.get('firstName')} ${this.get('lastName')}`;\n    },\n    set(key, value) {\n      let [firstName, lastName] = value.split(/\\s+/);\n      this.setProperties({ firstName, lastName });\n      return value;\n    }\n  });\n})\n\nlet client = Person.create();\nclient.get('firstName'); // 'Betty'\n\nclient.set('fullName', 'Carroll Fuller');\nclient.get('firstName'); // 'Carroll'\n```\n\nThe `set` function should accept two parameters, `key` and `value`. The value\nreturned from `set` will be the new value of the property.\n\n_Note: This is the preferred way to define computed properties when writing third-party\nlibraries that depend on or use Ember, since there is no guarantee that the user\nwill have [prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._\n\nThe alternative syntax, with prototype extensions, might look like:\n\n```js\nfullName: function() {\n  return this.get('firstName') + ' ' + this.get('lastName');\n}.property('firstName', 'lastName')\n```",
             "is_constructor": 1,
             "static": 1,
             "params": [
@@ -3179,7 +3179,7 @@
             "submodule": "ember-routing-views",
             "namespace": "Ember",
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 334,
+            "line": 335,
             "description": "`Ember.LinkComponent` renders an element whose `click` event triggers a\ntransition of the application's instance of `Ember.Router` to\na supplied route by name.\n\n`Ember.LinkComponent` components are invoked with {{#link-to}}. Properties\nof this class can be overridden with `reopen` to customize application-wide\nbehavior.",
             "extends": "Ember.Component",
             "see": [
@@ -3222,7 +3222,7 @@
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/api.js",
             "line": 10,
-            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.",
+            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.\n\n## Custom implementation\n\nEmber scans `app/locations/*` for extending the Location API.\n\nExample:\n\n```javascript\nimport Ember from 'ember';\n\nexport default Ember.HistoryLocation.extend({\n  implementation: 'history-url-logging',\n\n  pushState: function (path) {\n    console.log(path);\n    this._super.apply(this, arguments);\n  }\n});\n```",
             "static": 1,
             "access": "private",
             "tagname": ""
@@ -11293,7 +11293,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 354,
+            "line": 355,
             "deprecated": true,
             "deprecationMessage": "Use current-when instead.",
             "itemtype": "property",
@@ -11307,7 +11307,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 361,
+            "line": 362,
             "description": "Used to determine when this `LinkComponent` is active.",
             "itemtype": "property",
             "name": "currentWhen",
@@ -11320,7 +11320,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 369,
+            "line": 370,
             "description": "Sets the `title` attribute of the `LinkComponent`'s HTML element.",
             "itemtype": "property",
             "name": "title",
@@ -11334,7 +11334,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 378,
+            "line": 379,
             "description": "Sets the `rel` attribute of the `LinkComponent`'s HTML element.",
             "itemtype": "property",
             "name": "rel",
@@ -11348,7 +11348,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 387,
+            "line": 388,
             "description": "Sets the `tabindex` attribute of the `LinkComponent`'s HTML element.",
             "itemtype": "property",
             "name": "tabindex",
@@ -11362,7 +11362,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 396,
+            "line": 397,
             "description": "Sets the `target` attribute of the `LinkComponent`'s HTML element.",
             "since": "1.8.0",
             "itemtype": "property",
@@ -11377,7 +11377,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 406,
+            "line": 407,
             "description": "The CSS class to apply to `LinkComponent`'s element when its `active`\nproperty is `true`.",
             "itemtype": "property",
             "name": "activeClass",
@@ -11392,7 +11392,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 417,
+            "line": 418,
             "description": "The CSS class to apply to `LinkComponent`'s element when its `loading`\nproperty is `true`.",
             "itemtype": "property",
             "name": "loadingClass",
@@ -11407,7 +11407,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 428,
+            "line": 429,
             "description": "The CSS class to apply to a `LinkComponent`'s element when its `disabled`\nproperty is `true`.",
             "itemtype": "property",
             "name": "disabledClass",
@@ -11422,7 +11422,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 440,
+            "line": 441,
             "description": "Determines whether the `LinkComponent` will trigger routing via\nthe `replaceWith` routing strategy.",
             "itemtype": "property",
             "name": "replace",
@@ -11437,7 +11437,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 451,
+            "line": 452,
             "description": "By default the `{{link-to}}` component will bind to the `href` and\n`title` attributes. It's discouraged that you override these defaults,\nhowever you can push onto the array if needed.",
             "itemtype": "property",
             "name": "attributeBindings",
@@ -11452,7 +11452,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 463,
+            "line": 464,
             "description": "By default the `{{link-to}}` component will bind to the `active`, `loading`,\nand `disabled` classes. It is discouraged to override these directly.",
             "itemtype": "property",
             "name": "classNameBindings",
@@ -11467,7 +11467,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 474,
+            "line": 475,
             "description": "By default the `{{link-to}}` component responds to the `click` event. You\ncan override this globally by setting this property to your custom\nevent name.\n\nThis is particularly useful on mobile when one wants to avoid the 300ms\nclick delay using some sort of custom `tap` event.",
             "itemtype": "property",
             "name": "eventName",
@@ -11482,7 +11482,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 492,
+            "line": 493,
             "description": "Triggers the `LinkComponent`'s routing behavior. If\n`eventName` is changed to a value other than `click`\nthe routing behavior will trigger on that custom event\ninstead.",
             "itemtype": "event",
             "name": "click",
@@ -11495,7 +11495,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 502,
+            "line": 503,
             "description": "An overridable method called when `LinkComponent` objects are instantiated.\n\nExample:\n\n```javascript\nApp.MyLinkComponent = Ember.LinkComponent.extend({\n  init: function() {\n    this._super(...arguments);\n    Ember.Logger.log('Event is ' + this.get('eventName'));\n  }\n});\n```\n\nNOTE: If you do override `init` for a framework class like `Ember.View`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
             "itemtype": "method",
             "name": "init",
@@ -11508,7 +11508,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 535,
+            "line": 536,
             "description": "Accessed as a classname binding to apply the `LinkComponent`'s `disabledClass`\nCSS `class` to the element when the link is disabled.\n\nWhen `true` interactions with the element will not trigger route changes.",
             "itemtype": "property",
             "name": "disabled",
@@ -11521,7 +11521,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 575,
+            "line": 576,
             "description": "Accessed as a classname binding to apply the `LinkComponent`'s `activeClass`\nCSS `class` to the element when the link is active.\n\nA `LinkComponent` is considered active when its `currentWhen` property is `true`\nor the application's current route is the route the `LinkComponent` would trigger\ntransitions into.\n\nThe `currentWhen` property can match against multiple routes by separating\nroute names using the ` ` (space) character.",
             "itemtype": "property",
             "name": "active",
@@ -11534,7 +11534,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 618,
+            "line": 619,
             "description": "Event handler that invokes the link, activating the associated route.",
             "access": "private",
             "tagname": "",
@@ -11554,7 +11554,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 690,
+            "line": 691,
             "description": "Sets the element's `href` attribute to the url for\nthe `LinkComponent`'s targeted route.\n\nIf the `LinkComponent`'s `tagName` is changed to a value other\nthan `a`, this property will be ignored.",
             "itemtype": "property",
             "name": "href",
@@ -11567,7 +11567,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 754,
+            "line": 755,
             "description": "The default href value to use while a link-to is loading.\nOnly applies when tagName is 'a'",
             "itemtype": "property",
             "name": "loadingHref",
@@ -11670,7 +11670,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/api.js",
-            "line": 128,
+            "line": 147,
             "description": "This is deprecated in favor of using the container to lookup the location\nimplementation as desired.\n\nFor example:\n\n```javascript\n// Given a location registered as follows:\ncontainer.register('location:history-test', HistoryTestLocation);\n\n// You could create a new instance via:\ncontainer.lookup('location:history-test');\n```",
             "itemtype": "method",
             "name": "create",
@@ -11696,7 +11696,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/api.js",
-            "line": 162,
+            "line": 181,
             "description": "Returns the current `location.hash` by parsing location.href since browsers\ninconsistently URL-decode `location.hash`.\n\nhttps://bugzilla.mozilla.org/show_bug.cgi?id=483304",
             "access": "private",
             "tagname": "",

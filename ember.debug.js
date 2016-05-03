@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.2
+ * @version   2.6.0-beta.3
  */
 
 var enifed, requireModule, require, Ember;
@@ -688,12 +688,12 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     /*
       Join the passed method with an existing queue and execute immediately,
       if there isn't one use `Backburner#run`.
-        The join method is like the run method except that it will schedule into
+       The join method is like the run method except that it will schedule into
       an existing queue if one already exists. In either case, the join method will
       immediately execute the passed in function and return its result.
-       @method join 
+       @method join
       @param {Object} target
-      @param {Function} method The method to be executed 
+      @param {Function} method The method to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -732,10 +732,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
     /*
       Defer the passed function to run inside the specified queue.
-       @method defer 
-      @param {String} queueName 
+       @method defer
+      @param {String} queueName
       @param {Object} target
-      @param {Function|String} method The method or method name to be executed 
+      @param {Function|String} method The method or method name to be executed
       @param {any} args The method arguments
       @return method result
     */
@@ -861,7 +861,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         }
       }
 
-      var executeAt = Date.now() + parseInt(wait, 10);
+      var executeAt = Date.now() + parseInt(wait !== wait ? 0 : wait, 10);
 
       if (_backburnerUtils.isString(method)) {
         method = target[method];
@@ -8384,7 +8384,7 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-metal/cache', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberMetalCache, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-metal/cache', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberMetalCache, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent) {
   'use strict';
 
   exports.default = componentHook;
@@ -8424,6 +8424,9 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
 
     // Determine if this is an initial render or a re-render.
     if (state.manager) {
+      var templateMeta = state.manager.block.template.meta;
+      env.meta.moduleName = templateMeta && templateMeta.moduleName || env.meta && env.meta.moduleName;
+      _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, state.manager.component.constructor, params, attrs, false);
       state.manager.rerender(env, attrs, visitor);
       return;
     }
@@ -10315,7 +10318,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.3';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -12697,36 +12700,40 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
   exports.processPositionalParams = processPositionalParams;
 
   function extractPositionalParams(renderNode, component, params, attrs) {
+    var raiseAssertions = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
+
     var positionalParams = component.positionalParams;
 
     if (positionalParams) {
-      processPositionalParams(renderNode, positionalParams, params, attrs);
+      processPositionalParams(renderNode, positionalParams, params, attrs, raiseAssertions);
     }
   }
 
   function processPositionalParams(renderNode, positionalParams, params, attrs) {
+    var raiseAssertions = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
+
     var isRest = typeof positionalParams === 'string';
 
     if (isRest) {
-      processRestPositionalParameters(renderNode, positionalParams, params, attrs);
+      processRestPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions);
     } else {
-      processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
+      processNamedPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions);
     }
   }
 
-  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
+  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions) {
     var limit = Math.min(params.length, positionalParams.length);
 
     for (var i = 0; i < limit; i++) {
       var param = params[i];
 
-      _emberMetalDebug.assert('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + positionalParams[i] + '`.', !(positionalParams[i] in attrs));
+      _emberMetalDebug.assert('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + positionalParams[i] + '`.', !(positionalParams[i] in attrs && raiseAssertions));
 
       attrs[positionalParams[i]] = param;
     }
   }
 
-  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
+  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs, raiseAssertions) {
     var nameInAttrs = (positionalParamsName in attrs);
 
     // when no params are used, do not override the specified `attrs.stringParamName` value
@@ -12735,7 +12742,7 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
     }
 
     // If there is already an attribute for that variable, do nothing
-    _emberMetalDebug.assert('You cannot specify positional parameters and the hash argument `' + positionalParamsName + '`.', !nameInAttrs);
+    _emberMetalDebug.assert('You cannot specify positional parameters and the hash argument `' + positionalParamsName + '`.', !(nameInAttrs && raiseAssertions));
 
     var paramsStream = new _emberMetalStreamsStream.Stream(function () {
       return _emberMetalStreamsUtils.readArray(params.slice(0));
@@ -14456,7 +14463,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     The alternative syntax, with prototype extensions, might look like:
   
     ```js
-    fullName() {
+    fullName: function() {
       return this.get('firstName') + ' ' + this.get('lastName');
     }.property('firstName', 'lastName')
     ```
@@ -15238,7 +15245,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.2
+    @version 2.6.0-beta.3
     @public
   */
 
@@ -15280,11 +15287,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.2'
+    @default '2.6.0-beta.3'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.2';
+  Ember.VERSION = '2.6.0-beta.3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23540,6 +23547,25 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/debug', 'ember-met
   
     Calling setURL or replaceURL will not trigger onUpdateURL callbacks.
   
+    ## Custom implementation
+  
+    Ember scans `app/locations/*` for extending the Location API.
+  
+    Example:
+  
+    ```javascript
+    import Ember from 'ember';
+  
+    export default Ember.HistoryLocation.extend({
+      implementation: 'history-url-logging',
+  
+      pushState: function (path) {
+        console.log(path);
+        this._super.apply(this, arguments);
+      }
+    });
+    ```
+  
     @class Location
     @namespace Ember
     @static
@@ -29143,7 +29169,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
     return true;
   }
 });
-enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/features', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to', 'require'], function (exports, _emberMetalFeatures, _emberMetalLogger, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo, _require) {
+enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/features', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to', 'require'], function (exports, _emberMetalFeatures, _emberMetalLogger, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo, _require) {
   /**
   @module ember
   @submodule ember-templates
@@ -29790,7 +29816,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/featur
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
       }
-      var onlyQueryParamsSupplied = params.length === 0;
+      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
       if (onlyQueryParamsSupplied) {
         return _emberMetalProperty_get.get(this, '_routing.currentRouteName');
       }
@@ -29903,7 +29929,10 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/featur
       }
 
       // Process the positional arguments, in order.
-      // 1. Inline link title was shifted off by AST.
+      // 1. Inline link title comes first, if present.
+      if (!this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK]) {
+        this.set('linkTitle', params.shift());
+      }
 
       // 2. `targetRouteName` is now always at index 0.
       this.set('targetRouteName', params[0]);
@@ -38320,40 +38349,17 @@ enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-m
   */
   TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
     var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
 
-    walker.visit(ast, function (node) {
-      if (validate(node)) {
-        processExpression(b, node);
+    this.syntax.traverse(ast, {
+      SubExpression: function (node) {
+        if (isComponentClosure(node)) {
+          mutParameters(b, node);
+        }
       }
     });
 
     return ast;
   };
-
-  function processExpression(builder, node) {
-    processSubExpressionsInNode(builder, node);
-
-    if (isComponentClosure(node)) {
-      mutParameters(builder, node);
-    }
-  }
-
-  function processSubExpressionsInNode(builder, node) {
-    for (var i = 0; i < node.params.length; i++) {
-      if (node.params[i].type === 'SubExpression') {
-        processExpression(builder, node.params[i]);
-      }
-    }
-
-    each(node.hash.pairs, function (pair) {
-      var value = pair.value;
-
-      if (value.type === 'SubExpression') {
-        processExpression(builder, value);
-      }
-    });
-  }
 
   function isComponentClosure(node) {
     return node.type === 'SubExpression' && node.path.original === 'component';
@@ -38373,10 +38379,6 @@ enifed('ember-template-compiler/plugins/transform-closure-component-attrs-into-m
         pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
       }
     });
-  }
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
   }
 
   function each(list, callback) {
@@ -39137,7 +39139,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.2',
+        revision: 'Ember@2.6.0-beta.3',
         loc: program.loc,
         moduleName: options.moduleName
       };
