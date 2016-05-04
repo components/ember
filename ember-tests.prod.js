@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5a1b113a
+ * @version   VERSION_STRING_PLACEHOLDER
  */
 
 var enifed, requireModule, require, Ember;
@@ -20729,7 +20729,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
   /*globals EmberDev */
 
   'use strict';
@@ -20995,7 +20995,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
       });
     });
 
-    equal(messages[1], 'Ember  : ' + _emberMetalCore.default.VERSION);
+    equal(messages[1], 'Ember  : ' + _emberVersion.default);
     equal(messages[2], 'jQuery : ' + _emberViewsSystemJquery.default().jquery);
     equal(messages[3], 'my-lib : ' + '2.0.0a');
 
@@ -81482,7 +81482,7 @@ enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 
     deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
   });
 });
-enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-template-compiler/system/compile', 'htmlbars-compiler/compiler', 'ember-metal/features'], function (exports, _emberTemplateCompilerSystemCompile, _htmlbarsCompilerCompiler, _emberMetalFeatures) {
+enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-template-compiler/system/compile', 'htmlbars-compiler/compiler', 'ember/version', 'ember-metal/features'], function (exports, _emberTemplateCompilerSystemCompile, _htmlbarsCompilerCompiler, _emberVersion, _emberMetalFeatures) {
   'use strict';
 
   if (!_emberMetalFeatures.default('ember-glimmer')) {
@@ -81513,7 +81513,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
       var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-      equal(actual.meta.revision, 'Ember@2.7.0-canary+5a1b113a', 'revision is included in generated template');
+      equal(actual.meta.revision, 'Ember@' + _emberVersion.default, 'revision is included in generated template');
     });
 
     QUnit.test('the template revision is different than the HTMLBars default revision', function () {
