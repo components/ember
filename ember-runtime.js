@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5a1b113a
+ * @version   2.7.0-canary+3f9cde1b
  */
 
 var enifed, requireModule, require, Ember;
@@ -4417,7 +4417,7 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @class Ember
     @static
-    @version 2.7.0-canary+5a1b113a
+    @version 2.7.0-canary+3f9cde1b
     @public
   */
   var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
@@ -4444,11 +4444,11 @@ enifed('ember-metal/core', ['exports', 'require', 'ember-environment'], function
   
     @property VERSION
     @type String
-    @default '2.7.0-canary+5a1b113a'
+    @default '2.7.0-canary+3f9cde1b'
     @static
     @public
   */
-  Ember.VERSION = '2.7.0-canary+5a1b113a';
+  Ember.VERSION = '2.7.0-canary+3f9cde1b';
 
   // ..........................................................
   // BOOTSTRAP
@@ -9423,7 +9423,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
     @public
   */
   run.schedule = function () /* queue, target, method */{
-    _emberMetalDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !_emberMetalCore.default.testing);
+    checkAutoRun();
     backburner.schedule.apply(backburner, arguments);
   };
 
@@ -9504,7 +9504,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
     @public
   */
   run.once = function () {
-    _emberMetalDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !_emberMetalCore.default.testing);
+    checkAutoRun();
 
     for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
@@ -9567,7 +9567,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
     @public
   */
   run.scheduleOnce = function () /*queue, target, method*/{
-    _emberMetalDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !_emberMetalCore.default.testing);
+    checkAutoRun();
     return backburner.scheduleOnce.apply(backburner, arguments);
   };
 
@@ -9817,6 +9817,13 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
   run.throttle = function () {
     return backburner.throttle.apply(backburner, arguments);
   };
+
+  // Make sure it's not an autorun during testing
+  function checkAutoRun() {
+    if (!run.currentRunLoop) {
+      _emberMetalDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', !_emberMetalCore.default.testing);
+    }
+  }
 
   /**
     Add a new named queue after the specified queue.
