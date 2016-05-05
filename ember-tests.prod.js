@@ -20729,9 +20729,8 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
   /*globals EmberDev */
-
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -20987,7 +20986,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
       messages.push(message);
     });
 
-    _emberMetalCore.default.libraries.register('my-lib', '2.0.0a');
+    _emberMetalLibraries.default.register('my-lib', '2.0.0a');
 
     _emberMetalRun_loop.default(function () {
       app = _emberApplicationSystemApplication.default.create({
@@ -20999,7 +20998,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     equal(messages[2], 'jQuery : ' + _emberViewsSystemJquery.default().jquery);
     equal(messages[3], 'my-lib : ' + '2.0.0a');
 
-    _emberMetalCore.default.libraries.deRegister('my-lib');
+    _emberMetalLibraries.default.deRegister('my-lib');
   });
 
   QUnit.test('disable log version of libraries with an ENV var', function () {
@@ -21153,7 +21152,6 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     equal(warning, null);
   });
 });
-// Ember.libraries
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/system/compile'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
@@ -58634,7 +58632,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'emb
 
   QUnit.module('Libraries registry', {
     setup: function () {
-      libs = new _emberMetalLibraries.default();
+      libs = new _emberMetalLibraries.Libraries();
       registry = libs._registry;
     },
 
@@ -62497,21 +62495,25 @@ enifed('ember-metal/tests/run_loop/once_test', ['exports', 'ember-metal/run_loop
     });
   });
 });
-enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal', 'ember-metal/run_loop'], function (exports, _emberMetal, _emberMetalRun_loop) {
+enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler'], function (exports, _emberMetalRun_loop, _emberMetalError_handler) {
   'use strict';
 
   QUnit.module('system/run_loop/onerror_test');
 
   QUnit.test('With Ember.onerror undefined, errors in Ember.run are thrown', function () {
     var thrown = new Error('Boom!');
-    var caught;
+    var original = _emberMetalError_handler.getOnerror();
 
+    var caught = undefined;
+    _emberMetalError_handler.setOnerror(undefined);
     try {
       _emberMetalRun_loop.default(function () {
         throw thrown;
       });
     } catch (error) {
       caught = error;
+    } finally {
+      _emberMetalError_handler.setOnerror(original);
     }
 
     deepEqual(caught, thrown);
@@ -62519,22 +62521,23 @@ enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal', 'em
 
   QUnit.test('With Ember.onerror set, errors in Ember.run are caught', function () {
     var thrown = new Error('Boom!');
-    var caught;
+    var original = _emberMetalError_handler.getOnerror();
 
-    _emberMetal.default.onerror = function (error) {
+    var caught = undefined;
+    _emberMetalError_handler.setOnerror(function (error) {
       caught = error;
-    };
-
-    _emberMetalRun_loop.default(function () {
-      throw thrown;
     });
+    try {
+      _emberMetalRun_loop.default(function () {
+        throw thrown;
+      });
+    } finally {
+      _emberMetalError_handler.setOnerror(original);
+    }
 
     deepEqual(caught, thrown);
-
-    _emberMetal.default.onerror = undefined;
   });
 });
-// Ember.onerror
 enifed('ember-metal/tests/run_loop/run_bind_test', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
   'use strict';
 
@@ -71043,7 +71046,7 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
     equal(_emberMetalProperty_get.get(obj2, 'foo'), 'BARG', 'binding should be created and synced');
   });
 });
-enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
+enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalTesting, _emberMetalError_handler, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
   'use strict';
 
   QUnit.module('Ember.RSVP');
@@ -71063,93 +71066,6 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
     }
   });
 
-  var asyncStarted = 0;
-  var asyncEnded = 0;
-
-  var EmberTest;
-  var EmberTesting;
-
-  QUnit.module('Deferred RSVP\'s async + Testing', {
-    setup: function () {
-      EmberTest = _emberMetalCore.default.Test;
-      EmberTesting = _emberMetalCore.default.testing;
-
-      _emberMetalCore.default.Test = {
-        adapter: {
-          asyncStart: function () {
-            asyncStarted++;
-            QUnit.stop();
-          },
-          asyncEnd: function () {
-            asyncEnded++;
-            QUnit.start();
-          }
-        }
-      };
-    },
-    teardown: function () {
-      asyncStarted = 0;
-      asyncEnded = 0;
-
-      _emberMetalCore.default.testing = EmberTesting;
-      _emberMetalCore.default.Test = EmberTest;
-    }
-  });
-
-  QUnit.test('given `Ember.testing = true`, correctly informs the test suite about async steps', function () {
-    expect(19);
-
-    ok(!_emberMetalRun_loop.default.currentRunLoop, 'expect no run-loop');
-
-    _emberMetalCore.default.testing = true;
-
-    equal(asyncStarted, 0);
-    equal(asyncEnded, 0);
-
-    var user = _emberRuntimeExtRsvp.default.Promise.resolve({
-      name: 'tomster'
-    });
-
-    equal(asyncStarted, 0);
-    equal(asyncEnded, 0);
-
-    user.then(function (user) {
-      equal(asyncStarted, 1);
-      equal(asyncEnded, 1);
-
-      equal(user.name, 'tomster');
-
-      return _emberRuntimeExtRsvp.default.Promise.resolve(1).then(function () {
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
-      });
-    }).then(function () {
-      equal(asyncStarted, 1);
-      equal(asyncEnded, 1);
-
-      return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
-        QUnit.stop(); // raw async, we must inform the test framework manually
-        setTimeout(function () {
-          QUnit.start(); // raw async, we must inform the test framework manually
-
-          equal(asyncStarted, 1);
-          equal(asyncEnded, 1);
-
-          resolve({
-            name: 'async tomster'
-          });
-
-          equal(asyncStarted, 2);
-          equal(asyncEnded, 1);
-        }, 0);
-      });
-    }).then(function (user) {
-      equal(user.name, 'async tomster');
-      equal(asyncStarted, 2);
-      equal(asyncEnded, 2);
-    });
-  });
-
   QUnit.test('TransitionAborted errors are not re-thrown', function () {
     expect(1);
     var fakeTransitionAbort = { name: 'TransitionAborted' };
@@ -71162,65 +71078,69 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
   QUnit.test('rejections like jqXHR which have errorThrown property work', function () {
     expect(2);
 
-    var wasEmberTesting = _emberMetalCore.default.testing;
-    var wasOnError = _emberMetalCore.default.onerror;
+    var wasEmberTesting = _emberMetalTesting.isTesting();
+    var wasOnError = _emberMetalError_handler.getOnerror();
 
     try {
-      _emberMetalCore.default.testing = false;
-      _emberMetalCore.default.onerror = function (error) {
-        equal(error, actualError, 'expected the real error on the jqXHR');
-        equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
-      };
+      (function () {
+        _emberMetalTesting.setTesting(false);
+        _emberMetalError_handler.setOnerror(function (error) {
+          equal(error, actualError, 'expected the real error on the jqXHR');
+          equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
+        });
 
-      var actualError = new Error('OMG what really happened');
-      var jqXHR = {
-        errorThrown: actualError
-      };
+        var actualError = new Error('OMG what really happened');
+        var jqXHR = {
+          errorThrown: actualError
+        };
 
-      _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
+        _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
+      })();
     } finally {
-      _emberMetalCore.default.onerror = wasOnError;
-      _emberMetalCore.default.testing = wasEmberTesting;
+      _emberMetalError_handler.setOnerror(wasOnError);
+      _emberMetalTesting.setTesting(wasEmberTesting);
     }
   });
 
   QUnit.test('rejections where the errorThrown is a string should wrap the sting in an error object', function () {
     expect(2);
 
-    var wasEmberTesting = _emberMetalCore.default.testing;
-    var wasOnError = _emberMetalCore.default.onerror;
+    var wasEmberTesting = _emberMetalTesting.isTesting();
+    var wasOnError = _emberMetalError_handler.getOnerror();
 
     try {
-      _emberMetalCore.default.testing = false;
-      _emberMetalCore.default.onerror = function (error) {
-        equal(error.message, actualError, 'expected the real error on the jqXHR');
-        equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
-      };
+      (function () {
+        _emberMetalTesting.setTesting(false);
+        _emberMetalError_handler.setOnerror(function (error) {
+          equal(error.message, actualError, 'expected the real error on the jqXHR');
+          equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
+        });
 
-      var actualError = 'OMG what really happened';
-      var jqXHR = {
-        errorThrown: actualError
-      };
+        var actualError = 'OMG what really happened';
+        var jqXHR = {
+          errorThrown: actualError
+        };
 
-      _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
+        _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
+      })();
     } finally {
-      _emberMetalCore.default.onerror = wasOnError;
-      _emberMetalCore.default.testing = wasEmberTesting;
+      _emberMetalError_handler.setOnerror(wasOnError);
+      _emberMetalTesting.setTesting(wasEmberTesting);
     }
   });
 
   QUnit.test('rejections can be serialized to JSON', function (assert) {
     expect(2);
 
-    var wasEmberTesting = _emberMetalCore.default.testing;
-    var wasOnError = _emberMetalCore.default.onerror;
+    var wasEmberTesting = _emberMetalTesting.isTesting();
+    var wasOnError = _emberMetalError_handler.getOnerror();
 
     try {
-      _emberMetalCore.default.testing = false;
-      _emberMetalCore.default.onerror = function (error) {
+      _emberMetalTesting.setTesting(false);
+      _emberMetalError_handler.setOnerror(function (error) {
         assert.equal(error.message, 'a fail');
         assert.ok(JSON.stringify(error), 'Error can be serialized');
-      };
+      });
 
       var jqXHR = {
         errorThrown: new Error('a fail')
@@ -71228,22 +71148,13 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
 
       _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
     } finally {
-      _emberMetalCore.default.onerror = wasOnError;
-      _emberMetalCore.default.testing = wasEmberTesting;
+      _emberMetalError_handler.setOnerror(wasOnError);
+      _emberMetalTesting.setTesting(wasEmberTesting);
     }
   });
 
-  var wasTesting;
   var reason = 'i failed';
-  QUnit.module('Ember.test: rejection assertions', {
-    before: function () {
-      wasTesting = _emberMetalCore.default.testing;
-      _emberMetalCore.default.testing = true;
-    },
-    after: function () {
-      _emberMetalCore.default.testing = wasTesting;
-    }
-  });
+  QUnit.module('Ember.test: rejection assertions');
 
   function ajax(something) {
     return _emberRuntimeExtRsvp.default.Promise(function (resolve) {
@@ -71283,7 +71194,6 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
   QUnit.test('handled within the same micro-task (via direct run-loop)', function () {
     _emberMetalRun_loop.default(function () {
       var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
-
       _emberMetalRun_loop.default.schedule('afterRender', function () {
         return rejection.catch(function () {});
       });
@@ -71319,10 +71229,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
         return _emberRuntimeExtRsvp.default.Promise.resolve(1);
       }
     };
-
     _emberMetalRun_loop.default(function () {
       var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
-
       store.find('user', 1).then(function () {
         return rejection.catch(function () {});
       });
@@ -71339,11 +71247,9 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
         return ajax();
       }
     };
-
     QUnit.throws(function () {
       _emberMetalRun_loop.default(function () {
         var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
-
         store.find('user', 1).then(function () {
           rejection.catch(function () {});
           ok(true, 'reached end of test');
@@ -71364,7 +71270,6 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
     }, reason);
   });
 });
-// Ember.onerror, Ember.testing
 enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal/injected_property', 'ember-runtime/inject', 'ember-runtime/system/object', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalInjected_property, _emberRuntimeInject, _emberRuntimeSystemObject, _containerTestsTestHelpersBuildOwner) {
   /* global EmberDev */
 
@@ -82076,6 +81981,91 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal/run_loop', 
     ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default);
   });
 });
+enifed('ember-testing/tests/ext/rsvp_test', ['exports', 'ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-metal/testing', 'ember-metal/run_loop'], function (exports, _emberTestingExtRsvp, _emberTestingTestAdapter, _emberMetalTesting, _emberMetalRun_loop) {
+  'use strict';
+
+  var originalTestAdapter = _emberTestingTestAdapter.getAdapter();
+  var originalTestingFlag = _emberMetalTesting.isTesting();
+
+  var asyncStarted = 0;
+  var asyncEnded = 0;
+
+  QUnit.module('ember-testing RSVP', {
+    setup: function () {
+      _emberMetalTesting.setTesting(true);
+      _emberTestingTestAdapter.setAdapter({
+        asyncStart: function () {
+          asyncStarted++;
+          QUnit.stop();
+        },
+        asyncEnd: function () {
+          asyncEnded++;
+          QUnit.start();
+        }
+      });
+    },
+    teardown: function () {
+      asyncStarted = 0;
+      asyncEnded = 0;
+      _emberTestingTestAdapter.setAdapter(originalTestAdapter);
+      _emberMetalTesting.setTesting(originalTestingFlag);
+    }
+  });
+
+  QUnit.test('given `Ember.testing = true`, correctly informs the test suite about async steps', function () {
+    expect(19);
+
+    ok(!_emberMetalRun_loop.default.currentRunLoop, 'expect no run-loop');
+
+    _emberMetalTesting.setTesting(true);
+
+    equal(asyncStarted, 0);
+    equal(asyncEnded, 0);
+
+    var user = _emberTestingExtRsvp.default.Promise.resolve({
+      name: 'tomster'
+    });
+
+    equal(asyncStarted, 0);
+    equal(asyncEnded, 0);
+
+    user.then(function (user) {
+      equal(asyncStarted, 1);
+      equal(asyncEnded, 1);
+
+      equal(user.name, 'tomster');
+
+      return _emberTestingExtRsvp.default.Promise.resolve(1).then(function () {
+        equal(asyncStarted, 1);
+        equal(asyncEnded, 1);
+      });
+    }).then(function () {
+      equal(asyncStarted, 1);
+      equal(asyncEnded, 1);
+
+      return new _emberTestingExtRsvp.default.Promise(function (resolve) {
+        QUnit.stop(); // raw async, we must inform the test framework manually
+        setTimeout(function () {
+          QUnit.start(); // raw async, we must inform the test framework manually
+
+          equal(asyncStarted, 1);
+          equal(asyncEnded, 1);
+
+          resolve({
+            name: 'async tomster'
+          });
+
+          equal(asyncStarted, 2);
+          equal(asyncEnded, 1);
+        }, 0);
+      });
+    }).then(function (user) {
+      equal(user.name, 'async tomster');
+      equal(asyncStarted, 2);
+      equal(asyncEnded, 2);
+    });
+  });
+});
 enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/run_loop', 'ember-testing/test', 'ember-application/system/application'], function (exports, _emberMetalRun_loop, _emberTestingTest, _emberApplicationSystemApplication) {
   'use strict';
 
@@ -82159,23 +82149,23 @@ enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/
     ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
   });
 });
-enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/views/checkbox', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-htmlbars/template_registry', 'ember-metal/features'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsViewsView, _emberViewsViewsCheckbox, _emberViewsSystemJquery, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberHtmlbarsTemplate_registry, _emberMetalFeatures) {
+enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/views/checkbox', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-htmlbars/template_registry', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'ember-metal/features'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsViewsView, _emberViewsViewsCheckbox, _emberViewsSystemJquery, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberHtmlbarsTemplate_registry, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters, _emberMetalFeatures) {
   'use strict';
 
   var App;
-  var originalAdapter = _emberTestingTest.default.adapter;
+  var originalAdapter = _emberTestingTestAdapter.getAdapter();
   var originalViewKeyword;
 
   function cleanup() {
     // Teardown setupForTesting
 
-    _emberTestingTest.default.adapter = originalAdapter;
+    _emberTestingTestAdapter.setAdapter(originalAdapter);
     _emberMetalRun_loop.default(function () {
       _emberViewsSystemJquery.default(document).off('ajaxSend');
       _emberViewsSystemJquery.default(document).off('ajaxComplete');
     });
-    _emberTestingTest.default.pendingAjaxRequests = null;
-    _emberTestingTest.default.waiters = null;
+    _emberTestingTestPending_requests.clearPendingRequests();
+    // Test.waiters = null;
 
     // Other cleanup
 
@@ -82429,16 +82419,16 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     }
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
-    _emberTestingTest.default.registerWaiter(waiter);
-    _emberTestingTest.default.registerWaiter(otherWaiter);
+    _emberTestingTestWaiters.registerWaiter(waiter);
+    _emberTestingTestWaiters.registerWaiter(otherWaiter);
 
     App.testHelpers.wait().then(function () {
       equal(waiter(), true, 'should not resolve until our waiter is ready');
-      _emberTestingTest.default.unregisterWaiter(waiter);
-      equal(_emberTestingTest.default.waiters.length, 1, 'should not leave the waiter registered');
-      other = 0;
+      _emberTestingTestWaiters.unregisterWaiter(waiter);
+      counter = 0;
       return App.testHelpers.wait();
     }).then(function () {
+      equal(counter, 0, 'unregistered waiter was not checked');
       equal(otherWaiter(), true, 'other waiter is still registered');
     }).finally(done);
   });
@@ -82651,15 +82641,16 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     }
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
-    _emberTestingTest.default.registerWaiter(obj, obj.ready);
-    _emberTestingTest.default.registerWaiter(otherWaiter);
+    _emberTestingTestWaiters.registerWaiter(obj, obj.ready);
+    _emberTestingTestWaiters.registerWaiter(otherWaiter);
 
     return App.testHelpers.wait().then(function () {
       equal(obj.ready(), true, 'should not resolve until our waiter is ready');
-      _emberTestingTest.default.unregisterWaiter(obj, obj.ready);
-      equal(_emberTestingTest.default.waiters.length, 1, 'should not leave the waiter registered');
+      _emberTestingTestWaiters.unregisterWaiter(obj, obj.ready);
+      obj.counter = 0;
       return App.testHelpers.wait();
     }).then(function () {
+      equal(obj.counter, 0, 'the unregistered waiter should still be at 0');
       equal(otherWaiter(), true, 'other waiter should still be registered');
     });
   });
@@ -82971,7 +82962,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  QUnit.module('ember-testing pendingAjaxRequests', {
+  QUnit.module('ember-testing pendingRequests', {
     setup: function () {
       setupApp();
     },
@@ -82981,39 +82972,39 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     }
   });
 
-  QUnit.test('pendingAjaxRequests is maintained for ajaxSend and ajaxComplete events', function () {
-    equal(_emberTestingTest.default.pendingAjaxRequests, 0);
+  QUnit.test('pendingRequests is maintained for ajaxSend and ajaxComplete events', function () {
+    equal(_emberTestingTestPending_requests.pendingRequests(), 0);
     var xhr = { some: 'xhr' };
     _emberViewsSystemJquery.default(document).trigger('ajaxSend', xhr);
-    equal(_emberTestingTest.default.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 1, 'Ember.Test.pendingRequests was incremented');
     _emberViewsSystemJquery.default(document).trigger('ajaxComplete', xhr);
-    equal(_emberTestingTest.default.pendingAjaxRequests, 0, 'Ember.Test.pendingAjaxRequests was decremented');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 0, 'Ember.Test.pendingRequests was decremented');
   });
 
-  QUnit.test('pendingAjaxRequests is ignores ajaxComplete events from past setupForTesting calls', function () {
-    equal(_emberTestingTest.default.pendingAjaxRequests, 0);
+  QUnit.test('pendingRequests is ignores ajaxComplete events from past setupForTesting calls', function () {
+    equal(_emberTestingTestPending_requests.pendingRequests(), 0);
     var xhr = { some: 'xhr' };
     _emberViewsSystemJquery.default(document).trigger('ajaxSend', xhr);
-    equal(_emberTestingTest.default.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 1, 'Ember.Test.pendingRequests was incremented');
 
     _emberMetalRun_loop.default(function () {
       _emberTestingSetup_for_testing.default();
     });
-    equal(_emberTestingTest.default.pendingAjaxRequests, 0, 'Ember.Test.pendingAjaxRequests was reset');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 0, 'Ember.Test.pendingRequests was reset');
 
     var altXhr = { some: 'more xhr' };
     _emberViewsSystemJquery.default(document).trigger('ajaxSend', altXhr);
-    equal(_emberTestingTest.default.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 1, 'Ember.Test.pendingRequests was incremented');
     _emberViewsSystemJquery.default(document).trigger('ajaxComplete', xhr);
-    equal(_emberTestingTest.default.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests is not impressed with your unexpected complete');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 1, 'Ember.Test.pendingRequests is not impressed with your unexpected complete');
   });
 
-  QUnit.test('pendingAjaxRequests is reset by setupForTesting', function () {
-    _emberTestingTest.default.pendingAjaxRequests = 1;
+  QUnit.test('pendingRequests is reset by setupForTesting', function () {
+    _emberTestingTestPending_requests.incrementPendingRequests();
     _emberMetalRun_loop.default(function () {
       _emberTestingSetup_for_testing.default();
     });
-    equal(_emberTestingTest.default.pendingAjaxRequests, 0, 'pendingAjaxRequests is reset');
+    equal(_emberTestingTestPending_requests.pendingRequests(), 0, 'pendingRequests is reset');
   });
 
   QUnit.module('ember-testing async router', {
