@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9424a8f7
+ * @version   2.7.0-canary+98c6089f
  */
 
 var enifed, requireModule, require, Ember;
@@ -2491,18 +2491,15 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+9424a8f7";
+  exports.default = "2.7.0-canary+98c6089f";
 });
-enifed('ember-console/index', ['exports', 'ember-metal/error', 'ember-environment'], function (exports, _emberMetalError, _emberEnvironment) {
+enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
-  function K() {
-    return this;
-  }
+  function K() {}
 
   function consoleMethod(name) {
-    var consoleObj = undefined,
-        logToConsole = undefined;
+    var consoleObj = undefined;
     if (_emberEnvironment.context.imports.console) {
       consoleObj = _emberEnvironment.context.imports.console;
     } else if (typeof console !== 'undefined') {
@@ -2511,32 +2508,24 @@ enifed('ember-console/index', ['exports', 'ember-metal/error', 'ember-environmen
 
     var method = typeof consoleObj === 'object' ? consoleObj[name] : null;
 
-    if (method) {
-      // Older IE doesn't support bind, but Chrome needs it
-      if (typeof method.bind === 'function') {
-        logToConsole = method.bind(consoleObj);
-        logToConsole.displayName = 'console.' + name;
-        return logToConsole;
-      } else if (typeof method.apply === 'function') {
-        logToConsole = function () {
-          method.apply(consoleObj, arguments);
-        };
-        logToConsole.displayName = 'console.' + name;
-        return logToConsole;
-      } else {
-        return function () {
-          var message = Array.prototype.join.call(arguments, ', ');
-          method(message);
-        };
-      }
+    if (typeof method !== 'function') {
+      return;
     }
+
+    if (typeof method.bind === 'function') {
+      return method.bind(consoleObj);
+    }
+
+    return function () {
+      method.apply(consoleObj, arguments);
+    };
   }
 
   function assertPolyfill(test, message) {
     if (!test) {
       try {
         // attempt to preserve the stack
-        throw new _emberMetalError.default('assertion failed: ' + message);
+        throw new Error('assertion failed: ' + message);
       } catch (error) {
         setTimeout(function () {
           throw error;
