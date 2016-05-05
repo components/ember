@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a81b5cda
+ * @version   2.7.0-canary+5fcf88dc
  */
 
 var enifed, requireModule, require, Ember;
@@ -2620,6 +2620,65 @@ enifed('glimmer-reference/tests/iterable-test', ['exports', 'glimmer-reference',
     });
 });
 
+enifed("glimmer-runtime/tests/attributes-test", ["exports", "glimmer-test-helpers", "glimmer-object-reference"], function (exports, _glimmerTestHelpers, _glimmerObjectReference) {
+    "use strict";
+
+    var hooks = undefined,
+        root = undefined;
+    var env = undefined;
+    var self = undefined;
+    var result = undefined;
+    function compile(template) {
+        return env.compile(template);
+    }
+    function rootElement() {
+        return env.getDOM().createElement('div', document.body);
+    }
+    function commonSetup() {
+        env = new _glimmerTestHelpers.TestEnvironment(); // TODO: Support SimpleDOM
+        root = rootElement();
+        root.setAttribute('debug-root', 'true');
+    }
+    function render(template) {
+        var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+        var view = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+        var options = { appendTo: root, dynamicScope: new _glimmerTestHelpers.TestDynamicScope(view) };
+        self = new _glimmerObjectReference.UpdatableReference(context);
+        result = template.render(self, env, options);
+        assertInvariants(result);
+        return result;
+    }
+    function assertInvariants(result, msg) {
+        strictEqual(result.firstNode(), root.firstChild, "The firstNode of the result is the same as the root's firstChild" + (msg ? ': ' + msg : ''));
+        strictEqual(result.lastNode(), root.lastChild, "The lastNode of the result is the same as the root's lastChild" + (msg ? ': ' + msg : ''));
+    }
+    function rerender() {
+        var context = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+        if (context !== null) self.update(context);
+        result.rerender();
+    }
+    QUnit.module("Attributes", {
+        setup: commonSetup
+    });
+    test("helpers shadow self", function () {
+        env.registerHelper('foo', function () {
+            return "hello";
+        });
+        var template = compile('<div data-test="{{foo}}"></div>');
+        var context = { foo: 'bye' };
+        render(template, context);
+        _glimmerTestHelpers.equalTokens(root, '<div data-test="hello"></div>');
+        rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div data-test="hello"></div>');
+        rerender({ foo: 'bar' });
+        _glimmerTestHelpers.equalTokens(root, '<div data-test="hello"></div>');
+        rerender({ foo: 'bye' });
+        _glimmerTestHelpers.equalTokens(root, '<div data-test="hello"></div>');
+    });
+});
+
 enifed("glimmer-runtime/tests/compile-errors-test", ["exports", "glimmer-test-helpers"], function (exports, _glimmerTestHelpers) {
     "use strict";
 
@@ -3340,7 +3399,6 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button name="false"></button>'
     });
     testComponent('parameterized has-block (attr, inverse) when inverse supplied', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block="{{has-block "inverse"}}"></button>',
         invokeAs: {
@@ -3350,25 +3408,21 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button data-has-block="true"></button>'
     });
     testComponent('parameterized has-block (attr, inverse) when inverse not supplied', {
-        skip: true,
         layout: '<button data-has-block="{{has-block "inverse"}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block="false"></button>'
     });
     testComponent('parameterized has-block (attr, default) when block supplied', {
-        skip: true,
         layout: '<button data-has-block="{{has-block}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block="true"></button>'
     });
     testComponent('parameterized has-block (attr, default) when block not supplied', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block="{{has-block}}"></button>',
         expected: '<button data-has-block="false"></button>'
     });
     testComponent('parameterized has-block (concatted attr, inverse) when inverse supplied', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block="is-{{has-block "inverse"}}"></button>',
         invokeAs: {
@@ -3378,19 +3432,16 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button data-has-block="is-true"></button>'
     });
     testComponent('parameterized has-block (concatted attr, inverse) when inverse not supplied', {
-        skip: true,
         layout: '<button data-has-block="is-{{has-block "inverse"}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block="is-false"></button>'
     });
     testComponent('parameterized has-block (concatted attr, default) when block supplied', {
-        skip: true,
         layout: '<button data-has-block="is-{{has-block}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block="is-true"></button>'
     });
     testComponent('parameterized has-block (concatted attr, default) when block not supplied', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block="is-{{has-block}}"></button>',
         expected: '<button data-has-block="is-false"></button>'
@@ -3496,7 +3547,6 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button name="false"></button>'
     });
     testComponent('parameterized has-block-params (attr, inverse) when inverse supplied without block params', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block-params="{{has-block-params "inverse"}}"></button>',
         invokeAs: {
@@ -3506,13 +3556,11 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button data-has-block-params="false"></button>'
     });
     testComponent('parameterized has-block-params (attr, inverse) when inverse not supplied', {
-        skip: true,
         layout: '<button data-has-block-params="{{has-block-params "inverse"}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block-params="false"></button>'
     });
     testComponent('parameterized has-block-params (attr, default) when block supplied with block params', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block-params="{{has-block-params}}"></button>',
         invokeAs: {
@@ -3522,19 +3570,16 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button data-has-block-params="true"></button>'
     });
     testComponent('parameterized has-block-params (attr, default) when block supplied without block params', {
-        skip: true,
         layout: '<button data-has-block-params="{{has-block-params}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block-params="false"></button>'
     });
     testComponent('parameterized has-block-params (attr, default) when block not supplied', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block-params="{{has-block-params}}"></button>',
         expected: '<button data-has-block-params="false"></button>'
     });
     testComponent('parameterized has-block-params (concatted attr, inverse) when inverse supplied without block params', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block-params="is-{{has-block-params "inverse"}}"></button>',
         invokeAs: {
@@ -3544,13 +3589,11 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button data-has-block-params="is-false"></button>'
     });
     testComponent('parameterized has-block-params (concatted attr, inverse) when inverse not supplied', {
-        skip: true,
         layout: '<button data-has-block-params="is-{{has-block-params "inverse"}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block-params="is-false"></button>'
     });
     testComponent('parameterized has-block-params (concatted attr, default) when block supplied with block params', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block-params="is-{{has-block-params}}"></button>',
         invokeAs: {
@@ -3560,13 +3603,11 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         expected: '<button data-has-block-params="is-true"></button>'
     });
     testComponent('parameterized has-block-params (concatted attr, default) when block supplied without block params', {
-        skip: true,
         layout: '<button data-has-block-params="is-{{has-block-params}}"></button>',
         invokeAs: { template: 'block here' },
         expected: '<button data-has-block-params="is-false"></button>'
     });
     testComponent('parameterized has-block-params (concatted attr, default) when block not supplied', {
-        skip: true,
         kind: 'curly',
         layout: '<button data-has-block-params="is-{{has-block-params}}"></button>',
         expected: '<button data-has-block-params="is-false"></button>'
@@ -7448,7 +7489,7 @@ enifed("glimmer-syntax/tests/parser-node-test", ["exports", "handlebars/compiler
     });
     test("Handlebars embedded in an attribute (quoted)", function () {
         var t = 'some <div class="{{foo}}">content</div> done';
-        _glimmerSyntaxTestsSupport.astEqual(t, _glimmerSyntaxLibBuilders.default.program([_glimmerSyntaxLibBuilders.default.text("some "), _glimmerSyntaxLibBuilders.default.element("div", [_glimmerSyntaxLibBuilders.default.attr("class", _glimmerSyntaxLibBuilders.default.concat([_glimmerSyntaxLibBuilders.default.path('foo')]))], [], [_glimmerSyntaxLibBuilders.default.text("content")]), _glimmerSyntaxLibBuilders.default.text(" done")]));
+        _glimmerSyntaxTestsSupport.astEqual(t, _glimmerSyntaxLibBuilders.default.program([_glimmerSyntaxLibBuilders.default.text("some "), _glimmerSyntaxLibBuilders.default.element("div", [_glimmerSyntaxLibBuilders.default.attr("class", _glimmerSyntaxLibBuilders.default.concat([_glimmerSyntaxLibBuilders.default.mustache('foo')]))], [], [_glimmerSyntaxLibBuilders.default.text("content")]), _glimmerSyntaxLibBuilders.default.text(" done")]));
     });
     test("Handlebars embedded in an attribute (unquoted)", function () {
         var t = 'some <div class={{foo}}>content</div> done';
@@ -7460,11 +7501,11 @@ enifed("glimmer-syntax/tests/parser-node-test", ["exports", "handlebars/compiler
     });
     test("Handlebars embedded in an attribute with other content surrounding it", function () {
         var t = 'some <a href="http://{{link}}/">content</a> done';
-        _glimmerSyntaxTestsSupport.astEqual(t, _glimmerSyntaxLibBuilders.default.program([_glimmerSyntaxLibBuilders.default.text("some "), _glimmerSyntaxLibBuilders.default.element("a", [_glimmerSyntaxLibBuilders.default.attr("href", _glimmerSyntaxLibBuilders.default.concat([_glimmerSyntaxLibBuilders.default.string("http://"), _glimmerSyntaxLibBuilders.default.path('link'), _glimmerSyntaxLibBuilders.default.string("/")]))], [], [_glimmerSyntaxLibBuilders.default.text("content")]), _glimmerSyntaxLibBuilders.default.text(" done")]));
+        _glimmerSyntaxTestsSupport.astEqual(t, _glimmerSyntaxLibBuilders.default.program([_glimmerSyntaxLibBuilders.default.text("some "), _glimmerSyntaxLibBuilders.default.element("a", [_glimmerSyntaxLibBuilders.default.attr("href", _glimmerSyntaxLibBuilders.default.concat([_glimmerSyntaxLibBuilders.default.text("http://"), _glimmerSyntaxLibBuilders.default.mustache('link'), _glimmerSyntaxLibBuilders.default.text("/")]))], [], [_glimmerSyntaxLibBuilders.default.text("content")]), _glimmerSyntaxLibBuilders.default.text(" done")]));
     });
     test("A more complete embedding example", function () {
         var t = "{{embed}} {{some 'content'}} " + "<div class='{{foo}} {{bind-class isEnabled truthy='enabled'}}'>{{ content }}</div>" + " {{more 'embed'}}";
-        _glimmerSyntaxTestsSupport.astEqual(t, _glimmerSyntaxLibBuilders.default.program([_glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('embed')), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('some'), [_glimmerSyntaxLibBuilders.default.string('content')]), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.element("div", [_glimmerSyntaxLibBuilders.default.attr("class", _glimmerSyntaxLibBuilders.default.concat([_glimmerSyntaxLibBuilders.default.path('foo'), _glimmerSyntaxLibBuilders.default.string(' '), _glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('bind-class'), [_glimmerSyntaxLibBuilders.default.path('isEnabled')], _glimmerSyntaxLibBuilders.default.hash([_glimmerSyntaxLibBuilders.default.pair('truthy', _glimmerSyntaxLibBuilders.default.string('enabled'))]))]))], [], [_glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('content'))]), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('more'), [_glimmerSyntaxLibBuilders.default.string('embed')])]));
+        _glimmerSyntaxTestsSupport.astEqual(t, _glimmerSyntaxLibBuilders.default.program([_glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('embed')), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('some'), [_glimmerSyntaxLibBuilders.default.string('content')]), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.element("div", [_glimmerSyntaxLibBuilders.default.attr("class", _glimmerSyntaxLibBuilders.default.concat([_glimmerSyntaxLibBuilders.default.mustache('foo'), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.mustache('bind-class', [_glimmerSyntaxLibBuilders.default.path('isEnabled')], _glimmerSyntaxLibBuilders.default.hash([_glimmerSyntaxLibBuilders.default.pair('truthy', _glimmerSyntaxLibBuilders.default.string('enabled'))]))]))], [], [_glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('content'))]), _glimmerSyntaxLibBuilders.default.text(' '), _glimmerSyntaxLibBuilders.default.mustache(_glimmerSyntaxLibBuilders.default.path('more'), [_glimmerSyntaxLibBuilders.default.string('embed')])]));
     });
     test("Simple embedded block helpers", function () {
         var t = "{{#if foo}}<div>{{content}}</div>{{/if}}";
@@ -7924,7 +7965,7 @@ enifed('glimmer-syntax/tests/traversal/visiting-node-test', ['exports', 'glimmer
     QUnit.module('[glimmer-syntax] Traversal - visiting');
     test('Elements and attributes', function () {
         var ast = _glimmerSyntax.parse('<div id="id" class="large {{classes}}" value={{value}}><b></b><b></b></div>');
-        traversalEqual(ast, [['enter', ast], ['enter', ast.body[0]], ['enter', ast.body[0].attributes[0]], ['enter', ast.body[0].attributes[0].value], ['exit', ast.body[0].attributes[0].value], ['exit', ast.body[0].attributes[0]], ['enter', ast.body[0].attributes[1]], ['enter', ast.body[0].attributes[1].value], ['enter', ast.body[0].attributes[1].value.parts[0]], ['exit', ast.body[0].attributes[1].value.parts[0]], ['enter', ast.body[0].attributes[1].value.parts[1]], ['exit', ast.body[0].attributes[1].value.parts[1]], ['exit', ast.body[0].attributes[1].value], ['exit', ast.body[0].attributes[1]], ['enter', ast.body[0].attributes[2]], ['enter', ast.body[0].attributes[2].value], ['enter', ast.body[0].attributes[2].value.path], ['exit', ast.body[0].attributes[2].value.path], ['enter', ast.body[0].attributes[2].value.hash], ['exit', ast.body[0].attributes[2].value.hash], ['exit', ast.body[0].attributes[2].value], ['exit', ast.body[0].attributes[2]], ['enter', ast.body[0].children[0]], ['exit', ast.body[0].children[0]], ['enter', ast.body[0].children[1]], ['exit', ast.body[0].children[1]], ['exit', ast.body[0]], ['exit', ast]]);
+        traversalEqual(ast, [['enter', ast], ['enter', ast.body[0]], ['enter', ast.body[0].attributes[0]], ['enter', ast.body[0].attributes[0].value], ['exit', ast.body[0].attributes[0].value], ['exit', ast.body[0].attributes[0]], ['enter', ast.body[0].attributes[1]], ['enter', ast.body[0].attributes[1].value], ['enter', ast.body[0].attributes[1].value.parts[0]], ['exit', ast.body[0].attributes[1].value.parts[0]], ['enter', ast.body[0].attributes[1].value.parts[1]], ['enter', ast.body[0].attributes[1].value.parts[1].path], ['exit', ast.body[0].attributes[1].value.parts[1].path], ['enter', ast.body[0].attributes[1].value.parts[1].hash], ['exit', ast.body[0].attributes[1].value.parts[1].hash], ['exit', ast.body[0].attributes[1].value.parts[1]], ['exit', ast.body[0].attributes[1].value], ['exit', ast.body[0].attributes[1]], ['enter', ast.body[0].attributes[2]], ['enter', ast.body[0].attributes[2].value], ['enter', ast.body[0].attributes[2].value.path], ['exit', ast.body[0].attributes[2].value.path], ['enter', ast.body[0].attributes[2].value.hash], ['exit', ast.body[0].attributes[2].value.hash], ['exit', ast.body[0].attributes[2].value], ['exit', ast.body[0].attributes[2]], ['enter', ast.body[0].children[0]], ['exit', ast.body[0].children[0]], ['enter', ast.body[0].children[1]], ['exit', ast.body[0].children[1]], ['exit', ast.body[0]], ['exit', ast]]);
     });
     test('Element modifiers', function () {
         var ast = _glimmerSyntax.parse('<div {{modifier}}{{modifier param1 param2 key1=value key2=value}}></div>');
