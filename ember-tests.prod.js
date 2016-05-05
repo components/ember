@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+98c6089f
+ * @version   2.7.0-canary+bca76a9b
  */
 
 var enifed, requireModule, require, Ember;
@@ -35317,6 +35317,391 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Mutable bindings integration tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test a simple mutable binding using `mut` propagates properly'] = function testASimpleMutableBindingUsingMutPropagatesProperly(assert) {
+      var _this = this;
+
+      var bottom = undefined;
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut setMe=value}}'
+      });
+
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
+
+      this.assertText('12', 'the data propagated downwards');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return bottom.attrs.setMe.update(13);
+      });
+
+      this.assertText('13', 'The set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'val', 12);
+      });
+
+      this.assertText('12');
+    };
+
+    _class.prototype['@test a simple mutable binding using `mut` inserts into the DOM'] = function testASimpleMutableBindingUsingMutInsertsIntoTheDOM(assert) {
+      var _this2 = this;
+
+      var bottom = undefined;
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut setMe=(mut value)}}'
+      });
+
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
+
+      this.assertText('12', 'the data propagated downwards');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return bottom.attrs.setMe.update(13);
+      });
+
+      this.assertText('13', 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'val', 12);
+      });
+
+      this.assertText('12');
+    };
+
+    // See https://github.com/emberjs/ember.js/commit/807a0cd for an explanation of this test
+
+    _class.prototype['@test using a string value through middle tier does not trigger assertion'] = function testUsingAStringValueThroughMiddleTierDoesNotTriggerAssertion(assert) {
+      var bottom = undefined;
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{stuff}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut stuff=value}}'
+      });
+
+      this.render('{{middle-mut value="foo"}}');
+
+      assert.equal(bottom.attrs.stuff.value, 'foo', 'the data propagated');
+      this.assertText('foo');
+
+      this.assertStableRerender();
+
+      // No U-R for this test
+    };
+
+    _class.prototype['@test a simple mutable binding using `mut` can be converted into an immutable binding'] = function testASimpleMutableBindingUsingMutCanBeConvertedIntoAnImmutableBinding(assert) {
+      var _this3 = this;
+
+      var middle = undefined,
+          bottom = undefined;
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            middle = this;
+          }
+        }),
+        template: '{{bottom-mut setMe=(readonly value)}}'
+      });
+
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
+
+      this.assertText('12');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return middle.attrs.value.update(13);
+      });
+
+      assert.strictEqual(middle.attrs.value.value, 13, 'the set took effect');
+      assert.strictEqual(bottom.attrs.setMe, 13, 'the mutable binding has been converted to an immutable cell');
+      this.assertText('13');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'val', 12);
+      });
+
+      this.assertText('12');
+    };
+
+    _class.prototype['@test mutable bindings work inside of yielded content'] = function testMutableBindingsWorkInsideOfYieldedContent() {
+      var _this4 = this;
+
+      this.registerComponent('bottom-mut', {
+        template: '{{yield}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        template: '{{#bottom-mut}}{{model.name}}{{/bottom-mut}}'
+      });
+
+      this.render('{{middle-mut model=(mut view.model)}}', {
+        model: { name: 'Matthew Beale' }
+      });
+
+      this.assertText('Matthew Beale');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model.name', 'Joel Kang');
+      });
+
+      this.assertText('Joel Kang');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model', { name: 'Matthew Beale' });
+      });
+
+      this.assertText('Matthew Beale');
+    };
+
+    _class.prototype['@test a simple mutable binding using `mut` is available in hooks'] = function testASimpleMutableBindingUsingMutIsAvailableInHooks(assert) {
+      var _this5 = this;
+
+      var bottom = undefined;
+      var willRender = [];
+      var didInsert = [];
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          willRender: function () {
+            willRender.push(this.attrs.setMe.value);
+          },
+          didInsertElement: function () {
+            didInsert.push(this.attrs.setMe.value);
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut setMe=(mut value)}}'
+      });
+
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
+
+      assert.deepEqual(willRender, [12], 'willReceive is [12]');
+      assert.deepEqual(didInsert, [12], 'didInsert is [12]');
+      this.assertText('12');
+
+      this.assertStableRerender();
+
+      assert.deepEqual(willRender, [12, 12], 'willReceive is [12, 12]');
+      assert.deepEqual(didInsert, [12], 'didInsert is [12]');
+      assert.strictEqual(bottom.attrs.setMe.value, 12, 'the data propagated');
+
+      this.runTask(function () {
+        return bottom.attrs.setMe.update(13);
+      });
+
+      assert.strictEqual(bottom.attrs.setMe.value, 13, 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'val', 12);
+      });
+
+      this.assertText('12');
+    };
+
+    _class.prototype['@test a mutable binding with a backing computed property and attribute present in the root of the component is updated when the upstream property invalidates #11023'] = function testAMutableBindingWithABackingComputedPropertyAndAttributePresentInTheRootOfTheComponentIsUpdatedWhenTheUpstreamPropertyInvalidates11023(assert) {
+      var bottom = undefined,
+          middle = undefined;
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          thingy: null,
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{thingy}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          baseValue: 12,
+          val: _emberMetalComputed.computed('baseValue', function () {
+            return this.get('baseValue');
+          }),
+          didInsertElement: function () {
+            middle = this;
+          }
+        }),
+        template: '{{bottom-mut thingy=(mut val)}}'
+      });
+
+      this.render('{{middle-mut}}');
+
+      assert.strictEqual(bottom.attrs.thingy.value, 12, 'data propagated');
+      this.assertText('12');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(middle, 'baseValue', 13);
+      });
+
+      assert.strictEqual(bottom.attrs.thingy.value, 13, 'the set took effect');
+      this.assertText('13');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(middle, 'baseValue', 12);
+      });
+
+      this.assertText('12');
+    };
+
+    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
+
+    _class.prototype['@htmlbars automatic mutable bindings tolerate undefined non-stream inputs and attempts to set them'] = function htmlbarsAutomaticMutableBindingsTolerateUndefinedNonStreamInputsAndAttemptsToSetThem(assert) {
+      var inner = undefined;
+
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            inner = this;
+          }
+        }),
+        template: '{{model}}'
+      });
+
+      this.registerComponent('x-outer', {
+        template: '{{x-inner model=nonexistent}}'
+      });
+
+      this.render('{{x-outer}}');
+
+      this.assertText('');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return inner.attrs.model.update(42);
+      });
+
+      assert.equal(inner.attrs.model.value, 42);
+      this.assertText('42');
+
+      this.runTask(function () {
+        return inner.attrs.model.update(undefined);
+      });
+
+      this.assertText('');
+    };
+
+    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
+
+    _class.prototype['@test automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem(assert) {
+      var inner = undefined;
+
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            inner = this;
+          }
+        }),
+        template: 'hello{{model}}'
+      });
+
+      this.registerComponent('x-outer', {
+        template: '{{x-inner model=x}}'
+      });
+
+      this.render('{{x-outer x="foo"}}');
+
+      this.assertText('hellofoo');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return inner.attrs.model.update(42);
+      });
+
+      assert.equal(inner.attrs.model.value, 42);
+      this.assertText('hello42');
+
+      this.runTask(function () {
+        return inner.attrs.model.update('foo');
+      });
+
+      this.assertText('hellofoo');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -51919,341 +52304,391 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
+enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed) {
   'use strict';
 
-  var owner, view;
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
-  if (!_emberMetalFeatures.default('ember-glimmer')) {
-    // jscs:disable
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-    QUnit.module('component - mutable bindings', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.registerOptionsForType('component', { singleton: false });
-        owner.registerOptionsForType('view', { singleton: false });
-        owner.registerOptionsForType('template', { instantiate: false });
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      },
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        _emberRuntimeTestsUtils.runDestroy(view);
-        owner = view = null;
-      }
-    });
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Mutable bindings integration tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
 
-    QUnit.test('a simple mutable binding propagates properly [DEPRECATED]', function (assert) {
-      var _EmberView$create;
+    function _class() {
+      _classCallCheck(this, _class);
 
-      // TODO: attrs
-      // expectDeprecation();
+      _RenderingTest.apply(this, arguments);
+    }
 
-      var bottom;
+    _class.prototype['@test a simple mutable binding using `mut` propagates properly'] = function testASimpleMutableBindingUsingMutPropagatesProperly(assert) {
+      var _this = this;
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=value}}')
-      }));
+      var bottom = undefined;
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut value=view.val}}'), _EmberView$create.val = 12, _EmberView$create));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      assert.strictEqual(bottom.get('setMe'), 12, 'precond - the data propagated');
-
-      _emberMetalRun_loop.default(function () {
-        return bottom.set('setMe', 13);
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
       });
 
-      assert.strictEqual(bottom.get('setMe'), 13, 'precond - the set took effect');
-      assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
-    });
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut setMe=value}}'
+      });
 
-    QUnit.test('a simple mutable binding using `mut` propagates properly', function (assert) {
-      var _EmberView$create2;
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
 
-      var bottom;
+      this.assertText('12', 'the data propagated downwards');
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(mut attrs.value)}}')
-      }));
+      this.assertStableRerender();
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut value=(mut view.val)}}'), _EmberView$create2.val = 12, _EmberView$create2));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      assert.strictEqual(bottom.attrs.setMe.value, 12, 'precond - the data propagated');
-
-      _emberMetalRun_loop.default(function () {
+      this.runTask(function () {
         return bottom.attrs.setMe.update(13);
       });
 
-      assert.strictEqual(bottom.attrs.setMe.value, 13, 'precond - the set took effect');
-      assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
-    });
+      this.assertText('13', 'The set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
 
-    QUnit.test('using a string value through middle tier does not trigger assertion', function (assert) {
-      var _EmberView$create3;
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'val', 12);
+      });
 
-      var bottom;
+      this.assertText('12');
+    };
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut stuff=attrs.value}}')
-      }));
+    _class.prototype['@test a simple mutable binding using `mut` inserts into the DOM'] = function testASimpleMutableBindingUsingMutInsertsIntoTheDOM(assert) {
+      var _this2 = this;
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.stuff}}</p>'),
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
+      var bottom = undefined;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut value="foo"}}'), _EmberView$create3.val = 12, _EmberView$create3));
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
 
-      _emberRuntimeTestsUtils.runAppend(view);
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut setMe=(mut value)}}'
+      });
 
-      assert.strictEqual(bottom.attrs.stuff.value, 'foo', 'precond - the data propagated');
-      assert.strictEqual(view.$('p.bottom').text(), 'foo');
-    });
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
 
-    QUnit.test('a simple mutable binding using `mut` inserts into the DOM', function (assert) {
-      var _EmberView$create4;
+      this.assertText('12', 'the data propagated downwards');
 
-      var bottom;
+      this.assertStableRerender();
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(mut attrs.value)}}')
-      }));
-
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.setMe}}</p>'),
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut value=(mut view.val)}}'), _EmberView$create4.val = 12, _EmberView$create4));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      assert.strictEqual(view.$('p.bottom').text(), '12');
-      assert.strictEqual(bottom.attrs.setMe.value, 12, 'precond - the data propagated');
-
-      _emberMetalRun_loop.default(function () {
+      this.runTask(function () {
         return bottom.attrs.setMe.update(13);
       });
 
-      assert.strictEqual(bottom.attrs.setMe.value, 13, 'precond - the set took effect');
-      assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
-    });
+      this.assertText('13', 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
 
-    QUnit.test('a simple mutable binding using `mut` can be converted into an immutable binding', function (assert) {
-      var _EmberView$create5;
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'val', 12);
+      });
 
-      var middle, bottom;
+      this.assertText('12');
+    };
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        // no longer mutable
-        layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(readonly attrs.value)}}'),
+    // See https://github.com/emberjs/ember.js/commit/807a0cd for an explanation of this test
 
-        didInsertElement: function () {
-          middle = this;
-        }
-      }));
+    _class.prototype['@test using a string value through middle tier does not trigger assertion'] = function testUsingAStringValueThroughMiddleTierDoesNotTriggerAssertion(assert) {
+      var bottom = undefined;
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.setMe}}</p>'),
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{stuff}}'
+      });
 
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut stuff=value}}'
+      });
 
-      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut value=(mut view.val)}}'), _EmberView$create5.val = 12, _EmberView$create5));
+      this.render('{{middle-mut value="foo"}}');
 
-      _emberRuntimeTestsUtils.runAppend(view);
+      assert.equal(bottom.attrs.stuff.value, 'foo', 'the data propagated');
+      this.assertText('foo');
 
-      assert.strictEqual(view.$('p.bottom').text(), '12');
+      this.assertStableRerender();
 
-      _emberMetalRun_loop.default(function () {
+      // No U-R for this test
+    };
+
+    _class.prototype['@test a simple mutable binding using `mut` can be converted into an immutable binding'] = function testASimpleMutableBindingUsingMutCanBeConvertedIntoAnImmutableBinding(assert) {
+      var _this3 = this;
+
+      var middle = undefined,
+          bottom = undefined;
+
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
+
+      this.registerComponent('middle-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            middle = this;
+          }
+        }),
+        template: '{{bottom-mut setMe=(readonly value)}}'
+      });
+
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
+
+      this.assertText('12');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
         return middle.attrs.value.update(13);
       });
 
-      assert.strictEqual(middle.attrs.value.value, 13, 'precond - the set took effect');
+      assert.strictEqual(middle.attrs.value.value, 13, 'the set took effect');
       assert.strictEqual(bottom.attrs.setMe, 13, 'the mutable binding has been converted to an immutable cell');
-      assert.strictEqual(view.$('p.bottom').text(), '13');
-      assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
-    });
+      this.assertText('13');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
 
-    QUnit.test('mutable bindings work inside of yielded content', function (assert) {
-      var _EmberView$create6;
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'val', 12);
+      });
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{#bottom-mut}}{{attrs.model.name}}{{/bottom-mut}}')
-      }));
+      this.assertText('12');
+    };
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{yield}}</p>')
-      }));
+    _class.prototype['@test mutable bindings work inside of yielded content'] = function testMutableBindingsWorkInsideOfYieldedContent() {
+      var _this4 = this;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut model=(mut view.model)}}'), _EmberView$create6.model = { name: 'Matthew Beale' }, _EmberView$create6));
+      this.registerComponent('bottom-mut', {
+        template: '{{yield}}'
+      });
 
-      _emberRuntimeTestsUtils.runAppend(view);
+      this.registerComponent('middle-mut', {
+        template: '{{#bottom-mut}}{{model.name}}{{/bottom-mut}}'
+      });
 
-      assert.strictEqual(view.$('p.bottom').text(), 'Matthew Beale');
-    });
+      this.render('{{middle-mut model=(mut view.model)}}', {
+        model: { name: 'Matthew Beale' }
+      });
 
-    QUnit.test('a simple mutable binding using `mut` is available in hooks', function (assert) {
-      var _EmberView$create7;
+      this.assertText('Matthew Beale');
 
-      var bottom;
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model.name', 'Joel Kang');
+      });
+
+      this.assertText('Joel Kang');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model', { name: 'Matthew Beale' });
+      });
+
+      this.assertText('Matthew Beale');
+    };
+
+    _class.prototype['@test a simple mutable binding using `mut` is available in hooks'] = function testASimpleMutableBindingUsingMutIsAvailableInHooks(assert) {
+      var _this5 = this;
+
+      var bottom = undefined;
       var willRender = [];
       var didInsert = [];
 
-      owner.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(mut attrs.value)}}')
-      }));
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          willRender: function () {
+            willRender.push(this.attrs.setMe.value);
+          },
+          didInsertElement: function () {
+            didInsert.push(this.attrs.setMe.value);
+            bottom = this;
+          }
+        }),
+        template: '{{setMe}}'
+      });
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        willRender: function () {
-          willRender.push(this.attrs.setMe.value);
-        },
-        didInsertElement: function () {
-          didInsert.push(this.attrs.setMe.value);
-          bottom = this;
-        }
-      }));
+      this.registerComponent('middle-mut', {
+        template: '{{bottom-mut setMe=(mut value)}}'
+      });
 
-      view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default('{{middle-mut value=(mut view.val)}}'), _EmberView$create7.val = 12, _EmberView$create7));
-
-      _emberRuntimeTestsUtils.runAppend(view);
+      this.render('{{middle-mut value=(mut val)}}', {
+        val: 12
+      });
 
       assert.deepEqual(willRender, [12], 'willReceive is [12]');
       assert.deepEqual(didInsert, [12], 'didInsert is [12]');
+      this.assertText('12');
 
-      assert.strictEqual(bottom.attrs.setMe.value, 12, 'precond - the data propagated');
+      this.assertStableRerender();
 
-      _emberMetalRun_loop.default(function () {
+      assert.deepEqual(willRender, [12, 12], 'willReceive is [12, 12]');
+      assert.deepEqual(didInsert, [12], 'didInsert is [12]');
+      assert.strictEqual(bottom.attrs.setMe.value, 12, 'the data propagated');
+
+      this.runTask(function () {
         return bottom.attrs.setMe.update(13);
       });
 
-      assert.strictEqual(bottom.attrs.setMe.value, 13, 'precond - the set took effect');
-      assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
-    });
+      assert.strictEqual(bottom.attrs.setMe.value, 13, 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'val'), 13, 'the set propagated back up');
 
-    QUnit.test('a mutable binding with a backing computed property and attribute present in the root of the component is updated when the upstream property invalidates #11023', function (assert) {
-      var _EmberView$extend;
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'val', 12);
+      });
 
-      var bottom;
+      this.assertText('12');
+    };
 
-      owner.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
-        thingy: null,
+    _class.prototype['@test a mutable binding with a backing computed property and attribute present in the root of the component is updated when the upstream property invalidates #11023'] = function testAMutableBindingWithABackingComputedPropertyAndAttributePresentInTheRootOfTheComponentIsUpdatedWhenTheUpstreamPropertyInvalidates11023(assert) {
+      var bottom = undefined,
+          middle = undefined;
 
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
+      this.registerComponent('bottom-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          thingy: null,
+          didInsertElement: function () {
+            bottom = this;
+          }
+        }),
+        template: '{{thingy}}'
+      });
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberTemplateCompilerSystemCompile.default('{{bottom-mut thingy=(mut view.val)}}'), _EmberView$extend.baseValue = 12, _EmberView$extend.val = _emberMetalComputed.computed('baseValue', function () {
-        return this.get('baseValue');
-      }), _EmberView$extend)).create();
+      this.registerComponent('middle-mut', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          baseValue: 12,
+          val: _emberMetalComputed.computed('baseValue', function () {
+            return this.get('baseValue');
+          }),
+          didInsertElement: function () {
+            middle = this;
+          }
+        }),
+        template: '{{bottom-mut thingy=(mut val)}}'
+      });
 
-      _emberRuntimeTestsUtils.runAppend(view);
+      this.render('{{middle-mut}}');
 
       assert.strictEqual(bottom.attrs.thingy.value, 12, 'data propagated');
+      this.assertText('12');
 
-      _emberMetalRun_loop.default(function () {
-        return view.set('baseValue', 13);
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(middle, 'baseValue', 13);
       });
+
       assert.strictEqual(bottom.attrs.thingy.value, 13, 'the set took effect');
+      this.assertText('13');
 
-      _emberMetalRun_loop.default(function () {
-        return view.set('baseValue', 14);
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(middle, 'baseValue', 12);
       });
-      assert.strictEqual(bottom.attrs.thingy.value, 14, 'the set took effect');
-    });
 
-    QUnit.test('automatic mutable bindings tolerate undefined non-stream inputs', function (assert) {
-      var _EmberView$create8;
+      this.assertText('12');
+    };
 
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner model=attrs.nonexistent}}'));
-      owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('hello'));
+    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
 
-      view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberView$create8));
+    _class.prototype['@htmlbars automatic mutable bindings tolerate undefined non-stream inputs and attempts to set them'] = function htmlbarsAutomaticMutableBindingsTolerateUndefinedNonStreamInputsAndAttemptsToSetThem(assert) {
+      var inner = undefined;
 
-      _emberRuntimeTestsUtils.runAppend(view);
-      assert.strictEqual(view.$().text(), 'hello');
-    });
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            inner = this;
+          }
+        }),
+        template: '{{model}}'
+      });
 
-    QUnit.test('automatic mutable bindings tolerate constant non-stream inputs', function (assert) {
-      var _EmberView$create9;
+      this.registerComponent('x-outer', {
+        template: '{{x-inner model=nonexistent}}'
+      });
 
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner model="foo"}}'));
-      owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('hello{{attrs.model}}'));
+      this.render('{{x-outer}}');
 
-      view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberView$create9));
+      this.assertText('');
 
-      _emberRuntimeTestsUtils.runAppend(view);
-      assert.strictEqual(view.$().text(), 'hellofoo');
-    });
+      this.assertStableRerender();
 
-    QUnit.test('automatic mutable bindings to undefined non-streams tolerate attempts to set them', function (assert) {
-      var _EmberView$create10;
-
-      var inner;
-
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner model=attrs.nonexistent}}'));
-      owner.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
-        didInsertElement: function () {
-          inner = this;
-        }
-      }));
-
-      view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = owner, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberView$create10));
-
-      _emberRuntimeTestsUtils.runAppend(view);
-      _emberMetalRun_loop.default(function () {
+      this.runTask(function () {
         return inner.attrs.model.update(42);
       });
+
       assert.equal(inner.attrs.model.value, 42);
-    });
+      this.assertText('42');
 
-    QUnit.test('automatic mutable bindings to constant non-streams tolerate attempts to set them', function (assert) {
-      var _EmberView$create11;
+      this.runTask(function () {
+        return inner.attrs.model.update(undefined);
+      });
 
-      var inner;
+      this.assertText('');
+    };
 
-      owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner model=attrs.x}}'));
-      owner.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
-        didInsertElement: function () {
-          inner = this;
-        }
-      }));
+    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
 
-      view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = owner, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default('{{x-outer x="foo"}}'), _EmberView$create11));
+    _class.prototype['@test automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem(assert) {
+      var inner = undefined;
 
-      _emberRuntimeTestsUtils.runAppend(view);
-      _emberMetalRun_loop.default(function () {
+      this.registerComponent('x-inner', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            inner = this;
+          }
+        }),
+        template: 'hello{{model}}'
+      });
+
+      this.registerComponent('x-outer', {
+        template: '{{x-inner model=x}}'
+      });
+
+      this.render('{{x-outer x="foo"}}');
+
+      this.assertText('hellofoo');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
         return inner.attrs.model.update(42);
       });
+
       assert.equal(inner.attrs.model.value, 42);
-    });
-  }
+      this.assertText('hello42');
+
+      this.runTask(function () {
+        return inner.attrs.model.update('foo');
+      });
+
+      this.assertText('hellofoo');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-
-//import jQuery from "ember-views/system/jquery";
 enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
