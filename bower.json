@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "VERSION_STRING_PLACEHOLDER",
+  "version": "2.7.0-canary+a81b5cda",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
   "main": [

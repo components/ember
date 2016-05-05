@@ -1,6 +1,6 @@
 {
   "name": "components-ember",
-  "version": "VERSION_STRING_PLACEHOLDER",
+  "version": "2.7.0-canary+a81b5cda",
   "description": "Ember Application Framework",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
