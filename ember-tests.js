@@ -39420,21 +39420,6 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     });
   }
 });
-enifed('ember-htmlbars/tests/compat/safe_string_test', ['exports', 'ember-htmlbars/compat'], function (exports, _emberHtmlbarsCompat) {
-  'use strict';
-
-  QUnit.module('ember-htmlbars: compat - SafeString');
-
-  QUnit.test('using new results in a deprecation', function (assert) {
-    var result = undefined;
-
-    expectDeprecation(function () {
-      result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-    }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-
-    assert.equal(result.toHTML(), '<b>test</b>');
-  });
-});
 enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-environment', 'ember-views/components/component', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberEnvironment, _emberViewsComponentsComponent, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
   'use strict';
 

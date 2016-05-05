@@ -2491,7 +2491,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+8a94054a";
+  exports.default = "2.7.0-canary+3ffa9022";
 });
 enifed('ember-console/index', ['exports', 'ember-metal/error', 'ember-environment'], function (exports, _emberMetalError, _emberEnvironment) {
   'use strict';
