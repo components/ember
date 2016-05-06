@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8f38585b
+ * @version   2.7.0-canary+714b3d73
  */
 
 var enifed, requireModule, require, Ember;
@@ -32452,39 +32452,53 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
+    _class.prototype['@test parameterless helper is usable in subexpressions'] = function testParameterlessHelperIsUsableInSubexpressions() {
       var _this10 = this;
 
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this10.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
-    };
-
-    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
-      var _this11 = this;
-
-      this.registerHelper('some-helper', {
-        compute: function () {}
+      this.registerHelper('should-show', function () {
+        return true;
       });
 
-      expectAssertion(function () {
-        _this11.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
+      this.render('{{#if (should-show)}}true{{/if}}');
+
+      this.assertText('true');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('true');
     };
 
-    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@glimmer parameterless helper is usable in attributes'] = function glimmerParameterlessHelperIsUsableInAttributes() {
+      var _this11 = this;
+
+      this.registerHelper('foo-bar', function () {
+        return 'baz';
+      });
+
+      this.render('<div data-foo-bar="{{foo-bar}}"></div>');
+
+      this.assertHTML('<div data-foo-bar="baz"></div>');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertHTML('<div data-foo-bar="baz"></div>');
+    };
+
+    _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
       var _this12 = this;
 
       this.registerHelper('some-helper', function () {});
 
       expectAssertion(function () {
-        _this12.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
+        _this12.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this13 = this;
 
       this.registerHelper('some-helper', {
@@ -32492,7 +32506,29 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       });
 
       expectAssertion(function () {
-        _this13.render('<div {{some-helper}}></div>');
+        _this13.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+      var _this14 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
+        _this14.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+      var _this15 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this15.render('<div {{some-helper}}></div>');
       }, /Helpers may not be used in the element form/);
     };
 
@@ -32517,7 +32553,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
-      var _this14 = this;
+      var _this16 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -32543,7 +32579,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this16.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -32566,7 +32602,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
-      var _this15 = this;
+      var _this17 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -32596,7 +32632,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -49585,39 +49621,53 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
+    _class.prototype['@test parameterless helper is usable in subexpressions'] = function testParameterlessHelperIsUsableInSubexpressions() {
       var _this10 = this;
 
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this10.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
-    };
-
-    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
-      var _this11 = this;
-
-      this.registerHelper('some-helper', {
-        compute: function () {}
+      this.registerHelper('should-show', function () {
+        return true;
       });
 
-      expectAssertion(function () {
-        _this11.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
+      this.render('{{#if (should-show)}}true{{/if}}');
+
+      this.assertText('true');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('true');
     };
 
-    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@glimmer parameterless helper is usable in attributes'] = function glimmerParameterlessHelperIsUsableInAttributes() {
+      var _this11 = this;
+
+      this.registerHelper('foo-bar', function () {
+        return 'baz';
+      });
+
+      this.render('<div data-foo-bar="{{foo-bar}}"></div>');
+
+      this.assertHTML('<div data-foo-bar="baz"></div>');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertHTML('<div data-foo-bar="baz"></div>');
+    };
+
+    _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
       var _this12 = this;
 
       this.registerHelper('some-helper', function () {});
 
       expectAssertion(function () {
-        _this12.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
+        _this12.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this13 = this;
 
       this.registerHelper('some-helper', {
@@ -49625,7 +49675,29 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       });
 
       expectAssertion(function () {
-        _this13.render('<div {{some-helper}}></div>');
+        _this13.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+      var _this14 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
+        _this14.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+      var _this15 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this15.render('<div {{some-helper}}></div>');
       }, /Helpers may not be used in the element form/);
     };
 
@@ -49650,7 +49722,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
-      var _this14 = this;
+      var _this16 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -49676,7 +49748,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this16.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -49699,7 +49771,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
-      var _this15 = this;
+      var _this17 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -49729,7 +49801,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
