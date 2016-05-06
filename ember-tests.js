@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+82be117e
+ * @version   2.7.0-canary+8f0e0996
  */
 
 var enifed, requireModule, require, Ember;
@@ -35774,9 +35774,7 @@ enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'embe
       this.assertText('12');
     };
 
-    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
-
-    _class.prototype['@htmlbars automatic mutable bindings tolerate undefined non-stream inputs and attempts to set them'] = function htmlbarsAutomaticMutableBindingsTolerateUndefinedNonStreamInputsAndAttemptsToSetThem(assert) {
+    _class.prototype['@test automatic mutable bindings tolerate undefined non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateUndefinedNonStreamInputsAndAttemptsToSetThem(assert) {
       var inner = undefined;
 
       this.registerComponent('x-inner', {
@@ -35811,8 +35809,6 @@ enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'embe
 
       this.assertText('');
     };
-
-    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
 
     _class.prototype['@test automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem(assert) {
       var inner = undefined;
@@ -52888,9 +52884,7 @@ enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'emb
       this.assertText('12');
     };
 
-    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
-
-    _class.prototype['@htmlbars automatic mutable bindings tolerate undefined non-stream inputs and attempts to set them'] = function htmlbarsAutomaticMutableBindingsTolerateUndefinedNonStreamInputsAndAttemptsToSetThem(assert) {
+    _class.prototype['@test automatic mutable bindings tolerate undefined non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateUndefinedNonStreamInputsAndAttemptsToSetThem(assert) {
       var inner = undefined;
 
       this.registerComponent('x-inner', {
@@ -52925,8 +52919,6 @@ enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'emb
 
       this.assertText('');
     };
-
-    // This test only makes sense for htmlbars since there will not be automatic bindings in Glimmer2
 
     _class.prototype['@test automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem(assert) {
       var inner = undefined;
