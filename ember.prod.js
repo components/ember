@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b125ff56
+ * @version   2.7.0-canary+c3be388c
  */
 
 var enifed, requireModule, require, Ember;
@@ -3730,7 +3730,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b125ff56";
+  exports.default = "2.7.0-canary+c3be388c";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7738,7 +7738,7 @@ enifed('ember-glimmer/dom', ['exports', 'glimmer-runtime'], function (exports, _
 
   exports.default = _glimmerRuntime.DOMHelper;
 });
-enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils/references'], function (exports, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _glimmerReference) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -7765,6 +7765,55 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils
     return DynamicScope;
   })();
 
+  var Scheduler = (function () {
+    function Scheduler() {
+      var _this = this;
+
+      _classCallCheck(this, Scheduler);
+
+      this._roots = [];
+      this._scheduleMaybeUpdate = function () {
+        _emberMetalRun_loop.default.backburner.schedule('render', _this, _this._maybeUpdate, _glimmerReference.CURRENT_TAG.value());
+      };
+    }
+
+    Scheduler.prototype.destroy = function destroy() {
+      if (this._roots.length) {
+        this._roots.splice(0, this._roots.length);
+        _emberMetalRun_loop.default.backburner.off('begin', this._scheduleMaybeUpdate);
+      }
+    };
+
+    Scheduler.prototype.registerView = function registerView(view) {
+      if (!this._roots.length) {
+        _emberMetalRun_loop.default.backburner.on('begin', this._scheduleMaybeUpdate);
+      }
+      this._roots.push(view);
+    };
+
+    Scheduler.prototype.deregisterView = function deregisterView(view) {
+      var viewIndex = this._roots.indexOf(view);
+      if (~viewIndex) {
+        this._roots.splice(viewIndex, 1);
+        if (!this._roots.length) {
+          _emberMetalRun_loop.default.backburner.off('begin', this._scheduleMaybeUpdate);
+        }
+      }
+    };
+
+    Scheduler.prototype._maybeUpdate = function _maybeUpdate(lastTagValue) {
+      if (_glimmerReference.CURRENT_TAG.validate(lastTagValue)) {
+        return;
+      }
+      for (var i = 0; i < this._roots.length; ++i) {
+        var view = this._roots[i];
+        view.renderer.rerender(view);
+      }
+    };
+
+    return Scheduler;
+  })();
+
   var Renderer = (function () {
     function Renderer(_ref2) {
       var dom = _ref2.dom;
@@ -7778,7 +7827,12 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils
       this._dom = dom;
       this._env = env;
       this._destinedForDOM = destinedForDOM;
+      this._scheduler = new Scheduler();
     }
+
+    Renderer.prototype.destroy = function destroy() {
+      this._scheduler.destroy();
+    };
 
     Renderer.prototype.appendOutletView = function appendOutletView(view, target) {
       this._root = view;
@@ -7796,6 +7850,8 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils
       var result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
       env.commit();
 
+      this._scheduler.registerView(view);
+
       return result;
     };
 
@@ -7807,6 +7863,8 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils
       env.begin();
       var result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
       env.commit();
+
+      this._scheduler.registerView(view);
 
       // FIXME: Store this somewhere else
       view['_renderResult'] = result;
@@ -7820,6 +7878,7 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/utils
     };
 
     Renderer.prototype.remove = function remove(view) {
+      this._scheduler.deregisterView(view);
       view.trigger('willDestroyElement');
       view._transitionTo('destroying');
 

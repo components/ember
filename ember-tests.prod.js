@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b125ff56
+ * @version   2.7.0-canary+c3be388c
  */
 
 var enifed, requireModule, require, Ember;
@@ -38978,15 +38978,6 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
 
       (_AbstractRenderingTest$prototype$render = _AbstractRenderingTest.prototype.render).call.apply(_AbstractRenderingTest$prototype$render, [this].concat(args));
       this.renderer._root = this.component;
-    };
-
-    RenderingTest.prototype.runTask = function runTask(callback) {
-      var _this = this;
-
-      _AbstractRenderingTest.prototype.runTask.call(this, function () {
-        callback();
-        _this.component.rerender();
-      });
     };
 
     return RenderingTest;
