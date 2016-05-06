@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bca76a9b
+ * @version   2.7.0-canary+8f38585b
  */
 
 var enifed, requireModule, require, Ember;
@@ -3745,7 +3745,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+bca76a9b";
+  exports.default = "2.7.0-canary+8f38585b";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -8985,6 +8985,48 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     return args;
   }
 
+  function wrapClassBindingAttribute(args) {
+    var hasClassBinding = args.named.has('classBinding');
+
+    if (hasClassBinding) {
+      var _args$named$at2 = args.named.at('classBinding');
+
+      var value = _args$named$at2.value;
+      var type = _args$named$at2.type;
+
+      if (type === 'value') {
+        var _value$split = value.split(':');
+
+        var prop = _value$split[0];
+        var truthy = _value$split[1];
+        var falsy = _value$split[2];
+
+        var spec = undefined;
+        if (prop === '') {
+          spec = ['helper', ['-class'], [truthy], null];
+        } else if (falsy) {
+          var parts = prop.split('.');
+          spec = ['helper', ['-class'], [['get', parts], truthy, falsy], null];
+        } else if (truthy) {
+          var parts = prop.split('.');
+          spec = ['helper', ['-class'], [['get', parts], truthy], null];
+        }
+
+        if (spec) {
+          var syntax = undefined;
+          if (args.named.has('class')) {
+            // If class already exists, merge
+            var classValue = args.named.at('class').value;
+            syntax = _glimmerRuntime.HelperSyntax.fromSpec(['helper', ['concat'], [classValue, ' ', spec]]);
+          } else {
+            syntax = _glimmerRuntime.HelperSyntax.fromSpec(spec);
+          }
+          args.named.add('class', syntax);
+        }
+      }
+    }
+  }
+
   var Environment = (function (_GlimmerEnvironment) {
     _inherits(Environment, _GlimmerEnvironment);
 
@@ -9022,6 +9064,7 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
           var definition = this.getComponentDefinition(path);
 
           if (definition) {
+            wrapClassBindingAttribute(args);
             wrapClassAttribute(args);
             return new _emberGlimmerComponentsCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
           }
@@ -9250,14 +9293,21 @@ enifed('ember-glimmer/helpers/-class', ['exports', 'ember-glimmer/utils/referenc
     var positional = _ref.positional;
 
     var path = positional.at(0);
-    var propName = positional.at(1);
+    var truthyPropName = positional.at(1);
+    var falsyPropName = positional.at(2);
     var value = path.value();
 
     if (value === true) {
-      return _emberRuntimeSystemString.dasherize(propName.value());
+      if (truthyPropName) {
+        return _emberRuntimeSystemString.dasherize(truthyPropName.value());
+      }
+      return null;
     }
 
     if (value === false) {
+      if (falsyPropName) {
+        return _emberRuntimeSystemString.dasherize(falsyPropName.value());
+      }
       return null;
     }
 
