@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c3be388c
+ * @version   2.7.0-canary+82be117e
  */
 
 var enifed, requireModule, require, Ember;
@@ -56629,7 +56629,8 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
         emptyString: '',
         Wuz: {
           nar: 'foo'
-        }
+        },
+        nullValue: null
       };
     },
 
@@ -56657,11 +56658,15 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, falseValue.notDefined] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'falseValue.notDefined'), undefined);
+    strictEqual(_emberMetalProperty_get.get(obj, 'falseValue.notDefined'), undefined);
   });
 
   QUnit.test('[obj, emptyString.length] -> 0', function () {
     equal(_emberMetalProperty_get.get(obj, 'emptyString.length'), 0);
+  });
+
+  QUnit.test('[obj, nullValue.notDefined] -> (undefined)', function () {
+    strictEqual(_emberMetalProperty_get.get(obj, 'nullValue.notDefined'), undefined);
   });
 
   // ..........................................................
@@ -56677,11 +56682,11 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, Foo] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'Foo'), undefined);
+    strictEqual(_emberMetalProperty_get.get(obj, 'Foo'), undefined);
   });
 
   QUnit.test('[obj, Foo.bar] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'Foo.bar'), undefined);
+    strictEqual(_emberMetalProperty_get.get(obj, 'Foo.bar'), undefined);
   });
 });
 enifed('ember-metal/tests/accessors/get_properties_test', ['exports', 'ember-metal/get_properties'], function (exports, _emberMetalGet_properties) {
@@ -72647,8 +72652,8 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should call unknownProperty when value is undefined on Ember.Observable', function () {
-    equal(_emberMetalProperty_get.get(object, 'unknown'), 'unknown');
-    equal(object.lastUnknownProperty, 'unknown');
+    equal(_emberMetalProperty_get.get(objectA, 'unknown'), 'unknown');
+    equal(objectA.lastUnknownProperty, 'unknown');
   });
 
   QUnit.test('should get normal properties on standard objects', function () {
