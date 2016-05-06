@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8f0e0996
+ * @version   2.7.0-canary+5cbdd24b
  */
 
 var enifed, requireModule, require, Ember;
@@ -25704,7 +25704,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty', 'ember-views/system/event_dispatcher'], function (exports, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty, _emberViewsSystemEvent_dispatcher) {
+enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
@@ -26406,8 +26406,6 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
       // This checks that a `(mut)` is added to parameters and attributes to
       // contextual components when it is a param.
-      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
 
       this.registerComponent('change-button', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -26441,8 +26439,6 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       });
 
       assert.equal(this.$('.value').text(), '8');
-
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
     };
 
     return _class;
@@ -26482,9 +26478,6 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
         var _this24 = this;
 
-        var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-        dispatcher.setup();
-
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
             positionalParams: ['val']
@@ -26513,8 +26506,6 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
         });
 
         assert.equal(this.$('.value').text(), '8');
-
-        _emberRuntimeTestsUtils.runDestroy(dispatcher);
       }, _ref;
     };
 
@@ -33755,6 +33746,7 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
     }
 
     _class.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
       _emberMetalCore.default.STRINGS = this.oldString;
     };
 
@@ -33878,6 +33870,7 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     }
 
     _class.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
       _emberConsole.default.log = this.originalLog;
     };
 
@@ -37375,7 +37368,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component', 'ember-views/system/event_dispatcher'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent, _emberViewsSystemEvent_dispatcher) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -37747,6 +37740,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.component = null;
 
       owner.register(_containerRegistry.privatize(_templateObject), _emberGlimmerTemplatesComponent.default);
+      owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+      owner.lookup('event_dispatcher:main').setup({}, owner.element);
     }
 
     RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
@@ -37756,6 +37751,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     RenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
         _emberRuntimeTestsUtils.runDestroy(this.component);
+      }
+      if (this.owner) {
         _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
     };
@@ -42814,7 +42811,7 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty', 'ember-views/system/event_dispatcher'], function (exports, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty, _emberViewsSystemEvent_dispatcher) {
+enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
@@ -43516,8 +43513,6 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
       // This checks that a `(mut)` is added to parameters and attributes to
       // contextual components when it is a param.
-      var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
 
       this.registerComponent('change-button', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -43551,8 +43546,6 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       });
 
       assert.equal(this.$('.value').text(), '8');
-
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
     };
 
     return _class;
@@ -43592,9 +43585,6 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
         var _this24 = this;
 
-        var dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-        dispatcher.setup();
-
         this.registerComponent('change-button', {
           ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
             positionalParams: ['val']
@@ -43623,8 +43613,6 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         });
 
         assert.equal(this.$('.value').text(), '8');
-
-        _emberRuntimeTestsUtils.runDestroy(dispatcher);
       }, _ref;
     };
 
@@ -50865,6 +50853,7 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
     }
 
     _class.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
       _emberMetalCore.default.STRINGS = this.oldString;
     };
 
@@ -50988,6 +50977,7 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
     }
 
     _class.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
       _emberConsole.default.log = this.originalLog;
     };
 
@@ -54793,7 +54783,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component', 'ember-views/system/event_dispatcher'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent, _emberViewsSystemEvent_dispatcher) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -55165,6 +55155,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.component = null;
 
       owner.register(_containerRegistry.privatize(_templateObject), _emberGlimmerTemplatesComponent.default);
+      owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+      owner.lookup('event_dispatcher:main').setup({}, owner.element);
     }
 
     RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
@@ -55174,6 +55166,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     RenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
         _emberRuntimeTestsUtils.runDestroy(this.component);
+      }
+      if (this.owner) {
         _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
     };
