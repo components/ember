@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5cbdd24b
+ * @version   2.7.0-canary+03da99d3
  */
 
 var enifed, requireModule, require, Ember;
@@ -3730,7 +3730,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5cbdd24b";
+  exports.default = "2.7.0-canary+03da99d3";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -40622,21 +40622,21 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
     var traverse = _syntax.traverse;
     var b = _syntax.builders;
 
-    function buildProgram(content) {
-      return b.program([buildStatement(content)]);
+    function buildProgram(content, loc) {
+      return b.program([buildStatement(content, loc)], null, loc);
     }
 
-    function buildStatement(content) {
+    function buildStatement(content, loc) {
       switch (content.type) {
         case 'PathExpression':
-          return b.mustache(content);
+          return b.mustache(content, null, null, null, loc);
 
         case 'SubExpression':
-          return b.mustache(content.path, content.params, content.hash);
+          return b.mustache(content.path, content.params, content.hash, null, loc);
 
         // The default case handles literals.
         default:
-          return b.text('' + content.value);
+          return b.text('' + content.value, loc);
       }
     }
 
@@ -40648,7 +40648,7 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
       MustacheStatement: function (node) {
         if (node.path.original === 'link-to') {
           var content = node.escaped ? node.params[0] : unsafeHtml(node.params[0]);
-          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content));
+          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content, node.loc), null, node.loc);
         }
       }
     });
