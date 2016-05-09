@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+03da99d3
+ * @version   2.7.0-canary+a77729f5
  */
 
 var enifed, requireModule, require, Ember;
@@ -29911,7 +29911,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       this.assertText('yippie! Caracas yummy Caracas arepas!');
     };
 
-    _class.prototype['@htmlbars component with dynamic name argument resolving to non-existent component'] = function htmlbarsComponentWithDynamicNameArgumentResolvingToNonExistentComponent(assert) {
+    _class.prototype['@test component with dynamic name argument resolving to non-existent component'] = function testComponentWithDynamicNameArgumentResolvingToNonExistentComponent(assert) {
       var _this16 = this;
 
       expectAssertion(function () {
@@ -29919,7 +29919,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       }, /Could not find component named "does-not-exist"/);
     };
 
-    _class.prototype['@htmlbars component with static name argument for non-existent component'] = function htmlbarsComponentWithStaticNameArgumentForNonExistentComponent(assert) {
+    _class.prototype['@test component with static name argument for non-existent component'] = function testComponentWithStaticNameArgumentForNonExistentComponent(assert) {
       var _this17 = this;
 
       expectAssertion(function () {
@@ -29955,7 +29955,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       this.assertText('hello Alex');
     };
 
-    _class.prototype['@htmlbars component helper properly invalidates hash params inside an {{each}} invocation #11044'] = function htmlbarsComponentHelperProperlyInvalidatesHashParamsInsideAnEachInvocation11044(assert) {
+    _class.prototype['@test component helper properly invalidates hash params inside an {{each}} invocation #11044'] = function testComponentHelperProperlyInvalidatesHashParamsInsideAnEachInvocation11044(assert) {
       var _this19 = this;
 
       this.registerComponent('foo-bar', {
@@ -47018,7 +47018,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       this.assertText('yippie! Caracas yummy Caracas arepas!');
     };
 
-    _class.prototype['@htmlbars component with dynamic name argument resolving to non-existent component'] = function htmlbarsComponentWithDynamicNameArgumentResolvingToNonExistentComponent(assert) {
+    _class.prototype['@test component with dynamic name argument resolving to non-existent component'] = function testComponentWithDynamicNameArgumentResolvingToNonExistentComponent(assert) {
       var _this16 = this;
 
       expectAssertion(function () {
@@ -47026,7 +47026,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       }, /Could not find component named "does-not-exist"/);
     };
 
-    _class.prototype['@htmlbars component with static name argument for non-existent component'] = function htmlbarsComponentWithStaticNameArgumentForNonExistentComponent(assert) {
+    _class.prototype['@test component with static name argument for non-existent component'] = function testComponentWithStaticNameArgumentForNonExistentComponent(assert) {
       var _this17 = this;
 
       expectAssertion(function () {
@@ -47062,7 +47062,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       this.assertText('hello Alex');
     };
 
-    _class.prototype['@htmlbars component helper properly invalidates hash params inside an {{each}} invocation #11044'] = function htmlbarsComponentHelperProperlyInvalidatesHashParamsInsideAnEachInvocation11044(assert) {
+    _class.prototype['@test component helper properly invalidates hash params inside an {{each}} invocation #11044'] = function testComponentHelperProperlyInvalidatesHashParamsInsideAnEachInvocation11044(assert) {
       var _this19 = this;
 
       this.registerComponent('foo-bar', {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+03da99d3
+ * @version   2.7.0-canary+a77729f5
  */
 
 var enifed, requireModule, require, Ember;
@@ -3730,7 +3730,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+03da99d3";
+  exports.default = "2.7.0-canary+a77729f5";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7365,7 +7365,7 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
 
   exports.CurlyComponentDefinition = CurlyComponentDefinition;
 });
-enifed('ember-glimmer/components/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference'], function (exports, _glimmerRuntime, _glimmerReference) {
+enifed('ember-glimmer/components/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -7442,7 +7442,9 @@ enifed('ember-glimmer/components/dynamic-component', ['exports', 'glimmer-runtim
 
   function lookup(env, name) {
     if (typeof name === 'string') {
-      return env.getComponentDefinition([name]);
+      var componentDefinition = env.getComponentDefinition([name]);
+
+      return componentDefinition;
     } else {
       throw new Error('Cannot render ' + name + ' as a component');
     }
