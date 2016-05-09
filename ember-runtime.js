@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.3
+ * @version   2.6.0-beta.3+7210f572
  */
 
 var enifed, requireModule, require, Ember;
@@ -4781,7 +4781,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.3
+    @version 2.6.0-beta.3+7210f572
     @public
   */
 
@@ -4823,11 +4823,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.3'
+    @default '2.6.0-beta.3+7210f572'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.3';
+  Ember.VERSION = '2.6.0-beta.3+7210f572';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9423,6 +9423,12 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   exports._getPath = _getPath;
   exports.getWithDefault = getWithDefault;
 
+  var ALLOWABLE_TYPES = {
+    object: true,
+    function: true,
+    string: true
+  };
+
   // ..........................................................
   // GET AND SET
   //
@@ -9491,11 +9497,10 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   function _getPath(root, path) {
     var obj = root;
     var parts = path.split('.');
-    var len = parts.length;
 
-    for (var i = 0; i < len; i++) {
-      if (obj == null) {
-        return obj;
+    for (var i = 0; i < parts.length; i++) {
+      if (!isGettable(obj)) {
+        return undefined;
       }
 
       obj = get(obj, parts[i]);
@@ -9506,6 +9511,14 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     }
 
     return obj;
+  }
+
+  function isGettable(obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    return ALLOWABLE_TYPES[typeof obj];
   }
 
   /**

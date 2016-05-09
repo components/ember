@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.3
+ * @version   2.6.0-beta.3+7210f572
  */
 
 var enifed, requireModule, require, Ember;
@@ -14400,21 +14400,6 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
 
     equal(view.element.firstChild.tagName, 'INPUT', 'input element is created');
     equal(view.element.firstChild.value, '', 'property is set true');
-  });
-});
-enifed('ember-htmlbars/tests/compat/safe_string_test', ['exports', 'ember-htmlbars/compat'], function (exports, _emberHtmlbarsCompat) {
-  'use strict';
-
-  QUnit.module('ember-htmlbars: compat - SafeString');
-
-  QUnit.test('using new results in a deprecation', function (assert) {
-    var result = undefined;
-
-    expectDeprecation(function () {
-      result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-    }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-
-    assert.equal(result.toHTML(), '<b>test</b>');
   });
 });
 enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/core', 'ember-views/components/component', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view', 'ember-metal/features'], function (exports, _emberMetalCore, _emberViewsComponentsComponent, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView, _emberMetalFeatures) {
@@ -29680,7 +29665,8 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
         emptyString: '',
         Wuz: {
           nar: 'foo'
-        }
+        },
+        nullValue: null
       };
     },
 
@@ -29708,11 +29694,15 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, falseValue.notDefined] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'falseValue.notDefined'), undefined);
+    strictEqual(_emberMetalProperty_get.get(obj, 'falseValue.notDefined'), undefined);
   });
 
   QUnit.test('[obj, emptyString.length] -> 0', function () {
-    equal(_emberMetalProperty_get.get(obj, 'emptyString.length'), 0);
+    strictEqual(_emberMetalProperty_get.get(obj, 'emptyString.length'), 0);
+  });
+
+  QUnit.test('[obj, nullValue.notDefined] -> (undefined)', function () {
+    strictEqual(_emberMetalProperty_get.get(obj, 'nullValue.notDefined'), undefined);
   });
 
   // ..........................................................
@@ -29728,11 +29718,11 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, Foo] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'Foo'), undefined);
+    strictEqual(_emberMetalProperty_get.get(obj, 'Foo'), undefined);
   });
 
   QUnit.test('[obj, Foo.bar] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'Foo.bar'), undefined);
+    strictEqual(_emberMetalProperty_get.get(obj, 'Foo.bar'), undefined);
   });
 });
 enifed('ember-metal/tests/accessors/get_properties_test', ['exports', 'ember-metal/get_properties'], function (exports, _emberMetalGet_properties) {
@@ -45104,8 +45094,8 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should call unknownProperty when value is undefined on Ember.Observable', function () {
-    equal(_emberMetalProperty_get.get(object, 'unknown'), 'unknown');
-    equal(object.lastUnknownProperty, 'unknown');
+    equal(_emberMetalProperty_get.get(objectA, 'unknown'), 'unknown');
+    equal(objectA.lastUnknownProperty, 'unknown');
   });
 
   QUnit.test('should get normal properties on standard objects', function () {
@@ -54882,7 +54872,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-beta.3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-beta.3+7210f572', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

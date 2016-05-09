@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.3
+ * @version   2.6.0-beta.3+7210f572
  */
 
 var enifed, requireModule, require, Ember;
@@ -3988,7 +3988,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.3
+    @version 2.6.0-beta.3+7210f572
     @public
   */
 
@@ -4030,11 +4030,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.3'
+    @default '2.6.0-beta.3+7210f572'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.3';
+  Ember.VERSION = '2.6.0-beta.3+7210f572';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8611,6 +8611,12 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   exports._getPath = _getPath;
   exports.getWithDefault = getWithDefault;
 
+  var ALLOWABLE_TYPES = {
+    object: true,
+    function: true,
+    string: true
+  };
+
   // ..........................................................
   // GET AND SET
   //
@@ -8679,11 +8685,10 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   function _getPath(root, path) {
     var obj = root;
     var parts = path.split('.');
-    var len = parts.length;
 
-    for (var i = 0; i < len; i++) {
-      if (obj == null) {
-        return obj;
+    for (var i = 0; i < parts.length; i++) {
+      if (!isGettable(obj)) {
+        return undefined;
       }
 
       obj = get(obj, parts[i]);
@@ -8694,6 +8699,14 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     }
 
     return obj;
+  }
+
+  function isGettable(obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    return ALLOWABLE_TYPES[typeof obj];
   }
 
   /**
@@ -12173,21 +12186,21 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
     var traverse = _syntax.traverse;
     var b = _syntax.builders;
 
-    function buildProgram(content) {
-      return b.program([buildStatement(content)]);
+    function buildProgram(content, loc) {
+      return b.program([buildStatement(content, loc)], null, loc);
     }
 
-    function buildStatement(content) {
+    function buildStatement(content, loc) {
       switch (content.type) {
         case 'PathExpression':
-          return b.mustache(content);
+          return b.mustache(content, null, null, null, loc);
 
         case 'SubExpression':
-          return b.mustache(content.path, content.params, content.hash);
+          return b.mustache(content.path, content.params, content.hash, null, loc);
 
         // The default case handles literals.
         default:
-          return b.text('' + content.value);
+          return b.text('' + content.value, loc);
       }
     }
 
@@ -12199,7 +12212,7 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
       MustacheStatement: function (node) {
         if (node.path.original === 'link-to') {
           var content = node.escaped ? node.params[0] : unsafeHtml(node.params[0]);
-          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content));
+          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content, node.loc), null, node.loc);
         }
       }
     });
@@ -12813,7 +12826,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.3',
+        revision: 'Ember@2.6.0-beta.3+7210f572',
         loc: program.loc,
         moduleName: options.moduleName
       };

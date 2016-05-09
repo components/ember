@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.3
+ * @version   2.6.0-beta.3+7210f572
  */
 
 var enifed, requireModule, require, Ember;
@@ -6828,22 +6828,19 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString, _emberMetalDebug) {
+enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
 
-  EmberHandlebars.SafeString = function (value) {
-
-    return _emberHtmlbarsUtilsString.htmlSafe(value);
-  };
-
+  EmberHandlebars.SafeString = _emberHtmlbarsUtilsString.SafeString;
   EmberHandlebars.Utils = {
     escapeExpression: _emberHtmlbarsUtilsString.escapeExpression
   };
 
   exports.default = EmberHandlebars;
 });
+// for Handlebars export
 enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
   'use strict';
 
@@ -9696,7 +9693,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.3+7210f572';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -14533,7 +14530,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.3
+    @version 2.6.0-beta.3+7210f572
     @public
   */
 
@@ -14575,11 +14572,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.3'
+    @default '2.6.0-beta.3+7210f572'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.3';
+  Ember.VERSION = '2.6.0-beta.3+7210f572';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19097,6 +19094,12 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   exports._getPath = _getPath;
   exports.getWithDefault = getWithDefault;
 
+  var ALLOWABLE_TYPES = {
+    object: true,
+    function: true,
+    string: true
+  };
+
   // ..........................................................
   // GET AND SET
   //
@@ -19161,11 +19164,10 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   function _getPath(root, path) {
     var obj = root;
     var parts = path.split('.');
-    var len = parts.length;
 
-    for (var i = 0; i < len; i++) {
-      if (obj == null) {
-        return obj;
+    for (var i = 0; i < parts.length; i++) {
+      if (!isGettable(obj)) {
+        return undefined;
       }
 
       obj = get(obj, parts[i]);
@@ -19176,6 +19178,14 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     }
 
     return obj;
+  }
+
+  function isGettable(obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    return ALLOWABLE_TYPES[typeof obj];
   }
 
   /**
@@ -37509,21 +37519,21 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
     var traverse = _syntax.traverse;
     var b = _syntax.builders;
 
-    function buildProgram(content) {
-      return b.program([buildStatement(content)]);
+    function buildProgram(content, loc) {
+      return b.program([buildStatement(content, loc)], null, loc);
     }
 
-    function buildStatement(content) {
+    function buildStatement(content, loc) {
       switch (content.type) {
         case 'PathExpression':
-          return b.mustache(content);
+          return b.mustache(content, null, null, null, loc);
 
         case 'SubExpression':
-          return b.mustache(content.path, content.params, content.hash);
+          return b.mustache(content.path, content.params, content.hash, null, loc);
 
         // The default case handles literals.
         default:
-          return b.text('' + content.value);
+          return b.text('' + content.value, loc);
       }
     }
 
@@ -37535,7 +37545,7 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
       MustacheStatement: function (node) {
         if (node.path.original === 'link-to') {
           var content = node.escaped ? node.params[0] : unsafeHtml(node.params[0]);
-          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content));
+          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content, node.loc), null, node.loc);
         }
       }
     });
@@ -38142,7 +38152,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.3',
+        revision: 'Ember@2.6.0-beta.3+7210f572',
         loc: program.loc,
         moduleName: options.moduleName
       };
