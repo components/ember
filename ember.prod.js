@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a77729f5
+ * @version   2.7.0-canary+e79d18b2
  */
 
 var enifed, requireModule, require, Ember;
@@ -3730,7 +3730,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a77729f5";
+  exports.default = "2.7.0-canary+e79d18b2";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -21419,6 +21419,12 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
   exports._getPath = _getPath;
   exports.getWithDefault = getWithDefault;
 
+  var ALLOWABLE_TYPES = {
+    object: true,
+    function: true,
+    string: true
+  };
+
   // ..........................................................
   // GET AND SET
   //
@@ -21485,7 +21491,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     var parts = path.split('.');
 
     for (var i = 0; i < parts.length; i++) {
-      if (obj == null) {
+      if (!isGettable(obj)) {
         return undefined;
       }
 
@@ -21497,6 +21503,14 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     }
 
     return obj;
+  }
+
+  function isGettable(obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    return ALLOWABLE_TYPES[typeof obj];
   }
 
   /**

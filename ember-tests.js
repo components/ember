@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a77729f5
+ * @version   2.7.0-canary+e79d18b2
  */
 
 var enifed, requireModule, require, Ember;
@@ -56648,7 +56648,7 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, emptyString.length] -> 0', function () {
-    equal(_emberMetalProperty_get.get(obj, 'emptyString.length'), 0);
+    strictEqual(_emberMetalProperty_get.get(obj, 'emptyString.length'), 0);
   });
 
   QUnit.test('[obj, nullValue.notDefined] -> (undefined)', function () {
