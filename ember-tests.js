@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dde51f63
+ * @version   2.7.0-canary+e38b48ee
  */
 
 var enifed, requireModule, require, Ember;
@@ -30156,6 +30156,199 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['<!---->bar'], ['<!---->bar']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['<!---->bizz'], ['<!---->bizz']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: fragment components', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+      return {
+        hitDem: 'folks'
+      };
+    };
+
+    _class.prototype['@htmlbars fragments do not render an outer tag'] = function htmlbarsFragmentsDoNotRenderAnOuterTag() {
+      var instance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+          this.foo = true;
+          this.bar = 'bar';
+        }
+      });
+
+      var template = '{{#if foo}}<div>Hey</div>{{/if}}{{yield bar}}';
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      this.render('{{#foo-bar as |bar|}}{{bar}}{{/foo-bar}}');
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'foo', false);
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'bar', 'bizz');
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(instance, 'bar', 'bar');
+        _emberMetalProperty_set.set(instance, 'foo', true);
+      });
+    };
+
+    _class.prototype['@htmlbars throws an error if an event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfAnEventFunctionIsDefinedInATaglessComponent() {
+      var _this = this;
+
+      var instance = undefined;
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+        },
+        click: function () {}
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+    };
+
+    _class.prototype['@htmlbars throws an error if a custom defined event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfACustomDefinedEventFunctionIsDefinedInATaglessComponent() {
+      var _this2 = this;
+
+      var instance = undefined;
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+        },
+        folks: function () {}
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this2.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+    };
+
+    _class.prototype['@htmlbars throws an error if `tagName` is an empty string and `classNameBindings` are specified'] = function htmlbarsThrowsAnErrorIfTagNameIsAnEmptyStringAndClassNameBindingsAreSpecified() {
+      var _this3 = this;
+
+      var instance = undefined;
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+        },
+        foo: true,
+        classNameBindings: ['foo:is-foo:is-bar']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this3.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot use `classNameBindings` on a tag-less component/);
+    };
+
+    _class.prototype['@htmlbars throws an error if when $() is accessed on component where `tagName` is an empty string'] = function htmlbarsThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+      var _this4 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          this.$();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this4.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
+    };
+
+    _class.prototype['@htmlbars renders a contained view with omitted start tag and tagless parent view context'] = function htmlbarsRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
+      var _this5 = this;
+
+      this.registerComponent('root-component', {
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          tagName: 'section'
+        }),
+        template: '{{frag-ment}}'
+      });
+
+      this.registerComponent('frag-ment', {
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          tagName: ''
+        }),
+        template: '{{my-span}}'
+      });
+
+      this.registerComponent('my-span', {
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          tagName: 'span'
+        }),
+        template: 'dab'
+      });
+
+      this.render('{{root-component}}');
+
+      this.assertElement(this.firstChild, { tagName: 'section' });
+      this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'section' });
+      this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
@@ -37839,8 +38032,12 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
       owner.register(_containerRegistry.privatize(_templateObject), _emberGlimmerTemplatesComponent.default);
       owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
-      owner.lookup('event_dispatcher:main').setup({}, owner.element);
+      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
     }
+
+    RenderingTest.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+      return {};
+    };
 
     RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
       return {};
@@ -39167,7 +39364,7 @@ enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'simple-html-tokeni
     if (!(element instanceof HTMLElement)) {
       QUnit.push(element instanceof HTMLElement, null, null, 'Element must be an HTML Element, not an SVG Element');
     } else {
-      QUnit.push(element.attributes.length === expectedCount, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
+      QUnit.push(element.attributes.length === expectedCount || !attributes, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
 
       if (content !== null) {
         QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
@@ -47263,6 +47460,199 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/components/fragment-components-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['<!---->bar'], ['<!---->bar']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['<!---->bizz'], ['<!---->bizz']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: fragment components', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+      return {
+        hitDem: 'folks'
+      };
+    };
+
+    _class.prototype['@htmlbars fragments do not render an outer tag'] = function htmlbarsFragmentsDoNotRenderAnOuterTag() {
+      var instance = undefined;
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+          this.foo = true;
+          this.bar = 'bar';
+        }
+      });
+
+      var template = '{{#if foo}}<div>Hey</div>{{/if}}{{yield bar}}';
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      this.render('{{#foo-bar as |bar|}}{{bar}}{{/foo-bar}}');
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'foo', false);
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(instance, 'bar', 'bizz');
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(instance, 'bar', 'bar');
+        _emberMetalProperty_set.set(instance, 'foo', true);
+      });
+    };
+
+    _class.prototype['@htmlbars throws an error if an event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfAnEventFunctionIsDefinedInATaglessComponent() {
+      var _this = this;
+
+      var instance = undefined;
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+        },
+        click: function () {}
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+    };
+
+    _class.prototype['@htmlbars throws an error if a custom defined event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfACustomDefinedEventFunctionIsDefinedInATaglessComponent() {
+      var _this2 = this;
+
+      var instance = undefined;
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+        },
+        folks: function () {}
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this2.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+    };
+
+    _class.prototype['@htmlbars throws an error if `tagName` is an empty string and `classNameBindings` are specified'] = function htmlbarsThrowsAnErrorIfTagNameIsAnEmptyStringAndClassNameBindingsAreSpecified() {
+      var _this3 = this;
+
+      var instance = undefined;
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          instance = this;
+        },
+        foo: true,
+        classNameBindings: ['foo:is-foo:is-bar']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this3.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot use `classNameBindings` on a tag-less component/);
+    };
+
+    _class.prototype['@htmlbars throws an error if when $() is accessed on component where `tagName` is an empty string'] = function htmlbarsThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+      var _this4 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        init: function () {
+          this._super();
+          this.$();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      expectAssertion(function () {
+        _this4.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
+    };
+
+    _class.prototype['@htmlbars renders a contained view with omitted start tag and tagless parent view context'] = function htmlbarsRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
+      var _this5 = this;
+
+      this.registerComponent('root-component', {
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          tagName: 'section'
+        }),
+        template: '{{frag-ment}}'
+      });
+
+      this.registerComponent('frag-ment', {
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          tagName: ''
+        }),
+        template: '{{my-span}}'
+      });
+
+      this.registerComponent('my-span', {
+        ComponentClass: _emberViewsComponentsComponent.default.extend({
+          tagName: 'span'
+        }),
+        template: 'dab'
+      });
+
+      this.render('{{root-component}}');
+
+      this.assertElement(this.firstChild, { tagName: 'section' });
+      this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'section' });
+      this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
@@ -55254,8 +55644,12 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
       owner.register(_containerRegistry.privatize(_templateObject), _emberGlimmerTemplatesComponent.default);
       owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
-      owner.lookup('event_dispatcher:main').setup({}, owner.element);
+      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
     }
+
+    RenderingTest.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+      return {};
+    };
 
     RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
       return {};
@@ -56561,7 +56955,7 @@ enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-token
     if (!(element instanceof HTMLElement)) {
       QUnit.push(element instanceof HTMLElement, null, null, 'Element must be an HTML Element, not an SVG Element');
     } else {
-      QUnit.push(element.attributes.length === expectedCount, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
+      QUnit.push(element.attributes.length === expectedCount || !attributes, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
 
       if (content !== null) {
         QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
@@ -85456,7 +85850,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -85730,89 +86124,6 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     });
 
     appComponent.send('foo', 'baz');
-  });
-
-  var app = undefined,
-      appInstance = undefined;
-
-  QUnit.module('Ember.Component - tagless components assertions', {
-    teardown: function () {
-      if (appInstance) {
-        _emberMetalRun_loop.default(appInstance, 'destroy');
-      }
-
-      if (app) {
-        _emberMetalRun_loop.default(app, 'destroy');
-      }
-    }
-  });
-
-  QUnit.test('throws an error if an event function is defined in a tagless component', function () {
-    var _Component$extend;
-
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
-
-    _emberMetalRun_loop.default(function () {
-      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
-      appInstance.setupEventDispatcher();
-    });
-
-    var TestComponent = _emberViewsComponentsComponent.default.extend((_Component$extend = {
-      tagName: ''
-    }, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.click = function () {}, _Component$extend));
-
-    expectAssertion(function () {
-      TestComponent.create();
-    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
-  });
-
-  QUnit.test('throws an error if an Application custom event handler is defined in a tagless component', function () {
-    var _Component$extend2;
-
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', {
-      rootElement: '#qunit-fixture',
-      autoboot: false,
-      customEvents: {
-        awesome: 'sauce'
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
-      appInstance.setupEventDispatcher();
-    });
-
-    var TestComponent = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {
-      tagName: ''
-    }, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.sauce = function () {}, _Component$extend2));
-
-    expectAssertion(function () {
-      TestComponent.create();
-    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
-  });
-
-  QUnit.test('throws an error if an ApplicationInstance custom event handler is defined in a tagless component', function () {
-    var _Component$extend3;
-
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
-
-    _emberMetalRun_loop.default(function () {
-      appInstance = _emberApplicationSystemApplicationInstance.default.create({
-        application: app,
-        customEvents: {
-          love: 'hurts'
-        }
-      });
-      appInstance.setupEventDispatcher();
-    });
-
-    var TestComponent = _emberViewsComponentsComponent.default.extend((_Component$extend3 = {
-      tagName: ''
-    }, _Component$extend3[_containerOwner.OWNER] = appInstance, _Component$extend3.hurts = function () {}, _Component$extend3));
-
-    expectAssertion(function () {
-      TestComponent.create();
-    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
   });
 });
 enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView) {
@@ -88053,25 +88364,6 @@ enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-me
     equal(ret, view, 'returns receiver');
   });
 
-  QUnit.test('should assert if `tagName` is an empty string and `classNameBindings` are specified', function () {
-    expect(1);
-
-    view = _emberViewsViewsView.default.create({
-      tagName: '',
-      foo: true,
-      classNameBindings: ['foo:is-foo:is-bar']
-    });
-
-    expectAssertion(function () {
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-    }, /You cannot use `classNameBindings` on a tag-less component/);
-
-    // Prevent further assertions
-    view._renderNode = null;
-  });
-
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('calls render and turns resultant string into element', function () {
     view = _emberViewsViewsView.default.create({
       tagName: 'span',
@@ -88567,20 +88859,6 @@ enifed('ember-views/tests/views/view/jquery_test', ['exports', 'ember-metal/prop
 
     var jquery = view.$('body'); // would normally work if not scoped to view
     equal(jquery.length, 0, 'view.$(body) should have no elements');
-  });
-
-  QUnit.test('asserts for tagless views', function () {
-    var view = _emberViewsViewsView.default.create({
-      tagName: ''
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    expectAssertion(function () {
-      view.$();
-    }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
-
-    _emberRuntimeTestsUtils.runDestroy(view);
   });
 });
 enifed('ember-views/tests/views/view/layout_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsHelpers, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
@@ -89740,30 +90018,6 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 
     });
 
     equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bang baz', 're-renders the view with the updated context');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('renders a contained view with omitted start tag and tagless parent view context', function () {
-    view = _emberViewsViewsView.default.create({
-      tagName: 'table',
-      template: _emberTemplateCompiler.compile('{{view view.pivot}}'),
-      pivot: _emberViewsViewsView.default.extend({
-        tagName: '',
-        template: _emberTemplateCompiler.compile('{{view view.row}}'),
-        row: _emberViewsViewsView.default.extend({
-          tagName: 'tr'
-        })
-      })
-    });
-
-    _emberMetalRun_loop.default(view, view.append);
-
-    equal(view.element.tagName, 'TABLE', 'container view is table');
-    ok(view.$('tr').length, 'inner view is tr');
-
-    _emberMetalRun_loop.default(view, view.rerender);
-
-    equal(view.element.tagName, 'TABLE', 'container view is table');
-    ok(view.$('tr').length, 'inner view is tr');
   });
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('propagates dependent-key invalidated sets upstream', function () {
