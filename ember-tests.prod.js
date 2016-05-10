@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e79d18b2
+ * @version   2.7.0-canary+36397743
  */
 
 var enifed, requireModule, require, Ember;
@@ -37877,15 +37877,15 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/helper', 'ember-glimmer/ember-views/component', 'glimmer-runtime', 'ember-glimmer/ember-metal-views', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _emberGlimmerHelper, _emberGlimmerEmberViewsComponent, _glimmerRuntime, _emberGlimmerEmberMetalViews, _emberGlimmerEmberTemplateCompilerSystemCompile) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/helper', 'ember-glimmer/ember-views/component', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _emberGlimmerHelper, _emberGlimmerEmberViewsComponent, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerEmberTemplateCompilerSystemCompile) {
   'use strict';
 
   exports.Helper = _emberGlimmerHelper.default;
   exports.helper = _emberGlimmerHelper.helper;
   exports.Component = _emberGlimmerEmberViewsComponent.default;
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
-  exports.InteractiveRenderer = _emberGlimmerEmberMetalViews.InteractiveRenderer;
-  exports.InertRenderer = _emberGlimmerEmberMetalViews.InertRenderer;
+  exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
+  exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
   exports.compile = _emberGlimmerEmberTemplateCompilerSystemCompile.default;
 });
 enifed('ember-glimmer/tests/utils/package-name', ['exports'], function (exports) {
@@ -39199,7 +39199,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, false, 'boolean property is set false');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberMetalViews, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-htmlbars/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberHtmlbarsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var view, originalSetAttribute, setAttributeCalls, renderer;
@@ -39391,7 +39391,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{attribute}} helper -- setAttribute', {
     setup: function () {
-      renderer = _emberMetalViews.InteractiveRenderer.create({ dom: _emberHtmlbarsEnv.domHelper });
+      renderer = _emberHtmlbarsRenderer.InteractiveRenderer.create({ dom: _emberHtmlbarsEnv.domHelper });
 
       originalSetAttribute = _emberHtmlbarsEnv.domHelper.setAttribute;
       _emberHtmlbarsEnv.domHelper.setAttribute = function (element, name, value) {
@@ -55298,15 +55298,15 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-views/components/component', 'ember-metal-views', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberViewsComponentsComponent, _emberMetalViews, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-views/components/component', 'ember-htmlbars/renderer', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberViewsComponentsComponent, _emberHtmlbarsRenderer, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
   exports.Helper = _emberHtmlbarsHelper.default;
   exports.helper = _emberHtmlbarsHelper.helper;
   exports.DOMHelper = _emberHtmlbarsSystemDomHelper.default;
   exports.Component = _emberViewsComponentsComponent.default;
-  exports.InteractiveRenderer = _emberMetalViews.InteractiveRenderer;
-  exports.InertRenderer = _emberMetalViews.InertRenderer;
+  exports.InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
+  exports.InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
   exports.compile = _emberTemplateCompilerSystemCompile.default;
 });
 enifed('ember-htmlbars/tests/utils/package-name', ['exports'], function (exports) {
