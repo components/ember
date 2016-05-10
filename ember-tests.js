@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+36397743
+ * @version   2.7.0-canary+dde51f63
  */
 
 var enifed, requireModule, require, Ember;
@@ -7412,24 +7412,65 @@ enifed("glimmer-syntax/tests/loc-node-test", ["exports", "glimmer-syntax"], func
     locEqual(blahText, 3, 9, 3, 13);
   });
   test("comment", function () {
-    var ast = _glimmerSyntax.parse("\n    <div><!-- blah blah blah blah --></div>\n  ");
+    var ast = _glimmerSyntax.parse("\n    <div><!-- blah blah blah blah -->\n      <!-- derp herky --><div></div>\n    </div>\n  ");
     var _ast$body9 = ast.body;
     var div = _ast$body9[1];
     var _div$children4 = div.children;
-    var comment = _div$children4[0];
+    var comment1 = _div$children4[0];
+    var comment2 = _div$children4[2];
+    var trailingDiv = _div$children4[3];
 
-    locEqual(comment, 2, 12, 2, 36);
+    locEqual(comment1, 2, 9, 2, 37);
+    locEqual(comment2, 3, 6, 3, 25);
+    locEqual(trailingDiv, 3, 25, 3, 36);
   });
   test("element attribute", function () {
-    var ast = _glimmerSyntax.parse("\n    <div data-foo=\"blah\"\n      data-derp=\"lolol\">\n      Hi, fivetanley!\n    </div>\n  ");
+    var ast = _glimmerSyntax.parse("\n    <div data-foo=\"blah\"\n      data-derp=\"lolol\"\ndata-barf=\"herpy\">\n      Hi, fivetanley!\n    </div>\n  ");
     var _ast$body10 = ast.body;
     var div = _ast$body10[1];
     var _div$attributes = div.attributes;
     var dataFoo = _div$attributes[0];
     var dataDerp = _div$attributes[1];
+    var dataBarf = _div$attributes[2];
 
-    locEqual(dataFoo, 2, 10, 2, 24);
-    locEqual(dataDerp, 3, 7, 3, 23);
+    locEqual(dataFoo, 2, 9, 2, 24);
+    locEqual(dataDerp, 3, 6, 3, 23);
+    locEqual(dataBarf, 4, 0, 4, 17);
+  });
+  test("char references", function () {
+    var ast = _glimmerSyntax.parse("\n    &gt;<div>&lt;<p>\n      Hi, danmcclain &excl;</p>\n    </div>\n  ");
+    var _ast$body11 = ast.body;
+    var div = _ast$body11[1];
+    var _div$children5 = div.children;
+    var text1 = _div$children5[0];
+    var p = _div$children5[1];
+    var _p$children = p.children;
+    var text2 = _p$children[0];
+
+    locEqual(div, 2, 8, 4, 10);
+    locEqual(text1, 2, 13, 2, 17);
+    locEqual(p, 2, 17, 3, 31);
+    locEqual(text2, 2, 20, 3, 27);
+  });
+  test("whitespace control - trailing", function () {
+    var ast = _glimmerSyntax.parse("\n  {{#if foo~}}\n    <div></div>\n  {{else~}}\n    {{bar}}\n  {{/if}}");
+    var _ast$body12 = ast.body;
+    var ifBlock = _ast$body12[1];
+    var _ifBlock$program$body = ifBlock.program.body;
+    var div = _ifBlock$program$body[0];
+
+    locEqual(ifBlock, 2, 2, 6, 9, 'if block');
+    locEqual(div, 3, 4, 3, 15, 'div inside truthy if block');
+  });
+  test("whitespace control - leading", function () {
+    var ast = _glimmerSyntax.parse("\n  {{~#if foo}}\n    <div></div>\n  {{~else}}\n    {{bar}}\n  {{~/if}}");
+    var _ast$body13 = ast.body;
+    var ifBlock = _ast$body13[0];
+    var _ifBlock$program$body2 = ifBlock.program.body;
+    var div = _ifBlock$program$body2[1];
+
+    locEqual(ifBlock, 2, 2, 6, 10, 'if block');
+    locEqual(div, 3, 4, 3, 15, 'div inside truthy if block');
   });
 });
 
