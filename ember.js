@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+40130077
+ * @version   2.7.0-canary+f8539b08
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+40130077";
+  exports.default = "2.7.0-canary+f8539b08";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7840,6 +7840,20 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
         var tagName = component.tagName;
 
         return tagName || !classNameBindings || classNameBindings.length === 0;
+      });
+
+      _emberMetalDebug.assert('You cannot use `elementId` on a tag-less component: ' + component.toString(), function () {
+        var elementId = component.elementId;
+        var tagName = component.tagName;
+
+        return tagName || !elementId && elementId !== '';
+      });
+
+      _emberMetalDebug.assert('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), function () {
+        var attributeBindings = component.attributeBindings;
+        var tagName = component.tagName;
+
+        return tagName || !attributeBindings || attributeBindings.length === 0;
       });
 
       return bucket;
@@ -46508,7 +46522,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     init: function () {
       this._super.apply(this, arguments);
 
-      if (!this.elementId) {
+      if (!this.elementId && this.tagName !== '') {
         this.elementId = _emberMetalUtils.guidFor(this);
       }
 

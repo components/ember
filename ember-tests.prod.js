@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+40130077
+ * @version   2.7.0-canary+f8539b08
  */
 
 var enifed, requireModule, require, Ember;
@@ -30301,8 +30301,38 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You cannot use `classNameBindings` on a tag-less component/);
     };
 
-    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `attributeBindings` are specified'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndAttributeBindingsAreSpecified() {
       var _this4 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        attributeBindings: ['href']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      expectAssertion(function () {
+        _this4.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot use `attributeBindings` on a tag-less component/);
+    };
+
+    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `elementId` is specified via JS'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaJS() {
+      var _this5 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        elementId: 'turntUp'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      expectAssertion(function () {
+        _this5.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot use `elementId` on a tag-less component/);
+    };
+
+    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+      var _this6 = this;
 
       var template = 'hit dem folks';
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
@@ -30316,12 +30346,12 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
 
       expectAssertion(function () {
-        _this4.render('{{#foo-bar}}{{/foo-bar}}');
+        _this6.render('{{#foo-bar}}{{/foo-bar}}');
       }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
     };
 
     _class.prototype['@test renders a contained view with omitted start tag and tagless parent view context'] = function testRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
-      var _this5 = this;
+      var _this7 = this;
 
       this.registerComponent('root-component', {
         ComponentClass: _emberViewsComponentsComponent.default.extend({
@@ -30350,7 +30380,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this7.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'section' });
@@ -47605,8 +47635,38 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You cannot use `classNameBindings` on a tag-less component/);
     };
 
-    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `attributeBindings` are specified'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndAttributeBindingsAreSpecified() {
       var _this4 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        attributeBindings: ['href']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      expectAssertion(function () {
+        _this4.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot use `attributeBindings` on a tag-less component/);
+    };
+
+    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `elementId` is specified via JS'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaJS() {
+      var _this5 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+        tagName: '',
+        elementId: 'turntUp'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      expectAssertion(function () {
+        _this5.render('{{#foo-bar}}{{/foo-bar}}');
+      }, /You cannot use `elementId` on a tag-less component/);
+    };
+
+    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+      var _this6 = this;
 
       var template = 'hit dem folks';
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
@@ -47620,12 +47680,12 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
 
       expectAssertion(function () {
-        _this4.render('{{#foo-bar}}{{/foo-bar}}');
+        _this6.render('{{#foo-bar}}{{/foo-bar}}');
       }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
     };
 
     _class.prototype['@test renders a contained view with omitted start tag and tagless parent view context'] = function testRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
-      var _this5 = this;
+      var _this7 = this;
 
       this.registerComponent('root-component', {
         ComponentClass: _emberViewsComponentsComponent.default.extend({
@@ -47654,7 +47714,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this7.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'section' });
