@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2e1c0df7
+ * @version   2.7.0-canary+227f122d
  */
 
 var enifed, requireModule, require, Ember;
@@ -88661,50 +88661,13 @@ enifed('ember-views/tests/views/view/nested_view_ordering_test', ['exports', 'em
     equal(insertedLast, 'outer', 'didInsertElement called on outer view after inner view');
   });
 });
-enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/mixins/array', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeMixinsArray, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var parentView, child;
   var originalViewKeyword;
 
-  // .......................................................
-  // removeAllChildren()
-  //
-  var view, childViews;
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('View#removeAllChildren', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-
-      view = _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompiler.compile('\n        {{view view.childView1}}\n        {{view view.childView2}}\n        {{view view.childView3}}\n      '),
-        childView1: _emberViewsViewsView.default.extend(),
-        childView2: _emberViewsViewsView.default.extend(),
-        childView3: _emberViewsViewsView.default.extend()
-      }).create();
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      childViews = _emberMetalProperty_get.get(view, 'childViews');
-    },
-    teardown: function () {
-      childViews.forEach(function (v) {
-        return _emberRuntimeTestsUtils.runDestroy(v);
-      });
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('removes all child views', function () {
-    equal(_emberMetalProperty_get.get(view, 'childViews.length'), 3, 'precond - has child views');
-
-    view.removeAllChildren();
-    equal(_emberMetalProperty_get.get(view, 'childViews.length'), 0, 'removed all children');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('returns receiver', function () {
-    equal(view.removeAllChildren(), view, 'receiver');
-  });
-
+  var view;
   // .......................................................
   // removeFromParent()
   //

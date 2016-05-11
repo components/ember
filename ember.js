@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2e1c0df7
+ * @version   2.7.0-canary+227f122d
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2e1c0df7";
+  exports.default = "2.7.0-canary+227f122d";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -45310,37 +45310,6 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/debug'
     @private
   */
   var LegacyViewSupport = _emberMetalMixin.Mixin.create({
-    mutateChildViews: function (callback) {
-      var childViews = _emberMetalProperty_get.get(this, 'childViews');
-      var idx = childViews.length;
-      var view;
-
-      while (--idx >= 0) {
-        view = childViews[idx];
-        callback(this, view, idx);
-      }
-
-      return this;
-    },
-
-    /**
-      Removes all children from the `parentView`.
-       @method removeAllChildren
-      @return {Ember.View} receiver
-      @private
-    */
-    removeAllChildren: function () {
-      return this.mutateChildViews(function (parentView, view) {
-        parentView.removeChild(view);
-      });
-    },
-
-    destroyAllChildren: function () {
-      return this.mutateChildViews(function (parentView, view) {
-        view.destroy();
-      });
-    },
-
     /**
       Return the nearest ancestor whose parent is an instance of
       `klass`.
@@ -45383,18 +45352,7 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/debug'
         }
         view = _emberMetalProperty_get.get(view, 'parentView');
       }
-    },
-
-    /**
-      If a value that affects template rendering changes, the view should be
-      re-rendered to reflect the new value.
-       @method _contextDidChange
-      @private
-      @private
-    */
-    _contextDidChange: _emberMetalMixin.observer('context', function () {
-      this.rerender();
-    })
+    }
   });
 
   exports.default = LegacyViewSupport;
@@ -45733,7 +45691,6 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/d
   exports.default = _emberMetalMixin.Mixin.create({
     /**
       Array of child views. You should never edit this array directly.
-      Instead, use `appendChild` and `removeFromParent`.
        @property childViews
       @type Array
       @default []
@@ -45983,7 +45940,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/debug',
 
   exports.default = ViewStateSupport;
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'container/owner', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _containerOwner, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'container/owner', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _containerOwner, _emberViewsSystemJquery) {
   'use strict';
 
   var _Mixin$create;
@@ -46598,7 +46555,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       this.scheduledRevalidation = true;
       _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
     }
-  }, _Mixin$create.templateRenderer = null, _Mixin$create.removeFromParent = function () {
+  }, _Mixin$create.removeFromParent = function () {
     var parent = this.parentView;
 
     // Remove DOM element from parent
@@ -46635,32 +46592,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     this._viewRegistry[this.elementId] = this;
   }, _Mixin$create._unregister = function () {
     delete this._viewRegistry[this.elementId];
-  }, _Mixin$create.registerObserver = function (root, path, target, observer) {
-    if (!observer && 'function' === typeof target) {
-      observer = target;
-      target = null;
-    }
-
-    if (!root || typeof root !== 'object') {
-      return;
-    }
-
-    var scheduledObserver = this._wrapAsScheduled(observer);
-
-    _emberMetalObserver.addObserver(root, path, target, scheduledObserver);
-
-    this.one('willClearRender', function () {
-      _emberMetalObserver.removeObserver(root, path, target, scheduledObserver);
-    });
-  }, _Mixin$create._wrapAsScheduled = function (fn) {
-    var view = this;
-    var stateCheckedFn = function () {
-      view._currentState.invokeObserver(this, fn);
-    };
-    var scheduledFn = function () {
-      _emberMetalRun_loop.default.scheduleOnce('render', this, stateCheckedFn);
-    };
-    return scheduledFn;
   }, _Mixin$create));
 });
 /*
@@ -47806,8 +47737,7 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'emb
 
     rerender: function (view) {
       view.renderer.ensureViewNotRendering(view);
-    },
-    invokeObserver: function () {}
+    }
   };
 });
 enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/assign', 'ember-views/views/states/default', 'ember-metal/error'], function (exports, _emberMetalAssign, _emberViewsViewsStatesDefault, _emberMetalError) {
@@ -47887,10 +47817,6 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
       } else {
         return true; // continue event propagation
       }
-    },
-
-    invokeObserver: function (target, observer) {
-      observer.call(target);
     }
   });
 
