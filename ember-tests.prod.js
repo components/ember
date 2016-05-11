@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e38b48ee
+ * @version   2.7.0-canary+2e1c0df7
  */
 
 var enifed, requireModule, require, Ember;
@@ -3637,16 +3637,40 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         rerender();
         assertEmberishElement('aside', {}, "Hello. It's me.");
     });
-    QUnit.test('dynamic attribute bindings', function (assert) {
-        var fooBarInstance = null;
-
+    QUnit.test('dynamic tagless component', function (assert) {
         var FooBar = (function (_EmberishCurlyComponent2) {
             _inherits(FooBar, _EmberishCurlyComponent2);
 
             function FooBar() {
                 _classCallCheck(this, FooBar);
 
-                _EmberishCurlyComponent2.call(this);
+                for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+                    args[_key6] = arguments[_key6];
+                }
+
+                _EmberishCurlyComponent2.call.apply(_EmberishCurlyComponent2, [this].concat(args));
+                this.tagName = '';
+            }
+
+            return FooBar;
+        })(_glimmerTestHelpers.EmberishCurlyComponent);
+
+        env.registerEmberishCurlyComponent('foo-bar', FooBar, "Michael Jordan says \"Go Tagless\"");
+        appendViewFor("{{foo-bar}}");
+        assertAppended('Michael Jordan says "Go Tagless"');
+        rerender();
+        assertAppended('Michael Jordan says "Go Tagless"');
+    });
+    QUnit.test('dynamic attribute bindings', function (assert) {
+        var fooBarInstance = null;
+
+        var FooBar = (function (_EmberishCurlyComponent3) {
+            _inherits(FooBar, _EmberishCurlyComponent3);
+
+            function FooBar() {
+                _classCallCheck(this, FooBar);
+
+                _EmberishCurlyComponent3.call(this);
                 this.attributeBindings = ['style'];
                 this.style = null;
                 this.style = 'color: red;';
@@ -3787,13 +3811,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     });
     _module('Curly Components - positional arguments');
     QUnit.skip('static named positional parameters', function () {
-        var SampleComponent = (function (_EmberishCurlyComponent3) {
-            _inherits(SampleComponent, _EmberishCurlyComponent3);
+        var SampleComponent = (function (_EmberishCurlyComponent4) {
+            _inherits(SampleComponent, _EmberishCurlyComponent4);
 
             function SampleComponent() {
                 _classCallCheck(this, SampleComponent);
 
-                _EmberishCurlyComponent3.apply(this, arguments);
+                _EmberishCurlyComponent4.apply(this, arguments);
             }
 
             return SampleComponent;
@@ -4463,17 +4487,17 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.skip('lookup of component takes priority over property', function () {
         expect(1);
 
-        var MyComponent = (function (_EmberishCurlyComponent4) {
-            _inherits(MyComponent, _EmberishCurlyComponent4);
+        var MyComponent = (function (_EmberishCurlyComponent5) {
+            _inherits(MyComponent, _EmberishCurlyComponent5);
 
             function MyComponent() {
                 _classCallCheck(this, MyComponent);
 
-                for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-                    args[_key6] = arguments[_key6];
+                for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+                    args[_key7] = arguments[_key7];
                 }
 
-                _EmberishCurlyComponent4.call.apply(_EmberishCurlyComponent4, [this].concat(args));
+                _EmberishCurlyComponent5.call.apply(_EmberishCurlyComponent5, [this].concat(args));
                 this['some-component'] = 'not-some-component';
                 this['some-prop'] = 'some-prop';
             }
@@ -4481,13 +4505,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
             return MyComponent;
         })(_glimmerTestHelpers.EmberishCurlyComponent);
 
-        var SomeComponent = (function (_EmberishCurlyComponent5) {
-            _inherits(SomeComponent, _EmberishCurlyComponent5);
+        var SomeComponent = (function (_EmberishCurlyComponent6) {
+            _inherits(SomeComponent, _EmberishCurlyComponent6);
 
             function SomeComponent() {
                 _classCallCheck(this, SomeComponent);
 
-                _EmberishCurlyComponent5.apply(this, arguments);
+                _EmberishCurlyComponent6.apply(this, arguments);
             }
 
             return SomeComponent;
@@ -4501,13 +4525,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.test('Curly component hooks (with attrs)', function () {
         var instance = undefined;
 
-        var NonBlock = (function (_EmberishCurlyComponent6) {
-            _inherits(NonBlock, _EmberishCurlyComponent6);
+        var NonBlock = (function (_EmberishCurlyComponent7) {
+            _inherits(NonBlock, _EmberishCurlyComponent7);
 
             function NonBlock() {
                 _classCallCheck(this, NonBlock);
 
-                _EmberishCurlyComponent6.apply(this, arguments);
+                _EmberishCurlyComponent7.apply(this, arguments);
             }
 
             NonBlock.prototype.init = function init() {
@@ -4543,13 +4567,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.test('Curly component hooks (attrs as self props)', function () {
         var instance = undefined;
 
-        var NonBlock = (function (_EmberishCurlyComponent7) {
-            _inherits(NonBlock, _EmberishCurlyComponent7);
+        var NonBlock = (function (_EmberishCurlyComponent8) {
+            _inherits(NonBlock, _EmberishCurlyComponent8);
 
             function NonBlock() {
                 _classCallCheck(this, NonBlock);
 
-                _EmberishCurlyComponent7.apply(this, arguments);
+                _EmberishCurlyComponent8.apply(this, arguments);
             }
 
             NonBlock.prototype.init = function init() {
@@ -4585,13 +4609,13 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.test('Curly component hooks (force recompute)', function () {
         var instance = undefined;
 
-        var NonBlock = (function (_EmberishCurlyComponent8) {
-            _inherits(NonBlock, _EmberishCurlyComponent8);
+        var NonBlock = (function (_EmberishCurlyComponent9) {
+            _inherits(NonBlock, _EmberishCurlyComponent9);
 
             function NonBlock() {
                 _classCallCheck(this, NonBlock);
 
-                _EmberishCurlyComponent8.apply(this, arguments);
+                _EmberishCurlyComponent9.apply(this, arguments);
             }
 
             NonBlock.prototype.init = function init() {
@@ -5058,6 +5082,25 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         view.destroy();
         assert.strictEqual(glimmerDestroyed, true, 'the glimmer component should be destroyed');
         assert.strictEqual(curlyDestroyed, true, 'the curly component should be destroyed');
+    });
+    QUnit.test('tagless components render properly', function (assert) {
+        var FooBar = (function (_EmberishCurlyComponent10) {
+            _inherits(FooBar, _EmberishCurlyComponent10);
+
+            function FooBar() {
+                _classCallCheck(this, FooBar);
+
+                _EmberishCurlyComponent10.apply(this, arguments);
+            }
+
+            return FooBar;
+        })(_glimmerTestHelpers.EmberishCurlyComponent);
+
+        env.registerEmberishCurlyTaglessComponent('foo-bar', FooBar, "Michael Jordan says \"Go Tagless\"");
+        appendViewFor("{{foo-bar}}");
+        assertAppended('Michael Jordan says "Go Tagless"');
+        rerender();
+        assertAppended('Michael Jordan says "Go Tagless"');
     });
 });
 
@@ -8645,6 +8688,11 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return this.registerComponent(name, definition);
         };
 
+        TestEnvironment.prototype.registerEmberishCurlyTaglessComponent = function registerEmberishCurlyTaglessComponent(name, Component, layout) {
+            var definition = new EmberishCurlyTaglessComponentDefinition(name, EMBERISH_CURLY_COMPONENT_MANAGER, Component, layout);
+            return this.registerComponent(name, definition);
+        };
+
         TestEnvironment.prototype.registerEmberishGlimmerComponent = function registerEmberishGlimmerComponent(name, Component, layout) {
             var definition = new EmberishGlimmerComponentDefinition(name, EMBERISH_GLIMMER_COMPONENT_MANAGER, Component, layout);
             return this.registerComponent(name, definition);
@@ -8907,20 +8955,40 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
     function EmberTagName(vm) {
         var self = vm.getSelf().value();
-        return new _glimmerRuntime.ValueReference(self['tagName'] || 'div');
+        var tagName = self['tagName'];
+        tagName = tagName === '' ? null : self['tagName'] || 'div';
+        return new _glimmerRuntime.ValueReference(tagName);
     }
     function EmberID(vm) {
         var self = vm.getSelf().value();
         return new _glimmerRuntime.ValueReference("ember" + self._guid);
     }
 
-    var EmberishCurlyComponentDefinition = (function (_GenericComponentDefinition2) {
-        _inherits(EmberishCurlyComponentDefinition, _GenericComponentDefinition2);
+    var EmberishCurlyTaglessComponentDefinition = (function (_GenericComponentDefinition2) {
+        _inherits(EmberishCurlyTaglessComponentDefinition, _GenericComponentDefinition2);
+
+        function EmberishCurlyTaglessComponentDefinition() {
+            _classCallCheck(this, EmberishCurlyTaglessComponentDefinition);
+
+            _GenericComponentDefinition2.apply(this, arguments);
+        }
+
+        EmberishCurlyTaglessComponentDefinition.prototype.compile = function compile(builder) {
+            builder.wrapLayout(this.compileLayout(builder.env));
+            builder.attrs.static('class', 'ember-view');
+            builder.attrs.dynamic('id', EmberID);
+        };
+
+        return EmberishCurlyTaglessComponentDefinition;
+    })(GenericComponentDefinition);
+
+    var EmberishCurlyComponentDefinition = (function (_GenericComponentDefinition3) {
+        _inherits(EmberishCurlyComponentDefinition, _GenericComponentDefinition3);
 
         function EmberishCurlyComponentDefinition() {
             _classCallCheck(this, EmberishCurlyComponentDefinition);
 
-            _GenericComponentDefinition2.apply(this, arguments);
+            _GenericComponentDefinition3.apply(this, arguments);
         }
 
         EmberishCurlyComponentDefinition.prototype.compile = function compile(builder) {
@@ -8933,13 +9001,13 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return EmberishCurlyComponentDefinition;
     })(GenericComponentDefinition);
 
-    var EmberishGlimmerComponentDefinition = (function (_GenericComponentDefinition3) {
-        _inherits(EmberishGlimmerComponentDefinition, _GenericComponentDefinition3);
+    var EmberishGlimmerComponentDefinition = (function (_GenericComponentDefinition4) {
+        _inherits(EmberishGlimmerComponentDefinition, _GenericComponentDefinition4);
 
         function EmberishGlimmerComponentDefinition() {
             _classCallCheck(this, EmberishGlimmerComponentDefinition);
 
-            _GenericComponentDefinition3.apply(this, arguments);
+            _GenericComponentDefinition4.apply(this, arguments);
         }
 
         EmberishGlimmerComponentDefinition.prototype.compile = function compile(builder) {
@@ -30129,7 +30197,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       };
     };
 
-    _class.prototype['@htmlbars fragments do not render an outer tag'] = function htmlbarsFragmentsDoNotRenderAnOuterTag() {
+    _class.prototype['@test fragments do not render an outer tag'] = function testFragmentsDoNotRenderAnOuterTag() {
       var instance = undefined;
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         tagName: '',
@@ -30169,7 +30237,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       });
     };
 
-    _class.prototype['@htmlbars throws an error if an event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfAnEventFunctionIsDefinedInATaglessComponent() {
+    _class.prototype['@test throws an error if an event function is defined in a tagless component'] = function testThrowsAnErrorIfAnEventFunctionIsDefinedInATaglessComponent() {
       var _this = this;
 
       var instance = undefined;
@@ -30190,7 +30258,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
     };
 
-    _class.prototype['@htmlbars throws an error if a custom defined event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfACustomDefinedEventFunctionIsDefinedInATaglessComponent() {
+    _class.prototype['@test throws an error if a custom defined event function is defined in a tagless component'] = function testThrowsAnErrorIfACustomDefinedEventFunctionIsDefinedInATaglessComponent() {
       var _this2 = this;
 
       var instance = undefined;
@@ -30211,7 +30279,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
     };
 
-    _class.prototype['@htmlbars throws an error if `tagName` is an empty string and `classNameBindings` are specified'] = function htmlbarsThrowsAnErrorIfTagNameIsAnEmptyStringAndClassNameBindingsAreSpecified() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `classNameBindings` are specified'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndClassNameBindingsAreSpecified() {
       var _this3 = this;
 
       var instance = undefined;
@@ -30233,7 +30301,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You cannot use `classNameBindings` on a tag-less component/);
     };
 
-    _class.prototype['@htmlbars throws an error if when $() is accessed on component where `tagName` is an empty string'] = function htmlbarsThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
       var _this4 = this;
 
       var template = 'hit dem folks';
@@ -30252,7 +30320,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
     };
 
-    _class.prototype['@htmlbars renders a contained view with omitted start tag and tagless parent view context'] = function htmlbarsRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
+    _class.prototype['@test renders a contained view with omitted start tag and tagless parent view context'] = function testRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
       var _this5 = this;
 
       this.registerComponent('root-component', {
@@ -47433,7 +47501,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       };
     };
 
-    _class.prototype['@htmlbars fragments do not render an outer tag'] = function htmlbarsFragmentsDoNotRenderAnOuterTag() {
+    _class.prototype['@test fragments do not render an outer tag'] = function testFragmentsDoNotRenderAnOuterTag() {
       var instance = undefined;
       var FooBarComponent = _emberViewsComponentsComponent.default.extend({
         tagName: '',
@@ -47473,7 +47541,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       });
     };
 
-    _class.prototype['@htmlbars throws an error if an event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfAnEventFunctionIsDefinedInATaglessComponent() {
+    _class.prototype['@test throws an error if an event function is defined in a tagless component'] = function testThrowsAnErrorIfAnEventFunctionIsDefinedInATaglessComponent() {
       var _this = this;
 
       var instance = undefined;
@@ -47494,7 +47562,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
     };
 
-    _class.prototype['@htmlbars throws an error if a custom defined event function is defined in a tagless component'] = function htmlbarsThrowsAnErrorIfACustomDefinedEventFunctionIsDefinedInATaglessComponent() {
+    _class.prototype['@test throws an error if a custom defined event function is defined in a tagless component'] = function testThrowsAnErrorIfACustomDefinedEventFunctionIsDefinedInATaglessComponent() {
       var _this2 = this;
 
       var instance = undefined;
@@ -47515,7 +47583,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
     };
 
-    _class.prototype['@htmlbars throws an error if `tagName` is an empty string and `classNameBindings` are specified'] = function htmlbarsThrowsAnErrorIfTagNameIsAnEmptyStringAndClassNameBindingsAreSpecified() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `classNameBindings` are specified'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndClassNameBindingsAreSpecified() {
       var _this3 = this;
 
       var instance = undefined;
@@ -47537,7 +47605,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You cannot use `classNameBindings` on a tag-less component/);
     };
 
-    _class.prototype['@htmlbars throws an error if when $() is accessed on component where `tagName` is an empty string'] = function htmlbarsThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
       var _this4 = this;
 
       var template = 'hit dem folks';
@@ -47556,7 +47624,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
     };
 
-    _class.prototype['@htmlbars renders a contained view with omitted start tag and tagless parent view context'] = function htmlbarsRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
+    _class.prototype['@test renders a contained view with omitted start tag and tagless parent view context'] = function testRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
       var _this5 = this;
 
       this.registerComponent('root-component', {
