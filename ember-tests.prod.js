@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+74937c76
+ * @version   2.7.0-canary+d151ef17
  */
 
 var enifed, requireModule, require, Ember;
@@ -34254,6 +34254,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       var _this26 = this;
 
       var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: 'div',
         actions: {
           ohNoeNotValid: function () {}
         }
@@ -53130,6 +53131,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       var _this26 = this;
 
       var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: 'div',
         actions: {
           ohNoeNotValid: function () {}
         }
