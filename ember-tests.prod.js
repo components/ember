@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d151ef17
+ * @version   2.7.0-canary+97154bca
  */
 
 var enifed, requireModule, require, Ember;
@@ -25813,6 +25813,382 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('ClassNameBindings intigration', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can have class name bindings'] = function testItCanHaveClassNameBindings() {
+      var _this = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        classNameBindings: ['foo', 'isEnabled:enabled', 'isHappy:happy:sad']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar foo=foo isEnabled=isEnabled isHappy=isHappy}}', { foo: 'foo', isEnabled: true, isHappy: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this.context, 'isEnabled', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'foo', undefined);
+        _emberMetalProperty_set.set(_this.context, 'isHappy', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this.context, 'isEnabled', true);
+        _emberMetalProperty_set.set(_this.context, 'isHappy', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+    };
+
+    _class.prototype['@test :: class name syntax works with an empty true class'] = function testClassNameSyntaxWorksWithAnEmptyTrueClass() {
+      var _this2 = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        classNameBindings: ['isEnabled::not-enabled']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar isEnabled=enabled}}', {
+        enabled: false
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view not-enabled') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'enabled', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'enabled', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view not-enabled') }, content: 'hello' });
+    };
+
+    _class.prototype['@test uses all provided static class names (issue #11193)'] = function testUsesAllProvidedStaticClassNamesIssue11193() {
+      var _this3 = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        classNameBindings: [':class-one', ':class-two']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}', {
+        enabled: false
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view class-one class-two') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'enabled', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view class-one class-two') }, content: 'hello' });
+    };
+
+    _class.prototype['@test Providing a binding with a space in it asserts'] = function testProvidingABindingWithASpaceInItAsserts() {
+      var _this4 = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        classNameBindings: 'i:think:i am:so:clever'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this4.render('{{foo-bar}}');
+      }, /classNameBindings must not have spaces in them/i);
+    };
+
+    _class.prototype['@test it can set class name bindings in the constructor'] = function testItCanSetClassNameBindingsInTheConstructor() {
+      var _this5 = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        classNameBindings: ['foo'],
+
+        init: function () {
+          this._super();
+
+          var bindings = this.classNameBindings;
+
+          if (this.get('bindIsEnabled')) {
+            bindings.push('isEnabled:enabled');
+          }
+
+          if (this.get('bindIsHappy')) {
+            bindings.push('isHappy:happy:sad');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { foo: 'foo', isEnabled: true, isHappy: false });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this5.context, 'isEnabled', false);
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'foo', undefined);
+        _emberMetalProperty_set.set(_this5.context, 'isHappy', true);
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this5.context, 'isEnabled', true);
+        _emberMetalProperty_set.set(_this5.context, 'isHappy', false);
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  var bindingDeprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('ClassBinding intigration', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@htmlbars it should apply classBinding without condition always'] = function htmlbarsItShouldApplyClassBindingWithoutConditionAlways() {
+      var _this6 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding=":foo"}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should merge classBinding with class'] = function glimmerItShouldMergeClassBindingWithClass() {
+      var _this7 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="birdman:respeck" class="myName"}}', { birdman: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
+    };
+
+    _class2.prototype['@glimmer in glimmer it should apply classBinding without condition always'] = function glimmerInGlimmerItShouldApplyClassBindingWithoutConditionAlways() {
+      var _this8 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding=":foo"}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with only truthy condition'] = function glimmerItShouldApplyClassBindingWithOnlyTruthyCondition() {
+      var _this9 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck  ember-view') } });
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with only falsy condition'] = function glimmerItShouldApplyClassBindingWithOnlyFalsyCondition() {
+      var _this10 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('shade  ember-view') } });
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('shade  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply nothing when classBinding is falsy but only supplies truthy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
+      var _this11 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply nothing when classBinding is truthy but only supplies falsy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
+      var _this12 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with falsy condition'] = function glimmerItShouldApplyClassBindingWithFalsyCondition() {
+      var _this13 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('scrub  ember-view') } });
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('scrub  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with truthy condition'] = function glimmerItShouldApplyClassBindingWithTruthyCondition() {
+      var _this14 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fresh  ember-view') } });
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fresh  ember-view') } });
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
   'use strict';
 
@@ -26665,47 +27041,46 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'], ['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}'], ['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}'], ['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
-      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
-      _templateObject17 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
-      _templateObject18 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
-      _templateObject19 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
-      _templateObject20 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
-      _templateObject21 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
-      _templateObject23 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
-      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject26 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
-      _templateObject27 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject28 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
-      _templateObject29 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject30 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
-      _templateObject31 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
-      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
-      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
-      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
-      _templateObject36 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
-      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
-      _templateObject38 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject39 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject40 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject41 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject42 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'], ['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}'], ['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}'], ['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject12 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject16 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject17 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject18 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject19 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject20 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject21 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
+      _templateObject22 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject23 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject24 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject25 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject30 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject36 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject38 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject39 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject40 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject41 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -26714,8 +27089,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
-
-  var bindingDeprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -26941,168 +27314,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar') }, content: 'hello' });
     };
 
-    _class.prototype['@htmlbars it should apply classBinding without condition always'] = function htmlbarsItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this9 = this;
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding=":foo"}}');
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
-
-      this.runTask(function () {
-        return _this9.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should merge classBinding with class'] = function glimmerItShouldMergeClassBindingWithClass() {
-      var _this10 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="birdman:respeck" class="myName"}}', { birdman: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
-
-      this.runTask(function () {
-        return _this10.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
-    };
-
-    _class.prototype['@glimmer in glimmer it should apply classBinding without condition always'] = function glimmerInGlimmerItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this11 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding=":foo"}}');
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
-
-      this.runTask(function () {
-        return _this11.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with only truthy condition'] = function glimmerItShouldApplyClassBindingWithOnlyTruthyCondition() {
-      var _this12 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck  ember-view') } });
-
-      this.runTask(function () {
-        return _this12.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with only falsy condition'] = function glimmerItShouldApplyClassBindingWithOnlyFalsyCondition() {
-      var _this13 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('shade  ember-view') } });
-
-      this.runTask(function () {
-        return _this13.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('shade  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply nothing when classBinding is falsy but only supplies truthy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
-      var _this14 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
-
-      this.runTask(function () {
-        return _this14.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply nothing when classBinding is truthy but only supplies falsy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
-      var _this15 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
-
-      this.runTask(function () {
-        return _this15.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with falsy condition'] = function glimmerItShouldApplyClassBindingWithFalsyCondition() {
-      var _this16 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('scrub  ember-view') } });
-
-      this.runTask(function () {
-        return _this16.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('scrub  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with truthy condition'] = function glimmerItShouldApplyClassBindingWithTruthyCondition() {
-      var _this17 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fresh  ember-view') } });
-
-      this.runTask(function () {
-        return _this17.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fresh  ember-view') } });
-    };
-
     _class.prototype['@test should not apply falsy class name'] = function testShouldNotApplyFalsyClassName() {
-      var _this18 = this;
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -27113,14 +27326,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
     };
 
     _class.prototype['@test should apply classes of the dasherized property name when bound property specified is true'] = function testShouldApplyClassesOfTheDasherizedPropertyNameWhenBoundPropertySpecifiedIsTrue() {
-      var _this19 = this;
+      var _this10 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -27131,26 +27344,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this10.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'model.someTruth', false);
+        return _emberMetalProperty_set.set(_this10.context, 'model.someTruth', false);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'model', { someTruth: true });
+        return _emberMetalProperty_set.set(_this10.context, 'model', { someTruth: true });
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
     };
 
     _class.prototype['@test class property on components can be dynamic'] = function testClassPropertyOnComponentsCanBeDynamic() {
-      var _this20 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -27161,26 +27374,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'fooBar', false);
+        return _emberMetalProperty_set.set(_this11.context, 'fooBar', false);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'fooBar', true);
+        return _emberMetalProperty_set.set(_this11.context, 'fooBar', true);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
     };
 
     _class.prototype['@test it can have custom classNames from constructor'] = function testItCanHaveCustomClassNamesFromConstructor() {
-      var _this21 = this;
+      var _this12 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -27196,14 +27409,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this12.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
     };
 
     _class.prototype['@test it can set custom classNames from the invocation'] = function testItCanSetCustomClassNamesFromTheInvocation() {
-      var _this22 = this;
+      var _this13 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         classNames: ['foo']
@@ -27218,7 +27431,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar baz') }, content: 'hello' });
@@ -27226,121 +27439,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
     };
 
-    _class.prototype['@test it can have class name bindings'] = function testItCanHaveClassNameBindings() {
-      var _this23 = this;
-
-      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        classNameBindings: ['foo', 'isEnabled:enabled', 'isHappy:happy:sad']
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
-      this.render('{{foo-bar foo=foo isEnabled=isEnabled isHappy=isHappy}}', { foo: 'foo', isEnabled: true, isHappy: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-
-      this.runTask(function () {
-        return _this23.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this23.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this23.context, 'isEnabled', false);
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this23.context, 'foo', undefined);
-        _emberMetalProperty_set.set(_this23.context, 'isHappy', true);
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this23.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this23.context, 'isEnabled', true);
-        _emberMetalProperty_set.set(_this23.context, 'isHappy', false);
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-    };
-
-    _class.prototype['@test it can set class name bindings in the constructor'] = function testItCanSetClassNameBindingsInTheConstructor() {
-      var _this24 = this;
-
-      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        classNameBindings: ['foo'],
-
-        init: function () {
-          this._super();
-
-          var bindings = this.classNameBindings;
-
-          if (this.get('bindIsEnabled')) {
-            bindings.push('isEnabled:enabled');
-          }
-
-          if (this.get('bindIsHappy')) {
-            bindings.push('isHappy:happy:sad');
-          }
-        }
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: 'foo', isEnabled: true, isHappy: false });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
-
-      this.runTask(function () {
-        return _this24.rerender();
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this24.context, 'isEnabled', false);
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'foo', undefined);
-        _emberMetalProperty_set.set(_this24.context, 'isHappy', true);
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this24.context, 'isEnabled', true);
-        _emberMetalProperty_set.set(_this24.context, 'isHappy', false);
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
-    };
-
     _class.prototype['@test it can have attribute bindings'] = function testItCanHaveAttributeBindings() {
-      var _this25 = this;
+      var _this14 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         attributeBindings: ['foo:data-foo', 'bar:data-bar']
@@ -27353,28 +27453,28 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'foo', 'data-bar': 'bar' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this25.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'foo', 'data-bar': 'bar' }, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this25.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this25.context, 'bar', undefined);
+        _emberMetalProperty_set.set(_this14.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this14.context, 'bar', undefined);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'FOO' }, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this25.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this25.context, 'bar', 'bar');
+        _emberMetalProperty_set.set(_this14.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this14.context, 'bar', 'bar');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'foo', 'data-bar': 'bar' }, content: 'hello' });
     };
 
     _class.prototype['@test it can set attribute bindings in the constructor'] = function testItCanSetAttributeBindingsInTheConstructor() {
-      var _this26 = this;
+      var _this15 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -27396,7 +27496,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), { foo: 'foo', bar: 'bar' });
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: 'foo', bar: 'bar' });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'foo' }, content: 'hello' });
       this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'data-bar': 'bar' }, content: 'hello' });
@@ -27404,7 +27504,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'foo' }, content: 'hello' });
@@ -27413,8 +27513,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this26.context, 'bar', undefined);
+        _emberMetalProperty_set.set(_this15.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this15.context, 'bar', undefined);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'FOO' }, content: 'hello' });
@@ -27423,7 +27523,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this26.context, 'bar', 'BAR');
+        return _emberMetalProperty_set.set(_this15.context, 'bar', 'BAR');
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'FOO' }, content: 'hello' });
@@ -27432,8 +27532,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this26.context, 'bar', 'bar');
+        _emberMetalProperty_set.set(_this15.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this15.context, 'bar', 'bar');
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'foo' }, content: 'hello' });
@@ -27443,17 +27543,17 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it should not allow attributeBindings to be set'] = function testItShouldNotAllowAttributeBindingsToBeSet() {
-      var _this27 = this;
+      var _this16 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
       expectAssertion(function () {
-        _this27.render('{{foo-bar attributeBindings="one two"}}');
+        _this16.render('{{foo-bar attributeBindings="one two"}}');
       }, /Setting 'attributeBindings' via template helpers is not allowed/);
     };
 
     _class.prototype['@test it has an element'] = function testItHasAnElement() {
-      var _this28 = this;
+      var _this17 = this;
 
       var instance = undefined;
 
@@ -27473,7 +27573,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this28.rerender();
+        return _this17.rerender();
       });
 
       var element2 = instance.element;
@@ -27484,7 +27584,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
-      var _this29 = this;
+      var _this18 = this;
 
       var instance = undefined;
 
@@ -27504,7 +27604,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this29.rerender();
+        return _this18.rerender();
       });
 
       var element2 = instance.$()[0];
@@ -27515,7 +27615,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
-      var _this30 = this;
+      var _this19 = this;
 
       var instance = undefined;
 
@@ -27536,7 +27636,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal($span.attr('class'), 'inner');
 
       this.runTask(function () {
-        return _this30.rerender();
+        return _this19.rerender();
       });
 
       $span = instance.$('span');
@@ -27546,7 +27646,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test an empty component does not have childNodes'] = function testAnEmptyComponentDoesNotHaveChildNodes(assert) {
-      var _this31 = this;
+      var _this20 = this;
 
       var fooBarInstance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -27566,7 +27666,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this20.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'input' });
@@ -27575,7 +27675,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
-      var _this32 = this;
+      var _this21 = this;
 
       var fooBarInstance = undefined,
           fooBarBazInstance = undefined;
@@ -27607,7 +27707,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this32.rerender();
+        return _this21.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -27619,7 +27719,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it renders passed named arguments'] = function testItRendersPassedNamedArguments() {
-      var _this33 = this;
+      var _this22 = this;
 
       this.registerComponent('foo-bar', {
         template: '{{foo}}'
@@ -27634,26 +27734,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this33.rerender();
+        return _this22.rerender();
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this33.context.set('model.bar', 'Hello');
+        return _this22.context.set('model.bar', 'Hello');
       });
 
       this.assertText('Hello');
 
       this.runTask(function () {
-        return _this33.context.set('model', { bar: 'Hola' });
+        return _this22.context.set('model', { bar: 'Hola' });
       });
 
       this.assertText('Hola');
     };
 
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
-      var _this34 = this;
+      var _this23 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}} - In component' });
 
@@ -27662,14 +27762,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
 
       this.runTask(function () {
-        return _this34.rerender();
+        return _this23.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this35 = this;
+      var _this24 = this;
 
       var instance = undefined;
 
@@ -27688,7 +27788,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this35.rerender();
+        return _this24.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -27707,7 +27807,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this36 = this;
+      var _this25 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -27716,26 +27816,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this36.rerender();
+        return _this25.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this36.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this25.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this36.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this25.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it can yield internal and external properties positionally'] = function testItCanYieldInternalAndExternalPropertiesPositionally() {
-      var _this37 = this;
+      var _this26 = this;
 
       var instance = undefined;
 
@@ -27759,13 +27859,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _this37.rerender();
+        return _this26.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this37.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
+        return _emberMetalProperty_set.set(_this26.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hello' });
@@ -27778,7 +27878,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       this.runTask(function () {
         _emberMetalProperty_set.set(instance, 'greeting', 'hello');
-        _emberMetalProperty_set.set(_this37.context, 'person', {
+        _emberMetalProperty_set.set(_this26.context, 'person', {
           firstName: 'Joel',
           lastName: 'Kang'
         });
@@ -27788,7 +27888,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test #11519 - block param infinite loop'] = function test11519BlockParamInfiniteLoop() {
-      var _this38 = this;
+      var _this27 = this;
 
       var instance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -27810,7 +27910,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       // Trigger a non-revalidating re-render. The yielded block will not be dirtied
       // nor will block param streams, and thus no infinite loop will occur.
       this.runTask(function () {
-        return _this38.rerender();
+        return _this27.rerender();
       });
 
       this.assertText('0');
@@ -27833,7 +27933,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
-      var _this39 = this;
+      var _this28 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -27847,7 +27947,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), {
         cond1: true,
         cond2: true,
         cond3: true,
@@ -27858,13 +27958,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this39.rerender();
+        return _this28.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this39.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this28.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -27872,23 +27972,23 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this39.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this39.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this39.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this28.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this39.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this39.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     _class.prototype['@test should escape HTML in normal mustaches'] = function testShouldEscapeHTMLInNormalMustaches() {
-      var _this40 = this;
+      var _this29 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -27906,7 +28006,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('you need to be more <b>bold</b>');
 
       this.runTask(function () {
-        return _this40.rerender();
+        return _this29.rerender();
       });
 
       this.assertText('you need to be more <b>bold</b>');
@@ -27923,7 +28023,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test should not escape HTML in triple mustaches'] = function testShouldNotEscapeHTMLInTripleMustaches(assert) {
-      var _this41 = this;
+      var _this30 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -27943,7 +28043,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this41.rerender();
+        return _this30.rerender();
       });
 
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -27962,7 +28062,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test should not escape HTML if string is a htmlSafe'] = function testShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
-      var _this42 = this;
+      var _this31 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -27982,7 +28082,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this31.rerender();
       });
 
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -28001,7 +28101,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
-      var _this43 = this;
+      var _this32 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -28016,7 +28116,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
 
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4)
       });
 
       this.render('{{foo-bar}}');
@@ -28024,7 +28124,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'true' });
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this32.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'true' });
@@ -28043,7 +28143,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
-      var _this44 = this;
+      var _this33 = this;
 
       this.registerComponent('some-component', {
         template: 'some-component'
@@ -28057,14 +28157,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('some-prop some-component');
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this33.rerender();
       });
 
       this.assertText('some-prop some-component');
     };
 
     _class.prototype['@test component without dash is not looked up'] = function testComponentWithoutDashIsNotLookedUp() {
-      var _this45 = this;
+      var _this34 = this;
 
       this.registerComponent('somecomponent', {
         template: 'somecomponent'
@@ -28077,26 +28177,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this34.rerender();
       });
 
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this45.context.set('somecomponent', 'not not notsomecomponent');
+        return _this34.context.set('somecomponent', 'not not notsomecomponent');
       });
 
       this.assertText('not not notsomecomponent');
 
       this.runTask(function () {
-        return _this45.context.set('somecomponent', 'notsomecomponent');
+        return _this34.context.set('somecomponent', 'notsomecomponent');
       });
 
       this.assertText('notsomecomponent');
     };
 
     _class.prototype['@test non-block with properties on attrs'] = function testNonBlockWithPropertiesOnAttrs() {
-      var _this46 = this;
+      var _this35 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{attrs.someProp}}'
@@ -28109,26 +28209,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this35.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this46.context.set('prop', 'other thing there');
+        return _this35.context.set('prop', 'other thing there');
       });
 
       this.assertText('In layout - someProp: other thing there');
 
       this.runTask(function () {
-        return _this46.context.set('prop', 'something here');
+        return _this35.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@skip non-block with properties overridden in init'] = function skipNonBlockWithPropertiesOverriddenInInit() {
-      var _this47 = this;
+      var _this36 = this;
 
       var instance = undefined;
       this.registerComponent('non-block', {
@@ -28149,13 +28249,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this36.rerender();
       });
 
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this47.context.set('prop', 'updated something passed when invoked');
+        return _this36.context.set('prop', 'updated something passed when invoked');
       });
 
       this.assertText('In layout - someProp: updated something passed when invoked');
@@ -28167,7 +28267,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: update value set in instance');
 
       this.runTask(function () {
-        return _this47.context.set('prop', 'something passed when invoked');
+        return _this36.context.set('prop', 'something passed when invoked');
       });
       this.runTask(function () {
         return instance.set('someProp', 'value set in instance');
@@ -28177,7 +28277,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars rerendering component with attrs from parent'] = function htmlbarsRerenderingComponentWithAttrsFromParent(assert) {
-      var _this48 = this;
+      var _this37 = this;
 
       var willUpdate = 0;
       var didReceiveAttrs = 0;
@@ -28203,7 +28303,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: wycats');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this37.rerender();
       });
 
       this.assertText('In layout - someProp: wycats');
@@ -28211,7 +28311,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(willUpdate, 1, 'The willUpdate hook fired once');
 
       this.runTask(function () {
-        return _this48.context.set('someProp', 'tomdale');
+        return _this37.context.set('someProp', 'tomdale');
       });
 
       this.assertText('In layout - someProp: tomdale');
@@ -28219,7 +28319,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(willUpdate, 2, 'The willUpdate hook fired again');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this37.rerender();
       });
 
       this.assertText('In layout - someProp: tomdale');
@@ -28227,7 +28327,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(willUpdate, 3, 'The willUpdate hook fired again');
 
       this.runTask(function () {
-        return _this48.context.set('someProp', 'wycats');
+        return _this37.context.set('someProp', 'wycats');
       });
 
       this.assertText('In layout - someProp: wycats');
@@ -28236,7 +28336,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
-      var _this49 = this;
+      var _this38 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -28249,106 +28349,106 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this38.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this49.context.set('prop', 'something else');
+        return _this38.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this49.context.set('prop', 'something here');
+        return _this38.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this50 = this;
+      var _this39 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{someProp}} - {{yield}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5), {
         prop: 'something here'
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this39.rerender();
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this50.context.set('prop', 'something else');
+        return _this39.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else - In template');
 
       this.runTask(function () {
-        return _this50.context.set('prop', 'something here');
+        return _this39.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here - In template');
     };
 
     _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
-      var _this51 = this;
+      var _this40 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5), {
         prop: 'something here'
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this40.rerender();
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this51.context.set('prop', 'something else');
+        return _this40.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else - In template');
 
       this.runTask(function () {
-        return _this51.context.set('prop', 'something here');
+        return _this40.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here - In template');
     };
 
     _class.prototype['@htmlbars static arbitrary number of positional parameters'] = function htmlbarsStaticArbitraryNumberOfPositionalParameters(assert) {
-      var _this52 = this;
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
       assert.equal(this.$('#helper').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this52.rerender();
+        return _this41.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -28357,30 +28457,30 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars arbitrary positional parameter conflict with hash parameter is reported'] = function htmlbarsArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this53 = this;
+      var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6)
       });
 
       expectAssertion(function () {
-        _this53.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this42.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
-      var _this54 = this;
+      var _this43 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6)
       });
 
       this.render('{{sample-component names=things}}', {
@@ -28390,38 +28490,38 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this43.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this54.context.get('things').pushObject(5);
+        return _this43.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this54.context.get('things').shiftObject();
+        return _this43.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this54.context.get('things').clear();
+        return _this43.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this54.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+        return _this43.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@htmlbars can use hash parameter instead of positional param'] = function htmlbarsCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this55 = this;
+      var _this44 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -28430,14 +28530,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{first}} - {{second}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8));
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
       assert.equal(this.$('#one-positional').text(), 'one - two');
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this44.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -28446,16 +28546,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars dynamic arbitrary number of positional parameters'] = function htmlbarsDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this56 = this;
+      var _this45 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'n'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10), {
         user1: 'Foo',
         user2: 4
       });
@@ -28464,29 +28564,29 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this45.rerender();
       });
 
       assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
       assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
 
       this.runTask(function () {
-        return _this56.context.set('user1', 'Bar');
+        return _this45.context.set('user1', 'Bar');
       });
 
       assert.equal(this.$('#direct').text(), 'Bar4', 'direct');
       assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
 
       this.runTask(function () {
-        return _this56.context.set('user2', '5');
+        return _this45.context.set('user2', '5');
       });
 
       assert.equal(this.$('#direct').text(), 'Bar5', 'direct');
       assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
 
       this.runTask(function () {
-        _this56.context.set('user1', 'Foo');
-        _this56.context.set('user2', 4);
+        _this45.context.set('user1', 'Foo');
+        _this45.context.set('user2', 4);
       });
 
       assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
@@ -28494,7 +28594,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this57 = this;
+      var _this46 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -28507,26 +28607,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this46.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this57.context.set('role', 'input');
+        return _this46.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this57.context.set('role', 'main');
+        return _this46.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this58 = this;
+      var _this47 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -28535,54 +28635,54 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '[In layout - {{name}}] {{yield}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11), {
         name: 'Whoop, whoop!'
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this58.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this58.context.set('name', 'Ole, ole');
+        return _this47.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this58.context.set('name', 'Whoop, whoop!');
+        return _this47.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this59 = this;
+      var _this48 = this;
 
       this.registerComponent('with-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13));
 
       this.assertText('In template');
 
       this.runTask(function () {
-        return _this59.rerender();
+        return _this48.rerender();
       });
 
       this.assertText('In template');
     };
 
     _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
-      var _this60 = this;
+      var _this49 = this;
 
       this.registerComponent('with-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
       });
 
       this.render('{{with-block}}');
@@ -28590,50 +28690,50 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('No Block!');
 
       this.runTask(function () {
-        return _this60.rerender();
+        return _this49.rerender();
       });
 
       this.assertText('No Block!');
     };
 
     _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this61 = this;
+      var _this50 = this;
 
       this.registerComponent('with-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15));
 
       this.assertText('In template - In Component');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('In template - In Component');
     };
 
     _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
-      var _this62 = this;
+      var _this51 = this;
 
       this.registerComponent('with-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject17)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject18));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject17));
 
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this62.rerender();
+        return _this51.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@htmlbars static named positional parameters'] = function htmlbarsStaticNamedPositionalParameters() {
-      var _this63 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -28647,14 +28747,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this52.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@htmlbars dynamic named positional parameters'] = function htmlbarsDynamicNamedPositionalParameters() {
-      var _this64 = this;
+      var _this53 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -28671,33 +28771,33 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this53.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this64.context.set('myName', 'Sergio');
+        return _this53.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this64.context.set('myAge', 2);
+        return _this53.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this64.context.set('myName', 'Quint');
-        _this64.context.set('myAge', 4);
+        _this53.context.set('myName', 'Quint');
+        _this53.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@htmlbars if a value is passed as a non-positional parameter, it raises an assertion'] = function htmlbarsIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this65 = this;
+      var _this54 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -28707,7 +28807,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       expectAssertion(function () {
-        _this65.render('{{sample-component notMyName name=myName}}', {
+        _this54.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -28715,32 +28815,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this66 = this;
+      var _this55 = this;
 
       this.registerComponent('my-if', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject19)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject18)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject20), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject19), {
         activated: true
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this55.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this66.context.set('activated', false);
+        return _this55.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this66.context.set('activated', true);
+        return _this55.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -28748,10 +28848,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test expression hasBlock inverse'] = function testExpressionHasBlockInverse(assert) {
       this.registerComponent('check-inverse', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject21)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject20)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject22));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject21));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -28761,10 +28861,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test expression hasBlock default'] = function testExpressionHasBlockDefault(assert) {
       this.registerComponent('check-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject22)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -28774,10 +28874,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test expression hasBlockParams inverse'] = function testExpressionHasBlockParamsInverse(assert) {
       this.registerComponent('check-inverse', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject25)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject25));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'No' });
@@ -28787,10 +28887,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test expression hasBlockParams default'] = function testExpressionHasBlockParamsDefault(assert) {
       this.registerComponent('check-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -28800,10 +28900,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test non-expression hasBlock'] = function testNonExpressionHasBlock(assert) {
       this.registerComponent('check-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -28813,10 +28913,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test expression hasBlockParams'] = function testExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -28826,10 +28926,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
     _class.prototype['@test non-expression hasBlockParams'] = function testNonExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -28842,7 +28942,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '<button name={{hasBlock}}></button>'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -28855,7 +28955,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '<button name={{hasBlock "inverse"}}></button>'
       }, '');
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -28868,7 +28968,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '<button name={{hasBlockParams}}></button>'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -28881,7 +28981,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '<button name={{hasBlockParams "inverse"}}></button>'
       }, '');
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'false' }, '');
@@ -28894,7 +28994,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{if hasBlock "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -28907,7 +29007,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{if (hasBlock) "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -28920,7 +29020,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{if (hasBlock "inverse") "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -28933,7 +29033,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{if hasBlockParams "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -28946,7 +29046,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{if (hasBlockParams) "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -28959,7 +29059,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '{{if (hasBlockParams "inverse") "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'false' });
@@ -28968,7 +29068,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this67 = this;
+      var _this56 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -29009,7 +29109,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -29018,7 +29118,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this68 = this;
+      var _this57 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -29041,34 +29141,34 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject38), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37), {
         showInner: false
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this68.context.set('showInner', true);
+        return _this57.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this68.context.set('showInner', false);
+        return _this57.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@htmlbars component should receive the viewRegistry from the parentView'] = function htmlbarsComponentShouldReceiveTheViewRegistryFromTheParentView(assert) {
-      var _this69 = this;
+      var _this58 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -29113,7 +29213,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer._viewRegistry, viewRegistry);
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(innerTemplate._viewRegistry, viewRegistry);
@@ -29122,7 +29222,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this70 = this;
+      var _this59 = this;
 
       expectDeprecation(/modified value twice in a single render/);
 
@@ -29167,7 +29267,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this70.rerender();
+        return _this59.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -29196,10 +29296,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this71 = this;
+      var _this60 = this;
 
       this.registerComponent('non-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject39)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject38)
       });
 
       this.registerComponent('child-non-block', {
@@ -29213,32 +29313,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this71.rerender();
+        return _this60.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this71.context.get('items').pushObject('Sergio');
+        return _this60.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this71.context.get('items').shiftObject();
+        return _this60.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this71.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this60.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this72 = this;
+      var _this61 = this;
 
       var clickyThing = undefined;
 
@@ -29253,7 +29353,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject39));
 
       // TODO: ember-view is no longer viewable in the classNames array. Bug or
       // feature?
@@ -29265,7 +29365,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this72.rerender();
+        return _this61.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -29285,10 +29385,10 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
             clickyThing = this;
           }
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject41)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject42));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject41));
 
       this.assertText('blarkporybaz- Click Me');
 
@@ -29300,7 +29400,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@htmlbars a two way binding flows upstream through a CP when consumed in the template'] = function htmlbarsATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this73 = this;
+      var _this62 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -29334,7 +29434,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this73.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -29346,7 +29446,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this73.component.set('localBar', 'initial value');
+        _this62.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
@@ -29355,7 +29455,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     // regression introduced in Ember 1.13
 
     _class.prototype['@skip a two way binding flows upstream through a CP without template consumption'] = function skipATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this74 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -29388,7 +29488,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this74.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value');
@@ -29400,7 +29500,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this74.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
@@ -44690,6 +44790,382 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassNameBindings intigration', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can have class name bindings'] = function testItCanHaveClassNameBindings() {
+      var _this = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        classNameBindings: ['foo', 'isEnabled:enabled', 'isHappy:happy:sad']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar foo=foo isEnabled=isEnabled isHappy=isHappy}}', { foo: 'foo', isEnabled: true, isHappy: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this.context, 'isEnabled', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'foo', undefined);
+        _emberMetalProperty_set.set(_this.context, 'isHappy', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this.context, 'isEnabled', true);
+        _emberMetalProperty_set.set(_this.context, 'isHappy', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+    };
+
+    _class.prototype['@test :: class name syntax works with an empty true class'] = function testClassNameSyntaxWorksWithAnEmptyTrueClass() {
+      var _this2 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        classNameBindings: ['isEnabled::not-enabled']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar isEnabled=enabled}}', {
+        enabled: false
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view not-enabled') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'enabled', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'enabled', false);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view not-enabled') }, content: 'hello' });
+    };
+
+    _class.prototype['@test uses all provided static class names (issue #11193)'] = function testUsesAllProvidedStaticClassNamesIssue11193() {
+      var _this3 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        classNameBindings: [':class-one', ':class-two']
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}', {
+        enabled: false
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view class-one class-two') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'enabled', true);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view class-one class-two') }, content: 'hello' });
+    };
+
+    _class.prototype['@test Providing a binding with a space in it asserts'] = function testProvidingABindingWithASpaceInItAsserts() {
+      var _this4 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        classNameBindings: 'i:think:i am:so:clever'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this4.render('{{foo-bar}}');
+      }, /classNameBindings must not have spaces in them/i);
+    };
+
+    _class.prototype['@test it can set class name bindings in the constructor'] = function testItCanSetClassNameBindingsInTheConstructor() {
+      var _this5 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        classNameBindings: ['foo'],
+
+        init: function () {
+          this._super();
+
+          var bindings = this.classNameBindings;
+
+          if (this.get('bindIsEnabled')) {
+            bindings.push('isEnabled:enabled');
+          }
+
+          if (this.get('bindIsHappy')) {
+            bindings.push('isHappy:happy:sad');
+          }
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), { foo: 'foo', isEnabled: true, isHappy: false });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this5.context, 'isEnabled', false);
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'foo', undefined);
+        _emberMetalProperty_set.set(_this5.context, 'isHappy', true);
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this5.context, 'isEnabled', true);
+        _emberMetalProperty_set.set(_this5.context, 'isHappy', false);
+      });
+
+      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
+      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  var bindingDeprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassBinding intigration', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@htmlbars it should apply classBinding without condition always'] = function htmlbarsItShouldApplyClassBindingWithoutConditionAlways() {
+      var _this6 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding=":foo"}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should merge classBinding with class'] = function glimmerItShouldMergeClassBindingWithClass() {
+      var _this7 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="birdman:respeck" class="myName"}}', { birdman: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
+
+      this.runTask(function () {
+        return _this7.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
+    };
+
+    _class2.prototype['@glimmer in glimmer it should apply classBinding without condition always'] = function glimmerInGlimmerItShouldApplyClassBindingWithoutConditionAlways() {
+      var _this8 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding=":foo"}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with only truthy condition'] = function glimmerItShouldApplyClassBindingWithOnlyTruthyCondition() {
+      var _this9 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck  ember-view') } });
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with only falsy condition'] = function glimmerItShouldApplyClassBindingWithOnlyFalsyCondition() {
+      var _this10 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('shade  ember-view') } });
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('shade  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply nothing when classBinding is falsy but only supplies truthy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
+      var _this11 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply nothing when classBinding is truthy but only supplies falsy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
+      var _this12 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with falsy condition'] = function glimmerItShouldApplyClassBindingWithFalsyCondition() {
+      var _this13 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: false });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('scrub  ember-view') } });
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('scrub  ember-view') } });
+    };
+
+    _class2.prototype['@glimmer it should apply classBinding with truthy condition'] = function glimmerItShouldApplyClassBindingWithTruthyCondition() {
+      var _this14 = this;
+
+      expectDeprecation(bindingDeprecationMessage);
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fresh  ember-view') } });
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fresh  ember-view') } });
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
   'use strict';
 
@@ -45542,47 +46018,46 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'], ['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}'], ['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}'], ['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
-      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
-      _templateObject17 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
-      _templateObject18 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
-      _templateObject19 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
-      _templateObject20 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
-      _templateObject21 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject22 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
-      _templateObject23 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject24 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
-      _templateObject25 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject26 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
-      _templateObject27 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject28 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
-      _templateObject29 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject30 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
-      _templateObject31 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
-      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
-      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
-      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
-      _templateObject36 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
-      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
-      _templateObject38 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject39 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject40 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject41 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject42 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'], ['\n      {{sample-component "Foo" 4 "Bar" id="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}\n      {{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}'], ['\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}'], ['\n      {{sample-component user1 user2 id="direct"}}\n      {{component "sample-component" user1 user2 id="helper"}}']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject12 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject16 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject17 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject18 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject19 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject20 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject21 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
+      _templateObject22 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject23 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject24 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject25 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject30 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject36 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject38 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject39 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject40 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject41 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -45591,8 +46066,6 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
-
-  var bindingDeprecationMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
@@ -45818,168 +46291,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar') }, content: 'hello' });
     };
 
-    _class.prototype['@htmlbars it should apply classBinding without condition always'] = function htmlbarsItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this9 = this;
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding=":foo"}}');
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
-
-      this.runTask(function () {
-        return _this9.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should merge classBinding with class'] = function glimmerItShouldMergeClassBindingWithClass() {
-      var _this10 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="birdman:respeck" class="myName"}}', { birdman: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
-
-      this.runTask(function () {
-        return _this10.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
-    };
-
-    _class.prototype['@glimmer in glimmer it should apply classBinding without condition always'] = function glimmerInGlimmerItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this11 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding=":foo"}}');
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
-
-      this.runTask(function () {
-        return _this11.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with only truthy condition'] = function glimmerItShouldApplyClassBindingWithOnlyTruthyCondition() {
-      var _this12 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck  ember-view') } });
-
-      this.runTask(function () {
-        return _this12.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with only falsy condition'] = function glimmerItShouldApplyClassBindingWithOnlyFalsyCondition() {
-      var _this13 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('shade  ember-view') } });
-
-      this.runTask(function () {
-        return _this13.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('shade  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply nothing when classBinding is falsy but only supplies truthy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
-      var _this14 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
-
-      this.runTask(function () {
-        return _this14.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply nothing when classBinding is truthy but only supplies falsy class'] = function glimmerItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
-      var _this15 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
-
-      this.runTask(function () {
-        return _this15.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with falsy condition'] = function glimmerItShouldApplyClassBindingWithFalsyCondition() {
-      var _this16 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('scrub  ember-view') } });
-
-      this.runTask(function () {
-        return _this16.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('scrub  ember-view') } });
-    };
-
-    _class.prototype['@glimmer it should apply classBinding with truthy condition'] = function glimmerItShouldApplyClassBindingWithTruthyCondition() {
-      var _this17 = this;
-
-      expectDeprecation(bindingDeprecationMessage);
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="swag:fresh:scrub"}}', { swag: true });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fresh  ember-view') } });
-
-      this.runTask(function () {
-        return _this17.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fresh  ember-view') } });
-    };
-
     _class.prototype['@test should not apply falsy class name'] = function testShouldNotApplyFalsyClassName() {
-      var _this18 = this;
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -45990,14 +46303,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
     };
 
     _class.prototype['@test should apply classes of the dasherized property name when bound property specified is true'] = function testShouldApplyClassesOfTheDasherizedPropertyNameWhenBoundPropertySpecifiedIsTrue() {
-      var _this19 = this;
+      var _this10 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -46008,26 +46321,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this10.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'model.someTruth', false);
+        return _emberMetalProperty_set.set(_this10.context, 'model.someTruth', false);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'model', { someTruth: true });
+        return _emberMetalProperty_set.set(_this10.context, 'model', { someTruth: true });
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
     };
 
     _class.prototype['@test class property on components can be dynamic'] = function testClassPropertyOnComponentsCanBeDynamic() {
-      var _this20 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -46038,26 +46351,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'fooBar', false);
+        return _emberMetalProperty_set.set(_this11.context, 'fooBar', false);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'fooBar', true);
+        return _emberMetalProperty_set.set(_this11.context, 'fooBar', true);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
     };
 
     _class.prototype['@test it can have custom classNames from constructor'] = function testItCanHaveCustomClassNamesFromConstructor() {
-      var _this21 = this;
+      var _this12 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -46073,14 +46386,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this12.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
     };
 
     _class.prototype['@test it can set custom classNames from the invocation'] = function testItCanSetCustomClassNamesFromTheInvocation() {
-      var _this22 = this;
+      var _this13 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         classNames: ['foo']
@@ -46095,7 +46408,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar baz') }, content: 'hello' });
@@ -46103,121 +46416,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
     };
 
-    _class.prototype['@test it can have class name bindings'] = function testItCanHaveClassNameBindings() {
-      var _this23 = this;
-
-      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        classNameBindings: ['foo', 'isEnabled:enabled', 'isHappy:happy:sad']
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
-      this.render('{{foo-bar foo=foo isEnabled=isEnabled isHappy=isHappy}}', { foo: 'foo', isEnabled: true, isHappy: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-
-      this.runTask(function () {
-        return _this23.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this23.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this23.context, 'isEnabled', false);
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this23.context, 'foo', undefined);
-        _emberMetalProperty_set.set(_this23.context, 'isHappy', true);
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this23.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this23.context, 'isEnabled', true);
-        _emberMetalProperty_set.set(_this23.context, 'isHappy', false);
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-    };
-
-    _class.prototype['@test it can set class name bindings in the constructor'] = function testItCanSetClassNameBindingsInTheConstructor() {
-      var _this24 = this;
-
-      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        classNameBindings: ['foo'],
-
-        init: function () {
-          this._super();
-
-          var bindings = this.classNameBindings;
-
-          if (this.get('bindIsEnabled')) {
-            bindings.push('isEnabled:enabled');
-          }
-
-          if (this.get('bindIsHappy')) {
-            bindings.push('isHappy:happy:sad');
-          }
-        }
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: 'foo', isEnabled: true, isHappy: false });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
-
-      this.runTask(function () {
-        return _this24.rerender();
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this24.context, 'isEnabled', false);
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view FOO') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'foo', undefined);
-        _emberMetalProperty_set.set(_this24.context, 'isHappy', true);
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view happy') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this24.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this24.context, 'isEnabled', true);
-        _emberMetalProperty_set.set(_this24.context, 'isHappy', false);
-      });
-
-      this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo enabled sad') }, content: 'hello' });
-      this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
-    };
-
     _class.prototype['@test it can have attribute bindings'] = function testItCanHaveAttributeBindings() {
-      var _this25 = this;
+      var _this14 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         attributeBindings: ['foo:data-foo', 'bar:data-bar']
@@ -46230,28 +46430,28 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'foo', 'data-bar': 'bar' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this25.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'foo', 'data-bar': 'bar' }, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this25.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this25.context, 'bar', undefined);
+        _emberMetalProperty_set.set(_this14.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this14.context, 'bar', undefined);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'FOO' }, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this25.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this25.context, 'bar', 'bar');
+        _emberMetalProperty_set.set(_this14.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this14.context, 'bar', 'bar');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'foo', 'data-bar': 'bar' }, content: 'hello' });
     };
 
     _class.prototype['@test it can set attribute bindings in the constructor'] = function testItCanSetAttributeBindingsInTheConstructor() {
-      var _this26 = this;
+      var _this15 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -46273,7 +46473,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3), { foo: 'foo', bar: 'bar' });
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: 'foo', bar: 'bar' });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'foo' }, content: 'hello' });
       this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { 'data-bar': 'bar' }, content: 'hello' });
@@ -46281,7 +46481,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'foo' }, content: 'hello' });
@@ -46290,8 +46490,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'foo', 'FOO');
-        _emberMetalProperty_set.set(_this26.context, 'bar', undefined);
+        _emberMetalProperty_set.set(_this15.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this15.context, 'bar', undefined);
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'FOO' }, content: 'hello' });
@@ -46300,7 +46500,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this26.context, 'bar', 'BAR');
+        return _emberMetalProperty_set.set(_this15.context, 'bar', 'BAR');
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'FOO' }, content: 'hello' });
@@ -46309,8 +46509,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'foo', 'foo');
-        _emberMetalProperty_set.set(_this26.context, 'bar', 'bar');
+        _emberMetalProperty_set.set(_this15.context, 'foo', 'foo');
+        _emberMetalProperty_set.set(_this15.context, 'bar', 'bar');
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'data-foo': 'foo' }, content: 'hello' });
@@ -46320,17 +46520,17 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it should not allow attributeBindings to be set'] = function testItShouldNotAllowAttributeBindingsToBeSet() {
-      var _this27 = this;
+      var _this16 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
       expectAssertion(function () {
-        _this27.render('{{foo-bar attributeBindings="one two"}}');
+        _this16.render('{{foo-bar attributeBindings="one two"}}');
       }, /Setting 'attributeBindings' via template helpers is not allowed/);
     };
 
     _class.prototype['@test it has an element'] = function testItHasAnElement() {
-      var _this28 = this;
+      var _this17 = this;
 
       var instance = undefined;
 
@@ -46350,7 +46550,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this28.rerender();
+        return _this17.rerender();
       });
 
       var element2 = instance.element;
@@ -46361,7 +46561,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
-      var _this29 = this;
+      var _this18 = this;
 
       var instance = undefined;
 
@@ -46381,7 +46581,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this29.rerender();
+        return _this18.rerender();
       });
 
       var element2 = instance.$()[0];
@@ -46392,7 +46592,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
-      var _this30 = this;
+      var _this19 = this;
 
       var instance = undefined;
 
@@ -46413,7 +46613,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal($span.attr('class'), 'inner');
 
       this.runTask(function () {
-        return _this30.rerender();
+        return _this19.rerender();
       });
 
       $span = instance.$('span');
@@ -46423,7 +46623,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test an empty component does not have childNodes'] = function testAnEmptyComponentDoesNotHaveChildNodes(assert) {
-      var _this31 = this;
+      var _this20 = this;
 
       var fooBarInstance = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -46443,7 +46643,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this20.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'input' });
@@ -46452,7 +46652,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
-      var _this32 = this;
+      var _this21 = this;
 
       var fooBarInstance = undefined,
           fooBarBazInstance = undefined;
@@ -46484,7 +46684,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this32.rerender();
+        return _this21.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -46496,7 +46696,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it renders passed named arguments'] = function testItRendersPassedNamedArguments() {
-      var _this33 = this;
+      var _this22 = this;
 
       this.registerComponent('foo-bar', {
         template: '{{foo}}'
@@ -46511,26 +46711,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this33.rerender();
+        return _this22.rerender();
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this33.context.set('model.bar', 'Hello');
+        return _this22.context.set('model.bar', 'Hello');
       });
 
       this.assertText('Hello');
 
       this.runTask(function () {
-        return _this33.context.set('model', { bar: 'Hola' });
+        return _this22.context.set('model', { bar: 'Hola' });
       });
 
       this.assertText('Hola');
     };
 
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
-      var _this34 = this;
+      var _this23 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}} - In component' });
 
@@ -46539,14 +46739,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
 
       this.runTask(function () {
-        return _this34.rerender();
+        return _this23.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this35 = this;
+      var _this24 = this;
 
       var instance = undefined;
 
@@ -46565,7 +46765,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this35.rerender();
+        return _this24.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -46584,7 +46784,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this36 = this;
+      var _this25 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -46593,26 +46793,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this36.rerender();
+        return _this25.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this36.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this25.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this36.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this25.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it can yield internal and external properties positionally'] = function testItCanYieldInternalAndExternalPropertiesPositionally() {
-      var _this37 = this;
+      var _this26 = this;
 
       var instance = undefined;
 
@@ -46636,13 +46836,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _this37.rerender();
+        return _this26.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this37.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
+        return _emberMetalProperty_set.set(_this26.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hello' });
@@ -46655,7 +46855,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       this.runTask(function () {
         _emberMetalProperty_set.set(instance, 'greeting', 'hello');
-        _emberMetalProperty_set.set(_this37.context, 'person', {
+        _emberMetalProperty_set.set(_this26.context, 'person', {
           firstName: 'Joel',
           lastName: 'Kang'
         });
@@ -46665,7 +46865,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test #11519 - block param infinite loop'] = function test11519BlockParamInfiniteLoop() {
-      var _this38 = this;
+      var _this27 = this;
 
       var instance = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -46687,7 +46887,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       // Trigger a non-revalidating re-render. The yielded block will not be dirtied
       // nor will block param streams, and thus no infinite loop will occur.
       this.runTask(function () {
-        return _this38.rerender();
+        return _this27.rerender();
       });
 
       this.assertText('0');
@@ -46710,7 +46910,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
-      var _this39 = this;
+      var _this28 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -46724,7 +46924,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         })
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3), {
         cond1: true,
         cond2: true,
         cond3: true,
@@ -46735,13 +46935,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this39.rerender();
+        return _this28.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this39.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this28.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -46749,23 +46949,23 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this39.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this39.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this39.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this28.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this39.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this39.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this28.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     _class.prototype['@test should escape HTML in normal mustaches'] = function testShouldEscapeHTMLInNormalMustaches() {
-      var _this40 = this;
+      var _this29 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -46783,7 +46983,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('you need to be more <b>bold</b>');
 
       this.runTask(function () {
-        return _this40.rerender();
+        return _this29.rerender();
       });
 
       this.assertText('you need to be more <b>bold</b>');
@@ -46800,7 +47000,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test should not escape HTML in triple mustaches'] = function testShouldNotEscapeHTMLInTripleMustaches(assert) {
-      var _this41 = this;
+      var _this30 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -46820,7 +47020,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this41.rerender();
+        return _this30.rerender();
       });
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -46839,7 +47039,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test should not escape HTML if string is a htmlSafe'] = function testShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
-      var _this42 = this;
+      var _this31 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -46859,7 +47059,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this31.rerender();
       });
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -46878,7 +47078,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
-      var _this43 = this;
+      var _this32 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -46893,7 +47093,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.registerComponent('foo-bar', {
         ComponentClass: FooBarComponent,
 
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4)
       });
 
       this.render('{{foo-bar}}');
@@ -46901,7 +47101,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'true' });
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this32.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'true' });
@@ -46920,7 +47120,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
-      var _this44 = this;
+      var _this33 = this;
 
       this.registerComponent('some-component', {
         template: 'some-component'
@@ -46934,14 +47134,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('some-prop some-component');
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this33.rerender();
       });
 
       this.assertText('some-prop some-component');
     };
 
     _class.prototype['@test component without dash is not looked up'] = function testComponentWithoutDashIsNotLookedUp() {
-      var _this45 = this;
+      var _this34 = this;
 
       this.registerComponent('somecomponent', {
         template: 'somecomponent'
@@ -46954,26 +47154,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this34.rerender();
       });
 
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this45.context.set('somecomponent', 'not not notsomecomponent');
+        return _this34.context.set('somecomponent', 'not not notsomecomponent');
       });
 
       this.assertText('not not notsomecomponent');
 
       this.runTask(function () {
-        return _this45.context.set('somecomponent', 'notsomecomponent');
+        return _this34.context.set('somecomponent', 'notsomecomponent');
       });
 
       this.assertText('notsomecomponent');
     };
 
     _class.prototype['@test non-block with properties on attrs'] = function testNonBlockWithPropertiesOnAttrs() {
-      var _this46 = this;
+      var _this35 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{attrs.someProp}}'
@@ -46986,26 +47186,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this35.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this46.context.set('prop', 'other thing there');
+        return _this35.context.set('prop', 'other thing there');
       });
 
       this.assertText('In layout - someProp: other thing there');
 
       this.runTask(function () {
-        return _this46.context.set('prop', 'something here');
+        return _this35.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@skip non-block with properties overridden in init'] = function skipNonBlockWithPropertiesOverriddenInInit() {
-      var _this47 = this;
+      var _this36 = this;
 
       var instance = undefined;
       this.registerComponent('non-block', {
@@ -47026,13 +47226,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this36.rerender();
       });
 
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this47.context.set('prop', 'updated something passed when invoked');
+        return _this36.context.set('prop', 'updated something passed when invoked');
       });
 
       this.assertText('In layout - someProp: updated something passed when invoked');
@@ -47044,7 +47244,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: update value set in instance');
 
       this.runTask(function () {
-        return _this47.context.set('prop', 'something passed when invoked');
+        return _this36.context.set('prop', 'something passed when invoked');
       });
       this.runTask(function () {
         return instance.set('someProp', 'value set in instance');
@@ -47054,7 +47254,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars rerendering component with attrs from parent'] = function htmlbarsRerenderingComponentWithAttrsFromParent(assert) {
-      var _this48 = this;
+      var _this37 = this;
 
       var willUpdate = 0;
       var didReceiveAttrs = 0;
@@ -47080,7 +47280,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: wycats');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this37.rerender();
       });
 
       this.assertText('In layout - someProp: wycats');
@@ -47088,7 +47288,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(willUpdate, 1, 'The willUpdate hook fired once');
 
       this.runTask(function () {
-        return _this48.context.set('someProp', 'tomdale');
+        return _this37.context.set('someProp', 'tomdale');
       });
 
       this.assertText('In layout - someProp: tomdale');
@@ -47096,7 +47296,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(willUpdate, 2, 'The willUpdate hook fired again');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this37.rerender();
       });
 
       this.assertText('In layout - someProp: tomdale');
@@ -47104,7 +47304,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(willUpdate, 3, 'The willUpdate hook fired again');
 
       this.runTask(function () {
-        return _this48.context.set('someProp', 'wycats');
+        return _this37.context.set('someProp', 'wycats');
       });
 
       this.assertText('In layout - someProp: wycats');
@@ -47113,7 +47313,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
-      var _this49 = this;
+      var _this38 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -47126,106 +47326,106 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this38.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this49.context.set('prop', 'something else');
+        return _this38.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this49.context.set('prop', 'something here');
+        return _this38.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this50 = this;
+      var _this39 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{someProp}} - {{yield}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5), {
         prop: 'something here'
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this39.rerender();
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this50.context.set('prop', 'something else');
+        return _this39.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else - In template');
 
       this.runTask(function () {
-        return _this50.context.set('prop', 'something here');
+        return _this39.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here - In template');
     };
 
     _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
-      var _this51 = this;
+      var _this40 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5), {
         prop: 'something here'
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this40.rerender();
       });
 
       this.assertText('In layout - someProp: something here - In template');
 
       this.runTask(function () {
-        return _this51.context.set('prop', 'something else');
+        return _this40.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else - In template');
 
       this.runTask(function () {
-        return _this51.context.set('prop', 'something here');
+        return _this40.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here - In template');
     };
 
     _class.prototype['@htmlbars static arbitrary number of positional parameters'] = function htmlbarsStaticArbitraryNumberOfPositionalParameters(assert) {
-      var _this52 = this;
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7));
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
       assert.equal(this.$('#helper').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this52.rerender();
+        return _this41.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -47234,30 +47434,30 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars arbitrary positional parameter conflict with hash parameter is reported'] = function htmlbarsArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this53 = this;
+      var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6)
       });
 
       expectAssertion(function () {
-        _this53.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this42.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
-      var _this54 = this;
+      var _this43 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6)
       });
 
       this.render('{{sample-component names=things}}', {
@@ -47267,38 +47467,38 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this43.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this54.context.get('things').pushObject(5);
+        return _this43.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this54.context.get('things').shiftObject();
+        return _this43.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this54.context.get('things').clear();
+        return _this43.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this54.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+        return _this43.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@htmlbars can use hash parameter instead of positional param'] = function htmlbarsCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this55 = this;
+      var _this44 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -47307,14 +47507,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{first}} - {{second}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8));
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
       assert.equal(this.$('#one-positional').text(), 'one - two');
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this44.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -47323,16 +47523,16 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars dynamic arbitrary number of positional parameters'] = function htmlbarsDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this56 = this;
+      var _this45 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'n'
         }),
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject11), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10), {
         user1: 'Foo',
         user2: 4
       });
@@ -47341,29 +47541,29 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this45.rerender();
       });
 
       assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
       assert.equal(this.$('#helper').text(), 'Foo4', 'helper');
 
       this.runTask(function () {
-        return _this56.context.set('user1', 'Bar');
+        return _this45.context.set('user1', 'Bar');
       });
 
       assert.equal(this.$('#direct').text(), 'Bar4', 'direct');
       assert.equal(this.$('#helper').text(), 'Bar4', 'helper');
 
       this.runTask(function () {
-        return _this56.context.set('user2', '5');
+        return _this45.context.set('user2', '5');
       });
 
       assert.equal(this.$('#direct').text(), 'Bar5', 'direct');
       assert.equal(this.$('#helper').text(), 'Bar5', 'helper');
 
       this.runTask(function () {
-        _this56.context.set('user1', 'Foo');
-        _this56.context.set('user2', 4);
+        _this45.context.set('user1', 'Foo');
+        _this45.context.set('user2', 4);
       });
 
       assert.equal(this.$('#direct').text(), 'Foo4', 'direct');
@@ -47371,7 +47571,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this57 = this;
+      var _this46 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -47384,26 +47584,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this46.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this57.context.set('role', 'input');
+        return _this46.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this57.context.set('role', 'main');
+        return _this46.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this58 = this;
+      var _this47 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -47412,54 +47612,54 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '[In layout - {{name}}] {{yield}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject11), {
         name: 'Whoop, whoop!'
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this58.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this58.context.set('name', 'Ole, ole');
+        return _this47.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this58.context.set('name', 'Whoop, whoop!');
+        return _this47.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this59 = this;
+      var _this48 = this;
 
       this.registerComponent('with-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject13)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject13));
 
       this.assertText('In template');
 
       this.runTask(function () {
-        return _this59.rerender();
+        return _this48.rerender();
       });
 
       this.assertText('In template');
     };
 
     _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
-      var _this60 = this;
+      var _this49 = this;
 
       this.registerComponent('with-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject13)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12)
       });
 
       this.render('{{with-block}}');
@@ -47467,50 +47667,50 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('No Block!');
 
       this.runTask(function () {
-        return _this60.rerender();
+        return _this49.rerender();
       });
 
       this.assertText('No Block!');
     };
 
     _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this61 = this;
+      var _this50 = this;
 
       this.registerComponent('with-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject15)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject15));
 
       this.assertText('In template - In Component');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('In template - In Component');
     };
 
     _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
-      var _this62 = this;
+      var _this51 = this;
 
       this.registerComponent('with-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject17)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject18));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject17));
 
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this62.rerender();
+        return _this51.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@htmlbars static named positional parameters'] = function htmlbarsStaticNamedPositionalParameters() {
-      var _this63 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -47524,14 +47724,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this52.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@htmlbars dynamic named positional parameters'] = function htmlbarsDynamicNamedPositionalParameters() {
-      var _this64 = this;
+      var _this53 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -47548,33 +47748,33 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this53.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this64.context.set('myName', 'Sergio');
+        return _this53.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this64.context.set('myAge', 2);
+        return _this53.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this64.context.set('myName', 'Quint');
-        _this64.context.set('myAge', 4);
+        _this53.context.set('myName', 'Quint');
+        _this53.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@htmlbars if a value is passed as a non-positional parameter, it raises an assertion'] = function htmlbarsIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this65 = this;
+      var _this54 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -47584,7 +47784,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       expectAssertion(function () {
-        _this65.render('{{sample-component notMyName name=myName}}', {
+        _this54.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -47592,32 +47792,32 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this66 = this;
+      var _this55 = this;
 
       this.registerComponent('my-if', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject19)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject18)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject20), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject19), {
         activated: true
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this55.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this66.context.set('activated', false);
+        return _this55.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this66.context.set('activated', true);
+        return _this55.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -47625,10 +47825,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test expression hasBlock inverse'] = function testExpressionHasBlockInverse(assert) {
       this.registerComponent('check-inverse', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject21)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject20)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject22));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject21));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -47638,10 +47838,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test expression hasBlock default'] = function testExpressionHasBlockDefault(assert) {
       this.registerComponent('check-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject23)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject22)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject23));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -47651,10 +47851,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test expression hasBlockParams inverse'] = function testExpressionHasBlockParamsInverse(assert) {
       this.registerComponent('check-inverse', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject25)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject26));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject25));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'No' });
@@ -47664,10 +47864,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test expression hasBlockParams default'] = function testExpressionHasBlockParamsDefault(assert) {
       this.registerComponent('check-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject26)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject28));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -47677,10 +47877,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test non-expression hasBlock'] = function testNonExpressionHasBlock(assert) {
       this.registerComponent('check-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject29)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject28)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject24));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject23));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -47690,10 +47890,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test expression hasBlockParams'] = function testExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject27)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject26)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -47703,10 +47903,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
     _class.prototype['@test non-expression hasBlockParams'] = function testNonExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject31)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject30));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -47719,7 +47919,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '<button name={{hasBlock}}></button>'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject32));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject31));
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -47732,7 +47932,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '<button name={{hasBlock "inverse"}}></button>'
       }, '');
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject33));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject32));
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -47745,7 +47945,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '<button name={{hasBlockParams}}></button>'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject33));
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -47758,7 +47958,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '<button name={{hasBlockParams "inverse"}}></button>'
       }, '');
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject33));
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'false' }, '');
@@ -47771,7 +47971,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{if hasBlock "true" "false"}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject35));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject34));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -47784,7 +47984,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{if (hasBlock) "true" "false"}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject35));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject34));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -47797,7 +47997,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{if (hasBlock "inverse") "true" "false"}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject35));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -47810,7 +48010,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{if hasBlockParams "true" "false"}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -47823,7 +48023,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{if (hasBlockParams) "true" "false"}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -47836,7 +48036,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '{{if (hasBlockParams "inverse") "true" "false"}}'
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'false' });
@@ -47845,7 +48045,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this67 = this;
+      var _this56 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -47886,7 +48086,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -47895,7 +48095,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this68 = this;
+      var _this57 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -47918,34 +48118,34 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         })
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject38), {
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject37), {
         showInner: false
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this68.context.set('showInner', true);
+        return _this57.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this68.context.set('showInner', false);
+        return _this57.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@htmlbars component should receive the viewRegistry from the parentView'] = function htmlbarsComponentShouldReceiveTheViewRegistryFromTheParentView(assert) {
-      var _this69 = this;
+      var _this58 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -47990,7 +48190,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer._viewRegistry, viewRegistry);
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(innerTemplate._viewRegistry, viewRegistry);
@@ -47999,7 +48199,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this70 = this;
+      var _this59 = this;
 
       expectDeprecation(/modified value twice in a single render/);
 
@@ -48044,7 +48244,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this70.rerender();
+        return _this59.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -48073,10 +48273,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this71 = this;
+      var _this60 = this;
 
       this.registerComponent('non-block', {
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject39)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject38)
       });
 
       this.registerComponent('child-non-block', {
@@ -48090,32 +48290,32 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this71.rerender();
+        return _this60.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this71.context.get('items').pushObject('Sergio');
+        return _this60.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this71.context.get('items').shiftObject();
+        return _this60.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this71.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this60.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this72 = this;
+      var _this61 = this;
 
       var clickyThing = undefined;
 
@@ -48130,7 +48330,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         })
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject40));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject39));
 
       // TODO: ember-view is no longer viewable in the classNames array. Bug or
       // feature?
@@ -48142,7 +48342,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this72.rerender();
+        return _this61.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -48162,10 +48362,10 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
             clickyThing = this;
           }
         }),
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject41)
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject40)
       });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject42));
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject41));
 
       this.assertText('blarkporybaz- Click Me');
 
@@ -48177,7 +48377,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@htmlbars a two way binding flows upstream through a CP when consumed in the template'] = function htmlbarsATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this73 = this;
+      var _this62 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -48211,7 +48411,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this73.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -48223,7 +48423,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this73.component.set('localBar', 'initial value');
+        _this62.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
@@ -48232,7 +48432,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     // regression introduced in Ember 1.13
 
     _class.prototype['@skip a two way binding flows upstream through a CP without template consumption'] = function skipATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this74 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -48265,7 +48465,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this74.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value');
@@ -48277,7 +48477,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this74.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
@@ -90646,7 +90846,7 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
     });
   });
 });
-enifed('ember-views/tests/views/view/class_name_bindings_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/property_events', 'ember-metal/watching', 'ember-runtime/system/object', 'ember-views/views/view'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalProperty_events, _emberMetalWatching, _emberRuntimeSystemObject, _emberViewsViewsView) {
+enifed('ember-views/tests/views/view/class_name_bindings_test', ['exports', 'ember-metal/run_loop', 'ember-metal/watching', 'ember-views/views/view'], function (exports, _emberMetalRun_loop, _emberMetalWatching, _emberViewsViewsView) {
   'use strict';
 
   var view;
@@ -90657,190 +90857,6 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['exports', 'emb
         view.destroy();
       });
     }
-  });
-
-  QUnit.test('should apply bound class names to the element', function () {
-    view = _emberViewsViewsView.default.create({
-      classNameBindings: ['priority', 'isUrgent', 'isClassified:classified', 'canIgnore', 'messages.count', 'messages.resent:is-resent', 'isNumber:is-number', 'isFalsy::is-falsy', 'isTruthy::is-not-truthy', 'isEnabled:enabled:disabled'],
-
-      priority: 'high',
-      isUrgent: true,
-      isClassified: true,
-      canIgnore: false,
-      isNumber: 5,
-      isFalsy: 0,
-      isTruthy: 'abc',
-      isEnabled: true,
-
-      messages: {
-        count: 'five-messages',
-        resent: true
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    ok(view.$().hasClass('high'), 'adds string values as class name');
-    ok(view.$().hasClass('is-urgent'), 'adds true Boolean values by dasherizing');
-    ok(view.$().hasClass('classified'), 'supports customizing class name for Boolean values');
-    ok(view.$().hasClass('five-messages'), 'supports paths in bindings');
-    ok(view.$().hasClass('is-resent'), 'supports customing class name for paths');
-    ok(view.$().hasClass('is-number'), 'supports colon syntax with truthy properties');
-    ok(view.$().hasClass('is-falsy'), 'supports colon syntax with falsy properties');
-    ok(!view.$().hasClass('abc'), 'does not add values as classes when falsy classes have been specified');
-    ok(!view.$().hasClass('is-not-truthy'), 'does not add falsy classes when values are truthy');
-    ok(!view.$().hasClass('can-ignore'), 'does not add false Boolean values as class');
-    ok(view.$().hasClass('enabled'), 'supports customizing class name for Boolean values with negation');
-    ok(!view.$().hasClass('disabled'), 'does not add class name for negated binding');
-  });
-
-  QUnit.test('should add, remove, or change class names if changed after element is created', function () {
-    view = _emberViewsViewsView.default.create({
-      classNameBindings: ['priority', 'isUrgent', 'isClassified:classified', 'canIgnore', 'messages.count', 'messages.resent:is-resent', 'isEnabled:enabled:disabled'],
-
-      priority: 'high',
-      isUrgent: true,
-      isClassified: true,
-      canIgnore: false,
-      isEnabled: true,
-
-      messages: _emberRuntimeSystemObject.default.create({
-        count: 'five-messages',
-        resent: false
-      })
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-      _emberMetalProperty_set.set(view, 'priority', 'orange');
-      _emberMetalProperty_set.set(view, 'isUrgent', false);
-      _emberMetalProperty_set.set(view, 'canIgnore', true);
-      _emberMetalProperty_set.set(view, 'isEnabled', false);
-      _emberMetalProperty_set.set(view, 'messages.count', 'six-messages');
-      _emberMetalProperty_set.set(view, 'messages.resent', true);
-    });
-
-    ok(view.$().hasClass('orange'), 'updates string values');
-    ok(!view.$().hasClass('high'), 'removes old string value');
-
-    ok(!view.$().hasClass('is-urgent', 'removes dasherized class when changed from true to false'));
-    ok(view.$().hasClass('can-ignore'), 'adds dasherized class when changed from false to true');
-
-    ok(view.$().hasClass('six-messages'), 'adds new value when path changes');
-    ok(!view.$().hasClass('five-messages'), 'removes old value when path changes');
-
-    ok(view.$().hasClass('is-resent'), 'adds customized class name when path changes');
-
-    ok(!view.$().hasClass('enabled'), 'updates class name for negated binding');
-    ok(view.$().hasClass('disabled'), 'adds negated class name for negated binding');
-  });
-
-  QUnit.test(':: class name syntax works with an empty true class', function () {
-    view = _emberViewsViewsView.default.create({
-      isEnabled: false,
-      classNameBindings: ['isEnabled::not-enabled']
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(view.$().attr('class'), 'ember-view not-enabled', 'false class is rendered when property is false');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('isEnabled', true);
-    });
-
-    equal(view.$().attr('class'), 'ember-view', 'no class is added when property is true and the class is empty');
-  });
-
-  QUnit.test('uses all provided static class names (issue #11193)', function () {
-    view = _emberViewsViewsView.default.create({
-      classNameBindings: [':class-one', ':class-two']
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(view.$().attr('class'), 'ember-view class-one class-two', 'both classes are added');
-  });
-
-  QUnit.test('classNames should not be duplicated on rerender', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        classNameBindings: ['priority'],
-        priority: 'high'
-      });
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(view.$().attr('class'), 'ember-view high');
-
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
-
-    equal(view.$().attr('class'), 'ember-view high');
-  });
-
-  QUnit.test('classNameBindings should work when the binding property is updated and the view has been removed of the DOM', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        classNameBindings: ['priority'],
-        priority: 'high'
-      });
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(view.$().attr('class'), 'ember-view high', 'has the high class');
-
-    _emberMetalRun_loop.default(function () {
-      view.remove();
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.set('priority', 'low');
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.append();
-    });
-
-    equal(view.$().attr('class'), 'ember-view low', 'has a low class');
-  });
-
-  QUnit.test('classNames removed by a classNameBindings observer should not re-appear on rerender', function () {
-    view = _emberViewsViewsView.default.create({
-      classNameBindings: ['isUrgent'],
-      isUrgent: true
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(view.$().attr('class'), 'ember-view is-urgent');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('isUrgent', false);
-    });
-
-    equal(view.$().attr('class'), 'ember-view');
-
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
-
-    equal(view.$().attr('class'), 'ember-view');
   });
 
   QUnit.skip('classNameBindings lifecycle test', function () {
@@ -90866,68 +90882,6 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['exports', 'emb
     });
 
     equal(_emberMetalWatching.isWatching(view, 'priority'), false);
-  });
-
-  QUnit.test('classNameBindings should not fail if view has been removed', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        classNameBindings: ['priority'],
-        priority: 'high'
-      });
-    });
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-    var error;
-    try {
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_events.changeProperties(function () {
-          view.set('priority', 'low');
-          view.remove();
-        });
-      });
-    } catch (e) {
-      error = e;
-    }
-    ok(!error, error);
-  });
-
-  QUnit.test('classNameBindings should not fail if view has been destroyed', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        classNameBindings: ['priority'],
-        priority: 'high'
-      });
-    });
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-    var error;
-    try {
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_events.changeProperties(function () {
-          view.set('priority', 'low');
-          view.destroy();
-        });
-      });
-    } catch (e) {
-      error = e;
-    }
-    ok(!error, error);
-  });
-
-  QUnit.test('Providing a binding with a space in it asserts', function () {
-    view = _emberViewsViewsView.default.create({
-      classNameBindings: 'i:think:i am:so:clever'
-    });
-
-    expectAssertion(function () {
-      view.createElement();
-    }, /classNameBindings must not have spaces in them/i);
-
-    // Remove render node to avoid "Render node exists without concomitant env"
-    // assertion on teardown.
-    view._renderNode = null;
   });
 });
 enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/events', 'ember-metal/mixin', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalEvents, _emberMetalMixin, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner) {
