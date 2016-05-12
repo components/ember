@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f8539b08
+ * @version   2.7.0-canary+74937c76
  */
 
 var enifed, requireModule, require, Ember;
@@ -3733,7 +3733,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+f8539b08";
+  exports.default = "2.7.0-canary+74937c76";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7894,6 +7894,69 @@ enifed('ember-glimmer/ember-routing-view/index', ['exports', 'ember-metal/assign
 
   exports.OutletView = OutletView;
 });
+enifed('ember-glimmer/ember-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   <button {{action 'foo'}}>
+    ```
+  
+    with
+  
+    ```handlebars
+   <button {{action this 'foo'}}>
+    ```
+  
+    @private
+    @class TransformActionSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformActionSyntax;
+
+  function TransformActionSyntax() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  var TRANSFORMATIONS = {
+    action: 'action'
+  };
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformActionSyntax.prototype.transform = function TransformActionSyntax_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      ElementModifierStatement: function (node) {
+        if (TRANSFORMATIONS[node.path.original]) {
+          var thisPath = b.path('this');
+
+          // We have to delete the `parts` here because otherwise it will be treated
+          // as a property look up (i.e. `this.this`) and will result in `undefined`.
+          thisPath.parts = [];
+
+          return b.elementModifier(node.path, [thisPath].concat(node.params), node.hash, node.loc);
+        }
+      }
+    });
+
+    return ast;
+  };
+});
 enifed('ember-glimmer/ember-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
   /**
    @module ember
@@ -7962,13 +8025,13 @@ enifed('ember-glimmer/ember-template-compiler/plugins/transform-has-block-syntax
     return ast;
   };
 });
-enifed('ember-glimmer/ember-template-compiler/system/compile', ['exports', 'ember-glimmer/ember-template-compiler/system/template', 'require', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-glimmer/ember-template-compiler/plugins/transform-has-block-syntax'], function (exports, _emberGlimmerEmberTemplateCompilerSystemTemplate, _require, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberGlimmerEmberTemplateCompilerPluginsTransformHasBlockSyntax) {
+enifed('ember-glimmer/ember-template-compiler/system/compile', ['exports', 'ember-glimmer/ember-template-compiler/system/template', 'require', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-glimmer/ember-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer/ember-template-compiler/plugins/transform-action-syntax'], function (exports, _emberGlimmerEmberTemplateCompilerSystemTemplate, _require, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberGlimmerEmberTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerEmberTemplateCompilerPluginsTransformActionSyntax) {
   'use strict';
 
   exports.default = compile;
 
   var DEFAULT_PLUGINS = {
-    ast: [_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberGlimmerEmberTemplateCompilerPluginsTransformHasBlockSyntax.default]
+    ast: [_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberGlimmerEmberTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerEmberTemplateCompilerPluginsTransformActionSyntax.default]
   };
 
   var compileSpec = undefined;
@@ -8213,7 +8276,7 @@ enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/cor
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'container/owner'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _containerOwner) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -8234,8 +8297,6 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     unbound: _emberGlimmerHelpersUnbound.default,
     '-class': _emberGlimmerHelpersClass.default
   };
-
-  var builtInModifiers = {};
 
   function wrapClassAttribute(args) {
     var hasClass = args.named.has('class');
@@ -8313,6 +8374,9 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
       _GlimmerEnvironment.call(this, dom);
       this.owner = owner;
       this._components = new _emberMetalEmpty_object.default();
+      this.builtInModifiers = {
+        action: new _emberGlimmerModifiersAction.default()
+      };
     }
 
     Environment.prototype.refineStatement = function refineStatement(statement) {
@@ -8393,12 +8457,17 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     };
 
     Environment.prototype.hasModifier = function hasModifier(name) {
-      return !!builtInModifiers[name[0]];
+      return !!this.builtInModifiers[name[0]];
     };
 
     Environment.prototype.lookupModifier = function lookupModifier(name) {
-      var modifier = builtInModifiers[name[0]];
-      return modifier;
+      var modifier = this.builtInModifiers[name[0]];
+
+      if (modifier) {
+        return modifier;
+      } else {
+        throw new Error(name + ' is not a modifier');
+      }
     };
 
     Environment.prototype.rootReferenceFor = function rootReferenceFor(value) {
@@ -8927,6 +8996,218 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal/debug', 'ember-
       return new _emberGlimmerUtilsReferences.UnboundReference(args.positional.at(0));
     }
   };
+});
+enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
+  'use strict';
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var MODIFIERS = ['alt', 'shift', 'meta', 'ctrl'];
+  var POINTER_EVENT_TYPE_REGEX = /^click|mouse|touch/;
+
+  function isAllowedEvent(event, allowedKeys) {
+    if (allowedKeys === null || typeof allowedKeys === 'undefined') {
+      if (POINTER_EVENT_TYPE_REGEX.test(event.type)) {
+        return _emberViewsSystemUtils.isSimpleClick(event);
+      } else {
+        allowedKeys = '';
+      }
+    }
+
+    if (allowedKeys.indexOf('any') >= 0) {
+      return true;
+    }
+
+    for (var i = 0; i < MODIFIERS.length; i++) {
+      if (event[MODIFIERS[i] + 'Key'] && allowedKeys.indexOf(MODIFIERS[i]) === -1) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  var ActionHelper = {
+    // registeredActions is re-exported for compatibility with older plugins
+    // that were using this undocumented API.
+    registeredActions: _emberViewsSystemAction_manager.default.registeredActions,
+
+    registerAction: function (actionState) {
+      var actionId = actionState.actionId;
+
+      var actions = _emberViewsSystemAction_manager.default.registeredActions[actionId];
+
+      if (!actions) {
+        actions = _emberViewsSystemAction_manager.default.registeredActions[actionId] = [];
+      }
+
+      actions.push(actionState);
+
+      return actionId;
+    },
+
+    unregisterAction: function (actionState) {
+      var actionId = actionState.actionId;
+
+      var actions = _emberViewsSystemAction_manager.default.registeredActions[actionId];
+
+      var index = actions.indexOf(actionState);
+
+      if (index !== -1) {
+        actions.splice(index, 1);
+      }
+
+      if (actions.length === 0) {
+        delete _emberViewsSystemAction_manager.default.registeredActions[actionId];
+      }
+    }
+  };
+
+  exports.ActionHelper = ActionHelper;
+
+  var ActionState = (function () {
+    function ActionState(actionId, actionName, actionArgs, namedArgs, implicitTarget) {
+      _classCallCheck(this, ActionState);
+
+      this.actionId = actionId;
+      this.actionName = actionName;
+      this.actionArgs = actionArgs;
+      this.namedArgs = namedArgs;
+      this.implicitTarget = implicitTarget;
+      this.eventName = this.getEventName();
+    }
+
+    // implements ModifierManager<Action>
+
+    ActionState.prototype.getEventName = function getEventName() {
+      return this.namedArgs.get('on').value() || 'click';
+    };
+
+    ActionState.prototype.getActionArgs = function getActionArgs() {
+      var result = new Array(this.actionArgs.length);
+
+      for (var i = 0; i < this.actionArgs.length; i++) {
+        result[i] = this.actionArgs[i].value();
+      }
+
+      return result;
+    };
+
+    ActionState.prototype.getTarget = function getTarget() {
+      var implicitTarget = this.implicitTarget;
+      var namedArgs = this.namedArgs;
+
+      var target = undefined;
+
+      if (namedArgs.has('target')) {
+        target = namedArgs.get('target').value();
+      } else {
+        target = implicitTarget.value();
+      }
+
+      return target;
+    };
+
+    ActionState.prototype.handler = function handler(event) {
+      var _this = this;
+
+      var actionName = this.actionName;
+      var namedArgs = this.namedArgs;
+
+      var bubbles = namedArgs.get('bubbles');
+      var preventDefault = namedArgs.get('preventDefault');
+      var allowedKeys = namedArgs.get('allowedKeys');
+      var target = this.getTarget();
+
+      if (!isAllowedEvent(event, allowedKeys.value())) {
+        return true;
+      }
+
+      if (preventDefault.value() !== false) {
+        event.preventDefault();
+      }
+
+      if (bubbles.value() === false) {
+        event.stopPropagation();
+      }
+
+      _emberMetalRun_loop.default(function () {
+        if (typeof actionName === 'function') {
+          actionName.apply(target, _this.getActionArgs());
+          return;
+        }
+        if (target.send) {
+          target.send.apply(target, [actionName].concat(_this.getActionArgs()));
+        } else {
+
+          target[actionName].apply(target, _this.getActionArgs());
+        }
+      });
+    };
+
+    ActionState.prototype.destroy = function destroy() {
+      ActionHelper.unregisterAction(this);
+    };
+
+    return ActionState;
+  })();
+
+  exports.ActionState = ActionState;
+
+  var ActionModifierManager = (function () {
+    function ActionModifierManager() {
+      _classCallCheck(this, ActionModifierManager);
+    }
+
+    ActionModifierManager.prototype.install = function install(element, args, dom, dynamicScope) {
+      var named = args.named;
+      var positional = args.positional;
+
+      var implicitTarget = undefined;
+      var actionName = undefined;
+
+      if (positional.length > 1) {
+        implicitTarget = positional.at(0);
+        actionName = positional.at(1).value();
+      }
+
+      var actionArgs = [];
+      // The first two arguments are (1) `this` and (2) the action name.
+      // Everything else is a param.
+      for (var i = 2; i < positional.length; i++) {
+        actionArgs.push(positional.at(i));
+      }
+
+      var actionId = _emberMetalUtils.uuid();
+      var actionState = new ActionState(actionId, actionName, actionArgs, named, implicitTarget);
+
+      ActionHelper.registerAction(actionState);
+
+      dom.setAttribute(element, 'data-ember-action', '');
+      dom.setAttribute(element, 'data-ember-action-' + actionId, actionId);
+
+      return actionState;
+    };
+
+    ActionModifierManager.prototype.update = function update(modifier, element, args, dom, dynamicScope) {
+      var positional = args.positional;
+
+      modifier.actionName = positional.at(1).value();
+      modifier.eventName = modifier.getEventName();
+
+      // Not sure if this is needed? If we mutate the actionState is that good enough?
+      ActionHelper.unregisterAction(modifier);
+      ActionHelper.registerAction(modifier);
+    };
+
+    ActionModifierManager.prototype.getDestructor = function getDestructor(modifier) {
+      return modifier;
+    };
+
+    return ActionModifierManager;
+  })();
+
+  exports.default = ActionModifierManager;
 });
 enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _glimmerReference) {
   'use strict';
@@ -44571,6 +44852,26 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', '
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
         var actionId = _emberViewsSystemJquery.default(evt.currentTarget).attr('data-ember-action');
         var actions = _emberViewsSystemAction_manager.default.registeredActions[actionId];
+
+        // In Glimmer2 this attribute is set to an empty string and an additional
+        // attribute it set for each action on a given element. In this case, the
+        // attributes need to be read so that a proper set of action handlers can
+        // be coalesced.
+        if (actionId === '') {
+          var attributes = evt.currentTarget.attributes;
+          var attributeCount = attributes.length;
+
+          actions = [];
+
+          for (var i = 0; i < attributeCount; i++) {
+            var attr = attributes.item(i);
+            var attrName = attr.name;
+
+            if (attrName.indexOf('data-ember-action-') === 0) {
+              actions = actions.concat(_emberViewsSystemAction_manager.default.registeredActions[attr.value]);
+            }
+          }
+        }
 
         // We have to check for actions here since in some cases, jQuery will trigger
         // an event on `removeChild` (i.e. focusout) after we've already torn down the
