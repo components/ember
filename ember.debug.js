@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8a50a224
+ * @version   2.7.0-canary+1626e4a8
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+8a50a224";
+  exports.default = "2.7.0-canary+1626e4a8";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -44963,7 +44963,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
     ```handlebars
     <!-- app-profile template -->
     <h1>{{person.title}}</h1>
-    {{! Executed in the components context. }}
+    {{! Executed in the component's context. }}
     {{yield}} {{! block contents }}
     ```
   
@@ -45014,7 +45014,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
     isComponent: true,
     /*
       This is set so that the proto inspection in appendTemplatedView does not
-      think that it should set the components `context` to that of the parent view.
+      think that it should set the component's `context` to that of the parent view.
     */
     controller: null,
     context: null,
