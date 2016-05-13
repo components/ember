@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a987fff5
+ * @version   2.7.0-canary+019446ca
  */
 
 var enifed, requireModule, require, Ember;
@@ -84524,7 +84524,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
 
     expectAssertion(function () {
       _emberRuntimeSystemObject.default.create(myMixin);
-    }, 'Ember.Object.create no longer supports mixing in other definitions, use .extend & .create seperately instead.');
+    }, 'Ember.Object.create no longer supports mixing in other definitions, use .extend & .create separately instead.');
   });
 
   // This test is for IE8.
