@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1626e4a8
+ * @version   2.7.0-canary+a987fff5
  */
 
 var enifed, requireModule, require, Ember;
@@ -3733,7 +3733,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+1626e4a8";
+  exports.default = "2.7.0-canary+a987fff5";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7144,7 +7144,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/ember-views/component', 'ember-metal/empty_object', 'ember-metal/debug'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerEmberViewsComponent, _emberMetalEmpty_object, _emberMetalDebug) {
+enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/ember-views/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerEmberViewsComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -7152,6 +7152,12 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function aliasIdToElementId(args, props) {
+    if (args.named.has('id')) {
+      props.elementId = props.id;
+    }
+  }
 
   var CurlyComponentSyntax = (function (_StatementSyntax) {
     _inherits(CurlyComponentSyntax, _StatementSyntax);
@@ -7179,26 +7185,12 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
 
   exports.CurlyComponentSyntax = CurlyComponentSyntax;
 
-  function attrsToProps(keys, attrs) {
-    var merged = new _emberMetalEmpty_object.default();
-
-    merged.attrs = attrs;
-
-    for (var i = 0, l = keys.length; i < l; i++) {
-      var _name = keys[i];
-      var value = attrs[_name];
-
-      merged[_name] = value;
-    }
-
-    return merged;
-  }
-
   var ComponentStateBucket = function ComponentStateBucket(component, args) {
     _classCallCheck(this, ComponentStateBucket);
 
     this.component = component;
     this.classRef = null;
+    this.args = args;
     this.argsRevision = args.tag.value();
   };
 
@@ -7211,8 +7203,14 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       var parentView = dynamicScope.view;
 
       var klass = definition.ComponentClass;
-      var attrs = args.named.value();
-      var props = attrsToProps(args.named.keys, attrs);
+      var processedArgs = _emberGlimmerUtilsProcessArgs.default(args, klass.positionalParams);
+
+      var _processedArgs$value = processedArgs.value();
+
+      var attrs = _processedArgs$value.attrs;
+      var props = _processedArgs$value.props;
+
+      aliasIdToElementId(args, props);
 
       props.renderer = parentView.renderer;
 
@@ -7226,7 +7224,7 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       component.trigger('willInsertElement');
       component.trigger('willRender');
 
-      var bucket = new ComponentStateBucket(component, args);
+      var bucket = new ComponentStateBucket(component, processedArgs);
 
       if (args.named.has('class')) {
         bucket.classRef = args.named.get('class');
@@ -7290,15 +7288,18 @@ enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime'
       component._transitionTo('inDOM');
     };
 
-    CurlyComponentManager.prototype.update = function update(bucket, args, dynamicScope) {
+    CurlyComponentManager.prototype.update = function update(bucket, _, dynamicScope) {
       var component = bucket.component;
+      var args = bucket.args;
       var argsRevision = bucket.argsRevision;
 
       if (!args.tag.validate(argsRevision)) {
         bucket.argsRevision = args.tag.value();
 
-        var attrs = args.named.value();
-        var props = attrsToProps(args.named.keys, attrs);
+        var _args$value = args.value();
+
+        var attrs = _args$value.attrs;
+        var props = _args$value.props;
 
         var oldAttrs = component.attrs;
         var newAttrs = attrs;
@@ -9768,6 +9769,141 @@ enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features
 
     return lookupComponentPair(componentLookup, owner, name);
   }
+});
+enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/empty_object'], function (exports, _glimmerReference, _emberMetalDebug, _emberMetalEmpty_object) {
+  'use strict';
+
+  exports.default = processArgs;
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function processArgs(args, positionalParamsDefinition) {
+    if (!positionalParamsDefinition || positionalParamsDefinition.length === 0 || args.positional.length === 0) {
+      return SimpleArgs.create(args);
+    } else if (typeof positionalParamsDefinition === 'string') {
+      return RestArgs.create(args, positionalParamsDefinition);
+    } else {
+      return PositionalArgs.create(args, positionalParamsDefinition);
+    }
+  }
+
+  var EMPTY_ARGS = {
+    tag: _glimmerReference.CONSTANT_TAG,
+
+    value: function () {
+      return { attrs: {}, props: { attrs: {} } };
+    }
+  };
+
+  var SimpleArgs = (function () {
+    SimpleArgs.create = function create(_ref) {
+      var named = _ref.named;
+
+      if (named.keys.length === 0) {
+        return EMPTY_ARGS;
+      } else {
+        return new SimpleArgs(named);
+      }
+    };
+
+    function SimpleArgs(namedArgs) {
+      _classCallCheck(this, SimpleArgs);
+
+      this.tag = namedArgs.tag;
+      this.namedArgs = namedArgs;
+    }
+
+    SimpleArgs.prototype.value = function value() {
+      var namedArgs = this.namedArgs;
+
+      var keys = namedArgs.keys;
+      var attrs = namedArgs.value();
+      var props = new _emberMetalEmpty_object.default();
+
+      props.attrs = attrs;
+
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var _name = keys[i];
+        var value = attrs[_name];
+
+        props[_name] = value;
+      }
+
+      return { attrs: attrs, props: props };
+    };
+
+    return SimpleArgs;
+  })();
+
+  var RestArgs = (function () {
+    RestArgs.create = function create(args, restArgName) {
+
+      return new RestArgs(args, restArgName);
+    };
+
+    function RestArgs(args, restArgName) {
+      _classCallCheck(this, RestArgs);
+
+      this.tag = args.tag;
+      this.simpleArgs = SimpleArgs.create(args);
+      this.positionalArgs = args.positional;
+      this.restArgName = restArgName;
+    }
+
+    RestArgs.prototype.value = function value() {
+      var simpleArgs = this.simpleArgs;
+      var positionalArgs = this.positionalArgs;
+      var restArgName = this.restArgName;
+
+      var result = simpleArgs.value();
+
+      result.attrs[restArgName] = result.props[restArgName] = positionalArgs.value();
+
+      return result;
+    };
+
+    return RestArgs;
+  })();
+
+  var PositionalArgs = (function () {
+    PositionalArgs.create = function create(args, positionalParamNames) {
+      if (args.positional.length < positionalParamNames.length) {
+        positionalParamNames = positionalParamNames.slice(0, args.positional.length);
+      }
+
+      for (var i = 0; i < positionalParamNames.length; i++) {
+        var _name2 = positionalParamNames[i];
+      }
+
+      return new PositionalArgs(args, positionalParamNames);
+    };
+
+    function PositionalArgs(args, positionalParamNames) {
+      _classCallCheck(this, PositionalArgs);
+
+      this.tag = args.tag;
+      this.simpleArgs = SimpleArgs.create(args);
+      this.positionalArgs = args.positional;
+      this.positionalParamNames = positionalParamNames;
+    }
+
+    PositionalArgs.prototype.value = function value() {
+      var simpleArgs = this.simpleArgs;
+      var positionalArgs = this.positionalArgs;
+      var positionalParamNames = this.positionalParamNames;
+
+      var result = simpleArgs.value();
+
+      for (var i = 0; i < positionalParamNames.length; i++) {
+        var _name3 = positionalParamNames[i];
+        result.attrs[_name3] = result.props[_name3] = positionalArgs.at(i).value();
+      }
+
+      return result;
+    };
+
+    return PositionalArgs;
+  })();
 });
 enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/tags', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalTags, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalDebug) {
   'use strict';
