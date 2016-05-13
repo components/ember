@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9fa098d7
+ * @version   2.7.0-canary+38a1da1e
  */
 
 var enifed, requireModule, require, Ember;
@@ -11213,7 +11213,7 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-template-compiler', 'ember-htmlbars/template_registry', 'ember-routing/system/controller_for', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberTemplateCompiler, _emberHtmlbarsTemplate_registry, _emberRoutingSystemController_for, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-template-compiler', 'ember-htmlbars/template_registry', 'ember-routing/system/controller_for', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberTemplateCompiler, _emberHtmlbarsTemplate_registry, _emberRoutingSystemController_for, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var App, TEMPLATES, appInstance, router;
@@ -11352,7 +11352,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
 
     setupApp(ApplicationSubclass);
 
-    App.FooBarComponent = _emberViewsComponentsComponent.default.extend({
+    App.FooBarComponent = _emberHtmlbarsComponent.default.extend({
       wowza: function () {
         assert.ok(true, 'fired the event!');
       }
@@ -11386,7 +11386,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
 
     setupApp(ApplicationSubclass);
 
-    App.FooBarComponent = _emberViewsComponentsComponent.default.extend({
+    App.FooBarComponent = _emberHtmlbarsComponent.default.extend({
       jerky: function () {
         assert.ok(true, 'fired the event!');
       }
@@ -11402,7 +11402,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var App, appInstance;
@@ -11481,7 +11481,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('If a component is registered, it is used', function () {
     boot(function () {
-      appInstance.register('component:expand-it', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:expand-it', _emberHtmlbarsComponent.default.extend({
         classNames: 'testing123'
       }));
     });
@@ -11493,7 +11493,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     _emberHtmlbarsTemplate_registry.set('application', _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>there goes {{my-hero}}</div>'));
 
     boot(function () {
-      appInstance.register('component:my-hero', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-hero', _emberHtmlbarsComponent.default.extend({
         classNames: 'testing123',
         layout: _emberTemplateCompilerSystemCompile.default('watch him as he GOES')
       }));
@@ -11508,7 +11508,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
 
     boot(function () {
       appInstance.register('template:components/sally-rutherford', _emberTemplateCompilerSystemCompile.default('funkytowny{{yield}}'));
-      appInstance.register('component:sally-rutherford', _emberViewsComponentsComponent.default);
+      appInstance.register('component:sally-rutherford', _emberHtmlbarsComponent.default);
     });
 
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'hello world funkytowny-funkytowny!!!', 'The component is composed correctly');
@@ -11549,7 +11549,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'text': 'outer'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         text: 'inner',
         layoutName: 'foo-bar-baz'
       }));
@@ -11569,7 +11569,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'text': 'outer'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         text: 'inner',
         layoutName: 'foo-bar-baz',
         layout: _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}')
@@ -11590,7 +11590,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
           'text': 'outer'
         }));
 
-        appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+        appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
           text: 'inner',
           defaultLayout: _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}')
         }));
@@ -11612,7 +11612,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
           'text': 'outer'
         }));
 
-        appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+        appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
           text: 'inner',
           defaultLayout: _emberTemplateCompilerSystemCompile.default('should not see this!')
         }));
@@ -11644,7 +11644,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'text': 'outer'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         text: 'inner'
       }));
     });
@@ -11660,7 +11660,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'text': 'outer'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         text: 'inner'
       }));
     });
@@ -11677,7 +11677,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'text': 'outer'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         text: 'inner'
       }));
     });
@@ -11693,7 +11693,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'text': 'outer'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         didInsertElement: function () {
           this.$().html('Some text inserted by jQuery');
         }
@@ -11713,7 +11713,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'foo': 'Some text inserted by jQuery'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         didInsertElement: function () {
           this.$().html(this.get('data'));
         }
@@ -11732,7 +11732,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         'foo': 'Some text inserted by jQuery'
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         didInsertElement: function () {
           // FIXME: I'm unsure if this is even the right way to access attrs
           this.$().html(this.get('attrs.attrs.value'));
@@ -11755,7 +11755,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         }
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend());
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend());
     });
 
     _emberMetalRun_loop.default(function () {
@@ -11776,7 +11776,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         }
       }));
 
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         actions: {
           fizzbuzz: function () {
             ok(true, 'action triggered on component');
@@ -11796,7 +11796,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     var component = undefined;
 
     boot(function () {
-      appInstance.register('component:my-component', _emberViewsComponentsComponent.default.extend({
+      appInstance.register('component:my-component', _emberHtmlbarsComponent.default.extend({
         init: function () {
           this._super();
           component = this;
@@ -11815,7 +11815,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     assert.ok(ownerView._outlets, 'owner view has an internal array of outlets');
   });
 });
-enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   /*
@@ -11871,7 +11871,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/con
       }
     });
 
-    App.ComponentWithActionComponent = _emberViewsComponentsComponent.default.extend({
+    App.ComponentWithActionComponent = _emberHtmlbarsComponent.default.extend({
       classNames: ['component-with-action'],
       click: function () {
         this.sendAction();
@@ -11909,7 +11909,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/con
     _emberMetalRun_loop.default(App, 'advanceReadiness');
   }
 });
-enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/system/application', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-metal/run_loop'], function (exports, _emberApplicationSystemApplication, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberMetalRun_loop) {
+enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/system/application', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/checkbox', 'ember-metal/run_loop'], function (exports, _emberApplicationSystemApplication, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsCheckbox, _emberMetalRun_loop) {
   'use strict';
 
   var App;
@@ -11934,8 +11934,8 @@ enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/s
     App.instanceInitializer({
       name: 'test',
       initialize: function (instance) {
-        assert.strictEqual(instance.resolveRegistration('component:-text-field'), _emberViewsViewsText_field.default, 'TextField was registered');
-        assert.strictEqual(instance.resolveRegistration('component:-checkbox'), _emberViewsViewsCheckbox.default, 'Checkbox was registered');
+        assert.strictEqual(instance.resolveRegistration('component:-text-field'), _emberHtmlbarsComponentsText_field.default, 'TextField was registered');
+        assert.strictEqual(instance.resolveRegistration('component:-checkbox'), _emberHtmlbarsComponentsCheckbox.default, 'Checkbox was registered');
       }
     });
 
@@ -13079,7 +13079,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
   }
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler', 'ember-views/views/view', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompiler, _emberViewsViewsView, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-htmlbars/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler', 'ember-views/views/view', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberHtmlbarsComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompiler, _emberViewsViewsView, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var Router, App, AppView, router, appInstance;
@@ -13178,7 +13178,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
 
     appInstance.register('component-lookup:main', _emberViewsComponent_lookup.default);
 
-    var component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.layout = _emberTemplateCompiler.compile('{{#link-to "about"}}Go to About{{/link-to}}'), _Component$extend)).create();
+    var component = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.layout = _emberTemplateCompiler.compile('{{#link-to "about"}}Go to About{{/link-to}}'), _Component$extend)).create();
 
     var router = appInstance.lookup('router:main');
     router.setupRouter();
@@ -13195,7 +13195,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
 
     appInstance.register('component-lookup:main', _emberViewsComponent_lookup.default);
 
-    var component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.layout = _emberTemplateCompiler.compile('{{#link-to "nonexistent"}}Does not work.{{/link-to}}'), _Component$extend2)).create();
+    var component = _emberHtmlbarsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.layout = _emberTemplateCompiler.compile('{{#link-to "nonexistent"}}Does not work.{{/link-to}}'), _Component$extend2)).create();
 
     _emberMetalRun_loop.default(function () {
       component.appendTo('#qunit-fixture');
@@ -14880,7 +14880,7 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember-routing/system/ro
     equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
   });
 });
-enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-application/system/application', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberApplicationSystemApplication, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-application/system/application', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberApplicationSystemApplication, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var App1, App2, actions;
@@ -14900,7 +14900,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
 
       var registry = application.__registry__;
 
-      registry.register('component:special-button', _emberViewsComponentsComponent.default.extend({
+      registry.register('component:special-button', _emberHtmlbarsComponent.default.extend({
         actions: {
           doStuff: function () {
             actions.push(rootElement);
@@ -15023,7 +15023,7 @@ enifed('ember/tests/integration/view_test', ['exports', 'ember-runtime/controlle
     assert.strictEqual(controllerInMyFoo, indexController, 'controller is provided to `{{view}}`');
   });
 });
-enifed('ember/tests/routing/basic_test',['exports','ember-console','ember-runtime/controllers/controller','ember-routing/system/route','ember-metal/run_loop','ember-runtime/ext/rsvp','ember-runtime/system/object','ember-metal/features','ember-metal/property_get','ember-metal/property_set','ember-metal/computed','ember-metal/mixin','ember-views/components/component','ember-views/system/action_manager','ember-views/views/view','ember-views/system/jquery','ember-template-compiler','ember-application/system/application','ember-runtime/system/native_array','ember-routing/location/none_location','ember-routing/location/history_location','container/owner','router/transition','ember-runtime/copy','ember-metal/observer','ember-htmlbars/template_registry','ember-glimmer/tests/utils/skip-if-glimmer'],function(exports,_emberConsole,_emberRuntimeControllersController,_emberRoutingSystemRoute,_emberMetalRun_loop,_emberRuntimeExtRsvp,_emberRuntimeSystemObject,_emberMetalFeatures,_emberMetalProperty_get,_emberMetalProperty_set,_emberMetalComputed,_emberMetalMixin,_emberViewsComponentsComponent,_emberViewsSystemAction_manager,_emberViewsViewsView,_emberViewsSystemJquery,_emberTemplateCompiler,_emberApplicationSystemApplication,_emberRuntimeSystemNative_array,_emberRoutingLocationNone_location,_emberRoutingLocationHistory_location,_containerOwner,_routerTransition,_emberRuntimeCopy,_emberMetalObserver,_emberHtmlbarsTemplate_registry,_emberGlimmerTestsUtilsSkipIfGlimmer){'use strict';var trim=_emberViewsSystemJquery.default.trim;var Router,App,router,registry,container,originalLoggerError;function bootApplication(){router = container.lookup('router:main');_emberMetalRun_loop.default(App,'advanceReadiness');}function handleURL(path){return _emberMetalRun_loop.default(function(){return router.handleURL(path).then(function(value){ok(true,'url: `' + path + '` was handled');return value;},function(reason){ok(false,'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){_emberMetalRun_loop.default(function(){router.handleURL(path).then(function(value){ok(false,'url: `' + path + '` was NOT to be handled');},function(reason){ok(reason && reason.message === 'TransitionAborted','url: `' + path + '` was to be aborted');});});}function handleURLRejectsWith(path,expectedReason){_emberMetalRun_loop.default(function(){router.handleURL(path).then(function(value){ok(false,'expected handleURLing: `' + path + '` to fail');},function(reason){equal(reason,expectedReason);});});}_emberGlimmerTestsUtilsSkipIfGlimmer.testModule('Basic Routing',{setup:function(){_emberMetalRun_loop.default(function(){App = _emberApplicationSystemApplication.default.create({name:'App',rootElement:'#qunit-fixture'});App.deferReadiness();App.Router.reopen({location:'none'});Router = App.Router;App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});registry = App.__registry__;container = App.__container__;_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}'));_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<h3>Hours</h3>'));_emberHtmlbarsTemplate_registry.set('homepage',_emberTemplateCompiler.compile('<h3>Megatroll</h3><p>{{model.home}}</p>'));_emberHtmlbarsTemplate_registry.set('camelot',_emberTemplateCompiler.compile('<section><h3>Is a silly place</h3></section>'));originalLoggerError = _emberConsole.default.error;});},teardown:function(){_emberMetalRun_loop.default(function(){App.destroy();App = null;_emberHtmlbarsTemplate_registry.setTemplates({});_emberConsole.default.error = originalLoggerError;});}});_emberGlimmerTestsUtilsSkipIfGlimmer.test('warn on URLs not included in the route set',function(){Router.map(function(){this.route('home',{path:'/'});});bootApplication();expectAssertion(function(){_emberMetalRun_loop.default(function(){router.handleURL('/what-is-this-i-dont-even');});},'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({});var currentPath;App.ApplicationController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalMixin.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();equal(currentPath,'home');equal(_emberViewsSystemJquery.default('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Home page and the Camelot page with multiple Router.map calls',function(){Router.map(function(){this.route('home',{path:'/'});});Router.map(function(){this.route('camelot',{path:'/camelot'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({});App.CamelotRoute = _emberRoutingSystemRoute.default.extend({});var currentPath;App.ApplicationController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalMixin.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});App.CamelotController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalMixin.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();handleURL('/camelot');equal(currentPath,'camelot');equal(_emberViewsSystemJquery.default('h3:contains(silly)','#qunit-fixture').length,1,'The camelot template was rendered');handleURL('/');equal(currentPath,'home');equal(_emberViewsSystemJquery.default('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with explicit template name in renderTemplate',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('An alternate template will pull in an alternate controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('homepage');}});App.HomepageController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('An alternate template will pull in an alternate controller instead of controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({controllerName:'foo',renderTemplate:function(){this.render('homepage');}});App.FooController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from Foo'}});App.HomepageController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The template will pull in an alternate controller via key/value',function(){Router.map(function(){this.route('homepage',{path:'/'});});App.HomepageRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({controller:'home'});}});App.HomeController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from home.'}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(Comes from home.)','#qunit-fixture').length,1,'The homepage template was rendered from data from the HomeController');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with explicit template name in renderTemplate and controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberRuntimeControllersController.default.extend({model:{home:'YES I AM HOME'}});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(YES I AM HOME)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Model passed via renderTemplate model is set as controller\'s model',function(){_emberHtmlbarsTemplate_registry.set('bio',_emberTemplateCompiler.compile('<p>{{model.name}}</p>'));App.BioController = _emberRuntimeControllersController.default.extend();Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('bio',{model:{name:'emberjs'}});}});bootApplication();equal(_emberViewsSystemJquery.default('p:contains(emberjs)','#qunit-fixture').length,1,'Passed model was set as controllers model');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Renders correct view with slash notation',function(){_emberHtmlbarsTemplate_registry.set('home/page',_emberTemplateCompiler.compile('<p>{{view.name}}</p>'));Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('home/page');}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberViewsSystemJquery.default('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Renders the view given in the view option',function(){_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<p>{{view.name}}</p>'));Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({view:'homePage'});}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberViewsSystemJquery.default('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage view was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('render does not replace templateName if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('the_real_home_template',_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>'));App.HomeView = _emberViewsViewsView.default.extend({templateName:'the_real_home_template'});App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend();bootApplication();equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('render does not replace template if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeView = _emberViewsViewsView.default.extend({template:_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>')});App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend();bootApplication();_emberMetalRun_loop.default(function(){router.handleURL('/');});equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('render uses templateName from route',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('the_real_home_template',_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>'));App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend({templateName:'the_real_home_template'});bootApplication();equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('defining templateName allows other templates to be rendered',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('alert',_emberTemplateCompiler.compile('<div class=\'alert-box\'>Invader!</div>'));_emberHtmlbarsTemplate_registry.set('the_real_home_template',_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend({templateName:'the_real_home_template',actions:{showAlert:function(){this.render('alert',{into:'home',outlet:'alert'});}}});bootApplication();equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');_emberMetalRun_loop.default(function(){router.send('showAlert');});equal(_emberViewsSystemJquery.default('.alert-box','#qunit-fixture').text(),'Invader!','Template for alert was render into outlet');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Specifying a name to render should have precedence over everything else',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend({templateName:'home',controllerName:'home',viewName:'home',renderTemplate:function(){this.render('homepage');}});App.HomeView = _emberViewsViewsView.default.extend({template:_emberTemplateCompiler.compile('<h3>This should not be rendered</h3><p>{{model.home}}</p>')});App.HomepageController = _emberRuntimeControllersController.default.extend({model:{home:'Tinytroll'}});App.HomepageView = _emberViewsViewsView.default.extend({layout:_emberTemplateCompiler.compile('<span>Outer</span>{{yield}}<span>troll</span>'),templateName:'homepage'});bootApplication();equal(_emberViewsSystemJquery.default('h3','#qunit-fixture').text(),'Megatroll','The homepage template was rendered');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'Tinytroll','The homepage controller was used');equal(_emberViewsSystemJquery.default('span','#qunit-fixture').text(),'Outertroll','The homepage view was used');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with a `setupController` hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){_emberMetalProperty_set.set(controller,'hours',_emberRuntimeSystemNative_array.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));bootApplication();equal(_emberViewsSystemJquery.default('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The route controller is still set when overriding the setupController hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){ // no-op
+enifed('ember/tests/routing/basic_test',['exports','ember-console','ember-runtime/controllers/controller','ember-routing/system/route','ember-metal/run_loop','ember-runtime/ext/rsvp','ember-runtime/system/object','ember-metal/features','ember-metal/property_get','ember-metal/property_set','ember-metal/computed','ember-metal/mixin','ember-htmlbars/component','ember-views/system/action_manager','ember-views/views/view','ember-views/system/jquery','ember-template-compiler','ember-application/system/application','ember-runtime/system/native_array','ember-routing/location/none_location','ember-routing/location/history_location','container/owner','router/transition','ember-runtime/copy','ember-metal/observer','ember-htmlbars/template_registry','ember-glimmer/tests/utils/skip-if-glimmer'],function(exports,_emberConsole,_emberRuntimeControllersController,_emberRoutingSystemRoute,_emberMetalRun_loop,_emberRuntimeExtRsvp,_emberRuntimeSystemObject,_emberMetalFeatures,_emberMetalProperty_get,_emberMetalProperty_set,_emberMetalComputed,_emberMetalMixin,_emberHtmlbarsComponent,_emberViewsSystemAction_manager,_emberViewsViewsView,_emberViewsSystemJquery,_emberTemplateCompiler,_emberApplicationSystemApplication,_emberRuntimeSystemNative_array,_emberRoutingLocationNone_location,_emberRoutingLocationHistory_location,_containerOwner,_routerTransition,_emberRuntimeCopy,_emberMetalObserver,_emberHtmlbarsTemplate_registry,_emberGlimmerTestsUtilsSkipIfGlimmer){'use strict';var trim=_emberViewsSystemJquery.default.trim;var Router,App,router,registry,container,originalLoggerError;function bootApplication(){router = container.lookup('router:main');_emberMetalRun_loop.default(App,'advanceReadiness');}function handleURL(path){return _emberMetalRun_loop.default(function(){return router.handleURL(path).then(function(value){ok(true,'url: `' + path + '` was handled');return value;},function(reason){ok(false,'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){_emberMetalRun_loop.default(function(){router.handleURL(path).then(function(value){ok(false,'url: `' + path + '` was NOT to be handled');},function(reason){ok(reason && reason.message === 'TransitionAborted','url: `' + path + '` was to be aborted');});});}function handleURLRejectsWith(path,expectedReason){_emberMetalRun_loop.default(function(){router.handleURL(path).then(function(value){ok(false,'expected handleURLing: `' + path + '` to fail');},function(reason){equal(reason,expectedReason);});});}_emberGlimmerTestsUtilsSkipIfGlimmer.testModule('Basic Routing',{setup:function(){_emberMetalRun_loop.default(function(){App = _emberApplicationSystemApplication.default.create({name:'App',rootElement:'#qunit-fixture'});App.deferReadiness();App.Router.reopen({location:'none'});Router = App.Router;App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});registry = App.__registry__;container = App.__container__;_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}'));_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<h3>Hours</h3>'));_emberHtmlbarsTemplate_registry.set('homepage',_emberTemplateCompiler.compile('<h3>Megatroll</h3><p>{{model.home}}</p>'));_emberHtmlbarsTemplate_registry.set('camelot',_emberTemplateCompiler.compile('<section><h3>Is a silly place</h3></section>'));originalLoggerError = _emberConsole.default.error;});},teardown:function(){_emberMetalRun_loop.default(function(){App.destroy();App = null;_emberHtmlbarsTemplate_registry.setTemplates({});_emberConsole.default.error = originalLoggerError;});}});_emberGlimmerTestsUtilsSkipIfGlimmer.test('warn on URLs not included in the route set',function(){Router.map(function(){this.route('home',{path:'/'});});bootApplication();expectAssertion(function(){_emberMetalRun_loop.default(function(){router.handleURL('/what-is-this-i-dont-even');});},'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({});var currentPath;App.ApplicationController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalMixin.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();equal(currentPath,'home');equal(_emberViewsSystemJquery.default('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Home page and the Camelot page with multiple Router.map calls',function(){Router.map(function(){this.route('home',{path:'/'});});Router.map(function(){this.route('camelot',{path:'/camelot'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({});App.CamelotRoute = _emberRoutingSystemRoute.default.extend({});var currentPath;App.ApplicationController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalMixin.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});App.CamelotController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalMixin.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();handleURL('/camelot');equal(currentPath,'camelot');equal(_emberViewsSystemJquery.default('h3:contains(silly)','#qunit-fixture').length,1,'The camelot template was rendered');handleURL('/');equal(currentPath,'home');equal(_emberViewsSystemJquery.default('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with explicit template name in renderTemplate',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('An alternate template will pull in an alternate controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('homepage');}});App.HomepageController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('An alternate template will pull in an alternate controller instead of controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({controllerName:'foo',renderTemplate:function(){this.render('homepage');}});App.FooController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from Foo'}});App.HomepageController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The template will pull in an alternate controller via key/value',function(){Router.map(function(){this.route('homepage',{path:'/'});});App.HomepageRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({controller:'home'});}});App.HomeController = _emberRuntimeControllersController.default.extend({model:{home:'Comes from home.'}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(Comes from home.)','#qunit-fixture').length,1,'The homepage template was rendered from data from the HomeController');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with explicit template name in renderTemplate and controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberRuntimeControllersController.default.extend({model:{home:'YES I AM HOME'}});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberViewsSystemJquery.default('h3:contains(Megatroll) + p:contains(YES I AM HOME)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Model passed via renderTemplate model is set as controller\'s model',function(){_emberHtmlbarsTemplate_registry.set('bio',_emberTemplateCompiler.compile('<p>{{model.name}}</p>'));App.BioController = _emberRuntimeControllersController.default.extend();Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('bio',{model:{name:'emberjs'}});}});bootApplication();equal(_emberViewsSystemJquery.default('p:contains(emberjs)','#qunit-fixture').length,1,'Passed model was set as controllers model');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Renders correct view with slash notation',function(){_emberHtmlbarsTemplate_registry.set('home/page',_emberTemplateCompiler.compile('<p>{{view.name}}</p>'));Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('home/page');}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberViewsSystemJquery.default('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Renders the view given in the view option',function(){_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<p>{{view.name}}</p>'));Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({view:'homePage'});}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberViewsSystemJquery.default('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage view was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('render does not replace templateName if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('the_real_home_template',_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>'));App.HomeView = _emberViewsViewsView.default.extend({templateName:'the_real_home_template'});App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend();bootApplication();equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('render does not replace template if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeView = _emberViewsViewsView.default.extend({template:_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>')});App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend();bootApplication();_emberMetalRun_loop.default(function(){router.handleURL('/');});equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('render uses templateName from route',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('the_real_home_template',_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>'));App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend({templateName:'the_real_home_template'});bootApplication();equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('defining templateName allows other templates to be rendered',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('alert',_emberTemplateCompiler.compile('<div class=\'alert-box\'>Invader!</div>'));_emberHtmlbarsTemplate_registry.set('the_real_home_template',_emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend({templateName:'the_real_home_template',actions:{showAlert:function(){this.render('alert',{into:'home',outlet:'alert'});}}});bootApplication();equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');_emberMetalRun_loop.default(function(){router.send('showAlert');});equal(_emberViewsSystemJquery.default('.alert-box','#qunit-fixture').text(),'Invader!','Template for alert was render into outlet');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Specifying a name to render should have precedence over everything else',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberRuntimeControllersController.default.extend();App.HomeRoute = _emberRoutingSystemRoute.default.extend({templateName:'home',controllerName:'home',viewName:'home',renderTemplate:function(){this.render('homepage');}});App.HomeView = _emberViewsViewsView.default.extend({template:_emberTemplateCompiler.compile('<h3>This should not be rendered</h3><p>{{model.home}}</p>')});App.HomepageController = _emberRuntimeControllersController.default.extend({model:{home:'Tinytroll'}});App.HomepageView = _emberViewsViewsView.default.extend({layout:_emberTemplateCompiler.compile('<span>Outer</span>{{yield}}<span>troll</span>'),templateName:'homepage'});bootApplication();equal(_emberViewsSystemJquery.default('h3','#qunit-fixture').text(),'Megatroll','The homepage template was rendered');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'Tinytroll','The homepage controller was used');equal(_emberViewsSystemJquery.default('span','#qunit-fixture').text(),'Outertroll','The homepage view was used');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with a `setupController` hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){_emberMetalProperty_set.set(controller,'hours',_emberRuntimeSystemNative_array.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));bootApplication();equal(_emberViewsSystemJquery.default('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The route controller is still set when overriding the setupController hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){ // no-op
 // importantly, we are not calling  this._super here
 }});registry.register('controller:home',_emberRuntimeControllersController.default.extend());bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:home'),'route controller is the home controller');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The route controller can be specified via controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<p>{{myValue}}</p>'));App.HomeRoute = _emberRoutingSystemRoute.default.extend({controllerName:'myController'});registry.register('controller:myController',_emberRuntimeControllersController.default.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'foo','The homepage template was rendered with data from the custom controller');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The route controller specified via controllerName is used in render',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('alternative_home',_emberTemplateCompiler.compile('<p>alternative home: {{myValue}}</p>'));App.HomeRoute = _emberRoutingSystemRoute.default.extend({controllerName:'myController',renderTemplate:function(){this.render('alternative_home');}});registry.register('controller:myController',_emberRuntimeControllersController.default.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'alternative home: foo','The homepage template was rendered with data from the custom controller');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available',function(){Router.map(function(){this.route('home',{path:'/'});});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<p>home: {{myValue}}</p>'));App.HomeRoute = _emberRoutingSystemRoute.default.extend({controllerName:'myController'});registry.register('controller:home',_emberRuntimeControllersController.default.extend({myValue:'home'}));registry.register('controller:myController',_emberRuntimeControllersController.default.extend({myValue:'myController'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'home: myController','The homepage template was rendered with data from the custom controller');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with a `setupController` hook modifying other controllers',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){_emberMetalProperty_set.set(this.controllerFor('home'),'hours',_emberRuntimeSystemNative_array.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));bootApplication();equal(_emberViewsSystemJquery.default('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage with a computed context that does not get overridden',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberRuntimeControllersController.default.extend({model:_emberMetalComputed.computed(function(){return _emberRuntimeSystemNative_array.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']);})});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>'));bootApplication();equal(_emberViewsSystemJquery.default('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the context intact');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Homepage getting its controller context via model',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({model:function(){return _emberRuntimeSystemNative_array.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']);},setupController:function(controller,model){equal(this.controllerFor('home'),controller);_emberMetalProperty_set.set(this.controllerFor('home'),'hours',model);}});_emberHtmlbarsTemplate_registry.set('home',_emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));bootApplication();equal(_emberViewsSystemJquery.default('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Specials Page getting its controller context by deserializing the params hash',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({model:function(params){return _emberRuntimeSystemObject.default.create({menuItemId:params.menu_item_id});},setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberHtmlbarsTemplate_registry.set('special',_emberTemplateCompiler.compile('<p>{{model.menuItemId}}</p>'));bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());handleURL('/specials/1');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'1','The model was used to render the template');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Specials Page defaults to looking models up via `find`',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberHtmlbarsTemplate_registry.set('special',_emberTemplateCompiler.compile('<p>{{model.id}}</p>'));bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());handleURL('/specials/1');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'1','The model was used to render the template');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberRuntimeExtRsvp.default.Promise(function(res){resolve = res;});}});App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberHtmlbarsTemplate_registry.set('special',_emberTemplateCompiler.compile('<p>{{model.id}}</p>'));_emberHtmlbarsTemplate_registry.set('loading',_emberTemplateCompiler.compile('<p>LOADING!</p>'));bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());handleURL('/specials/1');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'LOADING!','The app is in the loading state');_emberMetalRun_loop.default(function(){resolve(menuItem);});equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'1','The app is now in the specials state');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('The loading state doesn\'t get entered for promises that resolve on the same run loop',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = _emberRoutingSystemRoute.default.extend({enter:function(){ok(false,'LoadingRoute shouldn\'t have been entered.');}});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberHtmlbarsTemplate_registry.set('special',_emberTemplateCompiler.compile('<p>{{model.id}}</p>'));_emberHtmlbarsTemplate_registry.set('loading',_emberTemplateCompiler.compile('<p>LOADING!</p>'));bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());handleURL('/specials/1');equal(_emberViewsSystemJquery.default('p','#qunit-fixture').text(),'1','The app is now in the specials state');}); /*
 asyncTest("The Special page returning an error fires the error hook on SpecialRoute", function() {
@@ -15084,7 +15084,7 @@ redirect = true;_emberMetalRun_loop.default(router,'transitionTo','nork');_ember
 // promise model should pause the transition and
 // activate LoadingRoute
 deferred = _emberRuntimeExtRsvp.default.defer();_emberMetalRun_loop.default(router,'transitionTo','nork');_emberMetalRun_loop.default(deferred.resolve);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('`didTransition` event fires on the router',function(){expect(3);Router.map(function(){this.route('nork');});router = container.lookup('router:main');router.one('didTransition',function(){ok(true,'didTransition fired on initial routing');});bootApplication();router.one('didTransition',function(){ok(true,'didTransition fired on the router');equal(router.get('url'),'/nork','The url property is updated by the time didTransition fires');});_emberMetalRun_loop.default(router,'transitionTo','nork');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('`didTransition` can be reopened',function(){expect(1);Router.map(function(){this.route('nork');});Router.reopen({didTransition:function(){this._super.apply(this,arguments);ok(true,'reopened didTransition was called');}});bootApplication();});_emberGlimmerTestsUtilsSkipIfGlimmer.test('`activate` event fires on the route',function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');});App.NorkRoute = _emberRoutingSystemRoute.default.extend({init:function(){this._super.apply(this,arguments);this.on('activate',function(){equal(++eventFired,1,'activate event is fired once');});},activate:function(){ok(true,'activate hook is called');}});bootApplication();_emberMetalRun_loop.default(router,'transitionTo','nork');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('`deactivate` event fires on the route',function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');this.route('dork');});App.NorkRoute = _emberRoutingSystemRoute.default.extend({init:function(){this._super.apply(this,arguments);this.on('deactivate',function(){equal(++eventFired,1,'deactivate event is fired once');});},deactivate:function(){ok(true,'deactivate hook is called');}});bootApplication();_emberMetalRun_loop.default(router,'transitionTo','nork');_emberMetalRun_loop.default(router,'transitionTo','dork');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Actions can be handled by inherited action handlers',function(){expect(4);App.SuperRoute = _emberRoutingSystemRoute.default.extend({actions:{foo:function(){ok(true,'foo');},bar:function(msg){equal(msg,'HELLO');}}});App.RouteMixin = _emberMetalMixin.default.create({actions:{bar:function(msg){equal(msg,'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin,{actions:{baz:function(){ok(true,'baz');}}});bootApplication();router.send('foo');router.send('bar','HELLO');router.send('baz');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo returns Transition when passed a route name',function(){expect(1);Router.map(function(){this.route('root',{path:'/'});this.route('bar');});var transition=null;bootApplication();_emberMetalRun_loop.default(function(){transition = router.transitionTo('bar');});equal(transition instanceof _routerTransition.Transition,true);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo returns Transition when passed a url',function(){expect(1);Router.map(function(){this.route('root',{path:'/'});this.route('bar',function(){this.route('baz');});});var transition=null;bootApplication();_emberMetalRun_loop.default(function(){transition = router.transitionTo('/bar/baz');});equal(transition instanceof _routerTransition.Transition,true);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo',function(){expect(24);Router.map(function(){this.route('be',function(){this.route('excellent',{resetNamespace:true},function(){this.route('to',{resetNamespace:true},function(){this.route('each',{resetNamespace:true},function(){this.route('other');});});});});});bootApplication();var appController=_containerOwner.getOwner(router).lookup('controller:application');function transitionAndCheck(path,expectedPath,expectedRouteName){if(path){_emberMetalRun_loop.default(router,'transitionTo',path);}equal(appController.get('currentPath'),expectedPath);equal(appController.get('currentRouteName'),expectedRouteName);}transitionAndCheck(null,'index','index');transitionAndCheck('/be','be.index','be.index');transitionAndCheck('/be/excellent','be.excellent.index','excellent.index');transitionAndCheck('/be/excellent/to','be.excellent.to.index','to.index');transitionAndCheck('/be/excellent/to/each','be.excellent.to.each.index','each.index');transitionAndCheck('/be/excellent/to/each/other','be.excellent.to.each.other','each.other');transitionAndCheck('index','index','index');transitionAndCheck('be','be.index','be.index');transitionAndCheck('excellent','be.excellent.index','excellent.index');transitionAndCheck('to.index','be.excellent.to.index','to.index');transitionAndCheck('each','be.excellent.to.each.index','each.index');transitionAndCheck('each.other','be.excellent.to.each.other','each.other');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Route model hook finds the same model as a manual find',function(){var Post;App.Post = _emberRuntimeSystemObject.default.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route('post',{path:'/post/:post_id'});});bootApplication();handleURL('/post/1');equal(App.Post,Post);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Routes can refresh themselves causing their model hooks to be re-run',function(){Router.map(function(){this.route('parent',{path:'/parent/:parent_id'},function(){this.route('child');});});var appcount=0;App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = _emberRoutingSystemRoute.default.extend({model:function(params){equal(params.parent_id,'123');++parentcount;},actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = _emberRoutingSystemRoute.default.extend({model:function(){++childcount;}});bootApplication();equal(appcount,1);equal(parentcount,0);equal(childcount,0);_emberMetalRun_loop.default(router,'transitionTo','parent.child','123');equal(appcount,1);equal(parentcount,1);equal(childcount,1);_emberMetalRun_loop.default(router,'send','refreshParent');equal(appcount,1);equal(parentcount,2);equal(childcount,2);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Specifying non-existent controller name in route#render throws',function(){expect(1);Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){try{this.render('homepage',{controller:'stefanpenneristhemanforme'});}catch(e) {equal(e.message,'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');}}});bootApplication();});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Redirecting with null model doesn\'t error out',function(){function serializeAboutRoute(model){if(model === null){return {hurhurhur:'TreeklesMcGeekles'};}}if(_emberMetalFeatures.default('ember-route-serializers')){Router.map(function(){this.route('home',{path:'/'});this.route('about',{path:'/about/:hurhurhur',serialize:serializeAboutRoute});});}else {Router.map(function(){this.route('home',{path:'/'});this.route('about',{path:'/about/:hurhurhur'});});App.AboutRoute = _emberRoutingSystemRoute.default.extend({serialize:serializeAboutRoute});}App.HomeRoute = _emberRoutingSystemRoute.default.extend({beforeModel:function(){this.transitionTo('about',null);}});bootApplication();equal(router.get('location.path'),'/about/TreeklesMcGeekles');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('rejecting the model hooks promise with a non-error prints the `message` property',function(){expect(5);var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie',{path:'/'});});_emberConsole.default.error = function(initialMessage,errorMessage,errorStack){equal(initialMessage,'Error while processing route: yippie','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');equal(errorStack,rejectedStack,'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberRoutingSystemRoute.default.extend({model:function(){return _emberRuntimeExtRsvp.default.reject({message:rejectedMessage,stack:rejectedStack});}});throws(function(){bootApplication();},function(err){equal(err.message,rejectedMessage);return true;},'expected an exception');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property',function(){expect(5);var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie',{path:'/'});});_emberConsole.default.error = function(initialMessage,errorMessage,errorStack){equal(initialMessage,'Error while processing route: yippie','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');equal(errorStack,rejectedStack,'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberRoutingSystemRoute.default.extend({model:function(){return _emberRuntimeExtRsvp.default.reject({errorThrown:{message:rejectedMessage,stack:rejectedStack}});}});throws(function(){bootApplication();},function(err){equal(err.message,rejectedMessage);return true;},'expected an exception');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('rejecting the model hooks promise with no reason still logs error',function(){Router.map(function(){this.route('wowzers',{path:'/'});});_emberConsole.default.error = function(initialMessage){equal(initialMessage,'Error while processing route: wowzers','a message with the current route name is printed');};App.WowzersRoute = _emberRoutingSystemRoute.default.extend({model:function(){return _emberRuntimeExtRsvp.default.reject();}});bootApplication();});_emberGlimmerTestsUtilsSkipIfGlimmer.test('rejecting the model hooks promise with a string shows a good error',function(){expect(3);var originalLoggerError=_emberConsole.default.error;var rejectedMessage='Supercalifragilisticexpialidocious';Router.map(function(){this.route('yondo',{path:'/'});});_emberConsole.default.error = function(initialMessage,errorMessage){equal(initialMessage,'Error while processing route: yondo','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');};App.YondoRoute = _emberRoutingSystemRoute.default.extend({model:function(){return _emberRuntimeExtRsvp.default.reject(rejectedMessage);}});throws(function(){bootApplication();},rejectedMessage,'expected an exception');_emberConsole.default.error = originalLoggerError;});_emberGlimmerTestsUtilsSkipIfGlimmer.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled',function(){expect(1);App.Router.map(function(){this.route('about');});function shouldNotFire(){ok(false,'this action shouldn\'t have been received');}App.IndexRoute = _emberRoutingSystemRoute.default.extend({actions:{willChangeModel:shouldNotFire,willChangeContext:shouldNotFire,willLeave:shouldNotFire}});App.AboutRoute = _emberRoutingSystemRoute.default.extend({setupController:function(){ok(true,'about route was entered');}});bootApplication();_emberMetalRun_loop.default(router,'transitionTo','about');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Errors in transitionTo within redirect hook are logged',function(){expect(4);var actual=[];Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberRoutingSystemRoute.default.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});_emberConsole.default.error = function(){ // push the arguments onto an array so we can detect if the error gets logged twice
-actual.push(arguments);};throws(function(){bootApplication();},/More context objects were passed/);equal(actual.length,1,'the error is only logged once');equal(actual[0][0],'Error while processing route: yondo','source route is printed');ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/),'the error is printed');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Errors in transition show error template if available',function(){_emberHtmlbarsTemplate_registry.set('error',_emberTemplateCompiler.compile('<div id=\'error\'>Error!</div>'));Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberRoutingSystemRoute.default.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});throws(function(){bootApplication();},/More context objects were passed/);equal(_emberViewsSystemJquery.default('#error').length,1,'Error template was rendered.');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#resetController gets fired when changing models and exiting routes',function(){expect(4);Router.map(function(){this.route('a',function(){this.route('b',{path:'/b/:id',resetNamespace:true},function(){});this.route('c',{path:'/c/:id',resetNamespace:true},function(){});});this.route('out');});var calls=[];var SpyRoute=_emberRoutingSystemRoute.default.extend({setupController:function(controller,model,transition){calls.push(['setup',this.routeName]);},resetController:function(controller){calls.push(['reset',this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls,[]);_emberMetalRun_loop.default(router,'transitionTo','b','b-1');deepEqual(calls,[['setup','a'],['setup','b']]);calls.length = 0;_emberMetalRun_loop.default(router,'transitionTo','c','c-1');deepEqual(calls,[['reset','b'],['setup','c']]);calls.length = 0;_emberMetalRun_loop.default(router,'transitionTo','out');deepEqual(calls,[['reset','c'],['reset','a'],['setup','out']]);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during initialization of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalRun_loop.default(router,'transitionTo','boom');},/\bboom\b/);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during load of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalRun_loop.default(router,'transitionTo','boom');});});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during initialization of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during load of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} works when created after initial render',function(){_emberHtmlbarsTemplate_registry.set('sample',_emberTemplateCompiler.compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye'));_emberHtmlbarsTemplate_registry.set('sample/inner',_emberTemplateCompiler.compile('Yay'));_emberHtmlbarsTemplate_registry.set('sample/inner2',_emberTemplateCompiler.compile('Boo'));Router.map(function(){this.route('sample',{path:'/'},function(){this.route('inner',{path:'/'});this.route('inner2',{path:'/2'});});});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'HiBye','initial render');_emberMetalRun_loop.default(function(){container.lookup('controller:sample').set('showTheThing',true);});equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'HiYayBye','second render');handleURL('/2');equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'HiBooBye','third render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can rerender application view multiple times when it contains an outlet',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('App{{outlet}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('Hello world'));registry.register('view:application',_emberViewsViewsView.default.extend({elementId:'im-special'}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'AppHello world','initial render');_emberMetalRun_loop.default(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'AppHello world','second render');_emberMetalRun_loop.default(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'AppHello world','third render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render into a named outlet at the top level',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('The index'));registry.register('route:application',_emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect a named outlet at the top level',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('The index'));registry.register('route:application',_emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});},actions:{banish:function(){this.disconnectOutlet({parentView:'application',outlet:'other'});}}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');_emberMetalRun_loop.default(router,'send','banish');equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B--C','second render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render into a named outlet at the top level, with empty main outlet',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));Router.map(function(){this.route('hasNoTemplate',{path:'/'});});registry.register('route:application',_emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A--B-Hello world-C','initial render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render into a named outlet at the top level, later',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('The index'));registry.register('route:application',_emberRoutingSystemRoute.default.extend({actions:{launch:function(){this.render('modal',{into:'application',outlet:'other'});}}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B--C','initial render');_emberMetalRun_loop.default(router,'send','launch');equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B-Hello world-C','second render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render routes with no \'main\' outlet and their children',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('<div id="application">{{outlet "app"}}</div>'));_emberHtmlbarsTemplate_registry.set('app',_emberTemplateCompiler.compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>'));_emberHtmlbarsTemplate_registry.set('common',_emberTemplateCompiler.compile('<div id="common"></div>'));_emberHtmlbarsTemplate_registry.set('sub',_emberTemplateCompiler.compile('<div id="sub"></div>'));Router.map(function(){this.route('app',{path:'/app'},function(){this.route('sub',{path:'/sub',resetNamespace:true});});});App.AppRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('app',{outlet:'app',into:'application'});this.render('common',{outlet:'common',into:'app'});}});App.SubRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('sub',{outlet:'sub',into:'app'});}});bootApplication();handleURL('/app');equal(_emberViewsSystemJquery.default('#app-common #common').length,1,'Finds common while viewing /app');handleURL('/app/sub');equal(_emberViewsSystemJquery.default('#app-common #common').length,1,'Finds common while viewing /app/sub');equal(_emberViewsSystemJquery.default('#app-sub #sub').length,1,'Finds sub while viewing /app/sub');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Tolerates stacked renders',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}{{outlet "modal"}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('hi'));_emberHtmlbarsTemplate_registry.set('layer',_emberTemplateCompiler.compile('layer'));App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});},close:function(){this.disconnectOutlet({outlet:'modal',parentView:'application'});}}});bootApplication();equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');_emberMetalRun_loop.default(router,'send','openLayer');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hilayer');_emberMetalRun_loop.default(router,'send','openLayer');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hilayer');_emberMetalRun_loop.default(router,'send','close');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Renders child into parent with non-default template name',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('<div class="a">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('exports/root',_emberTemplateCompiler.compile('<div class="b">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('exports/index',_emberTemplateCompiler.compile('<div class="c"></div>'));Router.map(function(){this.route('root',function(){});});App.RootRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('exports/root');}});App.RootIndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('exports/index');}});bootApplication();handleURL('/root');equal(_emberViewsSystemJquery.default('#qunit-fixture .a .b .c').length,1);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Allows any route to disconnectOutlet another route\'s templates',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}{{outlet "modal"}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('hi'));_emberHtmlbarsTemplate_registry.set('layer',_emberTemplateCompiler.compile('layer'));App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});}}});App.IndexRoute = _emberRoutingSystemRoute.default.extend({actions:{close:function(){this.disconnectOutlet({parentView:'application',outlet:'modal'});}}});bootApplication();equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');_emberMetalRun_loop.default(router,'send','openLayer');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hilayer');_emberMetalRun_loop.default(router,'send','close');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can this.render({into:...}) the render helper',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('bar'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});this.render('bar',{into:'foo'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'other');_emberMetalRun_loop.default(router,'send','changeToBar');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'bar');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect from the render helper',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'other');_emberMetalRun_loop.default(router,'send','disconnect');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can this.render({into:...}) the render helper\'s children',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('<div class="index">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('other',_emberTemplateCompiler.compile('other'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('bar'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});this.render('bar',{into:'index'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'other');_emberMetalRun_loop.default(router,'send','changeToBar');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'bar');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect from the render helper\'s children',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('<div class="index">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('other',_emberTemplateCompiler.compile('other'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'other');_emberMetalRun_loop.default(router,'send','disconnect');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can this.render({into:...}) nested render helpers',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{render "bar"}}</div>'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('<div class="bar">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));_emberHtmlbarsTemplate_registry.set('baz',_emberTemplateCompiler.compile('baz'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{changeToBaz:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});this.render('baz',{into:'bar'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'other');_emberMetalRun_loop.default(router,'send','changeToBaz');equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'baz');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect from nested render helpers',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{render "bar"}}</div>'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('<div class="bar">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'other');_emberMetalRun_loop.default(router,'send','disconnect');equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render with layout',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('index-template'));_emberHtmlbarsTemplate_registry.set('my-layout',_emberTemplateCompiler.compile('my-layout [{{yield}}]'));App.IndexView = _emberViewsViewsView.default.extend({layoutName:'my-layout'});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'my-layout [index-template]');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed',function(assert){_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}'));var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = _emberRuntimeControllersController.default.extend({showFirst:true});App.IndexRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = _emberViewsComponentsComponent.default.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = _emberViewsComponentsComponent.default.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter,1,'didInsertElement invoked on displayed component');assert.strictEqual(otherComponentCounter,0,'didInsertElement not invoked on displayed component');_emberMetalRun_loop.default(function(){indexController.set('showFirst',false);});assert.strictEqual(myComponentCounter,1,'didInsertElement not invoked on displayed component');assert.strictEqual(otherComponentCounter,1,'didInsertElement invoked on displayed component');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Doesnt swallow exception thrown from willTransition',function(){expect(1);_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('index'));_emberHtmlbarsTemplate_registry.set('other',_emberTemplateCompiler.compile('other'));Router.map(function(){this.route('other',function(){});});App.IndexRoute = _emberRoutingSystemRoute.default.extend({actions:{willTransition:function(){throw new Error('boom');}}});bootApplication();throws(function(){_emberMetalRun_loop.default(function(){router.handleURL('/other');});},/boom/,'expected an exception that didnt happen');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception if outlet name is undefined in render and disconnectOutlet',function(assert){App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({actions:{showModal:function(){this.render({outlet:undefined,parentView:'application'});},hideModal:function(){this.disconnectOutlet({outlet:undefined,parentView:'application'});}}});bootApplication();throws(function(){_emberMetalRun_loop.default(function(){router.send('showModal');});},/You passed undefined as the outlet name/);throws(function(){_emberMetalRun_loop.default(function(){router.send('hideModal');});},/You passed undefined as the outlet name/);});});
+actual.push(arguments);};throws(function(){bootApplication();},/More context objects were passed/);equal(actual.length,1,'the error is only logged once');equal(actual[0][0],'Error while processing route: yondo','source route is printed');ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/),'the error is printed');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Errors in transition show error template if available',function(){_emberHtmlbarsTemplate_registry.set('error',_emberTemplateCompiler.compile('<div id=\'error\'>Error!</div>'));Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberRoutingSystemRoute.default.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});throws(function(){bootApplication();},/More context objects were passed/);equal(_emberViewsSystemJquery.default('#error').length,1,'Error template was rendered.');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#resetController gets fired when changing models and exiting routes',function(){expect(4);Router.map(function(){this.route('a',function(){this.route('b',{path:'/b/:id',resetNamespace:true},function(){});this.route('c',{path:'/c/:id',resetNamespace:true},function(){});});this.route('out');});var calls=[];var SpyRoute=_emberRoutingSystemRoute.default.extend({setupController:function(controller,model,transition){calls.push(['setup',this.routeName]);},resetController:function(controller){calls.push(['reset',this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls,[]);_emberMetalRun_loop.default(router,'transitionTo','b','b-1');deepEqual(calls,[['setup','a'],['setup','b']]);calls.length = 0;_emberMetalRun_loop.default(router,'transitionTo','c','c-1');deepEqual(calls,[['reset','b'],['setup','c']]);calls.length = 0;_emberMetalRun_loop.default(router,'transitionTo','out');deepEqual(calls,[['reset','c'],['reset','a'],['setup','out']]);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during initialization of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalRun_loop.default(router,'transitionTo','boom');},/\bboom\b/);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during load of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalRun_loop.default(router,'transitionTo','boom');});});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during initialization of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception during load of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberRoutingSystemRoute.default.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} works when created after initial render',function(){_emberHtmlbarsTemplate_registry.set('sample',_emberTemplateCompiler.compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye'));_emberHtmlbarsTemplate_registry.set('sample/inner',_emberTemplateCompiler.compile('Yay'));_emberHtmlbarsTemplate_registry.set('sample/inner2',_emberTemplateCompiler.compile('Boo'));Router.map(function(){this.route('sample',{path:'/'},function(){this.route('inner',{path:'/'});this.route('inner2',{path:'/2'});});});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'HiBye','initial render');_emberMetalRun_loop.default(function(){container.lookup('controller:sample').set('showTheThing',true);});equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'HiYayBye','second render');handleURL('/2');equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'HiBooBye','third render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can rerender application view multiple times when it contains an outlet',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('App{{outlet}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('Hello world'));registry.register('view:application',_emberViewsViewsView.default.extend({elementId:'im-special'}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'AppHello world','initial render');_emberMetalRun_loop.default(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'AppHello world','second render');_emberMetalRun_loop.default(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'AppHello world','third render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render into a named outlet at the top level',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('The index'));registry.register('route:application',_emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect a named outlet at the top level',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('The index'));registry.register('route:application',_emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});},actions:{banish:function(){this.disconnectOutlet({parentView:'application',outlet:'other'});}}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');_emberMetalRun_loop.default(router,'send','banish');equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B--C','second render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render into a named outlet at the top level, with empty main outlet',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));Router.map(function(){this.route('hasNoTemplate',{path:'/'});});registry.register('route:application',_emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A--B-Hello world-C','initial render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render into a named outlet at the top level, later',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));_emberHtmlbarsTemplate_registry.set('modal',_emberTemplateCompiler.compile('Hello world'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('The index'));registry.register('route:application',_emberRoutingSystemRoute.default.extend({actions:{launch:function(){this.render('modal',{into:'application',outlet:'other'});}}}));bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B--C','initial render');_emberMetalRun_loop.default(router,'send','launch');equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'A-The index-B-Hello world-C','second render');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render routes with no \'main\' outlet and their children',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('<div id="application">{{outlet "app"}}</div>'));_emberHtmlbarsTemplate_registry.set('app',_emberTemplateCompiler.compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>'));_emberHtmlbarsTemplate_registry.set('common',_emberTemplateCompiler.compile('<div id="common"></div>'));_emberHtmlbarsTemplate_registry.set('sub',_emberTemplateCompiler.compile('<div id="sub"></div>'));Router.map(function(){this.route('app',{path:'/app'},function(){this.route('sub',{path:'/sub',resetNamespace:true});});});App.AppRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('app',{outlet:'app',into:'application'});this.render('common',{outlet:'common',into:'app'});}});App.SubRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('sub',{outlet:'sub',into:'app'});}});bootApplication();handleURL('/app');equal(_emberViewsSystemJquery.default('#app-common #common').length,1,'Finds common while viewing /app');handleURL('/app/sub');equal(_emberViewsSystemJquery.default('#app-common #common').length,1,'Finds common while viewing /app/sub');equal(_emberViewsSystemJquery.default('#app-sub #sub').length,1,'Finds sub while viewing /app/sub');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Tolerates stacked renders',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}{{outlet "modal"}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('hi'));_emberHtmlbarsTemplate_registry.set('layer',_emberTemplateCompiler.compile('layer'));App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});},close:function(){this.disconnectOutlet({outlet:'modal',parentView:'application'});}}});bootApplication();equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');_emberMetalRun_loop.default(router,'send','openLayer');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hilayer');_emberMetalRun_loop.default(router,'send','openLayer');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hilayer');_emberMetalRun_loop.default(router,'send','close');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Renders child into parent with non-default template name',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('<div class="a">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('exports/root',_emberTemplateCompiler.compile('<div class="b">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('exports/index',_emberTemplateCompiler.compile('<div class="c"></div>'));Router.map(function(){this.route('root',function(){});});App.RootRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('exports/root');}});App.RootIndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render('exports/index');}});bootApplication();handleURL('/root');equal(_emberViewsSystemJquery.default('#qunit-fixture .a .b .c').length,1);});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Allows any route to disconnectOutlet another route\'s templates',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}{{outlet "modal"}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('hi'));_emberHtmlbarsTemplate_registry.set('layer',_emberTemplateCompiler.compile('layer'));App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});}}});App.IndexRoute = _emberRoutingSystemRoute.default.extend({actions:{close:function(){this.disconnectOutlet({parentView:'application',outlet:'modal'});}}});bootApplication();equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');_emberMetalRun_loop.default(router,'send','openLayer');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hilayer');_emberMetalRun_loop.default(router,'send','close');equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()),'hi');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can this.render({into:...}) the render helper',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('bar'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});this.render('bar',{into:'foo'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'other');_emberMetalRun_loop.default(router,'send','changeToBar');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'bar');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect from the render helper',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'other');_emberMetalRun_loop.default(router,'send','disconnect');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(),'');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can this.render({into:...}) the render helper\'s children',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('<div class="index">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('other',_emberTemplateCompiler.compile('other'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('bar'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});this.render('bar',{into:'index'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'other');_emberMetalRun_loop.default(router,'send','changeToBar');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'bar');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect from the render helper\'s children',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('<div class="index">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('other',_emberTemplateCompiler.compile('other'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'other');_emberMetalRun_loop.default(router,'send','disconnect');equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(),'');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can this.render({into:...}) nested render helpers',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{render "bar"}}</div>'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('<div class="bar">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));_emberHtmlbarsTemplate_registry.set('baz',_emberTemplateCompiler.compile('baz'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{changeToBaz:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});this.render('baz',{into:'bar'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'other');_emberMetalRun_loop.default(router,'send','changeToBaz');equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'baz');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can disconnect from nested render helpers',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{render "foo"}}'));_emberHtmlbarsTemplate_registry.set('foo',_emberTemplateCompiler.compile('<div class="foo">{{render "bar"}}</div>'));_emberHtmlbarsTemplate_registry.set('bar',_emberTemplateCompiler.compile('<div class="bar">{{outlet}}</div>'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('other'));App.IndexRoute = _emberRoutingSystemRoute.default.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});}}});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'other');_emberMetalRun_loop.default(router,'send','disconnect');equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(),'');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Can render with layout',function(){_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('index-template'));_emberHtmlbarsTemplate_registry.set('my-layout',_emberTemplateCompiler.compile('my-layout [{{yield}}]'));App.IndexView = _emberViewsViewsView.default.extend({layoutName:'my-layout'});bootApplication();equal(_emberViewsSystemJquery.default('#qunit-fixture').text(),'my-layout [index-template]');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed',function(assert){_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}'));var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = _emberRuntimeControllersController.default.extend({showFirst:true});App.IndexRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = _emberHtmlbarsComponent.default.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = _emberHtmlbarsComponent.default.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter,1,'didInsertElement invoked on displayed component');assert.strictEqual(otherComponentCounter,0,'didInsertElement not invoked on displayed component');_emberMetalRun_loop.default(function(){indexController.set('showFirst',false);});assert.strictEqual(myComponentCounter,1,'didInsertElement not invoked on displayed component');assert.strictEqual(otherComponentCounter,1,'didInsertElement invoked on displayed component');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Doesnt swallow exception thrown from willTransition',function(){expect(1);_emberHtmlbarsTemplate_registry.set('application',_emberTemplateCompiler.compile('{{outlet}}'));_emberHtmlbarsTemplate_registry.set('index',_emberTemplateCompiler.compile('index'));_emberHtmlbarsTemplate_registry.set('other',_emberTemplateCompiler.compile('other'));Router.map(function(){this.route('other',function(){});});App.IndexRoute = _emberRoutingSystemRoute.default.extend({actions:{willTransition:function(){throw new Error('boom');}}});bootApplication();throws(function(){_emberMetalRun_loop.default(function(){router.handleURL('/other');});},/boom/,'expected an exception that didnt happen');});_emberGlimmerTestsUtilsSkipIfGlimmer.test('Exception if outlet name is undefined in render and disconnectOutlet',function(assert){App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({actions:{showModal:function(){this.render({outlet:undefined,parentView:'application'});},hideModal:function(){this.disconnectOutlet({outlet:undefined,parentView:'application'});}}});bootApplication();throws(function(){_emberMetalRun_loop.default(function(){router.send('showModal');});},/You passed undefined as the outlet name/);throws(function(){_emberMetalRun_loop.default(function(){router.send('hideModal');});},/You passed undefined as the outlet name/);});});
 enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-htmlbars/template_registry', 'ember-runtime/system/string', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberHtmlbarsTemplate_registry, _emberRuntimeSystemString, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
@@ -21548,7 +21548,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
     equal(_emberViewsSystemJquery.default('h1', application.rootElement).text(), 'Fallback');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/components/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberViewsComponentsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-htmlbars/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberHtmlbarsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   /* globals EmberDev */
   'use strict';
 
@@ -21787,7 +21787,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('assertion for routes without isRouteFactory property', function () {
-    application.FooRoute = _emberViewsComponentsComponent.default.extend();
+    application.FooRoute = _emberHtmlbarsComponent.default.extend();
 
     expectAssertion(function () {
       registry.resolve('route:foo');
@@ -21832,7 +21832,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
   QUnit.test('no deprecation warning for component factories that extend from Ember.Component', function () {
     expectNoDeprecation();
-    application.FooView = _emberViewsComponentsComponent.default.extend();
+    application.FooView = _emberHtmlbarsComponent.default.extend();
     registry.resolve('component:foo');
   });
 
@@ -23635,7 +23635,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-views/system/jquery', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberViewsSystemJquery, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-template-compiler/system/compile', 'ember-views/system/jquery', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberViewsViewsView, _emberHtmlbarsComponent, _emberTemplateCompilerSystemCompile, _emberViewsSystemJquery, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var App = null;
@@ -24058,7 +24058,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
 
       App.register('template:components/x-foo', _emberTemplateCompilerSystemCompile.default('\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    '));
 
-      App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+      App.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
         tagName: 'x-foo',
 
         isolatedCounter: _emberRuntimeInject.default.service(),
@@ -24081,7 +24081,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
 
       App.register('template:components/x-bar', _emberTemplateCompilerSystemCompile.default('\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    '));
 
-      App.register('component:x-bar', _emberViewsComponentsComponent.default.extend({
+      App.register('component:x-bar', _emberHtmlbarsComponent.default.extend({
         counter: _emberRuntimeInject.default.service('shared-counter'),
 
         actions: {
@@ -31231,7 +31231,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
+enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-htmlbars/component'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberHtmlbarsComponent) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
@@ -31263,7 +31263,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
 
     _class.prototype['@test fragments do not render an outer tag'] = function testFragmentsDoNotRenderAnOuterTag() {
       var instance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -31306,7 +31306,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
 
       var instance = undefined;
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -31327,7 +31327,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
 
       var instance = undefined;
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -31348,7 +31348,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
 
       var instance = undefined;
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -31369,7 +31369,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       var _this4 = this;
 
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         attributeBindings: ['href']
       });
@@ -31384,7 +31384,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       var _this5 = this;
 
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         elementId: 'turntUp'
       });
@@ -31399,7 +31399,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       var _this6 = this;
 
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -31418,21 +31418,21 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       var _this7 = this;
 
       this.registerComponent('root-component', {
-        ComponentClass: _emberViewsComponentsComponent.default.extend({
+        ComponentClass: _emberHtmlbarsComponent.default.extend({
           tagName: 'section'
         }),
         template: '{{frag-ment}}'
       });
 
       this.registerComponent('frag-ment', {
-        ComponentClass: _emberViewsComponentsComponent.default.extend({
+        ComponentClass: _emberHtmlbarsComponent.default.extend({
           tagName: ''
         }),
         template: '{{my-span}}'
       });
 
       this.registerComponent('my-span', {
-        ComponentClass: _emberViewsComponentsComponent.default.extend({
+        ComponentClass: _emberHtmlbarsComponent.default.extend({
           tagName: 'span'
         }),
         template: 'dab'
@@ -35617,7 +35617,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/text_field'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsText_field) {
+enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -36097,7 +36097,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
     _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
       var _this12 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
@@ -36147,7 +36147,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
     _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
       var _this13 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
@@ -36190,7 +36190,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
     _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - static key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
       var _this14 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
         source: {
@@ -37108,7 +37108,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-views/views/text_area', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsViewsText_area, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -37125,7 +37125,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
 
       _RenderingTest.call(this);
 
-      this.registerComponent('-text-area', { ComponentClass: _emberViewsViewsText_area.default });
+      this.registerComponent('-text-area', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextArea });
     }
 
     return TextAreaRenderingTest;
@@ -40908,12 +40908,15 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/helper', 'ember-glimmer/ember-views/component', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _emberGlimmerHelper, _emberGlimmerEmberViewsComponent, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerEmberTemplateCompilerSystemCompile) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/helper', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _emberGlimmerHelper, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerEmberTemplateCompilerSystemCompile) {
   'use strict';
 
   exports.Helper = _emberGlimmerHelper.default;
   exports.helper = _emberGlimmerHelper.helper;
-  exports.Component = _emberGlimmerEmberViewsComponent.default;
+  exports.Component = _emberGlimmerComponent.default;
+  exports.Checkbox = _emberGlimmerComponentsCheckbox.default;
+  exports.TextArea = _emberGlimmerComponentsText_area.default;
+  exports.TextField = _emberGlimmerComponentsText_field.default;
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
@@ -42803,7 +42806,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     equal(view.element.firstChild.value, '', 'property is set true');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-environment', 'ember-views/components/component', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberViewsComponentsComponent, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-environment', 'ember-htmlbars/component', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberHtmlbarsComponent, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var component = undefined,
@@ -42841,7 +42844,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-enviro
     expectAssertion(function () {
       var _EmberComponent$extend;
 
-      component = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend = {}, _EmberComponent$extend[_containerOwner.OWNER] = owner, _EmberComponent$extend.layout = _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'), _EmberComponent$extend)).create();
+      component = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend = {}, _EmberComponent$extend[_containerOwner.OWNER] = owner, _EmberComponent$extend.layout = _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'), _EmberComponent$extend)).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
     }, /Using the `{{view "string"}}` helper/);
@@ -42871,7 +42874,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-enviro
     ignoreAssertion(function () {
       var _EmberComponent$extend2;
 
-      component = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'), _EmberComponent$extend2)).create();
+      component = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'), _EmberComponent$extend2)).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
     });
@@ -42888,7 +42891,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-enviro
     ignoreAssertion(function () {
       var _EmberComponent$extend3;
 
-      component = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend3 = {}, _EmberComponent$extend3[_containerOwner.OWNER] = owner, _EmberComponent$extend3.layout = _emberTemplateCompilerSystemCompile.default('{{#view \'foo\'}}I am foo{{/view}}'), _EmberComponent$extend3)).create();
+      component = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend3 = {}, _EmberComponent$extend3[_containerOwner.OWNER] = owner, _EmberComponent$extend3.layout = _emberTemplateCompilerSystemCompile.default('{{#view \'foo\'}}I am foo{{/view}}'), _EmberComponent$extend3)).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
     });
@@ -42896,7 +42899,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-enviro
     assert.equal(component.$().text(), 'Foo says: I am foo', 'view helper is still rendered');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-environment', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-environment', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var component = undefined;
@@ -42919,7 +42922,7 @@ enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-envir
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('reading the view keyword fails assertion', function () {
     var text = 'a-prop';
     expectAssertion(function () {
-      component = _emberViewsComponentsComponent.default.extend({
+      component = _emberHtmlbarsComponent.default.extend({
         prop: text,
         layout: _emberTemplateCompilerSystemCompile.default('{{view.prop}}')
       }).create();
@@ -42928,7 +42931,7 @@ enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-envir
     }, /Using `{{view}}` or any path based on it .*/);
   });
 });
-enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-htmlbars/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberHtmlbarsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   /* globals EmberDev */
 
   'use strict';
@@ -42958,7 +42961,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
   });
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('adds the attribute to the element', function () {
-    component = _emberViewsComponentsComponent.default.create({
+    component = _emberHtmlbarsComponent.default.create({
       container: container,
 
       layout: _emberTemplateCompilerSystemCompile.default('<div style={{-html-safe "display: none;"}}></div>')
@@ -42971,7 +42974,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
 
   if (!EmberDev.runningProdBuild) {
     _emberGlimmerTestsUtilsSkipIfGlimmer.test('no warnings are triggered from setting style attribute', function () {
-      component = _emberViewsComponentsComponent.default.create({
+      component = _emberHtmlbarsComponent.default.create({
         container: container,
 
         layout: _emberTemplateCompilerSystemCompile.default('<div style={{-html-safe "display: none;"}}></div>')
@@ -42983,7 +42986,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var view;
@@ -42991,8 +42994,8 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
 
   function commonSetup() {
     owner = _containerTestsTestHelpersBuildOwner.default();
-    owner.register('component:-text-field', _emberViewsViewsText_field.default);
-    owner.register('component:-checkbox', _emberViewsViewsCheckbox.default);
+    owner.register('component:-text-field', _emberHtmlbarsComponentsText_field.default);
+    owner.register('component:-checkbox', _emberHtmlbarsComponentsCheckbox.default);
     owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
     owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
 
@@ -43438,7 +43441,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
   });
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-htmlbars/components/text_field', 'ember-runtime/system/object', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberHtmlbarsComponentsText_field, _emberRuntimeSystemObject, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   /*globals EmberDev */
   'use strict';
 
@@ -44199,7 +44202,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
       isEditable: true,
       directClass: 'view-direct',
       isEnabled: true,
-      textField: _emberViewsViewsText_field.default,
+      textField: _emberHtmlbarsComponentsText_field.default,
       template: _emberTemplateCompilerSystemCompile.default('{{view view.textField class="unbound" classBinding="view.isEditable:editable view.directClass view.isView view.isEnabled:enabled:disabled"}}')
     });
 
@@ -44225,7 +44228,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should evaluate other attributes bindings set in the current context', function () {
     view = _emberViewsViewsView.default.create({
       name: 'myView',
-      textField: _emberViewsViewsText_field.default,
+      textField: _emberHtmlbarsComponentsText_field.default,
       template: _emberTemplateCompilerSystemCompile.default('{{view view.textField value=view.name}}')
     });
 
@@ -44572,19 +44575,19 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('should have the correct action target', function () {
     var _EmberView$extend8;
 
-    owner.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:x-outer', _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{#x-middle}}{{view innerView dismiss="dismiss"}}{{/x-middle}}'),
       actions: {
         dismiss: function () {
           ok(true, 'We handled the action in the right place');
         }
       },
-      innerView: _emberViewsComponentsComponent.default.extend({
+      innerView: _emberHtmlbarsComponent.default.extend({
         elementId: 'x-inner'
       })
     }));
 
-    owner.register('component:x-middle', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:x-middle', _emberHtmlbarsComponent.default.extend({
       actions: {
         dismiss: function () {
           throw new Error('action was not supposed to go here');
@@ -44614,7 +44617,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     }
   });
 });
-enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/tests/test-helpers/build-owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerTestsTestHelpersBuildOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var view, owner, originalViewKeyword;
@@ -44643,7 +44646,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-views/views
   });
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('view keyword works inside component yield', function () {
-    var component = _emberViewsComponentsComponent.default.extend({
+    var component = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p>{{yield}}</p>')
     });
 
@@ -45093,7 +45096,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var owner, component;
@@ -45131,13 +45134,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       moduleName: layoutModuleName
     });
     owner.register('template:components/sample-component', sampleComponentLayout);
-    owner.register('component:sample-component', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:sample-component', _emberHtmlbarsComponent.default.extend({
       didInsertElement: function () {
         equal(this._renderNode.lastResult.template.meta.moduleName, layoutModuleName);
       }
     }));
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component}}'), _Component$extend)).create();
+    component = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component}}'), _Component$extend)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
   });
@@ -45148,20 +45151,20 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     expect(1);
 
     var templateModuleName = 'my-app-name/templates/application';
-    owner.register('component:sample-component', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:sample-component', _emberHtmlbarsComponent.default.extend({
       didInsertElement: function () {
         equal(this._renderNode.lastResult.template.meta.moduleName, templateModuleName);
       }
     }));
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
+    component = _emberHtmlbarsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
       moduleName: templateModuleName
     }), _Component$extend2)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
   });
 });
-enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var owner, view;
@@ -45169,7 +45172,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
   var styles = [{
     name: 'curly',
-    class: _emberViewsComponentsComponent.default
+    class: _emberHtmlbarsComponent.default
   }];
 
   styles.forEach(function (style) {
@@ -50745,7 +50748,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/fragment-components-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberViewsComponentsComponent) {
+enifed('ember-htmlbars/tests/integration/components/fragment-components-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-htmlbars/component'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberHtmlbarsComponent) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
@@ -50777,7 +50780,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 
     _class.prototype['@test fragments do not render an outer tag'] = function testFragmentsDoNotRenderAnOuterTag() {
       var instance = undefined;
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -50820,7 +50823,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 
       var instance = undefined;
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -50841,7 +50844,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 
       var instance = undefined;
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -50862,7 +50865,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 
       var instance = undefined;
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -50883,7 +50886,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       var _this4 = this;
 
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         attributeBindings: ['href']
       });
@@ -50898,7 +50901,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       var _this5 = this;
 
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         elementId: 'turntUp'
       });
@@ -50913,7 +50916,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       var _this6 = this;
 
       var template = 'hit dem folks';
-      var FooBarComponent = _emberViewsComponentsComponent.default.extend({
+      var FooBarComponent = _emberHtmlbarsComponent.default.extend({
         tagName: '',
         init: function () {
           this._super();
@@ -50932,21 +50935,21 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       var _this7 = this;
 
       this.registerComponent('root-component', {
-        ComponentClass: _emberViewsComponentsComponent.default.extend({
+        ComponentClass: _emberHtmlbarsComponent.default.extend({
           tagName: 'section'
         }),
         template: '{{frag-ment}}'
       });
 
       this.registerComponent('frag-ment', {
-        ComponentClass: _emberViewsComponentsComponent.default.extend({
+        ComponentClass: _emberHtmlbarsComponent.default.extend({
           tagName: ''
         }),
         template: '{{my-span}}'
       });
 
       this.registerComponent('my-span', {
-        ComponentClass: _emberViewsComponentsComponent.default.extend({
+        ComponentClass: _emberHtmlbarsComponent.default.extend({
           tagName: 'span'
         }),
         template: 'dab'
@@ -55131,7 +55134,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/text_field'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsText_field) {
+enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -55611,7 +55614,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
     _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
       var _this12 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
@@ -55661,7 +55664,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
     _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
       var _this13 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
@@ -55704,7 +55707,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
     _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - static key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
       var _this14 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberViewsViewsText_field.default });
+      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
         source: {
@@ -56622,7 +56625,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-views/views/text_area', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberViewsViewsText_area, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -56639,7 +56642,7 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
 
       _RenderingTest.call(this);
 
-      this.registerComponent('-text-area', { ComponentClass: _emberViewsViewsText_area.default });
+      this.registerComponent('-text-area', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextArea });
     }
 
     return TextAreaRenderingTest;
@@ -60736,13 +60739,16 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-views/components/component', 'ember-htmlbars/renderer', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberViewsComponentsComponent, _emberHtmlbarsRenderer, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/renderer', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsRenderer, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
   exports.Helper = _emberHtmlbarsHelper.default;
   exports.helper = _emberHtmlbarsHelper.helper;
   exports.DOMHelper = _emberHtmlbarsSystemDomHelper.default;
-  exports.Component = _emberViewsComponentsComponent.default;
+  exports.Component = _emberHtmlbarsComponent.default;
+  exports.Checkbox = _emberHtmlbarsComponentsCheckbox.default;
+  exports.TextArea = _emberHtmlbarsComponentsText_area.default;
+  exports.TextField = _emberHtmlbarsComponentsText_field.default;
   exports.InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
   exports.compile = _emberTemplateCompilerSystemCompile.default;
@@ -64340,7 +64346,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], functio
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-views/components/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberViewsComponentsComponent, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-htmlbars/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberHtmlbarsComponent, _emberMetalEvents) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -64607,7 +64613,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
   });
 
   QUnit.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
-    var obj = _emberViewsComponentsComponent.default.create();
+    var obj = _emberHtmlbarsComponent.default.create();
 
     expectDeprecation(function () {
       _emberMetalEvents.addListener(obj, 'didInitAttrs');
@@ -71972,7 +71978,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberHtmlbarsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var innerComponent, outerComponent, originalViewKeyword, owner, view, dispatcher;
@@ -72023,7 +72029,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var hash = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-    var view = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend = {
+    var view = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend = {
       layout: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
     }, _EmberComponent$extend[_containerOwner.OWNER] = owner, _EmberComponent$extend)).create(hash);
 
@@ -72074,7 +72080,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       });
 
       registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
         actions: {
           fireAction: function () {
             this.attrs.submit();
@@ -72083,7 +72089,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }));
 
       registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
         innerComponent: innerComponent,
         outerSubmit: function () {
           assert.ok(true, 'action is called');
@@ -72110,7 +72116,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       });
 
       registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
         actions: {
           fireAction: function () {
             this.attrs.submit(actionParam);
@@ -72119,7 +72125,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }));
 
       registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
         innerComponent: innerComponent,
         outerSubmit: function () {}
       }));
@@ -72142,7 +72148,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       });
 
       registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
         myProperty: 'inner-thing',
         actions: {
           fireAction: function () {
@@ -72152,7 +72158,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }));
 
       registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
         myProperty: 'outer-thing',
         innerComponent: innerComponent,
         outerSubmit: function () {}
@@ -72169,7 +72175,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       var returnedValue = 'Chris P is so krispy';
 
       registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
         actions: {
           fireAction: function () {
             var actualReturnedValue = this.attrs.submit();
@@ -72179,7 +72185,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }));
 
       registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberViewsComponentsComponent.default.extend({
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
         innerComponent: innerComponent,
         outerSubmit: function () {
           return returnedValue;
@@ -72195,13 +72201,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
       innerComponent: innerComponent,
       outerSubmit: function () {
@@ -72219,9 +72225,9 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('an error is triggered when bound action function is undefined', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({}).create();
+    innerComponent = _emberHtmlbarsComponent.default.extend({}).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
       innerComponent: innerComponent
     }).create();
@@ -72234,10 +72240,10 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('[#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo', function (assert) {
     var _EmberComponent$extend2, _EmberComponent$extend3;
 
-    registerComponent('inner-component', _emberViewsComponentsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2)));
+    registerComponent('inner-component', _emberHtmlbarsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2)));
     registerTemplate('components/inner-component', '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>');
 
-    view = _emberViewsComponentsComponent.default.extend((_EmberComponent$extend3 = {
+    view = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend3 = {
       layout: _emberTemplateCompilerSystemCompile.default('{{inner-component}}')
     }, _EmberComponent$extend3[_containerOwner.OWNER] = owner, _EmberComponent$extend3)).create();
 
@@ -72251,14 +72257,14 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var returnedValue = 'terrible tom';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         var actualReturnedValue = this.attrs.submit();
         assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
       innerComponent: innerComponent,
       outerSubmit: function () {
@@ -72276,13 +72282,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called on the correct scope', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
       innerComponent: innerComponent,
       isOuterComponent: true,
@@ -72306,13 +72312,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var third = 'matt';
     var fourth = 'wacky wycats';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit(fourth);
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       third: third,
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}\n      '),
       innerComponent: innerComponent,
@@ -72336,13 +72342,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var value = 'lazy leah';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit value)}}\n      '),
       innerComponent: innerComponent,
       value: '',
@@ -72367,13 +72373,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = [3, 5];
     var third = [4, 9];
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit(second, third);
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit first)}}\n      '),
       innerComponent: innerComponent,
       value: '',
@@ -72399,13 +72405,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'trollin trek';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit(newValue);
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut))}}\n      '),
       innerComponent: innerComponent,
       outerMut: 'patient peter'
@@ -72424,13 +72430,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'trollin trek';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut) \'' + newValue + '\')}}\n      '),
       innerComponent: innerComponent,
       outerMut: 'patient peter'
@@ -72451,14 +72457,14 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = 'mild machty';
     var returnValue = 'butch brian';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         var actualReturnedValue = this.attrs.submit(second);
         assert.equal(actualReturnedValue, returnValue, 'return value is present');
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
       innerComponent: innerComponent,
       actions: {
@@ -72480,9 +72486,9 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('provides a helpful error if an action is not present', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.create();
+    innerComponent = _emberHtmlbarsComponent.default.create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
       innerComponent: innerComponent,
       actions: {
@@ -72502,9 +72508,9 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('provides a helpful error if actions hash is not present', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.create();
+    innerComponent = _emberHtmlbarsComponent.default.create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
       innerComponent: innerComponent
     }).create();
@@ -72517,13 +72523,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('action can create closures over actions with target', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' target=otherComponent)}}\n      '),
       innerComponent: innerComponent,
       otherComponent: _emberMetalComputed.computed(function () {
@@ -72549,7 +72555,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'yelping yehuda';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit({
           readProp: newValue
@@ -72557,7 +72563,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' value="readProp")}}\n      '),
       innerComponent: innerComponent,
       outerContent: {
@@ -72582,7 +72588,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'irate igor';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit({
           readProp: newValue
@@ -72590,7 +72596,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction value="readProp")}}\n      '),
       innerComponent: innerComponent,
       outerAction: function (actualNewValue) {
@@ -72610,13 +72616,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'kissing kris';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction objectArgument value="readProp")}}\n      '),
       innerComponent: innerComponent,
       objectArgument: {
@@ -72641,7 +72647,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = 'mild machty';
     var returnValue = 'butch brian';
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       middleComponent: middleComponent,
 
       fireAction: function () {
@@ -72650,13 +72656,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }
     }).create();
 
-    var middleComponent = _emberViewsComponentsComponent.default.extend({
+    var middleComponent = _emberHtmlbarsComponent.default.extend({
       innerComponent: innerComponent,
 
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=attrs.submit}}\n      ')
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       middleComponent: middleComponent,
 
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view middleComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
@@ -72681,13 +72687,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called within a run loop', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
       innerComponent: innerComponent,
       actions: {
@@ -72705,13 +72711,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('objects that define INVOKE can be casted to actions', function (assert) {
     assert.expect(2);
 
-    innerComponent = _emberViewsComponentsComponent.default.extend({
+    innerComponent = _emberHtmlbarsComponent.default.extend({
       fireAction: function () {
         assert.equal(this.attrs.submit(4, 5, 6), 123);
       }
     }).create();
 
-    outerComponent = _emberViewsComponentsComponent.default.extend({
+    outerComponent = _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
       innerComponent: innerComponent,
       foo: 123,
@@ -72735,7 +72741,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     innerComponent.fireAction();
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer', 'ember-runtime/tests/utils'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer', 'ember-runtime/tests/utils'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer, _emberRuntimeTestsUtils) {
   'use strict';
 
   var dispatcher, view, originalViewKeyword, owner;
@@ -72826,7 +72832,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('Inside a yield, the target points at the original target', function () {
     var watted = false;
 
-    var component = _emberViewsComponentsComponent.default.extend({
+    var component = _emberHtmlbarsComponent.default.extend({
       boundText: 'inner',
       truthy: true,
       obj: {},
@@ -73951,14 +73957,14 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     owner.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('{{yield}}'));
     owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('\n    <button>Click Me</button>\n    {{yield}}\n  '));
 
-    owner.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:x-inner', _emberHtmlbarsComponent.default.extend({
       click: function () {
         assert.ok(true, 'click was triggered');
         this.sendAction();
       }
     }));
 
-    owner.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:x-outer', _emberHtmlbarsComponent.default.extend({
       actions: {
         hey: function () {
           assert.ok(true, 'action fired on proper target');
@@ -73966,7 +73972,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
       }
     }));
 
-    view = _emberViewsComponentsComponent.default.create((_EmberComponent$create = {}, _EmberComponent$create[_containerOwner.OWNER] = owner, _EmberComponent$create.layout = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberComponent$create));
+    view = _emberHtmlbarsComponent.default.create((_EmberComponent$create = {}, _EmberComponent$create[_containerOwner.OWNER] = owner, _EmberComponent$create.layout = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberComponent$create));
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -88645,7 +88651,7 @@ enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/
     ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
   });
 });
-enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/views/checkbox', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-htmlbars/template_registry', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsViewsView, _emberViewsViewsCheckbox, _emberViewsSystemJquery, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberHtmlbarsTemplate_registry, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-htmlbars/components/checkbox', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-htmlbars/template_registry', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsViewsView, _emberHtmlbarsComponentsCheckbox, _emberViewsSystemJquery, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberHtmlbarsTemplate_registry, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var App;
@@ -88980,7 +88986,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
         });
       },
 
-      Checkbox: _emberViewsViewsCheckbox.default.extend({
+      Checkbox: _emberHtmlbarsComponentsCheckbox.default.extend({
         click: function () {
           events.push('click:' + this.get('checked'));
         },
@@ -90002,7 +90008,7 @@ enifed('ember-views/tests/streams/streams-test', ['exports', 'ember-views/stream
     equal(_emberViewsStreamsShould_display.default(falseyCPArray), false, 'shouldDisplay([1].get("isFalsey") === true');
   });
 });
-enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalInstrumentation, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalInstrumentation, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var owner, view, originalViewKeyword;
@@ -90198,7 +90204,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
 
     var parentComponentReceived, receivedEvent;
 
-    owner.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<input id="is-done" type="checkbox" />'),
       change: function (evt) {
         var _this = this;
@@ -90210,7 +90216,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
       }
     }));
 
-    var parentComponent = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{x-foo}}'), _Component$extend.change = function (evt) {
+    var parentComponent = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{x-foo}}'), _Component$extend.change = function (evt) {
       parentComponentReceived = true;
     }, _Component$extend)).create();
 
@@ -90250,7 +90256,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
 
     var receivedEvent = 0;
 
-    owner.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
       elementId: 'nestedView',
 
       mouseDown: function (evt) {
@@ -90258,7 +90264,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
       }
     }));
 
-    view = _emberViewsComponentsComponent.default.extend({
+    view = _emberHtmlbarsComponent.default.extend({
       eventManager: _emberRuntimeSystemObject.default.extend({
         mouseDown: function (evt, view) {
           // Re-dispatch event when you get it.
@@ -90628,7 +90634,7 @@ enifed('ember-views/tests/test-helpers/get-element-style', ['exports'], function
     return style;
   };
 });
-enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/checkbox', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher'], function (exports, _emberViewsViewsCheckbox, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher) {
+enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-htmlbars/components/checkbox', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher'], function (exports, _emberHtmlbarsComponentsCheckbox, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher) {
   'use strict';
 
   function set(obj, key, value) {
@@ -90660,7 +90666,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('should begin disabled if the disabled attribute is true', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
 
     checkboxComponent.set('disabled', true);
     append();
@@ -90669,7 +90675,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('should become disabled if the disabled attribute is changed', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
 
     append();
     ok(checkboxComponent.$().is(':not(:disabled)'));
@@ -90686,7 +90692,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('should begin indeterminate if the indeterminate attribute is true', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
 
     checkboxComponent.set('indeterminate', true);
     append();
@@ -90695,7 +90701,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('should become indeterminate if the indeterminate attribute is changed', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
 
     append();
 
@@ -90713,7 +90719,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('should support the tabindex property', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
 
     _emberMetalRun_loop.default(function () {
       checkboxComponent.set('tabindex', 6);
@@ -90729,7 +90735,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('checkbox name is updated when setting name property of view', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
 
     _emberMetalRun_loop.default(function () {
       checkboxComponent.set('name', 'foo');
@@ -90746,7 +90752,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('checked property mirrors input value', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
     _emberMetalRun_loop.default(function () {
       checkboxComponent.append();
     });
@@ -90781,7 +90787,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
   });
 
   QUnit.test('checking the checkbox updates the value', function () {
-    checkboxComponent = _emberViewsViewsCheckbox.default.create({ checked: true });
+    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({ checked: true });
     append();
 
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), true, 'precond - initially starts with a true value');
@@ -90796,7 +90802,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -90805,7 +90811,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.module('Ember.Component', {
     setup: function () {
-      component = _emberViewsComponentsComponent.default.create();
+      component = _emberHtmlbarsComponent.default.create();
     },
     teardown: function () {
       _emberMetalRun_loop.default(function () {
@@ -90820,7 +90826,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   });
 
   QUnit.test('throws an error if `this._super` is not called from `init`', function () {
-    var TestComponent = _emberViewsComponentsComponent.default.extend({
+    var TestComponent = _emberHtmlbarsComponent.default.extend({
       init: function () {}
     });
 
@@ -90832,7 +90838,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
     expect(2);
 
-    component = _emberViewsComponentsComponent.default.extend({
+    component = _emberHtmlbarsComponent.default.extend({
       actions: {
         foo: function () {
           ok(true, 'called foo action');
@@ -90855,7 +90861,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.test('Specifying both templateName and layoutName to a component is NOT deprecated', function () {
     expectNoDeprecation();
-    component = _emberViewsComponentsComponent.default.extend({
+    component = _emberHtmlbarsComponent.default.extend({
       templateName: 'blah-blah',
       layoutName: 'hum-drum'
     }).create();
@@ -90866,7 +90872,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.test('Specifying a defaultLayout to a component is deprecated', function () {
     expectDeprecation(function () {
-      _emberViewsComponentsComponent.default.extend({
+      _emberHtmlbarsComponent.default.extend({
         defaultLayout: 'hum-drum'
       }).create();
     }, /Specifying `defaultLayout` to .+ is deprecated\./);
@@ -90874,7 +90880,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.test('Specifying a templateName on a component with a layoutName specified in a superclass is NOT deprecated', function () {
     expectNoDeprecation();
-    var Parent = _emberViewsComponentsComponent.default.extend({
+    var Parent = _emberHtmlbarsComponent.default.extend({
       layoutName: 'hum-drum'
     });
 
@@ -90901,7 +90907,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         }
       });
 
-      component = _emberViewsComponentsComponent.default.create({
+      component = _emberHtmlbarsComponent.default.create({
         parentView: _emberViewsViewsView.default.create({
           controller: controller
         })
@@ -91023,7 +91029,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   QUnit.test('services can be injected into components', function () {
     var owner = _containerTestsTestHelpersBuildOwner.default();
 
-    owner.register('component:application', _emberViewsComponentsComponent.default.extend({
+    owner.register('component:application', _emberHtmlbarsComponent.default.extend({
       profilerService: _emberRuntimeInject.default.service('profiler')
     }));
 
@@ -91040,7 +91046,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   QUnit.test('something', function () {
     expect(2);
 
-    var appComponent = _emberViewsComponentsComponent.default.extend({
+    var appComponent = _emberHtmlbarsComponent.default.extend({
       actions: {
         foo: function (message) {
           equal('bar', message);
@@ -91065,7 +91071,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
       }
     };
 
-    var appComponent = _emberViewsComponentsComponent.default.create({
+    var appComponent = _emberHtmlbarsComponent.default.create({
       target: target
     });
 
@@ -91127,7 +91133,7 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     confirmPayload(beforeCalls[0], view);
   });
 });
-enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/text_area', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-htmlbars/components/text_area', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberHtmlbarsComponentsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
   'use strict';
 
   var textArea, TestObject;
@@ -91150,7 +91156,7 @@ enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/syst
         value: null
       });
 
-      textArea = _emberViewsViewsText_area.default.create();
+      textArea = _emberHtmlbarsComponentsText_area.default.create();
     },
 
     teardown: function () {
@@ -91223,7 +91229,7 @@ enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/syst
       var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
 
       expectDeprecation(function () {
-        textArea = _emberViewsViewsText_area.default.create({
+        textArea = _emberHtmlbarsComponentsText_area.default.create({
           valueBinding: 'TestObject.value'
         });
       }, deprecationMessage);
@@ -91299,7 +91305,7 @@ enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/syst
     ok(wasCalled, 'invokes cancel method');
   });
 });
-enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-views/views/text_field', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberViewsViewsText_field, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery) {
+enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-htmlbars/components/text_field', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberHtmlbarsComponentsText_field, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery) {
   'use strict';
 
   function K() {
@@ -91368,7 +91374,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
         value: null
       });
 
-      textField = _emberViewsViewsText_field.default.create();
+      textField = _emberHtmlbarsComponentsText_field.default.create();
     },
 
     teardown: function () {
@@ -91449,7 +91455,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
       var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
 
       expectDeprecation(function () {
-        textField = _emberViewsViewsText_field.default.create({
+        textField = _emberHtmlbarsComponentsText_field.default.create({
           valueBinding: 'TestObject.value'
         });
       }, deprecationMessage);
@@ -91479,7 +91485,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
       var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
 
       expectDeprecation(function () {
-        textField = _emberViewsViewsText_field.default.create({
+        textField = _emberHtmlbarsComponentsText_field.default.create({
           valueBinding: 'TestObject.value'
         });
       }, deprecationMessage);
@@ -91654,7 +91660,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('when the text field is blurred, the `focus-out` action is sent to the controller', function () {
     expect(1);
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'focus-out': 'doSomething',
       targetObject: StubController.create({})
     });
@@ -91669,7 +91675,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('when the text field is focused, the `focus-in` action is sent to the controller', function () {
     expect(1);
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'focus-in': 'doSomething',
       targetObject: StubController.create({})
     });
@@ -91684,7 +91690,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('when the user presses a key, the `key-press` action is sent to the controller', function () {
     expect(1);
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'key-press': 'doSomething',
       targetObject: StubController.create({})
     });
@@ -91701,7 +91707,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('when the user inserts a new line, the `insert-newline` action is sent to the controller', function () {
     expect(1);
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'insert-newline': 'doSomething',
       targetObject: StubController.create({})
     });
@@ -91718,7 +91724,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('when the user presses the `enter` key, the `enter` action is sent to the controller', function () {
     expect(1);
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'enter': 'doSomething',
       targetObject: StubController.create({})
     });
@@ -91735,7 +91741,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   QUnit.test('when the user hits escape, the `escape-press` action is sent to the controller', function () {
     expect(1);
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'escape-press': 'doSomething',
       targetObject: StubController.create({})
     });
@@ -91753,7 +91759,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
     expect(3);
     var event;
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'key-down': 'doSomething',
       targetObject: StubController.create({
         send: function (actionName, value, evt) {
@@ -91778,7 +91784,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
     expect(3);
     var event;
 
-    textField = _emberViewsViewsText_field.default.create({
+    textField = _emberHtmlbarsComponentsText_field.default.create({
       'key-up': 'doSomething',
       targetObject: StubController.create({
         send: function (actionName, value, evt) {
@@ -91800,7 +91806,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   });
 
   QUnit.test('should not reset cursor position when text field receives keyUp event', function () {
-    view = _emberViewsViewsText_field.default.create({
+    view = _emberHtmlbarsComponentsText_field.default.create({
       value: 'Broseidon, King of the Brocean'
     });
 
@@ -91816,7 +91822,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   });
 
   QUnit.test('an unsupported type defaults to `text`', function () {
-    view = _emberViewsViewsText_field.default.create({
+    view = _emberHtmlbarsComponentsText_field.default.create({
       type: 'blahblah'
     });
 
@@ -91927,7 +91933,7 @@ enifed('ember-views/tests/views/view/actions_test', ['exports', 'ember-metal/run
     });
   });
 });
-enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var owner, View, view, otherView, willDestroyCalled, originalViewKeyword;
@@ -92209,11 +92215,11 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
 
       commonSetup();
 
-      owner.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+      owner.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
         elementId: 'child'
       }));
 
-      View = _emberViewsComponentsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{x-foo}}'), _Component$extend));
+      View = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberTemplateCompilerSystemCompile.default('{{x-foo}}'), _Component$extend));
     },
 
     teardown: function () {
@@ -92249,7 +92255,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 });
-enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompiler, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-template-compiler', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsComponent, _emberTemplateCompiler, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var originalViewKeyword;
@@ -92332,7 +92338,7 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
       lookup: function () {
         return {
           componentFor: function () {
-            return _emberViewsComponentsComponent.default.extend();
+            return _emberHtmlbarsComponent.default.extend();
           },
 
           layoutFor: function () {
@@ -92370,7 +92376,7 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
       lookup: function () {
         return {
           componentFor: function () {
-            return _emberViewsComponentsComponent.default.extend();
+            return _emberHtmlbarsComponent.default.extend();
           },
 
           layoutFor: function () {

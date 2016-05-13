@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9fa098d7
+ * @version   2.7.0-canary+38a1da1e
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+9fa098d7";
+  exports.default = "2.7.0-canary+38a1da1e";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -5358,7 +5358,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
   exports.default = EngineInstance;
 });
-enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol', 'ember-runtime/controllers/controller', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-htmlbars/templates/top-level-view', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'require'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol, _emberRuntimeControllersController, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberHtmlbarsTemplatesTopLevelView, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _require) {
+enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol', 'ember-runtime/controllers/controller', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/checkbox', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-htmlbars/templates/top-level-view', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'require'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol, _emberRuntimeControllersController, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsCheckbox, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberHtmlbarsTemplatesTopLevelView, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _require) {
   /**
   @module ember
   @submodule ember-application
@@ -5787,9 +5787,9 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
 
     registry.injection('route', 'router', 'router:main');
 
-    registry.register('component:-text-field', _emberViewsViewsText_field.default);
-    registry.register('component:-text-area', _emberViewsViewsText_area.default);
-    registry.register('component:-checkbox', _emberViewsViewsCheckbox.default);
+    registry.register('component:-text-field', _emberHtmlbarsComponentsText_field.default);
+    registry.register('component:-text-area', _emberHtmlbarsComponentsText_area.default);
+    registry.register('component:-checkbox', _emberHtmlbarsComponentsCheckbox.default);
     registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
 
     // Register the routing service...
@@ -7772,631 +7772,259 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/components/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/ember-views/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerEmberViewsComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'glimmer-reference'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _glimmerReference) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+  var DIRTY_TAG = _emberMetalSymbol.default('DIRTY_TAG');
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  exports.DIRTY_TAG = DIRTY_TAG;
+  exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
+    isComponent: true,
+    template: null,
+    layoutName: null,
+    layout: null,
 
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+    init: function () {
+      this._super.apply(this, arguments);
+      this._viewRegistry = this._viewRegistry || _emberViewsViewsView.default.views;
+      this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
+    },
 
-  function aliasIdToElementId(args, props) {
-    if (args.named.has('id')) {
-      _emberMetalDebug.assert('You cannot invoke a component with both \'id\' and \'elementId\' at the same time.', !args.named.has('elementId'));
-      props.elementId = props.id;
+    rerender: function () {
+      this[DIRTY_TAG].dirty();
+      this._super();
+    },
+
+    __defineNonEnumerable: function (property) {
+      this[property.name] = property.descriptor.value;
     }
+  });
+});
+enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/component'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerComponent) {
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-views
+  */
+
+  /**
+    The internal class used to create text inputs when the `{{input}}`
+    helper is used with `type` of `checkbox`.
+  
+    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
+  
+    ## Direct manipulation of `checked`
+  
+    The `checked` attribute of an `Ember.Checkbox` object should always be set
+    through the Ember object or by interacting with its rendered element
+    representation via the mouse, keyboard, or touch. Updating the value of the
+    checkbox via jQuery will result in the checked value of the object and its
+    element losing synchronization.
+  
+    ## Layout and LayoutName properties
+  
+    Because HTML `input` elements are self closing `layout` and `layoutName`
+    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+  
+    @class Checkbox
+    @namespace Ember
+    @extends Ember.Component
+    @public
+  */
+  exports.default = _emberGlimmerComponent.default.extend({
+    instrumentDisplay: '{{input type="checkbox"}}',
+
+    classNames: ['ember-checkbox'],
+
+    tagName: 'input',
+
+    attributeBindings: ['type', 'checked', 'indeterminate', 'disabled', 'tabindex', 'name', 'autofocus', 'required', 'form'],
+
+    type: 'checkbox',
+    checked: false,
+    disabled: false,
+    indeterminate: false,
+
+    didInsertElement: function () {
+      this._super.apply(this, arguments);
+      _emberMetalProperty_get.get(this, 'element').indeterminate = !!_emberMetalProperty_get.get(this, 'indeterminate');
+    },
+
+    change: function () {
+      _emberMetalProperty_set.set(this, 'checked', this.$().prop('checked'));
+    }
+  });
+});
+enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/component', 'ember-views/mixins/text_support'], function (exports, _emberGlimmerComponent, _emberViewsMixinsText_support) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
+  'use strict';
+
+  /**
+    The internal class used to create textarea element when the `{{textarea}}`
+    helper is used.
+  
+    See [Ember.Templates.helpers.textarea](/api/classes/Ember.Templates.helpers.html#method_textarea)  for usage details.
+  
+    ## Layout and LayoutName properties
+  
+    Because HTML `textarea` elements do not contain inner HTML the `layout` and
+    `layoutName` properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+  
+    @class TextArea
+    @namespace Ember
+    @extends Ember.Component
+    @uses Ember.TextSupport
+    @public
+  */
+  exports.default = _emberGlimmerComponent.default.extend(_emberViewsMixinsText_support.default, {
+    instrumentDisplay: '{{textarea}}',
+
+    classNames: ['ember-text-area'],
+
+    tagName: 'textarea',
+    attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap', 'lang', 'dir', 'value'],
+    rows: null,
+    cols: null
+  });
+});
+enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal/computed', 'ember-environment', 'ember-glimmer/component', 'ember-views/mixins/text_support', 'ember-metal/empty_object'], function (exports, _emberMetalComputed, _emberEnvironment, _emberGlimmerComponent, _emberViewsMixinsText_support, _emberMetalEmpty_object) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
+  'use strict';
+
+  var inputTypeTestElement;
+  var inputTypes = new _emberMetalEmpty_object.default();
+  function canSetTypeOfInput(type) {
+    if (type in inputTypes) {
+      return inputTypes[type];
+    }
+
+    // if running in outside of a browser always return the
+    // original type
+    if (!_emberEnvironment.environment.hasDOM) {
+      inputTypes[type] = type;
+
+      return type;
+    }
+
+    if (!inputTypeTestElement) {
+      inputTypeTestElement = document.createElement('input');
+    }
+
+    try {
+      inputTypeTestElement.type = type;
+    } catch (e) {}
+
+    return inputTypes[type] = inputTypeTestElement.type === type;
   }
 
-  var CurlyComponentSyntax = (function (_StatementSyntax) {
-    _inherits(CurlyComponentSyntax, _StatementSyntax);
+  /**
+  
+    The internal class used to create text inputs when the `{{input}}`
+    helper is used with `type` of `text`.
+  
+    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
+  
+    ## Layout and LayoutName properties
+  
+    Because HTML `input` elements are self closing `layout` and `layoutName`
+    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+  
+    @class TextField
+    @namespace Ember
+    @extends Ember.Component
+    @uses Ember.TextSupport
+    @public
+  */
+  exports.default = _emberGlimmerComponent.default.extend(_emberViewsMixinsText_support.default, {
+    instrumentDisplay: '{{input type="text"}}',
 
-    function CurlyComponentSyntax(_ref) {
-      var args = _ref.args;
-      var definition = _ref.definition;
-      var templates = _ref.templates;
+    classNames: ['ember-text-field'],
+    tagName: 'input',
+    attributeBindings: ['accept', 'autocomplete', 'autosave', 'dir', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'height', 'inputmode', 'lang', 'list', 'max', 'min', 'multiple', 'name', 'pattern', 'size', 'step', 'type', 'value', 'width'],
 
-      _classCallCheck(this, CurlyComponentSyntax);
+    defaultLayout: null,
 
-      _StatementSyntax.call(this);
-      this.args = args;
-      this.definition = definition;
-      this.templates = templates;
-      this.shadow = null;
-    }
+    /**
+      The `value` attribute of the input element. As the user inputs text, this
+      property is updated live.
+       @property value
+      @type String
+      @default ""
+      @public
+    */
+    value: '',
 
-    CurlyComponentSyntax.prototype.compile = function compile(builder) {
-      builder.component.static(this);
-    };
+    /**
+      The `type` attribute of the input element.
+       @property type
+      @type String
+      @default "text"
+      @public
+    */
+    type: _emberMetalComputed.computed({
+      get: function () {
+        return 'text';
+      },
 
-    return CurlyComponentSyntax;
-  })(_glimmerRuntime.StatementSyntax);
+      set: function (key, value) {
+        var type = 'text';
 
-  exports.CurlyComponentSyntax = CurlyComponentSyntax;
-
-  var ComponentStateBucket = function ComponentStateBucket(component, args) {
-    _classCallCheck(this, ComponentStateBucket);
-
-    this.component = component;
-    this.classRef = null;
-    this.args = args;
-    this.argsRevision = args.tag.value();
-  };
-
-  var CurlyComponentManager = (function () {
-    function CurlyComponentManager() {
-      _classCallCheck(this, CurlyComponentManager);
-    }
-
-    CurlyComponentManager.prototype.create = function create(definition, args, dynamicScope) {
-      var parentView = dynamicScope.view;
-
-      var klass = definition.ComponentClass;
-      var processedArgs = _emberGlimmerUtilsProcessArgs.default(args, klass.positionalParams);
-
-      var _processedArgs$value = processedArgs.value();
-
-      var attrs = _processedArgs$value.attrs;
-      var props = _processedArgs$value.props;
-
-      aliasIdToElementId(args, props);
-
-      props.renderer = parentView.renderer;
-
-      var component = klass.create(props);
-
-      dynamicScope.view = component;
-      parentView.appendChild(component);
-
-      component.trigger('didInitAttrs', { attrs: attrs });
-      component.trigger('didReceiveAttrs', { newAttrs: attrs });
-      component.trigger('willInsertElement');
-      component.trigger('willRender');
-
-      var bucket = new ComponentStateBucket(component, processedArgs);
-
-      if (args.named.has('class')) {
-        bucket.classRef = args.named.get('class');
-      }
-
-      _emberMetalDebug.assert('classNameBindings must not have spaces in them', function () {
-        var classNameBindings = component.classNameBindings;
-
-        for (var i = 0; i < classNameBindings.length; i++) {
-          var binding = classNameBindings[i];
-          if (binding.split(' ').length > 1) {
-            return false;
-          }
+        if (canSetTypeOfInput(value)) {
+          type = value;
         }
-        return true;
-      });
 
-      _emberMetalDebug.assert('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), function () {
-        var classNameBindings = component.classNameBindings;
-        var tagName = component.tagName;
-
-        return tagName || !classNameBindings || classNameBindings.length === 0;
-      });
-
-      _emberMetalDebug.assert('You cannot use `elementId` on a tag-less component: ' + component.toString(), function () {
-        var elementId = component.elementId;
-        var tagName = component.tagName;
-
-        return tagName || !elementId && elementId !== '';
-      });
-
-      _emberMetalDebug.assert('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), function () {
-        var attributeBindings = component.attributeBindings;
-        var tagName = component.tagName;
-
-        return tagName || !attributeBindings || attributeBindings.length === 0;
-      });
-
-      return bucket;
-    };
-
-    CurlyComponentManager.prototype.getSelf = function getSelf(_ref2) {
-      var component = _ref2.component;
-
-      return new _emberGlimmerUtilsReferences.RootReference(component);
-    };
-
-    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref3, element, operations) {
-      var component = _ref3.component;
-      var classRef = _ref3.classRef;
-
-      component.element = element;
-
-      var attributeBindings = component.attributeBindings;
-      var classNames = component.classNames;
-      var classNameBindings = component.classNameBindings;
-
-      if (attributeBindings) {
-        attributeBindings.forEach(function (binding) {
-          _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, binding, operations);
-        });
+        return type;
       }
-
-      if (classRef) {
-        operations.addAttribute('class', classRef);
-      }
-
-      if (classNames) {
-        classNames.forEach(function (name) {
-          operations.addAttribute('class', new _glimmerRuntime.ValueReference(name));
-        });
-      }
-
-      if (classNameBindings) {
-        classNameBindings.forEach(function (binding) {
-          _emberGlimmerUtilsReferences.applyClassNameBinding(component, binding, operations);
-        });
-      }
-
-      component._transitionTo('hasElement');
-    };
-
-    CurlyComponentManager.prototype.getTag = function getTag(_ref4) {
-      var component = _ref4.component;
-
-      return component[_emberGlimmerEmberViewsComponent.DIRTY_TAG];
-    };
-
-    CurlyComponentManager.prototype.didCreate = function didCreate(_ref5) {
-      var component = _ref5.component;
-
-      component.trigger('didInsertElement');
-      component.trigger('didRender');
-      component._transitionTo('inDOM');
-    };
-
-    CurlyComponentManager.prototype.update = function update(bucket, _, dynamicScope) {
-      var component = bucket.component;
-      var args = bucket.args;
-      var argsRevision = bucket.argsRevision;
-
-      if (!args.tag.validate(argsRevision)) {
-        bucket.argsRevision = args.tag.value();
-
-        var _args$value = args.value();
-
-        var attrs = _args$value.attrs;
-        var props = _args$value.props;
-
-        var oldAttrs = component.attrs;
-        var newAttrs = attrs;
-
-        component.setProperties(props);
-
-        component.trigger('didUpdateAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
-        component.trigger('didReceiveAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
-      }
-
-      component.trigger('willUpdate');
-      component.trigger('willRender');
-    };
-
-    CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref6) {
-      var component = _ref6.component;
-
-      component.trigger('didUpdate');
-      component.trigger('didRender');
-    };
-
-    CurlyComponentManager.prototype.getDestructor = function getDestructor(_ref7) {
-      var component = _ref7.component;
-
-      return component;
-    };
-
-    return CurlyComponentManager;
-  })();
-
-  var MANAGER = new CurlyComponentManager();
-
-  function tagName(vm) {
-    var tagName = vm.dynamicScope().view.tagName;
-
-    return new _glimmerRuntime.ValueReference(tagName === '' ? null : tagName || 'div');
-  }
-
-  function elementId(vm) {
-    var component = vm.dynamicScope().view;
-    return new _glimmerRuntime.ValueReference(component.elementId);
-  }
-
-  var CurlyComponentDefinition = (function (_ComponentDefinition) {
-    _inherits(CurlyComponentDefinition, _ComponentDefinition);
-
-    function CurlyComponentDefinition(name, ComponentClass, template) {
-      _classCallCheck(this, CurlyComponentDefinition);
-
-      _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberGlimmerEmberViewsComponent.default);
-      this.template = template;
-    }
-
-    CurlyComponentDefinition.prototype.compile = function compile(builder) {
-      builder.wrapLayout(this.template.asLayout());
-      builder.tag.dynamic(tagName);
-      builder.attrs.dynamic('id', elementId);
-      builder.attrs.static('class', 'ember-view');
-    };
-
-    return CurlyComponentDefinition;
-  })(_glimmerRuntime.ComponentDefinition);
-
-  exports.CurlyComponentDefinition = CurlyComponentDefinition;
-});
-enifed('ember-glimmer/components/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  var DynamicComponentLookup = function DynamicComponentLookup(args) {
-    _classCallCheck(this, DynamicComponentLookup);
-
-    this.args = _glimmerRuntime.ArgsSyntax.fromPositionalArgs(args.positional.slice(0, 1));
-    this.factory = dynamicComponentFor;
-  };
-
-  function dynamicComponentFor(args, _ref) {
-    var env = _ref.env;
-
-    var nameRef = args.positional.at(0);
-
-    if (_glimmerReference.isConst(nameRef)) {
-      return new _glimmerReference.ConstReference(lookup(env, nameRef.value()));
-    } else {
-      return new DynamicComponentReference({ nameRef: nameRef, env: env });
-    }
-  }
-
-  var DynamicComponentSyntax = (function (_StatementSyntax) {
-    _inherits(DynamicComponentSyntax, _StatementSyntax);
-
-    function DynamicComponentSyntax(_ref2) {
-      var args = _ref2.args;
-      var templates = _ref2.templates;
-
-      _classCallCheck(this, DynamicComponentSyntax);
-
-      _StatementSyntax.call(this);
-      this.definition = new DynamicComponentLookup(args);
-      this.args = _glimmerRuntime.ArgsSyntax.build(args.positional.slice(1), args.named);
-      this.templates = templates;
-      this.shadow = null;
-    }
-
-    DynamicComponentSyntax.prototype.compile = function compile(builder) {
-      builder.component.dynamic(this);
-    };
-
-    return DynamicComponentSyntax;
-  })(_glimmerRuntime.StatementSyntax);
-
-  exports.DynamicComponentSyntax = DynamicComponentSyntax;
-
-  var DynamicComponentReference = (function () {
-    function DynamicComponentReference(_ref3) {
-      var nameRef = _ref3.nameRef;
-      var env = _ref3.env;
-
-      _classCallCheck(this, DynamicComponentReference);
-
-      this.nameRef = nameRef;
-      this.env = env;
-      this.tag = nameRef.tag;
-    }
-
-    DynamicComponentReference.prototype.value = function value() {
-      var env = this.env;
-      var nameRef = this.nameRef;
-
-      return lookup(env, nameRef.value());
-    };
-
-    return DynamicComponentReference;
-  })();
-
-  function lookup(env, name) {
-    if (typeof name === 'string') {
-      var componentDefinition = env.getComponentDefinition([name]);
-      _emberMetalDebug.assert('Glimmer error: Could not find component named "' + name + '" (no component or template with that name was found)', componentDefinition);
-
-      return componentDefinition;
-    } else {
-      throw new Error('Cannot render ' + name + ' as a component');
-    }
-  }
-});
-enifed('ember-glimmer/components/outlet', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/utils', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalUtils, _emberGlimmerUtilsReferences) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  var OutletComponentLookup = function OutletComponentLookup(args) {
-    _classCallCheck(this, OutletComponentLookup);
-
-    this.args = args;
-    this.factory = outletComponentFor;
-  };
-
-  function outletComponentFor(args, vm) {
-    var _vm$dynamicScope = vm.dynamicScope();
-
-    var outletState = _vm$dynamicScope.outletState;
-    var isTopLevel = _vm$dynamicScope.isTopLevel;
-
-    if (isTopLevel) {
-      return new TopLevelOutletComponentReference(outletState);
-    } else {
-      var outletName = args.positional.at(0).value() || 'main';
-      return new OutletComponentReference(outletName, outletState.get(outletName));
-    }
-  }
-
-  var OutletSyntax = (function (_StatementSyntax) {
-    _inherits(OutletSyntax, _StatementSyntax);
-
-    function OutletSyntax(_ref) {
-      var args = _ref.args;
-
-      _classCallCheck(this, OutletSyntax);
-
-      _StatementSyntax.call(this);
-      this.definition = new OutletComponentLookup(args);
-      this.args = _glimmerRuntime.ArgsSyntax.empty();
-      this.templates = null;
-      this.shadow = null;
-    }
-
-    OutletSyntax.prototype.compile = function compile(builder) {
-      builder.component.dynamic(this);
-    };
-
-    return OutletSyntax;
-  })(_glimmerRuntime.StatementSyntax);
-
-  exports.OutletSyntax = OutletSyntax;
-
-  var TopLevelOutletComponentReference = (function (_ConstReference) {
-    _inherits(TopLevelOutletComponentReference, _ConstReference);
-
-    function TopLevelOutletComponentReference(reference) {
-      _classCallCheck(this, TopLevelOutletComponentReference);
-
-      var outletState = reference.value();
-      var definition = new TopLevelOutletComponentDefinition(outletState.render.template);
-
-      _ConstReference.call(this, definition);
-    }
-
-    return TopLevelOutletComponentReference;
-  })(_glimmerReference.ConstReference);
-
-  var INVALIDATE = null;
-
-  var OutletComponentReference = (function () {
-    function OutletComponentReference(outletName, reference) {
-      _classCallCheck(this, OutletComponentReference);
-
-      this.outletName = outletName;
-      this.reference = reference;
-      this.definition = null;
-      this.lastState = null;
-      this.tag = reference.tag;
-    }
-
-    OutletComponentReference.prototype.value = function value() {
-      var outletName = this.outletName;
-      var reference = this.reference;
-      var definition = this.definition;
-      var lastState = this.lastState;
-
-      var newState = reference.value();
-
-      if (definition) {
-        return revalidate(definition, lastState, newState);
-      } else if (newState) {
-        return this.definition = new OutletComponentDefinition(outletName, newState.render.template);
-      } else {
-        return this.definition = EMPTY_OUTLET_DEFINITION;
-      }
-    };
-
-    OutletComponentReference.prototype.destroy = function destroy() {};
-
-    return OutletComponentReference;
-  })();
-
-  function revalidate(definition, lastState, newState) {
-    if (!lastState && !newState) {
-      return definition;
-    }
-
-    if (!lastState && newState || lastState && !newState) {
-      return INVALIDATE;
-    }
-
-    if (newState.template === lastState.template && newState.controller === lastState.controller) {
-      return definition;
-    }
-
-    return INVALIDATE;
-  }
-
-  var AbstractOutletComponentManager = (function () {
-    function AbstractOutletComponentManager() {
-      _classCallCheck(this, AbstractOutletComponentManager);
-    }
-
-    AbstractOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
-      throw new Error('Not implemented: create');
-    };
-
-    AbstractOutletComponentManager.prototype.getSelf = function getSelf(state) {
-      return new _emberGlimmerUtilsReferences.RootReference(state.render.controller);
-    };
-
-    AbstractOutletComponentManager.prototype.getTag = function getTag(state) {
-      return null;
-    };
-
-    AbstractOutletComponentManager.prototype.getDestructor = function getDestructor(state) {
-      return null;
-    };
-
-    AbstractOutletComponentManager.prototype.didCreateElement = function didCreateElement() {};
-
-    AbstractOutletComponentManager.prototype.didCreate = function didCreate(state) {};
-
-    AbstractOutletComponentManager.prototype.update = function update(state, args, dynamicScope) {};
-
-    AbstractOutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
-
-    return AbstractOutletComponentManager;
-  })();
-
-  var TopLevelOutletComponentManager = (function (_AbstractOutletComponentManager) {
-    _inherits(TopLevelOutletComponentManager, _AbstractOutletComponentManager);
-
-    function TopLevelOutletComponentManager() {
-      _classCallCheck(this, TopLevelOutletComponentManager);
-
-      _AbstractOutletComponentManager.apply(this, arguments);
-    }
-
-    TopLevelOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
-      dynamicScope.isTopLevel = false;
-      return dynamicScope.outletState.value();
-    };
-
-    return TopLevelOutletComponentManager;
-  })(AbstractOutletComponentManager);
-
-  var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
-
-  var OutletComponentManager = (function (_AbstractOutletComponentManager2) {
-    _inherits(OutletComponentManager, _AbstractOutletComponentManager2);
-
-    function OutletComponentManager() {
-      _classCallCheck(this, OutletComponentManager);
-
-      _AbstractOutletComponentManager2.apply(this, arguments);
-    }
-
-    OutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
-      var outletState = dynamicScope.outletState = dynamicScope.outletState.get(definition.outletName);
-      return outletState.value();
-    };
-
-    return OutletComponentManager;
-  })(AbstractOutletComponentManager);
-
-  var MANAGER = new OutletComponentManager();
-
-  var EmptyOutletComponentManager = (function (_AbstractOutletComponentManager3) {
-    _inherits(EmptyOutletComponentManager, _AbstractOutletComponentManager3);
-
-    function EmptyOutletComponentManager() {
-      _classCallCheck(this, EmptyOutletComponentManager);
-
-      _AbstractOutletComponentManager3.apply(this, arguments);
-    }
-
-    EmptyOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
-      dynamicScope.outletState = null;
-      return null;
-    };
-
-    EmptyOutletComponentManager.prototype.getSelf = function getSelf(state) {
-      return _emberGlimmerUtilsReferences.NULL_REFERENCE;
-    };
-
-    return EmptyOutletComponentManager;
-  })(AbstractOutletComponentManager);
-
-  var EMPTY_MANAGER = new EmptyOutletComponentManager();
-
-  var AbstractOutletComponentDefinition = (function (_ComponentDefinition) {
-    _inherits(AbstractOutletComponentDefinition, _ComponentDefinition);
-
-    function AbstractOutletComponentDefinition(manager, outletName, template) {
-      _classCallCheck(this, AbstractOutletComponentDefinition);
-
-      _ComponentDefinition.call(this, 'outlet', manager, null);
-      this.outletName = outletName;
-      this.template = template;
-      _emberMetalUtils.generateGuid(this);
-    }
-
-    AbstractOutletComponentDefinition.prototype.compile = function compile() {
-      throw new Error('Unimplemented: compile');
-    };
-
-    return AbstractOutletComponentDefinition;
-  })(_glimmerRuntime.ComponentDefinition);
-
-  var TopLevelOutletComponentDefinition = (function (_AbstractOutletComponentDefinition) {
-    _inherits(TopLevelOutletComponentDefinition, _AbstractOutletComponentDefinition);
-
-    function TopLevelOutletComponentDefinition(template) {
-      _classCallCheck(this, TopLevelOutletComponentDefinition);
-
-      _AbstractOutletComponentDefinition.call(this, TOP_LEVEL_MANAGER, null, template);
-    }
-
-    TopLevelOutletComponentDefinition.prototype.compile = function compile(builder) {
-      builder.wrapLayout(this.template.asLayout());
-      builder.tag.static('div');
-      builder.attrs.static('id', _emberMetalUtils.guidFor(this));
-      builder.attrs.static('class', 'ember-view');
-    };
-
-    return TopLevelOutletComponentDefinition;
-  })(AbstractOutletComponentDefinition);
-
-  var OutletComponentDefinition = (function (_AbstractOutletComponentDefinition2) {
-    _inherits(OutletComponentDefinition, _AbstractOutletComponentDefinition2);
-
-    function OutletComponentDefinition(outletName, template) {
-      _classCallCheck(this, OutletComponentDefinition);
-
-      _AbstractOutletComponentDefinition2.call(this, MANAGER, outletName, template);
-    }
-
-    OutletComponentDefinition.prototype.compile = function compile(builder) {
-      builder.fromLayout(this.template.asLayout());
-    };
-
-    return OutletComponentDefinition;
-  })(AbstractOutletComponentDefinition);
-
-  var EmptyOutletComponentDefinition = (function (_AbstractOutletComponentDefinition3) {
-    _inherits(EmptyOutletComponentDefinition, _AbstractOutletComponentDefinition3);
-
-    function EmptyOutletComponentDefinition() {
-      _classCallCheck(this, EmptyOutletComponentDefinition);
-
-      _AbstractOutletComponentDefinition3.call(this, EMPTY_MANAGER, null, null);
-    }
-
-    EmptyOutletComponentDefinition.prototype.compile = function compile(builder) {
-      builder.empty();
-    };
-
-    return EmptyOutletComponentDefinition;
-  })(AbstractOutletComponentDefinition);
-
-  var EMPTY_OUTLET_DEFINITION = new EmptyOutletComponentDefinition();
+    }),
+
+    /**
+      The `size` of the text field in characters.
+       @property size
+      @type String
+      @default null
+      @public
+    */
+    size: null,
+
+    /**
+      The `pattern` attribute of input element.
+       @property pattern
+      @type String
+      @default null
+      @public
+    */
+    pattern: null,
+
+    /**
+      The `min` attribute of input element used with `type="number"` or `type="range"`.
+       @property min
+      @type String
+      @default null
+      @since 1.4.0
+      @public
+    */
+    min: null,
+
+    /**
+      The `max` attribute of input element used with `type="number"` or `type="range"`.
+       @property max
+      @type String
+      @default null
+      @since 1.4.0
+      @public
+    */
+    max: null
+  });
 });
 enifed('ember-glimmer/dom', ['exports', 'glimmer-runtime'], function (exports, _glimmerRuntime) {
   'use strict';
@@ -8914,35 +8542,7 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
     classNameBindings: EMPTY_ARRAY
   });
 });
-enifed('ember-glimmer/ember-views/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'glimmer-reference'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _glimmerReference) {
-  'use strict';
-
-  var DIRTY_TAG = _emberMetalSymbol.default('DIRTY_TAG');
-
-  exports.DIRTY_TAG = DIRTY_TAG;
-  exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
-    isComponent: true,
-    template: null,
-    layoutName: null,
-    layout: null,
-
-    init: function () {
-      this._super.apply(this, arguments);
-      this._viewRegistry = this._viewRegistry || _emberViewsViewsView.default.views;
-      this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
-    },
-
-    rerender: function () {
-      this[DIRTY_TAG].dirty();
-      this._super();
-    },
-
-    __defineNonEnumerable: function (property) {
-      this[property.name] = property.descriptor.value;
-    }
-  });
-});
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/components/curly-component', 'ember-glimmer/components/dynamic-component', 'ember-glimmer/components/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerComponentsCurlyComponent, _emberGlimmerComponentsDynamicComponent, _emberGlimmerComponentsOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _containerOwner, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -9057,16 +8657,16 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
 
       if (isSimple && (isInline || isBlock)) {
         if (key === 'component') {
-          return new _emberGlimmerComponentsDynamicComponent.DynamicComponentSyntax({ args: args, templates: templates });
+          return new _emberGlimmerSyntaxDynamicComponent.DynamicComponentSyntax({ args: args, templates: templates });
         } else if (key === 'outlet') {
-          return new _emberGlimmerComponentsOutlet.OutletSyntax({ args: args });
+          return new _emberGlimmerSyntaxOutlet.OutletSyntax({ args: args });
         } else if (key.indexOf('-') >= 0) {
           var definition = this.getComponentDefinition(path);
 
           if (definition) {
             wrapClassBindingAttribute(args);
             wrapClassAttribute(args);
-            return new _emberGlimmerComponentsCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
+            return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
           }
         }
       }
@@ -9091,7 +8691,7 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
         var layout = _lookupComponent.layout;
 
         if (ComponentClass || layout) {
-          definition = this._components[name] = new _emberGlimmerComponentsCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout);
+          definition = this._components[name] = new _emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout);
         }
       }
 
@@ -10205,6 +9805,632 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
   };
   exports.InteractiveRenderer = InteractiveRenderer;
 });
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function aliasIdToElementId(args, props) {
+    if (args.named.has('id')) {
+      _emberMetalDebug.assert('You cannot invoke a component with both \'id\' and \'elementId\' at the same time.', !args.named.has('elementId'));
+      props.elementId = props.id;
+    }
+  }
+
+  var CurlyComponentSyntax = (function (_StatementSyntax) {
+    _inherits(CurlyComponentSyntax, _StatementSyntax);
+
+    function CurlyComponentSyntax(_ref) {
+      var args = _ref.args;
+      var definition = _ref.definition;
+      var templates = _ref.templates;
+
+      _classCallCheck(this, CurlyComponentSyntax);
+
+      _StatementSyntax.call(this);
+      this.args = args;
+      this.definition = definition;
+      this.templates = templates;
+      this.shadow = null;
+    }
+
+    CurlyComponentSyntax.prototype.compile = function compile(builder) {
+      builder.component.static(this);
+    };
+
+    return CurlyComponentSyntax;
+  })(_glimmerRuntime.StatementSyntax);
+
+  exports.CurlyComponentSyntax = CurlyComponentSyntax;
+
+  var ComponentStateBucket = function ComponentStateBucket(component, args) {
+    _classCallCheck(this, ComponentStateBucket);
+
+    this.component = component;
+    this.classRef = null;
+    this.args = args;
+    this.argsRevision = args.tag.value();
+  };
+
+  var CurlyComponentManager = (function () {
+    function CurlyComponentManager() {
+      _classCallCheck(this, CurlyComponentManager);
+    }
+
+    CurlyComponentManager.prototype.create = function create(definition, args, dynamicScope) {
+      var parentView = dynamicScope.view;
+
+      var klass = definition.ComponentClass;
+      var processedArgs = _emberGlimmerUtilsProcessArgs.default(args, klass.positionalParams);
+
+      var _processedArgs$value = processedArgs.value();
+
+      var attrs = _processedArgs$value.attrs;
+      var props = _processedArgs$value.props;
+
+      aliasIdToElementId(args, props);
+
+      props.renderer = parentView.renderer;
+
+      var component = klass.create(props);
+
+      dynamicScope.view = component;
+      parentView.appendChild(component);
+
+      component.trigger('didInitAttrs', { attrs: attrs });
+      component.trigger('didReceiveAttrs', { newAttrs: attrs });
+      component.trigger('willInsertElement');
+      component.trigger('willRender');
+
+      var bucket = new ComponentStateBucket(component, processedArgs);
+
+      if (args.named.has('class')) {
+        bucket.classRef = args.named.get('class');
+      }
+
+      _emberMetalDebug.assert('classNameBindings must not have spaces in them', function () {
+        var classNameBindings = component.classNameBindings;
+
+        for (var i = 0; i < classNameBindings.length; i++) {
+          var binding = classNameBindings[i];
+          if (binding.split(' ').length > 1) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      _emberMetalDebug.assert('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), function () {
+        var classNameBindings = component.classNameBindings;
+        var tagName = component.tagName;
+
+        return tagName || !classNameBindings || classNameBindings.length === 0;
+      });
+
+      _emberMetalDebug.assert('You cannot use `elementId` on a tag-less component: ' + component.toString(), function () {
+        var elementId = component.elementId;
+        var tagName = component.tagName;
+
+        return tagName || !elementId && elementId !== '';
+      });
+
+      _emberMetalDebug.assert('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), function () {
+        var attributeBindings = component.attributeBindings;
+        var tagName = component.tagName;
+
+        return tagName || !attributeBindings || attributeBindings.length === 0;
+      });
+
+      return bucket;
+    };
+
+    CurlyComponentManager.prototype.getSelf = function getSelf(_ref2) {
+      var component = _ref2.component;
+
+      return new _emberGlimmerUtilsReferences.RootReference(component);
+    };
+
+    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref3, element, operations) {
+      var component = _ref3.component;
+      var classRef = _ref3.classRef;
+
+      component.element = element;
+
+      var attributeBindings = component.attributeBindings;
+      var classNames = component.classNames;
+      var classNameBindings = component.classNameBindings;
+
+      if (attributeBindings) {
+        attributeBindings.forEach(function (binding) {
+          _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, binding, operations);
+        });
+      }
+
+      if (classRef) {
+        operations.addAttribute('class', classRef);
+      }
+
+      if (classNames) {
+        classNames.forEach(function (name) {
+          operations.addAttribute('class', new _glimmerRuntime.ValueReference(name));
+        });
+      }
+
+      if (classNameBindings) {
+        classNameBindings.forEach(function (binding) {
+          _emberGlimmerUtilsReferences.applyClassNameBinding(component, binding, operations);
+        });
+      }
+
+      component._transitionTo('hasElement');
+    };
+
+    CurlyComponentManager.prototype.getTag = function getTag(_ref4) {
+      var component = _ref4.component;
+
+      return component[_emberGlimmerComponent.DIRTY_TAG];
+    };
+
+    CurlyComponentManager.prototype.didCreate = function didCreate(_ref5) {
+      var component = _ref5.component;
+
+      component.trigger('didInsertElement');
+      component.trigger('didRender');
+      component._transitionTo('inDOM');
+    };
+
+    CurlyComponentManager.prototype.update = function update(bucket, _, dynamicScope) {
+      var component = bucket.component;
+      var args = bucket.args;
+      var argsRevision = bucket.argsRevision;
+
+      if (!args.tag.validate(argsRevision)) {
+        bucket.argsRevision = args.tag.value();
+
+        var _args$value = args.value();
+
+        var attrs = _args$value.attrs;
+        var props = _args$value.props;
+
+        var oldAttrs = component.attrs;
+        var newAttrs = attrs;
+
+        component.setProperties(props);
+
+        component.trigger('didUpdateAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
+        component.trigger('didReceiveAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
+      }
+
+      component.trigger('willUpdate');
+      component.trigger('willRender');
+    };
+
+    CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref6) {
+      var component = _ref6.component;
+
+      component.trigger('didUpdate');
+      component.trigger('didRender');
+    };
+
+    CurlyComponentManager.prototype.getDestructor = function getDestructor(_ref7) {
+      var component = _ref7.component;
+
+      return component;
+    };
+
+    return CurlyComponentManager;
+  })();
+
+  var MANAGER = new CurlyComponentManager();
+
+  function tagName(vm) {
+    var tagName = vm.dynamicScope().view.tagName;
+
+    return new _glimmerRuntime.ValueReference(tagName === '' ? null : tagName || 'div');
+  }
+
+  function elementId(vm) {
+    var component = vm.dynamicScope().view;
+    return new _glimmerRuntime.ValueReference(component.elementId);
+  }
+
+  var CurlyComponentDefinition = (function (_ComponentDefinition) {
+    _inherits(CurlyComponentDefinition, _ComponentDefinition);
+
+    function CurlyComponentDefinition(name, ComponentClass, template) {
+      _classCallCheck(this, CurlyComponentDefinition);
+
+      _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberGlimmerComponent.default);
+      this.template = template;
+    }
+
+    CurlyComponentDefinition.prototype.compile = function compile(builder) {
+      builder.wrapLayout(this.template.asLayout());
+      builder.tag.dynamic(tagName);
+      builder.attrs.dynamic('id', elementId);
+      builder.attrs.static('class', 'ember-view');
+    };
+
+    return CurlyComponentDefinition;
+  })(_glimmerRuntime.ComponentDefinition);
+
+  exports.CurlyComponentDefinition = CurlyComponentDefinition;
+});
+enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var DynamicComponentLookup = function DynamicComponentLookup(args) {
+    _classCallCheck(this, DynamicComponentLookup);
+
+    this.args = _glimmerRuntime.ArgsSyntax.fromPositionalArgs(args.positional.slice(0, 1));
+    this.factory = dynamicComponentFor;
+  };
+
+  function dynamicComponentFor(args, _ref) {
+    var env = _ref.env;
+
+    var nameRef = args.positional.at(0);
+
+    if (_glimmerReference.isConst(nameRef)) {
+      return new _glimmerReference.ConstReference(lookup(env, nameRef.value()));
+    } else {
+      return new DynamicComponentReference({ nameRef: nameRef, env: env });
+    }
+  }
+
+  var DynamicComponentSyntax = (function (_StatementSyntax) {
+    _inherits(DynamicComponentSyntax, _StatementSyntax);
+
+    function DynamicComponentSyntax(_ref2) {
+      var args = _ref2.args;
+      var templates = _ref2.templates;
+
+      _classCallCheck(this, DynamicComponentSyntax);
+
+      _StatementSyntax.call(this);
+      this.definition = new DynamicComponentLookup(args);
+      this.args = _glimmerRuntime.ArgsSyntax.build(args.positional.slice(1), args.named);
+      this.templates = templates;
+      this.shadow = null;
+    }
+
+    DynamicComponentSyntax.prototype.compile = function compile(builder) {
+      builder.component.dynamic(this);
+    };
+
+    return DynamicComponentSyntax;
+  })(_glimmerRuntime.StatementSyntax);
+
+  exports.DynamicComponentSyntax = DynamicComponentSyntax;
+
+  var DynamicComponentReference = (function () {
+    function DynamicComponentReference(_ref3) {
+      var nameRef = _ref3.nameRef;
+      var env = _ref3.env;
+
+      _classCallCheck(this, DynamicComponentReference);
+
+      this.nameRef = nameRef;
+      this.env = env;
+      this.tag = nameRef.tag;
+    }
+
+    DynamicComponentReference.prototype.value = function value() {
+      var env = this.env;
+      var nameRef = this.nameRef;
+
+      return lookup(env, nameRef.value());
+    };
+
+    return DynamicComponentReference;
+  })();
+
+  function lookup(env, name) {
+    if (typeof name === 'string') {
+      var componentDefinition = env.getComponentDefinition([name]);
+      _emberMetalDebug.assert('Glimmer error: Could not find component named "' + name + '" (no component or template with that name was found)', componentDefinition);
+
+      return componentDefinition;
+    } else {
+      throw new Error('Cannot render ' + name + ' as a component');
+    }
+  }
+});
+enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/utils', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalUtils, _emberGlimmerUtilsReferences) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var OutletComponentLookup = function OutletComponentLookup(args) {
+    _classCallCheck(this, OutletComponentLookup);
+
+    this.args = args;
+    this.factory = outletComponentFor;
+  };
+
+  function outletComponentFor(args, vm) {
+    var _vm$dynamicScope = vm.dynamicScope();
+
+    var outletState = _vm$dynamicScope.outletState;
+    var isTopLevel = _vm$dynamicScope.isTopLevel;
+
+    if (isTopLevel) {
+      return new TopLevelOutletComponentReference(outletState);
+    } else {
+      var outletName = args.positional.at(0).value() || 'main';
+      return new OutletComponentReference(outletName, outletState.get(outletName));
+    }
+  }
+
+  var OutletSyntax = (function (_StatementSyntax) {
+    _inherits(OutletSyntax, _StatementSyntax);
+
+    function OutletSyntax(_ref) {
+      var args = _ref.args;
+
+      _classCallCheck(this, OutletSyntax);
+
+      _StatementSyntax.call(this);
+      this.definition = new OutletComponentLookup(args);
+      this.args = _glimmerRuntime.ArgsSyntax.empty();
+      this.templates = null;
+      this.shadow = null;
+    }
+
+    OutletSyntax.prototype.compile = function compile(builder) {
+      builder.component.dynamic(this);
+    };
+
+    return OutletSyntax;
+  })(_glimmerRuntime.StatementSyntax);
+
+  exports.OutletSyntax = OutletSyntax;
+
+  var TopLevelOutletComponentReference = (function (_ConstReference) {
+    _inherits(TopLevelOutletComponentReference, _ConstReference);
+
+    function TopLevelOutletComponentReference(reference) {
+      _classCallCheck(this, TopLevelOutletComponentReference);
+
+      var outletState = reference.value();
+      var definition = new TopLevelOutletComponentDefinition(outletState.render.template);
+
+      _ConstReference.call(this, definition);
+    }
+
+    return TopLevelOutletComponentReference;
+  })(_glimmerReference.ConstReference);
+
+  var INVALIDATE = null;
+
+  var OutletComponentReference = (function () {
+    function OutletComponentReference(outletName, reference) {
+      _classCallCheck(this, OutletComponentReference);
+
+      this.outletName = outletName;
+      this.reference = reference;
+      this.definition = null;
+      this.lastState = null;
+      this.tag = reference.tag;
+    }
+
+    OutletComponentReference.prototype.value = function value() {
+      var outletName = this.outletName;
+      var reference = this.reference;
+      var definition = this.definition;
+      var lastState = this.lastState;
+
+      var newState = reference.value();
+
+      if (definition) {
+        return revalidate(definition, lastState, newState);
+      } else if (newState) {
+        return this.definition = new OutletComponentDefinition(outletName, newState.render.template);
+      } else {
+        return this.definition = EMPTY_OUTLET_DEFINITION;
+      }
+    };
+
+    OutletComponentReference.prototype.destroy = function destroy() {};
+
+    return OutletComponentReference;
+  })();
+
+  function revalidate(definition, lastState, newState) {
+    if (!lastState && !newState) {
+      return definition;
+    }
+
+    if (!lastState && newState || lastState && !newState) {
+      return INVALIDATE;
+    }
+
+    if (newState.template === lastState.template && newState.controller === lastState.controller) {
+      return definition;
+    }
+
+    return INVALIDATE;
+  }
+
+  var AbstractOutletComponentManager = (function () {
+    function AbstractOutletComponentManager() {
+      _classCallCheck(this, AbstractOutletComponentManager);
+    }
+
+    AbstractOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
+      throw new Error('Not implemented: create');
+    };
+
+    AbstractOutletComponentManager.prototype.getSelf = function getSelf(state) {
+      return new _emberGlimmerUtilsReferences.RootReference(state.render.controller);
+    };
+
+    AbstractOutletComponentManager.prototype.getTag = function getTag(state) {
+      return null;
+    };
+
+    AbstractOutletComponentManager.prototype.getDestructor = function getDestructor(state) {
+      return null;
+    };
+
+    AbstractOutletComponentManager.prototype.didCreateElement = function didCreateElement() {};
+
+    AbstractOutletComponentManager.prototype.didCreate = function didCreate(state) {};
+
+    AbstractOutletComponentManager.prototype.update = function update(state, args, dynamicScope) {};
+
+    AbstractOutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
+
+    return AbstractOutletComponentManager;
+  })();
+
+  var TopLevelOutletComponentManager = (function (_AbstractOutletComponentManager) {
+    _inherits(TopLevelOutletComponentManager, _AbstractOutletComponentManager);
+
+    function TopLevelOutletComponentManager() {
+      _classCallCheck(this, TopLevelOutletComponentManager);
+
+      _AbstractOutletComponentManager.apply(this, arguments);
+    }
+
+    TopLevelOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
+      dynamicScope.isTopLevel = false;
+      return dynamicScope.outletState.value();
+    };
+
+    return TopLevelOutletComponentManager;
+  })(AbstractOutletComponentManager);
+
+  var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
+
+  var OutletComponentManager = (function (_AbstractOutletComponentManager2) {
+    _inherits(OutletComponentManager, _AbstractOutletComponentManager2);
+
+    function OutletComponentManager() {
+      _classCallCheck(this, OutletComponentManager);
+
+      _AbstractOutletComponentManager2.apply(this, arguments);
+    }
+
+    OutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
+      var outletState = dynamicScope.outletState = dynamicScope.outletState.get(definition.outletName);
+      return outletState.value();
+    };
+
+    return OutletComponentManager;
+  })(AbstractOutletComponentManager);
+
+  var MANAGER = new OutletComponentManager();
+
+  var EmptyOutletComponentManager = (function (_AbstractOutletComponentManager3) {
+    _inherits(EmptyOutletComponentManager, _AbstractOutletComponentManager3);
+
+    function EmptyOutletComponentManager() {
+      _classCallCheck(this, EmptyOutletComponentManager);
+
+      _AbstractOutletComponentManager3.apply(this, arguments);
+    }
+
+    EmptyOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
+      dynamicScope.outletState = null;
+      return null;
+    };
+
+    EmptyOutletComponentManager.prototype.getSelf = function getSelf(state) {
+      return _emberGlimmerUtilsReferences.NULL_REFERENCE;
+    };
+
+    return EmptyOutletComponentManager;
+  })(AbstractOutletComponentManager);
+
+  var EMPTY_MANAGER = new EmptyOutletComponentManager();
+
+  var AbstractOutletComponentDefinition = (function (_ComponentDefinition) {
+    _inherits(AbstractOutletComponentDefinition, _ComponentDefinition);
+
+    function AbstractOutletComponentDefinition(manager, outletName, template) {
+      _classCallCheck(this, AbstractOutletComponentDefinition);
+
+      _ComponentDefinition.call(this, 'outlet', manager, null);
+      this.outletName = outletName;
+      this.template = template;
+      _emberMetalUtils.generateGuid(this);
+    }
+
+    AbstractOutletComponentDefinition.prototype.compile = function compile() {
+      throw new Error('Unimplemented: compile');
+    };
+
+    return AbstractOutletComponentDefinition;
+  })(_glimmerRuntime.ComponentDefinition);
+
+  var TopLevelOutletComponentDefinition = (function (_AbstractOutletComponentDefinition) {
+    _inherits(TopLevelOutletComponentDefinition, _AbstractOutletComponentDefinition);
+
+    function TopLevelOutletComponentDefinition(template) {
+      _classCallCheck(this, TopLevelOutletComponentDefinition);
+
+      _AbstractOutletComponentDefinition.call(this, TOP_LEVEL_MANAGER, null, template);
+    }
+
+    TopLevelOutletComponentDefinition.prototype.compile = function compile(builder) {
+      builder.wrapLayout(this.template.asLayout());
+      builder.tag.static('div');
+      builder.attrs.static('id', _emberMetalUtils.guidFor(this));
+      builder.attrs.static('class', 'ember-view');
+    };
+
+    return TopLevelOutletComponentDefinition;
+  })(AbstractOutletComponentDefinition);
+
+  var OutletComponentDefinition = (function (_AbstractOutletComponentDefinition2) {
+    _inherits(OutletComponentDefinition, _AbstractOutletComponentDefinition2);
+
+    function OutletComponentDefinition(outletName, template) {
+      _classCallCheck(this, OutletComponentDefinition);
+
+      _AbstractOutletComponentDefinition2.call(this, MANAGER, outletName, template);
+    }
+
+    OutletComponentDefinition.prototype.compile = function compile(builder) {
+      builder.fromLayout(this.template.asLayout());
+    };
+
+    return OutletComponentDefinition;
+  })(AbstractOutletComponentDefinition);
+
+  var EmptyOutletComponentDefinition = (function (_AbstractOutletComponentDefinition3) {
+    _inherits(EmptyOutletComponentDefinition, _AbstractOutletComponentDefinition3);
+
+    function EmptyOutletComponentDefinition() {
+      _classCallCheck(this, EmptyOutletComponentDefinition);
+
+      _AbstractOutletComponentDefinition3.call(this, EMPTY_MANAGER, null, null);
+    }
+
+    EmptyOutletComponentDefinition.prototype.compile = function compile(builder) {
+      builder.empty();
+    };
+
+    return EmptyOutletComponentDefinition;
+  })(AbstractOutletComponentDefinition);
+
+  var EMPTY_OUTLET_DEFINITION = new EmptyOutletComponentDefinition();
+});
 enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer/ember-template-compiler/system/template"], function (exports, _emberGlimmerEmberTemplateCompilerSystemTemplate) {
   "use strict";
 
@@ -11169,6 +11395,767 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner'], function (exports, _emberMetalDebug, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner) {
+  'use strict';
+
+  function validateAction(component, actionName) {
+    if (actionName && actionName[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
+      actionName = actionName.value;
+    }
+    _emberMetalDebug.assert('The default action was triggered on the component ' + component.toString() + ', but the action name (' + actionName + ') was not a string.', _emberMetalIs_none.default(actionName) || typeof actionName === 'string' || typeof actionName === 'function');
+    return actionName;
+  }
+
+  /**
+  @module ember
+  @submodule ember-views
+  */
+
+  /**
+    An `Ember.Component` is a view that is completely
+    isolated. Properties accessed in its templates go
+    to the view object and actions are targeted at
+    the view object. There is no access to the
+    surrounding context or outer controller; all
+    contextual information must be passed in.
+  
+    The easiest way to create an `Ember.Component` is via
+    a template. If you name a template
+    `components/my-foo`, you will be able to use
+    `{{my-foo}}` in other templates, which will make
+    an instance of the isolated component.
+  
+    ```handlebars
+    {{app-profile person=currentUser}}
+    ```
+  
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    <img src={{person.avatar}}>
+    <p class='signature'>{{person.signature}}</p>
+    ```
+  
+    You can use `yield` inside a template to
+    include the **contents** of any block attached to
+    the component. The block will be executed in the
+    context of the surrounding context or outer controller:
+  
+    ```handlebars
+    {{#app-profile person=currentUser}}
+      <p>Admin mode</p>
+      {{! Executed in the controller's context. }}
+    {{/app-profile}}
+    ```
+  
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    {{! Executed in the component's context. }}
+    {{yield}} {{! block contents }}
+    ```
+  
+    If you want to customize the component, in order to
+    handle events or actions, you implement a subclass
+    of `Ember.Component` named after the name of the
+    component. Note that `Component` needs to be appended to the name of
+    your subclass like `AppProfileComponent`.
+  
+    For example, you could implement the action
+    `hello` for the `app-profile` component:
+  
+    ```javascript
+    App.AppProfileComponent = Ember.Component.extend({
+      actions: {
+        hello: function(name) {
+          console.log("Hello", name);
+        }
+      }
+    });
+    ```
+  
+    And then use it in the component's template:
+  
+    ```handlebars
+    <!-- app-profile template -->
+  
+    <h1>{{person.title}}</h1>
+    {{yield}} <!-- block contents -->
+  
+    <button {{action 'hello' person.name}}>
+      Say Hello to {{person.name}}
+    </button>
+    ```
+  
+    Components must have a `-` in their name to avoid
+    conflicts with built-in controls that wrap HTML
+    elements. This is consistent with the same
+    requirement in web components.
+  
+    @class Component
+    @namespace Ember
+    @extends Ember.View
+    @uses Ember.ViewTargetActionSupport
+    @public
+  */
+  var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, {
+    isComponent: true,
+    /*
+      This is set so that the proto inspection in appendTemplatedView does not
+      think that it should set the component's `context` to that of the parent view.
+    */
+    controller: null,
+    context: null,
+
+    instrumentName: 'component',
+    instrumentDisplay: _emberMetalComputed.computed(function () {
+      if (this._debugContainerKey) {
+        return '{{' + this._debugContainerKey.split(':')[1] + '}}';
+      }
+    }),
+
+    init: function () {
+      var _this = this;
+
+      this._super.apply(this, arguments);
+      _emberMetalProperty_set.set(this, 'controller', this);
+      _emberMetalProperty_set.set(this, 'context', this);
+
+      if (!this.layout && this.layoutName && _containerOwner.getOwner(this)) {
+        var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
+
+        this.layout = this.templateForName(layoutName);
+      }
+
+      // If a `defaultLayout` was specified move it to the `layout` prop.
+      // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
+      // logic is supported with a deprecation
+      if (this.defaultLayout && !this.layout) {
+        _emberMetalDebug.deprecate('Specifying `defaultLayout` to ' + this + ' is deprecated. Please use `layout` instead.', false, {
+          id: 'ember-views.component.defaultLayout',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
+        });
+
+        this.layout = this.defaultLayout;
+      }
+
+      // If in a tagless component, assert that no event handlers are defined
+      _emberMetalDebug.assert('You can not define a function that handles DOM events in the `' + this + '` tagless component since it doesn\'t have any DOM element.', this.tagName !== '' || !_emberEnvironment.environment.hasDOM || !(function () {
+        var eventDispatcher = _containerOwner.getOwner(_this).lookup('event_dispatcher:main');
+        var events = eventDispatcher && eventDispatcher._finalEvents || {};
+
+        for (var key in events) {
+          var methodName = events[key];
+
+          if (typeof _this[methodName] === 'function') {
+            return true; // indicate that the assertion should be triggered
+          }
+        }
+      })());
+    },
+
+    template: null,
+    layoutName: null,
+    layout: null,
+
+    /**
+      If the component is currently inserted into the DOM of a parent view, this
+      property will point to the controller of the parent view.
+       @property targetObject
+      @type Ember.Controller
+      @default null
+      @private
+    */
+    targetObject: _emberMetalComputed.computed('controller', function (key) {
+      if (this._targetObject) {
+        return this._targetObject;
+      }
+      if (this._controller) {
+        return this._controller;
+      }
+      var parentView = _emberMetalProperty_get.get(this, 'parentView');
+      return parentView ? _emberMetalProperty_get.get(parentView, 'controller') : null;
+    }),
+
+    /**
+      Calls a action passed to a component.
+       For example a component for playing or pausing music may translate click events
+      into action notifications of "play" or "stop" depending on some internal state
+      of the component:
+       ```javascript
+      // app/components/play-button.js
+      export default Ember.Component.extend({
+        click() {
+          if (this.get('isPlaying')) {
+            this.sendAction('play');
+          } else {
+            this.sendAction('stop');
+          }
+        }
+      });
+      ```
+       The actions "play" and "stop" must be passed to this `play-button` component:
+       ```handlebars
+      {{! app/templates/application.hbs }}
+      {{play-button play=(action "musicStarted") stop=(action "musicStopped")}}
+      ```
+       When the component receives a browser `click` event it translate this
+      interaction into application-specific semantics ("play" or "stop") and
+      calls the specified action.
+       ```javascript
+      // app/controller/application.js
+      export default Ember.Controller.extend({
+        actions: {
+          musicStarted() {
+            // called when the play button is clicked
+            // and the music started playing
+          },
+          musicStopped() {
+            // called when the play button is clicked
+            // and the music stopped playing
+          }
+        }
+      });
+      ```
+       If no action is passed to `sendAction` a default name of "action"
+      is assumed.
+       ```javascript
+      // app/components/next-button.js
+      export default Ember.Component.extend({
+        click() {
+          this.sendAction();
+        }
+      });
+      ```
+       ```handlebars
+      {{! app/templates/application.hbs }}
+      {{next-button action=(action "playNextSongInAlbum")}}
+      ```
+       ```javascript
+      // app/controllers/application.js
+      App.ApplicationController = Ember.Controller.extend({
+        actions: {
+          playNextSongInAlbum() {
+            ...
+          }
+        }
+      });
+      ```
+       @method sendAction
+      @param [action] {String} the action to call
+      @param [params] {*} arguments for the action
+      @public
+    */
+    sendAction: function (action) {
+      for (var _len = arguments.length, contexts = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        contexts[_key - 1] = arguments[_key];
+      }
+
+      var actionName;
+
+      // Send the default action
+      if (action === undefined) {
+        action = 'action';
+      }
+      actionName = _emberMetalProperty_get.get(this, 'attrs.' + action) || _emberMetalProperty_get.get(this, action);
+      actionName = validateAction(this, actionName);
+
+      // If no action name for that action could be found, just abort.
+      if (actionName === undefined) {
+        return;
+      }
+
+      if (typeof actionName === 'function') {
+        actionName.apply(undefined, contexts);
+      } else {
+        this.triggerAction({
+          action: actionName,
+          actionContext: contexts
+        });
+      }
+    },
+
+    send: function (actionName) {
+      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
+      var target;
+      var action = this.actions && this.actions[actionName];
+
+      if (action) {
+        var shouldBubble = action.apply(this, args) === true;
+        if (!shouldBubble) {
+          return;
+        }
+      }
+
+      if (target = _emberMetalProperty_get.get(this, 'target')) {
+        var _target;
+
+        _emberMetalDebug.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
+        (_target = target).send.apply(_target, arguments);
+      } else {
+        if (!action) {
+          throw new Error(_emberMetalUtils.inspect(this) + ' had no action handler for: ' + actionName);
+        }
+      }
+    }
+
+    /**
+      Returns true when the component was invoked with a block template.
+       Example (`hasBlock` will be `false`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{foo-bar}}
+       {{! templates/components/foo-bar.hbs }}
+      {{#if hasBlock}}
+        This will not be printed, because no block was provided
+      {{/if}}
+      ```
+       Example (`hasBlock` will be `true`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar}}
+        Hi!
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.hbs }}
+      {{#if hasBlock}}
+        This will be printed because a block was provided
+        {{yield}}
+      {{/if}}
+      ```
+       This helper accepts an argument with the name of the block we want to check the presence of.
+      This is useful for checking for the presence of the optional inverse block in components.
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar}}
+        Hi!
+      {{else}}
+        What's up?
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.hbs }}
+      {{yield}}
+      {{#if (hasBlock "inverse")}}
+        {{yield to="inverse"}}
+      {{else}}
+        How are you?
+      {{/if}}
+      ```
+       @public
+      @property hasBlock
+      @param {String} [blockName="default"] The name of the block to check presence of.
+      @returns Boolean
+      @since 1.13.0
+    */
+
+    /**
+      Returns true when the component was invoked with a block parameter
+      supplied.
+       Example (`hasBlockParams` will be `false`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar}}
+        No block parameter.
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.hbs }}
+      {{#if hasBlockParams}}
+        This will not be printed, because no block was provided
+        {{yield this}}
+      {{/if}}
+      ```
+       Example (`hasBlockParams` will be `true`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar as |foo|}}
+        Hi!
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.hbs }}
+      {{#if hasBlockParams}}
+        This will be printed because a block was provided
+        {{yield this}}
+      {{/if}}
+      ```
+      @public
+      @property hasBlockParams
+      @returns Boolean
+      @since 1.13.0
+    */
+
+    /**
+      Enables components to take a list of parameters as arguments.
+       For example, a component that takes two parameters with the names
+      `name` and `age`:
+       ```javascript
+      let MyComponent = Ember.Component.extend;
+      MyComponent.reopenClass({
+        positionalParams: ['name', 'age']
+      });
+      ```
+       It can then be invoked like this:
+       ```hbs
+      {{my-component "John" 38}}
+      ```
+       The parameters can be referred to just like named parameters:
+       ```hbs
+      Name: {{attrs.name}}, Age: {{attrs.age}}.
+      ```
+       Using a string instead of an array allows for an arbitrary number of
+      parameters:
+       ```javascript
+      let MyComponent = Ember.Component.extend;
+      MyComponent.reopenClass({
+        positionalParams: 'names'
+      });
+      ```
+       It can then be invoked like this:
+       ```hbs
+      {{my-component "John" "Michael" "Scott"}}
+      ```
+       The parameters can then be referred to by enumerating over the list:
+       ```hbs
+      {{#each attrs.names as |name|}}{{name}}{{/each}}
+      ```
+       @static
+      @public
+      @property positionalParams
+      @since 1.13.0
+    */
+
+    /**
+      Called when the attributes passed into the component have been updated.
+      Called both during the initial render of a container and during a rerender.
+      Can be used in place of an observer; code placed here will be executed
+      every time any attribute updates.
+       @method didReceiveAttrs
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the attributes passed into the component have been updated.
+      Called both during the initial render of a container and during a rerender.
+      Can be used in place of an observer; code placed here will be executed
+      every time any attribute updates.
+       @event didReceiveAttrs
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called after a component has been rendered, both on initial render and
+      in subsequent rerenders.
+       @method didRender
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called after a component has been rendered, both on initial render and
+      in subsequent rerenders.
+       @event didRender
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called before a component has been rendered, both on initial render and
+      in subsequent rerenders.
+       @method willRender
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called before a component has been rendered, both on initial render and
+      in subsequent rerenders.
+       @event willRender
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the attributes passed into the component have been changed.
+      Called only during a rerender, not during an initial render.
+       @method didUpdateAttrs
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the attributes passed into the component have been changed.
+      Called only during a rerender, not during an initial render.
+       @event didUpdateAttrs
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the component is about to update and rerender itself.
+      Called only during a rerender, not during an initial render.
+       @method willUpdate
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the component is about to update and rerender itself.
+      Called only during a rerender, not during an initial render.
+       @event willUpdate
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the component has updated and rerendered itself.
+      Called only during a rerender, not during an initial render.
+       @event didUpdate
+      @public
+      @since 1.13.0
+    */
+
+    /**
+      Called when the component has updated and rerendered itself.
+      Called only during a rerender, not during an initial render.
+       @event didUpdate
+      @public
+      @since 1.13.0
+    */
+  });
+
+  Component.reopenClass({
+    isComponentFactory: true
+  });
+
+  exports.default = Component;
+});
+enifed('ember-htmlbars/components/checkbox', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/component'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsComponent) {
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-views
+  */
+
+  /**
+    The internal class used to create text inputs when the `{{input}}`
+    helper is used with `type` of `checkbox`.
+  
+    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
+  
+    ## Direct manipulation of `checked`
+  
+    The `checked` attribute of an `Ember.Checkbox` object should always be set
+    through the Ember object or by interacting with its rendered element
+    representation via the mouse, keyboard, or touch. Updating the value of the
+    checkbox via jQuery will result in the checked value of the object and its
+    element losing synchronization.
+  
+    ## Layout and LayoutName properties
+  
+    Because HTML `input` elements are self closing `layout` and `layoutName`
+    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+  
+    @class Checkbox
+    @namespace Ember
+    @extends Ember.Component
+    @public
+  */
+  exports.default = _emberHtmlbarsComponent.default.extend({
+    instrumentDisplay: '{{input type="checkbox"}}',
+
+    classNames: ['ember-checkbox'],
+
+    tagName: 'input',
+
+    attributeBindings: ['type', 'checked', 'indeterminate', 'disabled', 'tabindex', 'name', 'autofocus', 'required', 'form'],
+
+    type: 'checkbox',
+    checked: false,
+    disabled: false,
+    indeterminate: false,
+
+    didInsertElement: function () {
+      this._super.apply(this, arguments);
+      _emberMetalProperty_get.get(this, 'element').indeterminate = !!_emberMetalProperty_get.get(this, 'indeterminate');
+    },
+
+    change: function () {
+      _emberMetalProperty_set.set(this, 'checked', this.$().prop('checked'));
+    }
+  });
+});
+enifed('ember-htmlbars/components/text_area', ['exports', 'ember-htmlbars/component', 'ember-views/mixins/text_support'], function (exports, _emberHtmlbarsComponent, _emberViewsMixinsText_support) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
+  'use strict';
+
+  /**
+    The internal class used to create textarea element when the `{{textarea}}`
+    helper is used.
+  
+    See [Ember.Templates.helpers.textarea](/api/classes/Ember.Templates.helpers.html#method_textarea)  for usage details.
+  
+    ## Layout and LayoutName properties
+  
+    Because HTML `textarea` elements do not contain inner HTML the `layout` and
+    `layoutName` properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+  
+    @class TextArea
+    @namespace Ember
+    @extends Ember.Component
+    @uses Ember.TextSupport
+    @public
+  */
+  exports.default = _emberHtmlbarsComponent.default.extend(_emberViewsMixinsText_support.default, {
+    instrumentDisplay: '{{textarea}}',
+
+    classNames: ['ember-text-area'],
+
+    tagName: 'textarea',
+    attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap', 'lang', 'dir', 'value'],
+    rows: null,
+    cols: null
+  });
+});
+enifed('ember-htmlbars/components/text_field', ['exports', 'ember-metal/computed', 'ember-environment', 'ember-htmlbars/component', 'ember-views/mixins/text_support', 'ember-metal/empty_object'], function (exports, _emberMetalComputed, _emberEnvironment, _emberHtmlbarsComponent, _emberViewsMixinsText_support, _emberMetalEmpty_object) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
+  'use strict';
+
+  var inputTypeTestElement;
+  var inputTypes = new _emberMetalEmpty_object.default();
+  function canSetTypeOfInput(type) {
+    if (type in inputTypes) {
+      return inputTypes[type];
+    }
+
+    // if running in outside of a browser always return the
+    // original type
+    if (!_emberEnvironment.environment.hasDOM) {
+      inputTypes[type] = type;
+
+      return type;
+    }
+
+    if (!inputTypeTestElement) {
+      inputTypeTestElement = document.createElement('input');
+    }
+
+    try {
+      inputTypeTestElement.type = type;
+    } catch (e) {}
+
+    return inputTypes[type] = inputTypeTestElement.type === type;
+  }
+
+  /**
+  
+    The internal class used to create text inputs when the `{{input}}`
+    helper is used with `type` of `text`.
+  
+    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
+  
+    ## Layout and LayoutName properties
+  
+    Because HTML `input` elements are self closing `layout` and `layoutName`
+    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+  
+    @class TextField
+    @namespace Ember
+    @extends Ember.Component
+    @uses Ember.TextSupport
+    @public
+  */
+  exports.default = _emberHtmlbarsComponent.default.extend(_emberViewsMixinsText_support.default, {
+    instrumentDisplay: '{{input type="text"}}',
+
+    classNames: ['ember-text-field'],
+    tagName: 'input',
+    attributeBindings: ['accept', 'autocomplete', 'autosave', 'dir', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'height', 'inputmode', 'lang', 'list', 'max', 'min', 'multiple', 'name', 'pattern', 'size', 'step', 'type', 'value', 'width'],
+
+    defaultLayout: null,
+
+    /**
+      The `value` attribute of the input element. As the user inputs text, this
+      property is updated live.
+       @property value
+      @type String
+      @default ""
+      @public
+    */
+    value: '',
+
+    /**
+      The `type` attribute of the input element.
+       @property type
+      @type String
+      @default "text"
+      @public
+    */
+    type: _emberMetalComputed.computed({
+      get: function () {
+        return 'text';
+      },
+
+      set: function (key, value) {
+        var type = 'text';
+
+        if (canSetTypeOfInput(value)) {
+          type = value;
+        }
+
+        return type;
+      }
+    }),
+
+    /**
+      The `size` of the text field in characters.
+       @property size
+      @type String
+      @default null
+      @public
+    */
+    size: null,
+
+    /**
+      The `pattern` attribute of input element.
+       @property pattern
+      @type String
+      @default null
+      @public
+    */
+    pattern: null,
+
+    /**
+      The `min` attribute of input element used with `type="number"` or `type="range"`.
+       @property min
+      @type String
+      @default null
+      @since 1.4.0
+      @public
+    */
+    min: null,
+
+    /**
+      The `max` attribute of input element used with `type="number"` or `type="range"`.
+       @property max
+      @type String
+      @default null
+      @since 1.4.0
+      @public
+    */
+    max: null
+  });
+});
 enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
   'use strict';
 
@@ -14947,7 +15934,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/utils/extract-positional-params', 'ember-metal/symbol', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _emberMetalSymbol, _containerOwner, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/component', 'ember-htmlbars/utils/extract-positional-params', 'ember-metal/symbol', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _emberMetalSymbol, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.default = ComponentNodeManager;
@@ -14985,7 +15972,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var layout = options.layout;
     var templates = options.templates;
 
-    component = component || _emberViewsComponentsComponent.default;
+    component = component || _emberHtmlbarsComponent.default;
 
     var createOptions = (_createOptions = {
       parentView: parentView
@@ -32252,7 +33239,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
     return true;
   }
 });
-enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/features', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to', 'require'], function (exports, _emberMetalFeatures, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo, _require) {
+enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/features', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-htmlbars/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to', 'require'], function (exports, _emberMetalFeatures, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberHtmlbarsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo, _require) {
   /**
   @module ember
   @submodule ember-templates
@@ -32588,7 +33575,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/featur
     @see {Ember.Templates.helpers.link-to}
     @private
   **/
-  var LinkComponent = _emberViewsComponentsComponent.default.extend({
+  var LinkComponent = _emberHtmlbarsComponent.default.extend({
     layout: layout,
 
     tagName: 'a',
@@ -44820,7 +45807,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
   exports.default = _emberMetalMixin.Mixin.create(AttrsProxyMixin);
 });
-enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-runtime/system/object', 'ember-views/components/component', 'ember-htmlbars/system/lookup-helper', 'container/owner'], function (exports, _emberMetalDebug, _emberRuntimeSystemObject, _emberViewsComponentsComponent, _emberHtmlbarsSystemLookupHelper, _containerOwner) {
+enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-runtime/system/object', 'ember-htmlbars/component', 'ember-htmlbars/system/lookup-helper', 'container/owner'], function (exports, _emberMetalDebug, _emberRuntimeSystemObject, _emberHtmlbarsComponent, _emberHtmlbarsSystemLookupHelper, _containerOwner) {
   'use strict';
 
   exports.default = _emberRuntimeSystemObject.default.extend({
@@ -44848,7 +45835,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-r
       // or a template has been registered.
       if (templateRegistered || Component) {
         if (!Component) {
-          owner.register(fullName, _emberViewsComponentsComponent.default);
+          owner.register(fullName, _emberHtmlbarsComponent.default);
           Component = owner._lookupFactory(fullName);
         }
         return Component;
@@ -44874,542 +45861,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-r
     }
   });
 });
-enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner'], function (exports, _emberMetalDebug, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner) {
-  'use strict';
-
-  function validateAction(component, actionName) {
-    if (actionName && actionName[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
-      actionName = actionName.value;
-    }
-    _emberMetalDebug.assert('The default action was triggered on the component ' + component.toString() + ', but the action name (' + actionName + ') was not a string.', _emberMetalIs_none.default(actionName) || typeof actionName === 'string' || typeof actionName === 'function');
-    return actionName;
-  }
-
-  /**
-  @module ember
-  @submodule ember-views
-  */
-
-  /**
-    An `Ember.Component` is a view that is completely
-    isolated. Properties accessed in its templates go
-    to the view object and actions are targeted at
-    the view object. There is no access to the
-    surrounding context or outer controller; all
-    contextual information must be passed in.
-  
-    The easiest way to create an `Ember.Component` is via
-    a template. If you name a template
-    `components/my-foo`, you will be able to use
-    `{{my-foo}}` in other templates, which will make
-    an instance of the isolated component.
-  
-    ```handlebars
-    {{app-profile person=currentUser}}
-    ```
-  
-    ```handlebars
-    <!-- app-profile template -->
-    <h1>{{person.title}}</h1>
-    <img src={{person.avatar}}>
-    <p class='signature'>{{person.signature}}</p>
-    ```
-  
-    You can use `yield` inside a template to
-    include the **contents** of any block attached to
-    the component. The block will be executed in the
-    context of the surrounding context or outer controller:
-  
-    ```handlebars
-    {{#app-profile person=currentUser}}
-      <p>Admin mode</p>
-      {{! Executed in the controller's context. }}
-    {{/app-profile}}
-    ```
-  
-    ```handlebars
-    <!-- app-profile template -->
-    <h1>{{person.title}}</h1>
-    {{! Executed in the component's context. }}
-    {{yield}} {{! block contents }}
-    ```
-  
-    If you want to customize the component, in order to
-    handle events or actions, you implement a subclass
-    of `Ember.Component` named after the name of the
-    component. Note that `Component` needs to be appended to the name of
-    your subclass like `AppProfileComponent`.
-  
-    For example, you could implement the action
-    `hello` for the `app-profile` component:
-  
-    ```javascript
-    App.AppProfileComponent = Ember.Component.extend({
-      actions: {
-        hello: function(name) {
-          console.log("Hello", name);
-        }
-      }
-    });
-    ```
-  
-    And then use it in the component's template:
-  
-    ```handlebars
-    <!-- app-profile template -->
-  
-    <h1>{{person.title}}</h1>
-    {{yield}} <!-- block contents -->
-  
-    <button {{action 'hello' person.name}}>
-      Say Hello to {{person.name}}
-    </button>
-    ```
-  
-    Components must have a `-` in their name to avoid
-    conflicts with built-in controls that wrap HTML
-    elements. This is consistent with the same
-    requirement in web components.
-  
-    @class Component
-    @namespace Ember
-    @extends Ember.View
-    @uses Ember.ViewTargetActionSupport
-    @public
-  */
-  var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, {
-    isComponent: true,
-    /*
-      This is set so that the proto inspection in appendTemplatedView does not
-      think that it should set the component's `context` to that of the parent view.
-    */
-    controller: null,
-    context: null,
-
-    instrumentName: 'component',
-    instrumentDisplay: _emberMetalComputed.computed(function () {
-      if (this._debugContainerKey) {
-        return '{{' + this._debugContainerKey.split(':')[1] + '}}';
-      }
-    }),
-
-    init: function () {
-      var _this = this;
-
-      this._super.apply(this, arguments);
-      _emberMetalProperty_set.set(this, 'controller', this);
-      _emberMetalProperty_set.set(this, 'context', this);
-
-      if (!this.layout && this.layoutName && _containerOwner.getOwner(this)) {
-        var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
-
-        this.layout = this.templateForName(layoutName);
-      }
-
-      // If a `defaultLayout` was specified move it to the `layout` prop.
-      // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
-      // logic is supported with a deprecation
-      if (this.defaultLayout && !this.layout) {
-        _emberMetalDebug.deprecate('Specifying `defaultLayout` to ' + this + ' is deprecated. Please use `layout` instead.', false, {
-          id: 'ember-views.component.defaultLayout',
-          until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
-        });
-
-        this.layout = this.defaultLayout;
-      }
-
-      // If in a tagless component, assert that no event handlers are defined
-      _emberMetalDebug.assert('You can not define a function that handles DOM events in the `' + this + '` tagless component since it doesn\'t have any DOM element.', this.tagName !== '' || !_emberEnvironment.environment.hasDOM || !(function () {
-        var eventDispatcher = _containerOwner.getOwner(_this).lookup('event_dispatcher:main');
-        var events = eventDispatcher && eventDispatcher._finalEvents || {};
-
-        for (var key in events) {
-          var methodName = events[key];
-
-          if (typeof _this[methodName] === 'function') {
-            return true; // indicate that the assertion should be triggered
-          }
-        }
-      })());
-    },
-
-    template: null,
-    layoutName: null,
-    layout: null,
-
-    /**
-      If the component is currently inserted into the DOM of a parent view, this
-      property will point to the controller of the parent view.
-       @property targetObject
-      @type Ember.Controller
-      @default null
-      @private
-    */
-    targetObject: _emberMetalComputed.computed('controller', function (key) {
-      if (this._targetObject) {
-        return this._targetObject;
-      }
-      if (this._controller) {
-        return this._controller;
-      }
-      var parentView = _emberMetalProperty_get.get(this, 'parentView');
-      return parentView ? _emberMetalProperty_get.get(parentView, 'controller') : null;
-    }),
-
-    /**
-      Calls a action passed to a component.
-       For example a component for playing or pausing music may translate click events
-      into action notifications of "play" or "stop" depending on some internal state
-      of the component:
-       ```javascript
-      // app/components/play-button.js
-      export default Ember.Component.extend({
-        click() {
-          if (this.get('isPlaying')) {
-            this.sendAction('play');
-          } else {
-            this.sendAction('stop');
-          }
-        }
-      });
-      ```
-       The actions "play" and "stop" must be passed to this `play-button` component:
-       ```handlebars
-      {{! app/templates/application.hbs }}
-      {{play-button play=(action "musicStarted") stop=(action "musicStopped")}}
-      ```
-       When the component receives a browser `click` event it translate this
-      interaction into application-specific semantics ("play" or "stop") and
-      calls the specified action.
-       ```javascript
-      // app/controller/application.js
-      export default Ember.Controller.extend({
-        actions: {
-          musicStarted() {
-            // called when the play button is clicked
-            // and the music started playing
-          },
-          musicStopped() {
-            // called when the play button is clicked
-            // and the music stopped playing
-          }
-        }
-      });
-      ```
-       If no action is passed to `sendAction` a default name of "action"
-      is assumed.
-       ```javascript
-      // app/components/next-button.js
-      export default Ember.Component.extend({
-        click() {
-          this.sendAction();
-        }
-      });
-      ```
-       ```handlebars
-      {{! app/templates/application.hbs }}
-      {{next-button action=(action "playNextSongInAlbum")}}
-      ```
-       ```javascript
-      // app/controllers/application.js
-      App.ApplicationController = Ember.Controller.extend({
-        actions: {
-          playNextSongInAlbum() {
-            ...
-          }
-        }
-      });
-      ```
-       @method sendAction
-      @param [action] {String} the action to call
-      @param [params] {*} arguments for the action
-      @public
-    */
-    sendAction: function (action) {
-      for (var _len = arguments.length, contexts = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        contexts[_key - 1] = arguments[_key];
-      }
-
-      var actionName;
-
-      // Send the default action
-      if (action === undefined) {
-        action = 'action';
-      }
-      actionName = _emberMetalProperty_get.get(this, 'attrs.' + action) || _emberMetalProperty_get.get(this, action);
-      actionName = validateAction(this, actionName);
-
-      // If no action name for that action could be found, just abort.
-      if (actionName === undefined) {
-        return;
-      }
-
-      if (typeof actionName === 'function') {
-        actionName.apply(undefined, contexts);
-      } else {
-        this.triggerAction({
-          action: actionName,
-          actionContext: contexts
-        });
-      }
-    },
-
-    send: function (actionName) {
-      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        args[_key2 - 1] = arguments[_key2];
-      }
-
-      var target;
-      var action = this.actions && this.actions[actionName];
-
-      if (action) {
-        var shouldBubble = action.apply(this, args) === true;
-        if (!shouldBubble) {
-          return;
-        }
-      }
-
-      if (target = _emberMetalProperty_get.get(this, 'target')) {
-        var _target;
-
-        _emberMetalDebug.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
-        (_target = target).send.apply(_target, arguments);
-      } else {
-        if (!action) {
-          throw new Error(_emberMetalUtils.inspect(this) + ' had no action handler for: ' + actionName);
-        }
-      }
-    }
-
-    /**
-      Returns true when the component was invoked with a block template.
-       Example (`hasBlock` will be `false`):
-       ```hbs
-      {{! templates/application.hbs }}
-       {{foo-bar}}
-       {{! templates/components/foo-bar.hbs }}
-      {{#if hasBlock}}
-        This will not be printed, because no block was provided
-      {{/if}}
-      ```
-       Example (`hasBlock` will be `true`):
-       ```hbs
-      {{! templates/application.hbs }}
-       {{#foo-bar}}
-        Hi!
-      {{/foo-bar}}
-       {{! templates/components/foo-bar.hbs }}
-      {{#if hasBlock}}
-        This will be printed because a block was provided
-        {{yield}}
-      {{/if}}
-      ```
-       This helper accepts an argument with the name of the block we want to check the presence of.
-      This is useful for checking for the presence of the optional inverse block in components.
-       ```hbs
-      {{! templates/application.hbs }}
-       {{#foo-bar}}
-        Hi!
-      {{else}}
-        What's up?
-      {{/foo-bar}}
-       {{! templates/components/foo-bar.hbs }}
-      {{yield}}
-      {{#if (hasBlock "inverse")}}
-        {{yield to="inverse"}}
-      {{else}}
-        How are you?
-      {{/if}}
-      ```
-       @public
-      @property hasBlock
-      @param {String} [blockName="default"] The name of the block to check presence of.
-      @returns Boolean
-      @since 1.13.0
-    */
-
-    /**
-      Returns true when the component was invoked with a block parameter
-      supplied.
-       Example (`hasBlockParams` will be `false`):
-       ```hbs
-      {{! templates/application.hbs }}
-       {{#foo-bar}}
-        No block parameter.
-      {{/foo-bar}}
-       {{! templates/components/foo-bar.hbs }}
-      {{#if hasBlockParams}}
-        This will not be printed, because no block was provided
-        {{yield this}}
-      {{/if}}
-      ```
-       Example (`hasBlockParams` will be `true`):
-       ```hbs
-      {{! templates/application.hbs }}
-       {{#foo-bar as |foo|}}
-        Hi!
-      {{/foo-bar}}
-       {{! templates/components/foo-bar.hbs }}
-      {{#if hasBlockParams}}
-        This will be printed because a block was provided
-        {{yield this}}
-      {{/if}}
-      ```
-      @public
-      @property hasBlockParams
-      @returns Boolean
-      @since 1.13.0
-    */
-
-    /**
-      Enables components to take a list of parameters as arguments.
-       For example, a component that takes two parameters with the names
-      `name` and `age`:
-       ```javascript
-      let MyComponent = Ember.Component.extend;
-      MyComponent.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-      ```
-       It can then be invoked like this:
-       ```hbs
-      {{my-component "John" 38}}
-      ```
-       The parameters can be referred to just like named parameters:
-       ```hbs
-      Name: {{attrs.name}}, Age: {{attrs.age}}.
-      ```
-       Using a string instead of an array allows for an arbitrary number of
-      parameters:
-       ```javascript
-      let MyComponent = Ember.Component.extend;
-      MyComponent.reopenClass({
-        positionalParams: 'names'
-      });
-      ```
-       It can then be invoked like this:
-       ```hbs
-      {{my-component "John" "Michael" "Scott"}}
-      ```
-       The parameters can then be referred to by enumerating over the list:
-       ```hbs
-      {{#each attrs.names as |name|}}{{name}}{{/each}}
-      ```
-       @static
-      @public
-      @property positionalParams
-      @since 1.13.0
-    */
-
-    /**
-      Called when the attributes passed into the component have been updated.
-      Called both during the initial render of a container and during a rerender.
-      Can be used in place of an observer; code placed here will be executed
-      every time any attribute updates.
-       @method didReceiveAttrs
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the attributes passed into the component have been updated.
-      Called both during the initial render of a container and during a rerender.
-      Can be used in place of an observer; code placed here will be executed
-      every time any attribute updates.
-       @event didReceiveAttrs
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called after a component has been rendered, both on initial render and
-      in subsequent rerenders.
-       @method didRender
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called after a component has been rendered, both on initial render and
-      in subsequent rerenders.
-       @event didRender
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called before a component has been rendered, both on initial render and
-      in subsequent rerenders.
-       @method willRender
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called before a component has been rendered, both on initial render and
-      in subsequent rerenders.
-       @event willRender
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the attributes passed into the component have been changed.
-      Called only during a rerender, not during an initial render.
-       @method didUpdateAttrs
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the attributes passed into the component have been changed.
-      Called only during a rerender, not during an initial render.
-       @event didUpdateAttrs
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the component is about to update and rerender itself.
-      Called only during a rerender, not during an initial render.
-       @method willUpdate
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the component is about to update and rerender itself.
-      Called only during a rerender, not during an initial render.
-       @event willUpdate
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the component has updated and rerendered itself.
-      Called only during a rerender, not during an initial render.
-       @event didUpdate
-      @public
-      @since 1.13.0
-    */
-
-    /**
-      Called when the component has updated and rerendered itself.
-      Called only during a rerender, not during an initial render.
-       @event didUpdate
-      @public
-      @since 1.13.0
-    */
-  });
-
-  Component.reopenClass({
-    isComponentFactory: true
-  });
-
-  exports.default = Component;
-});
-enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-htmlbars/renderer', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberHtmlbarsRenderer, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area) {
+enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-htmlbars/renderer', 'ember-htmlbars/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-htmlbars/components/checkbox', 'ember-views/mixins/text_support', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberHtmlbarsRenderer, _emberHtmlbarsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberHtmlbarsComponentsCheckbox, _emberViewsMixinsText_support, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area) {
   /**
   @module ember
   @submodule ember-views
@@ -45440,13 +45892,13 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
 
   _emberRuntime.default._Renderer = _emberHtmlbarsRenderer.Renderer;
 
-  _emberRuntime.default.Checkbox = _emberViewsViewsCheckbox.default;
-  _emberRuntime.default.TextField = _emberViewsViewsText_field.default;
-  _emberRuntime.default.TextArea = _emberViewsViewsText_area.default;
+  _emberRuntime.default.Checkbox = _emberHtmlbarsComponentsCheckbox.default;
+  _emberRuntime.default.TextField = _emberHtmlbarsComponentsText_field.default;
+  _emberRuntime.default.TextArea = _emberHtmlbarsComponentsText_area.default;
 
   _emberRuntime.default.TextSupport = _emberViewsMixinsText_support.default;
   _emberRuntime.default.ComponentLookup = _emberViewsComponent_lookup.default;
-  _emberRuntime.default.Component = _emberViewsComponentsComponent.default;
+  _emberRuntime.default.Component = _emberHtmlbarsComponent.default;
   _emberRuntime.default.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
 
   // END EXPORTS
@@ -47846,63 +48298,6 @@ enifed("ember-views/system/utils", ["exports"], function (exports) {
     return range.getBoundingClientRect();
   }
 });
-enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/components/component'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsComponentsComponent) {
-  'use strict';
-
-  /**
-  @module ember
-  @submodule ember-views
-  */
-
-  /**
-    The internal class used to create text inputs when the `{{input}}`
-    helper is used with `type` of `checkbox`.
-  
-    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
-  
-    ## Direct manipulation of `checked`
-  
-    The `checked` attribute of an `Ember.Checkbox` object should always be set
-    through the Ember object or by interacting with its rendered element
-    representation via the mouse, keyboard, or touch. Updating the value of the
-    checkbox via jQuery will result in the checked value of the object and its
-    element losing synchronization.
-  
-    ## Layout and LayoutName properties
-  
-    Because HTML `input` elements are self closing `layout` and `layoutName`
-    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-    layout section for more information.
-  
-    @class Checkbox
-    @namespace Ember
-    @extends Ember.Component
-    @public
-  */
-  exports.default = _emberViewsComponentsComponent.default.extend({
-    instrumentDisplay: '{{input type="checkbox"}}',
-
-    classNames: ['ember-checkbox'],
-
-    tagName: 'input',
-
-    attributeBindings: ['type', 'checked', 'indeterminate', 'disabled', 'tabindex', 'name', 'autofocus', 'required', 'form'],
-
-    type: 'checkbox',
-    checked: false,
-    disabled: false,
-    indeterminate: false,
-
-    didInsertElement: function () {
-      this._super.apply(this, arguments);
-      _emberMetalProperty_get.get(this, 'element').indeterminate = !!_emberMetalProperty_get.get(this, 'indeterminate');
-    },
-
-    change: function () {
-      _emberMetalProperty_set.set(this, 'checked', this.$().prop('checked'));
-    }
-  });
-});
 enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-htmlbars/renderer', 'ember-views/views/states', 'htmlbars-runtime', 'require'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberHtmlbarsRenderer, _emberViewsViewsStates, _htmlbarsRuntime, _require) {
   'use strict';
 
@@ -48245,175 +48640,6 @@ enifed('ember-views/views/states', ['exports', 'ember-metal/assign', 'ember-view
     destroying: _emberViewsViewsStatesDestroying.default
   };
   exports.states = states;
-});
-enifed('ember-views/views/text_area', ['exports', 'ember-views/components/component', 'ember-views/mixins/text_support'], function (exports, _emberViewsComponentsComponent, _emberViewsMixinsText_support) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  /**
-    The internal class used to create textarea element when the `{{textarea}}`
-    helper is used.
-  
-    See [Ember.Templates.helpers.textarea](/api/classes/Ember.Templates.helpers.html#method_textarea)  for usage details.
-  
-    ## Layout and LayoutName properties
-  
-    Because HTML `textarea` elements do not contain inner HTML the `layout` and
-    `layoutName` properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-    layout section for more information.
-  
-    @class TextArea
-    @namespace Ember
-    @extends Ember.Component
-    @uses Ember.TextSupport
-    @public
-  */
-  exports.default = _emberViewsComponentsComponent.default.extend(_emberViewsMixinsText_support.default, {
-    instrumentDisplay: '{{textarea}}',
-
-    classNames: ['ember-text-area'],
-
-    tagName: 'textarea',
-    attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap', 'lang', 'dir', 'value'],
-    rows: null,
-    cols: null
-  });
-});
-enifed('ember-views/views/text_field', ['exports', 'ember-metal/computed', 'ember-environment', 'ember-views/components/component', 'ember-views/mixins/text_support', 'ember-metal/empty_object'], function (exports, _emberMetalComputed, _emberEnvironment, _emberViewsComponentsComponent, _emberViewsMixinsText_support, _emberMetalEmpty_object) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  var inputTypeTestElement;
-  var inputTypes = new _emberMetalEmpty_object.default();
-  function canSetTypeOfInput(type) {
-    if (type in inputTypes) {
-      return inputTypes[type];
-    }
-
-    // if running in outside of a browser always return the
-    // original type
-    if (!_emberEnvironment.environment.hasDOM) {
-      inputTypes[type] = type;
-
-      return type;
-    }
-
-    if (!inputTypeTestElement) {
-      inputTypeTestElement = document.createElement('input');
-    }
-
-    try {
-      inputTypeTestElement.type = type;
-    } catch (e) {}
-
-    return inputTypes[type] = inputTypeTestElement.type === type;
-  }
-
-  /**
-  
-    The internal class used to create text inputs when the `{{input}}`
-    helper is used with `type` of `text`.
-  
-    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
-  
-    ## Layout and LayoutName properties
-  
-    Because HTML `input` elements are self closing `layout` and `layoutName`
-    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-    layout section for more information.
-  
-    @class TextField
-    @namespace Ember
-    @extends Ember.Component
-    @uses Ember.TextSupport
-    @public
-  */
-  exports.default = _emberViewsComponentsComponent.default.extend(_emberViewsMixinsText_support.default, {
-    instrumentDisplay: '{{input type="text"}}',
-
-    classNames: ['ember-text-field'],
-    tagName: 'input',
-    attributeBindings: ['accept', 'autocomplete', 'autosave', 'dir', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'height', 'inputmode', 'lang', 'list', 'max', 'min', 'multiple', 'name', 'pattern', 'size', 'step', 'type', 'value', 'width'],
-
-    defaultLayout: null,
-
-    /**
-      The `value` attribute of the input element. As the user inputs text, this
-      property is updated live.
-       @property value
-      @type String
-      @default ""
-      @public
-    */
-    value: '',
-
-    /**
-      The `type` attribute of the input element.
-       @property type
-      @type String
-      @default "text"
-      @public
-    */
-    type: _emberMetalComputed.computed({
-      get: function () {
-        return 'text';
-      },
-
-      set: function (key, value) {
-        var type = 'text';
-
-        if (canSetTypeOfInput(value)) {
-          type = value;
-        }
-
-        return type;
-      }
-    }),
-
-    /**
-      The `size` of the text field in characters.
-       @property size
-      @type String
-      @default null
-      @public
-    */
-    size: null,
-
-    /**
-      The `pattern` attribute of input element.
-       @property pattern
-      @type String
-      @default null
-      @public
-    */
-    pattern: null,
-
-    /**
-      The `min` attribute of input element used with `type="number"` or `type="range"`.
-       @property min
-      @type String
-      @default null
-      @since 1.4.0
-      @public
-    */
-    min: null,
-
-    /**
-      The `max` attribute of input element used with `type="number"` or `type="range"`.
-       @property max
-      @type String
-      @default null
-      @since 1.4.0
-      @public
-    */
-    max: null
-  });
 });
 enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/legacy_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsLegacy_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
   'use strict';
