@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c7db394f
+ * @version   2.7.0-canary+7ba13a96
  */
 
 var enifed, requireModule, require, Ember;
@@ -41589,7 +41589,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       _TogglingConditionalsTest2.apply(this, arguments);
     }
 
-    TogglingSyntaxConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+    TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
       var _this16 = this;
 
       var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
@@ -61420,7 +61420,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       _TogglingConditionalsTest2.apply(this, arguments);
     }
 
-    TogglingSyntaxConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+    TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
       var _this16 = this;
 
       var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
