@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1f09403c
+ * @version   2.7.0-canary+03ed97b4
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+1f09403c";
+  exports.default = "2.7.0-canary+03ed97b4";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -4269,7 +4269,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/renderer', 'ember-htmlbars/templates/top-level-view', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberRuntimeControllersController, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsRenderer, _emberHtmlbarsTemplatesTopLevelView, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require2) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/renderer', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsRenderer, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require2) {
   /**
   @module ember
   @submodule ember-application
@@ -4278,8 +4278,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
+  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
@@ -5181,7 +5180,6 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var registry = this._super.apply(this, arguments);
-      registry.register('application:main', application, { instantiate: false });
 
       if (options[_emberApplicationSystemEngine.GLIMMER]) {
         glimmerSetupRegistry(registry);
@@ -5194,60 +5192,21 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
   });
 
   function commonSetupRegistry(registry) {
-    registry.optionsForType('component', { singleton: false });
-    registry.optionsForType('view', { singleton: false });
-    registry.injection('renderer', 'dom', 'service:-dom-helper');
-
-    registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-
-    registry.injection('service:-dom-helper', 'document', 'service:-document');
-
     registry.register('-view-registry:main', { create: function () {
         return {};
       } });
-
-    registry.injection('view', '_viewRegistry', '-view-registry:main');
-
-    registry.injection('route', '_topLevelViewTemplate', 'template:-outlet');
 
     registry.register('route:basic', _emberRoutingSystemRoute.default);
     registry.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
 
     registry.injection('router:main', 'namespace', 'application:main');
-    registry.injection('view:-outlet', 'namespace', 'application:main');
 
     registry.register('location:auto', _emberRoutingLocationAuto_location.default);
     registry.register('location:hash', _emberRoutingLocationHash_location.default);
     registry.register('location:history', _emberRoutingLocationHistory_location.default);
     registry.register('location:none', _emberRoutingLocationNone_location.default);
 
-    registry.injection('controller', 'target', 'router:main');
-    registry.injection('controller', 'namespace', 'application:main');
-
     registry.register(_containerRegistry.privatize(_templateObject), _emberRoutingSystemCache.default);
-    registry.injection('router', '_bucketCache', _containerRegistry.privatize(_templateObject));
-    registry.injection('route', '_bucketCache', _containerRegistry.privatize(_templateObject));
-    registry.injection('controller', '_bucketCache', _containerRegistry.privatize(_templateObject));
-
-    registry.injection('route', 'router', 'router:main');
-
-    registry.register('component:-text-field', _emberViewsViewsText_field.default);
-    registry.register('component:-text-area', _emberViewsViewsText_area.default);
-    registry.register('component:-checkbox', _emberViewsViewsCheckbox.default);
-    registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
-
-    // Register the routing service...
-    registry.register('service:-routing', _emberRoutingServicesRouting.default);
-    // Then inject the app router into it
-    registry.injection('service:-routing', 'router', 'router:main');
-
-    // DEBUGGING
-    registry.register('resolver-for-debugging:main', registry.resolver, { instantiate: false });
-    registry.injection('container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-    registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-    // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
-
-    registry.register('container-debug-adapter:main', _emberExtensionSupportContainer_debug_adapter.default);
   }
 
   function glimmerSetupRegistry(registry) {
@@ -5257,9 +5216,6 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     registry.register('service:-glimmer-environment', Environment);
     registry.injection('service:-glimmer-environment', 'dom', 'service:-dom-helper');
     registry.injection('renderer', 'env', 'service:-glimmer-environment');
-
-    var OutletView = _require2.default('ember-glimmer/ember-routing-view').OutletView;
-    registry.register('view:-outlet', OutletView);
 
     var _require = _require2.default('ember-glimmer/renderer');
 
@@ -5277,22 +5233,10 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
         return new DOMHelper(document);
       }
     });
-
-    var glimmerOutletTemplate = _require2.default('ember-glimmer/templates/outlet').default;
-    var glimmerComponentTemplate = _require2.default('ember-glimmer/templates/component').default;
-    registry.register(_containerRegistry.privatize(_templateObject2), glimmerComponentTemplate);
-    registry.register('template:-outlet', glimmerOutletTemplate);
-    registry.injection('view:-outlet', 'template', 'template:-outlet');
-    registry.injection('template', 'env', 'service:-glimmer-environment');
-
-    registry.optionsForType('helper', { instantiate: false });
   }
 
   function htmlbarsSetupRegistry(registry) {
     commonSetupRegistry(registry);
-
-    registry.optionsForType('template', { instantiate: false });
-    registry.register('view:-outlet', _emberRoutingViewsViewsOutlet.OutletView);
 
     var InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
     var InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
@@ -5306,9 +5250,6 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
         return new _emberHtmlbarsSystemDomHelper.default(document);
       }
     });
-
-    registry.register('template:-outlet', _emberHtmlbarsTemplatesTopLevelView.default);
-    registry.register('view:toplevel', _emberViewsViewsView.default.extend());
   }
 
   function registerLibraries() {
@@ -5417,12 +5358,17 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
   exports.default = EngineInstance;
 });
-enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol) {
+enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol', 'ember-runtime/controllers/controller', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-htmlbars/templates/top-level-view', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'require'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol, _emberRuntimeControllersController, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberHtmlbarsTemplatesTopLevelView, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _require) {
   /**
   @module ember
   @submodule ember-application
   */
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var GLIMMER = _emberMetalSymbol.default('GLIMMER');
 
@@ -5738,11 +5684,21 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
       @public
     */
     buildRegistry: function (namespace) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
       var registry = new _containerRegistry.default({
         resolver: resolverFor(namespace)
       });
 
       registry.set = _emberMetalProperty_set.set;
+
+      registry.register('application:main', namespace, { instantiate: false });
+
+      if (options[GLIMMER]) {
+        glimmerSetupRegistry(registry);
+      } else {
+        htmlbarsSetupRegistry(registry);
+      }
 
       return registry;
     },
@@ -5805,6 +5761,75 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
 
       this[bucketName][initializer.name] = initializer;
     };
+  }
+
+  function commonSetupRegistry(registry) {
+    registry.optionsForType('component', { singleton: false });
+    registry.optionsForType('view', { singleton: false });
+    registry.injection('renderer', 'dom', 'service:-dom-helper');
+
+    registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
+
+    registry.injection('service:-dom-helper', 'document', 'service:-document');
+
+    registry.injection('view', '_viewRegistry', '-view-registry:main');
+
+    registry.injection('route', '_topLevelViewTemplate', 'template:-outlet');
+
+    registry.injection('view:-outlet', 'namespace', 'application:main');
+
+    registry.injection('controller', 'target', 'router:main');
+    registry.injection('controller', 'namespace', 'application:main');
+
+    registry.injection('router', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    registry.injection('route', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    registry.injection('controller', '_bucketCache', _containerRegistry.privatize(_templateObject));
+
+    registry.injection('route', 'router', 'router:main');
+
+    registry.register('component:-text-field', _emberViewsViewsText_field.default);
+    registry.register('component:-text-area', _emberViewsViewsText_area.default);
+    registry.register('component:-checkbox', _emberViewsViewsCheckbox.default);
+    registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
+
+    // Register the routing service...
+    registry.register('service:-routing', _emberRoutingServicesRouting.default);
+    // Then inject the app router into it
+    registry.injection('service:-routing', 'router', 'router:main');
+
+    // DEBUGGING
+    registry.register('resolver-for-debugging:main', registry.resolver, { instantiate: false });
+    registry.injection('container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+    registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+    // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
+
+    registry.register('container-debug-adapter:main', _emberExtensionSupportContainer_debug_adapter.default);
+  }
+
+  function glimmerSetupRegistry(registry) {
+    commonSetupRegistry(registry);
+
+    var OutletView = _require.default('ember-glimmer/ember-routing-view').OutletView;
+    registry.register('view:-outlet', OutletView);
+
+    var glimmerOutletTemplate = _require.default('ember-glimmer/templates/outlet').default;
+    var glimmerComponentTemplate = _require.default('ember-glimmer/templates/component').default;
+    registry.register(_containerRegistry.privatize(_templateObject2), glimmerComponentTemplate);
+    registry.register('template:-outlet', glimmerOutletTemplate);
+    registry.injection('view:-outlet', 'template', 'template:-outlet');
+    registry.injection('template', 'env', 'service:-glimmer-environment');
+
+    registry.optionsForType('helper', { instantiate: false });
+  }
+
+  function htmlbarsSetupRegistry(registry) {
+    commonSetupRegistry(registry);
+
+    registry.optionsForType('template', { instantiate: false });
+    registry.register('view:-outlet', _emberRoutingViewsViewsOutlet.OutletView);
+
+    registry.register('template:-outlet', _emberHtmlbarsTemplatesTopLevelView.default);
+    registry.register('view:toplevel', _emberViewsViewsView.default.extend());
   }
 
   exports.default = Engine;

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1f09403c
+ * @version   2.7.0-canary+03ed97b4
  */
 
 var enifed, requireModule, require, Ember;
@@ -20811,9 +20811,14 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-htmlbars/template_registry', 'container/registry', 'ember-application/tests/test-helpers/registry-check', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberVersion, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberHtmlbarsTemplate_registry, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   /*globals EmberDev */
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var trim = _emberViewsSystemJquery.default.trim;
 
@@ -20913,6 +20918,74 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     expectDeprecation(function () {
       application.registry.register();
     }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
+  });
+
+  QUnit.test('builds a registry', function () {
+    strictEqual(application.resolveRegistration('application:main'), application, 'application:main is registered');
+    deepEqual(application.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
+    deepEqual(application.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'renderer', 'dom', 'service:-dom-helper');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'controller:basic');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-dom-helper', 'document', 'service:-document');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, '-view-registry:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'view', '_viewRegistry', '-view-registry:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', '_topLevelViewTemplate', 'template:-outlet');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'route:basic');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'event_dispatcher:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'router:main', 'namespace', 'application:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'view:-outlet', 'namespace', 'application:main');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'location:auto');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'location:hash');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'location:history');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'location:none');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', 'target', 'router:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', 'namespace', 'application:main');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'router', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', '_bucketCache', _containerRegistry.privatize(_templateObject));
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', 'router', 'router:main');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'component:-text-field');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'component:-text-area');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'component:-checkbox');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'component:link-to');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-routing');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-routing', 'router', 'router:main');
+
+    // DEBUGGING
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'resolver-for-debugging:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'container-debug-adapter:main');
+
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-glimmer-environment');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-glimmer-environment', 'dom', 'service:-dom-helper');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'renderer', 'env', 'service:-glimmer-environment');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'view:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-dom');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-inert');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-dom-helper');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _containerRegistry.privatize(_templateObject2));
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'template:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'view:-outlet', 'template', 'template:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'template', 'env', 'service:-glimmer-environment');
+      deepEqual(application.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
+    } else {
+      deepEqual(application.registeredOptionsForType('template'), { instantiate: false }, 'optionsForType \'template\'');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'view:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-dom');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-inert');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-dom-helper');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'template:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'view:toplevel');
+    }
   });
 
   var originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
@@ -21808,24 +21881,29 @@ enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember
       engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
     });
 
-    var PostController = _containerTestsTestHelpersFactory.default();
+    var PostComponent = _containerTestsTestHelpersFactory.default();
 
-    engineInstance.register('controller:post', PostController);
+    engineInstance.register('component:post', PostComponent);
 
-    var postController1 = engineInstance.lookup('controller:post');
-    assert.ok(postController1, 'lookup creates instance');
+    var postComponent1 = engineInstance.lookup('component:post');
+    assert.ok(postComponent1, 'lookup creates instance');
 
-    engineInstance.unregister('controller:post');
-    engineInstance.register('controller:post', PostController);
+    engineInstance.unregister('component:post');
+    engineInstance.register('component:post', PostComponent);
 
-    var postController2 = engineInstance.lookup('controller:post');
-    assert.ok(postController2, 'lookup creates instance');
+    var postComponent2 = engineInstance.lookup('component:post');
+    assert.ok(postComponent2, 'lookup creates instance');
 
-    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance because previous one was reset');
+    assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
   });
 });
-enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject) {
+enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object', 'container/registry', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var engine = undefined;
   var originalLookup = _emberEnvironment.context.lookup;
@@ -21854,6 +21932,55 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
 
     engine.Foo = _emberRuntimeSystemObject.default.extend();
     equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
+  });
+
+  QUnit.test('builds a registry', function () {
+    strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
+    deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
+    deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'renderer', 'dom', 'service:-dom-helper');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'controller:basic');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-helper', 'document', 'service:-document');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'view', '_viewRegistry', '-view-registry:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'view:-outlet', 'namespace', 'application:main');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', 'target', 'router:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', 'namespace', 'application:main');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'router', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', '_bucketCache', _containerRegistry.privatize(_templateObject));
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', 'router', 'router:main');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'component:-text-field');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'component:-text-area');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'component:-checkbox');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'component:link-to');
+
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'service:-routing');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-routing', 'router', 'router:main');
+
+    // DEBUGGING
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'resolver-for-debugging:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'container-debug-adapter:main');
+
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, _containerRegistry.privatize(_templateObject2));
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'template:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'view:-outlet', 'template', 'template:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'template', 'env', 'service:-glimmer-environment');
+      deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
+    } else {
+      deepEqual(engine.registeredOptionsForType('template'), { instantiate: false }, 'optionsForType \'template\'');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'template:-outlet');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:toplevel');
+    }
   });
 });
 enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery) {
@@ -23809,6 +23936,41 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
   QUnit.skip('Test setup', function (assert) {});
 
   QUnit.skip('iframe setup', function (assert) {});
+});
+enifed('ember-application/tests/test-helpers/registry-check', ['exports'], function (exports) {
+  'use strict';
+
+  exports.verifyRegistration = verifyRegistration;
+  exports.verifyInjection = verifyInjection;
+
+  function verifyRegistration(owner, fullName) {
+    ok(owner.resolveRegistration(fullName), 'has registration: ' + fullName);
+  }
+
+  function verifyInjection(owner, fullName, property, injectionName) {
+    var registry = owner.__registry__;
+    var injections = undefined;
+
+    if (fullName.indexOf(':') === -1) {
+      injections = registry.getTypeInjections(fullName);
+    } else {
+      injections = registry.getInjections(registry.normalize(fullName));
+    }
+
+    var normalizedName = registry.normalize(injectionName);
+    var hasInjection = false;
+    var injection = undefined;
+
+    for (var i = 0, l = injections.length; i < l; i++) {
+      injection = injections[i];
+      if (injection.property === property && injection.fullName === normalizedName) {
+        hasInjection = true;
+        break;
+      }
+    }
+
+    ok(hasInjection, 'has injection: ' + fullName + '.' + property + ' = ' + injectionName);
+  }
 });
 enifed('ember-debug/tests/handlers-test', ['exports', 'ember-debug/handlers'], function (exports, _emberDebugHandlers) {
   'use strict';
