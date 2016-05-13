@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5df66184
+ * @version   2.7.0-canary+c7db394f
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5df66184";
+  exports.default = "2.7.0-canary+c7db394f";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11234,19 +11234,6 @@ enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime'
 
   exports.domHelper = domHelper;
 });
-enifed('ember-htmlbars/glimmer-component', ['exports', 'ember-views/views/core_view', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view'], function (exports, _emberViewsViewsCore_view, _emberViewsMixinsView_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView) {
-  'use strict';
-
-  exports.default = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsView_child_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
-    isComponent: true,
-    isGlimmerComponent: true,
-
-    init: function () {
-      this._super.apply(this, arguments);
-      this._viewRegistry = this._viewRegistry || _emberViewsViewsView.default.views;
-    }
-  });
-});
 enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
   /**
   @module ember
@@ -12005,7 +11992,6 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember
   @module ember
   @submodule ember-htmlbars
   */
-
   'use strict';
 
   exports.default = bindSelf;
@@ -12015,18 +12001,10 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember
       if (!!_emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
         scope.bindLocal('view', newStream(self, 'view'));
       }
-
       var _selfStream = newStream(self, '');
-
-      if (self.isGlimmerComponent) {
-        scope.bindSelf(_selfStream);
-      } else {
-        scope.bindSelf(newStream(_selfStream.getKey('context'), ''));
-      }
-
+      scope.bindSelf(newStream(_selfStream.getKey('context'), ''));
       return;
     }
-
     var selfStream = newStream(self, '');
     scope.bindSelf(selfStream);
   }
@@ -12110,19 +12088,23 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-metal/cache', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberMetalCache, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/system/build-component-template'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsSystemBuildComponentTemplate) {
   'use strict';
 
   exports.default = componentHook;
 
-  var IS_ANGLE_CACHE = new _emberMetalCache.default(1000, function (key) {
-    return key.match(/^(@?)<(.*)>$/);
-  });
-
-  function componentHook(renderNode, env, scope, _tagName, params, attrs, templates, visitor) {
+  function componentHook(renderNode, env, scope, _tagName, params, _attrs, templates, visitor) {
     var state = renderNode.getState();
 
     var tagName = _tagName;
+    var attrs = _attrs;
+    if (isAngle(tagName)) {
+      tagName = tagName.slice(1, -1);
+      var block = _emberHtmlbarsSystemBuildComponentTemplate.buildHTMLTemplate(tagName, attrs, { templates: templates, scope: scope });
+      block.invoke(env, [], undefined, renderNode, scope, visitor);
+      return;
+    }
+
     if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DOT_CACHE.get(tagName)) {
       var stream = env.hooks.get(env, scope, tagName);
       var componentCell = stream.value();
@@ -12157,114 +12139,38 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
       return;
     }
 
-    var isAngleBracket = false;
-    var isTopLevel = false;
-    var isDasherized = false;
-
-    var angles = IS_ANGLE_CACHE.get(tagName);
-
-    if (angles) {
-      tagName = angles[2];
-      isAngleBracket = true;
-      isTopLevel = !!angles[1];
-    }
-
-    if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DASH_CACHE.get(tagName)) {
-      isDasherized = true;
-    }
-
     var parentView = env.view;
+    var options = {};
 
-    // | Top-level    | Invocation: <foo-bar>    | Invocation: {{foo-bar}}  |
-    // ----------------------------------------------------------------------
-    // | <div>        | <div> is component el    | no special semantics (a) |
-    // | <foo-bar>    | <foo-bar> is identity el | EWTF                     |
-    // | <bar-baz>    | recursive invocation     | no special semantics     |
-    // | {{anything}} | EWTF                     | no special semantics     |
-    //
-    // (a) needs to be implemented specially, because the usual semantics of
-    //     <div> are defined by the compiled template, and we need to emulate
-    //     those semantics.
-
-    var currentComponent = env.view;
-    var isInvokedWithAngles = currentComponent && currentComponent._isAngleBracket;
-    var isInvokedWithCurlies = currentComponent && !currentComponent._isAngleBracket;
-
-    // <div> at the top level of a <foo-bar> invocation.
-    var isComponentHTMLElement = isAngleBracket && !isDasherized && isInvokedWithAngles;
-
-    // <foo-bar> at the top level of a <foo-bar> invocation.
-    var isComponentIdentityElement = isAngleBracket && isTopLevel && tagName === env.view.tagName;
-
-    // <div> at the top level of a {{foo-bar}} invocation.
-    var isNormalHTMLElement = isAngleBracket && !isDasherized && isInvokedWithCurlies;
-
-    var component = undefined,
-        layout = undefined;
-    if (isDasherized || !isAngleBracket) {
-      var options = {};
-
-      var moduleName = env.meta && env.meta.moduleName;
-
-      if (moduleName) {
-        options.source = 'template:' + moduleName;
-      }
-
-      var result = _emberHtmlbarsUtilsLookupComponent.default(env.owner, tagName, options);
-
-      component = result.component;
-      layout = result.layout;
-
-      if (isAngleBracket && isDasherized && !component && !layout) {
-        isComponentHTMLElement = true;
-      } else {
-        _emberMetalDebug.assert('HTMLBars error: Could not find component named "' + tagName + '" (no component or template with that name was found)', !!(component || layout));
-      }
+    var moduleName = env.meta && env.meta.moduleName;
+    if (moduleName) {
+      options.source = 'template:' + moduleName;
     }
 
-    if (isComponentIdentityElement || isComponentHTMLElement) {
-      // Inside the layout for <foo-bar> invoked with angles, this is the top-level element
-      // for the component. It can either be `<foo-bar>` (the "identity element") or any
-      // normal HTML element (non-dasherized).
-      var templateOptions = {
-        component: currentComponent,
-        tagName: tagName,
-        isAngleBracket: true,
-        isComponentElement: true,
-        outerAttrs: scope.getAttrs(),
-        parentScope: scope
-      };
+    var _lookupComponent = _emberHtmlbarsUtilsLookupComponent.default(env.owner, tagName, options);
 
-      var contentOptions = { templates: templates, scope: scope };
+    var component = _lookupComponent.component;
+    var layout = _lookupComponent.layout;
 
-      var _buildComponentTemplate = _emberHtmlbarsSystemBuildComponentTemplate.default(templateOptions, attrs, contentOptions);
+    _emberMetalDebug.assert('HTMLBars error: Could not find component named "' + tagName + '" (no component or template with that name was found)', !!(component || layout));
 
-      var block = _buildComponentTemplate.block;
+    var manager = _emberHtmlbarsNodeManagersComponentNodeManager.default.create(renderNode, env, {
+      tagName: tagName,
+      params: params,
+      attrs: attrs,
+      parentView: parentView,
+      templates: templates,
+      component: component,
+      layout: layout,
+      parentScope: scope
+    });
 
-      block.invoke(env, [], undefined, renderNode, scope, visitor);
-    } else if (isNormalHTMLElement) {
-      var block = _emberHtmlbarsSystemBuildComponentTemplate.buildHTMLTemplate(tagName, attrs, { templates: templates, scope: scope });
-      block.invoke(env, [], undefined, renderNode, scope, visitor);
-    } else {
-      // Invoking a component from the outside (either via <foo-bar> angle brackets
-      // or {{foo-bar}} legacy curlies).
+    state.manager = manager;
+    manager.render(env, visitor);
+  }
 
-      var manager = _emberHtmlbarsNodeManagersComponentNodeManager.default.create(renderNode, env, {
-        tagName: tagName,
-        params: params,
-        attrs: attrs,
-        parentView: parentView,
-        templates: templates,
-        isAngleBracket: isAngleBracket,
-        isTopLevel: isTopLevel,
-        component: component,
-        layout: layout,
-        parentScope: scope
-      });
-
-      state.manager = manager;
-      manager.render(env, visitor);
-    }
+  function isAngle(tagName) {
+    return tagName.charCodeAt(0) === 60;
   }
 });
 enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsUtils) {
@@ -14139,7 +14045,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
       return isEmpty(state.outletState);
     },
 
-    render: function (renderNode, env, scope, params, hash, template, inverse, visitor) {
+    render: function (renderNode, env, scope, params, hash, _template, inverse, visitor) {
       var state = renderNode.getState();
       var parentView = env.view;
       var outletState = state.outletState;
@@ -14153,33 +14059,19 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
         ViewClass = env.owner._lookupFactory('view:toplevel');
       }
 
-      var Component;
-
-      if (_emberMetalFeatures.default('ember-routing-routable-components')) {
-        Component = outletState.render.Component;
-      }
-
-      var options;
       var attrs = {};
-      if (Component) {
-        options = {
-          component: Component
-        };
-        attrs = toRender.attrs;
-      } else {
-        options = {
-          component: ViewClass,
-          self: toRender.controller,
-          createOptions: {
-            controller: toRender.controller
-          }
-        };
-
-        template = template || toRender.template && toRender.template.raw;
-
-        if (LOG_VIEW_LOOKUPS && ViewClass) {
-          _emberMetalDebug.info('Rendering ' + toRender.name + ' with ' + ViewClass, { fullName: 'view:' + toRender.name });
+      var options = {
+        component: ViewClass,
+        self: toRender.controller,
+        createOptions: {
+          controller: toRender.controller
         }
+      };
+
+      var template = _template || toRender.template && toRender.template.raw;
+
+      if (LOG_VIEW_LOOKUPS && ViewClass) {
+        _emberMetalDebug.info('Rendering ' + toRender.name + ' with ' + ViewClass, { fullName: 'view:' + toRender.name });
       }
 
       if (state.manager) {
@@ -15055,9 +14947,10 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-htmlbars/utils/extract-positional-params', 'ember-metal/symbol', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsUtilsExtractPositionalParams, _emberMetalSymbol, _containerOwner, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/utils/extract-positional-params', 'ember-metal/symbol', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _emberMetalSymbol, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
+  exports.default = ComponentNodeManager;
   exports.createComponent = createComponent;
   exports.takeLegacySnapshot = takeLegacySnapshot;
 
@@ -15070,17 +14963,14 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   // and it gets actively used in addons or other downstream
   // libraries.
 
-  function ComponentNodeManager(component, isAngleBracket, scope, renderNode, attrs, block, expectElement) {
+  function ComponentNodeManager(component, scope, renderNode, attrs, block, expectElement) {
     this.component = component;
-    this.isAngleBracket = isAngleBracket;
     this.scope = scope;
     this.renderNode = renderNode;
     this.attrs = attrs;
     this.block = block;
     this.expectElement = expectElement;
   }
-
-  exports.default = ComponentNodeManager;
 
   ComponentNodeManager.create = function ComponentNodeManager_create(renderNode, env, options) {
     var _createOptions;
@@ -15091,18 +14981,17 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var attrs = _options$attrs === undefined ? {} : _options$attrs;
     var parentView = options.parentView;
     var parentScope = options.parentScope;
-    var isAngleBracket = options.isAngleBracket;
     var component = options.component;
     var layout = options.layout;
     var templates = options.templates;
 
-    component = component || (isAngleBracket ? _emberHtmlbarsGlimmerComponent.default : _emberViewsComponentsComponent.default);
+    component = component || _emberViewsComponentsComponent.default;
 
     var createOptions = (_createOptions = {
       parentView: parentView
     }, _createOptions[HAS_BLOCK] = !!templates.default, _createOptions);
 
-    configureTagName(attrs, tagName, component, isAngleBracket, createOptions);
+    configureTagName(attrs, tagName, component, createOptions);
 
     // Map passed attributes (e.g. <my-component id="foo">) to component
     // properties ({ id: "foo" }).
@@ -15120,7 +15009,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, component, params, attrs);
 
     // Instantiate the component
-    component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs);
+    component = createComponent(component, createOptions, renderNode, env, attrs);
 
     // If the component specifies its layout via the `layout` property
     // instead of using the template looked up in the container, get it
@@ -15129,45 +15018,13 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       layout = _emberMetalProperty_get.get(component, 'layout');
     }
 
-    _emberMetalDebug.runInDebug(function () {
-      if (isAngleBracket) {
-        _emberMetalDebug.assert('You cannot invoke the \'' + tagName + '\' component with angle brackets, because it\'s a subclass of Component. Please upgrade to GlimmerComponent. Alternatively, you can invoke as \'{{' + tagName + '}}\'.', component.isGlimmerComponent);
-      } else {
-        _emberMetalDebug.assert('You cannot invoke the \'' + tagName + '\' component with curly braces, because it\'s a subclass of GlimmerComponent. Please invoke it as \'<' + tagName + '>\' instead.', !component.isGlimmerComponent);
-      }
+    var results = _emberHtmlbarsSystemBuildComponentTemplate.default({ layout: layout, component: component }, attrs, { templates: templates, scope: parentScope });
 
-      if (!layout) {
-        return;
-      }
-
-      var fragmentReason = layout.meta.fragmentReason;
-      if (isAngleBracket && fragmentReason) {
-        switch (fragmentReason.name) {
-          case 'missing-wrapper':
-            _emberMetalDebug.assert('The <' + tagName + '> template must have a single top-level element because it is a GlimmerComponent.');
-            break;
-          case 'modifiers':
-            var modifiers = fragmentReason.modifiers.map(function (m) {
-              return '{{' + m + ' ...}}';
-            });
-            _emberMetalDebug.assert('You cannot use ' + modifiers.join(', ') + ' in the top-level element of the <' + tagName + '> template because it is a GlimmerComponent.');
-            break;
-          case 'triple-curlies':
-            _emberMetalDebug.assert('You cannot use triple curlies (e.g. style={{{ ... }}}) in the top-level element of the <' + tagName + '> template because it is a GlimmerComponent.');
-            break;
-        }
-      }
-    });
-
-    var results = _emberHtmlbarsSystemBuildComponentTemplate.default({ layout: layout, component: component, isAngleBracket: isAngleBracket }, attrs, { templates: templates, scope: parentScope });
-
-    return new ComponentNodeManager(component, isAngleBracket, parentScope, renderNode, attrs, results.block, results.createdElement);
+    return new ComponentNodeManager(component, parentScope, renderNode, attrs, results.block, results.createdElement);
   };
 
-  function configureTagName(attrs, tagName, component, isAngleBracket, createOptions) {
-    if (isAngleBracket) {
-      createOptions.tagName = tagName;
-    } else if (attrs.tagName) {
+  function configureTagName(attrs, tagName, component, createOptions) {
+    if (attrs.tagName) {
       createOptions.tagName = _emberHtmlbarsHooksGetValue.default(attrs.tagName);
     }
   }
@@ -15202,19 +15059,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       }
 
       var element = undefined;
-      if (this.expectElement || component.isGlimmerComponent) {
-        // This code assumes that Glimmer components are never fragments. When
-        // Glimmer components gain fragment powers, we will need to communicate
-        // whether the layout produced a single top-level node or fragment
-        // somehow (either via static information on the template/component, or
-        // dynamically as the layout is being rendered).
+      if (this.expectElement) {
         element = this.renderNode.firstNode;
-
-        // Glimmer components may have whitespace or boundary nodes around the
-        // top-level element.
-        if (element && element.nodeType !== 1) {
-          element = nextElementSibling(element);
-        }
       }
 
       // In environments like FastBoot, disable any hooks that would cause the component
@@ -15227,17 +15073,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       }
     }, this);
   };
-
-  function nextElementSibling(node) {
-    var current = node;
-
-    while (current) {
-      if (current.nodeType === 1) {
-        return current;
-      }
-      current = node.nextSibling;
-    }
-  }
 
   ComponentNodeManager.prototype.rerender = function ComponentNodeManager_rerender(_env, attrs, visitor) {
     var component = this.component;
@@ -15282,18 +15117,12 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     component.destroy();
   };
 
-  function createComponent(_component, isAngleBracket, props, renderNode, env) {
-    var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
+  function createComponent(_component, props, renderNode, env) {
+    var attrs = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
 
-    if (!isAngleBracket) {
-      _emberMetalDebug.assert('controller= is no longer supported', !('controller' in attrs));
+    _emberMetalDebug.assert('controller= is no longer supported', !('controller' in attrs));
 
-      snapshotAndUpdateTarget(attrs, props);
-    } else {
-      props.attrs = takeSnapshot(attrs);
-
-      props._isAngleBracket = true;
-    }
+    snapshotAndUpdateTarget(attrs, props);
 
     _containerOwner.setOwner(props, env.owner);
     props.renderer = props.parentView ? props.parentView.renderer : env.owner.lookup('renderer:-dom');
@@ -15368,6 +15197,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
+  exports.default = ViewNodeManager;
   exports.createOrUpdateComponent = createOrUpdateComponent;
 
   function ViewNodeManager(component, scope, renderNode, block, expectElement) {
@@ -15377,8 +15207,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     this.block = block;
     this.expectElement = expectElement;
   }
-
-  exports.default = ViewNodeManager;
 
   ViewNodeManager.create = function ViewNodeManager_create(renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
     _emberMetalDebug.assert('HTMLBars error: Could not find component named "' + path + '" (no component or template with that name was found)', !!(function () {
@@ -16178,7 +16006,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-views/component_loo
 
   exports.default = bootstrap;
 });
-enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/assign', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalAssign, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberMetalStreamsUtils) {
   'use strict';
 
   exports.default = buildComponentTemplate;
@@ -16188,16 +16016,14 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     var component = _ref.component;
     var tagName = _ref.tagName;
     var layout = _ref.layout;
-    var isAngleBracket = _ref.isAngleBracket;
-    var isComponentElement = _ref.isComponentElement;
     var outerAttrs = _ref.outerAttrs;
-
-    var blockToRender, meta;
 
     if (component === undefined) {
       component = null;
     }
 
+    var blockToRender = undefined,
+        meta = undefined;
     if (layout && layout.raw) {
       var yieldTo = createContentBlocks(content.templates, content.scope, content.self, component);
       blockToRender = createLayoutBlock(layout.raw, yieldTo, content.self, component, attrs);
@@ -16207,17 +16033,14 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
       meta = content.templates.default.meta;
     }
 
-    if (component && !component._isAngleBracket || isComponentElement) {
+    if (component) {
       tagName = tagName || tagNameFor(component);
 
       // If this is not a tagless component, we need to create the wrapping
       // element. We use `manualElement` to create a template that represents
       // the wrapping element and yields to the previous block.
       if (tagName !== '') {
-        if (isComponentElement) {
-          attrs = mergeAttrs(attrs, outerAttrs);
-        }
-        var attributes = normalizeComponentAttributes(component, isAngleBracket, attrs);
+        var attributes = normalizeComponentAttributes(component, attrs);
         var elementTemplate = _htmlbarsRuntime.internal.manualElement(tagName, attributes);
         elementTemplate.meta = meta;
 
@@ -16258,16 +16081,6 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
   }
 
-  function mergeAttrs(innerAttrs, outerAttrs) {
-    var result = _emberMetalAssign.default({}, innerAttrs, outerAttrs);
-
-    if (innerAttrs.class && outerAttrs.class) {
-      result.class = ['subexpr', '-join-classes', [['value', innerAttrs.class], ['value', outerAttrs.class]], []];
-    }
-
-    return result;
-  }
-
   function blockFor(template, options) {
     _emberMetalDebug.assert('BUG: Must pass a template to blockFor', !!template);
     return _htmlbarsRuntime.internal.blockFor(_htmlbarsRuntime.render, template, options);
@@ -16275,7 +16088,6 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
 
   function createContentBlock(template, scope, self, component) {
     _emberMetalDebug.assert('BUG: buildComponentTemplate can take a scope or a self, but not both', !(scope && self));
-
     return blockFor(template, {
       scope: scope,
       self: self,
@@ -16338,11 +16150,10 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
 
   // Takes a component and builds a normalized set of attribute
   // bindings consumable by HTMLBars' `attribute` hook.
-  function normalizeComponentAttributes(component, isAngleBracket, attrs) {
+  function normalizeComponentAttributes(component, attrs) {
     var normalized = {};
     var attributeBindings = component.attributeBindings;
     var streamBasePath = component.isComponent ? '' : 'view.';
-    var i;
 
     if (attrs.id && _emberHtmlbarsHooksGetValue.default(attrs.id)) {
       // Do not allow binding to the `id`
@@ -16353,11 +16164,12 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
 
     if (attributeBindings) {
-      for (i = 0; i < attributeBindings.length; i++) {
+      for (var i = 0; i < attributeBindings.length; i++) {
         var attr = attributeBindings[i];
         var colonIndex = attr.indexOf(':');
 
-        var attrName, expression;
+        var attrName = undefined,
+            expression = undefined;
         if (colonIndex !== -1) {
           var attrProperty = attr.substring(0, colonIndex);
           attrName = attr.substring(colonIndex + 1);
@@ -16375,21 +16187,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
         }
 
         _emberMetalDebug.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attrName !== 'class');
-
         normalized[attrName] = expression;
-      }
-    }
-
-    if (isAngleBracket) {
-      for (var prop in attrs) {
-        var val = attrs[prop];
-        if (!val) {
-          continue;
-        }
-
-        if (typeof val === 'string' || val.isConcat) {
-          normalized[prop] = ['value', val];
-        }
       }
     }
 
@@ -16398,7 +16196,6 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
 
     var normalizedClass = normalizeClass(component, attrs, streamBasePath);
-
     if (normalizedClass) {
       normalized.class = normalizedClass;
     }
@@ -29970,25 +29767,22 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
     }
   }
 
-  function buildRenderOptions(route, namePassed, isDefaultRender, name, options) {
-    var controller = options && options.controller;
-    var templateName;
-    var viewName;
-    var ViewClass;
-    var template;
-    var LOG_VIEW_LOOKUPS = _emberMetalProperty_get.get(route.router, 'namespace.LOG_VIEW_LOOKUPS');
+  function buildRenderOptions(route, namePassed, isDefaultRender, _name, options) {
     var into = options && options.into && options.into.replace(/\//g, '.');
     var outlet = options && options.outlet || 'main';
-    var owner = _containerOwner.getOwner(route);
 
-    if (name) {
-      name = name.replace(/\//g, '.');
+    var name = undefined,
+        templateName = undefined;
+    if (_name) {
+      name = _name.replace(/\//g, '.');
       templateName = name;
     } else {
       name = route.routeName;
       templateName = route.templateName || name;
     }
 
+    var owner = _containerOwner.getOwner(route);
+    var controller = options && options.controller;
     if (!controller) {
       if (namePassed) {
         controller = owner.lookup('controller:' + name) || route.controllerName || route.routeName;
@@ -30013,11 +29807,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
       controller.set('model', options.model);
     }
 
-    viewName = options && options.view || namePassed && name || route.viewName || name;
-    ViewClass = owner._lookupFactory('view:' + viewName);
-    template = owner.lookup('template:' + templateName);
+    var viewName = options && options.view || namePassed && name || route.viewName || name;
+    var ViewClass = owner._lookupFactory('view:' + viewName);
+    var template = owner.lookup('template:' + templateName);
 
-    var parent;
+    var parent = undefined;
     if (into && (parent = parentRoute(route)) && into === parentRoute(route).routeName) {
       into = undefined;
     }
@@ -30032,25 +29826,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
       template: template || route._topLevelViewTemplate
     };
 
-    var Component = undefined;
-    if (_emberMetalFeatures.default('ember-routing-routable-components')) {
-      var componentName = options && options.component || namePassed && name || route.componentName || name;
-      var componentLookup = owner.lookup('component-lookup:main');
-      Component = componentLookup.lookupFactory(componentName);
-      var isGlimmerComponent = Component && Component.proto().isGlimmerComponent;
-      if (!template && !ViewClass && Component && isGlimmerComponent) {
-        renderOptions.Component = Component;
-        renderOptions.ViewClass = undefined;
-        renderOptions.attrs = { model: _emberMetalProperty_get.get(controller, 'model') };
-      }
-    }
+    _emberMetalDebug.assert('Could not find "' + name + '" template, view, or component.', isDefaultRender || ViewClass || template);
 
-    if (!ViewClass && !template && !Component) {
-      _emberMetalDebug.assert('Could not find "' + name + '" template, view, or component.', isDefaultRender);
-      if (LOG_VIEW_LOOKUPS) {
-        var fullName = 'template:' + name;
-        _emberMetalDebug.info('Could not find "' + name + '" template or view. Nothing will be rendered', { fullName: fullName });
-      }
+    var LOG_VIEW_LOOKUPS = _emberMetalProperty_get.get(route.router, 'namespace.LOG_VIEW_LOOKUPS');
+    if (LOG_VIEW_LOOKUPS && !ViewClass && !template) {
+      _emberMetalDebug.info('Could not find "' + name + '" template or view. Nothing will be rendered', { fullName: 'template:' + name });
     }
 
     return renderOptions;
@@ -45029,9 +44809,6 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
   };
 
   AttrsProxyMixin[_emberMetalProperty_events.PROPERTY_DID_CHANGE] = function (key) {
-    if (this._isAngleBracket) {
-      return;
-    }
     if (this._isDispatchingAttrs) {
       return;
     }
