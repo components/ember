@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+38a1da1e
+ * @version   2.7.0-canary+23b01c50
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+38a1da1e";
+  exports.default = "2.7.0-canary+23b01c50";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -45807,54 +45807,19 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
   exports.default = _emberMetalMixin.Mixin.create(AttrsProxyMixin);
 });
-enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-runtime/system/object', 'ember-htmlbars/component', 'ember-htmlbars/system/lookup-helper', 'container/owner'], function (exports, _emberMetalDebug, _emberRuntimeSystemObject, _emberHtmlbarsComponent, _emberHtmlbarsSystemLookupHelper, _containerOwner) {
+enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-runtime/system/object'], function (exports, _emberMetalDebug, _emberRuntimeSystemObject) {
   'use strict';
 
   exports.default = _emberRuntimeSystemObject.default.extend({
-    invalidName: function (name) {
-      if (!_emberHtmlbarsSystemLookupHelper.CONTAINS_DASH_CACHE.get(name)) {
-        _emberMetalDebug.assert('You cannot use \'' + name + '\' as a component name. Component names must contain a hyphen.');
-        return true;
-      }
-    },
-
-    lookupFactory: function (name, owner) {
-      owner = owner || _containerOwner.getOwner(this);
-
-      var fullName = 'component:' + name;
-      var templateFullName = 'template:components/' + name;
-      var templateRegistered = owner && owner.hasRegistration(templateFullName);
-
-      if (templateRegistered) {
-        owner.inject(fullName, 'layout', templateFullName);
-      }
-
-      var Component = owner._lookupFactory(fullName);
-
-      // Only treat as a component if either the component
-      // or a template has been registered.
-      if (templateRegistered || Component) {
-        if (!Component) {
-          owner.register(fullName, _emberHtmlbarsComponent.default);
-          Component = owner._lookupFactory(fullName);
-        }
-        return Component;
-      }
-    },
-
     componentFor: function (name, owner, options) {
-      if (this.invalidName(name)) {
-        return;
-      }
+      _emberMetalDebug.assert('You cannot use \'' + name + '\' as a component name. Component names must contain a hyphen.', ~name.indexOf('-'));
 
       var fullName = 'component:' + name;
       return owner._lookupFactory(fullName, options);
     },
 
     layoutFor: function (name, owner, options) {
-      if (this.invalidName(name)) {
-        return;
-      }
+      _emberMetalDebug.assert('You cannot use \'' + name + '\' as a component name. Component names must contain a hyphen.', ~name.indexOf('-'));
 
       var templateFullName = 'template:components/' + name;
       return owner.lookup(templateFullName, options);
@@ -47794,7 +47759,6 @@ enifed('ember-views/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   'use strict';
 
   exports.readViewFactory = readViewFactory;
-  exports.readComponentFactory = readComponentFactory;
   exports.readUnwrappedModel = readUnwrappedModel;
 
   function readViewFactory(object, owner) {
@@ -47813,14 +47777,6 @@ enifed('ember-views/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
     })(viewClass));
 
     return viewClass;
-  }
-
-  function readComponentFactory(nameOrStream, owner) {
-    var name = _emberMetalStreamsUtils.read(nameOrStream);
-    var componentLookup = owner.lookup('component-lookup:main');
-    _emberMetalDebug.assert('Could not find \'component-lookup:main\' on the provided container, ' + 'which is necessary for performing component lookups', componentLookup);
-
-    return componentLookup.lookupFactory(name, owner);
   }
 
   function readUnwrappedModel(object) {
