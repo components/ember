@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "2.5.1",
+  "version": "2.5.1+064046c7",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
   "main": [
