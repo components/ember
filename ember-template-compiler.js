@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+23b01c50
+ * @version   2.7.0-canary+540ec4ff
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+23b01c50";
+  exports.default = "2.7.0-canary+540ec4ff";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -12127,33 +12127,15 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     @param {AST} The AST to be transformed.
   */
   TransformTopLevelComponents.prototype.transform = function TransformTopLevelComponents_transform(ast) {
-    var b = this.syntax.builders;
-
     hasSingleComponentNode(ast, function (component) {
-      if (component.type === 'ComponentNode') {
-        component.tag = '@' + component.tag;
-        component.isStatic = true;
-      }
-    }, function (element) {
-      var hasTripleCurlies = element.attributes.some(function (attr) {
-        return attr.value.escaped === false;
-      });
-
-      if (element.modifiers.length || hasTripleCurlies) {
-        return element;
-      } else {
-        // TODO: Properly copy loc from children
-        var program = b.program(element.children);
-        var component = b.component('@<' + element.tag + '>', element.attributes, program, element.loc);
-        component.isStatic = true;
-        return component;
-      }
+      component.tag = '@' + component.tag;
+      component.isStatic = true;
     });
 
     return ast;
   };
 
-  function hasSingleComponentNode(program, componentCallback, elementCallback) {
+  function hasSingleComponentNode(program, componentCallback) {
     var loc = program.loc;
     var body = program.body;
 
