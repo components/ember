@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.4
+ * @version   2.6.0-beta.4+9fad3c42
  */
 
 var enifed, requireModule, require, Ember;
@@ -53327,7 +53327,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
 
     expectAssertion(function () {
       _emberRuntimeSystemObject.default.create(myMixin);
-    }, 'Ember.Object.create no longer supports mixing in other definitions, use .extend & .create seperately instead.');
+    }, 'Ember.Object.create no longer supports mixing in other definitions, use .extend & .create separately instead.');
   });
 
   // This test is for IE8.
@@ -55316,7 +55316,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.6.0-beta.4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.6.0-beta.4+9fad3c42', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

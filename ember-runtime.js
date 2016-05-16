@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.4
+ * @version   2.6.0-beta.4+9fad3c42
  */
 
 var enifed, requireModule, require, Ember;
@@ -4781,7 +4781,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.4
+    @version 2.6.0-beta.4+9fad3c42
     @public
   */
 
@@ -4823,11 +4823,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.4'
+    @default '2.6.0-beta.4+9fad3c42'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.4';
+  Ember.VERSION = '2.6.0-beta.4+9fad3c42';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18509,7 +18509,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
         for (var i = 0, l = props.length; i < l; i++) {
           var properties = props[i];
 
-          _emberMetalDebug.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create seperately instead.', !(properties instanceof _emberMetalMixin.Mixin));
+          _emberMetalDebug.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetalMixin.Mixin));
 
           if (typeof properties !== 'object' && properties !== undefined) {
             throw new _emberMetalError.default('Ember.Object.create only accepts objects.');
