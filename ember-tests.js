@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+540ec4ff
+ * @version   2.7.0-canary+ee55672f
  */
 
 var enifed, requireModule, require, Ember;
@@ -26584,7 +26584,7 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set) {
+enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/computed', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalComputed, _emberGlimmerTestsUtilsTestHelpers) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -26818,6 +26818,40 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
 
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
+    };
+
+    _class.prototype['@test bound computed properties can be overriden in extensions, set during init, and passed in as attrs'] = function testBoundComputedPropertiesCanBeOverridenInExtensionsSetDuringInitAndPassedInAsAttrs() {
+      var FooClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        attributeBindings: ['style'],
+        style: _emberMetalComputed.computed('height', 'color', function () {
+          var height = this.get('height');
+          var color = this.get('color');
+          return 'height: ' + height + 'px; background-color: ' + color + ';';
+        }),
+        color: 'red',
+        height: 20
+      });
+
+      var BarClass = FooClass.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.height = 150;
+        },
+        color: 'yellow'
+      });
+
+      this.registerComponent('x-foo', { ComponentClass: FooClass });
+      this.registerComponent('x-bar', { ComponentClass: BarClass });
+
+      this.render('{{x-foo}}{{x-bar}}{{x-bar color="green"}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 20px; background-color: red;') } });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 150px; background-color: yellow;') } });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 150px; background-color: green;') } });
+
+      this.assertStableRerender();
+
+      // No U-R
     };
 
     return _class;
@@ -38431,7 +38465,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed) {
+enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberGlimmerTestsUtilsTestHelpers) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -38810,6 +38844,134 @@ enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'embe
     };
 
     return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Mutable Bindings used in Computed Properties that are bound as attributeBindings', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test an attribute binding of a computed property of a 2-way bound attr recomputes when the attr changes'] = function testAnAttributeBindingOfAComputedPropertyOfA2WayBoundAttrRecomputesWhenTheAttrChanges(assert) {
+      var _this6 = this;
+
+      var input = undefined,
+          output = undefined;
+
+      this.registerComponent('x-input', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            input = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-output', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['style'],
+          didInsertElement: function () {
+            output = this;
+          },
+          style: _emberMetalComputed.computed('height', function () {
+            var height = this.get('height');
+            return 'height: ' + height + 'px;';
+          }),
+          height: 20
+        }),
+        template: '{{height}}'
+      });
+
+      this.render('{{x-output height=height}}{{x-input height=(mut height)}}', {
+        height: 60
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 60px;') }, content: '60' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return input.attrs.height.update(35);
+      });
+
+      assert.strictEqual(_emberMetalProperty_get.get(output, 'height'), 35, 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'height'), 35, 'the set propagated back up');
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 35px;') }, content: '35' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'height', 60);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 60px;') }, content: '60' });
+      assert.strictEqual(_emberMetalProperty_get.get(input, 'height'), 60);
+    };
+
+    _class2.prototype['@test an attribute binding of a computed property with a setter of a 2-way bound attr recomputes when the attr changes'] = function testAnAttributeBindingOfAComputedPropertyWithASetterOfA2WayBoundAttrRecomputesWhenTheAttrChanges(assert) {
+      var _this7 = this;
+
+      var input = undefined,
+          output = undefined;
+
+      this.registerComponent('x-input', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            input = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-output', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['style'],
+          didInsertElement: function () {
+            output = this;
+          },
+          style: _emberMetalComputed.computed('height', 'width', function () {
+            var height = this.get('height');
+            var width = this.get('width');
+            return 'height: ' + height + 'px; width: ' + width + 'px;';
+          }),
+          height: 20,
+          width: _emberMetalComputed.computed('height', {
+            get: function () {
+              return this.get('height') * 2;
+            },
+            set: function (keyName, width) {
+              this.set('height', width / 2);
+              return width;
+            }
+          })
+        }),
+        template: '{{width}}x{{height}}'
+      });
+
+      this.render('{{x-output width=width}}{{x-input width=(mut width)}}', {
+        width: 70
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 35px; width: 70px;') }, content: '70x35' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return input.attrs.width.update(80);
+      });
+
+      assert.strictEqual(_emberMetalProperty_get.get(output, 'width'), 80, 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'width'), 80, 'the set propagated back up');
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 40px; width: 80px;') }, content: '80x40' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'width', 70);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberGlimmerTestsUtilsTestHelpers.styles('height: 35px; width: 70px;') }, content: '70x35' });
+      assert.strictEqual(_emberMetalProperty_get.get(input, 'width'), 70);
+    };
+
+    return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
@@ -42019,6 +42181,7 @@ enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'simple-html-tokeni
   exports.equalsElement = equalsElement;
   exports.regex = regex;
   exports.classes = classes;
+  exports.styles = styles;
 
   function generateTokens(containerOrHTML) {
     if (typeof containerOrHTML === 'string') {
@@ -42140,12 +42303,33 @@ enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'simple-html-tokeni
 
     return _ref3 = {}, _ref3[MATCHER_BRAND] = true, _ref3.match = function (actual) {
       actual = actual.trim();
-      return actual && expected.split(/\s+/).sort().join(' ') === actual.split(/\s+/).sort().join(' ');
+      return actual && expected.split(/\s+/).sort().join(' ') === actual.trim().split(/\s+/).sort().join(' ');
     }, _ref3.expected = function () {
       return expected;
     }, _ref3.message = function () {
-      return 'should match ' + this.expected;
+      return 'should match ' + this.expected();
     }, _ref3;
+  }
+
+  function styles(expected) {
+    var _ref4;
+
+    return _ref4 = {}, _ref4[MATCHER_BRAND] = true, _ref4.match = function (actual) {
+      actual = actual.trim();
+      return actual && expected.split(';').map(function (s) {
+        return s.trim();
+      }).filter(function (s) {
+        return s;
+      }).sort().join('; ') === actual.split(';').map(function (s) {
+        return s.trim();
+      }).filter(function (s) {
+        return s;
+      }).sort().join('; ');
+    }, _ref4.expected = function () {
+      return expected;
+    }, _ref4.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref4;
   }
 });
 enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
@@ -46101,7 +46285,7 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set) {
+enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/computed', 'ember-htmlbars/tests/utils/test-helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalComputed, _emberHtmlbarsTestsUtilsTestHelpers) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -46335,6 +46519,40 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
 
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
+    };
+
+    _class.prototype['@test bound computed properties can be overriden in extensions, set during init, and passed in as attrs'] = function testBoundComputedPropertiesCanBeOverridenInExtensionsSetDuringInitAndPassedInAsAttrs() {
+      var FooClass = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        attributeBindings: ['style'],
+        style: _emberMetalComputed.computed('height', 'color', function () {
+          var height = this.get('height');
+          var color = this.get('color');
+          return 'height: ' + height + 'px; background-color: ' + color + ';';
+        }),
+        color: 'red',
+        height: 20
+      });
+
+      var BarClass = FooClass.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.height = 150;
+        },
+        color: 'yellow'
+      });
+
+      this.registerComponent('x-foo', { ComponentClass: FooClass });
+      this.registerComponent('x-bar', { ComponentClass: BarClass });
+
+      this.render('{{x-foo}}{{x-bar}}{{x-bar color="green"}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 20px; background-color: red;') } });
+      this.assertComponentElement(this.nthChild(1), { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 150px; background-color: yellow;') } });
+      this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 150px; background-color: green;') } });
+
+      this.assertStableRerender();
+
+      // No U-R
     };
 
     return _class;
@@ -57948,7 +58166,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils/test-helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtilsTestHelpers) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -58327,6 +58545,134 @@ enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'emb
     };
 
     return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Mutable Bindings used in Computed Properties that are bound as attributeBindings', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test an attribute binding of a computed property of a 2-way bound attr recomputes when the attr changes'] = function testAnAttributeBindingOfAComputedPropertyOfA2WayBoundAttrRecomputesWhenTheAttrChanges(assert) {
+      var _this6 = this;
+
+      var input = undefined,
+          output = undefined;
+
+      this.registerComponent('x-input', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            input = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-output', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['style'],
+          didInsertElement: function () {
+            output = this;
+          },
+          style: _emberMetalComputed.computed('height', function () {
+            var height = this.get('height');
+            return 'height: ' + height + 'px;';
+          }),
+          height: 20
+        }),
+        template: '{{height}}'
+      });
+
+      this.render('{{x-output height=height}}{{x-input height=(mut height)}}', {
+        height: 60
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 60px;') }, content: '60' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return input.attrs.height.update(35);
+      });
+
+      assert.strictEqual(_emberMetalProperty_get.get(output, 'height'), 35, 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'height'), 35, 'the set propagated back up');
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 35px;') }, content: '35' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'height', 60);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 60px;') }, content: '60' });
+      assert.strictEqual(_emberMetalProperty_get.get(input, 'height'), 60);
+    };
+
+    _class2.prototype['@test an attribute binding of a computed property with a setter of a 2-way bound attr recomputes when the attr changes'] = function testAnAttributeBindingOfAComputedPropertyWithASetterOfA2WayBoundAttrRecomputesWhenTheAttrChanges(assert) {
+      var _this7 = this;
+
+      var input = undefined,
+          output = undefined;
+
+      this.registerComponent('x-input', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          didInsertElement: function () {
+            input = this;
+          }
+        })
+      });
+
+      this.registerComponent('x-output', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['style'],
+          didInsertElement: function () {
+            output = this;
+          },
+          style: _emberMetalComputed.computed('height', 'width', function () {
+            var height = this.get('height');
+            var width = this.get('width');
+            return 'height: ' + height + 'px; width: ' + width + 'px;';
+          }),
+          height: 20,
+          width: _emberMetalComputed.computed('height', {
+            get: function () {
+              return this.get('height') * 2;
+            },
+            set: function (keyName, width) {
+              this.set('height', width / 2);
+              return width;
+            }
+          })
+        }),
+        template: '{{width}}x{{height}}'
+      });
+
+      this.render('{{x-output width=width}}{{x-input width=(mut width)}}', {
+        width: 70
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 35px; width: 70px;') }, content: '70x35' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return input.attrs.width.update(80);
+      });
+
+      assert.strictEqual(_emberMetalProperty_get.get(output, 'width'), 80, 'the set took effect');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'width'), 80, 'the set propagated back up');
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 40px; width: 80px;') }, content: '80x40' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'width', 70);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { style: _emberHtmlbarsTestsUtilsTestHelpers.styles('height: 35px; width: 70px;') }, content: '70x35' });
+      assert.strictEqual(_emberMetalProperty_get.get(input, 'width'), 70);
+    };
+
+    return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
@@ -61823,6 +62169,7 @@ enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-token
   exports.equalsElement = equalsElement;
   exports.regex = regex;
   exports.classes = classes;
+  exports.styles = styles;
 
   function generateTokens(containerOrHTML) {
     if (typeof containerOrHTML === 'string') {
@@ -61944,12 +62291,33 @@ enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-token
 
     return _ref3 = {}, _ref3[MATCHER_BRAND] = true, _ref3.match = function (actual) {
       actual = actual.trim();
-      return actual && expected.split(/\s+/).sort().join(' ') === actual.split(/\s+/).sort().join(' ');
+      return actual && expected.split(/\s+/).sort().join(' ') === actual.trim().split(/\s+/).sort().join(' ');
     }, _ref3.expected = function () {
       return expected;
     }, _ref3.message = function () {
-      return 'should match ' + this.expected;
+      return 'should match ' + this.expected();
     }, _ref3;
+  }
+
+  function styles(expected) {
+    var _ref4;
+
+    return _ref4 = {}, _ref4[MATCHER_BRAND] = true, _ref4.match = function (actual) {
+      actual = actual.trim();
+      return actual && expected.split(';').map(function (s) {
+        return s.trim();
+      }).filter(function (s) {
+        return s;
+      }).sort().join('; ') === actual.split(';').map(function (s) {
+        return s.trim();
+      }).filter(function (s) {
+        return s;
+      }).sort().join('; ');
+    }, _ref4.expected = function () {
+      return expected;
+    }, _ref4.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref4;
   }
 });
 enifed('ember-htmlbars/tests/utils', ['exports', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
