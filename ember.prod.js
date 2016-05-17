@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+863b69e9
+ * @version   2.7.0-canary+87bf1fc0
  */
 
 var enifed, requireModule, require, Ember;
@@ -3733,7 +3733,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+863b69e9";
+  exports.default = "2.7.0-canary+87bf1fc0";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -3833,45 +3833,17 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       // appended to the rootElement, in the case of apps, to the fixture harness
       // in tests, or rendered to a string in the case of FastBoot.
       this.register('-application-instance:main', this, { instantiate: false });
-
-      this._booted = false;
     },
 
     /**
-      Initialize the `Ember.ApplicationInstance` and return a promise that resolves
-      with the instance itself when the boot process is complete.
-       The primary task here is to run any registered instance initializers.
-       See the documentation on `BootOptions` for the options it takes.
-       @private
-      @method boot
-      @param options
-      @return {Promise<Ember.ApplicationInstance,Error>}
-    */
-    boot: function () {
-      var _this = this;
-
-      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-      if (this._bootPromise) {
-        return this._bootPromise;
-      }
-
-      this._bootPromise = new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
-        return resolve(_this._bootSync(options));
-      });
-
-      return this._bootPromise;
-    },
-
-    /**
-      Unfortunately, a lot of existing code assumes booting an instance is
-      synchronous – specifically, a lot of tests assumes the last call to
-      `app.advanceReadiness()` or `app.reset()` will result in a new instance
-      being fully-booted when the current runloop completes.
-       We would like new code (like the `visit` API) to stop making this assumption,
-      so we created the asynchronous version above that returns a promise. But until
-      we have migrated all the code, we would have to expose this method for use
-      *internally* in places where we need to boot an instance synchronously.
+      Overrides the base `EngineInstance._bootSync` method with concerns relevant
+      to booting application (instead of engine) instances.
+       This method should only contain synchronous boot concerns. Asynchronous
+      boot concerns should eventually be moved to the `boot` method, which
+      returns a promise.
+       Until all boot code has been made asynchronous, we need to continue to
+      expose this method for use *internally* in places where we need to boot an
+      instance synchronously.
        @private
     */
     _bootSync: function (options) {
@@ -3881,21 +3853,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
       options = new BootOptions(options);
 
-      var registry = this.__registry__;
-
-      registry.register('-environment:main', options.toEnvironment(), { instantiate: false });
-      registry.injection('view', '_environment', '-environment:main');
-      registry.injection('route', '_environment', '-environment:main');
-
-      registry.register('service:-document', options.document, { instantiate: false });
-
-      if (options.isInteractive) {
-        registry.injection('view', 'renderer', 'renderer:-dom');
-        registry.injection('component', 'renderer', 'renderer:-dom');
-      } else {
-        registry.injection('view', 'renderer', 'renderer:-inert');
-        registry.injection('component', 'renderer', 'renderer:-inert');
-      }
+      this.setupRegistry(options);
 
       if (options.rootElement) {
         this.rootElement = options.rootElement;
@@ -3917,6 +3875,24 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       this._booted = true;
 
       return this;
+    },
+
+    setupRegistry: function (options) {
+      var registry = this.__registry__;
+
+      registry.register('-environment:main', options.toEnvironment(), { instantiate: false });
+      registry.injection('view', '_environment', '-environment:main');
+      registry.injection('route', '_environment', '-environment:main');
+
+      registry.register('service:-document', options.document, { instantiate: false });
+
+      if (options.isInteractive) {
+        registry.injection('view', 'renderer', 'renderer:-dom');
+        registry.injection('component', 'renderer', 'renderer:-dom');
+      } else {
+        registry.injection('view', 'renderer', 'renderer:-inert');
+        registry.injection('component', 'renderer', 'renderer:-inert');
+      }
     },
 
     router: _emberMetalComputed.computed(function () {
@@ -4018,7 +3994,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @return {Promise}
     */
     visit: function (url) {
-      var _this2 = this;
+      var _this = this;
 
       this.setupRouter();
 
@@ -4029,7 +4005,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
         return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
           // TODO: why is this necessary? Shouldn't 'actions' queue be enough?
           // Also, aren't proimses supposed to be async anyway?
-          _emberMetalRun_loop.default.next(null, resolve, _this2);
+          _emberMetalRun_loop.default.next(null, resolve, _this);
         });
       };
 
@@ -5257,7 +5233,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   exports.default = Application;
 });
-enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-metal/run_loop'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberMetalRun_loop) {
+enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
   /**
   @module ember
   @submodule ember-application
@@ -5303,6 +5279,58 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
       // Create a per-instance container from the instance's registry
       this.__container__ = registry.container({ owner: this });
+
+      this._booted = false;
+    },
+
+    /**
+      Initialize the `Ember.EngineInstance` and return a promise that resolves
+      with the instance itself when the boot process is complete.
+       The primary task here is to run any registered instance initializers.
+       See the documentation on `BootOptions` for the options it takes.
+       @private
+      @method boot
+      @param options {Object}
+      @return {Promise<Ember.EngineInstance,Error>}
+    */
+    boot: function () {
+      var _this = this;
+
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      if (this._bootPromise) {
+        return this._bootPromise;
+      }
+
+      this._bootPromise = new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+        return resolve(_this._bootSync(options));
+      });
+
+      return this._bootPromise;
+    },
+
+    /**
+      Unfortunately, a lot of existing code assumes booting an instance is
+      synchronous – specifically, a lot of tests assume the last call to
+      `app.advanceReadiness()` or `app.reset()` will result in a new instance
+      being fully-booted when the current runloop completes.
+       We would like new code (like the `visit` API) to stop making this
+      assumption, so we created the asynchronous version above that returns a
+      promise. But until we have migrated all the code, we would have to expose
+      this method for use *internally* in places where we need to boot an instance
+      synchronously.
+       @private
+    */
+    _bootSync: function (options) {
+      if (this._booted) {
+        return this;
+      }
+
+      this.base.runInstanceInitializers(this);
+
+      this._booted = true;
+
+      return this;
     },
 
     /**
@@ -5384,6 +5412,25 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     },
 
     /**
+      A private flag indicating whether an engine's initializers have run yet.
+       @private
+      @property _initializersRan
+    */
+    _initializersRan: false,
+
+    /**
+      Ensure that initializers are run once, and only once, per Engine.
+       @private
+      @method ensureInitializers
+    */
+    ensureInitializers: function () {
+      if (!this._initializersRan) {
+        this.runInitializers();
+        this._initializersRan = true;
+      }
+    },
+
+    /**
       Create an EngineInstance for this application.
        @private
       @method buildInstance
@@ -5392,6 +5439,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     buildInstance: function () {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
+      this.ensureInitializers();
       options.base = this;
       return _emberApplicationSystemEngineInstance.default.create(options);
     },

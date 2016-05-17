@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+863b69e9
+ * @version   2.7.0-canary+87bf1fc0
  */
 
 var enifed, requireModule, require, Ember;
@@ -22046,6 +22046,734 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
     ok(application.Email.detectInstance(user.get('communication')));
   });
 });
+enifed('ember-application/tests/system/engine_initializers_test', ['exports', 'ember-metal/run_loop', 'ember-application/system/engine'], function (exports, _emberMetalRun_loop, _emberApplicationSystemEngine) {
+  'use strict';
+
+  var MyEngine = undefined,
+      myEngine = undefined,
+      myEngineInstance = undefined;
+
+  QUnit.module('Ember.Engine initializers', {
+    setup: function () {},
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        if (myEngineInstance) {
+          myEngineInstance.destroy();
+        }
+
+        if (myEngine) {
+          myEngine.destroy();
+        }
+      });
+    }
+  });
+
+  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    expectAssertion(function () {
+      _emberMetalRun_loop.default(function () {
+        MyEngine.initializer({ name: 'initializer' });
+      });
+    });
+
+    expectAssertion(function () {
+      _emberMetalRun_loop.default(function () {
+        MyEngine.initializer({ initialize: function () {} });
+      });
+    });
+  });
+
+  QUnit.test('initializers are passed an Engine', function () {
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.initializer({
+      name: 'initializer',
+      initialize: function (engine) {
+        ok(engine instanceof _emberApplicationSystemEngine.default, 'initialize is passed an Engine');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+  });
+
+  QUnit.test('initializers can be registered in a specified order', function () {
+    var order = [];
+
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+    MyEngine.initializer({
+      name: 'fourth',
+      after: 'third',
+      initialize: function (engine) {
+        order.push('fourth');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'second',
+      after: 'first',
+      before: 'third',
+      initialize: function (engine) {
+        order.push('second');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'fifth',
+      after: 'fourth',
+      before: 'sixth',
+      initialize: function (engine) {
+        order.push('fifth');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'first',
+      before: 'second',
+      initialize: function (engine) {
+        order.push('first');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'third',
+      initialize: function (engine) {
+        order.push('third');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'sixth',
+      initialize: function (engine) {
+        order.push('sixth');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+  });
+
+  QUnit.test('initializers can be registered in a specified order as an array', function () {
+    var order = [];
+
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.initializer({
+      name: 'third',
+      initialize: function (engine) {
+        order.push('third');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'second',
+      after: 'first',
+      before: ['third', 'fourth'],
+      initialize: function (engine) {
+        order.push('second');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'fourth',
+      after: ['second', 'third'],
+      initialize: function (engine) {
+        order.push('fourth');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'fifth',
+      after: 'fourth',
+      before: 'sixth',
+      initialize: function (engine) {
+        order.push('fifth');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'first',
+      before: ['second'],
+      initialize: function (engine) {
+        order.push('first');
+      }
+    });
+
+    MyEngine.initializer({
+      name: 'sixth',
+      initialize: function (engine) {
+        order.push('sixth');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+  });
+
+  QUnit.test('initializers can have multiple dependencies', function () {
+    var order = [];
+
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    var a = {
+      name: 'a',
+      before: 'b',
+      initialize: function (engine) {
+        order.push('a');
+      }
+    };
+    var b = {
+      name: 'b',
+      initialize: function (engine) {
+        order.push('b');
+      }
+    };
+    var c = {
+      name: 'c',
+      after: 'b',
+      initialize: function (engine) {
+        order.push('c');
+      }
+    };
+    var afterB = {
+      name: 'after b',
+      after: 'b',
+      initialize: function (engine) {
+        order.push('after b');
+      }
+    };
+    var afterC = {
+      name: 'after c',
+      after: 'c',
+      initialize: function (engine) {
+        order.push('after c');
+      }
+    };
+
+    MyEngine.initializer(b);
+    MyEngine.initializer(a);
+    MyEngine.initializer(afterC);
+    MyEngine.initializer(afterB);
+    MyEngine.initializer(c);
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+    ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+    ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+    ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+  });
+
+  QUnit.test('initializers set on Engine subclasses are not shared between engines', function () {
+    var firstInitializerRunCount = 0;
+    var secondInitializerRunCount = 0;
+    var FirstEngine = _emberApplicationSystemEngine.default.extend();
+
+    FirstEngine.initializer({
+      name: 'first',
+      initialize: function (engine) {
+        firstInitializerRunCount++;
+      }
+    });
+
+    var SecondEngine = _emberApplicationSystemEngine.default.extend();
+
+    SecondEngine.initializer({
+      name: 'second',
+      initialize: function (engine) {
+        secondInitializerRunCount++;
+      }
+    });
+
+    var firstEngine = FirstEngine.create();
+    var firstEngineInstance = firstEngine.buildInstance();
+
+    equal(firstInitializerRunCount, 1, 'first initializer only was run');
+    equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+    var secondEngine = SecondEngine.create();
+    var secondEngineInstance = secondEngine.buildInstance();
+
+    equal(firstInitializerRunCount, 1, 'second initializer only was run');
+    equal(secondInitializerRunCount, 1, 'second initializer only was run');
+
+    _emberMetalRun_loop.default(function () {
+      firstEngineInstance.destroy();
+      secondEngineInstance.destroy();
+
+      firstEngine.destroy();
+      secondEngine.destroy();
+    });
+  });
+
+  QUnit.test('initializers are concatenated', function () {
+    var firstInitializerRunCount = 0;
+    var secondInitializerRunCount = 0;
+    var FirstEngine = _emberApplicationSystemEngine.default.extend();
+
+    FirstEngine.initializer({
+      name: 'first',
+      initialize: function (engine) {
+        firstInitializerRunCount++;
+      }
+    });
+
+    var SecondEngine = FirstEngine.extend();
+
+    SecondEngine.initializer({
+      name: 'second',
+      initialize: function (engine) {
+        secondInitializerRunCount++;
+      }
+    });
+
+    var firstEngine = FirstEngine.create();
+    var firstEngineInstance = firstEngine.buildInstance();
+
+    equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+    equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+    firstInitializerRunCount = 0;
+
+    var secondEngine = SecondEngine.create();
+    var secondEngineInstance = secondEngine.buildInstance();
+
+    equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+    equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+
+    _emberMetalRun_loop.default(function () {
+      firstEngineInstance.destroy();
+      secondEngineInstance.destroy();
+
+      firstEngine.destroy();
+      secondEngine.destroy();
+    });
+  });
+
+  QUnit.test('initializers are per-engine', function () {
+    expect(2);
+
+    var FirstEngine = _emberApplicationSystemEngine.default.extend();
+
+    FirstEngine.initializer({
+      name: 'abc',
+      initialize: function (engine) {}
+    });
+
+    throws(function () {
+      FirstEngine.initializer({
+        name: 'abc',
+        initialize: function (engine) {}
+      });
+    }, Error, /Assertion Failed: The initializer 'abc' has already been registered'/);
+
+    var SecondEngine = _emberApplicationSystemEngine.default.extend();
+    SecondEngine.instanceInitializer({
+      name: 'abc',
+      initialize: function (engine) {}
+    });
+
+    ok(true, 'Two engines can have initializers named the same.');
+  });
+
+  QUnit.test('initializers are executed in their own context', function () {
+    expect(1);
+
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.initializer({
+      name: 'coolInitializer',
+      myProperty: 'cool',
+      initialize: function (engine) {
+        equal(this.myProperty, 'cool', 'should have access to its own context');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+  });
+});
+enifed('ember-application/tests/system/engine_instance_initializers_test', ['exports', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
+  'use strict';
+
+  var MyEngine = undefined,
+      myEngine = undefined,
+      myEngineInstance = undefined;
+
+  QUnit.module('Ember.Engine instance initializers', {
+    setup: function () {},
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        if (myEngineInstance) {
+          myEngineInstance.destroy();
+        }
+
+        if (myEngine) {
+          myEngine.destroy();
+        }
+      });
+    }
+  });
+
+  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    expectAssertion(function () {
+      _emberMetalRun_loop.default(function () {
+        MyEngine.instanceInitializer({ name: 'initializer' });
+      });
+    });
+
+    expectAssertion(function () {
+      _emberMetalRun_loop.default(function () {
+        MyEngine.instanceInitializer({ initialize: function () {} });
+      });
+    });
+  });
+
+  QUnit.test('initializers are passed an engine instance', function () {
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.instanceInitializer({
+      name: 'initializer',
+      initialize: function (instance) {
+        ok(instance instanceof _emberApplicationSystemEngineInstance.default, 'initialize is passed an engine instance');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+    return myEngineInstance.boot();
+  });
+
+  QUnit.test('initializers can be registered in a specified order', function () {
+    var order = [];
+
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.instanceInitializer({
+      name: 'fourth',
+      after: 'third',
+      initialize: function (engine) {
+        order.push('fourth');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'second',
+      after: 'first',
+      before: 'third',
+      initialize: function (engine) {
+        order.push('second');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'fifth',
+      after: 'fourth',
+      before: 'sixth',
+      initialize: function (engine) {
+        order.push('fifth');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'first',
+      before: 'second',
+      initialize: function (engine) {
+        order.push('first');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'third',
+      initialize: function (engine) {
+        order.push('third');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'sixth',
+      initialize: function (engine) {
+        order.push('sixth');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    return myEngineInstance.boot().then(function () {
+      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    });
+  });
+
+  QUnit.test('initializers can be registered in a specified order as an array', function () {
+    var order = [];
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.instanceInitializer({
+      name: 'third',
+      initialize: function (engine) {
+        order.push('third');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'second',
+      after: 'first',
+      before: ['third', 'fourth'],
+      initialize: function (engine) {
+        order.push('second');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'fourth',
+      after: ['second', 'third'],
+      initialize: function (engine) {
+        order.push('fourth');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'fifth',
+      after: 'fourth',
+      before: 'sixth',
+      initialize: function (engine) {
+        order.push('fifth');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'first',
+      before: ['second'],
+      initialize: function (engine) {
+        order.push('first');
+      }
+    });
+
+    MyEngine.instanceInitializer({
+      name: 'sixth',
+      initialize: function (engine) {
+        order.push('sixth');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    return myEngineInstance.boot().then(function () {
+      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    });
+  });
+
+  QUnit.test('initializers can have multiple dependencies', function () {
+    var order = [];
+
+    MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    var a = {
+      name: 'a',
+      before: 'b',
+      initialize: function (engine) {
+        order.push('a');
+      }
+    };
+    var b = {
+      name: 'b',
+      initialize: function (engine) {
+        order.push('b');
+      }
+    };
+    var c = {
+      name: 'c',
+      after: 'b',
+      initialize: function (engine) {
+        order.push('c');
+      }
+    };
+    var afterB = {
+      name: 'after b',
+      after: 'b',
+      initialize: function (engine) {
+        order.push('after b');
+      }
+    };
+    var afterC = {
+      name: 'after c',
+      after: 'c',
+      initialize: function (engine) {
+        order.push('after c');
+      }
+    };
+
+    MyEngine.instanceInitializer(b);
+    MyEngine.instanceInitializer(a);
+    MyEngine.instanceInitializer(afterC);
+    MyEngine.instanceInitializer(afterB);
+    MyEngine.instanceInitializer(c);
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    return myEngineInstance.boot().then(function () {
+      ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+      ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+      ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+      ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+    });
+  });
+
+  QUnit.test('initializers set on Engine subclasses should not be shared between engines', function () {
+    var firstInitializerRunCount = 0;
+    var secondInitializerRunCount = 0;
+    var FirstEngine = _emberApplicationSystemEngine.default.extend();
+    var firstEngine = undefined,
+        firstEngineInstance = undefined;
+
+    FirstEngine.instanceInitializer({
+      name: 'first',
+      initialize: function (engine) {
+        firstInitializerRunCount++;
+      }
+    });
+
+    var SecondEngine = _emberApplicationSystemEngine.default.extend();
+    var secondEngine = undefined,
+        secondEngineInstance = undefined;
+
+    SecondEngine.instanceInitializer({
+      name: 'second',
+      initialize: function (engine) {
+        secondInitializerRunCount++;
+      }
+    });
+
+    firstEngine = FirstEngine.create();
+    firstEngineInstance = firstEngine.buildInstance();
+
+    return firstEngineInstance.boot().then(function () {
+      equal(firstInitializerRunCount, 1, 'first initializer only was run');
+      equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+      secondEngine = SecondEngine.create();
+      secondEngineInstance = secondEngine.buildInstance();
+      return secondEngineInstance.boot();
+    }).then(function () {
+      equal(firstInitializerRunCount, 1, 'second initializer only was run');
+      equal(secondInitializerRunCount, 1, 'second initializer only was run');
+
+      _emberMetalRun_loop.default(function () {
+        firstEngineInstance.destroy();
+        secondEngineInstance.destroy();
+
+        firstEngine.destroy();
+        secondEngine.destroy();
+      });
+    });
+  });
+
+  QUnit.test('initializers are concatenated', function () {
+    var firstInitializerRunCount = 0;
+    var secondInitializerRunCount = 0;
+    var FirstEngine = _emberApplicationSystemEngine.default.extend();
+
+    FirstEngine.instanceInitializer({
+      name: 'first',
+      initialize: function (engine) {
+        firstInitializerRunCount++;
+      }
+    });
+
+    var SecondEngine = FirstEngine.extend();
+
+    SecondEngine.instanceInitializer({
+      name: 'second',
+      initialize: function (engine) {
+        secondInitializerRunCount++;
+      }
+    });
+
+    var firstEngine = FirstEngine.create();
+    var firstEngineInstance = firstEngine.buildInstance();
+
+    var secondEngine = undefined,
+        secondEngineInstance = undefined;
+
+    return firstEngineInstance.boot().then(function () {
+      equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+      equal(secondInitializerRunCount, 0, 'second initializer was not run when first base class created');
+      firstInitializerRunCount = 0;
+
+      secondEngine = SecondEngine.create();
+      secondEngineInstance = secondEngine.buildInstance();
+      return secondEngineInstance.boot();
+    }).then(function () {
+      equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+      equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+
+      _emberMetalRun_loop.default(function () {
+        firstEngineInstance.destroy();
+        secondEngineInstance.destroy();
+
+        firstEngine.destroy();
+        secondEngine.destroy();
+      });
+    });
+  });
+
+  QUnit.test('initializers are per-engine', function () {
+    expect(2);
+
+    var FirstEngine = _emberApplicationSystemEngine.default.extend();
+
+    FirstEngine.instanceInitializer({
+      name: 'abc',
+      initialize: function (engine) {}
+    });
+
+    throws(function () {
+      FirstEngine.instanceInitializer({
+        name: 'abc',
+        initialize: function (engine) {}
+      });
+    }, Error, /Assertion Failed: The instance initializer 'abc' has already been registered'/);
+
+    var SecondEngine = _emberApplicationSystemEngine.default.extend();
+    SecondEngine.instanceInitializer({
+      name: 'abc',
+      initialize: function (engine) {}
+    });
+
+    ok(true, 'Two engines can have initializers named the same.');
+  });
+
+  QUnit.test('initializers are executed in their own context', function () {
+    expect(1);
+
+    var MyEngine = _emberApplicationSystemEngine.default.extend();
+
+    MyEngine.instanceInitializer({
+      name: 'coolInitializer',
+      myProperty: 'cool',
+      initialize: function (engine) {
+        equal(this.myProperty, 'cool', 'should have access to its own context');
+      }
+    });
+
+    myEngine = MyEngine.create();
+    myEngineInstance = myEngine.buildInstance();
+
+    return myEngineInstance.boot();
+  });
+});
 enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-metal/run_loop', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberMetalRun_loop, _containerTestsTestHelpersFactory) {
   'use strict';
 
@@ -22537,18 +23265,29 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
   });
 
   QUnit.test('initializers are per-app', function () {
-    expect(0);
+    expect(2);
+
     var FirstApp = _emberApplicationSystemApplication.default.extend();
+
     FirstApp.initializer({
-      name: 'shouldNotCollide',
-      initialize: function (application) {}
+      name: 'abc',
+      initialize: function (app) {}
     });
 
+    throws(function () {
+      FirstApp.initializer({
+        name: 'abc',
+        initialize: function (app) {}
+      });
+    }, Error, /Assertion Failed: The initializer 'abc' has already been registered'/);
+
     var SecondApp = _emberApplicationSystemApplication.default.extend();
-    SecondApp.initializer({
-      name: 'shouldNotCollide',
-      initialize: function (application) {}
+    SecondApp.instanceInitializer({
+      name: 'abc',
+      initialize: function (app) {}
     });
+
+    ok(true, 'Two apps can have initializers named the same.');
   });
 
   QUnit.test('initializers are executed in their own context', function () {
@@ -22909,18 +23648,29 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
   });
 
   QUnit.test('initializers are per-app', function () {
-    expect(0);
+    expect(2);
+
     var FirstApp = _emberApplicationSystemApplication.default.extend();
+
     FirstApp.instanceInitializer({
-      name: 'shouldNotCollide',
-      initialize: function (registry) {}
+      name: 'abc',
+      initialize: function (app) {}
     });
+
+    throws(function () {
+      FirstApp.instanceInitializer({
+        name: 'abc',
+        initialize: function (app) {}
+      });
+    }, Error, /Assertion Failed: The instance initializer 'abc' has already been registered'/);
 
     var SecondApp = _emberApplicationSystemApplication.default.extend();
     SecondApp.instanceInitializer({
-      name: 'shouldNotCollide',
-      initialize: function (registry) {}
+      name: 'abc',
+      initialize: function (app) {}
     });
+
+    ok(true, 'Two apps can have initializers named the same.');
   });
 
   QUnit.test('initializers are run before ready hook', function () {
