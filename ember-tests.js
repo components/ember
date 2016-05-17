@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4fdaa711
+ * @version   2.7.0-canary+863b69e9
  */
 
 var enifed, requireModule, require, Ember;
@@ -60587,6 +60587,407 @@ enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 
     _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found, null, path, null, contentTemplate);
   });
 });
+enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
+  'use strict';
+
+  function hasSubscribers(stream) {
+    // this uses the private internal property `subscriberHead`
+    // for the purposes of ensuring that subscription is cleared
+    // after deactivation.  Adding a util helper to the `Stream` code
+    // just for the test seems dubious, as does accessing the private
+    // property directly in the test.
+    return stream && !!stream.subscriberHead;
+  }
+
+  QUnit.module('Stream - concat');
+
+  QUnit.test('returns string if no streams were in the array', function (assert) {
+    var result = _emberHtmlbarsStreamsUtils.concat(['foo', 'bar', 'baz'], ' ');
+
+    assert.equal(result, 'foo bar baz');
+  });
+
+  QUnit.test('returns a stream if a stream is in the array', function (assert) {
+    var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      return 'bar';
+    });
+    var result = _emberHtmlbarsStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+
+    assert.ok(_emberHtmlbarsStreamsUtils.isStream(result), 'a stream is returned');
+    assert.equal(_emberHtmlbarsStreamsUtils.read(result), 'foo bar baz');
+  });
+
+  QUnit.test('returns updated value upon input dirtied', function (assert) {
+    var value = 'bar';
+    var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      return value;
+    });
+    var result = _emberHtmlbarsStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    result.activate();
+
+    assert.equal(_emberHtmlbarsStreamsUtils.read(result), 'foo bar baz');
+
+    value = 'qux';
+    stream.notify();
+
+    assert.equal(_emberHtmlbarsStreamsUtils.read(result), 'foo qux baz');
+  });
+
+  QUnit.test('removes dependencies when unsubscribeDependencies is called', function (assert) {
+    var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      return 'bar';
+    });
+    var result = _emberHtmlbarsStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    result.activate();
+
+    assert.equal(hasSubscribers(stream), true, 'subscribers are present from the concat stream');
+
+    result.maybeDeactivate();
+
+    assert.equal(hasSubscribers(stream), false, 'subscribers are removed after concat stream is deactivated');
+  });
+});
+enifed('ember-htmlbars/tests/streams/key-stream-test', ['exports', 'ember-metal/watching', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/key-stream', 'ember-metal/property_set'], function (exports, _emberMetalWatching, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsKeyStream, _emberMetalProperty_set) {
+  'use strict';
+
+  var source, object, count;
+
+  function incrementCount() {
+    count++;
+  }
+
+  QUnit.module('KeyStream', {
+    setup: function () {
+      count = 0;
+      object = { name: 'mmun' };
+
+      source = new _emberHtmlbarsStreamsStream.Stream(function () {
+        return object;
+      });
+    },
+    teardown: function () {
+      count = undefined;
+      object = undefined;
+      source = undefined;
+    }
+  });
+
+  QUnit.test('can be instantiated manually', function () {
+    var nameStream = new _emberHtmlbarsStreamsKeyStream.default(source, 'name');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+  });
+
+  QUnit.test('can be instantiated via `Stream.prototype.get`', function () {
+    var nameStream = source.get('name');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+  });
+
+  QUnit.test('is notified when the observed object\'s property is mutated', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    _emberMetalProperty_set.set(object, 'name', 'wycats');
+
+    equal(count, 1, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'wycats', 'Stream value is correct');
+  });
+
+  QUnit.test('is notified when the source stream\'s value changes to a new object', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    object = { name: 'wycats' };
+    source.notify();
+
+    equal(count, 1, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'wycats', 'Stream value is correct');
+
+    _emberMetalProperty_set.set(object, 'name', 'kris');
+
+    equal(count, 2, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'kris', 'Stream value is correct');
+  });
+
+  QUnit.test('is notified when the source stream\'s value changes to the same object', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    source.notify();
+
+    equal(count, 1, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    _emberMetalProperty_set.set(object, 'name', 'kris');
+
+    equal(count, 2, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'kris', 'Stream value is correct');
+  });
+
+  QUnit.test('is notified when setSource is called with a new stream whose value is a new object', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    object = { name: 'wycats' };
+    nameStream.setSource(new _emberHtmlbarsStreamsStream.Stream(function () {
+      return object;
+    }));
+
+    equal(count, 1, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'wycats', 'Stream value is correct');
+
+    _emberMetalProperty_set.set(object, 'name', 'kris');
+
+    equal(count, 2, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'kris', 'Stream value is correct');
+  });
+
+  QUnit.test('is notified when setSource is called with a new stream whose value is the same object', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    nameStream.setSource(new _emberHtmlbarsStreamsStream.Stream(function () {
+      return object;
+    }));
+
+    equal(count, 1, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'mmun', 'Stream value is correct');
+
+    _emberMetalProperty_set.set(object, 'name', 'kris');
+
+    equal(count, 2, 'Subscribers called correct number of times');
+    equal(nameStream.value(), 'kris', 'Stream value is correct');
+  });
+
+  QUnit.test('adds and removes key observers on activation and deactivation', function () {
+    var nameStream = source.get('name');
+
+    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered immediately after creation');
+
+    nameStream.value();
+
+    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered after calling value with no subscribers');
+
+    var firstCallback = function () {};
+    nameStream.subscribe(firstCallback);
+
+    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered immediately after first subscription');
+
+    nameStream.value();
+
+    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is observered after activation');
+
+    var secondCallback = function () {};
+    nameStream.subscribe(secondCallback);
+
+    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is still observered after second subscription is added');
+
+    nameStream.unsubscribe(secondCallback);
+
+    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is still observered after second subscription is removed');
+
+    nameStream.unsubscribe(firstCallback);
+
+    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered after deactivation');
+  });
+
+  QUnit.test('removes key observers on destruction', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(function () {});
+    nameStream.value();
+
+    ok(_emberMetalWatching.isWatching(object, 'name'), '(Precondition) Key is observered after activation');
+
+    nameStream.destroy();
+
+    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered after destruction');
+  });
+
+  QUnit.test('manages key observers correctly when the object changes', function () {
+    var nameStream = source.get('name');
+    nameStream.subscribe(function () {});
+    nameStream.value();
+
+    ok(_emberMetalWatching.isWatching(object, 'name'), '(Precondition) Key is observered after activation');
+
+    var prevObject = object;
+    object = { name: 'wycats' };
+    source.notify();
+
+    ok(_emberMetalWatching.isWatching(prevObject, 'name'), 'Key is still observered on the previous object before recomputing');
+    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is still not observered on the new object before recomputing');
+
+    nameStream.value();
+
+    ok(!_emberMetalWatching.isWatching(prevObject, 'name'), 'Key is not observered on the previous object after recomputing');
+    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is observered on the new object after recomputing');
+  });
+});
+enifed('ember-htmlbars/tests/streams/proxy-stream-test', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/proxy-stream'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsProxyStream) {
+  'use strict';
+
+  var source;
+
+  QUnit.module('ProxyStream', {
+    setup: function () {
+      var Source = _emberHtmlbarsStreamsStream.default.extend({
+        init: function (val) {
+          this.val = val;
+        },
+
+        compute: function () {
+          return this.val;
+        },
+
+        setValue: function (value) {
+          this.val = value;
+          this.notify();
+        }
+      });
+
+      source = new Source('zlurp');
+    },
+    teardown: function () {
+      source = undefined;
+    }
+  });
+
+  QUnit.test('supports a stream argument', function () {
+    var stream = new _emberHtmlbarsStreamsProxyStream.default(source);
+    equal(stream.value(), 'zlurp');
+
+    stream.setValue('blorg');
+    equal(stream.value(), 'blorg');
+  });
+
+  QUnit.test('supports a non-stream argument', function () {
+    var stream = new _emberHtmlbarsStreamsProxyStream.default('zlurp');
+    equal(stream.value(), 'zlurp');
+
+    stream.setValue('blorg');
+    equal(stream.value(), 'zlurp');
+  });
+});
+enifed('ember-htmlbars/tests/streams/should-display-test', ['exports', 'ember-htmlbars/streams/should_display', 'ember-metal/properties', 'ember-metal/computed'], function (exports, _emberHtmlbarsStreamsShould_display, _emberMetalProperties, _emberMetalComputed) {
+  'use strict';
+
+  QUnit.module('shouldDisplay');
+
+  QUnit.test('predicate permutations', function () {
+    equal(_emberHtmlbarsStreamsShould_display.default(0), false, 'shouldDisplay(0)');
+    equal(_emberHtmlbarsStreamsShould_display.default(-1), true, 'shouldDisplay(-1)');
+    equal(_emberHtmlbarsStreamsShould_display.default(1), true, 'shouldDisplay(1)');
+    equal(_emberHtmlbarsStreamsShould_display.default(Number(1)), true, 'shouldDisplay(Number(1))');
+    equal(_emberHtmlbarsStreamsShould_display.default(Number(0)), false, 'shouldDisplay(Number(0))');
+    equal(_emberHtmlbarsStreamsShould_display.default(Number(-1)), true, 'shouldDisplay(Number(-1))');
+    equal(_emberHtmlbarsStreamsShould_display.default(Boolean(true)), true, 'shouldDisplay(Boolean(true))');
+    equal(_emberHtmlbarsStreamsShould_display.default(Boolean(false)), false, 'shouldDisplay(Boolean(false))');
+    equal(_emberHtmlbarsStreamsShould_display.default(NaN), false, 'shouldDisplay(NaN)');
+    equal(_emberHtmlbarsStreamsShould_display.default('string'), true, 'shouldDisplay("string")');
+    equal(_emberHtmlbarsStreamsShould_display.default(String('string')), true, 'shouldDisplay(String("string"))');
+    equal(_emberHtmlbarsStreamsShould_display.default(Infinity), true, 'shouldDisplay(Infinity)');
+    equal(_emberHtmlbarsStreamsShould_display.default(-Infinity), true, 'shouldDisplay(-Infinity)');
+    equal(_emberHtmlbarsStreamsShould_display.default([]), false, 'shouldDisplay([])');
+    equal(_emberHtmlbarsStreamsShould_display.default([1]), true, 'shouldDisplay([1])');
+    equal(_emberHtmlbarsStreamsShould_display.default({}), true, 'shouldDisplay({})');
+    equal(_emberHtmlbarsStreamsShould_display.default(true), true, 'shouldDisplay(true)');
+    equal(_emberHtmlbarsStreamsShould_display.default(false), false, 'shouldDisplay(false)');
+    equal(_emberHtmlbarsStreamsShould_display.default({ isTruthy: true }), true, 'shouldDisplay({ isTruthy: true })');
+    equal(_emberHtmlbarsStreamsShould_display.default({ isTruthy: false }), false, 'shouldDisplay({ isTruthy: false })');
+
+    equal(_emberHtmlbarsStreamsShould_display.default(function foo() {}), true, 'shouldDisplay(function (){})');
+
+    function falseFunction() {}
+    falseFunction.isTruthy = false;
+
+    equal(_emberHtmlbarsStreamsShould_display.default(falseFunction), true, 'shouldDisplay(function.isTruthy = false)');
+
+    function trueFunction() {}
+    falseFunction.isTruthy = true;
+    equal(_emberHtmlbarsStreamsShould_display.default(trueFunction), true, 'shouldDisplay(function.isTruthy = true)');
+
+    var truthyObj = {};
+    _emberMetalProperties.defineProperty(truthyObj, 'isTruthy', _emberMetalComputed.default(function () {
+      return true;
+    }));
+    equal(_emberHtmlbarsStreamsShould_display.default(truthyObj), true, 'shouldDisplay(obj.get("isTruthy") === true)');
+
+    var falseyObj = {};
+    _emberMetalProperties.defineProperty(falseyObj, 'isTruthy', _emberMetalComputed.default(function () {
+      return false;
+    }));
+    equal(_emberHtmlbarsStreamsShould_display.default(falseyObj), false, 'shouldDisplay(obj.get("isFalsey") === false)');
+
+    var falsyArray = [1];
+    falsyArray.isTruthy = false;
+    equal(_emberHtmlbarsStreamsShould_display.default(falsyArray), false, '[1].isTruthy = false');
+
+    var falseyCPArray = [1];
+    _emberMetalProperties.defineProperty(falseyCPArray, 'isTruthy', _emberMetalComputed.default(function () {
+      return false;
+    }));
+    equal(_emberHtmlbarsStreamsShould_display.default(falseyCPArray), false, 'shouldDisplay([1].get("isFalsey") === true');
+  });
+});
+enifed('ember-htmlbars/tests/streams/stream-test', ['exports', 'ember-htmlbars/streams/stream', 'ember-runtime/system/object_proxy', 'ember-metal/property_get'], function (exports, _emberHtmlbarsStreamsStream, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get) {
+  'use strict';
+
+  var stream, value, count;
+
+  function incrementCount() {
+    count++;
+  }
+
+  QUnit.module('Stream - Proxy compatibility', {
+    setup: function () {
+      count = 0;
+      value = 'zlurp';
+
+      stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+        return value;
+      });
+    },
+    teardown: function () {
+      value = undefined;
+      stream = undefined;
+    }
+  });
+
+  QUnit.test('is notified when a proxy\'s content changes', function () {
+    stream.subscribe(incrementCount);
+    stream.value();
+
+    value = _emberRuntimeSystemObject_proxy.default.create({
+      content: { message: 'foo' }
+    });
+
+    equal(count, 0);
+
+    stream.notify();
+
+    equal(count, 1);
+    equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'foo');
+
+    value.set('content', { message: 'bar' });
+
+    equal(count, 2);
+    equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'bar');
+  });
+});
 enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'ember-htmlbars/helper', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _emberHtmlbarsHelper, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
@@ -69832,346 +70233,6 @@ enifed('ember-metal/tests/set_properties_test', ['exports', 'ember-metal/set_pro
     deepEqual(_emberMetalSet_properties.default({ foo: 2, baz: 2 }, { bar: 2 }), {
       bar: 2
     }, 'Set an additional, previously unset property');
-  });
-});
-enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
-  'use strict';
-
-  function hasSubscribers(stream) {
-    // this uses the private internal property `subscriberHead`
-    // for the purposes of ensuring that subscription is cleared
-    // after deactivation.  Adding a util helper to the `Stream` code
-    // just for the test seems dubious, as does accessing the private
-    // property directly in the test.
-    return stream && !!stream.subscriberHead;
-  }
-
-  QUnit.module('Stream - concat');
-
-  QUnit.test('returns string if no streams were in the array', function (assert) {
-    var result = _emberMetalStreamsUtils.concat(['foo', 'bar', 'baz'], ' ');
-
-    assert.equal(result, 'foo bar baz');
-  });
-
-  QUnit.test('returns a stream if a stream is in the array', function (assert) {
-    var stream = new _emberMetalStreamsStream.Stream(function () {
-      return 'bar';
-    });
-    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
-
-    assert.ok(_emberMetalStreamsUtils.isStream(result), 'a stream is returned');
-    assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
-  });
-
-  QUnit.test('returns updated value upon input dirtied', function (assert) {
-    var value = 'bar';
-    var stream = new _emberMetalStreamsStream.Stream(function () {
-      return value;
-    });
-    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
-    result.activate();
-
-    assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
-
-    value = 'qux';
-    stream.notify();
-
-    assert.equal(_emberMetalStreamsUtils.read(result), 'foo qux baz');
-  });
-
-  QUnit.test('removes dependencies when unsubscribeDependencies is called', function (assert) {
-    var stream = new _emberMetalStreamsStream.Stream(function () {
-      return 'bar';
-    });
-    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
-    result.activate();
-
-    assert.equal(hasSubscribers(stream), true, 'subscribers are present from the concat stream');
-
-    result.maybeDeactivate();
-
-    assert.equal(hasSubscribers(stream), false, 'subscribers are removed after concat stream is deactivated');
-  });
-});
-enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/watching', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/property_set'], function (exports, _emberMetalWatching, _emberMetalStreamsStream, _emberMetalStreamsKeyStream, _emberMetalProperty_set) {
-  'use strict';
-
-  var source, object, count;
-
-  function incrementCount() {
-    count++;
-  }
-
-  QUnit.module('KeyStream', {
-    setup: function () {
-      count = 0;
-      object = { name: 'mmun' };
-
-      source = new _emberMetalStreamsStream.Stream(function () {
-        return object;
-      });
-    },
-    teardown: function () {
-      count = undefined;
-      object = undefined;
-      source = undefined;
-    }
-  });
-
-  QUnit.test('can be instantiated manually', function () {
-    var nameStream = new _emberMetalStreamsKeyStream.default(source, 'name');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-  });
-
-  QUnit.test('can be instantiated via `Stream.prototype.get`', function () {
-    var nameStream = source.get('name');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-  });
-
-  QUnit.test('is notified when the observed object\'s property is mutated', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    _emberMetalProperty_set.set(object, 'name', 'wycats');
-
-    equal(count, 1, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'wycats', 'Stream value is correct');
-  });
-
-  QUnit.test('is notified when the source stream\'s value changes to a new object', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    object = { name: 'wycats' };
-    source.notify();
-
-    equal(count, 1, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'wycats', 'Stream value is correct');
-
-    _emberMetalProperty_set.set(object, 'name', 'kris');
-
-    equal(count, 2, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'kris', 'Stream value is correct');
-  });
-
-  QUnit.test('is notified when the source stream\'s value changes to the same object', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    source.notify();
-
-    equal(count, 1, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    _emberMetalProperty_set.set(object, 'name', 'kris');
-
-    equal(count, 2, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'kris', 'Stream value is correct');
-  });
-
-  QUnit.test('is notified when setSource is called with a new stream whose value is a new object', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    object = { name: 'wycats' };
-    nameStream.setSource(new _emberMetalStreamsStream.Stream(function () {
-      return object;
-    }));
-
-    equal(count, 1, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'wycats', 'Stream value is correct');
-
-    _emberMetalProperty_set.set(object, 'name', 'kris');
-
-    equal(count, 2, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'kris', 'Stream value is correct');
-  });
-
-  QUnit.test('is notified when setSource is called with a new stream whose value is the same object', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    nameStream.setSource(new _emberMetalStreamsStream.Stream(function () {
-      return object;
-    }));
-
-    equal(count, 1, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'mmun', 'Stream value is correct');
-
-    _emberMetalProperty_set.set(object, 'name', 'kris');
-
-    equal(count, 2, 'Subscribers called correct number of times');
-    equal(nameStream.value(), 'kris', 'Stream value is correct');
-  });
-
-  QUnit.test('adds and removes key observers on activation and deactivation', function () {
-    var nameStream = source.get('name');
-
-    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered immediately after creation');
-
-    nameStream.value();
-
-    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered after calling value with no subscribers');
-
-    var firstCallback = function () {};
-    nameStream.subscribe(firstCallback);
-
-    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered immediately after first subscription');
-
-    nameStream.value();
-
-    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is observered after activation');
-
-    var secondCallback = function () {};
-    nameStream.subscribe(secondCallback);
-
-    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is still observered after second subscription is added');
-
-    nameStream.unsubscribe(secondCallback);
-
-    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is still observered after second subscription is removed');
-
-    nameStream.unsubscribe(firstCallback);
-
-    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered after deactivation');
-  });
-
-  QUnit.test('removes key observers on destruction', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(function () {});
-    nameStream.value();
-
-    ok(_emberMetalWatching.isWatching(object, 'name'), '(Precondition) Key is observered after activation');
-
-    nameStream.destroy();
-
-    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is not observered after destruction');
-  });
-
-  QUnit.test('manages key observers correctly when the object changes', function () {
-    var nameStream = source.get('name');
-    nameStream.subscribe(function () {});
-    nameStream.value();
-
-    ok(_emberMetalWatching.isWatching(object, 'name'), '(Precondition) Key is observered after activation');
-
-    var prevObject = object;
-    object = { name: 'wycats' };
-    source.notify();
-
-    ok(_emberMetalWatching.isWatching(prevObject, 'name'), 'Key is still observered on the previous object before recomputing');
-    ok(!_emberMetalWatching.isWatching(object, 'name'), 'Key is still not observered on the new object before recomputing');
-
-    nameStream.value();
-
-    ok(!_emberMetalWatching.isWatching(prevObject, 'name'), 'Key is not observered on the previous object after recomputing');
-    ok(_emberMetalWatching.isWatching(object, 'name'), 'Key is observered on the new object after recomputing');
-  });
-});
-enifed('ember-metal/tests/streams/proxy-stream-test', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/proxy-stream'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsProxyStream) {
-  'use strict';
-
-  var source;
-
-  QUnit.module('ProxyStream', {
-    setup: function () {
-      var Source = _emberMetalStreamsStream.default.extend({
-        init: function (val) {
-          this.val = val;
-        },
-
-        compute: function () {
-          return this.val;
-        },
-
-        setValue: function (value) {
-          this.val = value;
-          this.notify();
-        }
-      });
-
-      source = new Source('zlurp');
-    },
-    teardown: function () {
-      source = undefined;
-    }
-  });
-
-  QUnit.test('supports a stream argument', function () {
-    var stream = new _emberMetalStreamsProxyStream.default(source);
-    equal(stream.value(), 'zlurp');
-
-    stream.setValue('blorg');
-    equal(stream.value(), 'blorg');
-  });
-
-  QUnit.test('supports a non-stream argument', function () {
-    var stream = new _emberMetalStreamsProxyStream.default('zlurp');
-    equal(stream.value(), 'zlurp');
-
-    stream.setValue('blorg');
-    equal(stream.value(), 'zlurp');
-  });
-});
-enifed('ember-metal/tests/streams/stream-test', ['exports', 'ember-metal/streams/stream', 'ember-runtime/system/object_proxy', 'ember-metal/property_get'], function (exports, _emberMetalStreamsStream, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get) {
-  'use strict';
-
-  var stream, value, count;
-
-  function incrementCount() {
-    count++;
-  }
-
-  QUnit.module('Stream - Proxy compatibility', {
-    setup: function () {
-      count = 0;
-      value = 'zlurp';
-
-      stream = new _emberMetalStreamsStream.Stream(function () {
-        return value;
-      });
-    },
-    teardown: function () {
-      value = undefined;
-      stream = undefined;
-    }
-  });
-
-  QUnit.test('is notified when a proxy\'s content changes', function () {
-    stream.subscribe(incrementCount);
-    stream.value();
-
-    value = _emberRuntimeSystemObject_proxy.default.create({
-      content: { message: 'foo' }
-    });
-
-    equal(count, 0);
-
-    stream.notify();
-
-    equal(count, 1);
-    equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'foo');
-
-    value.set('content', { message: 'bar' });
-
-    equal(count, 2);
-    equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'bar');
   });
 });
 enifed('ember-metal/tests/utils/can_invoke_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
@@ -90580,67 +90641,6 @@ enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', '
     });
 
     ok(true === view.triggerAction(), 'a valid target and action were specified');
-  });
-});
-enifed('ember-views/tests/streams/streams-test', ['exports', 'ember-views/streams/should_display', 'ember-metal/properties', 'ember-metal/computed'], function (exports, _emberViewsStreamsShould_display, _emberMetalProperties, _emberMetalComputed) {
-  'use strict';
-
-  QUnit.module('shouldDisplay');
-
-  QUnit.test('predicate permutations', function () {
-    equal(_emberViewsStreamsShould_display.default(0), false, 'shouldDisplay(0)');
-    equal(_emberViewsStreamsShould_display.default(-1), true, 'shouldDisplay(-1)');
-    equal(_emberViewsStreamsShould_display.default(1), true, 'shouldDisplay(1)');
-    equal(_emberViewsStreamsShould_display.default(Number(1)), true, 'shouldDisplay(Number(1))');
-    equal(_emberViewsStreamsShould_display.default(Number(0)), false, 'shouldDisplay(Number(0))');
-    equal(_emberViewsStreamsShould_display.default(Number(-1)), true, 'shouldDisplay(Number(-1))');
-    equal(_emberViewsStreamsShould_display.default(Boolean(true)), true, 'shouldDisplay(Boolean(true))');
-    equal(_emberViewsStreamsShould_display.default(Boolean(false)), false, 'shouldDisplay(Boolean(false))');
-    equal(_emberViewsStreamsShould_display.default(NaN), false, 'shouldDisplay(NaN)');
-    equal(_emberViewsStreamsShould_display.default('string'), true, 'shouldDisplay("string")');
-    equal(_emberViewsStreamsShould_display.default(String('string')), true, 'shouldDisplay(String("string"))');
-    equal(_emberViewsStreamsShould_display.default(Infinity), true, 'shouldDisplay(Infinity)');
-    equal(_emberViewsStreamsShould_display.default(-Infinity), true, 'shouldDisplay(-Infinity)');
-    equal(_emberViewsStreamsShould_display.default([]), false, 'shouldDisplay([])');
-    equal(_emberViewsStreamsShould_display.default([1]), true, 'shouldDisplay([1])');
-    equal(_emberViewsStreamsShould_display.default({}), true, 'shouldDisplay({})');
-    equal(_emberViewsStreamsShould_display.default(true), true, 'shouldDisplay(true)');
-    equal(_emberViewsStreamsShould_display.default(false), false, 'shouldDisplay(false)');
-    equal(_emberViewsStreamsShould_display.default({ isTruthy: true }), true, 'shouldDisplay({ isTruthy: true })');
-    equal(_emberViewsStreamsShould_display.default({ isTruthy: false }), false, 'shouldDisplay({ isTruthy: false })');
-
-    equal(_emberViewsStreamsShould_display.default(function foo() {}), true, 'shouldDisplay(function (){})');
-
-    function falseFunction() {}
-    falseFunction.isTruthy = false;
-
-    equal(_emberViewsStreamsShould_display.default(falseFunction), true, 'shouldDisplay(function.isTruthy = false)');
-
-    function trueFunction() {}
-    falseFunction.isTruthy = true;
-    equal(_emberViewsStreamsShould_display.default(trueFunction), true, 'shouldDisplay(function.isTruthy = true)');
-
-    var truthyObj = {};
-    _emberMetalProperties.defineProperty(truthyObj, 'isTruthy', _emberMetalComputed.default(function () {
-      return true;
-    }));
-    equal(_emberViewsStreamsShould_display.default(truthyObj), true, 'shouldDisplay(obj.get("isTruthy") === true)');
-
-    var falseyObj = {};
-    _emberMetalProperties.defineProperty(falseyObj, 'isTruthy', _emberMetalComputed.default(function () {
-      return false;
-    }));
-    equal(_emberViewsStreamsShould_display.default(falseyObj), false, 'shouldDisplay(obj.get("isFalsey") === false)');
-
-    var falsyArray = [1];
-    falsyArray.isTruthy = false;
-    equal(_emberViewsStreamsShould_display.default(falsyArray), false, '[1].isTruthy = false');
-
-    var falseyCPArray = [1];
-    _emberMetalProperties.defineProperty(falseyCPArray, 'isTruthy', _emberMetalComputed.default(function () {
-      return false;
-    }));
-    equal(_emberViewsStreamsShould_display.default(falseyCPArray), false, 'shouldDisplay([1].get("isFalsey") === true');
   });
 });
 enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalInstrumentation, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {

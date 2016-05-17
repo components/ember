@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4fdaa711
+ * @version   2.7.0-canary+863b69e9
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+4fdaa711";
+  exports.default = "2.7.0-canary+863b69e9";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -14139,7 +14139,7 @@ enifed('ember-htmlbars/helpers/concat', ['exports'], function (exports) {
     return params.join('');
   }
 });
-enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should_display'], function (exports, _emberViewsStreamsShould_display) {
+enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-htmlbars/streams/should_display'], function (exports, _emberHtmlbarsStreamsShould_display) {
   /**
   @module ember
   @submodule ember-templates
@@ -14184,7 +14184,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should
 
     var objKeys, prop, i;
     objKeys = object ? Object.keys(object) : [];
-    if (_emberViewsStreamsShould_display.default(objKeys)) {
+    if (_emberHtmlbarsStreamsShould_display.default(objKeys)) {
       for (i = 0; i < objKeys.length; i++) {
         prop = objKeys[i];
         blocks.template.yieldItem(prop, [prop, object[prop]]);
@@ -14196,7 +14196,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should
 
   exports.default = eachInHelper;
 });
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-htmlbars/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberHtmlbarsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
   /**
   @module ember
   @submodule ember-templates
@@ -14288,7 +14288,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_di
     var list = params[0];
     var keyPath = hash.key;
 
-    if (_emberViewsStreamsShould_display.default(list)) {
+    if (_emberHtmlbarsStreamsShould_display.default(list)) {
       forEach(list, function (item, i) {
         var key = _emberHtmlbarsUtilsDecodeEachKey.default(item, keyPath, i);
 
@@ -14339,7 +14339,7 @@ enifed("ember-htmlbars/helpers/hash", ["exports"], function (exports) {
       return hash;
    }
 });
-enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'ember-views/streams/should_display'], function (exports, _emberMetalDebug, _emberViewsStreamsShould_display) {
+enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'ember-htmlbars/streams/should_display'], function (exports, _emberMetalDebug, _emberHtmlbarsStreamsShould_display) {
   /**
   @module ember
   @submodule ember-templates
@@ -14408,7 +14408,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'emb
 
     _emberMetalDebug.assert('The inline form of the `if` helper expects two or three arguments, e.g. ' + '`{{if trialExpired "Expired" expiryDate}}`.', !!options.template.yield || params.length === 2 || params.length === 3);
 
-    return ifUnless(params, hash, options, _emberViewsStreamsShould_display.default(params[0]));
+    return ifUnless(params, hash, options, _emberHtmlbarsStreamsShould_display.default(params[0]));
   }
 
   /**
@@ -14425,7 +14425,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'emb
 
     _emberMetalDebug.assert('The inline form of the `unless` helper expects two or three arguments, e.g. ' + '`{{if trialExpired "Expired" expiryDate}}`.', !!options.template.yield || params.length === 2 || params.length === 3);
 
-    return ifUnless(params, hash, options, !_emberViewsStreamsShould_display.default(params[0]));
+    return ifUnless(params, hash, options, !_emberHtmlbarsStreamsShould_display.default(params[0]));
   }
 
   function ifUnless(params, hash, options, truthy) {
@@ -14521,7 +14521,7 @@ enifed('ember-htmlbars/helpers/log', ['exports', 'ember-console'], function (exp
     _emberConsole.default.log.apply(null, values);
   }
 });
-enifed('ember-htmlbars/helpers/with', ['exports', 'ember-views/streams/should_display'], function (exports, _emberViewsStreamsShould_display) {
+enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/streams/should_display'], function (exports, _emberHtmlbarsStreamsShould_display) {
   /**
   @module ember
   @submodule ember-templates
@@ -14565,7 +14565,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-views/streams/should_di
   */
 
   function withHelper(params, hash, options) {
-    if (_emberViewsStreamsShould_display.default(params[0])) {
+    if (_emberHtmlbarsStreamsShould_display.default(params[0])) {
       options.template.yield([params[0]]);
     } else if (options.inverse && options.inverse.yield) {
       options.inverse.yield([]);
@@ -14618,7 +14618,7 @@ enifed('ember-htmlbars/hooks/bind-block', ['exports'], function (exports) {
     scope.bindBlock(name, block);
   }
 });
-enifed('ember-htmlbars/hooks/bind-local', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/proxy-stream'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsProxyStream) {
+enifed('ember-htmlbars/hooks/bind-local', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/proxy-stream'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsProxyStream) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -14636,7 +14636,7 @@ enifed('ember-htmlbars/hooks/bind-local', ['exports', 'ember-metal/streams/strea
         existing.setSource(value);
       }
     } else {
-      var newValue = _emberMetalStreamsStream.wrap(value, _emberMetalStreamsProxyStream.default, key);
+      var newValue = _emberHtmlbarsStreamsStream.wrap(value, _emberHtmlbarsStreamsProxyStream.default, key);
       scope.bindLocal(key, newValue);
     }
   }
@@ -14648,7 +14648,7 @@ enifed("ember-htmlbars/hooks/bind-scope", ["exports"], function (exports) {
 
   function bindScope(env, scope) {}
 });
-enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember-metal/streams/proxy-stream'], function (exports, _emberEnvironment, _emberMetalStreamsProxyStream) {
+enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember-htmlbars/streams/proxy-stream'], function (exports, _emberEnvironment, _emberHtmlbarsStreamsProxyStream) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -14671,10 +14671,10 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember
   }
 
   function newStream(newValue, key) {
-    return new _emberMetalStreamsProxyStream.default(newValue, key);
+    return new _emberHtmlbarsStreamsProxyStream.default(newValue, key);
   }
 });
-enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-metal/streams/proxy-stream'], function (exports, _emberMetalStreamsProxyStream) {
+enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-htmlbars/streams/proxy-stream'], function (exports, _emberHtmlbarsStreamsProxyStream) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -14712,7 +14712,7 @@ enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-metal/stream
   }
 
   function newStream(newValue, key) {
-    return new _emberMetalStreamsProxyStream.default(newValue, key);
+    return new _emberHtmlbarsStreamsProxyStream.default(newValue, key);
   }
 });
 enifed('ember-htmlbars/hooks/classify', ['exports', 'ember-htmlbars/utils/is-component'], function (exports, _emberHtmlbarsUtilsIsComponent) {
@@ -14834,7 +14834,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
     return tagName.charCodeAt(0) === 60;
   }
 });
-enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -14845,10 +14845,10 @@ enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-metal/streams/utils'], 
   exports.default = concat;
 
   function concat(env, parts) {
-    return _emberMetalStreamsUtils.concat(parts, '');
+    return _emberHtmlbarsStreamsUtils.concat(parts, '');
   }
 });
-enifed('ember-htmlbars/hooks/create-fresh-scope', ['exports', 'ember-metal/streams/proxy-stream', 'ember-metal/empty_object'], function (exports, _emberMetalStreamsProxyStream, _emberMetalEmpty_object) {
+enifed('ember-htmlbars/hooks/create-fresh-scope', ['exports', 'ember-htmlbars/streams/proxy-stream', 'ember-metal/empty_object'], function (exports, _emberHtmlbarsStreamsProxyStream, _emberMetalEmpty_object) {
   'use strict';
 
   exports.default = createFreshScope;
@@ -14923,7 +14923,7 @@ enifed('ember-htmlbars/hooks/create-fresh-scope', ['exports', 'ember-metal/strea
     if (existing) {
       existing.setSource(self);
     } else {
-      this._self = new _emberMetalStreamsProxyStream.default(self, key);
+      this._self = new _emberHtmlbarsStreamsProxyStream.default(self, key);
     }
   };
 
@@ -15147,7 +15147,7 @@ enifed("ember-htmlbars/hooks/get-block", ["exports"], function (exports) {
     return scope.getBlock(key);
   }
 });
-enifed('ember-htmlbars/hooks/get-cell-or-value', ['exports', 'ember-metal/streams/utils', 'ember-htmlbars/keywords/mut'], function (exports, _emberMetalStreamsUtils, _emberHtmlbarsKeywordsMut) {
+enifed('ember-htmlbars/hooks/get-cell-or-value', ['exports', 'ember-htmlbars/streams/utils', 'ember-htmlbars/keywords/mut'], function (exports, _emberHtmlbarsStreamsUtils, _emberHtmlbarsKeywordsMut) {
   'use strict';
 
   exports.default = getCellOrValue;
@@ -15159,10 +15159,10 @@ enifed('ember-htmlbars/hooks/get-cell-or-value', ['exports', 'ember-metal/stream
     }
 
     // Get the value out of the reference.
-    return _emberMetalStreamsUtils.read(ref);
+    return _emberHtmlbarsStreamsUtils.read(ref);
   }
 });
-enifed('ember-htmlbars/hooks/get-child', ['exports', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/hooks/get-child', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -15173,7 +15173,7 @@ enifed('ember-htmlbars/hooks/get-child', ['exports', 'ember-metal/streams/utils'
   exports.default = getChild;
 
   function getChild(parent, key) {
-    if (_emberMetalStreamsUtils.isStream(parent)) {
+    if (_emberHtmlbarsStreamsUtils.isStream(parent)) {
       return parent.getKey(key);
     }
 
@@ -15230,7 +15230,7 @@ enifed('ember-htmlbars/hooks/get-root', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember-htmlbars/hooks/get-value', ['exports', 'ember-metal/streams/utils', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalStreamsUtils, _emberViewsCompatAttrsProxy) {
+enifed('ember-htmlbars/hooks/get-value', ['exports', 'ember-htmlbars/streams/utils', 'ember-views/compat/attrs-proxy'], function (exports, _emberHtmlbarsStreamsUtils, _emberViewsCompatAttrsProxy) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -15241,7 +15241,7 @@ enifed('ember-htmlbars/hooks/get-value', ['exports', 'ember-metal/streams/utils'
   exports.default = getValue;
 
   function getValue(ref) {
-    var value = _emberMetalStreamsUtils.read(ref);
+    var value = _emberHtmlbarsStreamsUtils.read(ref);
 
     if (value && value[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
       return value.value;
@@ -15317,7 +15317,7 @@ enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-htmlbars/system/
     return { value: helperStream.value() };
   }
 });
-enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/utils/subscribe', 'ember-runtime/utils', 'ember-metal/streams/utils', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberHtmlbarsUtilsSubscribe, _emberRuntimeUtils, _emberMetalStreamsUtils, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent) {
+enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/utils/subscribe', 'ember-runtime/utils', 'ember-htmlbars/streams/utils', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberHtmlbarsUtilsSubscribe, _emberRuntimeUtils, _emberHtmlbarsStreamsUtils, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -15391,9 +15391,9 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
   function eachParam(list) {
     var listChange = getKey(list, '[]');
 
-    var stream = _emberMetalStreamsUtils.chain(list, function () {
-      _emberMetalStreamsUtils.read(listChange);
-      return _emberMetalStreamsUtils.read(list);
+    var stream = _emberHtmlbarsStreamsUtils.chain(list, function () {
+      _emberHtmlbarsStreamsUtils.read(listChange);
+      return _emberHtmlbarsStreamsUtils.read(list);
     }, 'each');
 
     stream.addDependency(listChange);
@@ -15404,10 +15404,10 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     var length = getKey(predicate, 'length');
     var isTruthy = getKey(predicate, 'isTruthy');
 
-    var stream = _emberMetalStreamsUtils.chain(predicate, function () {
-      var predicateVal = _emberMetalStreamsUtils.read(predicate);
-      var lengthVal = _emberMetalStreamsUtils.read(length);
-      var isTruthyVal = _emberMetalStreamsUtils.read(isTruthy);
+    var stream = _emberHtmlbarsStreamsUtils.chain(predicate, function () {
+      var predicateVal = _emberHtmlbarsStreamsUtils.read(predicate);
+      var lengthVal = _emberHtmlbarsStreamsUtils.read(length);
+      var isTruthyVal = _emberHtmlbarsStreamsUtils.read(isTruthy);
 
       if (_emberRuntimeUtils.isArray(predicateVal)) {
         return lengthVal > 0 ? coercer(predicateVal) : false;
@@ -15420,8 +15420,8 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
       return coercer(predicateVal);
     }, 'ShouldDisplay');
 
-    _emberMetalStreamsUtils.addDependency(stream, length);
-    _emberMetalStreamsUtils.addDependency(stream, isTruthy);
+    _emberHtmlbarsStreamsUtils.addDependency(stream, length);
+    _emberHtmlbarsStreamsUtils.addDependency(stream, isTruthy);
 
     return stream;
   }
@@ -15435,7 +15435,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
   }
 
   function getKey(obj, key) {
-    if (_emberMetalStreamsUtils.isStream(obj)) {
+    if (_emberHtmlbarsStreamsUtils.isStream(obj)) {
       return obj.getKey(key);
     } else {
       return obj && obj[key];
@@ -15451,7 +15451,7 @@ enifed('ember-htmlbars/hooks/lookup-helper', ['exports', 'ember-htmlbars/system/
     return _emberHtmlbarsSystemLookupHelper.default(helperName, scope.getSelf(), env);
   }
 });
-enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/system/invoke-helper', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/link-render-node'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberMetalStreamsUtils, _emberHtmlbarsHooksLinkRenderNode) {
+enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/system/invoke-helper', 'ember-htmlbars/streams/utils', 'ember-htmlbars/hooks/link-render-node'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberHtmlbarsStreamsUtils, _emberHtmlbarsHooksLinkRenderNode) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -15504,14 +15504,14 @@ enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup
   }
 
   function labelsForParams(params) {
-    return _emberMetalStreamsUtils.labelsFor(params).join(' ');
+    return _emberHtmlbarsStreamsUtils.labelsFor(params).join(' ');
   }
 
   function labelsForHash(hash) {
     var out = [];
 
     for (var prop in hash) {
-      out.push(prop + '=' + _emberMetalStreamsUtils.labelFor(hash[prop]));
+      out.push(prop + '=' + _emberHtmlbarsStreamsUtils.labelFor(hash[prop]));
     }
 
     return out.join(' ');
@@ -15713,7 +15713,7 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-template-c
 
 // Importing ember-htmlbars/compat updates the
 // Ember.Handlebars global if htmlbars is enabled.
-enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-metal/streams/stream', 'ember-metal/empty_object', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberMetalStreamsStream, _emberMetalEmpty_object, _emberMetalStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsUtilsLookupComponent) {
+enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-htmlbars/streams/stream', 'ember-metal/empty_object', 'ember-htmlbars/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberHtmlbarsStreamsStream, _emberMetalEmpty_object, _emberHtmlbarsStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsUtilsLookupComponent) {
   /**
   @module ember
   @submodule ember-templates
@@ -15736,7 +15736,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
   var COMPONENT_HASH = _emberMetalSymbol.default('COMPONENT_HASH');
 
   exports.COMPONENT_HASH = COMPONENT_HASH;
-  var ClosureComponentStream = _emberMetalStreamsStream.default.extend({
+  var ClosureComponentStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (env, path, params, hash) {
       this._env = env;
       this._path = path;
@@ -15774,7 +15774,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
   }
 
   function createClosureComponentCell(env, originalComponentPath, params, hash, label) {
-    var componentPath = _emberMetalStreamsUtils.read(originalComponentPath);
+    var componentPath = _emberHtmlbarsStreamsUtils.read(originalComponentPath);
 
     _emberMetalDebug.assert('Component path cannot be null in ' + label, !_emberMetalIs_none.default(componentPath));
 
@@ -16089,7 +16089,7 @@ enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/ass
     env.hooks.component(morph, env, scope, componentPath, params, hash, templates, visitor);
   }
 });
-enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/utils/subscribe', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalDebug, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberHtmlbarsUtilsSubscribe, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver) {
+enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils', 'ember-htmlbars/utils/subscribe', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalDebug, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils, _emberHtmlbarsUtilsSubscribe, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver) {
   /**
   @module ember
   @submodule ember-templates
@@ -16103,7 +16103,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
     return '(get ' + sourceLabel + ' ' + keyLabel + ')';
   }
 
-  var DynamicKeyStream = _emberMetalStreamsStream.default.extend({
+  var DynamicKeyStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (source, keySource) {
       // Used to get the original path for debugging purposes.
       var label = labelFor(source, keySource);
@@ -16139,7 +16139,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
       }
     },
 
-    _super$revalidate: _emberMetalStreamsStream.default.prototype.revalidate,
+    _super$revalidate: _emberHtmlbarsStreamsStream.default.prototype.revalidate,
 
     revalidate: function (value) {
       this._super$revalidate(value);
@@ -16170,7 +16170,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
     var objRef = params[0];
     var pathRef = params[1];
 
-    _emberMetalDebug.assert('The first argument to {{get}} must be a stream', _emberMetalStreamsUtils.isStream(objRef));
+    _emberMetalDebug.assert('The first argument to {{get}} must be a stream', _emberHtmlbarsStreamsUtils.isStream(objRef));
     _emberMetalDebug.assert('{{get}} requires at least two arguments', params.length > 1);
 
     var stream = buildDynamicKeyStream(objRef, pathRef);
@@ -16179,7 +16179,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
   };
 
   function buildDynamicKeyStream(source, keySource) {
-    if (!_emberMetalStreamsUtils.isStream(keySource)) {
+    if (!_emberHtmlbarsStreamsUtils.isStream(keySource)) {
       return source.get(keySource);
     } else {
       return new DynamicKeyStream(source, keySource);
@@ -16430,7 +16430,7 @@ enifed('ember-htmlbars/keywords/input', ['exports', 'ember-metal/debug', 'ember-
     'checkbox': '-checkbox'
   };
 });
-enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-metal/symbol', 'ember-metal/streams/proxy-stream', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-views/compat/attrs-proxy', 'ember-routing-htmlbars/keywords/closure-action'], function (exports, _emberMetalDebug, _emberMetalSymbol, _emberMetalStreamsProxyStream, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberViewsCompatAttrsProxy, _emberRoutingHtmlbarsKeywordsClosureAction) {
+enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-metal/symbol', 'ember-htmlbars/streams/proxy-stream', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils', 'ember-views/compat/attrs-proxy', 'ember-routing-htmlbars/keywords/closure-action'], function (exports, _emberMetalDebug, _emberMetalSymbol, _emberHtmlbarsStreamsProxyStream, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils, _emberViewsCompatAttrsProxy, _emberRoutingHtmlbarsKeywordsClosureAction) {
   /**
   @module ember
   @submodule ember-templates
@@ -16445,7 +16445,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
   var MUTABLE_REFERENCE = _emberMetalSymbol.default('MUTABLE_REFERENCE');
 
   exports.MUTABLE_REFERENCE = MUTABLE_REFERENCE;
-  var MutStream = _emberMetalStreamsProxyStream.default.extend((_ProxyStream$extend = {
+  var MutStream = _emberHtmlbarsStreamsProxyStream.default.extend((_ProxyStream$extend = {
     init: function (stream) {
       this.label = '(mut ' + stream.label + ')';
       this.path = stream.path;
@@ -16549,7 +16549,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     return true;
   }
 
-  var LiteralStream = _emberMetalStreamsStream.default.extend({
+  var LiteralStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (literal) {
       this.literal = literal;
       this.label = '(literal ' + literal + ')';
@@ -16567,12 +16567,12 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
 
   function mutParam(read, stream, internal) {
     if (internal) {
-      if (!_emberMetalStreamsUtils.isStream(stream)) {
+      if (!_emberHtmlbarsStreamsUtils.isStream(stream)) {
         var literal = stream;
         stream = new LiteralStream(literal);
       }
     } else {
-      _emberMetalDebug.assert('You can only pass a path to mut', _emberMetalStreamsUtils.isStream(stream));
+      _emberMetalDebug.assert('You can only pass a path to mut', _emberHtmlbarsStreamsUtils.isStream(stream));
     }
 
     if (stream[MUTABLE_REFERENCE]) {
@@ -17045,7 +17045,7 @@ enifed('ember-htmlbars/keywords/textarea', ['exports'], function (exports) {
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/debug', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
   /**
   @module ember
   @submodule ember-templates
@@ -17083,7 +17083,7 @@ enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/debug', 'embe
     @public
   */
 
-  var VolatileStream = _emberMetalStreamsStream.default.extend({
+  var VolatileStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (source) {
       this.label = '(volatile ' + source.label + ')';
       this.source = source;
@@ -17091,7 +17091,7 @@ enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/debug', 'embe
     },
 
     value: function () {
-      return _emberMetalStreamsUtils.read(this.source);
+      return _emberHtmlbarsStreamsUtils.read(this.source);
     },
 
     notify: function () {}
@@ -17116,7 +17116,7 @@ enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/debug', 'embe
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 'ember-views/views/view', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberViewsStreamsUtils, _emberViewsViewsView, _emberHtmlbarsNodeManagersViewNodeManager) {
+enifed('ember-htmlbars/keywords/view', ['exports', 'ember-htmlbars/streams/utils', 'ember-views/views/view', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberHtmlbarsStreamsUtils, _emberViewsViewsView, _emberHtmlbarsNodeManagersViewNodeManager) {
   /**
   @module ember
   @submodule ember-templates
@@ -17385,7 +17385,7 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
         viewClassOrInstance = _emberViewsViewsView.default;
       }
     } else {
-      viewClassOrInstance = _emberViewsStreamsUtils.readViewFactory(viewPath, owner);
+      viewClassOrInstance = _emberHtmlbarsStreamsUtils.readViewFactory(viewPath, owner);
     }
 
     return viewClassOrInstance;
@@ -18406,10 +18406,10 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
   exports.InteractiveRenderer = InteractiveRenderer;
 });
-enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-metal/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalStreamsStream, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
-  var BuiltInHelperStream = _emberMetalStreamsStream.default.extend({
+  var BuiltInHelperStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (helper, params, hash, templates, env, scope, label) {
       this.helper = helper;
       this.params = params;
@@ -18427,10 +18427,220 @@ enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-metal/stream
 
   exports.default = BuiltInHelperStream;
 });
-enifed('ember-htmlbars/streams/helper-factory', ['exports', 'ember-metal/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalStreamsStream, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/streams/class_name_binding', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/utils', 'ember-htmlbars/streams/utils', 'ember-runtime/system/string'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalUtils, _emberHtmlbarsStreamsUtils, _emberRuntimeSystemString) {
   'use strict';
 
-  var HelperFactoryStream = _emberMetalStreamsStream.default.extend({
+  exports.parsePropertyPath = parsePropertyPath;
+  exports.classStringForValue = classStringForValue;
+  exports.streamifyClassNameBinding = streamifyClassNameBinding;
+
+  /**
+    Parse a path and return an object which holds the parsed properties.
+  
+    For example a path like "content.isEnabled:enabled:disabled" will return the
+    following object:
+  
+    ```javascript
+    {
+      path: "content.isEnabled",
+      className: "enabled",
+      falsyClassName: "disabled",
+      classNames: ":enabled:disabled"
+    }
+    ```
+  
+    @method parsePropertyPath
+    @static
+    @private
+  */
+
+  function parsePropertyPath(path) {
+    var split = path.split(':');
+    var propertyPath = split[0];
+    var classNames = '';
+    var className, falsyClassName;
+
+    // check if the property is defined as prop:class or prop:trueClass:falseClass
+    if (split.length > 1) {
+      className = split[1];
+      if (split.length === 3) {
+        falsyClassName = split[2];
+      }
+
+      classNames = ':' + className;
+      if (falsyClassName) {
+        classNames += ':' + falsyClassName;
+      }
+    }
+
+    return {
+      path: propertyPath,
+      classNames: classNames,
+      className: className === '' ? undefined : className,
+      falsyClassName: falsyClassName
+    };
+  }
+
+  /**
+    Get the class name for a given value, based on the path, optional
+    `className` and optional `falsyClassName`.
+  
+    - if a `className` or `falsyClassName` has been specified:
+      - if the value is truthy and `className` has been specified,
+        `className` is returned
+      - if the value is falsy and `falsyClassName` has been specified,
+        `falsyClassName` is returned
+      - otherwise `null` is returned
+    - if the value is `true`, the dasherized last part of the supplied path
+      is returned
+    - if the value is not `false`, `undefined` or `null`, the `value`
+      is returned
+    - if none of the above rules apply, `null` is returned
+  
+    @method classStringForValue
+    @param path
+    @param val
+    @param className
+    @param falsyClassName
+    @static
+    @private
+  */
+
+  function classStringForValue(path, val, className, falsyClassName) {
+    if (_emberMetalUtils.isArray(val)) {
+      val = _emberMetalProperty_get.get(val, 'length') !== 0;
+    }
+
+    // When using the colon syntax, evaluate the truthiness or falsiness
+    // of the value to determine which className to return
+    if (className || falsyClassName) {
+      if (className && !!val) {
+        return className;
+      } else if (falsyClassName && !val) {
+        return falsyClassName;
+      } else {
+        return null;
+      }
+
+      // If value is a Boolean and true, return the dasherized property
+      // name.
+    } else if (val === true) {
+        // Normalize property path to be suitable for use
+        // as a class name. For exaple, content.foo.barBaz
+        // becomes bar-baz.
+        var parts = path.split('.');
+        return _emberRuntimeSystemString.dasherize(parts[parts.length - 1]);
+
+        // If the value is not false, undefined, or null, return the current
+        // value of the property.
+      } else if (val !== false && val != null) {
+          return val;
+
+          // Nothing to display. Return null so that the old class is removed
+          // but no new class is added.
+        } else {
+            return null;
+          }
+  }
+
+  function streamifyClassNameBinding(view, classNameBinding, prefix) {
+    prefix = prefix || '';
+    _emberMetalDebug.assert('classNameBindings must not have spaces in them. Multiple class name bindings can be provided as elements of an array, e.g. [\'foo\', \':bar\']', classNameBinding.indexOf(' ') === -1);
+    var parsedPath = parsePropertyPath(classNameBinding);
+    if (parsedPath.path === '') {
+      return classStringForValue(parsedPath.path, true, parsedPath.className, parsedPath.falsyClassName);
+    } else {
+      var pathValue = view.getStream(prefix + parsedPath.path);
+      return _emberHtmlbarsStreamsUtils.chain(pathValue, function () {
+        return classStringForValue(parsedPath.path, _emberHtmlbarsStreamsUtils.read(pathValue), parsedPath.className, parsedPath.falsyClassName);
+      });
+    }
+  }
+});
+enifed('ember-htmlbars/streams/dependency', ['exports', 'ember-metal/debug', 'ember-metal/assign', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalAssign, _emberHtmlbarsStreamsUtils) {
+  'use strict';
+
+  /**
+    @module ember-metal
+  */
+
+  /**
+    @private
+    @class Dependency
+    @namespace Ember.streams
+    @constructor
+  */
+  function Dependency(depender, dependee) {
+    _emberMetalDebug.assert('Dependency error: Depender must be a stream', _emberHtmlbarsStreamsUtils.isStream(depender));
+
+    this.next = null;
+    this.prev = null;
+    this.depender = depender;
+    this.dependee = dependee;
+    this.unsubscription = null;
+  }
+
+  _emberMetalAssign.default(Dependency.prototype, {
+    subscribe: function () {
+      _emberMetalDebug.assert('Dependency error: Dependency tried to subscribe while already subscribed', !this.unsubscription);
+
+      this.unsubscription = _emberHtmlbarsStreamsUtils.subscribe(this.dependee, this.depender.notify, this.depender);
+    },
+
+    unsubscribe: function () {
+      if (this.unsubscription) {
+        this.unsubscription();
+        this.unsubscription = null;
+      }
+    },
+
+    replace: function (dependee) {
+      if (this.dependee !== dependee) {
+        this.dependee = dependee;
+
+        if (this.unsubscription) {
+          this.unsubscribe();
+          this.subscribe();
+        }
+        return true;
+      }
+      return false;
+    },
+
+    getValue: function () {
+      return _emberHtmlbarsStreamsUtils.read(this.dependee);
+    },
+
+    setValue: function (value) {
+      return _emberHtmlbarsStreamsUtils.setValue(this.dependee, value);
+    }
+
+    // destroy() {
+    //   var next = this.next;
+    //   var prev = this.prev;
+
+    //   if (prev) {
+    //     prev.next = next;
+    //   } else {
+    //     this.depender.dependencyHead = next;
+    //   }
+
+    //   if (next) {
+    //     next.prev = prev;
+    //   } else {
+    //     this.depender.dependencyTail = prev;
+    //   }
+
+    //   this.unsubscribe();
+    // }
+  });
+
+  exports.default = Dependency;
+});
+enifed('ember-htmlbars/streams/helper-factory', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
+  'use strict';
+
+  var HelperFactoryStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (helperFactory, params, hash, label) {
       this.helperFactory = helperFactory;
       this.params = params;
@@ -18454,15 +18664,15 @@ enifed('ember-htmlbars/streams/helper-factory', ['exports', 'ember-metal/streams
         this.helper = null;
       }
     },
-    super$deactivate: _emberMetalStreamsStream.default.prototype.deactivate
+    super$deactivate: _emberHtmlbarsStreamsStream.default.prototype.deactivate
   });
 
   exports.default = HelperFactoryStream;
 });
-enifed('ember-htmlbars/streams/helper-instance', ['exports', 'ember-metal/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalStreamsStream, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/streams/helper-instance', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
-  var HelperInstanceStream = _emberMetalStreamsStream.default.extend({
+  var HelperInstanceStream = _emberHtmlbarsStreamsStream.default.extend({
     init: function (helper, params, hash, label) {
       this.helper = helper;
       this.params = params;
@@ -18478,11 +18688,609 @@ enifed('ember-htmlbars/streams/helper-instance', ['exports', 'ember-metal/stream
 
   exports.default = HelperInstanceStream;
 });
-enifed('ember-htmlbars/streams/utils', ['exports', 'ember-htmlbars/hooks/get-value'], function (exports, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/streams/key-stream', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
+  'use strict';
+
+  function labelFor(source, key) {
+    return source.label ? source.label + '.' + key : key;
+  }
+
+  exports.default = _emberHtmlbarsStreamsStream.default.extend({
+    init: function (source, key) {
+      _emberMetalDebug.assert('KeyStream error: source must be a stream', _emberHtmlbarsStreamsUtils.isStream(source)); // TODO: This isn't necessary.
+      _emberMetalDebug.assert('KeyStream error: key must be a non-empty string', typeof key === 'string' && key.length > 0);
+      _emberMetalDebug.assert('KeyStream error: key must not have a \'.\'', key.indexOf('.') === -1);
+
+      var label = labelFor(source, key);
+
+      this.path = label;
+      this.observedObject = null;
+      this.key = key;
+      this.sourceDep = this.addMutableDependency(source);
+      this.label = label;
+    },
+
+    compute: function () {
+      var object = this.sourceDep.getValue();
+      var type = typeof object;
+
+      if (!object || type === 'boolean') {
+        return;
+      }
+
+      if (type === 'object') {
+        return _emberMetalProperty_get.get(object, this.key);
+      }
+
+      return object[this.key];
+    },
+
+    setValue: function (value) {
+      var object = this.sourceDep.getValue();
+      if (object) {
+        _emberMetalProperty_set.set(object, this.key, value);
+      }
+    },
+
+    setSource: function (source) {
+      this.sourceDep.replace(source);
+      this.notify();
+    },
+
+    _super$revalidate: _emberHtmlbarsStreamsStream.default.prototype.revalidate,
+
+    revalidate: function (value) {
+      this._super$revalidate(value);
+
+      var object = this.sourceDep.getValue();
+      if (object !== this.observedObject) {
+        this._clearObservedObject();
+
+        if (object && typeof object === 'object') {
+          _emberMetalObserver.addObserver(object, this.key, this, this.notify);
+          this.observedObject = object;
+        }
+      }
+    },
+
+    _super$deactivate: _emberHtmlbarsStreamsStream.default.prototype.deactivate,
+
+    _clearObservedObject: function () {
+      if (this.observedObject) {
+        _emberMetalObserver.removeObserver(this.observedObject, this.key, this, this.notify);
+        this.observedObject = null;
+      }
+    },
+
+    deactivate: function () {
+      this._super$deactivate();
+      this._clearObservedObject();
+    }
+  });
+});
+enifed('ember-htmlbars/streams/proxy-stream', ['exports', 'ember-runtime/system/object', 'ember-htmlbars/streams/stream'], function (exports, _emberRuntimeSystemObject, _emberHtmlbarsStreamsStream) {
+  'use strict';
+
+  var ProxyStream = _emberHtmlbarsStreamsStream.default.extend({
+    init: function (source, label) {
+      this.label = label;
+      this.sourceDep = this.addMutableDependency(source);
+    },
+
+    compute: function () {
+      return this.sourceDep.getValue();
+    },
+
+    setValue: function (value) {
+      this.sourceDep.setValue(value);
+    },
+
+    setSource: function (source) {
+      var didChange = this.sourceDep.replace(source);
+      if (didChange || !(source instanceof _emberRuntimeSystemObject.default)) {
+        // If the source changed, we must notify. If the source is not
+        // an Ember.Object, we must also notify, because it could have
+        // interior mutability that is otherwise not being observed.
+        this.notify();
+      }
+    }
+  });
+
+  ProxyStream.extend = _emberHtmlbarsStreamsStream.default.extend;
+
+  exports.default = ProxyStream;
+});
+enifed('ember-htmlbars/streams/should_display', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/utils', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeUtils, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
+  'use strict';
+
+  exports.default = shouldDisplay;
+
+  var ShouldDisplayStream = _emberHtmlbarsStreamsStream.default.extend({
+    init: function (predicate) {
+      _emberMetalDebug.assert('ShouldDisplayStream error: predicate must be a stream', _emberHtmlbarsStreamsUtils.isStream(predicate));
+
+      var isTruthy = predicate.get('isTruthy');
+
+      this.init();
+      this.predicate = predicate;
+      this.isTruthy = isTruthy;
+      this.lengthDep = null;
+
+      this.addDependency(predicate);
+      this.addDependency(isTruthy);
+    },
+
+    compute: function () {
+      var truthy = _emberHtmlbarsStreamsUtils.read(this.isTruthy);
+
+      if (typeof truthy === 'boolean') {
+        return truthy;
+      }
+
+      if (this.lengthDep) {
+        return this.lengthDep.getValue() !== 0;
+      } else {
+        return !!_emberHtmlbarsStreamsUtils.read(this.predicate);
+      }
+    },
+
+    revalidate: function () {
+      if (_emberRuntimeUtils.isArray(_emberHtmlbarsStreamsUtils.read(this.predicate))) {
+        if (!this.lengthDep) {
+          this.lengthDep = this.addMutableDependency(this.predicate.get('length'));
+        }
+      } else {
+        if (this.lengthDep) {
+          this.lengthDep.destroy();
+          this.lengthDep = null;
+        }
+      }
+    }
+  });
+
+  function shouldDisplay(predicate) {
+    if (_emberHtmlbarsStreamsUtils.isStream(predicate)) {
+      return new ShouldDisplayStream(predicate);
+    }
+
+    var type = typeof predicate;
+
+    if (type === 'boolean') {
+      return predicate;
+    }
+
+    if (type && type === 'object' && predicate !== null) {
+      var isTruthy = _emberMetalProperty_get.get(predicate, 'isTruthy');
+      if (typeof isTruthy === 'boolean') {
+        return isTruthy;
+      }
+    }
+
+    if (_emberRuntimeUtils.isArray(predicate)) {
+      return _emberMetalProperty_get.get(predicate, 'length') !== 0;
+    } else {
+      return !!predicate;
+    }
+  }
+});
+enifed('ember-htmlbars/streams/stream', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-htmlbars/streams/utils', 'ember-metal/empty_object', 'ember-htmlbars/streams/subscriber', 'ember-htmlbars/streams/dependency', 'ember-metal/utils', 'require', 'ember-metal/symbol'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberHtmlbarsStreamsUtils, _emberMetalEmpty_object, _emberHtmlbarsStreamsSubscriber, _emberHtmlbarsStreamsDependency, _emberMetalUtils, _require, _emberMetalSymbol) {
+  'use strict';
+
+  exports.wrap = wrap;
+  var IS_STREAM = _emberMetalSymbol.default('IS_STREAM');
+
+  exports.IS_STREAM = IS_STREAM;
+  /**
+    @module ember-metal
+  */
+
+  /**
+    @private
+    @class Stream
+    @namespace Ember.stream
+    @constructor
+  */
+  function BasicStream(label) {
+    this._init(label);
+  }
+
+  var KeyStream;
+  var ProxyMixin;
+
+  BasicStream.prototype = {
+    _init: function (label) {
+      this[IS_STREAM] = true;
+      this.label = makeLabel(label);
+      this.isActive = false;
+      this.isDirty = true;
+      this.isDestroyed = false;
+      this.cache = undefined;
+      this.children = undefined;
+      this.subscriberHead = null;
+      this.subscriberTail = null;
+      this.dependencyHead = null;
+      this.dependencyTail = null;
+      this.observedProxy = null;
+      this.__ember_meta__ = null;
+      this[_emberMetalUtils.GUID_KEY] = null;
+    },
+
+    _makeChildStream: function (key) {
+      KeyStream = KeyStream || _require.default('ember-htmlbars/streams/key-stream').default;
+      return new KeyStream(this, key);
+    },
+
+    removeChild: function (key) {
+      delete this.children[key];
+    },
+
+    getKey: function (key) {
+      if (this.children === undefined) {
+        this.children = new _emberMetalEmpty_object.default();
+      }
+
+      var keyStream = this.children[key];
+
+      if (keyStream === undefined) {
+        keyStream = this._makeChildStream(key);
+        this.children[key] = keyStream;
+      }
+
+      return keyStream;
+    },
+
+    get: function (path) {
+      var firstKey = _emberMetalPath_cache.getFirstKey(path);
+      var tailPath = _emberMetalPath_cache.getTailPath(path);
+
+      if (this.children === undefined) {
+        this.children = new _emberMetalEmpty_object.default();
+      }
+
+      var keyStream = this.children[firstKey];
+
+      if (keyStream === undefined) {
+        keyStream = this._makeChildStream(firstKey, path);
+        this.children[firstKey] = keyStream;
+      }
+
+      if (tailPath === undefined) {
+        return keyStream;
+      } else {
+        return keyStream.get(tailPath);
+      }
+    },
+
+    value: function () {
+      // TODO: Ensure value is never called on a destroyed stream
+      // so that we can uncomment this assertion.
+      //
+      // assert("Stream error: value was called after the stream was destroyed", !this.isDestroyed);
+
+      // TODO: Remove this block. This will require ensuring we are
+      // not treating streams as "volatile" anywhere.
+      if (!this.isActive) {
+        this.isDirty = true;
+      }
+
+      var willRevalidate = false;
+
+      if (!this.isActive && this.subscriberHead) {
+        this.activate();
+        willRevalidate = true;
+      }
+
+      if (this.isDirty) {
+        if (this.isActive) {
+          willRevalidate = true;
+        }
+
+        this.cache = this.compute();
+        this.isDirty = false;
+      }
+
+      if (willRevalidate) {
+        this.revalidate(this.cache);
+      }
+
+      return this.cache;
+    },
+
+    addMutableDependency: function (object) {
+      var dependency = new _emberHtmlbarsStreamsDependency.default(this, object);
+
+      if (this.isActive) {
+        dependency.subscribe();
+      }
+
+      if (this.dependencyHead === null) {
+        this.dependencyHead = this.dependencyTail = dependency;
+      } else {
+        var tail = this.dependencyTail;
+        tail.next = dependency;
+        dependency.prev = tail;
+        this.dependencyTail = dependency;
+      }
+
+      return dependency;
+    },
+
+    addDependency: function (object) {
+      if (_emberHtmlbarsStreamsUtils.isStream(object)) {
+        this.addMutableDependency(object);
+      }
+    },
+
+    subscribeDependencies: function () {
+      var dependency = this.dependencyHead;
+      while (dependency) {
+        var next = dependency.next;
+        dependency.subscribe();
+        dependency = next;
+      }
+    },
+
+    unsubscribeDependencies: function () {
+      var dependency = this.dependencyHead;
+      while (dependency) {
+        var next = dependency.next;
+        dependency.unsubscribe();
+        dependency = next;
+      }
+    },
+
+    maybeDeactivate: function () {
+      if (!this.subscriberHead && this.isActive) {
+        this.isActive = false;
+        this.unsubscribeDependencies();
+        this.deactivate();
+      }
+    },
+
+    activate: function () {
+      this.isActive = true;
+      this.subscribeDependencies();
+    },
+
+    revalidate: function (value) {
+      if (value !== this.observedProxy) {
+        this._clearObservedProxy();
+
+        ProxyMixin = ProxyMixin || _require.default('ember-runtime/mixins/-proxy').default;
+
+        if (ProxyMixin.detect(value)) {
+          _emberMetalObserver.addObserver(value, 'content', this, this.notify);
+          this.observedProxy = value;
+        }
+      }
+    },
+
+    _clearObservedProxy: function () {
+      if (this.observedProxy) {
+        _emberMetalObserver.removeObserver(this.observedProxy, 'content', this, this.notify);
+        this.observedProxy = null;
+      }
+    },
+
+    deactivate: function () {
+      this._clearObservedProxy();
+    },
+
+    compute: function () {
+      throw new Error('Stream error: compute not implemented');
+    },
+
+    setValue: function () {
+      throw new Error('Stream error: setValue not implemented');
+    },
+
+    notify: function () {
+      this.notifyExcept();
+    },
+
+    notifyExcept: function (callbackToSkip, contextToSkip) {
+      if (!this.isDirty) {
+        this.isDirty = true;
+        this.notifySubscribers(callbackToSkip, contextToSkip);
+      }
+    },
+
+    subscribe: function (callback, context) {
+      _emberMetalDebug.assert('You tried to subscribe to a stream but the callback provided was not a function.', typeof callback === 'function');
+
+      var subscriber = new _emberHtmlbarsStreamsSubscriber.default(callback, context, this);
+      if (this.subscriberHead === null) {
+        this.subscriberHead = this.subscriberTail = subscriber;
+      } else {
+        var tail = this.subscriberTail;
+        tail.next = subscriber;
+        subscriber.prev = tail;
+        this.subscriberTail = subscriber;
+      }
+
+      var stream = this;
+      return function (prune) {
+        subscriber.removeFrom(stream);
+        if (prune) {
+          stream.prune();
+        }
+      };
+    },
+
+    prune: function () {
+      if (this.subscriberHead === null) {
+        this.destroy(true);
+      }
+    },
+
+    unsubscribe: function (callback, context) {
+      var subscriber = this.subscriberHead;
+
+      while (subscriber) {
+        var next = subscriber.next;
+        if (subscriber.callback === callback && subscriber.context === context) {
+          subscriber.removeFrom(this);
+        }
+        subscriber = next;
+      }
+    },
+
+    notifySubscribers: function (callbackToSkip, contextToSkip) {
+      var subscriber = this.subscriberHead;
+
+      while (subscriber) {
+        var next = subscriber.next;
+
+        var callback = subscriber.callback;
+        var context = subscriber.context;
+
+        subscriber = next;
+
+        if (callback === callbackToSkip && context === contextToSkip) {
+          continue;
+        }
+
+        if (context === undefined) {
+          callback(this);
+        } else {
+          callback.call(context, this);
+        }
+      }
+    },
+
+    destroy: function (prune) {
+      if (!this.isDestroyed) {
+        this.isDestroyed = true;
+
+        this.subscriberHead = this.subscriberTail = null;
+        this.maybeDeactivate();
+
+        var dependencies = this.dependencies;
+
+        if (dependencies) {
+          for (var i = 0; i < dependencies.length; i++) {
+            dependencies[i](prune);
+          }
+        }
+
+        return true;
+      }
+    }
+  };
+
+  BasicStream.extend = function (object) {
+    var Child = function () {
+      this._init();
+      this.init.apply(this, arguments);
+
+      _emberMetalDebug.debugSeal(this);
+    };
+
+    Child.prototype = Object.create(this.prototype);
+
+    _emberMetalAssign.default(Child.prototype, object);
+    Child.extend = BasicStream.extend;
+    return Child;
+  };
+
+  var Stream = BasicStream.extend({
+    init: function (fn, label) {
+      this._compute = fn;
+      this.label = label;
+    },
+
+    compute: function () {
+      return this._compute();
+    }
+  });
+
+  function wrap(value, Kind, param) {
+    if (_emberHtmlbarsStreamsUtils.isStream(value)) {
+      return value;
+    } else {
+      return new Kind(value, param);
+    }
+  }
+
+  function makeLabel(label) {
+    if (label === undefined) {
+      return '(no label)';
+    } else {
+      return label;
+    }
+  }
+
+  exports.default = BasicStream;
+  exports.Stream = Stream;
+});
+enifed('ember-htmlbars/streams/subscriber', ['exports', 'ember-metal/assign'], function (exports, _emberMetalAssign) {
+  'use strict';
+
+  /**
+    @module ember-metal
+  */
+
+  /**
+    @private
+    @class Subscriber
+    @namespace Ember.streams
+    @constructor
+  */
+  function Subscriber(callback, context) {
+    this.next = null;
+    this.prev = null;
+    this.callback = callback;
+    this.context = context;
+  }
+
+  _emberMetalAssign.default(Subscriber.prototype, {
+    removeFrom: function (stream) {
+      var next = this.next;
+      var prev = this.prev;
+
+      if (prev) {
+        prev.next = next;
+      } else {
+        stream.subscriberHead = next;
+      }
+
+      if (next) {
+        next.prev = prev;
+      } else {
+        stream.subscriberTail = prev;
+      }
+
+      stream.maybeDeactivate();
+    }
+  });
+
+  exports.default = Subscriber;
+});
+enifed('ember-htmlbars/streams/utils', ['exports', 'ember-htmlbars/hooks/get-value', 'ember-metal/debug', 'ember-htmlbars/streams/stream', 'ember-metal/property_get', 'ember-runtime/mixins/controller'], function (exports, _emberHtmlbarsHooksGetValue, _emberMetalDebug, _emberHtmlbarsStreamsStream, _emberMetalProperty_get, _emberRuntimeMixinsController) {
   'use strict';
 
   exports.getArrayValues = getArrayValues;
   exports.getHashValues = getHashValues;
+  exports.isStream = isStream;
+  exports.subscribe = subscribe;
+  exports.unsubscribe = unsubscribe;
+  exports.read = read;
+  exports.readArray = readArray;
+  exports.readHash = readHash;
+  exports.scanArray = scanArray;
+  exports.scanHash = scanHash;
+  exports.concat = concat;
+  exports.labelsFor = labelsFor;
+  exports.labelsForObject = labelsForObject;
+  exports.labelFor = labelFor;
+  exports.or = or;
+  exports.addDependency = addDependency;
+  exports.zip = zip;
+  exports.zipHash = zipHash;
+  exports.chain = chain;
+  exports.setValue = setValue;
+  exports.readViewFactory = readViewFactory;
+  exports.readUnwrappedModel = readUnwrappedModel;
 
   // We don't want to leak mutable cells into helpers, which
   // are pure functions that can only work with values.
@@ -18505,6 +19313,402 @@ enifed('ember-htmlbars/streams/utils', ['exports', 'ember-htmlbars/hooks/get-val
     }
 
     return out;
+  }
+
+  /*
+   Check whether an object is a stream or not.
+  
+   @private
+   @for Ember.stream
+   @function isStream
+   @param {Object|Stream} object Object to check whether it is a stream.
+   @return {Boolean} `true` if the object is a stream, `false` otherwise.
+  */
+
+  function isStream(object) {
+    return object && object[_emberHtmlbarsStreamsStream.IS_STREAM];
+  }
+
+  /*
+   A method of subscribing to a stream which is safe for use with a non-stream
+   object. If a non-stream object is passed, the function does nothing.
+  
+   @public
+   @for Ember.stream
+   @function subscribe
+   @param {Object|Stream} object Object or stream to potentially subscribe to.
+   @param {Function} callback Function to run when stream value changes.
+   @param {Object} [context] the callback will be executed with this context if it
+                             is provided.
+   */
+
+  function subscribe(object, callback, context) {
+    if (object && object[_emberHtmlbarsStreamsStream.IS_STREAM]) {
+      return object.subscribe(callback, context);
+    }
+  }
+
+  /*
+   A method of unsubscribing from a stream which is safe for use with a non-stream
+   object. If a non-stream object is passed, the function does nothing.
+  
+   @private
+   @for Ember.stream
+   @function unsubscribe
+   @param {Object|Stream} object Object or stream to potentially unsubscribe from.
+   @param {Function} callback Function originally passed to `subscribe()`.
+   @param {Object} [context] Object originally passed to `subscribe()`.
+   */
+
+  function unsubscribe(object, callback, context) {
+    if (object && object[_emberHtmlbarsStreamsStream.IS_STREAM]) {
+      object.unsubscribe(callback, context);
+    }
+  }
+
+  /*
+   Retrieve the value of a stream, or in the case where a non-stream object is passed,
+   return the object itself.
+  
+   @private
+   @for Ember.stream
+   @function read
+   @param {Object|Stream} object Object to return the value of.
+   @return The stream's current value, or the non-stream object itself.
+   */
+
+  function read(object) {
+    if (object && object[_emberHtmlbarsStreamsStream.IS_STREAM]) {
+      return object.value();
+    } else {
+      return object;
+    }
+  }
+
+  /*
+   Map an array, replacing any streams with their values.
+  
+   @private
+   @for Ember.stream
+   @function readArray
+   @param {Array} array The array to read values from
+   @return {Array} A new array of the same length with the values of non-stream
+                   objects mapped from their original positions untouched, and
+                   the values of stream objects retaining their original position
+                   and replaced with the stream's current value.
+   */
+
+  function readArray(array) {
+    var ret = new Array(array.length);
+    for (var i = 0; i < array.length; i++) {
+      ret[i] = read(array[i]);
+    }
+    return ret;
+  }
+
+  /*
+   Map a hash, replacing any stream property values with the current value of that
+   stream.
+  
+   @private
+   @for Ember.stream
+   @function readHash
+   @param {Object} object The hash to read keys and values from.
+   @return {Object} A new object with the same keys as the passed object. The
+                    property values in the new object are the original values in
+                    the case of non-stream objects, and the streams' current
+                    values in the case of stream objects.
+   */
+
+  function readHash(object) {
+    var ret = {};
+    for (var key in object) {
+      ret[key] = read(object[key]);
+    }
+    return ret;
+  }
+
+  /*
+   Check whether an array contains any stream values.
+  
+   @private
+   @for Ember.stream
+   @function scanArray
+   @param {Array} array Array given to a handlebars helper.
+   @return {Boolean} `true` if the array contains a stream/bound value, `false`
+                     otherwise.
+  */
+
+  function scanArray(array) {
+    var containsStream = false;
+
+    for (var i = 0; i < array.length; i++) {
+      if (isStream(array[i])) {
+        containsStream = true;
+        break;
+      }
+    }
+
+    return containsStream;
+  }
+
+  /*
+   Check whether a hash has any stream property values.
+  
+   @private
+   @for Ember.stream
+   @function scanHash
+   @param {Object} hash "hash" argument given to a handlebars helper.
+   @return {Boolean} `true` if the object contains a stream/bound value, `false`
+                     otherwise.
+   */
+
+  function scanHash(hash) {
+    var containsStream = false;
+
+    for (var prop in hash) {
+      if (isStream(hash[prop])) {
+        containsStream = true;
+        break;
+      }
+    }
+
+    return containsStream;
+  }
+
+  var ConcatStream = _emberHtmlbarsStreamsStream.default.extend({
+    init: function (array, separator) {
+      this.array = array;
+      this.separator = separator;
+
+      // Used by angle bracket components to detect an attribute was provided
+      // as a string literal.
+      this.isConcat = true;
+    },
+
+    label: function () {
+      var labels = labelsFor(this.array);
+      return 'concat([' + labels.join(', ') + ']; separator=' + inspect(this.separator) + ')';
+    },
+
+    compute: function () {
+      return concat(readArray(this.array), this.separator);
+    }
+  });
+
+  /*
+   Join an array, with any streams replaced by their current values.
+  
+   @private
+   @for Ember.stream
+   @function concat
+   @param {Array} array An array containing zero or more stream objects and
+                        zero or more non-stream objects.
+   @param {String} separator String to be used to join array elements.
+   @return {String} String with array elements concatenated and joined by the
+                    provided separator, and any stream array members having been
+                    replaced by the current value of the stream.
+   */
+
+  function concat(array, separator) {
+    // TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
+    var hasStream = scanArray(array);
+    if (hasStream) {
+      var stream = new ConcatStream(array, separator);
+
+      for (var i = 0; i < array.length; i++) {
+        addDependency(stream, array[i]);
+      }
+
+      return stream;
+    } else {
+      return array.join(separator);
+    }
+  }
+
+  function labelsFor(streams) {
+    var labels = [];
+
+    for (var i = 0; i < streams.length; i++) {
+      var stream = streams[i];
+      labels.push(labelFor(stream));
+    }
+
+    return labels;
+  }
+
+  function labelsForObject(streams) {
+    var labels = [];
+
+    for (var prop in streams) {
+      labels.push(prop + ': ' + inspect(streams[prop]));
+    }
+
+    return labels.length ? '{ ' + labels.join(', ') + ' }' : '{}';
+  }
+
+  function labelFor(maybeStream) {
+    if (isStream(maybeStream)) {
+      var stream = maybeStream;
+      return typeof stream.label === 'function' ? stream.label() : stream.label;
+    } else {
+      return inspect(maybeStream);
+    }
+  }
+
+  function inspect(value) {
+    switch (typeof value) {
+      case 'string':
+        return '"' + value + '"';
+      case 'object':
+        return '{ ... }';
+      case 'function':
+        return 'function() { ... }';
+      default:
+        return String(value);
+    }
+  }
+
+  function or(first, second) {
+    var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      return first.value() || second.value();
+    }, function () {
+      return labelFor(first) + ' || ' + labelFor(second);
+    });
+
+    stream.addDependency(first);
+    stream.addDependency(second);
+
+    return stream;
+  }
+
+  function addDependency(stream, dependency) {
+    _emberMetalDebug.assert('Cannot add a stream as a dependency to a non-stream', isStream(stream) || !isStream(dependency));
+    if (isStream(stream)) {
+      stream.addDependency(dependency);
+    }
+  }
+
+  function zip(streams, callback, label) {
+    _emberMetalDebug.assert('Must call zip with a label', !!label);
+
+    var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      var array = readArray(streams);
+      return callback ? callback(array) : array;
+    }, function () {
+      return label + '(' + labelsFor(streams) + ')';
+    });
+
+    for (var i = 0; i < streams.length; i++) {
+      stream.addDependency(streams[i]);
+    }
+
+    return stream;
+  }
+
+  function zipHash(object, callback, label) {
+    _emberMetalDebug.assert('Must call zipHash with a label', !!label);
+
+    var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      var hash = readHash(object);
+      return callback ? callback(hash) : hash;
+    }, function () {
+      return label + '(' + labelsForObject(object) + ')';
+    });
+
+    for (var prop in object) {
+      stream.addDependency(object[prop]);
+    }
+
+    return stream;
+  }
+
+  /**
+   Generate a new stream by providing a source stream and a function that can
+   be used to transform the stream's value. In the case of a non-stream object,
+   returns the result of the function.
+  
+   The value to transform would typically be available to the function you pass
+   to `chain()` via scope. For example:
+  
+   ```javascript
+       var source = ...;  // stream returning a number
+                              // or a numeric (non-stream) object
+       var result = chain(source, function() {
+         var currentValue = read(source);
+         return currentValue + 1;
+       });
+   ```
+  
+   In the example, result is a stream if source is a stream, or a number of
+   source was numeric.
+  
+   @private
+   @for Ember.stream
+   @function chain
+   @param {Object|Stream} value A stream or non-stream object.
+   @param {Function} fn Function to be run when the stream value changes, or to
+                        be run once in the case of a non-stream object.
+   @return {Object|Stream} In the case of a stream `value` parameter, a new
+                           stream that will be updated with the return value of
+                           the provided function `fn`. In the case of a
+                           non-stream object, the return value of the provided
+                           function `fn`.
+   */
+
+  function chain(value, fn, label) {
+    _emberMetalDebug.assert('Must call chain with a label', !!label);
+    if (isStream(value)) {
+      var stream = new _emberHtmlbarsStreamsStream.Stream(fn, function () {
+        return label + '(' + labelFor(value) + ')';
+      });
+      stream.addDependency(value);
+      return stream;
+    } else {
+      return fn();
+    }
+  }
+
+  function setValue(object, value) {
+    if (object && object[_emberHtmlbarsStreamsStream.IS_STREAM]) {
+      object.setValue(value);
+    }
+  }
+
+  function readViewFactory(object, owner) {
+    var value = read(object);
+    var viewClass;
+
+    if (typeof value === 'string') {
+      _emberMetalDebug.assert('View requires an owner to resolve views not passed in through the context', !!owner);
+      viewClass = owner._lookupFactory('view:' + value);
+    } else {
+      viewClass = value;
+    }
+
+    _emberMetalDebug.assert(value + ' must be a subclass or an instance of Ember.View, not ' + viewClass, (function (viewClass) {
+      return viewClass && (viewClass.isViewFactory || viewClass.isView || viewClass.isComponentFactory || viewClass.isComponent);
+    })(viewClass));
+
+    return viewClass;
+  }
+
+  function readUnwrappedModel(object) {
+    if (isStream(object)) {
+      var result = object.value();
+
+      // If the path is exactly `controller` then we don't unwrap it.
+      if (object.label !== 'controller') {
+        while (_emberRuntimeMixinsController.default.detect(result)) {
+          result = _emberMetalProperty_get.get(result, 'model');
+        }
+      }
+
+      return result;
+    } else {
+      return object;
+    }
   }
 });
 enifed('ember-htmlbars/system/append-templated-view', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-views/views/view'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberViewsViewsView) {
@@ -18542,7 +19746,7 @@ enifed('ember-htmlbars/system/append-templated-view', ['exports', 'ember-metal/d
     return parentView.appendChild(viewClassOrInstance, props);
   }
 });
-enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
   exports.default = buildComponentTemplate;
@@ -18757,7 +19961,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     var classNameBindings = _emberMetalProperty_get.get(component, 'classNameBindings');
 
     if (attrs.class) {
-      if (_emberMetalStreamsUtils.isStream(attrs.class)) {
+      if (_emberHtmlbarsStreamsUtils.isStream(attrs.class)) {
         normalizedClass.push(['subexpr', '-normalize-class', [['value', attrs.class.path], ['value', attrs.class]], []]);
       } else {
         normalizedClass.push(attrs.class);
@@ -19346,7 +20550,7 @@ enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/property
     return key;
   }
 });
-enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-metal/debug', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
   exports.default = extractPositionalParams;
@@ -19397,8 +20601,8 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
     // If there is already an attribute for that variable, do nothing
     _emberMetalDebug.assert('You cannot specify positional parameters and the hash argument `' + positionalParamsName + '`.', !(nameInAttrs && raiseAssertions));
 
-    var paramsStream = new _emberMetalStreamsStream.Stream(function () {
-      return _emberMetalStreamsUtils.readArray(params.slice(0));
+    var paramsStream = new _emberHtmlbarsStreamsStream.Stream(function () {
+      return _emberHtmlbarsStreamsUtils.readArray(params.slice(0));
     }, 'params');
 
     attrs[positionalParamsName] = paramsStream;
@@ -19409,7 +20613,7 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
     }
   }
 });
-enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-metal/features', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component', 'ember-metal/streams/utils'], function (exports, _emberMetalFeatures, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-metal/features', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalFeatures, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsStreamsUtils) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -19436,7 +20640,7 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-metal/features', 
     if (typeof path === 'string') {
       if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DOT_CACHE.get(path)) {
         var stream = env.hooks.get(env, scope, path);
-        if (_emberMetalStreamsUtils.isStream(stream)) {
+        if (_emberHtmlbarsStreamsUtils.isStream(stream)) {
           var cell = stream.value();
           if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(cell)) {
             return true;
@@ -19492,13 +20696,13 @@ enifed('ember-htmlbars/utils/lookup-component', ['exports', 'ember-metal/feature
     return lookupComponentPair(componentLookup, owner, name);
   }
 });
-enifed('ember-htmlbars/utils/new-stream', ['exports', 'ember-metal/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+enifed('ember-htmlbars/utils/new-stream', ['exports', 'ember-htmlbars/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberHtmlbarsStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
   'use strict';
 
   exports.default = newStream;
 
   function newStream(scope, key, newValue, renderNode, isSelf) {
-    var stream = new _emberMetalStreamsProxyStream.default(newValue, isSelf ? '' : key);
+    var stream = new _emberHtmlbarsStreamsProxyStream.default(newValue, isSelf ? '' : key);
     if (renderNode) {
       _emberHtmlbarsUtilsSubscribe.default(renderNode, scope, stream);
     }
@@ -19561,13 +20765,13 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-ru
   exports.htmlSafe = htmlSafe;
   exports.escapeExpression = _htmlbarsUtil.escapeExpression;
 });
-enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
   exports.default = subscribe;
 
   function subscribe(node, env, scope, stream) {
-    if (!_emberMetalStreamsUtils.isStream(stream)) {
+    if (!_emberHtmlbarsStreamsUtils.isStream(stream)) {
       return;
     }
     var component = scope.getComponent();
@@ -19589,11 +20793,11 @@ enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-metal/streams/utils'
         node.shouldReceiveAttrs = true;
       }
 
-      node.ownerNode.emberView.scheduleRevalidate(node, _emberMetalStreamsUtils.labelFor(stream));
+      node.ownerNode.emberView.scheduleRevalidate(node, _emberHtmlbarsStreamsUtils.labelFor(stream));
     }));
   }
 });
-enifed('ember-htmlbars/utils/update-scope', ['exports', 'ember-metal/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+enifed('ember-htmlbars/utils/update-scope', ['exports', 'ember-htmlbars/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberHtmlbarsStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
   'use strict';
 
   exports.default = updateScope;
@@ -19604,7 +20808,7 @@ enifed('ember-htmlbars/utils/update-scope', ['exports', 'ember-metal/streams/pro
     if (existing) {
       existing.setSource(newValue);
     } else {
-      var stream = new _emberMetalStreamsProxyStream.default(newValue, isSelf ? null : key);
+      var stream = new _emberHtmlbarsStreamsProxyStream.default(newValue, isSelf ? null : key);
       if (renderNode) {
         _emberHtmlbarsUtilsSubscribe.default(renderNode, scope, stream);
       }
@@ -24070,7 +25274,7 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
     destination.push(target, method, source[index + 3]);
   }
 });
-enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, _emberMetalError, _emberMetalDebug, _emberMetalAssign, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
+enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events'], function (exports, _emberMetalError, _emberMetalDebug, _emberMetalAssign, _emberMetalUtils, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -24326,40 +25530,12 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     }
   }
 
-  function connectStreamBinding(obj, key, stream) {
-    var onNotify = function (stream) {
-      _emberMetalObserver._suspendObserver(obj, key, null, didChange, function () {
-        _emberMetalProperty_set.trySet(obj, key, stream.value());
-      });
-    };
-
-    var didChange = function () {
-      stream.setValue(_emberMetalProperty_get.get(obj, key), onNotify);
-    };
-
-    // Initialize value
-    _emberMetalProperty_set.set(obj, key, stream.value());
-
-    _emberMetalObserver.addObserver(obj, key, null, didChange);
-
-    stream.subscribe(onNotify);
-
-    if (obj._streamBindingSubscriptions === undefined) {
-      obj._streamBindingSubscriptions = new _emberMetalEmpty_object.default();
-    }
-
-    obj._streamBindingSubscriptions[key] = onNotify;
-  }
-
   function connectBindings(obj, m) {
     // TODO Mixin.apply(instance) should disconnect binding if exists
     m.forEachBindings(function (key, binding) {
       if (binding) {
         var to = key.slice(0, -7); // strip Binding off end
-        if (_emberMetalStreamsUtils.isStream(binding)) {
-          connectStreamBinding(obj, to, binding);
-          return;
-        } else if (binding instanceof _emberMetalBinding.Binding) {
+        if (binding instanceof _emberMetalBinding.Binding) {
           binding = binding.copy(); // copy prototypes' instance
           binding.to(to);
         } else {
@@ -26825,974 +28001,6 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
       }
     });
     return properties;
-  }
-});
-enifed('ember-metal/streams/dependency', ['exports', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalAssign, _emberMetalStreamsUtils) {
-  'use strict';
-
-  /**
-    @module ember-metal
-  */
-
-  /**
-    @private
-    @class Dependency
-    @namespace Ember.streams
-    @constructor
-  */
-  function Dependency(depender, dependee) {
-    _emberMetalDebug.assert('Dependency error: Depender must be a stream', _emberMetalStreamsUtils.isStream(depender));
-
-    this.next = null;
-    this.prev = null;
-    this.depender = depender;
-    this.dependee = dependee;
-    this.unsubscription = null;
-  }
-
-  _emberMetalAssign.default(Dependency.prototype, {
-    subscribe: function () {
-      _emberMetalDebug.assert('Dependency error: Dependency tried to subscribe while already subscribed', !this.unsubscription);
-
-      this.unsubscription = _emberMetalStreamsUtils.subscribe(this.dependee, this.depender.notify, this.depender);
-    },
-
-    unsubscribe: function () {
-      if (this.unsubscription) {
-        this.unsubscription();
-        this.unsubscription = null;
-      }
-    },
-
-    replace: function (dependee) {
-      if (this.dependee !== dependee) {
-        this.dependee = dependee;
-
-        if (this.unsubscription) {
-          this.unsubscribe();
-          this.subscribe();
-        }
-        return true;
-      }
-      return false;
-    },
-
-    getValue: function () {
-      return _emberMetalStreamsUtils.read(this.dependee);
-    },
-
-    setValue: function (value) {
-      return _emberMetalStreamsUtils.setValue(this.dependee, value);
-    }
-
-    // destroy() {
-    //   var next = this.next;
-    //   var prev = this.prev;
-
-    //   if (prev) {
-    //     prev.next = next;
-    //   } else {
-    //     this.depender.dependencyHead = next;
-    //   }
-
-    //   if (next) {
-    //     next.prev = prev;
-    //   } else {
-    //     this.depender.dependencyTail = prev;
-    //   }
-
-    //   this.unsubscribe();
-    // }
-  });
-
-  exports.default = Dependency;
-});
-enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
-  'use strict';
-
-  function labelFor(source, key) {
-    return source.label ? source.label + '.' + key : key;
-  }
-
-  exports.default = _emberMetalStreamsStream.default.extend({
-    init: function (source, key) {
-      _emberMetalDebug.assert('KeyStream error: source must be a stream', _emberMetalStreamsUtils.isStream(source)); // TODO: This isn't necessary.
-      _emberMetalDebug.assert('KeyStream error: key must be a non-empty string', typeof key === 'string' && key.length > 0);
-      _emberMetalDebug.assert('KeyStream error: key must not have a \'.\'', key.indexOf('.') === -1);
-
-      var label = labelFor(source, key);
-
-      this.path = label;
-      this.observedObject = null;
-      this.key = key;
-      this.sourceDep = this.addMutableDependency(source);
-      this.label = label;
-    },
-
-    compute: function () {
-      var object = this.sourceDep.getValue();
-      var type = typeof object;
-
-      if (!object || type === 'boolean') {
-        return;
-      }
-
-      if (type === 'object') {
-        return _emberMetalProperty_get.get(object, this.key);
-      }
-
-      return object[this.key];
-    },
-
-    setValue: function (value) {
-      var object = this.sourceDep.getValue();
-      if (object) {
-        _emberMetalProperty_set.set(object, this.key, value);
-      }
-    },
-
-    setSource: function (source) {
-      this.sourceDep.replace(source);
-      this.notify();
-    },
-
-    _super$revalidate: _emberMetalStreamsStream.default.prototype.revalidate,
-
-    revalidate: function (value) {
-      this._super$revalidate(value);
-
-      var object = this.sourceDep.getValue();
-      if (object !== this.observedObject) {
-        this._clearObservedObject();
-
-        if (object && typeof object === 'object') {
-          _emberMetalObserver.addObserver(object, this.key, this, this.notify);
-          this.observedObject = object;
-        }
-      }
-    },
-
-    _super$deactivate: _emberMetalStreamsStream.default.prototype.deactivate,
-
-    _clearObservedObject: function () {
-      if (this.observedObject) {
-        _emberMetalObserver.removeObserver(this.observedObject, this.key, this, this.notify);
-        this.observedObject = null;
-      }
-    },
-
-    deactivate: function () {
-      this._super$deactivate();
-      this._clearObservedObject();
-    }
-  });
-});
-enifed('ember-metal/streams/proxy-stream', ['exports', 'ember-runtime/system/object', 'ember-metal/streams/stream'], function (exports, _emberRuntimeSystemObject, _emberMetalStreamsStream) {
-  'use strict';
-
-  var ProxyStream = _emberMetalStreamsStream.default.extend({
-    init: function (source, label) {
-      this.label = label;
-      this.sourceDep = this.addMutableDependency(source);
-    },
-
-    compute: function () {
-      return this.sourceDep.getValue();
-    },
-
-    setValue: function (value) {
-      this.sourceDep.setValue(value);
-    },
-
-    setSource: function (source) {
-      var didChange = this.sourceDep.replace(source);
-      if (didChange || !(source instanceof _emberRuntimeSystemObject.default)) {
-        // If the source changed, we must notify. If the source is not
-        // an Ember.Object, we must also notify, because it could have
-        // interior mutability that is otherwise not being observed.
-        this.notify();
-      }
-    }
-  });
-
-  ProxyStream.extend = _emberMetalStreamsStream.default.extend;
-
-  exports.default = ProxyStream;
-});
-enifed('ember-metal/streams/stream', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency', 'ember-metal/utils', 'require', 'ember-metal/symbol'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency, _emberMetalUtils, _require, _emberMetalSymbol) {
-  'use strict';
-
-  exports.wrap = wrap;
-  var IS_STREAM = _emberMetalSymbol.default('IS_STREAM');
-
-  exports.IS_STREAM = IS_STREAM;
-  /**
-    @module ember-metal
-  */
-
-  /**
-    @private
-    @class Stream
-    @namespace Ember.stream
-    @constructor
-  */
-  function BasicStream(label) {
-    this._init(label);
-  }
-
-  var KeyStream;
-  var ProxyMixin;
-
-  BasicStream.prototype = {
-    _init: function (label) {
-      this[IS_STREAM] = true;
-      this.label = makeLabel(label);
-      this.isActive = false;
-      this.isDirty = true;
-      this.isDestroyed = false;
-      this.cache = undefined;
-      this.children = undefined;
-      this.subscriberHead = null;
-      this.subscriberTail = null;
-      this.dependencyHead = null;
-      this.dependencyTail = null;
-      this.observedProxy = null;
-      this.__ember_meta__ = null;
-      this[_emberMetalUtils.GUID_KEY] = null;
-    },
-
-    _makeChildStream: function (key) {
-      KeyStream = KeyStream || _require.default('ember-metal/streams/key-stream').default;
-      return new KeyStream(this, key);
-    },
-
-    removeChild: function (key) {
-      delete this.children[key];
-    },
-
-    getKey: function (key) {
-      if (this.children === undefined) {
-        this.children = new _emberMetalEmpty_object.default();
-      }
-
-      var keyStream = this.children[key];
-
-      if (keyStream === undefined) {
-        keyStream = this._makeChildStream(key);
-        this.children[key] = keyStream;
-      }
-
-      return keyStream;
-    },
-
-    get: function (path) {
-      var firstKey = _emberMetalPath_cache.getFirstKey(path);
-      var tailPath = _emberMetalPath_cache.getTailPath(path);
-
-      if (this.children === undefined) {
-        this.children = new _emberMetalEmpty_object.default();
-      }
-
-      var keyStream = this.children[firstKey];
-
-      if (keyStream === undefined) {
-        keyStream = this._makeChildStream(firstKey, path);
-        this.children[firstKey] = keyStream;
-      }
-
-      if (tailPath === undefined) {
-        return keyStream;
-      } else {
-        return keyStream.get(tailPath);
-      }
-    },
-
-    value: function () {
-      // TODO: Ensure value is never called on a destroyed stream
-      // so that we can uncomment this assertion.
-      //
-      // assert("Stream error: value was called after the stream was destroyed", !this.isDestroyed);
-
-      // TODO: Remove this block. This will require ensuring we are
-      // not treating streams as "volatile" anywhere.
-      if (!this.isActive) {
-        this.isDirty = true;
-      }
-
-      var willRevalidate = false;
-
-      if (!this.isActive && this.subscriberHead) {
-        this.activate();
-        willRevalidate = true;
-      }
-
-      if (this.isDirty) {
-        if (this.isActive) {
-          willRevalidate = true;
-        }
-
-        this.cache = this.compute();
-        this.isDirty = false;
-      }
-
-      if (willRevalidate) {
-        this.revalidate(this.cache);
-      }
-
-      return this.cache;
-    },
-
-    addMutableDependency: function (object) {
-      var dependency = new _emberMetalStreamsDependency.default(this, object);
-
-      if (this.isActive) {
-        dependency.subscribe();
-      }
-
-      if (this.dependencyHead === null) {
-        this.dependencyHead = this.dependencyTail = dependency;
-      } else {
-        var tail = this.dependencyTail;
-        tail.next = dependency;
-        dependency.prev = tail;
-        this.dependencyTail = dependency;
-      }
-
-      return dependency;
-    },
-
-    addDependency: function (object) {
-      if (_emberMetalStreamsUtils.isStream(object)) {
-        this.addMutableDependency(object);
-      }
-    },
-
-    subscribeDependencies: function () {
-      var dependency = this.dependencyHead;
-      while (dependency) {
-        var next = dependency.next;
-        dependency.subscribe();
-        dependency = next;
-      }
-    },
-
-    unsubscribeDependencies: function () {
-      var dependency = this.dependencyHead;
-      while (dependency) {
-        var next = dependency.next;
-        dependency.unsubscribe();
-        dependency = next;
-      }
-    },
-
-    maybeDeactivate: function () {
-      if (!this.subscriberHead && this.isActive) {
-        this.isActive = false;
-        this.unsubscribeDependencies();
-        this.deactivate();
-      }
-    },
-
-    activate: function () {
-      this.isActive = true;
-      this.subscribeDependencies();
-    },
-
-    revalidate: function (value) {
-      if (value !== this.observedProxy) {
-        this._clearObservedProxy();
-
-        ProxyMixin = ProxyMixin || _require.default('ember-runtime/mixins/-proxy').default;
-
-        if (ProxyMixin.detect(value)) {
-          _emberMetalObserver.addObserver(value, 'content', this, this.notify);
-          this.observedProxy = value;
-        }
-      }
-    },
-
-    _clearObservedProxy: function () {
-      if (this.observedProxy) {
-        _emberMetalObserver.removeObserver(this.observedProxy, 'content', this, this.notify);
-        this.observedProxy = null;
-      }
-    },
-
-    deactivate: function () {
-      this._clearObservedProxy();
-    },
-
-    compute: function () {
-      throw new Error('Stream error: compute not implemented');
-    },
-
-    setValue: function () {
-      throw new Error('Stream error: setValue not implemented');
-    },
-
-    notify: function () {
-      this.notifyExcept();
-    },
-
-    notifyExcept: function (callbackToSkip, contextToSkip) {
-      if (!this.isDirty) {
-        this.isDirty = true;
-        this.notifySubscribers(callbackToSkip, contextToSkip);
-      }
-    },
-
-    subscribe: function (callback, context) {
-      _emberMetalDebug.assert('You tried to subscribe to a stream but the callback provided was not a function.', typeof callback === 'function');
-
-      var subscriber = new _emberMetalStreamsSubscriber.default(callback, context, this);
-      if (this.subscriberHead === null) {
-        this.subscriberHead = this.subscriberTail = subscriber;
-      } else {
-        var tail = this.subscriberTail;
-        tail.next = subscriber;
-        subscriber.prev = tail;
-        this.subscriberTail = subscriber;
-      }
-
-      var stream = this;
-      return function (prune) {
-        subscriber.removeFrom(stream);
-        if (prune) {
-          stream.prune();
-        }
-      };
-    },
-
-    prune: function () {
-      if (this.subscriberHead === null) {
-        this.destroy(true);
-      }
-    },
-
-    unsubscribe: function (callback, context) {
-      var subscriber = this.subscriberHead;
-
-      while (subscriber) {
-        var next = subscriber.next;
-        if (subscriber.callback === callback && subscriber.context === context) {
-          subscriber.removeFrom(this);
-        }
-        subscriber = next;
-      }
-    },
-
-    notifySubscribers: function (callbackToSkip, contextToSkip) {
-      var subscriber = this.subscriberHead;
-
-      while (subscriber) {
-        var next = subscriber.next;
-
-        var callback = subscriber.callback;
-        var context = subscriber.context;
-
-        subscriber = next;
-
-        if (callback === callbackToSkip && context === contextToSkip) {
-          continue;
-        }
-
-        if (context === undefined) {
-          callback(this);
-        } else {
-          callback.call(context, this);
-        }
-      }
-    },
-
-    destroy: function (prune) {
-      if (!this.isDestroyed) {
-        this.isDestroyed = true;
-
-        this.subscriberHead = this.subscriberTail = null;
-        this.maybeDeactivate();
-
-        var dependencies = this.dependencies;
-
-        if (dependencies) {
-          for (var i = 0; i < dependencies.length; i++) {
-            dependencies[i](prune);
-          }
-        }
-
-        return true;
-      }
-    }
-  };
-
-  BasicStream.extend = function (object) {
-    var Child = function () {
-      this._init();
-      this.init.apply(this, arguments);
-
-      _emberMetalDebug.debugSeal(this);
-    };
-
-    Child.prototype = Object.create(this.prototype);
-
-    _emberMetalAssign.default(Child.prototype, object);
-    Child.extend = BasicStream.extend;
-    return Child;
-  };
-
-  var Stream = BasicStream.extend({
-    init: function (fn, label) {
-      this._compute = fn;
-      this.label = label;
-    },
-
-    compute: function () {
-      return this._compute();
-    }
-  });
-
-  function wrap(value, Kind, param) {
-    if (_emberMetalStreamsUtils.isStream(value)) {
-      return value;
-    } else {
-      return new Kind(value, param);
-    }
-  }
-
-  function makeLabel(label) {
-    if (label === undefined) {
-      return '(no label)';
-    } else {
-      return label;
-    }
-  }
-
-  exports.default = BasicStream;
-  exports.Stream = Stream;
-});
-enifed('ember-metal/streams/subscriber', ['exports', 'ember-metal/assign'], function (exports, _emberMetalAssign) {
-  'use strict';
-
-  /**
-    @module ember-metal
-  */
-
-  /**
-    @private
-    @class Subscriber
-    @namespace Ember.streams
-    @constructor
-  */
-  function Subscriber(callback, context) {
-    this.next = null;
-    this.prev = null;
-    this.callback = callback;
-    this.context = context;
-  }
-
-  _emberMetalAssign.default(Subscriber.prototype, {
-    removeFrom: function (stream) {
-      var next = this.next;
-      var prev = this.prev;
-
-      if (prev) {
-        prev.next = next;
-      } else {
-        stream.subscriberHead = next;
-      }
-
-      if (next) {
-        next.prev = prev;
-      } else {
-        stream.subscriberTail = prev;
-      }
-
-      stream.maybeDeactivate();
-    }
-  });
-
-  exports.default = Subscriber;
-});
-enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream'], function (exports, _emberMetalDebug, _emberMetalStreamsStream) {
-  'use strict';
-
-  exports.isStream = isStream;
-  exports.subscribe = subscribe;
-  exports.unsubscribe = unsubscribe;
-  exports.read = read;
-  exports.readArray = readArray;
-  exports.readHash = readHash;
-  exports.scanArray = scanArray;
-  exports.scanHash = scanHash;
-  exports.concat = concat;
-  exports.labelsFor = labelsFor;
-  exports.labelsForObject = labelsForObject;
-  exports.labelFor = labelFor;
-  exports.or = or;
-  exports.addDependency = addDependency;
-  exports.zip = zip;
-  exports.zipHash = zipHash;
-  exports.chain = chain;
-  exports.setValue = setValue;
-
-  /*
-   Check whether an object is a stream or not.
-  
-   @private
-   @for Ember.stream
-   @function isStream
-   @param {Object|Stream} object Object to check whether it is a stream.
-   @return {Boolean} `true` if the object is a stream, `false` otherwise.
-  */
-
-  function isStream(object) {
-    return object && object[_emberMetalStreamsStream.IS_STREAM];
-  }
-
-  /*
-   A method of subscribing to a stream which is safe for use with a non-stream
-   object. If a non-stream object is passed, the function does nothing.
-  
-   @public
-   @for Ember.stream
-   @function subscribe
-   @param {Object|Stream} object Object or stream to potentially subscribe to.
-   @param {Function} callback Function to run when stream value changes.
-   @param {Object} [context] the callback will be executed with this context if it
-                             is provided.
-   */
-
-  function subscribe(object, callback, context) {
-    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
-      return object.subscribe(callback, context);
-    }
-  }
-
-  /*
-   A method of unsubscribing from a stream which is safe for use with a non-stream
-   object. If a non-stream object is passed, the function does nothing.
-  
-   @private
-   @for Ember.stream
-   @function unsubscribe
-   @param {Object|Stream} object Object or stream to potentially unsubscribe from.
-   @param {Function} callback Function originally passed to `subscribe()`.
-   @param {Object} [context] Object originally passed to `subscribe()`.
-   */
-
-  function unsubscribe(object, callback, context) {
-    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
-      object.unsubscribe(callback, context);
-    }
-  }
-
-  /*
-   Retrieve the value of a stream, or in the case where a non-stream object is passed,
-   return the object itself.
-  
-   @private
-   @for Ember.stream
-   @function read
-   @param {Object|Stream} object Object to return the value of.
-   @return The stream's current value, or the non-stream object itself.
-   */
-
-  function read(object) {
-    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
-      return object.value();
-    } else {
-      return object;
-    }
-  }
-
-  /*
-   Map an array, replacing any streams with their values.
-  
-   @private
-   @for Ember.stream
-   @function readArray
-   @param {Array} array The array to read values from
-   @return {Array} A new array of the same length with the values of non-stream
-                   objects mapped from their original positions untouched, and
-                   the values of stream objects retaining their original position
-                   and replaced with the stream's current value.
-   */
-
-  function readArray(array) {
-    var ret = new Array(array.length);
-    for (var i = 0; i < array.length; i++) {
-      ret[i] = read(array[i]);
-    }
-    return ret;
-  }
-
-  /*
-   Map a hash, replacing any stream property values with the current value of that
-   stream.
-  
-   @private
-   @for Ember.stream
-   @function readHash
-   @param {Object} object The hash to read keys and values from.
-   @return {Object} A new object with the same keys as the passed object. The
-                    property values in the new object are the original values in
-                    the case of non-stream objects, and the streams' current
-                    values in the case of stream objects.
-   */
-
-  function readHash(object) {
-    var ret = {};
-    for (var key in object) {
-      ret[key] = read(object[key]);
-    }
-    return ret;
-  }
-
-  /*
-   Check whether an array contains any stream values.
-  
-   @private
-   @for Ember.stream
-   @function scanArray
-   @param {Array} array Array given to a handlebars helper.
-   @return {Boolean} `true` if the array contains a stream/bound value, `false`
-                     otherwise.
-  */
-
-  function scanArray(array) {
-    var containsStream = false;
-
-    for (var i = 0; i < array.length; i++) {
-      if (isStream(array[i])) {
-        containsStream = true;
-        break;
-      }
-    }
-
-    return containsStream;
-  }
-
-  /*
-   Check whether a hash has any stream property values.
-  
-   @private
-   @for Ember.stream
-   @function scanHash
-   @param {Object} hash "hash" argument given to a handlebars helper.
-   @return {Boolean} `true` if the object contains a stream/bound value, `false`
-                     otherwise.
-   */
-
-  function scanHash(hash) {
-    var containsStream = false;
-
-    for (var prop in hash) {
-      if (isStream(hash[prop])) {
-        containsStream = true;
-        break;
-      }
-    }
-
-    return containsStream;
-  }
-
-  var ConcatStream = _emberMetalStreamsStream.default.extend({
-    init: function (array, separator) {
-      this.array = array;
-      this.separator = separator;
-
-      // Used by angle bracket components to detect an attribute was provided
-      // as a string literal.
-      this.isConcat = true;
-    },
-
-    label: function () {
-      var labels = labelsFor(this.array);
-      return 'concat([' + labels.join(', ') + ']; separator=' + inspect(this.separator) + ')';
-    },
-
-    compute: function () {
-      return concat(readArray(this.array), this.separator);
-    }
-  });
-
-  /*
-   Join an array, with any streams replaced by their current values.
-  
-   @private
-   @for Ember.stream
-   @function concat
-   @param {Array} array An array containing zero or more stream objects and
-                        zero or more non-stream objects.
-   @param {String} separator String to be used to join array elements.
-   @return {String} String with array elements concatenated and joined by the
-                    provided separator, and any stream array members having been
-                    replaced by the current value of the stream.
-   */
-
-  function concat(array, separator) {
-    // TODO: Create subclass ConcatStream < Stream. Defer
-    // subscribing to streams until the value() is called.
-    var hasStream = scanArray(array);
-    if (hasStream) {
-      var stream = new ConcatStream(array, separator);
-
-      for (var i = 0; i < array.length; i++) {
-        addDependency(stream, array[i]);
-      }
-
-      return stream;
-    } else {
-      return array.join(separator);
-    }
-  }
-
-  function labelsFor(streams) {
-    var labels = [];
-
-    for (var i = 0; i < streams.length; i++) {
-      var stream = streams[i];
-      labels.push(labelFor(stream));
-    }
-
-    return labels;
-  }
-
-  function labelsForObject(streams) {
-    var labels = [];
-
-    for (var prop in streams) {
-      labels.push(prop + ': ' + inspect(streams[prop]));
-    }
-
-    return labels.length ? '{ ' + labels.join(', ') + ' }' : '{}';
-  }
-
-  function labelFor(maybeStream) {
-    if (isStream(maybeStream)) {
-      var stream = maybeStream;
-      return typeof stream.label === 'function' ? stream.label() : stream.label;
-    } else {
-      return inspect(maybeStream);
-    }
-  }
-
-  function inspect(value) {
-    switch (typeof value) {
-      case 'string':
-        return '"' + value + '"';
-      case 'object':
-        return '{ ... }';
-      case 'function':
-        return 'function() { ... }';
-      default:
-        return String(value);
-    }
-  }
-
-  function or(first, second) {
-    var stream = new _emberMetalStreamsStream.Stream(function () {
-      return first.value() || second.value();
-    }, function () {
-      return labelFor(first) + ' || ' + labelFor(second);
-    });
-
-    stream.addDependency(first);
-    stream.addDependency(second);
-
-    return stream;
-  }
-
-  function addDependency(stream, dependency) {
-    _emberMetalDebug.assert('Cannot add a stream as a dependency to a non-stream', isStream(stream) || !isStream(dependency));
-    if (isStream(stream)) {
-      stream.addDependency(dependency);
-    }
-  }
-
-  function zip(streams, callback, label) {
-    _emberMetalDebug.assert('Must call zip with a label', !!label);
-
-    var stream = new _emberMetalStreamsStream.Stream(function () {
-      var array = readArray(streams);
-      return callback ? callback(array) : array;
-    }, function () {
-      return label + '(' + labelsFor(streams) + ')';
-    });
-
-    for (var i = 0; i < streams.length; i++) {
-      stream.addDependency(streams[i]);
-    }
-
-    return stream;
-  }
-
-  function zipHash(object, callback, label) {
-    _emberMetalDebug.assert('Must call zipHash with a label', !!label);
-
-    var stream = new _emberMetalStreamsStream.Stream(function () {
-      var hash = readHash(object);
-      return callback ? callback(hash) : hash;
-    }, function () {
-      return label + '(' + labelsForObject(object) + ')';
-    });
-
-    for (var prop in object) {
-      stream.addDependency(object[prop]);
-    }
-
-    return stream;
-  }
-
-  /**
-   Generate a new stream by providing a source stream and a function that can
-   be used to transform the stream's value. In the case of a non-stream object,
-   returns the result of the function.
-  
-   The value to transform would typically be available to the function you pass
-   to `chain()` via scope. For example:
-  
-   ```javascript
-       var source = ...;  // stream returning a number
-                              // or a numeric (non-stream) object
-       var result = chain(source, function() {
-         var currentValue = read(source);
-         return currentValue + 1;
-       });
-   ```
-  
-   In the example, result is a stream if source is a stream, or a number of
-   source was numeric.
-  
-   @private
-   @for Ember.stream
-   @function chain
-   @param {Object|Stream} value A stream or non-stream object.
-   @param {Function} fn Function to be run when the stream value changes, or to
-                        be run once in the case of a non-stream object.
-   @return {Object|Stream} In the case of a stream `value` parameter, a new
-                           stream that will be updated with the return value of
-                           the provided function `fn`. In the case of a
-                           non-stream object, the return value of the provided
-                           function `fn`.
-   */
-
-  function chain(value, fn, label) {
-    _emberMetalDebug.assert('Must call chain with a label', !!label);
-    if (isStream(value)) {
-      var stream = new _emberMetalStreamsStream.Stream(fn, function () {
-        return label + '(' + labelFor(value) + ')';
-      });
-      stream.addDependency(value);
-      return stream;
-    } else {
-      return fn();
-    }
-  }
-
-  function setValue(object, value) {
-    if (object && object[_emberMetalStreamsStream.IS_STREAM]) {
-      object.setValue(value);
-    }
   }
 });
 enifed('ember-metal/symbol', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
@@ -34273,7 +34481,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
     return _emberRoutingHtmlbarsKeywordsClosureAction.default(morph, env, scope, params, hash, template, inverse, visitor);
   };
 });
-enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/is_none'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalSymbol, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalIs_none) {
+enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/is_none'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils, _emberMetalSymbol, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalIs_none) {
   'use strict';
 
   exports.default = closureAction;
@@ -34284,9 +34492,9 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
   exports.ACTION = ACTION;
 
   function closureAction(morph, env, scope, params, hash, template, inverse, visitor) {
-    var s = new _emberMetalStreamsStream.Stream(function () {
+    var s = new _emberHtmlbarsStreamsStream.Stream(function () {
       var rawAction = params[0];
-      var actionArguments = _emberMetalStreamsUtils.readArray(params.slice(1, params.length));
+      var actionArguments = _emberHtmlbarsStreamsUtils.readArray(params.slice(1, params.length));
 
       var target = undefined,
           action = undefined,
@@ -34294,7 +34502,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
 
       if (_emberMetalIs_none.default(rawAction)) {
         var label = _emberHtmlbarsHooksSubexpr.labelForSubexpr(params, hash, 'action');
-        throw new _emberMetalError.default('Action passed is null or undefined in ' + label + ' from ' + _emberMetalStreamsUtils.read(scope.getSelf()) + '.');
+        throw new _emberMetalError.default('Action passed is null or undefined in ' + label + ' from ' + _emberHtmlbarsStreamsUtils.read(scope.getSelf()) + '.');
       } else if (rawAction[INVOKE]) {
         // on-change={{action (mut name)}}
         target = rawAction;
@@ -34303,8 +34511,8 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
         // on-change={{action setName}}
         // element-space actions look to "controller" then target. Here we only
         // look to "target".
-        target = _emberMetalStreamsUtils.read(scope.getSelf());
-        action = _emberMetalStreamsUtils.read(rawAction);
+        target = _emberHtmlbarsStreamsUtils.read(scope.getSelf());
+        action = _emberHtmlbarsStreamsUtils.read(rawAction);
         var actionType = typeof action;
 
         if (actionType === 'string') {
@@ -34313,7 +34521,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           // on-change={{action 'setName'}}
           if (hash.target) {
             // on-change={{action 'setName' target=alternativeComponent}}
-            target = _emberMetalStreamsUtils.read(hash.target);
+            target = _emberHtmlbarsStreamsUtils.read(hash.target);
           }
           if (target.actions) {
             action = target.actions[actionName];
@@ -34333,7 +34541,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
       if (hash.value) {
         // <button on-keypress={{action (mut name) value="which"}}
         // on-keypress is not even an Ember feature yet
-        valuePath = _emberMetalStreamsUtils.read(hash.value);
+        valuePath = _emberHtmlbarsStreamsUtils.read(hash.value);
       }
 
       return createClosureAction(this, target, action, valuePath, actionArguments);
@@ -34367,7 +34575,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
 
-        var payload = { target: target, args: args, label: _emberMetalStreamsUtils.labelFor(stream) };
+        var payload = { target: target, args: args, label: _emberHtmlbarsStreamsUtils.labelFor(stream) };
         return _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
           return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
         });
@@ -34382,7 +34590,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
 
-        var payload = { target: target, args: args, label: _emberMetalStreamsUtils.labelFor(stream) };
+        var payload = { target: target, args: args, label: _emberHtmlbarsStreamsUtils.labelFor(stream) };
         return _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
           return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
         });
@@ -34394,7 +34602,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
     return closureAction;
   }
 });
-enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/streams/utils', 'ember-metal/run_loop', 'ember-views/streams/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberMetalStreamsUtils, _emberMetalRun_loop, _emberViewsStreamsUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
+enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-htmlbars/streams/utils', 'ember-metal/run_loop', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberHtmlbarsStreamsUtils, _emberMetalRun_loop, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
   'use strict';
 
   exports.default = {
@@ -34408,7 +34616,7 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
 
       var actionArgs = [];
       for (var i = 1; i < params.length; i++) {
-        actionArgs.push(_emberViewsStreamsUtils.readUnwrappedModel(params[i]));
+        actionArgs.push(_emberHtmlbarsStreamsUtils.readUnwrappedModel(params[i]));
       }
 
       var target;
@@ -34473,15 +34681,15 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
     actions.push({
       eventName: eventName,
       handler: function (event) {
-        if (!isAllowedEvent(event, _emberMetalStreamsUtils.read(allowedKeys))) {
+        if (!isAllowedEvent(event, _emberHtmlbarsStreamsUtils.read(allowedKeys))) {
           return true;
         }
 
-        if (_emberMetalStreamsUtils.read(preventDefault) !== false) {
+        if (_emberHtmlbarsStreamsUtils.read(preventDefault) !== false) {
           event.preventDefault();
         }
 
-        if (_emberMetalStreamsUtils.read(bubbles) === false) {
+        if (_emberHtmlbarsStreamsUtils.read(bubbles) === false) {
           event.stopPropagation();
         }
 
@@ -34539,7 +34747,7 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
     return true;
   }
 });
-enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/empty_object', 'ember-metal/error', 'ember-metal/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalEmpty_object, _emberMetalError, _emberMetalStreamsUtils, _emberRuntimeSystemString, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
+enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/empty_object', 'ember-metal/error', 'ember-htmlbars/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalEmpty_object, _emberMetalError, _emberHtmlbarsStreamsUtils, _emberRuntimeSystemString, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
   /**
   @module ember
   @submodule ember-templates
@@ -34661,7 +34869,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
       //
       var router = owner.lookup('router:main');
 
-      _emberMetalDebug.assert('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', params.length < 2 || _emberMetalStreamsUtils.isStream(params[1]));
+      _emberMetalDebug.assert('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', params.length < 2 || _emberHtmlbarsStreamsUtils.isStream(params[1]));
 
       if (params.length === 1) {
         // use the singleton controller
@@ -34709,7 +34917,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
         var factory = owner._lookupFactory(controllerFullName) || _emberRoutingSystemGenerate_controller.generateControllerFactory(owner, controllerName);
 
         controller = factory.create({
-          model: _emberMetalStreamsUtils.read(context),
+          model: _emberHtmlbarsStreamsUtils.read(context),
           target: target
         });
 
@@ -34754,7 +34962,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/debug'
 
     rerender: function (node, env, scope, params, hash, template, inverse, visitor) {
       if (params.length > 1) {
-        var model = _emberMetalStreamsUtils.read(params[1]);
+        var model = _emberHtmlbarsStreamsUtils.read(params[1]);
         node.getState().controller.set('model', model);
       }
     }
@@ -48525,250 +48733,6 @@ enifed('ember-views/mixins/visibility_support', ['exports', 'ember-metal/mixin',
   });
 
   exports.default = VisibilitySupport;
-});
-enifed('ember-views/streams/class_name_binding', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/streams/utils', 'ember-runtime/system/string'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalUtils, _emberMetalStreamsUtils, _emberRuntimeSystemString) {
-  'use strict';
-
-  exports.parsePropertyPath = parsePropertyPath;
-  exports.classStringForValue = classStringForValue;
-  exports.streamifyClassNameBinding = streamifyClassNameBinding;
-
-  /**
-    Parse a path and return an object which holds the parsed properties.
-  
-    For example a path like "content.isEnabled:enabled:disabled" will return the
-    following object:
-  
-    ```javascript
-    {
-      path: "content.isEnabled",
-      className: "enabled",
-      falsyClassName: "disabled",
-      classNames: ":enabled:disabled"
-    }
-    ```
-  
-    @method parsePropertyPath
-    @static
-    @private
-  */
-
-  function parsePropertyPath(path) {
-    var split = path.split(':');
-    var propertyPath = split[0];
-    var classNames = '';
-    var className, falsyClassName;
-
-    // check if the property is defined as prop:class or prop:trueClass:falseClass
-    if (split.length > 1) {
-      className = split[1];
-      if (split.length === 3) {
-        falsyClassName = split[2];
-      }
-
-      classNames = ':' + className;
-      if (falsyClassName) {
-        classNames += ':' + falsyClassName;
-      }
-    }
-
-    return {
-      path: propertyPath,
-      classNames: classNames,
-      className: className === '' ? undefined : className,
-      falsyClassName: falsyClassName
-    };
-  }
-
-  /**
-    Get the class name for a given value, based on the path, optional
-    `className` and optional `falsyClassName`.
-  
-    - if a `className` or `falsyClassName` has been specified:
-      - if the value is truthy and `className` has been specified,
-        `className` is returned
-      - if the value is falsy and `falsyClassName` has been specified,
-        `falsyClassName` is returned
-      - otherwise `null` is returned
-    - if the value is `true`, the dasherized last part of the supplied path
-      is returned
-    - if the value is not `false`, `undefined` or `null`, the `value`
-      is returned
-    - if none of the above rules apply, `null` is returned
-  
-    @method classStringForValue
-    @param path
-    @param val
-    @param className
-    @param falsyClassName
-    @static
-    @private
-  */
-
-  function classStringForValue(path, val, className, falsyClassName) {
-    if (_emberMetalUtils.isArray(val)) {
-      val = _emberMetalProperty_get.get(val, 'length') !== 0;
-    }
-
-    // When using the colon syntax, evaluate the truthiness or falsiness
-    // of the value to determine which className to return
-    if (className || falsyClassName) {
-      if (className && !!val) {
-        return className;
-      } else if (falsyClassName && !val) {
-        return falsyClassName;
-      } else {
-        return null;
-      }
-
-      // If value is a Boolean and true, return the dasherized property
-      // name.
-    } else if (val === true) {
-        // Normalize property path to be suitable for use
-        // as a class name. For exaple, content.foo.barBaz
-        // becomes bar-baz.
-        var parts = path.split('.');
-        return _emberRuntimeSystemString.dasherize(parts[parts.length - 1]);
-
-        // If the value is not false, undefined, or null, return the current
-        // value of the property.
-      } else if (val !== false && val != null) {
-          return val;
-
-          // Nothing to display. Return null so that the old class is removed
-          // but no new class is added.
-        } else {
-            return null;
-          }
-  }
-
-  function streamifyClassNameBinding(view, classNameBinding, prefix) {
-    prefix = prefix || '';
-    _emberMetalDebug.assert('classNameBindings must not have spaces in them. Multiple class name bindings can be provided as elements of an array, e.g. [\'foo\', \':bar\']', classNameBinding.indexOf(' ') === -1);
-    var parsedPath = parsePropertyPath(classNameBinding);
-    if (parsedPath.path === '') {
-      return classStringForValue(parsedPath.path, true, parsedPath.className, parsedPath.falsyClassName);
-    } else {
-      var pathValue = view.getStream(prefix + parsedPath.path);
-      return _emberMetalStreamsUtils.chain(pathValue, function () {
-        return classStringForValue(parsedPath.path, _emberMetalStreamsUtils.read(pathValue), parsedPath.className, parsedPath.falsyClassName);
-      });
-    }
-  }
-});
-enifed('ember-views/streams/should_display', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/utils', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeUtils, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
-  'use strict';
-
-  exports.default = shouldDisplay;
-
-  var ShouldDisplayStream = _emberMetalStreamsStream.default.extend({
-    init: function (predicate) {
-      _emberMetalDebug.assert('ShouldDisplayStream error: predicate must be a stream', _emberMetalStreamsUtils.isStream(predicate));
-
-      var isTruthy = predicate.get('isTruthy');
-
-      this.init();
-      this.predicate = predicate;
-      this.isTruthy = isTruthy;
-      this.lengthDep = null;
-
-      this.addDependency(predicate);
-      this.addDependency(isTruthy);
-    },
-
-    compute: function () {
-      var truthy = _emberMetalStreamsUtils.read(this.isTruthy);
-
-      if (typeof truthy === 'boolean') {
-        return truthy;
-      }
-
-      if (this.lengthDep) {
-        return this.lengthDep.getValue() !== 0;
-      } else {
-        return !!_emberMetalStreamsUtils.read(this.predicate);
-      }
-    },
-
-    revalidate: function () {
-      if (_emberRuntimeUtils.isArray(_emberMetalStreamsUtils.read(this.predicate))) {
-        if (!this.lengthDep) {
-          this.lengthDep = this.addMutableDependency(this.predicate.get('length'));
-        }
-      } else {
-        if (this.lengthDep) {
-          this.lengthDep.destroy();
-          this.lengthDep = null;
-        }
-      }
-    }
-  });
-
-  function shouldDisplay(predicate) {
-    if (_emberMetalStreamsUtils.isStream(predicate)) {
-      return new ShouldDisplayStream(predicate);
-    }
-
-    var type = typeof predicate;
-
-    if (type === 'boolean') {
-      return predicate;
-    }
-
-    if (type && type === 'object' && predicate !== null) {
-      var isTruthy = _emberMetalProperty_get.get(predicate, 'isTruthy');
-      if (typeof isTruthy === 'boolean') {
-        return isTruthy;
-      }
-    }
-
-    if (_emberRuntimeUtils.isArray(predicate)) {
-      return _emberMetalProperty_get.get(predicate, 'length') !== 0;
-    } else {
-      return !!predicate;
-    }
-  }
-});
-enifed('ember-views/streams/utils', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/streams/utils', 'ember-runtime/mixins/controller'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalStreamsUtils, _emberRuntimeMixinsController) {
-  'use strict';
-
-  exports.readViewFactory = readViewFactory;
-  exports.readUnwrappedModel = readUnwrappedModel;
-
-  function readViewFactory(object, owner) {
-    var value = _emberMetalStreamsUtils.read(object);
-    var viewClass;
-
-    if (typeof value === 'string') {
-      _emberMetalDebug.assert('View requires an owner to resolve views not passed in through the context', !!owner);
-      viewClass = owner._lookupFactory('view:' + value);
-    } else {
-      viewClass = value;
-    }
-
-    _emberMetalDebug.assert(value + ' must be a subclass or an instance of Ember.View, not ' + viewClass, (function (viewClass) {
-      return viewClass && (viewClass.isViewFactory || viewClass.isView || viewClass.isComponentFactory || viewClass.isComponent);
-    })(viewClass));
-
-    return viewClass;
-  }
-
-  function readUnwrappedModel(object) {
-    if (_emberMetalStreamsUtils.isStream(object)) {
-      var result = object.value();
-
-      // If the path is exactly `controller` then we don't unwrap it.
-      if (object.label !== 'controller') {
-        while (_emberRuntimeMixinsController.default.detect(result)) {
-          result = _emberMetalProperty_get.get(result, 'model');
-        }
-      }
-
-      return result;
-    } else {
-      return object;
-    }
-  }
 });
 enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   /**
