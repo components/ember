@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+981f0dd3
+ * @version   2.7.0-canary+4fdaa711
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+981f0dd3";
+  exports.default = "2.7.0-canary+4fdaa711";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7786,8 +7786,10 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   var ARGS = _emberMetalSymbol.default('ARGS');
   exports.ARGS = ARGS;
   var IS_DISPATCHING_ATTRS = _emberMetalSymbol.default('IS_DISPATCHING_ATTRS');
-
   exports.IS_DISPATCHING_ATTRS = IS_DISPATCHING_ATTRS;
+  var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
+
+  exports.HAS_BLOCK = HAS_BLOCK;
   exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
     isComponent: true,
     template: null,
@@ -7901,7 +7903,7 @@ enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal/property_ge
     }
   });
 });
-enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent) {
+enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent) {
   /**
   @module ember
   @submodule ember-templates
@@ -8546,7 +8548,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
       }
-      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
+      var onlyQueryParamsSupplied = this[_emberGlimmerComponent.HAS_BLOCK] ? params.length === 0 : params.length === 1;
       if (onlyQueryParamsSupplied) {
         return _emberMetalProperty_get.get(this, '_routing.currentRouteName');
       }
@@ -8660,7 +8662,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
 
       // Process the positional arguments, in order.
       // 1. Inline link title comes first, if present.
-      if (!this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK]) {
+      if (!this[_emberGlimmerComponent.HAS_BLOCK]) {
         this.set('linkTitle', params.shift());
       }
 
@@ -8697,8 +8699,6 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
   exports.default = LinkComponent;
 });
 // creates inject.service
-
-// TODO: Glimmer 2
 enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/component', 'ember-views/mixins/text_support'], function (exports, _emberGlimmerComponent, _emberViewsMixinsText_support) {
   /**
   @module ember
@@ -9344,11 +9344,11 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
 
       if (isSimple && (isInline || isBlock)) {
         if (key === 'component') {
-          return new _emberGlimmerSyntaxDynamicComponent.DynamicComponentSyntax({ args: args, templates: templates });
+          return new _emberGlimmerSyntaxDynamicComponent.DynamicComponentSyntax({ args: args, templates: templates, isBlock: isBlock });
         } else if (key === 'outlet') {
           return new _emberGlimmerSyntaxOutlet.OutletSyntax({ args: args });
         } else if (key.indexOf('-') >= 0) {
-          var definition = this.getComponentDefinition(path);
+          var definition = this.createComponentDefinition(path, isBlock);
 
           if (definition) {
             wrapClassBindingAttribute(args);
@@ -9368,7 +9368,7 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
       return false;
     };
 
-    Environment.prototype.getComponentDefinition = function getComponentDefinition(name) {
+    Environment.prototype.createComponentDefinition = function createComponentDefinition(name, isBlock) {
       var definition = this._components[name];
 
       if (!definition) {
@@ -9378,7 +9378,7 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
         var layout = _lookupComponent.layout;
 
         if (ComponentClass || layout) {
-          definition = this._components[name] = new _emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout);
+          definition = this._components[name] = new _emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout, isBlock);
         }
       }
 
@@ -10562,6 +10562,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
       aliasIdToElementId(args, props);
 
       props.renderer = parentView.renderer;
+      props[_emberGlimmerComponent.HAS_BLOCK] = definition.isBlock;
 
       var component = klass.create(props);
 
@@ -10738,11 +10739,12 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
   var CurlyComponentDefinition = (function (_ComponentDefinition) {
     _inherits(CurlyComponentDefinition, _ComponentDefinition);
 
-    function CurlyComponentDefinition(name, ComponentClass, template) {
+    function CurlyComponentDefinition(name, ComponentClass, template, isBlock) {
       _classCallCheck(this, CurlyComponentDefinition);
 
       _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberGlimmerComponent.default);
       this.template = template;
+      this.isBlock = isBlock;
     }
 
     CurlyComponentDefinition.prototype.compile = function compile(builder) {
@@ -10766,22 +10768,24 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  var DynamicComponentLookup = function DynamicComponentLookup(args) {
+  var DynamicComponentLookup = function DynamicComponentLookup(args, isBlock) {
     _classCallCheck(this, DynamicComponentLookup);
 
     this.args = _glimmerRuntime.ArgsSyntax.fromPositionalArgs(args.positional.slice(0, 1));
-    this.factory = dynamicComponentFor;
+    this.factory = function (args, options) {
+      return dynamicComponentFor(args, options, isBlock);
+    };
   };
 
-  function dynamicComponentFor(args, _ref) {
+  function dynamicComponentFor(args, _ref, isBlock) {
     var env = _ref.env;
 
     var nameRef = args.positional.at(0);
 
     if (_glimmerReference.isConst(nameRef)) {
-      return new _glimmerReference.ConstReference(lookup(env, nameRef.value()));
+      return new _glimmerReference.ConstReference(lookup(env, nameRef.value(), isBlock));
     } else {
-      return new DynamicComponentReference({ nameRef: nameRef, env: env });
+      return new DynamicComponentReference({ nameRef: nameRef, env: env, isBlock: isBlock });
     }
   }
 
@@ -10791,11 +10795,12 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
     function DynamicComponentSyntax(_ref2) {
       var args = _ref2.args;
       var templates = _ref2.templates;
+      var isBlock = _ref2.isBlock;
 
       _classCallCheck(this, DynamicComponentSyntax);
 
       _StatementSyntax.call(this);
-      this.definition = new DynamicComponentLookup(args);
+      this.definition = new DynamicComponentLookup(args, isBlock);
       this.args = _glimmerRuntime.ArgsSyntax.build(args.positional.slice(1), args.named);
       this.templates = templates;
       this.shadow = null;
@@ -10814,27 +10819,30 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
     function DynamicComponentReference(_ref3) {
       var nameRef = _ref3.nameRef;
       var env = _ref3.env;
+      var isBlock = _ref3.isBlock;
 
       _classCallCheck(this, DynamicComponentReference);
 
       this.nameRef = nameRef;
       this.env = env;
       this.tag = nameRef.tag;
+      this.isBlock = isBlock;
     }
 
     DynamicComponentReference.prototype.value = function value() {
       var env = this.env;
       var nameRef = this.nameRef;
+      var isBlock = this.isBlock;
 
-      return lookup(env, nameRef.value());
+      return lookup(env, nameRef.value(), isBlock);
     };
 
     return DynamicComponentReference;
   })();
 
-  function lookup(env, name) {
+  function lookup(env, name, isBlock) {
     if (typeof name === 'string') {
-      var componentDefinition = env.getComponentDefinition([name]);
+      var componentDefinition = env.createComponentDefinition([name], isBlock);
       _emberMetalDebug.assert('Glimmer error: Could not find component named "' + name + '" (no component or template with that name was found)', componentDefinition);
 
       return componentDefinition;
@@ -12262,9 +12270,12 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
-enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner'], function (exports, _emberMetalDebug, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner) {
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
+  var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
+
+  exports.HAS_BLOCK = HAS_BLOCK;
   function validateAction(component, actionName) {
     if (actionName && actionName[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
       actionName = actionName.value;
@@ -12854,7 +12865,7 @@ enifed('ember-htmlbars/components/checkbox', ['exports', 'ember-metal/property_g
     }
   });
 });
-enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to', 'ember-htmlbars/component'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo, _emberHtmlbarsComponent) {
+enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to', 'ember-htmlbars/component'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo, _emberHtmlbarsComponent) {
   /**
   @module ember
   @submodule ember-templates
@@ -13499,7 +13510,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
       }
-      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
+      var onlyQueryParamsSupplied = this[_emberHtmlbarsComponent.HAS_BLOCK] ? params.length === 0 : params.length === 1;
       if (onlyQueryParamsSupplied) {
         return _emberMetalProperty_get.get(this, '_routing.currentRouteName');
       }
@@ -13613,7 +13624,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
 
       // Process the positional arguments, in order.
       // 1. Inline link title comes first, if present.
-      if (!this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK]) {
+      if (!this[_emberHtmlbarsComponent.HAS_BLOCK]) {
         this.set('linkTitle', params.shift());
       }
 
@@ -13650,8 +13661,6 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
   exports.default = LinkComponent;
 });
 // creates inject.service
-
-// TODO: Glimmer 2
 enifed('ember-htmlbars/components/text_area', ['exports', 'ember-htmlbars/component', 'ember-views/mixins/text_support'], function (exports, _emberHtmlbarsComponent, _emberViewsMixinsText_support) {
   /**
   @module ember
@@ -17577,21 +17586,12 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/component', 'ember-htmlbars/utils/extract-positional-params', 'ember-metal/symbol', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _emberMetalSymbol, _containerOwner, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/component', 'ember-htmlbars/utils/extract-positional-params', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.default = ComponentNodeManager;
   exports.createComponent = createComponent;
   exports.takeLegacySnapshot = takeLegacySnapshot;
-
-  // These symbols will be used to limit link-to's public API surface area.
-  var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
-
-  exports.HAS_BLOCK = HAS_BLOCK;
-  // In theory this should come through the env, but it should
-  // be safe to import this until we make the hook system public
-  // and it gets actively used in addons or other downstream
-  // libraries.
 
   function ComponentNodeManager(component, scope, renderNode, attrs, block, expectElement) {
     this.component = component;
@@ -17619,7 +17619,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     var createOptions = (_createOptions = {
       parentView: parentView
-    }, _createOptions[HAS_BLOCK] = !!templates.default, _createOptions);
+    }, _createOptions[_emberHtmlbarsComponent.HAS_BLOCK] = !!templates.default, _createOptions);
 
     configureTagName(attrs, tagName, component, createOptions);
 
@@ -17824,6 +17824,11 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return env.childWithView(this.emberView);
   }
 });
+
+// In theory this should come through the env, but it should
+// be safe to import this until we make the hook system public
+// and it gets actively used in addons or other downstream
+// libraries.
 enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
