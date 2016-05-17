@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+79413043
+ * @version   2.7.0-canary+184bb085
  */
 
 var enifed, requireModule, require, Ember;
@@ -95148,38 +95148,6 @@ enifed('ember-views/tests/views/view/template_test', ['exports', 'ember-metal/pr
     }, /Container was not found when looking up a views template./);
 
     view._renderNode = null;
-  });
-});
-enifed('ember-views/tests/views/view/transition_to_deprecation_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _emberMetalRun_loop) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('views/view/transition_to_deprecation', {
-    setup: function () {
-      view = _emberViewsViewsView.default.create();
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(view, 'destroy');
-    }
-  });
-
-  QUnit.test('deprecates when calling transitionTo', function () {
-    expect(1);
-
-    view = _emberViewsViewsView.default.create();
-
-    expectDeprecation(function () {
-      view.transitionTo('preRender');
-    }, '');
-  });
-
-  QUnit.test('doesn\'t deprecate when calling _transitionTo', function () {
-    expect(1);
-
-    view = _emberViewsViewsView.default.create();
-    view._transitionTo('preRender');
-    ok(true);
   });
 });
 enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsHelpers, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
