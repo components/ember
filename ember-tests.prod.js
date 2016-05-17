@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+87bf1fc0
+ * @version   2.7.0-canary+c79eda24
  */
 
 var enifed, requireModule, require, Ember;
@@ -22366,12 +22366,12 @@ enifed('ember-application/tests/system/engine_initializers_test', ['exports', 'e
       initialize: function (engine) {}
     });
 
-    throws(function () {
+    expectAssertion(function () {
       FirstEngine.initializer({
         name: 'abc',
         initialize: function (engine) {}
       });
-    }, Error, /Assertion Failed: The initializer 'abc' has already been registered'/);
+    });
 
     var SecondEngine = _emberApplicationSystemEngine.default.extend();
     SecondEngine.instanceInitializer({
@@ -22739,12 +22739,12 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
       initialize: function (engine) {}
     });
 
-    throws(function () {
+    expectAssertion(function () {
       FirstEngine.instanceInitializer({
         name: 'abc',
         initialize: function (engine) {}
       });
-    }, Error, /Assertion Failed: The instance initializer 'abc' has already been registered'/);
+    });
 
     var SecondEngine = _emberApplicationSystemEngine.default.extend();
     SecondEngine.instanceInitializer({
@@ -23274,12 +23274,12 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
       initialize: function (app) {}
     });
 
-    throws(function () {
+    expectAssertion(function () {
       FirstApp.initializer({
         name: 'abc',
         initialize: function (app) {}
       });
-    }, Error, /Assertion Failed: The initializer 'abc' has already been registered'/);
+    });
 
     var SecondApp = _emberApplicationSystemApplication.default.extend();
     SecondApp.instanceInitializer({
@@ -23657,12 +23657,12 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
       initialize: function (app) {}
     });
 
-    throws(function () {
+    expectAssertion(function () {
       FirstApp.instanceInitializer({
         name: 'abc',
         initialize: function (app) {}
       });
-    }, Error, /Assertion Failed: The instance initializer 'abc' has already been registered'/);
+    });
 
     var SecondApp = _emberApplicationSystemApplication.default.extend();
     SecondApp.instanceInitializer({
