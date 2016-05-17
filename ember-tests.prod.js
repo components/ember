@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c79eda24
+ * @version   2.7.0-canary+79413043
  */
 
 var enifed, requireModule, require, Ember;
@@ -88845,15 +88845,43 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 });
-enifed('ember-templates/tests/link_to_test', ['exports', 'ember-templates'], function (exports, _emberTemplates) {
+enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'require'], function (exports, _emberTemplates, _require) {
   'use strict';
 
-  QUnit.module('ember-templates exports');
+  QUnit.module('ember-templates reexports');
 
-  QUnit.test('exports correctly', function () {
-    ok(_emberTemplates.default.LinkComponent, 'LinkComponent is exported correctly');
+  [['_Renderer', 'ember-templates/renderer', 'Renderer'], ['Component', 'ember-templates/component', 'default'], ['Helper', 'ember-templates/helper', 'default'], ['Helper.helper', 'ember-templates/helper', 'helper'], ['Checkbox', 'ember-templates/components/checkbox', 'default'], ['LinkComponent', 'ember-templates/components/link-to', 'default'], ['TextArea', 'ember-templates/components/text_area', 'default'], ['TextField', 'ember-templates/components/text_field', 'default'], ['TEMPLATES', 'ember-templates/template_registry', { get: 'getTemplates', set: 'setTemplates' }]].forEach(function (reexport) {
+    var path = reexport[0];
+    var moduleId = reexport[1];
+    var exportName = reexport[2];
+
+    QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
+      var desc = getDescriptor(_emberTemplates.default, path);
+      var mod = _require.default(moduleId);
+      if (typeof exportName === 'string') {
+        assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
+      } else {
+        assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
+        assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
+      }
+    });
   });
 
+  function getDescriptor(obj, path) {
+    var parts = path.split('.');
+    var value = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      var part = parts[i];
+      value = value[part];
+      if (!value) {
+        return undefined;
+      }
+    }
+    var last = parts[parts.length - 1];
+    return Object.getOwnPropertyDescriptor(value, last);
+  }
+
+  // TODO: This test should go somewhere else
   QUnit.test('`LinkComponent#currentWhen` is deprecated in favour of `current-when` (DEPRECATED)', function () {
     expectDeprecation(/Usage of `currentWhen` is deprecated, use `current-when` instead/);
     var link = _emberTemplates.default.LinkComponent.create();
