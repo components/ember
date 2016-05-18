@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+42051ac6
+ * @version   2.7.0-canary+0cd80863
  */
 
 var enifed, requireModule, require, Ember;
@@ -44117,6 +44117,2008 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
+enifed('ember-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/component', 'ember-metal/computed', 'ember-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberHtmlbarsComponent, _emberMetalComputed, _emberHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+  'use strict';
+
+  var innerComponent, outerComponent, originalViewKeyword, owner, view, dispatcher;
+
+  function buildResolver() {
+    var resolver = {
+      resolve: function () {},
+      expandLocalLookup: function (fullName, sourceFullName) {
+        var _sourceFullName$split = sourceFullName.split(':');
+
+        var sourceType = _sourceFullName$split[0];
+        var sourceName = _sourceFullName$split[1];
+
+        var _fullName$split = fullName.split(':');
+
+        var type = _fullName$split[0];
+        var name = _fullName$split[1];
+
+        if (type !== 'template' && sourceType === 'template' && sourceName.slice(0, 11) === 'components/') {
+          sourceName = sourceName.slice(11);
+        }
+
+        if (type === 'template' && sourceType === 'template' && name.slice(0, 11) === 'components/') {
+          name = name.slice(11);
+        }
+
+        var result = type + ':' + sourceName + '/' + name;
+
+        return result;
+      }
+    };
+
+    return resolver;
+  }
+
+  function registerTemplate(moduleName, snippet) {
+    owner.register('template:' + moduleName, _emberTemplateCompilerSystemCompile.default(snippet, { moduleName: moduleName }));
+  }
+
+  function registerComponent(name, factory) {
+    owner.register('component:' + name, factory);
+  }
+
+  function appendViewFor(template) {
+    var moduleName = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+
+    var _EmberComponent$extend;
+
+    var hash = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    var view = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend = {
+      layout: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
+    }, _EmberComponent$extend[_containerOwner.OWNER] = owner, _EmberComponent$extend)).create(hash);
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    return view;
+  }
+
+  var subscriber = undefined;
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: action helper', {
+    setup: function () {
+      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+      owner = _containerTestsTestHelpersBuildOwner.default({
+        _registryOptions: {
+          resolver: buildResolver()
+        }
+      });
+      owner.registerOptionsForType('component', { singleton: false });
+      owner.registerOptionsForType('view', { singleton: false });
+      owner.registerOptionsForType('template', { instantiate: false });
+      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+      dispatcher.setup();
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(innerComponent);
+      _emberRuntimeTestsUtils.runDestroy(outerComponent);
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(owner);
+      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+      if (subscriber) {
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      }
+      owner = view = null;
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+    }
+  });
+
+  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+    _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should fire interaction event', function (assert) {
+      assert.expect(2);
+
+      subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+        before: function () {
+          assert.ok(true, 'instrumentation subscriber was called');
+        }
+      });
+
+      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
+        actions: {
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }
+      }));
+
+      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
+        innerComponent: innerComponent,
+        outerSubmit: function () {
+          assert.ok(true, 'action is called');
+        }
+      }));
+
+      view = appendViewFor('{{outer-component}}');
+
+      view.$('#instrument-button').trigger('click');
+    });
+
+    _emberGlimmerTestsUtilsSkipIfGlimmer.test('interaction event subscriber should be passed parameters', function (assert) {
+      assert.expect(2);
+
+      var actionParam = 'So krispy';
+
+      subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+        before: function (name, timestamp, payload) {
+          assert.equal(payload.args[0], actionParam, 'instrumentation subscriber before function was passed closure action parameters');
+        },
+        after: function (name, timestamp, payload) {
+          assert.equal(payload.args[0], actionParam, 'instrumentation subscriber after function was passed closure action parameters');
+        }
+      });
+
+      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
+        actions: {
+          fireAction: function () {
+            this.attrs.submit(actionParam);
+          }
+        }
+      }));
+
+      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
+        innerComponent: innerComponent,
+        outerSubmit: function () {}
+      }));
+
+      view = appendViewFor('{{outer-component}}');
+
+      view.$('#instrument-button').trigger('click');
+    });
+
+    _emberGlimmerTestsUtilsSkipIfGlimmer.test('interaction event subscriber should be passed target', function (assert) {
+      assert.expect(2);
+
+      subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+        before: function (name, timestamp, payload) {
+          assert.equal(payload.target.get('myProperty'), 'outer-thing', 'instrumentation subscriber before function was passed target');
+        },
+        after: function (name, timestamp, payload) {
+          assert.equal(payload.target.get('myProperty'), 'outer-thing', 'instrumentation subscriber after function was passed target');
+        }
+      });
+
+      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
+        myProperty: 'inner-thing',
+        actions: {
+          fireAction: function () {
+            this.attrs.submit();
+          }
+        }
+      }));
+
+      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
+        myProperty: 'outer-thing',
+        innerComponent: innerComponent,
+        outerSubmit: function () {}
+      }));
+
+      view = appendViewFor('{{outer-component}}');
+
+      view.$('#instrument-button').trigger('click');
+    });
+
+    _emberGlimmerTestsUtilsSkipIfGlimmer.test('instrumented action should return value', function (assert) {
+      assert.expect(1);
+
+      var returnedValue = 'Chris P is so krispy';
+
+      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
+      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
+        actions: {
+          fireAction: function () {
+            var actualReturnedValue = this.attrs.submit();
+            assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
+          }
+        }
+      }));
+
+      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
+      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
+        innerComponent: innerComponent,
+        outerSubmit: function () {
+          return returnedValue;
+        }
+      }));
+
+      view = appendViewFor('{{outer-component}}');
+
+      view.$('#instrument-button').trigger('click');
+    });
+  }
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
+      innerComponent: innerComponent,
+      outerSubmit: function () {
+        assert.ok(true, 'action is called');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('an error is triggered when bound action function is undefined', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({}).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
+      innerComponent: innerComponent
+    }).create();
+
+    throws(function () {
+      _emberRuntimeTestsUtils.runAppend(outerComponent);
+    }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('[#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo', function (assert) {
+    var _EmberComponent$extend2, _EmberComponent$extend3;
+
+    registerComponent('inner-component', _emberHtmlbarsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2)));
+    registerTemplate('components/inner-component', '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>');
+
+    view = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend3 = {
+      layout: _emberTemplateCompilerSystemCompile.default('{{inner-component}}')
+    }, _EmberComponent$extend3[_containerOwner.OWNER] = owner, _EmberComponent$extend3)).create();
+
+    throws(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, /Action passed is null or undefined in \(action [^)]*\) from .*\./);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action value is returned', function (assert) {
+    assert.expect(1);
+
+    var returnedValue = 'terrible tom';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        var actualReturnedValue = this.attrs.submit();
+        assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
+      innerComponent: innerComponent,
+      outerSubmit: function () {
+        return returnedValue;
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called on the correct scope', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
+      innerComponent: innerComponent,
+      isOuterComponent: true,
+      outerSubmit: function () {
+        assert.ok(this.isOuterComponent, 'action has the correct context');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('arguments to action are passed, curry', function (assert) {
+    assert.expect(4);
+
+    var first = 'mitch';
+    var second = 'martin';
+    var third = 'matt';
+    var fourth = 'wacky wycats';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit(fourth);
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      third: third,
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}\n      '),
+      innerComponent: innerComponent,
+      outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
+        assert.equal(actualFirst, first, 'action has the correct first arg');
+        assert.equal(actualSecond, second, 'action has the correct second arg');
+        assert.equal(actualThird, third, 'action has the correct third arg');
+        assert.equal(actualFourth, fourth, 'action has the correct fourth arg');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('arguments to action are bound', function (assert) {
+    assert.expect(1);
+
+    var value = 'lazy leah';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit value)}}\n      '),
+      innerComponent: innerComponent,
+      value: '',
+      outerSubmit: function (actualValue) {
+        assert.equal(actualValue, value, 'action has the correct first arg');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      outerComponent.set('value', value);
+    });
+
+    innerComponent.fireAction();
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('array arguments are passed correctly to action', function (assert) {
+    assert.expect(3);
+
+    var first = 'foo';
+    var second = [3, 5];
+    var third = [4, 9];
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit(second, third);
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit first)}}\n      '),
+      innerComponent: innerComponent,
+      value: '',
+      outerSubmit: function (actualFirst, actualSecond, actualThird) {
+        assert.equal(actualFirst, first, 'action has the correct first arg');
+        assert.equal(actualSecond, second, 'action has the correct second arg');
+        assert.equal(actualThird, third, 'action has the correct third arg');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      outerComponent.set('first', first);
+      outerComponent.set('second', second);
+    });
+
+    innerComponent.fireAction();
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('mut values can be wrapped in actions, are settable', function (assert) {
+    assert.expect(1);
+
+    var newValue = 'trollin trek';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit(newValue);
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut))}}\n      '),
+      innerComponent: innerComponent,
+      outerMut: 'patient peter'
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+      assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('mut values can be wrapped in actions, are settable with a curry', function (assert) {
+    assert.expect(1);
+
+    var newValue = 'trollin trek';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut) \'' + newValue + '\')}}\n      '),
+      innerComponent: innerComponent,
+      outerMut: 'patient peter'
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+      assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action can create closures over actions', function (assert) {
+    assert.expect(3);
+
+    var first = 'raging robert';
+    var second = 'mild machty';
+    var returnValue = 'butch brian';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        var actualReturnedValue = this.attrs.submit(second);
+        assert.equal(actualReturnedValue, returnValue, 'return value is present');
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
+      innerComponent: innerComponent,
+      actions: {
+        outerAction: function (actualFirst, actualSecond) {
+          assert.equal(actualFirst, first, 'first argument is correct');
+          assert.equal(actualSecond, second, 'second argument is correct');
+          return returnValue;
+        }
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('provides a helpful error if an action is not present', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
+      innerComponent: innerComponent,
+      actions: {
+        something: function () {
+          // this is present to ensure `actions` hash is present
+          // a different error is triggered if `actions` is missing
+          // completely
+        }
+      }
+    }).create();
+
+    throws(function () {
+      _emberRuntimeTestsUtils.runAppend(outerComponent);
+    }, /An action named 'doesNotExist' was not found in /);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('provides a helpful error if actions hash is not present', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
+      innerComponent: innerComponent
+    }).create();
+
+    throws(function () {
+      _emberRuntimeTestsUtils.runAppend(outerComponent);
+    }, /An action named 'doesNotExist' was not found in /);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action can create closures over actions with target', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' target=otherComponent)}}\n      '),
+      innerComponent: innerComponent,
+      otherComponent: _emberMetalComputed.computed(function () {
+        return {
+          actions: {
+            outerAction: function (actualFirst, actualSecond) {
+              assert.ok(true, 'action called on otherComponent');
+            }
+          }
+        };
+      })
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('value can be used with action over actions', function (assert) {
+    assert.expect(1);
+
+    var newValue = 'yelping yehuda';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit({
+          readProp: newValue
+        });
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' value="readProp")}}\n      '),
+      innerComponent: innerComponent,
+      outerContent: {
+        readProp: newValue
+      },
+      actions: {
+        outerAction: function (actualValue) {
+          assert.equal(actualValue, newValue, 'value is read');
+        }
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action will read the value of a first property', function (assert) {
+    assert.expect(1);
+
+    var newValue = 'irate igor';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit({
+          readProp: newValue
+        });
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction value="readProp")}}\n      '),
+      innerComponent: innerComponent,
+      outerAction: function (actualNewValue) {
+        assert.equal(actualNewValue, newValue, 'property is read');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action will read the value of a curried first argument property', function (assert) {
+    assert.expect(1);
+
+    var newValue = 'kissing kris';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction objectArgument value="readProp")}}\n      '),
+      innerComponent: innerComponent,
+      objectArgument: {
+        readProp: newValue
+      },
+      outerAction: function (actualNewValue) {
+        assert.equal(actualNewValue, newValue, 'property is read');
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action closure does not get auto-mut wrapped', function (assert) {
+    assert.expect(3);
+
+    var first = 'raging robert';
+    var second = 'mild machty';
+    var returnValue = 'butch brian';
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      middleComponent: middleComponent,
+
+      fireAction: function () {
+        var actualReturnedValue = this.attrs.submit(second);
+        assert.equal(actualReturnedValue, returnValue, 'return value is present');
+      }
+    }).create();
+
+    var middleComponent = _emberHtmlbarsComponent.default.extend({
+      innerComponent: innerComponent,
+
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=attrs.submit}}\n      ')
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      middleComponent: middleComponent,
+
+      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view middleComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
+
+      actions: {
+        outerAction: function (actualFirst, actualSecond) {
+          assert.equal(actualFirst, first, 'first argument is correct');
+          assert.equal(actualSecond, second, 'second argument is correct');
+
+          return returnValue;
+        }
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    _emberMetalRun_loop.default(function () {
+      innerComponent.fireAction();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called within a run loop', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
+      innerComponent: innerComponent,
+      actions: {
+        submit: function (newValue) {
+          assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
+        }
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    innerComponent.fireAction();
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('objects that define INVOKE can be casted to actions', function (assert) {
+    assert.expect(2);
+
+    innerComponent = _emberHtmlbarsComponent.default.extend({
+      fireAction: function () {
+        assert.equal(this.attrs.submit(4, 5, 6), 123);
+      }
+    }).create();
+
+    outerComponent = _emberHtmlbarsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
+      innerComponent: innerComponent,
+      foo: 123,
+      submitTask: _emberMetalComputed.computed(function () {
+        var _ref,
+            _this = this;
+
+        return _ref = {}, _ref[_emberHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          assert.deepEqual(args, [1, 2, 3, 4, 5, 6]);
+          return _this.foo;
+        }, _ref;
+      })
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    innerComponent.fireAction();
+  });
+});
+enifed('ember-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer', 'ember-runtime/tests/utils'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer, _emberRuntimeTestsUtils) {
+  'use strict';
+
+  var dispatcher, view, originalViewKeyword, owner;
+  var originalRegisterAction = _emberHtmlbarsKeywordsElementAction.ActionHelper.registerAction;
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: element action helper', {
+    setup: function () {
+      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+      dispatcher.setup();
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+
+      _emberHtmlbarsKeywordsElementAction.ActionHelper.registerAction = originalRegisterAction;
+    }
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should output a data attribute with a guid', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    ok(view.$('a').attr('data-ember-action').match(/\d+/), 'A data-ember-action attribute with a guid was added');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should by default register a click event', function () {
+    var registeredEventName;
+
+    _emberHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref) {
+      var eventName = _ref.eventName;
+
+      registeredEventName = eventName;
+    };
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(registeredEventName, 'click', 'The click event was properly registered');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow alternative events to be handled', function () {
+    var registeredEventName;
+
+    _emberHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref2) {
+      var eventName = _ref2.eventName;
+
+      registeredEventName = eventName;
+    };
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" on="mouseUp"}}>edit</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(registeredEventName, 'mouseUp', 'The alternative mouseUp event was properly registered');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should by default target the view\'s controller', function () {
+    var registeredTarget;
+    var controller = {};
+
+    _emberHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref3) {
+      var node = _ref3.node;
+
+      registeredTarget = node.getState().target;
+    };
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(registeredTarget, controller, 'The controller was registered as the target');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Inside a yield, the target points at the original target', function () {
+    var watted = false;
+
+    var component = _emberHtmlbarsComponent.default.extend({
+      boundText: 'inner',
+      truthy: true,
+      obj: {},
+      layout: _emberTemplateCompilerSystemCompile.default('<div>{{boundText}}</div><div>{{#if truthy}}{{yield}}{{/if}}</div>')
+    });
+
+    view = _emberViewsViewsView.default.create({
+      controller: {
+        boundText: 'outer',
+        truthy: true,
+        wat: function () {
+          watted = true;
+        },
+        component: component
+      },
+      template: _emberTemplateCompilerSystemCompile.default('{{#if truthy}}{{#view component}}{{#if truthy}}<div {{action "wat"}} class="wat">{{boundText}}</div>{{/if}}{{/view}}{{/if}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberMetalRun_loop.default(function () {
+      view.$('.wat').click();
+    });
+
+    equal(watted, true, 'The action was called on the right context');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow a target to be specified', function () {
+    var registeredTarget;
+
+    _emberHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref4) {
+      var node = _ref4.node;
+
+      registeredTarget = node.getState().target;
+    };
+
+    var anotherTarget = _emberViewsViewsView.default.create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: {},
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" target=view.anotherTarget}}>edit</a>'),
+      anotherTarget: anotherTarget
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(registeredTarget, anotherTarget, 'The specified target was registered');
+
+    _emberRuntimeTestsUtils.runDestroy(anotherTarget);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should lazily evaluate the target', function () {
+    var firstEdit = 0;
+    var secondEdit = 0;
+    var controller = {};
+    var first = {
+      edit: function () {
+        firstEdit++;
+      }
+    };
+
+    var second = {
+      edit: function () {
+        secondEdit++;
+      }
+    };
+
+    controller.theTarget = first;
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" target=theTarget}}>edit</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberMetalRun_loop.default(function () {
+      _emberViewsSystemJquery.default('a').trigger('click');
+    });
+
+    equal(firstEdit, 1);
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(controller, 'theTarget', second);
+    });
+
+    _emberMetalRun_loop.default(function () {
+      _emberViewsSystemJquery.default('a').trigger('click');
+    });
+
+    equal(firstEdit, 1);
+    equal(secondEdit, 1);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should register an event handler', function () {
+    var eventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>click me</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
+
+    view.$('a').trigger('click');
+
+    ok(eventHandlerWasCalled, 'The event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handles whitelisted modifier keys', function () {
+    var eventHandlerWasCalled = false;
+    var shortcutHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        edit: function () {
+          eventHandlerWasCalled = true;
+        },
+        shortcut: function () {
+          shortcutHandlerWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys="alt"}}>click me</a> <div {{action "shortcut" allowedKeys="any"}}>click me too</div>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
+
+    var e = _emberViewsSystemJquery.default.Event('click');
+    e.altKey = true;
+    view.$('a').trigger(e);
+
+    ok(eventHandlerWasCalled, 'The event handler was called');
+
+    e = _emberViewsSystemJquery.default.Event('click');
+    e.ctrlKey = true;
+    view.$('div').trigger(e);
+
+    ok(shortcutHandlerWasCalled, 'The "any" shortcut\'s event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handles whitelisted bound modifier keys', function () {
+    var eventHandlerWasCalled = false;
+    var shortcutHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      altKey: 'alt',
+      anyKey: 'any',
+      actions: {
+        edit: function () {
+          eventHandlerWasCalled = true;
+        },
+        shortcut: function () {
+          shortcutHandlerWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys=altKey}}>click me</a> <div {{action "shortcut" allowedKeys=anyKey}}>click me too</div>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
+
+    var e = _emberViewsSystemJquery.default.Event('click');
+    e.altKey = true;
+    view.$('a').trigger(e);
+
+    ok(eventHandlerWasCalled, 'The event handler was called');
+
+    e = _emberViewsSystemJquery.default.Event('click');
+    e.ctrlKey = true;
+    view.$('div').trigger(e);
+
+    ok(shortcutHandlerWasCalled, 'The "any" shortcut\'s event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handles whitelisted bound modifier keys with current value', function (assert) {
+    var editHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      acceptedKeys: 'alt',
+      actions: {
+        edit: function () {
+          editHandlerWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys=acceptedKeys}}>click me</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var e = _emberViewsSystemJquery.default.Event('click');
+    e.altKey = true;
+    view.$('a').trigger(e);
+
+    ok(editHandlerWasCalled, 'event handler was called');
+
+    editHandlerWasCalled = false;
+    _emberMetalRun_loop.default(function () {
+      controller.set('acceptedKeys', '');
+    });
+
+    view.$('a').trigger(e);
+
+    ok(!editHandlerWasCalled, 'event handler was not called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be able to use action more than once for the same event within a view', function () {
+    var editWasCalled = false;
+    var deleteWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        edit: function () {
+          editWasCalled = true;
+        },
+        'delete': function () {
+          deleteWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit"}}>edit</a><a id="delete" href="#" {{action "delete"}}>delete</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$('#delete').trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, true, 'The delete action was called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$().trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the event should not bubble if `bubbles=false` is passed', function () {
+    var editWasCalled = false;
+    var deleteWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        edit: function () {
+          editWasCalled = true;
+        },
+        'delete': function () {
+          deleteWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=false}}>edit</a><a id="delete" href="#" {{action "delete" bubbles=false}}>delete</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$('#delete').trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, true, 'The delete action was called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$().trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the event should not bubble if `bubbles=false` is passed bound', function () {
+    var editWasCalled = false;
+    var deleteWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      isFalse: false,
+      actions: {
+        edit: function () {
+          editWasCalled = true;
+        },
+        'delete': function () {
+          deleteWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=isFalse}}>edit</a><a id="delete" href="#" {{action "delete" bubbles=isFalse}}>delete</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$('#delete').trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, true, 'The delete action was called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$().trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the event bubbling depend on the bound parameter', function () {
+    var editWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      shouldBubble: false,
+      actions: {
+        edit: function () {
+          editWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=shouldBubble}}>edit</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = originalEventHandlerWasCalled = false;
+
+    _emberMetalRun_loop.default(function () {
+      controller.set('shouldBubble', true);
+    });
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was not called');
+    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should work properly in an #each block', function () {
+    var eventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      items: _emberRuntimeSystemNative_array.A([1, 2, 3, 4]),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}<a href="#" {{action "edit"}}>click me</a>{{/each}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('click');
+
+    ok(eventHandlerWasCalled, 'The event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should work properly in a {{#with foo as |bar|}} block', function () {
+    var eventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      something: { ohai: 'there' },
+      template: _emberTemplateCompilerSystemCompile.default('{{#with view.something as |somethingElse|}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('click');
+
+    ok(eventHandlerWasCalled, 'The event handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should unregister event handlers on rerender', function () {
+    var eventHandlerWasCalled = false;
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{#if view.active}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'),
+      active: true,
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var previousActionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'active', false);
+    });
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'active', true);
+    });
+
+    ok(!_emberViewsSystemAction_manager.default.registeredActions[previousActionId], 'On rerender, the event handler was removed');
+
+    var newActionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    ok(_emberViewsSystemAction_manager.default.registeredActions[newActionId], 'After rerender completes, a new event handler was added');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should unregister event handlers on inside virtual views', function () {
+    var things = _emberRuntimeSystemNative_array.A([{
+      name: 'Thingy'
+    }]);
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.things as |thing|}}<a href="#" {{action "edit"}}>click me</a>{{/each}}'),
+      things: things
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    _emberMetalRun_loop.default(function () {
+      things.removeAt(0);
+    });
+
+    ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'After the virtual view was destroyed, the action was unregistered');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should properly capture events on child elements of a container with an action', function () {
+    var eventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<div {{action "edit"}}><button>click me</button></div>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('button').trigger('click');
+
+    ok(eventHandlerWasCalled, 'Event on a child element triggered the action of its parent');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow bubbling of events from action helper to original parent event', function () {
+    var eventHandlerWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>click me</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('click');
+
+    ok(eventHandlerWasCalled && originalEventHandlerWasCalled, 'Both event handlers were called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not bubble an event from action helper to original parent event if `bubbles=false` is passed', function () {
+    var eventHandlerWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: { edit: function () {
+          eventHandlerWasCalled = true;
+        } }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" bubbles=false}}>click me</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('click');
+
+    ok(eventHandlerWasCalled, 'The child handler was called');
+    ok(!originalEventHandlerWasCalled, 'The parent handler was not called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow \'send\' as action name (#594)', function () {
+    var eventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      send: function () {
+        eventHandlerWasCalled = true;
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "send"}}>send</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('click');
+
+    ok(eventHandlerWasCalled, 'The view\'s send method was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should send the view, event and current context to the action', function () {
+    var passedTarget;
+    var passedContext;
+
+    var aTarget = _emberRuntimeControllersController.default.extend({
+      actions: {
+        edit: function (context) {
+          passedTarget = this;
+          passedContext = context;
+        }
+      }
+    }).create();
+
+    var aContext = { aTarget: aTarget };
+
+    view = _emberViewsViewsView.default.create({
+      context: aContext,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" this target=aTarget}}>edit</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    strictEqual(passedTarget, aTarget, 'the action is called with the target as this');
+    strictEqual(passedContext, aContext, 'the parameter is passed along');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should only trigger actions for the event they were registered on', function () {
+    var editWasCalled = false;
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>'),
+      actions: { edit: function () {
+          editWasCalled = true;
+        } }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('mouseover');
+
+    ok(!editWasCalled, 'The action wasn\'t called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should unwrap controllers passed as a context', function () {
+    var passedContext;
+    var model = _emberRuntimeSystemObject.default.create();
+    var controller = _emberRuntimeControllersController.default.extend({
+      model: model,
+      actions: {
+        edit: function (context) {
+          passedContext = context;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<button {{action "edit" this}}>edit</button>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('button').trigger('click');
+
+    equal(passedContext, model, 'the action was passed the unwrapped model');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow multiple contexts to be specified', function () {
+    var passedContexts;
+    var models = [_emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create()];
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        edit: function () {
+          passedContexts = [].slice.call(arguments);
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      modelA: models[0],
+      modelB: models[1],
+      template: _emberTemplateCompilerSystemCompile.default('<button {{action "edit" view.modelA view.modelB}}>edit</button>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('button').trigger('click');
+
+    deepEqual(passedContexts, models, 'the action was called with the passed contexts');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow multiple contexts to be specified mixed with string args', function () {
+    var passedParams;
+    var model = _emberRuntimeSystemObject.default.create();
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        edit: function () {
+          passedParams = [].slice.call(arguments);
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      modelA: model,
+      template: _emberTemplateCompilerSystemCompile.default('<button {{action "edit" "herp" view.modelA}}>edit</button>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('button').trigger('click');
+
+    deepEqual(passedParams, ['herp', model], 'the action was called with the passed contexts');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('it does not trigger action with special clicks', function () {
+    var showCalled = false;
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' href=true}}>Hi</a>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        show: function () {
+          showCalled = true;
+        }
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
+
+    function checkClick(prop, value, expected) {
+      var event = _emberViewsSystemJquery.default.Event('click');
+      event[prop] = value;
+      view.$('a').trigger(event);
+      if (expected) {
+        ok(showCalled, 'should call action with ' + prop + ':' + value);
+        ok(event.isDefaultPrevented(), 'should prevent default');
+      } else {
+        ok(!showCalled, 'should not call action with ' + prop + ':' + value);
+        ok(!event.isDefaultPrevented(), 'should not prevent default');
+      }
+    }
+
+    checkClick('ctrlKey', true, false);
+    checkClick('altKey', true, false);
+    checkClick('metaKey', true, false);
+    checkClick('shiftKey', true, false);
+    checkClick('which', 2, false);
+
+    checkClick('which', 1, true);
+    checkClick('which', undefined, true); // IE <9
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('it can trigger actions for keyboard events', function () {
+    var showCalled = false;
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<input type=\'text\' {{action \'show\' on=\'keyUp\'}}>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        show: function () {
+          showCalled = true;
+        }
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
+
+    var event = _emberViewsSystemJquery.default.Event('keyup');
+    event.char = 'a';
+    event.which = 65;
+    view.$('input').trigger(event);
+    ok(showCalled, 'should call action with keyup');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless parameter should allow dynamic lookup of the actionName', function () {
+    expect(4);
+    var lastAction;
+    var actionOrder = [];
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a id=\'woot-bound-param\' {{action hookMeUp}}>Hi</a>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      hookMeUp: 'biggityBoom',
+      actions: {
+        biggityBoom: function () {
+          lastAction = 'biggityBoom';
+          actionOrder.push(lastAction);
+        },
+        whompWhomp: function () {
+          lastAction = 'whompWhomp';
+          actionOrder.push(lastAction);
+        },
+        sloopyDookie: function () {
+          lastAction = 'sloopyDookie';
+          actionOrder.push(lastAction);
+        }
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
+
+    var testBoundAction = function (propertyValue) {
+      _emberMetalRun_loop.default(function () {
+        controller.set('hookMeUp', propertyValue);
+      });
+
+      _emberMetalRun_loop.default(function () {
+        view.$('#woot-bound-param').click();
+      });
+
+      equal(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
+    };
+
+    testBoundAction('whompWhomp');
+    testBoundAction('sloopyDookie');
+    testBoundAction('biggityBoom');
+
+    deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless parameter should lookup actionName in context [DEPRECATED]', function () {
+    expect(4);
+    var lastAction;
+    var actionOrder = [];
+
+    ignoreDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{#each allactions as |allacation|}}<a id="{{allacation.name}}" {{action allacation.name}}>{{allacation.title}}</a>{{/each}}')
+      });
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      allactions: _emberRuntimeSystemNative_array.A([{ title: 'Biggity Boom', name: 'biggityBoom' }, { title: 'Whomp Whomp', name: 'whompWhomp' }, { title: 'Sloopy Dookie', name: 'sloopyDookie' }]),
+      actions: {
+        biggityBoom: function () {
+          lastAction = 'biggityBoom';
+          actionOrder.push(lastAction);
+        },
+        whompWhomp: function () {
+          lastAction = 'whompWhomp';
+          actionOrder.push(lastAction);
+        },
+        sloopyDookie: function () {
+          lastAction = 'sloopyDookie';
+          actionOrder.push(lastAction);
+        }
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
+
+    var testBoundAction = function (propertyValue) {
+      _emberMetalRun_loop.default(function () {
+        view.$('#' + propertyValue).click();
+      });
+
+      equal(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
+    };
+
+    testBoundAction('whompWhomp');
+    testBoundAction('sloopyDookie');
+    testBoundAction('biggityBoom');
+
+    deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless string parameter should resolve actionName, including path', function () {
+    expect(4);
+    var lastAction;
+    var actionOrder = [];
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#each allactions as |item|}}<a id="{{item.name}}" {{action item.name}}>{{item.title}}</a>{{/each}}')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      allactions: _emberRuntimeSystemNative_array.A([{ title: 'Biggity Boom', name: 'biggityBoom' }, { title: 'Whomp Whomp', name: 'whompWhomp' }, { title: 'Sloopy Dookie', name: 'sloopyDookie' }]),
+      actions: {
+        biggityBoom: function () {
+          lastAction = 'biggityBoom';
+          actionOrder.push(lastAction);
+        },
+        whompWhomp: function () {
+          lastAction = 'whompWhomp';
+          actionOrder.push(lastAction);
+        },
+        sloopyDookie: function () {
+          lastAction = 'sloopyDookie';
+          actionOrder.push(lastAction);
+        }
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
+
+    var testBoundAction = function (propertyValue) {
+      _emberMetalRun_loop.default(function () {
+        view.$('#' + propertyValue).click();
+      });
+
+      equal(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
+    };
+
+    testBoundAction('whompWhomp');
+    testBoundAction('sloopyDookie');
+    testBoundAction('biggityBoom');
+
+    deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless function parameter should be called, including arguments', function () {
+    expect(2);
+
+    var arg = 'rough ray';
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a {{action submit \'' + arg + '\'}}></a>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      submit: function (actualArg) {
+        ok(true, 'submit function called');
+        equal(actualArg, arg, 'argument passed');
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
+
+    _emberMetalRun_loop.default(function () {
+      view.$('a').click();
+    });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless parameter that does not resolve to a value asserts', function () {
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        ohNoeNotValid: function () {}
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id=\'oops-bound-param\' {{action ohNoeNotValid}}>Hi</a>')
+    });
+
+    expectAssertion(function () {
+      _emberMetalRun_loop.default(function () {
+        view.appendTo('#qunit-fixture');
+      });
+    }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('allows multiple actions on a single element', function () {
+    var clickActionWasCalled = false;
+    var doubleClickActionWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        clicked: function () {
+          clickActionWasCalled = true;
+        },
+
+        doubleClicked: function () {
+          doubleClickActionWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('\n      <a href="#"\n        {{action "clicked" on="click"}}\n        {{action "doubleClicked" on="doubleClick"}}\n      >click me</a>\n    ')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
+
+    view.$('a').trigger('click');
+
+    ok(clickActionWasCalled, 'The clicked action was called');
+
+    view.$('a').trigger('dblclick');
+
+    ok(doubleClickActionWasCalled, 'The double click handler was called');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: action helper - deprecated invoking directly on target', {
+    setup: function () {
+      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
+      dispatcher.setup();
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+    }
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should respect preventDefault=false option if provided', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' preventDefault=false}}>Hi</a>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        show: function () {}
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      _emberRuntimeTestsUtils.runAppend(view);
+    });
+
+    var event = _emberViewsSystemJquery.default.Event('click');
+    view.$('a').trigger(event);
+
+    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should respect preventDefault option if provided bound', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' preventDefault=shouldPreventDefault}}>Hi</a>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      shouldPreventDefault: false,
+      actions: {
+        show: function () {}
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      _emberRuntimeTestsUtils.runAppend(view);
+    });
+
+    var event = _emberViewsSystemJquery.default.Event('click');
+    view.$('a').trigger(event);
+
+    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+
+    _emberMetalRun_loop.default(function () {
+      controller.set('shouldPreventDefault', true);
+    });
+
+    event = _emberViewsSystemJquery.default.Event('click');
+    view.$('a').trigger(event);
+
+    equal(event.isDefaultPrevented(), true, 'should preventDefault');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: action helper - action target without `controller`', {
+    setup: function () {
+      owner = _containerTestsTestHelpersBuildOwner.default();
+      owner.registerOptionsForType('template', { instantiate: false });
+      owner.registerOptionsForType('component', { singleton: false });
+      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+      owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+
+      dispatcher = owner.lookup('event_dispatcher:main');
+      dispatcher.setup();
+
+      this.originalLegacyViewSupport = _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+      _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+      _emberRuntimeTestsUtils.runDestroy(owner);
+
+      _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = this.originalLegacyViewSupport;
+    }
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should target the proper component when `action` is in yielded block [GH #12409]', function (assert) {
+    var _EmberComponent$create;
+
+    assert.expect(2);
+
+    owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('\n    {{#x-middle}}\n      {{x-inner action="hey" }}\n    {{/x-middle}}\n  '));
+
+    owner.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('{{yield}}'));
+    owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('\n    <button>Click Me</button>\n    {{yield}}\n  '));
+
+    owner.register('component:x-inner', _emberHtmlbarsComponent.default.extend({
+      click: function () {
+        assert.ok(true, 'click was triggered');
+        this.sendAction();
+      }
+    }));
+
+    owner.register('component:x-outer', _emberHtmlbarsComponent.default.extend({
+      actions: {
+        hey: function () {
+          assert.ok(true, 'action fired on proper target');
+        }
+      }
+    }));
+
+    view = _emberHtmlbarsComponent.default.create((_EmberComponent$create = {}, _EmberComponent$create[_containerOwner.OWNER] = owner, _EmberComponent$create.layout = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberComponent$create));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var event = _emberViewsSystemJquery.default.Event('click');
+    view.$('button').trigger(event);
+  });
+});
 enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
@@ -44570,6 +46572,983 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, view, 'controller.someNullProperty', 'foo');
 
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
+  });
+});
+enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+  'use strict';
+
+  var owner, view;
+
+  QUnit.module('ember-htmlbars: link-to helper', {
+    setup: function () {
+      owner = _containerTestsTestHelpersBuildOwner.default();
+
+      // These tests don't rely on the routing service, but LinkComponent makes
+      // some assumptions that it will exist. This small stub service ensures
+      // that the LinkComponent can render without raising an exception.
+      //
+      // TODO: Add tests that test actual behavior. Currently, all behavior
+      // is tested integration-style in the `ember` package.
+      owner.register('service:-routing', _emberRuntimeSystemObject.default.extend({
+        availableRoutes: function () {
+          return ['index'];
+        },
+        hasRoute: function (name) {
+          return name === 'index';
+        },
+        isActiveForRoute: function () {
+          return true;
+        },
+        generateURL: function () {
+          return '/';
+        }
+      }));
+
+      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+      owner.register('component:link-to', _emberHtmlbarsComponentsLinkTo.default);
+      owner.register('component:custom-link-to', _emberHtmlbarsComponentsLinkTo.default.extend());
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(owner);
+    }
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be able to be inserted in DOM when the router is not present', function () {
+    var _EmberView$create;
+
+    var template = '{{#link-to \'index\'}}Go to Index{{/link-to}}';
+    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Go to Index');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('re-renders when title changes', function () {
+    var _EmberView$create2;
+
+    var template = '{{link-to title routeName}}';
+    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.controller = {
+      title: 'foo',
+      routeName: 'index'
+    }, _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create2));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'foo');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'controller.title', 'bar');
+    });
+
+    equal(view.$().text(), 'bar');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('can read bound title', function () {
+    var _EmberView$create3;
+
+    var template = '{{link-to title routeName}}';
+    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.controller = {
+      title: 'foo',
+      routeName: 'index'
+    }, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create3));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'foo');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('escaped inline form (double curlies) escapes link title', function () {
+    var _EmberView$create4;
+
+    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{link-to view.title "index"}}'), _EmberView$create4));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('b').length, 0, 'no <b> were found');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('escaped inline form with (-html-safe) does not escape link title', function () {
+    var _EmberView$create5;
+
+    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.title = '<b>blah</b>', _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create5));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('b').length, 1, '<b> was found');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unescaped inline form (triple curlies) does not escape link title', function () {
+    var _EmberView$create6;
+
+    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = '<b>blah</b>', _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{{link-to view.title "index"}}}'), _EmberView$create6));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('b').length, 1, '<b> was found');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unwraps controllers', function () {
+    var _EmberView$create7;
+
+    var template = '{{#link-to \'index\' view.otherController}}Text{{/link-to}}';
+
+    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.otherController = _emberRuntimeControllersController.default.create({
+      model: 'foo'
+    }), _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
+
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
+
+    equal(view.$().text(), 'Text');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('able to safely extend the built-in component and use the normal path', function () {
+    var _EmberView$create8;
+
+    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.title = 'my custom link-to component', _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create8));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
+    var _EmberView$create9;
+
+    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.title = 'my custom link-to component', _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default('{{custom-link-to view.title \'index\'}}'), _EmberView$create9));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
+  });
+});
+enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+  'use strict';
+
+  var trim = _emberViewsSystemJquery.default.trim;
+
+  var appInstance, top;
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{outlet}} helper', {
+    setup: function () {
+      appInstance = _emberHtmlbarsTestsUtils.buildAppInstance();
+      var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
+      top = CoreOutlet.create();
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(appInstance);
+      _emberRuntimeTestsUtils.runDestroy(top);
+      appInstance = top = null;
+    }
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('view should render the outlet when set after dom insertion', function () {
+    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+
+    equal(top.$().text(), 'HI');
+
+    routerState.outlets.main = withTemplate('<p>BYE</p>');
+
+    _emberMetalRun_loop.default(function () {
+      top.setOutletState(routerState);
+    });
+
+    // Replace whitespace for older IE
+    equal(trim(top.$().text()), 'HIBYE');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a top-level outlet should always be a view', function () {
+    appInstance.register('view:toplevel', _emberViewsViewsView.default.extend({
+      elementId: 'top-level'
+    }));
+    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
+    top.setOutletState(routerState);
+    routerState.outlets.main = withTemplate('<p>BYE</p>');
+    _emberRuntimeTestsUtils.runAppend(top);
+
+    // Replace whitespace for older IE
+    equal(trim(top.$('#top-level').text()), 'HIBYE');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('view should render the outlet when set before dom insertion', function () {
+    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
+    routerState.outlets.main = withTemplate('<p>BYE</p>');
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+
+    // Replace whitespace for older IE
+    equal(trim(top.$().text()), 'HIBYE');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('outlet should support an optional name', function () {
+    var routerState = withTemplate('<h1>HI</h1>{{outlet \'mainView\'}}');
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+
+    equal(top.$().text(), 'HI');
+
+    routerState.outlets.mainView = withTemplate('<p>BYE</p>');
+
+    _emberMetalRun_loop.default(function () {
+      top.setOutletState(routerState);
+    });
+
+    // Replace whitespace for older IE
+    equal(trim(top.$().text()), 'HIBYE');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Outlets bind to the current view, not the current concrete view', function () {
+    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+    routerState.outlets.main = withTemplate('<h2>MIDDLE</h2>{{outlet}}');
+    _emberMetalRun_loop.default(function () {
+      top.setOutletState(routerState);
+    });
+    routerState.outlets.main.outlets.main = withTemplate('<h3>BOTTOM</h3>');
+    _emberMetalRun_loop.default(function () {
+      top.setOutletState(routerState);
+    });
+
+    var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h2 ~ h3').text();
+    equal(output, 'BOTTOM', 'all templates were rendered');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Outlets bind to the current template\'s view, not inner contexts [DEPRECATED]', function () {
+    var parentTemplate = '<h1>HI</h1>{{#if view.alwaysTrue}}{{outlet}}{{/if}}';
+    var bottomTemplate = '<h3>BOTTOM</h3>';
+
+    var routerState = {
+      render: {
+        ViewClass: _emberViewsViewsView.default.extend({
+          alwaysTrue: true,
+          template: _emberTemplateCompilerSystemCompile.default(parentTemplate)
+        })
+      },
+      outlets: {}
+    };
+
+    top.setOutletState(routerState);
+
+    _emberRuntimeTestsUtils.runAppend(top);
+
+    routerState.outlets.main = withTemplate(bottomTemplate);
+
+    _emberMetalRun_loop.default(function () {
+      top.setOutletState(routerState);
+    });
+
+    var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h3').text();
+    equal(output, 'BOTTOM', 'all templates were rendered');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not throw deprecations if {{outlet}} is used without a name', function () {
+    expectNoDeprecation();
+    top.setOutletState(withTemplate('{{outlet}}'));
+    _emberRuntimeTestsUtils.runAppend(top);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not throw deprecations if {{outlet}} is used with a quoted name', function () {
+    expectNoDeprecation();
+    top.setOutletState(withTemplate('{{outlet "foo"}}'));
+    _emberRuntimeTestsUtils.runAppend(top);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} should work with an unquoted name', function () {
+    var routerState = {
+      render: {
+        controller: _emberRuntimeControllersController.default.create({
+          outletName: 'magical'
+        }),
+        template: _emberTemplateCompilerSystemCompile.default('{{outlet outletName}}')
+      },
+      outlets: {
+        magical: withTemplate('It\'s magic')
+      }
+    };
+
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+
+    equal(top.$().text().trim(), 'It\'s magic');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} should rerender when bound name changes', function () {
+    var routerState = {
+      render: {
+        controller: _emberRuntimeControllersController.default.create({
+          outletName: 'magical'
+        }),
+        template: _emberTemplateCompilerSystemCompile.default('{{outlet outletName}}')
+      },
+      outlets: {
+        magical: withTemplate('It\'s magic'),
+        second: withTemplate('second')
+      }
+    };
+
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+    equal(top.$().text().trim(), 'It\'s magic');
+    _emberMetalRun_loop.default(function () {
+      routerState.render.controller.set('outletName', 'second');
+    });
+    equal(top.$().text().trim(), 'second');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('views created by {{outlet}} should get destroyed', function () {
+    var inserted = 0;
+    var destroyed = 0;
+    var routerState = {
+      render: {
+        ViewClass: _emberViewsViewsView.default.extend({
+          didInsertElement: function () {
+            inserted++;
+          },
+          willDestroyElement: function () {
+            destroyed++;
+          }
+        })
+      },
+      outlets: {}
+    };
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+    equal(inserted, 1, 'expected to see view inserted');
+    _emberMetalRun_loop.default(function () {
+      top.setOutletState(withTemplate('hello world'));
+    });
+    equal(destroyed, 1, 'expected to see view destroyed');
+  });
+
+  function withTemplate(string) {
+    return {
+      render: {
+        template: _emberTemplateCompilerSystemCompile.default(string)
+      },
+      outlets: {}
+    };
+  }
+});
+enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-runtime/tests/utils', 'container/owner', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberRuntimeTestsUtils, _containerOwner, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+  'use strict';
+
+  function runSet(object, key, value) {
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(object, key, value);
+    });
+  }
+
+  var ORIGINAL_LEGACY_CONTROLLER_FLAG = _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
+  var view, appInstance;
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{render}} helper', {
+    setup: function () {
+      appInstance = _emberHtmlbarsTestsUtils.buildAppInstance();
+    },
+
+    teardown: function () {
+      _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = ORIGINAL_LEGACY_CONTROLLER_FLAG;
+      _emberRuntimeTestsUtils.runDestroy(appInstance);
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberTemplatesTemplate_registry.setTemplates({});
+    }
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render given template', function () {
+    var _EmberView$create;
+
+    var template = '<h1>HI</h1>{{render \'home\'}}';
+    var controller = _emberRuntimeControllersController.default.extend();
+
+    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = appInstance, _EmberView$create.controller = controller.create(), _EmberView$create.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'HIBYE');
+    // This is a poor assertion. What is really being tested is that
+    // a second render with the same name will throw an assert.
+    ok(appInstance.lookup('router:main')._lookupActiveComponentNode('home'), 'should register home as active view');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render nested helpers', function () {
+    var _EmberView$create2;
+
+    var template = '<h1>HI</h1>{{render \'foo\'}}';
+    var controller = _emberRuntimeControllersController.default.extend();
+
+    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = appInstance, _EmberView$create2.controller = controller.create(), _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create2));
+
+    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerSystemCompile.default('<p>FOO</p>{{render \'bar\'}}'));
+    _emberTemplatesTemplate_registry.set('bar', _emberTemplateCompilerSystemCompile.default('<p>BAR</p>{{render \'baz\'}}'));
+    _emberTemplatesTemplate_registry.set('baz', _emberTemplateCompilerSystemCompile.default('<p>BAZ</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'HIFOOBARBAZ');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should have assertion if neither template nor view exists', function () {
+    var _EmberView$create3;
+
+    var template = '<h1>HI</h1>{{render \'oops\'}}';
+    var controller = _emberRuntimeControllersController.default.extend();
+
+    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = appInstance, _EmberView$create3.controller = controller.create(), _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create3));
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as either a template or a view.');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not have assertion if view exists without a template', function () {
+    var _EmberView$create4;
+
+    var template = '<h1>HI</h1>{{render \'oops\'}}';
+    var controller = _emberRuntimeControllersController.default.extend();
+
+    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = appInstance, _EmberView$create4.controller = controller.create(), _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create4));
+
+    appInstance.register('view:oops', _emberViewsViewsView.default.extend());
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'HI');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render given template with a supplied model', function () {
+    var _Controller$create;
+
+    var template = '<h1>HI</h1>{{render \'post\' post}}';
+    var post = {
+      title: 'Rails is omakase'
+    };
+
+    var Controller = _emberRuntimeControllersController.default.extend({
+      post: post
+    });
+
+    var controller = Controller.create((_Controller$create = {}, _Controller$create[_containerOwner.OWNER] = appInstance, _Controller$create));
+
+    expectDeprecation(function () {
+      var _EmberView$create5;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create5));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var postController;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        postController = this;
+      }
+    });
+    appInstance.register('controller:post', PostController);
+
+    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{model.title}}</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'HIRails is omakase');
+    equal(postController.get('model'), post);
+
+    runSet(controller, 'post', { title: 'Rails is unagi' });
+
+    equal(view.$().text(), 'HIRails is unagi');
+    deepEqual(postController.get('model'), { title: 'Rails is unagi' });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper with a supplied model should not fire observers on the controller', function () {
+    var _EmberController$create;
+
+    var template = '<h1>HI</h1>{{render \'post\' post}}';
+    var post = {
+      title: 'Rails is omakase'
+    };
+    var controller = _emberRuntimeControllersController.default.create((_EmberController$create = {}, _EmberController$create[_containerOwner.OWNER] = appInstance, _EmberController$create.post = post, _EmberController$create));
+
+    expectDeprecation(function () {
+      var _EmberView$create6;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create6));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var PostController = _emberRuntimeControllersController.default.extend({
+      modelDidChange: _emberMetalMixin.observer('model', function () {
+        modelDidChange++;
+      })
+    });
+
+    appInstance.register('controller:post', PostController);
+
+    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{title}}</p>'));
+
+    var modelDidChange = 0;
+    _emberRuntimeTestsUtils.runAppend(view);
+    equal(modelDidChange, 0, 'model observer did not fire');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
+    var _Controller$create2, _EmberView$create7;
+
+    var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create2 = {}, _Controller$create2[_containerOwner.OWNER] = appInstance, _Controller$create2));
+
+    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
+
+    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'The controller name you supplied \'postss\' did not resolve to a controller.');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render with given controller', function () {
+    var _Controller$create3, _EmberView$create8;
+
+    var template = '{{render "home" controller="posts"}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var model = {};
+    var controller = Controller.create((_Controller$create3 = {}, _Controller$create3[_containerOwner.OWNER] = appInstance, _Controller$create3));
+    var id = 0;
+
+    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.uniqueId = id++;
+        this.set('model', model);
+      }
+    }));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = appInstance, _EmberView$create8.controller = controller, _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create8));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('{{uniqueId}}'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var renderedController = appInstance.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
+    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
+    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should rerender with given controller', function () {
+    var _Controller$create4, _EmberView$create9;
+
+    var template = '{{render "home" controller="posts"}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var model = {};
+    var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
+    var id = 0;
+
+    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.uniqueId = id++;
+        this.set('model', model);
+      }
+    }));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create9));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('{{uniqueId}}'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+    _emberMetalRun_loop.default(function () {
+      view.rerender();
+    });
+
+    var renderedController = appInstance.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
+
+    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
+    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render a template without a model only once', function () {
+    var _Controller$create5, _EmberView$create10;
+
+    var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create10));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, /\{\{render\}\} helper once/i);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render templates with models multiple times', function () {
+    var _Controller$create6;
+
+    var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
+    var post1 = {
+      title: 'Me first'
+    };
+    var post2 = {
+      title: 'Then me'
+    };
+
+    var Controller = _emberRuntimeControllersController.default.extend({
+      post1: post1,
+      post2: post2
+    });
+
+    var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
+
+    expectDeprecation(function () {
+      var _EmberView$create11;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create11));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var postController1, postController2;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        if (!postController1) {
+          postController1 = this;
+        } else if (!postController2) {
+          postController2 = this;
+        }
+      }
+    });
+    appInstance.register('controller:post', PostController, { singleton: false });
+
+    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{model.title}}</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    ok(view.$().text().match(/^HI ?Me first ?Then me$/));
+    equal(postController1.get('model'), post1);
+    equal(postController2.get('model'), post2);
+
+    runSet(controller, 'post1', { title: 'I am new' });
+
+    ok(view.$().text().match(/^HI ?I am new ?Then me$/));
+    deepEqual(postController1.get('model'), { title: 'I am new' });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not leak controllers', function () {
+    var _Controller$create7;
+
+    var template = '<h1>HI</h1> {{render \'post\' post1}}';
+    var post1 = {
+      title: 'Me first'
+    };
+
+    var Controller = _emberRuntimeControllersController.default.extend({
+      post1: post1
+    });
+
+    var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
+
+    expectDeprecation(function () {
+      var _EmberView$create12;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var postController;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        postController = this;
+      }
+    });
+    appInstance.register('controller:post', PostController);
+
+    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{title}}</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberRuntimeTestsUtils.runDestroy(view);
+
+    ok(postController.isDestroyed, 'expected postController to be destroyed');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
+    var _EmberController$create2;
+
+    var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
+
+    var controller = _emberRuntimeControllersController.default.create((_EmberController$create2 = {}, _EmberController$create2[_containerOwner.OWNER] = appInstance, _EmberController$create2.zero = false, _EmberController$create2));
+
+    expectDeprecation(function () {
+      var _EmberView$create13;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var postController1, postController2;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        if (!postController1) {
+          postController1 = this;
+        } else if (!postController2) {
+          postController2 = this;
+        }
+      }
+    });
+    appInstance.register('controller:post', PostController, { singleton: false });
+
+    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{#unless model}}NOTHING{{/unless}}</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    ok(view.$().text().match(/^HI ?NOTHING ?NOTHING$/));
+    equal(postController1.get('model'), 0);
+    equal(postController2.get('model'), undefined);
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render templates both with and without models', function () {
+    var _Controller$create8;
+
+    var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
+    var post = {
+      title: 'Rails is omakase'
+    };
+
+    var Controller = _emberRuntimeControllersController.default.extend({
+      post: post
+    });
+
+    var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
+
+    expectDeprecation(function () {
+      var _EmberView$create14;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var postController1, postController2;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        if (!postController1) {
+          postController1 = this;
+        } else if (!postController2) {
+          postController2 = this;
+        }
+      }
+    });
+    appInstance.register('controller:post', PostController, { singleton: false });
+
+    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>Title:{{model.title}}</p>'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    ok(view.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
+    equal(postController1.get('model'), null);
+    equal(postController2.get('model'), post);
+
+    runSet(controller, 'post', { title: 'Rails is unagi' });
+
+    ok(view.$().text().match(/^HI ?Title: ?Title:Rails is unagi$/));
+    deepEqual(postController2.get('model'), { title: 'Rails is unagi' });
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should be able to render a template again when it was removed', function () {
+    var _Controller$create9, _CoreOutlet$create;
+
+    var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
+
+    view = CoreOutlet.create((_CoreOutlet$create = {}, _CoreOutlet$create[_containerOwner.OWNER] = appInstance, _CoreOutlet$create));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
+
+    var liveRoutes = {
+      render: {
+        template: _emberTemplateCompilerSystemCompile.default('<h1>HI</h1>{{outlet}}')
+      },
+      outlets: {}
+    };
+
+    _emberMetalRun_loop.default(function () {
+      liveRoutes.outlets.main = {
+        render: {
+          controller: controller,
+          template: _emberTemplateCompilerSystemCompile.default('<div>1{{render \'home\'}}</div>')
+        }
+      };
+      view.setOutletState(liveRoutes);
+    });
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'HI1BYE');
+
+    _emberMetalRun_loop.default(function () {
+      liveRoutes.outlets.main = {
+        render: {
+          controller: controller,
+          template: _emberTemplateCompilerSystemCompile.default('<div>2{{render \'home\'}}</div>')
+        }
+      };
+      view.setOutletState(liveRoutes);
+    });
+
+    equal(view.$().text(), 'HI2BYE');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} works with dot notation', function () {
+    var _ContextController$create, _EmberView$create15;
+
+    var template = '{{render "blog.post"}}';
+
+    var ContextController = _emberRuntimeControllersController.default.extend();
+    var contextController = ContextController.create((_ContextController$create = {}, _ContextController$create[_containerOwner.OWNER] = appInstance, _ContextController$create));
+
+    var controller;
+    var id = 0;
+    var BlogPostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        controller = this;
+        this.uniqueId = id++;
+      }
+    });
+    appInstance.register('controller:blog.post', BlogPostController);
+
+    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = contextController, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
+
+    _emberTemplatesTemplate_registry.set('blog.post', _emberTemplateCompilerSystemCompile.default('{{uniqueId}}'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var singletonController = appInstance.lookup('controller:blog.post');
+    equal(singletonController.uniqueId, view.$().html(), 'rendered with correct singleton controller');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
+    var _Controller$create10;
+
+    var template = '<h1>HI</h1>{{render home}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create10 = {}, _Controller$create10[_containerOwner.OWNER] = appInstance, _Controller$create10));
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default(template)
+    });
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('throws an assertion if {{render}} is called with a literal for a model', function () {
+    var _Controller$create11, _EmberView$create16;
+
+    var template = '<h1>HI</h1>{{render "home" "model"}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create11 = {}, _Controller$create11[_containerOwner.OWNER] = appInstance, _Controller$create11));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = controller, _EmberView$create16.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create16));
+
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'The second argument of {{render}} must be a path, e.g. {{render "post" post}}.');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should let view provide its own template', function () {
+    var _Controller$create12, _EmberView$create17;
+
+    var template = '{{render \'fish\'}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create12 = {}, _Controller$create12[_containerOwner.OWNER] = appInstance, _Controller$create12));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = controller, _EmberView$create17.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create17));
+
+    appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
+    appInstance.register('template:other', _emberTemplateCompilerSystemCompile.default('Hello other!'));
+
+    appInstance.register('view:fish', _emberViewsViewsView.default.extend({
+      templateName: 'other'
+    }));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Hello other!');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not require view to provide its own template', function () {
+    var _Controller$create13, _EmberView$create18;
+
+    var template = '{{render \'fish\'}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var controller = Controller.create((_Controller$create13 = {}, _Controller$create13[_containerOwner.OWNER] = appInstance, _Controller$create13));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.controller = controller, _EmberView$create18.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create18));
+
+    appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
+
+    appInstance.register('view:fish', _emberViewsViewsView.default.extend());
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Hello fish!');
+  });
+
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should set router as target when parentController is not found', function () {
+    expect(3);
+
+    _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
+
+    var template = '{{render \'post\' post1}}';
+
+    expectDeprecation(function () {
+      var _EmberView$create19;
+
+      view = _emberViewsViewsView.default.create((_EmberView$create19 = {}, _EmberView$create19[_containerOwner.OWNER] = appInstance, _EmberView$create19.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create19));
+    }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+    var postController = undefined;
+    var PostController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        postController = this;
+      }
+    });
+
+    var routerStub = {
+      send: function (actionName) {
+        equal(actionName, 'someAction');
+        ok(true, 'routerStub#send called');
+      }
+    };
+    appInstance.register('router:main', routerStub, { instantiate: false });
+    appInstance.register('controller:post', PostController);
+    appInstance.register('template:post', _emberTemplateCompilerSystemCompile.default('post template'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    postController.send('someAction');
   });
 });
 enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-htmlbars/components/text_field', 'ember-runtime/system/object', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberHtmlbarsComponentsText_field, _emberRuntimeSystemObject, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray, _emberGlimmerTestsUtilsSkipIfGlimmer) {
@@ -63684,7 +66663,7 @@ enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-token
     }, _ref4;
   }
 });
-enifed('ember-htmlbars/tests/utils', ['exports', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
+enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
   'use strict';
 
   function registerAstPlugin(plugin) {
@@ -63708,10 +66687,68 @@ enifed('ember-htmlbars/tests/utils', ['exports', 'ember-htmlbars/keywords', 'emb
     }
   }
 
+  function buildAppInstance() {
+    var registry = undefined;
+    var App = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
+      init: function () {
+        this._super.apply(this, arguments);
+        registry = this.__registry__ = new _containerRegistry.default();
+        this.__container__ = registry.container({ owner: this });
+      }
+    });
+    var appInstance = App.create();
+
+    registry.resolver = resolverFor(App);
+
+    registry.optionsForType('view', { singleton: false });
+    registry.optionsForType('template', { instantiate: false });
+    registry.register('application:main', App, { instantiate: false });
+    registry.injection('router:main', 'namespace', 'application:main');
+
+    registry.register('location:hash', _emberRoutingLocationHash_location.default);
+
+    registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
+
+    registry.register('view:toplevel', _emberViewsViewsView.default.extend());
+    registry.register('view:-outlet', _emberHtmlbarsViewsOutlet.OutletView);
+    registry.register('view:core-outlet', _emberHtmlbarsViewsOutlet.CoreOutletView);
+    registry.register('router:main', _emberRoutingSystemRouter.default.extend());
+
+    registry.typeInjection('route', 'router', 'router:main');
+
+    return appInstance;
+  }
+
+  function resolverFor(namespace) {
+    return {
+      resolve: function (fullName) {
+        var nameParts = fullName.split(':');
+        var type = nameParts[0];
+        var name = nameParts[1];
+
+        if (type === 'template') {
+          var templateName = _emberRuntimeSystemString.decamelize(name);
+          if (_emberTemplatesTemplate_registry.has(templateName)) {
+            return _emberTemplatesTemplate_registry.get(templateName);
+          }
+        }
+
+        var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
+        var factory = _emberMetalProperty_get.get(namespace, className);
+
+        if (factory) {
+          return factory;
+        }
+      }
+    };
+  }
+
   exports.registerAstPlugin = registerAstPlugin;
   exports.removeAstPlugin = removeAstPlugin;
   exports.registerKeyword = registerKeyword;
   exports.resetKeyword = resetKeyword;
+  exports.resolverFor = resolverFor;
+  exports.buildAppInstance = buildAppInstance;
 });
 enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
   'use strict';
@@ -73369,3047 +76406,6 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].as, 'an_alias', 'includes the provided alias in \'as\' key');
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
-});
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/component', 'ember-metal/computed', 'ember-routing-htmlbars/keywords/closure-action', 'ember-metal/instrumentation', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-views/component_lookup', 'ember-views/system/event_dispatcher', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberHtmlbarsComponent, _emberMetalComputed, _emberRoutingHtmlbarsKeywordsClosureAction, _emberMetalInstrumentation, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberViewsComponent_lookup, _emberViewsSystemEvent_dispatcher, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
-  'use strict';
-
-  var innerComponent, outerComponent, originalViewKeyword, owner, view, dispatcher;
-
-  function buildResolver() {
-    var resolver = {
-      resolve: function () {},
-      expandLocalLookup: function (fullName, sourceFullName) {
-        var _sourceFullName$split = sourceFullName.split(':');
-
-        var sourceType = _sourceFullName$split[0];
-        var sourceName = _sourceFullName$split[1];
-
-        var _fullName$split = fullName.split(':');
-
-        var type = _fullName$split[0];
-        var name = _fullName$split[1];
-
-        if (type !== 'template' && sourceType === 'template' && sourceName.slice(0, 11) === 'components/') {
-          sourceName = sourceName.slice(11);
-        }
-
-        if (type === 'template' && sourceType === 'template' && name.slice(0, 11) === 'components/') {
-          name = name.slice(11);
-        }
-
-        var result = type + ':' + sourceName + '/' + name;
-
-        return result;
-      }
-    };
-
-    return resolver;
-  }
-
-  function registerTemplate(moduleName, snippet) {
-    owner.register('template:' + moduleName, _emberTemplateCompilerSystemCompile.default(snippet, { moduleName: moduleName }));
-  }
-
-  function registerComponent(name, factory) {
-    owner.register('component:' + name, factory);
-  }
-
-  function appendViewFor(template) {
-    var moduleName = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-    var _EmberComponent$extend;
-
-    var hash = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-    var view = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend = {
-      layout: _emberTemplateCompilerSystemCompile.default(template, { moduleName: moduleName })
-    }, _EmberComponent$extend[_containerOwner.OWNER] = owner, _EmberComponent$extend)).create(hash);
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    return view;
-  }
-
-  var subscriber = undefined;
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-routing-htmlbars: action helper', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-      owner = _containerTestsTestHelpersBuildOwner.default({
-        _registryOptions: {
-          resolver: buildResolver()
-        }
-      });
-      owner.registerOptionsForType('component', { singleton: false });
-      owner.registerOptionsForType('view', { singleton: false });
-      owner.registerOptionsForType('template', { instantiate: false });
-      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(innerComponent);
-      _emberRuntimeTestsUtils.runDestroy(outerComponent);
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-      if (subscriber) {
-        _emberMetalInstrumentation.unsubscribe(subscriber);
-      }
-      owner = view = null;
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-    }
-  });
-
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should fire interaction event', function (assert) {
-      assert.expect(2);
-
-      subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
-        before: function () {
-          assert.ok(true, 'instrumentation subscriber was called');
-        }
-      });
-
-      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
-        actions: {
-          fireAction: function () {
-            this.attrs.submit();
-          }
-        }
-      }));
-
-      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
-        innerComponent: innerComponent,
-        outerSubmit: function () {
-          assert.ok(true, 'action is called');
-        }
-      }));
-
-      view = appendViewFor('{{outer-component}}');
-
-      view.$('#instrument-button').trigger('click');
-    });
-
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('interaction event subscriber should be passed parameters', function (assert) {
-      assert.expect(2);
-
-      var actionParam = 'So krispy';
-
-      subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
-        before: function (name, timestamp, payload) {
-          assert.equal(payload.args[0], actionParam, 'instrumentation subscriber before function was passed closure action parameters');
-        },
-        after: function (name, timestamp, payload) {
-          assert.equal(payload.args[0], actionParam, 'instrumentation subscriber after function was passed closure action parameters');
-        }
-      });
-
-      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
-        actions: {
-          fireAction: function () {
-            this.attrs.submit(actionParam);
-          }
-        }
-      }));
-
-      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
-        innerComponent: innerComponent,
-        outerSubmit: function () {}
-      }));
-
-      view = appendViewFor('{{outer-component}}');
-
-      view.$('#instrument-button').trigger('click');
-    });
-
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('interaction event subscriber should be passed target', function (assert) {
-      assert.expect(2);
-
-      subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
-        before: function (name, timestamp, payload) {
-          assert.equal(payload.target.get('myProperty'), 'outer-thing', 'instrumentation subscriber before function was passed target');
-        },
-        after: function (name, timestamp, payload) {
-          assert.equal(payload.target.get('myProperty'), 'outer-thing', 'instrumentation subscriber after function was passed target');
-        }
-      });
-
-      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
-        myProperty: 'inner-thing',
-        actions: {
-          fireAction: function () {
-            this.attrs.submit();
-          }
-        }
-      }));
-
-      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
-        myProperty: 'outer-thing',
-        innerComponent: innerComponent,
-        outerSubmit: function () {}
-      }));
-
-      view = appendViewFor('{{outer-component}}');
-
-      view.$('#instrument-button').trigger('click');
-    });
-
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('instrumented action should return value', function (assert) {
-      assert.expect(1);
-
-      var returnedValue = 'Chris P is so krispy';
-
-      registerTemplate('components/inner-component', '<button id="instrument-button" {{action "fireAction"}}>What it do</button>');
-      registerComponent('inner-component', _emberHtmlbarsComponent.default.extend({
-        actions: {
-          fireAction: function () {
-            var actualReturnedValue = this.attrs.submit();
-            assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
-          }
-        }
-      }));
-
-      registerTemplate('components/outer-component', '{{inner-component submit=(action outerSubmit)}}');
-      registerComponent('outer-component', _emberHtmlbarsComponent.default.extend({
-        innerComponent: innerComponent,
-        outerSubmit: function () {
-          return returnedValue;
-        }
-      }));
-
-      view = appendViewFor('{{outer-component}}');
-
-      view.$('#instrument-button').trigger('click');
-    });
-  }
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
-      innerComponent: innerComponent,
-      outerSubmit: function () {
-        assert.ok(true, 'action is called');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('an error is triggered when bound action function is undefined', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({}).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
-      innerComponent: innerComponent
-    }).create();
-
-    throws(function () {
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-    }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('[#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo', function (assert) {
-    var _EmberComponent$extend2, _EmberComponent$extend3;
-
-    registerComponent('inner-component', _emberHtmlbarsComponent.default.extend((_EmberComponent$extend2 = {}, _EmberComponent$extend2[_containerOwner.OWNER] = owner, _EmberComponent$extend2)));
-    registerTemplate('components/inner-component', '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>');
-
-    view = _emberHtmlbarsComponent.default.extend((_EmberComponent$extend3 = {
-      layout: _emberTemplateCompilerSystemCompile.default('{{inner-component}}')
-    }, _EmberComponent$extend3[_containerOwner.OWNER] = owner, _EmberComponent$extend3)).create();
-
-    throws(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Action passed is null or undefined in \(action [^)]*\) from .*\./);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action value is returned', function (assert) {
-    assert.expect(1);
-
-    var returnedValue = 'terrible tom';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        var actualReturnedValue = this.attrs.submit();
-        assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
-      innerComponent: innerComponent,
-      outerSubmit: function () {
-        return returnedValue;
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called on the correct scope', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
-      innerComponent: innerComponent,
-      isOuterComponent: true,
-      outerSubmit: function () {
-        assert.ok(this.isOuterComponent, 'action has the correct context');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('arguments to action are passed, curry', function (assert) {
-    assert.expect(4);
-
-    var first = 'mitch';
-    var second = 'martin';
-    var third = 'matt';
-    var fourth = 'wacky wycats';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit(fourth);
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      third: third,
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}\n      '),
-      innerComponent: innerComponent,
-      outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
-        assert.equal(actualFirst, first, 'action has the correct first arg');
-        assert.equal(actualSecond, second, 'action has the correct second arg');
-        assert.equal(actualThird, third, 'action has the correct third arg');
-        assert.equal(actualFourth, fourth, 'action has the correct fourth arg');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('arguments to action are bound', function (assert) {
-    assert.expect(1);
-
-    var value = 'lazy leah';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit value)}}\n      '),
-      innerComponent: innerComponent,
-      value: '',
-      outerSubmit: function (actualValue) {
-        assert.equal(actualValue, value, 'action has the correct first arg');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      outerComponent.set('value', value);
-    });
-
-    innerComponent.fireAction();
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('array arguments are passed correctly to action', function (assert) {
-    assert.expect(3);
-
-    var first = 'foo';
-    var second = [3, 5];
-    var third = [4, 9];
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit(second, third);
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit first)}}\n      '),
-      innerComponent: innerComponent,
-      value: '',
-      outerSubmit: function (actualFirst, actualSecond, actualThird) {
-        assert.equal(actualFirst, first, 'action has the correct first arg');
-        assert.equal(actualSecond, second, 'action has the correct second arg');
-        assert.equal(actualThird, third, 'action has the correct third arg');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      outerComponent.set('first', first);
-      outerComponent.set('second', second);
-    });
-
-    innerComponent.fireAction();
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('mut values can be wrapped in actions, are settable', function (assert) {
-    assert.expect(1);
-
-    var newValue = 'trollin trek';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit(newValue);
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut))}}\n      '),
-      innerComponent: innerComponent,
-      outerMut: 'patient peter'
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-      assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('mut values can be wrapped in actions, are settable with a curry', function (assert) {
-    assert.expect(1);
-
-    var newValue = 'trollin trek';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut) \'' + newValue + '\')}}\n      '),
-      innerComponent: innerComponent,
-      outerMut: 'patient peter'
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-      assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action can create closures over actions', function (assert) {
-    assert.expect(3);
-
-    var first = 'raging robert';
-    var second = 'mild machty';
-    var returnValue = 'butch brian';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        var actualReturnedValue = this.attrs.submit(second);
-        assert.equal(actualReturnedValue, returnValue, 'return value is present');
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
-      innerComponent: innerComponent,
-      actions: {
-        outerAction: function (actualFirst, actualSecond) {
-          assert.equal(actualFirst, first, 'first argument is correct');
-          assert.equal(actualSecond, second, 'second argument is correct');
-          return returnValue;
-        }
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('provides a helpful error if an action is not present', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
-      innerComponent: innerComponent,
-      actions: {
-        something: function () {
-          // this is present to ensure `actions` hash is present
-          // a different error is triggered if `actions` is missing
-          // completely
-        }
-      }
-    }).create();
-
-    throws(function () {
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-    }, /An action named 'doesNotExist' was not found in /);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('provides a helpful error if actions hash is not present', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
-      innerComponent: innerComponent
-    }).create();
-
-    throws(function () {
-      _emberRuntimeTestsUtils.runAppend(outerComponent);
-    }, /An action named 'doesNotExist' was not found in /);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action can create closures over actions with target', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' target=otherComponent)}}\n      '),
-      innerComponent: innerComponent,
-      otherComponent: _emberMetalComputed.computed(function () {
-        return {
-          actions: {
-            outerAction: function (actualFirst, actualSecond) {
-              assert.ok(true, 'action called on otherComponent');
-            }
-          }
-        };
-      })
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('value can be used with action over actions', function (assert) {
-    assert.expect(1);
-
-    var newValue = 'yelping yehuda';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit({
-          readProp: newValue
-        });
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' value="readProp")}}\n      '),
-      innerComponent: innerComponent,
-      outerContent: {
-        readProp: newValue
-      },
-      actions: {
-        outerAction: function (actualValue) {
-          assert.equal(actualValue, newValue, 'value is read');
-        }
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action will read the value of a first property', function (assert) {
-    assert.expect(1);
-
-    var newValue = 'irate igor';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit({
-          readProp: newValue
-        });
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction value="readProp")}}\n      '),
-      innerComponent: innerComponent,
-      outerAction: function (actualNewValue) {
-        assert.equal(actualNewValue, newValue, 'property is read');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action will read the value of a curried first argument property', function (assert) {
-    assert.expect(1);
-
-    var newValue = 'kissing kris';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction objectArgument value="readProp")}}\n      '),
-      innerComponent: innerComponent,
-      objectArgument: {
-        readProp: newValue
-      },
-      outerAction: function (actualNewValue) {
-        assert.equal(actualNewValue, newValue, 'property is read');
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action closure does not get auto-mut wrapped', function (assert) {
-    assert.expect(3);
-
-    var first = 'raging robert';
-    var second = 'mild machty';
-    var returnValue = 'butch brian';
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      middleComponent: middleComponent,
-
-      fireAction: function () {
-        var actualReturnedValue = this.attrs.submit(second);
-        assert.equal(actualReturnedValue, returnValue, 'return value is present');
-      }
-    }).create();
-
-    var middleComponent = _emberHtmlbarsComponent.default.extend({
-      innerComponent: innerComponent,
-
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=attrs.submit}}\n      ')
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      middleComponent: middleComponent,
-
-      layout: _emberTemplateCompilerSystemCompile.default('\n        {{view middleComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
-
-      actions: {
-        outerAction: function (actualFirst, actualSecond) {
-          assert.equal(actualFirst, first, 'first argument is correct');
-          assert.equal(actualSecond, second, 'second argument is correct');
-
-          return returnValue;
-        }
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    _emberMetalRun_loop.default(function () {
-      innerComponent.fireAction();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('action should be called within a run loop', function (assert) {
-    assert.expect(1);
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        this.attrs.submit();
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
-      innerComponent: innerComponent,
-      actions: {
-        submit: function (newValue) {
-          assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
-        }
-      }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    innerComponent.fireAction();
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('objects that define INVOKE can be casted to actions', function (assert) {
-    assert.expect(2);
-
-    innerComponent = _emberHtmlbarsComponent.default.extend({
-      fireAction: function () {
-        assert.equal(this.attrs.submit(4, 5, 6), 123);
-      }
-    }).create();
-
-    outerComponent = _emberHtmlbarsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action submitTask 1 2 3)}}'),
-      innerComponent: innerComponent,
-      foo: 123,
-      submitTask: _emberMetalComputed.computed(function () {
-        var _ref,
-            _this = this;
-
-        return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
-          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-
-          assert.deepEqual(args, [1, 2, 3, 4, 5, 6]);
-          return _this.foo;
-        }, _ref;
-      })
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(outerComponent);
-
-    innerComponent.fireAction();
-  });
-});
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer', 'ember-runtime/tests/utils'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var dispatcher, view, originalViewKeyword, owner;
-  var originalRegisterAction = _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction;
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-routing-htmlbars: action helper', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-
-      _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = originalRegisterAction;
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should output a data attribute with a guid', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$('a').attr('data-ember-action').match(/\d+/), 'A data-ember-action attribute with a guid was added');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should by default register a click event', function () {
-    var registeredEventName;
-
-    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref) {
-      var eventName = _ref.eventName;
-
-      registeredEventName = eventName;
-    };
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(registeredEventName, 'click', 'The click event was properly registered');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow alternative events to be handled', function () {
-    var registeredEventName;
-
-    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref2) {
-      var eventName = _ref2.eventName;
-
-      registeredEventName = eventName;
-    };
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" on="mouseUp"}}>edit</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(registeredEventName, 'mouseUp', 'The alternative mouseUp event was properly registered');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should by default target the view\'s controller', function () {
-    var registeredTarget;
-    var controller = {};
-
-    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref3) {
-      var node = _ref3.node;
-
-      registeredTarget = node.getState().target;
-    };
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(registeredTarget, controller, 'The controller was registered as the target');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Inside a yield, the target points at the original target', function () {
-    var watted = false;
-
-    var component = _emberHtmlbarsComponent.default.extend({
-      boundText: 'inner',
-      truthy: true,
-      obj: {},
-      layout: _emberTemplateCompilerSystemCompile.default('<div>{{boundText}}</div><div>{{#if truthy}}{{yield}}{{/if}}</div>')
-    });
-
-    view = _emberViewsViewsView.default.create({
-      controller: {
-        boundText: 'outer',
-        truthy: true,
-        wat: function () {
-          watted = true;
-        },
-        component: component
-      },
-      template: _emberTemplateCompilerSystemCompile.default('{{#if truthy}}{{#view component}}{{#if truthy}}<div {{action "wat"}} class="wat">{{boundText}}</div>{{/if}}{{/view}}{{/if}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberMetalRun_loop.default(function () {
-      view.$('.wat').click();
-    });
-
-    equal(watted, true, 'The action was called on the right context');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow a target to be specified', function () {
-    var registeredTarget;
-
-    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref4) {
-      var node = _ref4.node;
-
-      registeredTarget = node.getState().target;
-    };
-
-    var anotherTarget = _emberViewsViewsView.default.create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: {},
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" target=view.anotherTarget}}>edit</a>'),
-      anotherTarget: anotherTarget
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(registeredTarget, anotherTarget, 'The specified target was registered');
-
-    _emberRuntimeTestsUtils.runDestroy(anotherTarget);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should lazily evaluate the target', function () {
-    var firstEdit = 0;
-    var secondEdit = 0;
-    var controller = {};
-    var first = {
-      edit: function () {
-        firstEdit++;
-      }
-    };
-
-    var second = {
-      edit: function () {
-        secondEdit++;
-      }
-    };
-
-    controller.theTarget = first;
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" target=theTarget}}>edit</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberMetalRun_loop.default(function () {
-      _emberViewsSystemJquery.default('a').trigger('click');
-    });
-
-    equal(firstEdit, 1);
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(controller, 'theTarget', second);
-    });
-
-    _emberMetalRun_loop.default(function () {
-      _emberViewsSystemJquery.default('a').trigger('click');
-    });
-
-    equal(firstEdit, 1);
-    equal(secondEdit, 1);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should register an event handler', function () {
-    var eventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>click me</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled, 'The event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handles whitelisted modifier keys', function () {
-    var eventHandlerWasCalled = false;
-    var shortcutHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        edit: function () {
-          eventHandlerWasCalled = true;
-        },
-        shortcut: function () {
-          shortcutHandlerWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys="alt"}}>click me</a> <div {{action "shortcut" allowedKeys="any"}}>click me too</div>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
-
-    var e = _emberViewsSystemJquery.default.Event('click');
-    e.altKey = true;
-    view.$('a').trigger(e);
-
-    ok(eventHandlerWasCalled, 'The event handler was called');
-
-    e = _emberViewsSystemJquery.default.Event('click');
-    e.ctrlKey = true;
-    view.$('div').trigger(e);
-
-    ok(shortcutHandlerWasCalled, 'The "any" shortcut\'s event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handles whitelisted bound modifier keys', function () {
-    var eventHandlerWasCalled = false;
-    var shortcutHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      altKey: 'alt',
-      anyKey: 'any',
-      actions: {
-        edit: function () {
-          eventHandlerWasCalled = true;
-        },
-        shortcut: function () {
-          shortcutHandlerWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys=altKey}}>click me</a> <div {{action "shortcut" allowedKeys=anyKey}}>click me too</div>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
-
-    var e = _emberViewsSystemJquery.default.Event('click');
-    e.altKey = true;
-    view.$('a').trigger(e);
-
-    ok(eventHandlerWasCalled, 'The event handler was called');
-
-    e = _emberViewsSystemJquery.default.Event('click');
-    e.ctrlKey = true;
-    view.$('div').trigger(e);
-
-    ok(shortcutHandlerWasCalled, 'The "any" shortcut\'s event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handles whitelisted bound modifier keys with current value', function (assert) {
-    var editHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      acceptedKeys: 'alt',
-      actions: {
-        edit: function () {
-          editHandlerWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys=acceptedKeys}}>click me</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var e = _emberViewsSystemJquery.default.Event('click');
-    e.altKey = true;
-    view.$('a').trigger(e);
-
-    ok(editHandlerWasCalled, 'event handler was called');
-
-    editHandlerWasCalled = false;
-    _emberMetalRun_loop.default(function () {
-      controller.set('acceptedKeys', '');
-    });
-
-    view.$('a').trigger(e);
-
-    ok(!editHandlerWasCalled, 'event handler was not called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be able to use action more than once for the same event within a view', function () {
-    var editWasCalled = false;
-    var deleteWasCalled = false;
-    var originalEventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        edit: function () {
-          editWasCalled = true;
-        },
-        'delete': function () {
-          deleteWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit"}}>edit</a><a id="delete" href="#" {{action "delete"}}>delete</a>'),
-      click: function () {
-        originalEventHandlerWasCalled = true;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('#edit').trigger('click');
-
-    equal(editWasCalled, true, 'The edit action was called');
-    equal(deleteWasCalled, false, 'The delete action was not called');
-
-    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
-
-    view.$('#delete').trigger('click');
-
-    equal(editWasCalled, false, 'The edit action was not called');
-    equal(deleteWasCalled, true, 'The delete action was called');
-
-    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
-
-    view.$().trigger('click');
-
-    equal(editWasCalled, false, 'The edit action was not called');
-    equal(deleteWasCalled, false, 'The delete action was not called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the event should not bubble if `bubbles=false` is passed', function () {
-    var editWasCalled = false;
-    var deleteWasCalled = false;
-    var originalEventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        edit: function () {
-          editWasCalled = true;
-        },
-        'delete': function () {
-          deleteWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=false}}>edit</a><a id="delete" href="#" {{action "delete" bubbles=false}}>delete</a>'),
-      click: function () {
-        originalEventHandlerWasCalled = true;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('#edit').trigger('click');
-
-    equal(editWasCalled, true, 'The edit action was called');
-    equal(deleteWasCalled, false, 'The delete action was not called');
-    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
-
-    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
-
-    view.$('#delete').trigger('click');
-
-    equal(editWasCalled, false, 'The edit action was not called');
-    equal(deleteWasCalled, true, 'The delete action was called');
-    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
-
-    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
-
-    view.$().trigger('click');
-
-    equal(editWasCalled, false, 'The edit action was not called');
-    equal(deleteWasCalled, false, 'The delete action was not called');
-    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the event should not bubble if `bubbles=false` is passed bound', function () {
-    var editWasCalled = false;
-    var deleteWasCalled = false;
-    var originalEventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      isFalse: false,
-      actions: {
-        edit: function () {
-          editWasCalled = true;
-        },
-        'delete': function () {
-          deleteWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=isFalse}}>edit</a><a id="delete" href="#" {{action "delete" bubbles=isFalse}}>delete</a>'),
-      click: function () {
-        originalEventHandlerWasCalled = true;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('#edit').trigger('click');
-
-    equal(editWasCalled, true, 'The edit action was called');
-    equal(deleteWasCalled, false, 'The delete action was not called');
-    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
-
-    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
-
-    view.$('#delete').trigger('click');
-
-    equal(editWasCalled, false, 'The edit action was not called');
-    equal(deleteWasCalled, true, 'The delete action was called');
-    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
-
-    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
-
-    view.$().trigger('click');
-
-    equal(editWasCalled, false, 'The edit action was not called');
-    equal(deleteWasCalled, false, 'The delete action was not called');
-    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the event bubbling depend on the bound parameter', function () {
-    var editWasCalled = false;
-    var originalEventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      shouldBubble: false,
-      actions: {
-        edit: function () {
-          editWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=shouldBubble}}>edit</a>'),
-      click: function () {
-        originalEventHandlerWasCalled = true;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('#edit').trigger('click');
-
-    equal(editWasCalled, true, 'The edit action was called');
-    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
-
-    editWasCalled = originalEventHandlerWasCalled = false;
-
-    _emberMetalRun_loop.default(function () {
-      controller.set('shouldBubble', true);
-    });
-
-    view.$('#edit').trigger('click');
-
-    equal(editWasCalled, true, 'The edit action was not called');
-    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should work properly in an #each block', function () {
-    var eventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      items: _emberRuntimeSystemNative_array.A([1, 2, 3, 4]),
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}<a href="#" {{action "edit"}}>click me</a>{{/each}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled, 'The event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should work properly in a {{#with foo as |bar|}} block', function () {
-    var eventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      something: { ohai: 'there' },
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view.something as |somethingElse|}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled, 'The event handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should unregister event handlers on rerender', function () {
-    var eventHandlerWasCalled = false;
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{#if view.active}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'),
-      active: true,
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var previousActionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'active', false);
-    });
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'active', true);
-    });
-
-    ok(!_emberViewsSystemAction_manager.default.registeredActions[previousActionId], 'On rerender, the event handler was removed');
-
-    var newActionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    ok(_emberViewsSystemAction_manager.default.registeredActions[newActionId], 'After rerender completes, a new event handler was added');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should unregister event handlers on inside virtual views', function () {
-    var things = _emberRuntimeSystemNative_array.A([{
-      name: 'Thingy'
-    }]);
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.things as |thing|}}<a href="#" {{action "edit"}}>click me</a>{{/each}}'),
-      things: things
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    _emberMetalRun_loop.default(function () {
-      things.removeAt(0);
-    });
-
-    ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'After the virtual view was destroyed, the action was unregistered');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should properly capture events on child elements of a container with an action', function () {
-    var eventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<div {{action "edit"}}><button>click me</button></div>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('button').trigger('click');
-
-    ok(eventHandlerWasCalled, 'Event on a child element triggered the action of its parent');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow bubbling of events from action helper to original parent event', function () {
-    var eventHandlerWasCalled = false;
-    var originalEventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>click me</a>'),
-      click: function () {
-        originalEventHandlerWasCalled = true;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled && originalEventHandlerWasCalled, 'Both event handlers were called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not bubble an event from action helper to original parent event if `bubbles=false` is passed', function () {
-    var eventHandlerWasCalled = false;
-    var originalEventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" bubbles=false}}>click me</a>'),
-      click: function () {
-        originalEventHandlerWasCalled = true;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled, 'The child handler was called');
-    ok(!originalEventHandlerWasCalled, 'The parent handler was not called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow \'send\' as action name (#594)', function () {
-    var eventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      send: function () {
-        eventHandlerWasCalled = true;
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "send"}}>send</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled, 'The view\'s send method was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should send the view, event and current context to the action', function () {
-    var passedTarget;
-    var passedContext;
-
-    var aTarget = _emberRuntimeControllersController.default.extend({
-      actions: {
-        edit: function (context) {
-          passedTarget = this;
-          passedContext = context;
-        }
-      }
-    }).create();
-
-    var aContext = { aTarget: aTarget };
-
-    view = _emberViewsViewsView.default.create({
-      context: aContext,
-      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" this target=aTarget}}>edit</a>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('#edit').trigger('click');
-
-    strictEqual(passedTarget, aTarget, 'the action is called with the target as this');
-    strictEqual(passedContext, aContext, 'the parameter is passed along');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should only trigger actions for the event they were registered on', function () {
-    var editWasCalled = false;
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit"}}>edit</a>'),
-      actions: { edit: function () {
-          editWasCalled = true;
-        } }
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('mouseover');
-
-    ok(!editWasCalled, 'The action wasn\'t called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should unwrap controllers passed as a context', function () {
-    var passedContext;
-    var model = _emberRuntimeSystemObject.default.create();
-    var controller = _emberRuntimeControllersController.default.extend({
-      model: model,
-      actions: {
-        edit: function (context) {
-          passedContext = context;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<button {{action "edit" this}}>edit</button>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('button').trigger('click');
-
-    equal(passedContext, model, 'the action was passed the unwrapped model');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow multiple contexts to be specified', function () {
-    var passedContexts;
-    var models = [_emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create()];
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        edit: function () {
-          passedContexts = [].slice.call(arguments);
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      modelA: models[0],
-      modelB: models[1],
-      template: _emberTemplateCompilerSystemCompile.default('<button {{action "edit" view.modelA view.modelB}}>edit</button>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('button').trigger('click');
-
-    deepEqual(passedContexts, models, 'the action was called with the passed contexts');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should allow multiple contexts to be specified mixed with string args', function () {
-    var passedParams;
-    var model = _emberRuntimeSystemObject.default.create();
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        edit: function () {
-          passedParams = [].slice.call(arguments);
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      modelA: model,
-      template: _emberTemplateCompilerSystemCompile.default('<button {{action "edit" "herp" view.modelA}}>edit</button>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('button').trigger('click');
-
-    deepEqual(passedParams, ['herp', model], 'the action was called with the passed contexts');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('it does not trigger action with special clicks', function () {
-    var showCalled = false;
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' href=true}}>Hi</a>')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        show: function () {
-          showCalled = true;
-        }
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      view.appendTo('#qunit-fixture');
-    });
-
-    function checkClick(prop, value, expected) {
-      var event = _emberViewsSystemJquery.default.Event('click');
-      event[prop] = value;
-      view.$('a').trigger(event);
-      if (expected) {
-        ok(showCalled, 'should call action with ' + prop + ':' + value);
-        ok(event.isDefaultPrevented(), 'should prevent default');
-      } else {
-        ok(!showCalled, 'should not call action with ' + prop + ':' + value);
-        ok(!event.isDefaultPrevented(), 'should not prevent default');
-      }
-    }
-
-    checkClick('ctrlKey', true, false);
-    checkClick('altKey', true, false);
-    checkClick('metaKey', true, false);
-    checkClick('shiftKey', true, false);
-    checkClick('which', 2, false);
-
-    checkClick('which', 1, true);
-    checkClick('which', undefined, true); // IE <9
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('it can trigger actions for keyboard events', function () {
-    var showCalled = false;
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<input type=\'text\' {{action \'show\' on=\'keyUp\'}}>')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        show: function () {
-          showCalled = true;
-        }
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      view.appendTo('#qunit-fixture');
-    });
-
-    var event = _emberViewsSystemJquery.default.Event('keyup');
-    event.char = 'a';
-    event.which = 65;
-    view.$('input').trigger(event);
-    ok(showCalled, 'should call action with keyup');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless parameter should allow dynamic lookup of the actionName', function () {
-    expect(4);
-    var lastAction;
-    var actionOrder = [];
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a id=\'woot-bound-param\' {{action hookMeUp}}>Hi</a>')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      hookMeUp: 'biggityBoom',
-      actions: {
-        biggityBoom: function () {
-          lastAction = 'biggityBoom';
-          actionOrder.push(lastAction);
-        },
-        whompWhomp: function () {
-          lastAction = 'whompWhomp';
-          actionOrder.push(lastAction);
-        },
-        sloopyDookie: function () {
-          lastAction = 'sloopyDookie';
-          actionOrder.push(lastAction);
-        }
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      view.appendTo('#qunit-fixture');
-    });
-
-    var testBoundAction = function (propertyValue) {
-      _emberMetalRun_loop.default(function () {
-        controller.set('hookMeUp', propertyValue);
-      });
-
-      _emberMetalRun_loop.default(function () {
-        view.$('#woot-bound-param').click();
-      });
-
-      equal(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
-    };
-
-    testBoundAction('whompWhomp');
-    testBoundAction('sloopyDookie');
-    testBoundAction('biggityBoom');
-
-    deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless parameter should lookup actionName in context [DEPRECATED]', function () {
-    expect(4);
-    var lastAction;
-    var actionOrder = [];
-
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each allactions as |allacation|}}<a id="{{allacation.name}}" {{action allacation.name}}>{{allacation.title}}</a>{{/each}}')
-      });
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      allactions: _emberRuntimeSystemNative_array.A([{ title: 'Biggity Boom', name: 'biggityBoom' }, { title: 'Whomp Whomp', name: 'whompWhomp' }, { title: 'Sloopy Dookie', name: 'sloopyDookie' }]),
-      actions: {
-        biggityBoom: function () {
-          lastAction = 'biggityBoom';
-          actionOrder.push(lastAction);
-        },
-        whompWhomp: function () {
-          lastAction = 'whompWhomp';
-          actionOrder.push(lastAction);
-        },
-        sloopyDookie: function () {
-          lastAction = 'sloopyDookie';
-          actionOrder.push(lastAction);
-        }
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      view.appendTo('#qunit-fixture');
-    });
-
-    var testBoundAction = function (propertyValue) {
-      _emberMetalRun_loop.default(function () {
-        view.$('#' + propertyValue).click();
-      });
-
-      equal(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
-    };
-
-    testBoundAction('whompWhomp');
-    testBoundAction('sloopyDookie');
-    testBoundAction('biggityBoom');
-
-    deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless string parameter should resolve actionName, including path', function () {
-    expect(4);
-    var lastAction;
-    var actionOrder = [];
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each allactions as |item|}}<a id="{{item.name}}" {{action item.name}}>{{item.title}}</a>{{/each}}')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      allactions: _emberRuntimeSystemNative_array.A([{ title: 'Biggity Boom', name: 'biggityBoom' }, { title: 'Whomp Whomp', name: 'whompWhomp' }, { title: 'Sloopy Dookie', name: 'sloopyDookie' }]),
-      actions: {
-        biggityBoom: function () {
-          lastAction = 'biggityBoom';
-          actionOrder.push(lastAction);
-        },
-        whompWhomp: function () {
-          lastAction = 'whompWhomp';
-          actionOrder.push(lastAction);
-        },
-        sloopyDookie: function () {
-          lastAction = 'sloopyDookie';
-          actionOrder.push(lastAction);
-        }
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      view.appendTo('#qunit-fixture');
-    });
-
-    var testBoundAction = function (propertyValue) {
-      _emberMetalRun_loop.default(function () {
-        view.$('#' + propertyValue).click();
-      });
-
-      equal(lastAction, propertyValue, 'lastAction set to ' + propertyValue);
-    };
-
-    testBoundAction('whompWhomp');
-    testBoundAction('sloopyDookie');
-    testBoundAction('biggityBoom');
-
-    deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless function parameter should be called, including arguments', function () {
-    expect(2);
-
-    var arg = 'rough ray';
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a {{action submit \'' + arg + '\'}}></a>')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      submit: function (actualArg) {
-        ok(true, 'submit function called');
-        equal(actualArg, arg, 'argument passed');
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      view.appendTo('#qunit-fixture');
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.$('a').click();
-    });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a quoteless parameter that does not resolve to a value asserts', function () {
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        ohNoeNotValid: function () {}
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('<a id=\'oops-bound-param\' {{action ohNoeNotValid}}>Hi</a>')
-    });
-
-    expectAssertion(function () {
-      _emberMetalRun_loop.default(function () {
-        view.appendTo('#qunit-fixture');
-      });
-    }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('allows multiple actions on a single element', function () {
-    var clickActionWasCalled = false;
-    var doubleClickActionWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        clicked: function () {
-          clickActionWasCalled = true;
-        },
-
-        doubleClicked: function () {
-          doubleClickActionWasCalled = true;
-        }
-      }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('\n      <a href="#"\n        {{action "clicked" on="click"}}\n        {{action "doubleClicked" on="doubleClick"}}\n      >click me</a>\n    ')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
-
-    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
-
-    view.$('a').trigger('click');
-
-    ok(clickActionWasCalled, 'The clicked action was called');
-
-    view.$('a').trigger('dblclick');
-
-    ok(doubleClickActionWasCalled, 'The double click handler was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-routing-htmlbars: action helper - deprecated invoking directly on target', {
-    setup: function () {
-      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should respect preventDefault=false option if provided', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' preventDefault=false}}>Hi</a>')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: {
-        show: function () {}
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    var event = _emberViewsSystemJquery.default.Event('click');
-    view.$('a').trigger(event);
-
-    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should respect preventDefault option if provided bound', function () {
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' preventDefault=shouldPreventDefault}}>Hi</a>')
-    });
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      shouldPreventDefault: false,
-      actions: {
-        show: function () {}
-      }
-    }).create();
-
-    _emberMetalRun_loop.default(function () {
-      view.set('controller', controller);
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    var event = _emberViewsSystemJquery.default.Event('click');
-    view.$('a').trigger(event);
-
-    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
-
-    _emberMetalRun_loop.default(function () {
-      controller.set('shouldPreventDefault', true);
-    });
-
-    event = _emberViewsSystemJquery.default.Event('click');
-    view.$('a').trigger(event);
-
-    equal(event.isDefaultPrevented(), true, 'should preventDefault');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-routing-htmlbars: action helper - action target without `controller`', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('template', { instantiate: false });
-      owner.registerOptionsForType('component', { singleton: false });
-      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
-
-      dispatcher = owner.lookup('event_dispatcher:main');
-      dispatcher.setup();
-
-      this.originalLegacyViewSupport = _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
-      _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(dispatcher);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-
-      _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = this.originalLegacyViewSupport;
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should target the proper component when `action` is in yielded block [GH #12409]', function (assert) {
-    var _EmberComponent$create;
-
-    assert.expect(2);
-
-    owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('\n    {{#x-middle}}\n      {{x-inner action="hey" }}\n    {{/x-middle}}\n  '));
-
-    owner.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('{{yield}}'));
-    owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('\n    <button>Click Me</button>\n    {{yield}}\n  '));
-
-    owner.register('component:x-inner', _emberHtmlbarsComponent.default.extend({
-      click: function () {
-        assert.ok(true, 'click was triggered');
-        this.sendAction();
-      }
-    }));
-
-    owner.register('component:x-outer', _emberHtmlbarsComponent.default.extend({
-      actions: {
-        hey: function () {
-          assert.ok(true, 'action fired on proper target');
-        }
-      }
-    }));
-
-    view = _emberHtmlbarsComponent.default.create((_EmberComponent$create = {}, _EmberComponent$create[_containerOwner.OWNER] = owner, _EmberComponent$create.layout = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberComponent$create));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var event = _emberViewsSystemJquery.default.Event('click');
-    view.$('button').trigger(event);
-  });
-});
-enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRoutingHtmlbars, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
-  'use strict';
-
-  var owner, view;
-
-  QUnit.module('ember-routing-htmlbars: link-to helper', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      // These tests don't rely on the routing service, but LinkComponent makes
-      // some assumptions that it will exist. This small stub service ensures
-      // that the LinkComponent can render without raising an exception.
-      //
-      // TODO: Add tests that test actual behavior. Currently, all behavior
-      // is tested integration-style in the `ember` package.
-      owner.register('service:-routing', _emberRuntimeSystemObject.default.extend({
-        availableRoutes: function () {
-          return ['index'];
-        },
-        hasRoute: function (name) {
-          return name === 'index';
-        },
-        isActiveForRoute: function () {
-          return true;
-        },
-        generateURL: function () {
-          return '/';
-        }
-      }));
-
-      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      owner.register('component:link-to', _emberHtmlbarsComponentsLinkTo.default);
-      owner.register('component:custom-link-to', _emberHtmlbarsComponentsLinkTo.default.extend());
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be able to be inserted in DOM when the router is not present', function () {
-    var _EmberView$create;
-
-    var template = '{{#link-to \'index\'}}Go to Index{{/link-to}}';
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Go to Index');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('re-renders when title changes', function () {
-    var _EmberView$create2;
-
-    var template = '{{link-to title routeName}}';
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.controller = {
-      title: 'foo',
-      routeName: 'index'
-    }, _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create2));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'foo');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'controller.title', 'bar');
-    });
-
-    equal(view.$().text(), 'bar');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('can read bound title', function () {
-    var _EmberView$create3;
-
-    var template = '{{link-to title routeName}}';
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.controller = {
-      title: 'foo',
-      routeName: 'index'
-    }, _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create3));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'foo');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('escaped inline form (double curlies) escapes link title', function () {
-    var _EmberView$create4;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default('{{link-to view.title "index"}}'), _EmberView$create4));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('b').length, 0, 'no <b> were found');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('escaped inline form with (-html-safe) does not escape link title', function () {
-    var _EmberView$create5;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.title = '<b>blah</b>', _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create5));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('b').length, 1, '<b> was found');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unescaped inline form (triple curlies) does not escape link title', function () {
-    var _EmberView$create6;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = '<b>blah</b>', _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default('{{{link-to view.title "index"}}}'), _EmberView$create6));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('b').length, 1, '<b> was found');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unwraps controllers', function () {
-    var _EmberView$create7;
-
-    var template = '{{#link-to \'index\' view.otherController}}Text{{/link-to}}';
-
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.otherController = _emberRuntimeControllersController.default.create({
-      model: 'foo'
-    }), _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
-
-    equal(view.$().text(), 'Text');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('able to safely extend the built-in component and use the normal path', function () {
-    var _EmberView$create8;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.title = 'my custom link-to component', _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create8));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
-    var _EmberView$create9;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.title = 'my custom link-to component', _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default('{{custom-link-to view.title \'index\'}}'), _EmberView$create9));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
-  });
-});
-enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRoutingHtmlbarsTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
-  'use strict';
-
-  var trim = _emberViewsSystemJquery.default.trim;
-
-  var appInstance, top;
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-routing-htmlbars: {{outlet}} helper', {
-    setup: function () {
-      appInstance = _emberRoutingHtmlbarsTestsUtils.buildAppInstance();
-      var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
-      top = CoreOutlet.create();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(appInstance);
-      _emberRuntimeTestsUtils.runDestroy(top);
-      appInstance = top = null;
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('view should render the outlet when set after dom insertion', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a top-level outlet should always be a view', function () {
-    appInstance.register('view:toplevel', _emberViewsViewsView.default.extend({
-      elementId: 'top-level'
-    }));
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    top.setOutletState(routerState);
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    // Replace whitespace for older IE
-    equal(trim(top.$('#top-level').text()), 'HIBYE');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('view should render the outlet when set before dom insertion', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('outlet should support an optional name', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet \'mainView\'}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-
-    routerState.outlets.mainView = withTemplate('<p>BYE</p>');
-
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Outlets bind to the current view, not the current concrete view', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-    routerState.outlets.main = withTemplate('<h2>MIDDLE</h2>{{outlet}}');
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-    routerState.outlets.main.outlets.main = withTemplate('<h3>BOTTOM</h3>');
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h2 ~ h3').text();
-    equal(output, 'BOTTOM', 'all templates were rendered');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Outlets bind to the current template\'s view, not inner contexts [DEPRECATED]', function () {
-    var parentTemplate = '<h1>HI</h1>{{#if view.alwaysTrue}}{{outlet}}{{/if}}';
-    var bottomTemplate = '<h3>BOTTOM</h3>';
-
-    var routerState = {
-      render: {
-        ViewClass: _emberViewsViewsView.default.extend({
-          alwaysTrue: true,
-          template: _emberTemplateCompilerSystemCompile.default(parentTemplate)
-        })
-      },
-      outlets: {}
-    };
-
-    top.setOutletState(routerState);
-
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    routerState.outlets.main = withTemplate(bottomTemplate);
-
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h3').text();
-    equal(output, 'BOTTOM', 'all templates were rendered');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not throw deprecations if {{outlet}} is used without a name', function () {
-    expectNoDeprecation();
-    top.setOutletState(withTemplate('{{outlet}}'));
-    _emberRuntimeTestsUtils.runAppend(top);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not throw deprecations if {{outlet}} is used with a quoted name', function () {
-    expectNoDeprecation();
-    top.setOutletState(withTemplate('{{outlet "foo"}}'));
-    _emberRuntimeTestsUtils.runAppend(top);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} should work with an unquoted name', function () {
-    var routerState = {
-      render: {
-        controller: _emberRuntimeControllersController.default.create({
-          outletName: 'magical'
-        }),
-        template: _emberTemplateCompilerSystemCompile.default('{{outlet outletName}}')
-      },
-      outlets: {
-        magical: withTemplate('It\'s magic')
-      }
-    };
-
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text().trim(), 'It\'s magic');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} should rerender when bound name changes', function () {
-    var routerState = {
-      render: {
-        controller: _emberRuntimeControllersController.default.create({
-          outletName: 'magical'
-        }),
-        template: _emberTemplateCompilerSystemCompile.default('{{outlet outletName}}')
-      },
-      outlets: {
-        magical: withTemplate('It\'s magic'),
-        second: withTemplate('second')
-      }
-    };
-
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-    equal(top.$().text().trim(), 'It\'s magic');
-    _emberMetalRun_loop.default(function () {
-      routerState.render.controller.set('outletName', 'second');
-    });
-    equal(top.$().text().trim(), 'second');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('views created by {{outlet}} should get destroyed', function () {
-    var inserted = 0;
-    var destroyed = 0;
-    var routerState = {
-      render: {
-        ViewClass: _emberViewsViewsView.default.extend({
-          didInsertElement: function () {
-            inserted++;
-          },
-          willDestroyElement: function () {
-            destroyed++;
-          }
-        })
-      },
-      outlets: {}
-    };
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-    equal(inserted, 1, 'expected to see view inserted');
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(withTemplate('hello world'));
-    });
-    equal(destroyed, 1, 'expected to see view destroyed');
-  });
-
-  function withTemplate(string) {
-    return {
-      render: {
-        template: _emberTemplateCompilerSystemCompile.default(string)
-      },
-      outlets: {}
-    };
-  }
-});
-enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils', 'container/owner', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberRoutingHtmlbarsTestsUtils, _emberRuntimeTestsUtils, _containerOwner, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
-  'use strict';
-
-  function runSet(object, key, value) {
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(object, key, value);
-    });
-  }
-
-  var ORIGINAL_LEGACY_CONTROLLER_FLAG = _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
-  var view, appInstance;
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-routing-htmlbars: {{render}} helper', {
-    setup: function () {
-      appInstance = _emberRoutingHtmlbarsTestsUtils.buildAppInstance();
-    },
-
-    teardown: function () {
-      _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = ORIGINAL_LEGACY_CONTROLLER_FLAG;
-      _emberRuntimeTestsUtils.runDestroy(appInstance);
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberTemplatesTemplate_registry.setTemplates({});
-    }
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render given template', function () {
-    var _EmberView$create;
-
-    var template = '<h1>HI</h1>{{render \'home\'}}';
-    var controller = _emberRuntimeControllersController.default.extend();
-
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = appInstance, _EmberView$create.controller = controller.create(), _EmberView$create.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HIBYE');
-    // This is a poor assertion. What is really being tested is that
-    // a second render with the same name will throw an assert.
-    ok(appInstance.lookup('router:main')._lookupActiveComponentNode('home'), 'should register home as active view');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render nested helpers', function () {
-    var _EmberView$create2;
-
-    var template = '<h1>HI</h1>{{render \'foo\'}}';
-    var controller = _emberRuntimeControllersController.default.extend();
-
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = appInstance, _EmberView$create2.controller = controller.create(), _EmberView$create2.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create2));
-
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerSystemCompile.default('<p>FOO</p>{{render \'bar\'}}'));
-    _emberTemplatesTemplate_registry.set('bar', _emberTemplateCompilerSystemCompile.default('<p>BAR</p>{{render \'baz\'}}'));
-    _emberTemplatesTemplate_registry.set('baz', _emberTemplateCompilerSystemCompile.default('<p>BAZ</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HIFOOBARBAZ');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should have assertion if neither template nor view exists', function () {
-    var _EmberView$create3;
-
-    var template = '<h1>HI</h1>{{render \'oops\'}}';
-    var controller = _emberRuntimeControllersController.default.extend();
-
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = appInstance, _EmberView$create3.controller = controller.create(), _EmberView$create3.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create3));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as either a template or a view.');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not have assertion if view exists without a template', function () {
-    var _EmberView$create4;
-
-    var template = '<h1>HI</h1>{{render \'oops\'}}';
-    var controller = _emberRuntimeControllersController.default.extend();
-
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = appInstance, _EmberView$create4.controller = controller.create(), _EmberView$create4.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create4));
-
-    appInstance.register('view:oops', _emberViewsViewsView.default.extend());
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HI');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render given template with a supplied model', function () {
-    var _Controller$create;
-
-    var template = '<h1>HI</h1>{{render \'post\' post}}';
-    var post = {
-      title: 'Rails is omakase'
-    };
-
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post: post
-    });
-
-    var controller = Controller.create((_Controller$create = {}, _Controller$create[_containerOwner.OWNER] = appInstance, _Controller$create));
-
-    expectDeprecation(function () {
-      var _EmberView$create5;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create5));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var postController;
-    var PostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        postController = this;
-      }
-    });
-    appInstance.register('controller:post', PostController);
-
-    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{model.title}}</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HIRails is omakase');
-    equal(postController.get('model'), post);
-
-    runSet(controller, 'post', { title: 'Rails is unagi' });
-
-    equal(view.$().text(), 'HIRails is unagi');
-    deepEqual(postController.get('model'), { title: 'Rails is unagi' });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper with a supplied model should not fire observers on the controller', function () {
-    var _EmberController$create;
-
-    var template = '<h1>HI</h1>{{render \'post\' post}}';
-    var post = {
-      title: 'Rails is omakase'
-    };
-    var controller = _emberRuntimeControllersController.default.create((_EmberController$create = {}, _EmberController$create[_containerOwner.OWNER] = appInstance, _EmberController$create.post = post, _EmberController$create));
-
-    expectDeprecation(function () {
-      var _EmberView$create6;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create6));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var PostController = _emberRuntimeControllersController.default.extend({
-      modelDidChange: _emberMetalMixin.observer('model', function () {
-        modelDidChange++;
-      })
-    });
-
-    appInstance.register('controller:post', PostController);
-
-    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{title}}</p>'));
-
-    var modelDidChange = 0;
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(modelDidChange, 0, 'model observer did not fire');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
-    var _Controller$create2, _EmberView$create7;
-
-    var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create2 = {}, _Controller$create2[_containerOwner.OWNER] = appInstance, _Controller$create2));
-
-    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
-
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create7));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'The controller name you supplied \'postss\' did not resolve to a controller.');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render with given controller', function () {
-    var _Controller$create3, _EmberView$create8;
-
-    var template = '{{render "home" controller="posts"}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var model = {};
-    var controller = Controller.create((_Controller$create3 = {}, _Controller$create3[_containerOwner.OWNER] = appInstance, _Controller$create3));
-    var id = 0;
-
-    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        this.uniqueId = id++;
-        this.set('model', model);
-      }
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = appInstance, _EmberView$create8.controller = controller, _EmberView$create8.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create8));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('{{uniqueId}}'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var renderedController = appInstance.lookup('controller:posts');
-    var uniqueId = renderedController.get('uniqueId');
-    var renderedModel = renderedController.get('model');
-    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
-    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
-    equal(renderedModel, model, 'rendered with model on controller');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should rerender with given controller', function () {
-    var _Controller$create4, _EmberView$create9;
-
-    var template = '{{render "home" controller="posts"}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var model = {};
-    var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
-    var id = 0;
-
-    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        this.uniqueId = id++;
-        this.set('model', model);
-      }
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create9));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('{{uniqueId}}'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
-
-    var renderedController = appInstance.lookup('controller:posts');
-    var uniqueId = renderedController.get('uniqueId');
-    var renderedModel = renderedController.get('model');
-
-    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
-    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
-    equal(renderedModel, model, 'rendered with model on controller');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render a template without a model only once', function () {
-    var _Controller$create5, _EmberView$create10;
-
-    var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create10));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /\{\{render\}\} helper once/i);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render templates with models multiple times', function () {
-    var _Controller$create6;
-
-    var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
-    var post1 = {
-      title: 'Me first'
-    };
-    var post2 = {
-      title: 'Then me'
-    };
-
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post1: post1,
-      post2: post2
-    });
-
-    var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
-
-    expectDeprecation(function () {
-      var _EmberView$create11;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create11));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var postController1, postController2;
-    var PostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        if (!postController1) {
-          postController1 = this;
-        } else if (!postController2) {
-          postController2 = this;
-        }
-      }
-    });
-    appInstance.register('controller:post', PostController, { singleton: false });
-
-    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{model.title}}</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$().text().match(/^HI ?Me first ?Then me$/));
-    equal(postController1.get('model'), post1);
-    equal(postController2.get('model'), post2);
-
-    runSet(controller, 'post1', { title: 'I am new' });
-
-    ok(view.$().text().match(/^HI ?I am new ?Then me$/));
-    deepEqual(postController1.get('model'), { title: 'I am new' });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not leak controllers', function () {
-    var _Controller$create7;
-
-    var template = '<h1>HI</h1> {{render \'post\' post1}}';
-    var post1 = {
-      title: 'Me first'
-    };
-
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post1: post1
-    });
-
-    var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
-
-    expectDeprecation(function () {
-      var _EmberView$create12;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create12));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var postController;
-    var PostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        postController = this;
-      }
-    });
-    appInstance.register('controller:post', PostController);
-
-    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{title}}</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    ok(postController.isDestroyed, 'expected postController to be destroyed');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
-    var _EmberController$create2;
-
-    var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
-
-    var controller = _emberRuntimeControllersController.default.create((_EmberController$create2 = {}, _EmberController$create2[_containerOwner.OWNER] = appInstance, _EmberController$create2.zero = false, _EmberController$create2));
-
-    expectDeprecation(function () {
-      var _EmberView$create13;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create13));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var postController1, postController2;
-    var PostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        if (!postController1) {
-          postController1 = this;
-        } else if (!postController2) {
-          postController2 = this;
-        }
-      }
-    });
-    appInstance.register('controller:post', PostController, { singleton: false });
-
-    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>{{#unless model}}NOTHING{{/unless}}</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$().text().match(/^HI ?NOTHING ?NOTHING$/));
-    equal(postController1.get('model'), 0);
-    equal(postController2.get('model'), undefined);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render templates both with and without models', function () {
-    var _Controller$create8;
-
-    var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
-    var post = {
-      title: 'Rails is omakase'
-    };
-
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post: post
-    });
-
-    var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
-
-    expectDeprecation(function () {
-      var _EmberView$create14;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create14));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var postController1, postController2;
-    var PostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        if (!postController1) {
-          postController1 = this;
-        } else if (!postController2) {
-          postController2 = this;
-        }
-      }
-    });
-    appInstance.register('controller:post', PostController, { singleton: false });
-
-    _emberTemplatesTemplate_registry.set('post', _emberTemplateCompilerSystemCompile.default('<p>Title:{{model.title}}</p>'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
-    equal(postController1.get('model'), null);
-    equal(postController2.get('model'), post);
-
-    runSet(controller, 'post', { title: 'Rails is unagi' });
-
-    ok(view.$().text().match(/^HI ?Title: ?Title:Rails is unagi$/));
-    deepEqual(postController2.get('model'), { title: 'Rails is unagi' });
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should be able to render a template again when it was removed', function () {
-    var _Controller$create9, _CoreOutlet$create;
-
-    var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
-
-    view = CoreOutlet.create((_CoreOutlet$create = {}, _CoreOutlet$create[_containerOwner.OWNER] = appInstance, _CoreOutlet$create));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
-
-    var liveRoutes = {
-      render: {
-        template: _emberTemplateCompilerSystemCompile.default('<h1>HI</h1>{{outlet}}')
-      },
-      outlets: {}
-    };
-
-    _emberMetalRun_loop.default(function () {
-      liveRoutes.outlets.main = {
-        render: {
-          controller: controller,
-          template: _emberTemplateCompilerSystemCompile.default('<div>1{{render \'home\'}}</div>')
-        }
-      };
-      view.setOutletState(liveRoutes);
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HI1BYE');
-
-    _emberMetalRun_loop.default(function () {
-      liveRoutes.outlets.main = {
-        render: {
-          controller: controller,
-          template: _emberTemplateCompilerSystemCompile.default('<div>2{{render \'home\'}}</div>')
-        }
-      };
-      view.setOutletState(liveRoutes);
-    });
-
-    equal(view.$().text(), 'HI2BYE');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} works with dot notation', function () {
-    var _ContextController$create, _EmberView$create15;
-
-    var template = '{{render "blog.post"}}';
-
-    var ContextController = _emberRuntimeControllersController.default.extend();
-    var contextController = ContextController.create((_ContextController$create = {}, _ContextController$create[_containerOwner.OWNER] = appInstance, _ContextController$create));
-
-    var controller;
-    var id = 0;
-    var BlogPostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        controller = this;
-        this.uniqueId = id++;
-      }
-    });
-    appInstance.register('controller:blog.post', BlogPostController);
-
-    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = contextController, _EmberView$create15.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create15));
-
-    _emberTemplatesTemplate_registry.set('blog.post', _emberTemplateCompilerSystemCompile.default('{{uniqueId}}'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var singletonController = appInstance.lookup('controller:blog.post');
-    equal(singletonController.uniqueId, view.$().html(), 'rendered with correct singleton controller');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
-    var _Controller$create10;
-
-    var template = '<h1>HI</h1>{{render home}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create10 = {}, _Controller$create10[_containerOwner.OWNER] = appInstance, _Controller$create10));
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default(template)
-    });
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('throws an assertion if {{render}} is called with a literal for a model', function () {
-    var _Controller$create11, _EmberView$create16;
-
-    var template = '<h1>HI</h1>{{render "home" "model"}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create11 = {}, _Controller$create11[_containerOwner.OWNER] = appInstance, _Controller$create11));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = controller, _EmberView$create16.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create16));
-
-    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerSystemCompile.default('<p>BYE</p>'));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'The second argument of {{render}} must be a path, e.g. {{render "post" post}}.');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should let view provide its own template', function () {
-    var _Controller$create12, _EmberView$create17;
-
-    var template = '{{render \'fish\'}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create12 = {}, _Controller$create12[_containerOwner.OWNER] = appInstance, _Controller$create12));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = controller, _EmberView$create17.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create17));
-
-    appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
-    appInstance.register('template:other', _emberTemplateCompilerSystemCompile.default('Hello other!'));
-
-    appInstance.register('view:fish', _emberViewsViewsView.default.extend({
-      templateName: 'other'
-    }));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Hello other!');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not require view to provide its own template', function () {
-    var _Controller$create13, _EmberView$create18;
-
-    var template = '{{render \'fish\'}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create13 = {}, _Controller$create13[_containerOwner.OWNER] = appInstance, _Controller$create13));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.controller = controller, _EmberView$create18.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create18));
-
-    appInstance.register('template:fish', _emberTemplateCompilerSystemCompile.default('Hello fish!'));
-
-    appInstance.register('view:fish', _emberViewsViewsView.default.extend());
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Hello fish!');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should set router as target when parentController is not found', function () {
-    expect(3);
-
-    _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
-
-    var template = '{{render \'post\' post1}}';
-
-    expectDeprecation(function () {
-      var _EmberView$create19;
-
-      view = _emberViewsViewsView.default.create((_EmberView$create19 = {}, _EmberView$create19[_containerOwner.OWNER] = appInstance, _EmberView$create19.template = _emberTemplateCompilerSystemCompile.default(template), _EmberView$create19));
-    }, /Please refactor [\w\{\}"` ]+ to a component/);
-
-    var postController = undefined;
-    var PostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        postController = this;
-      }
-    });
-
-    var routerStub = {
-      send: function (actionName) {
-        equal(actionName, 'someAction');
-        ok(true, 'routerStub#send called');
-      }
-    };
-    appInstance.register('router:main', routerStub, { instantiate: false });
-    appInstance.register('controller:post', PostController);
-    appInstance.register('template:post', _emberTemplateCompilerSystemCompile.default('post template'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    postController.send('someAction');
-  });
-});
-enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry) {
-  'use strict';
-
-  function resolverFor(namespace) {
-    return {
-      resolve: function (fullName) {
-        var nameParts = fullName.split(':');
-        var type = nameParts[0];
-        var name = nameParts[1];
-
-        if (type === 'template') {
-          var templateName = _emberRuntimeSystemString.decamelize(name);
-          if (_emberTemplatesTemplate_registry.has(templateName)) {
-            return _emberTemplatesTemplate_registry.get(templateName);
-          }
-        }
-
-        var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
-        var factory = _emberMetalProperty_get.get(namespace, className);
-
-        if (factory) {
-          return factory;
-        }
-      }
-    };
-  }
-
-  function buildAppInstance() {
-    var registry = undefined;
-    var App = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
-      init: function () {
-        this._super.apply(this, arguments);
-        registry = this.__registry__ = new _containerRegistry.default();
-        this.__container__ = registry.container({ owner: this });
-      }
-    });
-    var appInstance = App.create();
-
-    registry.resolver = resolverFor(App);
-
-    registry.optionsForType('view', { singleton: false });
-    registry.optionsForType('template', { instantiate: false });
-    registry.register('application:main', App, { instantiate: false });
-    registry.injection('router:main', 'namespace', 'application:main');
-
-    registry.register('location:hash', _emberRoutingLocationHash_location.default);
-
-    registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-
-    registry.register('view:toplevel', _emberViewsViewsView.default.extend());
-    registry.register('view:-outlet', _emberHtmlbarsViewsOutlet.OutletView);
-    registry.register('view:core-outlet', _emberHtmlbarsViewsOutlet.CoreOutletView);
-    registry.register('router:main', _emberRoutingSystemRouter.default.extend());
-
-    registry.typeInjection('route', 'router', 'router:main');
-
-    return appInstance;
-  }
-
-  exports.resolverFor = resolverFor;
-  exports.buildAppInstance = buildAppInstance;
 });
 enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
   'use strict';
