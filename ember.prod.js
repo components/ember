@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+184bb085
+ * @version   2.7.0-canary+42051ac6
  */
 
 var enifed, requireModule, require, Ember;
@@ -3733,7 +3733,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+184bb085";
+  exports.default = "2.7.0-canary+42051ac6";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -5233,7 +5233,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   exports.default = Application;
 });
-enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
+enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'ember-metal/error', 'container/registry', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-application/system/engine-parent', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-metal/features'], function (exports, _emberRuntimeSystemObject, _emberMetalError, _containerRegistry, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberApplicationSystemEngineParent, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberMetalFeatures) {
   /**
   @module ember
   @submodule ember-application
@@ -5355,7 +5355,77 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
     }
   });
 
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    EngineInstance.reopen({
+      /**
+        Build a new `Ember.EngineInstance` that's a child of this instance.
+         Engines must be registered by name with their parent engine
+        (or application).
+         @private
+        @method buildChildEngineInstance
+        @param name {String} the registered name of the engine.
+        @param options {Object} options provided to the engine instance.
+        @return {Ember.EngineInstance,Error}
+      */
+      buildChildEngineInstance: function (name) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+        var Engine = this.lookup('engine:' + name);
+
+        if (!Engine) {
+          throw new _emberMetalError.default('You attempted to mount the engine \'' + name + '\', but it is not registered with its parent.');
+        }
+
+        var engineInstance = Engine.buildInstance(options);
+
+        _emberApplicationSystemEngineParent.setEngineParent(engineInstance, this);
+
+        return engineInstance;
+      }
+    });
+  }
+
   exports.default = EngineInstance;
+});
+enifed('ember-application/system/engine-parent', ['exports', 'ember-metal/symbol'], function (exports, _emberMetalSymbol) {
+  /**
+  @module ember
+  @submodule ember-application
+  */
+
+  'use strict';
+
+  exports.getEngineParent = getEngineParent;
+  exports.setEngineParent = setEngineParent;
+  var ENGINE_PARENT = _emberMetalSymbol.default('ENGINE_PARENT');
+
+  exports.ENGINE_PARENT = ENGINE_PARENT;
+  /**
+    `getEngineParent` retrieves an engine instance's parent instance.
+  
+    @method getEngineParent
+    @param {EngineInstance} engine An engine instance.
+    @return {EngineInstance} The parent engine instance.
+    @for Ember
+    @public
+  */
+
+  function getEngineParent(engine) {
+    return engine[ENGINE_PARENT];
+  }
+
+  /**
+    `setEngineParent` sets an engine instance's parent instance.
+  
+    @method setEngineParent
+    @param {EngineInstance} engine An engine instance.
+    @param {EngineInstance} parent The parent engine instance.
+    @private
+  */
+
+  function setEngineParent(engine, parent) {
+    engine[ENGINE_PARENT] = parent;
+  }
 });
 enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol', 'ember-runtime/controllers/controller', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/checkbox', 'ember-templates/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-htmlbars/templates/top-level-view', 'ember-htmlbars/views/outlet', 'ember-views/views/view', 'require'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol, _emberRuntimeControllersController, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberHtmlbarsTemplatesTopLevelView, _emberHtmlbarsViewsOutlet, _emberViewsViewsView, _require) {
   /**
@@ -5419,7 +5489,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     _initializersRan: false,
 
     /**
-      Ensure that initializers are run once, and only once, per Engine.
+      Ensure that initializers are run once, and only once, per engine.
        @private
       @method ensureInitializers
     */
@@ -5431,10 +5501,10 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     },
 
     /**
-      Create an EngineInstance for this application.
+      Create an EngineInstance for this engine.
        @private
       @method buildInstance
-      @return {Ember.EngineInstance} the application instance
+      @return {Ember.EngineInstance} the engine instance
     */
     buildInstance: function () {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -5445,7 +5515,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     },
 
     /**
-      Build and configure the registry for the current application.
+      Build and configure the registry for the current engine.
        @private
       @method buildRegistry
       @return {Ember.Registry} the configured registry

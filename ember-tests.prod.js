@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+184bb085
+ * @version   2.7.0-canary+42051ac6
  */
 
 var enifed, requireModule, require, Ember;
@@ -22399,12 +22399,18 @@ enifed('ember-application/tests/system/engine_initializers_test', ['exports', 'e
     myEngineInstance = myEngine.buildInstance();
   });
 });
-enifed('ember-application/tests/system/engine_instance_initializers_test', ['exports', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
+enifed('ember-application/tests/system/engine_instance_initializers_test', ['exports', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent'], function (exports, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationSystemEngineParent) {
   'use strict';
 
   var MyEngine = undefined,
       myEngine = undefined,
       myEngineInstance = undefined;
+
+  function buildEngineInstance(EngineClass) {
+    var engineInstance = EngineClass.buildInstance();
+    _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
+    return engineInstance;
+  }
 
   QUnit.module('Ember.Engine instance initializers', {
     setup: function () {},
@@ -22449,7 +22455,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     });
 
     myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+    myEngineInstance = buildEngineInstance(myEngine);
     return myEngineInstance.boot();
   });
 
@@ -22507,7 +22513,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     });
 
     myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+    myEngineInstance = buildEngineInstance(myEngine);
 
     return myEngineInstance.boot().then(function () {
       deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
@@ -22567,7 +22573,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     });
 
     myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+    myEngineInstance = buildEngineInstance(myEngine);
 
     return myEngineInstance.boot().then(function () {
       deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
@@ -22621,7 +22627,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     MyEngine.instanceInitializer(c);
 
     myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+    myEngineInstance = buildEngineInstance(myEngine);
 
     return myEngineInstance.boot().then(function () {
       ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
@@ -22657,14 +22663,14 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     });
 
     firstEngine = FirstEngine.create();
-    firstEngineInstance = firstEngine.buildInstance();
+    firstEngineInstance = buildEngineInstance(firstEngine);
 
     return firstEngineInstance.boot().then(function () {
       equal(firstInitializerRunCount, 1, 'first initializer only was run');
       equal(secondInitializerRunCount, 0, 'first initializer only was run');
 
       secondEngine = SecondEngine.create();
-      secondEngineInstance = secondEngine.buildInstance();
+      secondEngineInstance = buildEngineInstance(secondEngine);
       return secondEngineInstance.boot();
     }).then(function () {
       equal(firstInitializerRunCount, 1, 'second initializer only was run');
@@ -22702,7 +22708,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     });
 
     var firstEngine = FirstEngine.create();
-    var firstEngineInstance = firstEngine.buildInstance();
+    var firstEngineInstance = buildEngineInstance(firstEngine);
 
     var secondEngine = undefined,
         secondEngineInstance = undefined;
@@ -22713,7 +22719,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
       firstInitializerRunCount = 0;
 
       secondEngine = SecondEngine.create();
-      secondEngineInstance = secondEngine.buildInstance();
+      secondEngineInstance = buildEngineInstance(secondEngine);
       return secondEngineInstance.boot();
     }).then(function () {
       equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
@@ -22769,12 +22775,12 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     });
 
     myEngine = MyEngine.create();
-    myEngineInstance = myEngine.buildInstance();
+    myEngineInstance = buildEngineInstance(myEngine);
 
     return myEngineInstance.boot();
   });
 });
-enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-metal/run_loop', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberMetalRun_loop, _containerTestsTestHelpersFactory) {
+enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal/run_loop', 'container/tests/test-helpers/factory', 'ember-metal/features'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationSystemEngineParent, _emberMetalRun_loop, _containerTestsTestHelpersFactory, _emberMetalFeatures) {
   'use strict';
 
   var engine = undefined,
@@ -22828,6 +22834,65 @@ enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember
     assert.ok(postComponent2, 'lookup creates instance');
 
     assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
+  });
+
+  QUnit.test('can be booted when its parent has been set', function (assert) {
+    _emberMetalRun_loop.default(function () {
+      engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+    });
+
+    expectAssertion(function () {
+      engineInstance._bootSync();
+    }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
+
+    _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
+
+    return engineInstance.boot().then(function () {
+      assert.ok(true, 'boot successful');
+    });
+  });
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.test('can build a child instance of a registered engine', function (assert) {
+      var ChatEngine = _emberApplicationSystemEngine.default.extend();
+      var chatEngineInstance = undefined;
+
+      engine.register('engine:chat', ChatEngine);
+
+      _emberMetalRun_loop.default(function () {
+        engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+
+        // Try to build an unregistered engine.
+        throws(function () {
+          engineInstance.buildChildEngineInstance('fake');
+        }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
+
+        // Build the `chat` engine, registered above.
+        chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
+      });
+
+      assert.ok(chatEngineInstance, 'child engine instance successfully created');
+
+      assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
+    });
+  }
+});
+enifed('ember-application/tests/system/engine_parent_test', ['exports', 'ember-application/system/engine-parent'], function (exports, _emberApplicationSystemEngineParent) {
+  'use strict';
+
+  QUnit.module('EngineParent', {});
+
+  QUnit.test('An engine\'s parent can be set with `setEngineParent` and retrieved with `getEngineParent`', function () {
+    var engine = {};
+    var parent = {};
+
+    strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engine), undefined, 'parent has not been set');
+
+    _emberApplicationSystemEngineParent.setEngineParent(engine, parent);
+
+    strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engine), parent, 'parent has been set');
+
+    strictEqual(engine[_emberApplicationSystemEngineParent.ENGINE_PARENT], parent, 'parent has been set to the ENGINE_PARENT symbol');
   });
 });
 enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object', 'container/registry', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck) {
