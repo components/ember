@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0cd80863
+ * @version   2.7.0-canary+81884e31
  */
 
 var enifed, requireModule, require, Ember;
@@ -26675,6 +26675,21 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
       });
     };
 
+    // Regression test, glimmer child outlets tried to assume the first element.
+    // but the if put-args clobbered the args used by did-create-element.
+    // I wish there was a way to assert that the OutletComponentManager did not
+    // receive a didCreateElement.
+
+    _class.prototype['@test a child outlet is always a fragment'] = function testAChildOutletIsAlwaysAFragment() {
+      var _this10 = this;
+
+      this.registerTemplate('application', '{{outlet}}');
+      this.registerTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
+      return this.visit('/').then(function () {
+        _this10.assertComponentElement(_this10.firstChild, { content: '1<div>2</div>' });
+      });
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
@@ -48998,6 +49013,21 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
       }).then(function () {
         _this9.assertComponentElement(_this9.firstChild, { content: 'common B' });
         _this9.assertInvariants();
+      });
+    };
+
+    // Regression test, glimmer child outlets tried to assume the first element.
+    // but the if put-args clobbered the args used by did-create-element.
+    // I wish there was a way to assert that the OutletComponentManager did not
+    // receive a didCreateElement.
+
+    _class.prototype['@test a child outlet is always a fragment'] = function testAChildOutletIsAlwaysAFragment() {
+      var _this10 = this;
+
+      this.registerTemplate('application', '{{outlet}}');
+      this.registerTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
+      return this.visit('/').then(function () {
+        _this10.assertComponentElement(_this10.firstChild, { content: '1<div>2</div>' });
       });
     };
 

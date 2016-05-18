@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0cd80863
+ * @version   2.7.0-canary+81884e31
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+0cd80863";
+  exports.default = "2.7.0-canary+81884e31";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11232,7 +11232,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
     }
 
     OutletComponentDefinition.prototype.compile = function compile(builder) {
-      builder.fromLayout(this.template.asLayout());
+      builder.wrapLayout(this.template.asLayout());
     };
 
     return OutletComponentDefinition;
@@ -12356,7 +12356,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
     OutletView.prototype.setOutletState = function setOutletState(state) {
       this.outletState = state;
       this._tag.dirty();
-      this.rerender(); // FIXME
     };
 
     OutletView.prototype.toReference = function toReference() {
