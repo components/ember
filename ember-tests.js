@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9a72fea4
+ * @version   2.7.0-canary+ea0669d7
  */
 
 var enifed, requireModule, require, Ember;
@@ -93750,9 +93750,6 @@ enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runt
       });
     }, 'Using a custom `.render` function is no longer supported.');
   });
-});
-enifed("ember-views/tests/glimmer-components/render-test", ["exports"], function (exports) {
-  "use strict";
 });
 enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (exports, _emberRuntimeSystemObject, _emberViewsViewsView, _emberViewsMixinsView_target_action_support) {
   'use strict';
