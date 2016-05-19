@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+81884e31
+ * @version   2.7.0-canary+df824add
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+81884e31";
+  exports.default = "2.7.0-canary+df824add";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -9004,12 +9004,16 @@ enifed('ember-glimmer/ember-template-compiler/plugins/transform-action-syntax', 
   
     ```handlebars
    <button {{action 'foo'}}>
+   <button onblur={{action 'foo'}}>
+   <button onblur={{action (action 'foo') 'bar'}}>
     ```
   
     with
   
     ```handlebars
    <button {{action this 'foo'}}>
+   <button onblur={{action this 'foo'}}>
+   <button onblur={{action this (action this 'foo') 'bar'}}>
     ```
   
     @private
@@ -9025,10 +9029,6 @@ enifed('ember-glimmer/ember-template-compiler/plugins/transform-action-syntax', 
     this.syntax = null;
   }
 
-  var TRANSFORMATIONS = {
-    action: 'action'
-  };
-
   /**
     @private
     @method transform
@@ -9041,20 +9041,32 @@ enifed('ember-glimmer/ember-template-compiler/plugins/transform-action-syntax', 
 
     traverse(ast, {
       ElementModifierStatement: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          var thisPath = b.path('this');
-
-          // We have to delete the `parts` here because otherwise it will be treated
-          // as a property look up (i.e. `this.this`) and will result in `undefined`.
-          thisPath.parts = [];
-
-          return b.elementModifier(node.path, [thisPath].concat(node.params), node.hash, node.loc);
+        if (isAction(node)) {
+          insertThisAsFirstParam(node, b);
+        }
+      },
+      MustacheStatement: function (node) {
+        if (isAction(node)) {
+          insertThisAsFirstParam(node, b);
+        }
+      },
+      SubExpression: function (node) {
+        if (isAction(node)) {
+          insertThisAsFirstParam(node, b);
         }
       }
     });
 
     return ast;
   };
+
+  function isAction(node) {
+    return node.path.original === 'action';
+  }
+
+  function insertThisAsFirstParam(node, builders) {
+    node.params.unshift(builders.path(''));
+  }
 });
 enifed('ember-glimmer/ember-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
   /**
@@ -9349,7 +9361,7 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
     classNameBindings: EMPTY_ARRAY
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _containerOwner, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -9362,6 +9374,7 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     concat: _emberGlimmerHelpersConcat.default,
     if: _emberGlimmerHelpersIfUnless.inlineIf,
     unless: _emberGlimmerHelpersIfUnless.inlineUnless,
+    action: _emberGlimmerHelpersAction.default,
     get: _emberGlimmerHelpersGet.default,
     hash: _emberGlimmerHelpersHash.default,
     loc: _emberGlimmerHelpersLoc.default,
@@ -9732,6 +9745,156 @@ enifed('ember-glimmer/helpers/-class', ['exports', 'ember-glimmer/utils/referenc
       return new _emberGlimmerUtilsReferences.InternalHelperReference(classHelper, args);
     }
   };
+});
+enifed('ember-glimmer/helpers/action', ['exports', 'ember-glimmer/utils/references', 'glimmer-runtime', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/instrumentation'], function (exports, _emberGlimmerUtilsReferences, _glimmerRuntime, _emberMetalError, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalInstrumentation) {
+  'use strict';
+
+  exports.createClosureAction = createClosureAction;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var ClosureActionReference = (function (_CachedReference) {
+    _inherits(ClosureActionReference, _CachedReference);
+
+    ClosureActionReference.create = function create(args) {
+      // TODO: Const reference optimization.
+      return new ClosureActionReference(args);
+    };
+
+    function ClosureActionReference(args) {
+      _classCallCheck(this, ClosureActionReference);
+
+      _CachedReference.call(this);
+
+      this.args = args;
+      this.tag = args.tag;
+    }
+
+    ClosureActionReference.prototype.compute = function compute() {
+      var _args = this.args;
+      var named = _args.named;
+      var positional = _args.positional;
+
+      var positionalValues = positional.value();
+
+      var target = positionalValues[0];
+      var rawAction = positionalValues[1];
+
+      // The first two argument slots are reserved.
+      // pos[0] is the context (or `this`)
+      // pos[1] is the action name or function
+      // Anything else is an action argument.
+      var actionArgs = positionalValues.slice(2);
+
+      // TODO: Check if rawAction is INVOKE-able or (mut)
+
+      // on-change={{action setName}}
+      // element-space actions look to "controller" then target. Here we only
+      // look to "target".
+      var actionType = typeof rawAction;
+      var action = rawAction;
+
+      if (actionType === 'string') {
+        // on-change={{action 'setName'}}
+        var actionName = rawAction;
+
+        action = null;
+
+        if (named.has('target')) {
+          // on-change={{action 'setName' target=alternativeComponent}}
+          target = named.get('target').value();
+        }
+
+        if (target['actions']) {
+          action = target.actions[actionName];
+        }
+
+        if (!action) {
+          throw new _emberMetalError.default('An action named \'' + actionName + '\' was not found in ' + target);
+        }
+      } else if (actionType !== 'function') {
+        throw new _emberMetalError.default('An action could not be made for `' + rawAction + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + rawAction + '\')`) or a function available in ' + target + '.');
+      }
+
+      // TODO: Handle INVOKE explicitly here.
+
+      // <button on-keypress={{action (mut name) value="which"}}
+      // on-keypress is not even an Ember feature yet
+      var valuePath = named.get('value').value();
+
+      return createClosureAction(target, action, valuePath, actionArgs);
+    };
+
+    return ClosureActionReference;
+  })(_emberGlimmerUtilsReferences.CachedReference);
+
+  exports.ClosureActionReference = ClosureActionReference;
+  exports.default = {
+    isInternalHelper: true,
+
+    toReference: function (args) {
+      var rawActionRef = args.positional.at(1);
+
+      if (rawActionRef === _glimmerRuntime.UNDEFINED_REFERENCE || rawActionRef === _glimmerRuntime.NULL_REFERENCE) {
+        throw new Error('Action passed is null or undefined in (action) from ' + args.positional.at(0).value() + '.');
+      }
+
+      return ClosureActionReference.create(args);
+    }
+  };
+
+  function createClosureAction(target, action, valuePath, actionArgs) {
+    var closureAction = undefined;
+    var actionArgLength = actionArgs.length;
+
+    if (actionArgLength > 0) {
+      closureAction = function () {
+        for (var _len = arguments.length, passedArguments = Array(_len), _key = 0; _key < _len; _key++) {
+          passedArguments[_key] = arguments[_key];
+        }
+
+        var args = new Array(actionArgLength + passedArguments.length);
+
+        for (var i = 0; i < actionArgLength; i++) {
+          args[i] = actionArgs[i];
+        }
+
+        for (var i = 0; i < passedArguments.length; i++) {
+          args[i + actionArgLength] = passedArguments[i];
+        }
+
+        if (valuePath && args.length > 0) {
+          args[0] = _emberMetalProperty_get.get(args[0], valuePath);
+        }
+
+        var payload = { target: target, args: args, label: 'glimmer-closure-action' };
+        return _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+          return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
+        });
+      };
+    } else {
+      closureAction = function () {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        if (valuePath && args.length > 0) {
+          args[0] = _emberMetalProperty_get.get(args[0], valuePath);
+        }
+
+        var payload = { target: target, args: args, label: 'glimmer-closure-action' };
+        return _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+          return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
+        });
+      };
+    }
+
+    return closureAction;
+  }
 });
 enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/helper', 'glimmer-runtime'], function (exports, _emberGlimmerHelper, _glimmerRuntime) {
   'use strict';

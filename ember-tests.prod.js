@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+81884e31
+ * @version   2.7.0-canary+df824add
  */
 
 var enifed, requireModule, require, Ember;
@@ -34257,6 +34257,1151 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-routing-htmlbars/keywords/closure-action', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberRoutingHtmlbarsKeywordsClosureAction, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
+      _inherits(_class, _RenderingTest);
+
+      function _class() {
+        _classCallCheck(this, _class);
+
+        _RenderingTest.apply(this, arguments);
+      }
+
+      // Skipped since features flags during tests are tricky.
+
+      _class.prototype['@skip action should fire interaction event'] = function skipActionShouldFireInteractionEvent() {
+        var _this = this;
+
+        var subscriberCalled = false;
+        var actionCalled = false;
+
+        var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            fireAction: function () {
+              this.attrs.submit();
+            }
+          }
+        });
+
+        var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {
+            actionCalled = true;
+          }
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function () {
+            subscriberCalled = true;
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.ok(subscriberCalled, 'instrumentation subscriber was called');
+        this.assert.ok(actionCalled, 'action is called');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      // Skipped since features flags during tests are tricky.
+
+      _class.prototype['@skip interaction event subscriber should be passed parameters'] = function skipInteractionEventSubscriberShouldBePassedParameters() {
+        var _this2 = this;
+
+        var actionParam = 'So krispy';
+        var beforeParameter = undefined;
+        var afterParameter = undefined;
+
+        var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            fireAction: function () {
+              this.attrs.submit(actionParam);
+            }
+          }
+        });
+
+        var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {}
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function (name, timestamp, payload) {
+            beforeParameter = payload.args[0];
+          },
+          after: function (name, timestamp, payload) {
+            afterParameter = payload.args[0];
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this2.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.equal(beforeParameter, actionParam, 'instrumentation subscriber before function was passed closure action parameters');
+        this.assert.equal(afterParameter, actionParam, 'instrumentation subscriber after function was passed closure action parameters');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      // Skipped since features flags during tests are tricky.
+
+      _class.prototype['@skip interaction event subscriber should be passed target'] = function skipInteractionEventSubscriberShouldBePassedTarget() {
+        var _this3 = this;
+
+        var beforeParameter = undefined;
+        var afterParameter = undefined;
+
+        var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          myProperty: 'inner-thing',
+          actions: {
+            fireAction: function () {
+              this.attrs.submit();
+            }
+          }
+        });
+
+        var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          myProperty: 'outer-thing',
+          outerSubmit: function () {}
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function (name, timestamp, payload) {
+            beforeParameter = payload.target.get('myProperty');
+          },
+          after: function (name, timestamp, payload) {
+            afterParameter = payload.target.get('myProperty');
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this3.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.equal(beforeParameter, 'outer-thing', 'instrumentation subscriber before function was passed target');
+        this.assert.equal(afterParameter, 'outer-thing', 'instrumentation subscriber after function was passed target');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      _class.prototype['@test instrumented action should return value'] = function testInstrumentedActionShouldReturnValue() {
+        var _this4 = this;
+
+        var returnedValue = 'Chris P is so krispy';
+        var beforeParameter = undefined;
+        var afterParameter = undefined;
+        var actualReturnedValue = undefined;
+
+        var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            fireAction: function () {
+              actualReturnedValue = this.attrs.submit();
+            }
+          }
+        });
+
+        var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {
+            return returnedValue;
+          }
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function (name, timestamp, payload) {
+            beforeParameter = payload.target.get('myProperty');
+          },
+          after: function (name, timestamp, payload) {
+            afterParameter = payload.target.get('myProperty');
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this4.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      return _class;
+    })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+  }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}}', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test action should be called'] = function testActionShouldBeCalled() {
+      var outerActionCalled = false;
+      var component = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        outerSubmit: function () {
+          outerActionCalled = true;
+        }
+      });
+
+      this.registerComponent('inner-component', { ComponentClass: InnerComponent, template: 'inner' });
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        component.fireAction();
+      });
+
+      this.assert.ok(outerActionCalled, 'the action was called');
+    };
+
+    _class2.prototype['@test an error is triggered when bound action function is undefined'] = function testAnErrorIsTriggeredWhenBoundActionFunctionIsUndefined() {
+      var _this5 = this;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('inner-component', { ComponentClass: InnerComponent, template: 'inner' });
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action somethingThatIsUndefined)}}'
+      });
+
+      // TODO: Improve this to test that the name of the parameter is contained
+      // within the error message.
+      this.assert.throws(function () {
+        _this5.render('{{outer-component}}');
+      }, /An action could not be made for `.*` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action '.*'\)`\) or a function available in .*\./);
+    };
+
+    // Change to @test when element actions are committed.
+
+    _class2.prototype['@htmlbars [#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo'] = function htmlbars12718ANiceErrorIsShownWhenABoundActionFunctionIsUndefinedAndItIsPassedAsAttrsFoo() {
+      var _this6 = this;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component}}'
+      });
+
+      this.assert.throws(function () {
+        _this6.render('{{outer-component}}');
+      }, /Action passed is null or undefined in \(action [^)]*\) from .*\./);
+    };
+
+    _class2.prototype['@test action value is returned'] = function testActionValueIsReturned() {
+      var expectedValue = 'terrible tom';
+      var returnedValue = undefined;
+      var innerComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          returnedValue = this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        outerSubmit: function () {
+          return expectedValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(returnedValue, expectedValue, 'action can return to caller');
+    };
+
+    _class2.prototype['@test action should be called on the correct scope'] = function testActionShouldBeCalledOnTheCorrectScope() {
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+      var actualComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        isOuterComponent: true,
+        outerSubmit: function () {
+          actualComponent = this;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualComponent, outerComponent, 'action has the correct context');
+      this.assert.ok(actualComponent.isOuterComponent, 'action has the correct context');
+    };
+
+    _class2.prototype['@test arguments to action are passed, curry'] = function testArgumentsToActionArePassedCurry() {
+      var first = 'mitch';
+      var second = 'martin';
+      var third = 'matt';
+      var fourth = 'wacky wycats';
+
+      var innerComponent = undefined;
+      var actualArgs = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit(fourth);
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        third: third,
+        outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
+          actualArgs = [].concat(_slice.call(arguments));
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.deepEqual(actualArgs, [first, second, third, fourth], 'action has the correct args');
+    };
+
+    _class2.prototype['@test `this` can be passed as an argument'] = function testThisCanBePassedAsAnArgument() {
+      var value = {};
+      var component = undefined;
+      var innerComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+        actions: {
+          outerAction: function (incomingValue) {
+            value = incomingValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', { ComponentClass: InnerComponent, template: 'inner' });
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action "outerAction" this)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.strictEqual(value, component, 'the component is passed at `this`');
+    };
+
+    _class2.prototype['@test arguments to action are bound'] = function testArgumentsToActionAreBound() {
+      var value = 'lazy leah';
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+      var actualArg = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        value: '',
+        outerSubmit: function (incomingValue) {
+          actualArg = incomingValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit value)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.strictEqual(actualArg, '', 'action has the correct first arg');
+
+      this.runTask(function () {
+        outerComponent.set('value', value);
+      });
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.strictEqual(actualArg, value, 'action has the correct first arg');
+    };
+
+    _class2.prototype['@test array arguments are passed correctly to action'] = function testArrayArgumentsArePassedCorrectlyToAction() {
+      var first = 'foo';
+      var second = [3, 5];
+      var third = [4, 9];
+
+      var actualFirst = undefined;
+      var actualSecond = undefined;
+      var actualThird = undefined;
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit(second, third);
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        outerSubmit: function (incomingFirst, incomingSecond, incomingThird) {
+          actualFirst = incomingFirst;
+          actualSecond = incomingSecond;
+          actualThird = incomingThird;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit first)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        outerComponent.set('first', first);
+        outerComponent.set('second', second);
+      });
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualFirst, first, 'action has the correct first arg');
+      this.assert.equal(actualSecond, second, 'action has the correct second arg');
+      this.assert.equal(actualThird, third, 'action has the correct third arg');
+    };
+
+    // TODO: Change to @test when Glimmer2 has mut helper.
+
+    _class2.prototype['@htmlbars mut values can be wrapped in actions, are settable'] = function htmlbarsMutValuesCanBeWrappedInActionsAreSettable() {
+      var newValue = 'trollin trek';
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit(newValue);
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        outerMut: 'patient peter'
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action (mut outerMut))}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+    };
+
+    // TODO: Change to @test when Glimmer2 has mut helper.
+
+    _class2.prototype['@htmlbars mut values can be wrapped in actions, are settable with a curry'] = function htmlbarsMutValuesCanBeWrappedInActionsAreSettableWithACurry() {
+      var newValue = 'trollin trek';
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        outerMut: 'patient peter'
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action (mut outerMut) \'' + newValue + '\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+    };
+
+    _class2.prototype['@test action can create closures over actions'] = function testActionCanCreateClosuresOverActions() {
+      var first = 'raging robert';
+      var second = 'mild machty';
+      var returnValue = 'butch brian';
+
+      var actualFirst = undefined;
+      var actualSecond = undefined;
+      var actualReturnedValue = undefined;
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          actualReturnedValue = this.attrs.submit(second);
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        actions: {
+          outerAction: function (incomingFirst, incomingSecond) {
+            actualFirst = incomingFirst;
+            actualSecond = incomingSecond;
+            return returnValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'outerAction\' \'' + first + '\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualReturnedValue, returnValue, 'return value is present');
+      this.assert.equal(actualFirst, first, 'first argument is correct');
+      this.assert.equal(actualSecond, second, 'second argument is correct');
+    };
+
+    _class2.prototype['@test provides a helpful error if an action is not present'] = function testProvidesAHelpfulErrorIfAnActionIsNotPresent() {
+      var _this7 = this;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        actions: {
+          something: function () {
+            // this is present to ensure `actions` hash is present
+            // a different error is triggered if `actions` is missing
+            // completely
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'doesNotExist\')}}'
+      });
+
+      this.assert.throws(function () {
+        _this7.render('{{outer-component}}');
+      }, /An action named 'doesNotExist' was not found in /);
+    };
+
+    _class2.prototype['@test provides a helpful error if actions hash is not present'] = function testProvidesAHelpfulErrorIfActionsHashIsNotPresent() {
+      var _this8 = this;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'doesNotExist\')}}'
+      });
+
+      this.assert.throws(function () {
+        _this8.render('{{outer-component}}');
+      }, /An action named 'doesNotExist' was not found in /);
+    };
+
+    _class2.prototype['@test action can create closures over actions with target'] = function testActionCanCreateClosuresOverActionsWithTarget() {
+      var innerComponent = undefined;
+      var actionCalled = false;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        otherComponent: _emberMetalComputed.computed(function () {
+          return {
+            actions: {
+              outerAction: function () {
+                actionCalled = true;
+              }
+            }
+          };
+        })
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'outerAction\' target=otherComponent)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.ok(actionCalled, 'action called on otherComponent');
+    };
+
+    _class2.prototype['@test value can be used with action over actions'] = function testValueCanBeUsedWithActionOverActions() {
+      var newValue = 'yelping yehuda';
+
+      var innerComponent = undefined;
+      var actualValue = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit({
+            readProp: newValue
+          });
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        outerContent: {
+          readProp: newValue
+        },
+        actions: {
+          outerAction: function (incomingValue) {
+            actualValue = incomingValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'outerAction\' value="readProp")}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualValue, newValue, 'value is read');
+    };
+
+    _class2.prototype['@test action will read the value of a first property'] = function testActionWillReadTheValueOfAFirstProperty() {
+      var newValue = 'irate igor';
+
+      var innerComponent = undefined;
+      var actualValue = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit({
+            readProp: newValue
+          });
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        outerAction: function (incomingValue) {
+          actualValue = incomingValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerAction value="readProp")}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualValue, newValue, 'property is read');
+    };
+
+    _class2.prototype['@test action will read the value of a curried first argument property'] = function testActionWillReadTheValueOfACurriedFirstArgumentProperty() {
+      var newValue = 'kissing kris';
+
+      var innerComponent = undefined;
+      var actualValue = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        objectArgument: {
+          readProp: newValue
+        },
+        outerAction: function (incomingValue) {
+          actualValue = incomingValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerAction objectArgument value="readProp")}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualValue, newValue, 'property is read');
+    };
+
+    _class2.prototype['@test action closure does not get auto-mut wrapped'] = function testActionClosureDoesNotGetAutoMutWrapped() {
+      var first = 'raging robert';
+      var second = 'mild machty';
+      var returnValue = 'butch brian';
+
+      var innerComponent = undefined;
+      var actualFirst = undefined;
+      var actualSecond = undefined;
+      var actualReturnedValue = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          actualReturnedValue = this.attrs.submit(second);
+        }
+      });
+
+      var MiddleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        actions: {
+          outerAction: function (incomingFirst, incomingSecond) {
+            actualFirst = incomingFirst;
+            actualSecond = incomingSecond;
+            return returnValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('middle-component', {
+        ComponentClass: MiddleComponent,
+        template: '{{inner-component submit=attrs.submit}}'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{middle-component submit=(action \'outerAction\' \'' + first + '\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualFirst, first, 'first argument is correct');
+      this.assert.equal(actualSecond, second, 'second argument is correct');
+      this.assert.equal(actualReturnedValue, returnValue, 'return value is present');
+    };
+
+    _class2.prototype['@test action should be called within a run loop'] = function testActionShouldBeCalledWithinARunLoop() {
+      var innerComponent = undefined;
+      var capturedRunLoop = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        actions: {
+          submit: function () {
+            capturedRunLoop = _emberMetalRun_loop.default.currentRunLoop;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'submit\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.ok(capturedRunLoop, 'action is called within a run loop');
+    };
+
+    // TODO: Need to flesh out the Glimmer2 INVOKE story a bit.
+
+    _class2.prototype['@htmlbars objects that define INVOKE can be casted to actions'] = function htmlbarsObjectsThatDefineINVOKECanBeCastedToActions() {
+      var innerComponent = undefined;
+      var actionArgs = undefined;
+      var invokableArgs = undefined;
+
+      var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          actionArgs = this.attrs.submit(4, 5, 6);
+        }
+      });
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        foo: 123,
+        submitTask: _emberMetalComputed.computed(function () {
+          var _ref,
+              _this9 = this;
+
+          return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+
+            invokableArgs = args;
+            return _this9.foo;
+          }, _ref;
+        })
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action submitTask 1 2 3)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actionArgs, 123);
+      this.assert.deepEqual(invokableArgs, [1, 2, 3, 4, 5, 6]);
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
@@ -57066,6 +58211,1151 @@ enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'embe
     };
 
     return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-routing-htmlbars/keywords/closure-action', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberRoutingHtmlbarsKeywordsClosureAction, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+    _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
+      _inherits(_class, _RenderingTest);
+
+      function _class() {
+        _classCallCheck(this, _class);
+
+        _RenderingTest.apply(this, arguments);
+      }
+
+      // Skipped since features flags during tests are tricky.
+
+      _class.prototype['@skip action should fire interaction event'] = function skipActionShouldFireInteractionEvent() {
+        var _this = this;
+
+        var subscriberCalled = false;
+        var actionCalled = false;
+
+        var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            fireAction: function () {
+              this.attrs.submit();
+            }
+          }
+        });
+
+        var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {
+            actionCalled = true;
+          }
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function () {
+            subscriberCalled = true;
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.ok(subscriberCalled, 'instrumentation subscriber was called');
+        this.assert.ok(actionCalled, 'action is called');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      // Skipped since features flags during tests are tricky.
+
+      _class.prototype['@skip interaction event subscriber should be passed parameters'] = function skipInteractionEventSubscriberShouldBePassedParameters() {
+        var _this2 = this;
+
+        var actionParam = 'So krispy';
+        var beforeParameter = undefined;
+        var afterParameter = undefined;
+
+        var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            fireAction: function () {
+              this.attrs.submit(actionParam);
+            }
+          }
+        });
+
+        var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {}
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function (name, timestamp, payload) {
+            beforeParameter = payload.args[0];
+          },
+          after: function (name, timestamp, payload) {
+            afterParameter = payload.args[0];
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this2.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.equal(beforeParameter, actionParam, 'instrumentation subscriber before function was passed closure action parameters');
+        this.assert.equal(afterParameter, actionParam, 'instrumentation subscriber after function was passed closure action parameters');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      // Skipped since features flags during tests are tricky.
+
+      _class.prototype['@skip interaction event subscriber should be passed target'] = function skipInteractionEventSubscriberShouldBePassedTarget() {
+        var _this3 = this;
+
+        var beforeParameter = undefined;
+        var afterParameter = undefined;
+
+        var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          myProperty: 'inner-thing',
+          actions: {
+            fireAction: function () {
+              this.attrs.submit();
+            }
+          }
+        });
+
+        var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          myProperty: 'outer-thing',
+          outerSubmit: function () {}
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function (name, timestamp, payload) {
+            beforeParameter = payload.target.get('myProperty');
+          },
+          after: function (name, timestamp, payload) {
+            afterParameter = payload.target.get('myProperty');
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this3.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.equal(beforeParameter, 'outer-thing', 'instrumentation subscriber before function was passed target');
+        this.assert.equal(afterParameter, 'outer-thing', 'instrumentation subscriber after function was passed target');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      _class.prototype['@test instrumented action should return value'] = function testInstrumentedActionShouldReturnValue() {
+        var _this4 = this;
+
+        var returnedValue = 'Chris P is so krispy';
+        var beforeParameter = undefined;
+        var afterParameter = undefined;
+        var actualReturnedValue = undefined;
+
+        var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            fireAction: function () {
+              actualReturnedValue = this.attrs.submit();
+            }
+          }
+        });
+
+        var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {
+            return returnedValue;
+          }
+        });
+
+        this.registerComponent('inner-component', {
+          ComponentClass: InnerComponent,
+          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
+        });
+
+        this.registerComponent('outer-component', {
+          ComponentClass: OuterComponent,
+          template: '{{inner-component submit=(action outerSubmit)}}'
+        });
+
+        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+          before: function (name, timestamp, payload) {
+            beforeParameter = payload.target.get('myProperty');
+          },
+          after: function (name, timestamp, payload) {
+            afterParameter = payload.target.get('myProperty');
+          }
+        });
+
+        this.render('{{outer-component}}');
+
+        this.runTask(function () {
+          _this4.$('#instrument-button').trigger('click');
+        });
+
+        this.assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
+
+        _emberMetalInstrumentation.unsubscribe(subscriber);
+      };
+
+      return _class;
+    })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+  }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}}', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test action should be called'] = function testActionShouldBeCalled() {
+      var outerActionCalled = false;
+      var component = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        outerSubmit: function () {
+          outerActionCalled = true;
+        }
+      });
+
+      this.registerComponent('inner-component', { ComponentClass: InnerComponent, template: 'inner' });
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        component.fireAction();
+      });
+
+      this.assert.ok(outerActionCalled, 'the action was called');
+    };
+
+    _class2.prototype['@test an error is triggered when bound action function is undefined'] = function testAnErrorIsTriggeredWhenBoundActionFunctionIsUndefined() {
+      var _this5 = this;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('inner-component', { ComponentClass: InnerComponent, template: 'inner' });
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action somethingThatIsUndefined)}}'
+      });
+
+      // TODO: Improve this to test that the name of the parameter is contained
+      // within the error message.
+      this.assert.throws(function () {
+        _this5.render('{{outer-component}}');
+      }, /An action could not be made for `.*` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action '.*'\)`\) or a function available in .*\./);
+    };
+
+    // Change to @test when element actions are committed.
+
+    _class2.prototype['@htmlbars [#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo'] = function htmlbars12718ANiceErrorIsShownWhenABoundActionFunctionIsUndefinedAndItIsPassedAsAttrsFoo() {
+      var _this6 = this;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component}}'
+      });
+
+      this.assert.throws(function () {
+        _this6.render('{{outer-component}}');
+      }, /Action passed is null or undefined in \(action [^)]*\) from .*\./);
+    };
+
+    _class2.prototype['@test action value is returned'] = function testActionValueIsReturned() {
+      var expectedValue = 'terrible tom';
+      var returnedValue = undefined;
+      var innerComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          returnedValue = this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        outerSubmit: function () {
+          return expectedValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(returnedValue, expectedValue, 'action can return to caller');
+    };
+
+    _class2.prototype['@test action should be called on the correct scope'] = function testActionShouldBeCalledOnTheCorrectScope() {
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+      var actualComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        isOuterComponent: true,
+        outerSubmit: function () {
+          actualComponent = this;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualComponent, outerComponent, 'action has the correct context');
+      this.assert.ok(actualComponent.isOuterComponent, 'action has the correct context');
+    };
+
+    _class2.prototype['@test arguments to action are passed, curry'] = function testArgumentsToActionArePassedCurry() {
+      var first = 'mitch';
+      var second = 'martin';
+      var third = 'matt';
+      var fourth = 'wacky wycats';
+
+      var innerComponent = undefined;
+      var actualArgs = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit(fourth);
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        third: third,
+        outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
+          actualArgs = [].concat(_slice.call(arguments));
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.deepEqual(actualArgs, [first, second, third, fourth], 'action has the correct args');
+    };
+
+    _class2.prototype['@test `this` can be passed as an argument'] = function testThisCanBePassedAsAnArgument() {
+      var value = {};
+      var component = undefined;
+      var innerComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        },
+        actions: {
+          outerAction: function (incomingValue) {
+            value = incomingValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', { ComponentClass: InnerComponent, template: 'inner' });
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action "outerAction" this)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.strictEqual(value, component, 'the component is passed at `this`');
+    };
+
+    _class2.prototype['@test arguments to action are bound'] = function testArgumentsToActionAreBound() {
+      var value = 'lazy leah';
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+      var actualArg = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        value: '',
+        outerSubmit: function (incomingValue) {
+          actualArg = incomingValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit value)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.strictEqual(actualArg, '', 'action has the correct first arg');
+
+      this.runTask(function () {
+        outerComponent.set('value', value);
+      });
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.strictEqual(actualArg, value, 'action has the correct first arg');
+    };
+
+    _class2.prototype['@test array arguments are passed correctly to action'] = function testArrayArgumentsArePassedCorrectlyToAction() {
+      var first = 'foo';
+      var second = [3, 5];
+      var third = [4, 9];
+
+      var actualFirst = undefined;
+      var actualSecond = undefined;
+      var actualThird = undefined;
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit(second, third);
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        outerSubmit: function (incomingFirst, incomingSecond, incomingThird) {
+          actualFirst = incomingFirst;
+          actualSecond = incomingSecond;
+          actualThird = incomingThird;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerSubmit first)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        outerComponent.set('first', first);
+        outerComponent.set('second', second);
+      });
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualFirst, first, 'action has the correct first arg');
+      this.assert.equal(actualSecond, second, 'action has the correct second arg');
+      this.assert.equal(actualThird, third, 'action has the correct third arg');
+    };
+
+    // TODO: Change to @test when Glimmer2 has mut helper.
+
+    _class2.prototype['@htmlbars mut values can be wrapped in actions, are settable'] = function htmlbarsMutValuesCanBeWrappedInActionsAreSettable() {
+      var newValue = 'trollin trek';
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit(newValue);
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        outerMut: 'patient peter'
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action (mut outerMut))}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+    };
+
+    // TODO: Change to @test when Glimmer2 has mut helper.
+
+    _class2.prototype['@htmlbars mut values can be wrapped in actions, are settable with a curry'] = function htmlbarsMutValuesCanBeWrappedInActionsAreSettableWithACurry() {
+      var newValue = 'trollin trek';
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        outerMut: 'patient peter'
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action (mut outerMut) \'' + newValue + '\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(outerComponent.get('outerMut'), newValue, 'mut value is set');
+    };
+
+    _class2.prototype['@test action can create closures over actions'] = function testActionCanCreateClosuresOverActions() {
+      var first = 'raging robert';
+      var second = 'mild machty';
+      var returnValue = 'butch brian';
+
+      var actualFirst = undefined;
+      var actualSecond = undefined;
+      var actualReturnedValue = undefined;
+
+      var innerComponent = undefined;
+      var outerComponent = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          actualReturnedValue = this.attrs.submit(second);
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          outerComponent = this;
+        },
+        actions: {
+          outerAction: function (incomingFirst, incomingSecond) {
+            actualFirst = incomingFirst;
+            actualSecond = incomingSecond;
+            return returnValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'outerAction\' \'' + first + '\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualReturnedValue, returnValue, 'return value is present');
+      this.assert.equal(actualFirst, first, 'first argument is correct');
+      this.assert.equal(actualSecond, second, 'second argument is correct');
+    };
+
+    _class2.prototype['@test provides a helpful error if an action is not present'] = function testProvidesAHelpfulErrorIfAnActionIsNotPresent() {
+      var _this7 = this;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        actions: {
+          something: function () {
+            // this is present to ensure `actions` hash is present
+            // a different error is triggered if `actions` is missing
+            // completely
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'doesNotExist\')}}'
+      });
+
+      this.assert.throws(function () {
+        _this7.render('{{outer-component}}');
+      }, /An action named 'doesNotExist' was not found in /);
+    };
+
+    _class2.prototype['@test provides a helpful error if actions hash is not present'] = function testProvidesAHelpfulErrorIfActionsHashIsNotPresent() {
+      var _this8 = this;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'doesNotExist\')}}'
+      });
+
+      this.assert.throws(function () {
+        _this8.render('{{outer-component}}');
+      }, /An action named 'doesNotExist' was not found in /);
+    };
+
+    _class2.prototype['@test action can create closures over actions with target'] = function testActionCanCreateClosuresOverActionsWithTarget() {
+      var innerComponent = undefined;
+      var actionCalled = false;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        otherComponent: _emberMetalComputed.computed(function () {
+          return {
+            actions: {
+              outerAction: function () {
+                actionCalled = true;
+              }
+            }
+          };
+        })
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'outerAction\' target=otherComponent)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.ok(actionCalled, 'action called on otherComponent');
+    };
+
+    _class2.prototype['@test value can be used with action over actions'] = function testValueCanBeUsedWithActionOverActions() {
+      var newValue = 'yelping yehuda';
+
+      var innerComponent = undefined;
+      var actualValue = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit({
+            readProp: newValue
+          });
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        outerContent: {
+          readProp: newValue
+        },
+        actions: {
+          outerAction: function (incomingValue) {
+            actualValue = incomingValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'outerAction\' value="readProp")}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualValue, newValue, 'value is read');
+    };
+
+    _class2.prototype['@test action will read the value of a first property'] = function testActionWillReadTheValueOfAFirstProperty() {
+      var newValue = 'irate igor';
+
+      var innerComponent = undefined;
+      var actualValue = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit({
+            readProp: newValue
+          });
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        outerAction: function (incomingValue) {
+          actualValue = incomingValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerAction value="readProp")}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualValue, newValue, 'property is read');
+    };
+
+    _class2.prototype['@test action will read the value of a curried first argument property'] = function testActionWillReadTheValueOfACurriedFirstArgumentProperty() {
+      var newValue = 'kissing kris';
+
+      var innerComponent = undefined;
+      var actualValue = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        objectArgument: {
+          readProp: newValue
+        },
+        outerAction: function (incomingValue) {
+          actualValue = incomingValue;
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action outerAction objectArgument value="readProp")}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualValue, newValue, 'property is read');
+    };
+
+    _class2.prototype['@test action closure does not get auto-mut wrapped'] = function testActionClosureDoesNotGetAutoMutWrapped() {
+      var first = 'raging robert';
+      var second = 'mild machty';
+      var returnValue = 'butch brian';
+
+      var innerComponent = undefined;
+      var actualFirst = undefined;
+      var actualSecond = undefined;
+      var actualReturnedValue = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          actualReturnedValue = this.attrs.submit(second);
+        }
+      });
+
+      var MiddleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({});
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        actions: {
+          outerAction: function (incomingFirst, incomingSecond) {
+            actualFirst = incomingFirst;
+            actualSecond = incomingSecond;
+            return returnValue;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('middle-component', {
+        ComponentClass: MiddleComponent,
+        template: '{{inner-component submit=attrs.submit}}'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{middle-component submit=(action \'outerAction\' \'' + first + '\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actualFirst, first, 'first argument is correct');
+      this.assert.equal(actualSecond, second, 'second argument is correct');
+      this.assert.equal(actualReturnedValue, returnValue, 'return value is present');
+    };
+
+    _class2.prototype['@test action should be called within a run loop'] = function testActionShouldBeCalledWithinARunLoop() {
+      var innerComponent = undefined;
+      var capturedRunLoop = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        actions: {
+          submit: function () {
+            capturedRunLoop = _emberMetalRun_loop.default.currentRunLoop;
+          }
+        }
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action \'submit\')}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.ok(capturedRunLoop, 'action is called within a run loop');
+    };
+
+    // TODO: Need to flesh out the Glimmer2 INVOKE story a bit.
+
+    _class2.prototype['@htmlbars objects that define INVOKE can be casted to actions'] = function htmlbarsObjectsThatDefineINVOKECanBeCastedToActions() {
+      var innerComponent = undefined;
+      var actionArgs = undefined;
+      var invokableArgs = undefined;
+
+      var InnerComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerComponent = this;
+        },
+        fireAction: function () {
+          actionArgs = this.attrs.submit(4, 5, 6);
+        }
+      });
+
+      var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        foo: 123,
+        submitTask: _emberMetalComputed.computed(function () {
+          var _ref,
+              _this9 = this;
+
+          return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+
+            invokableArgs = args;
+            return _this9.foo;
+          }, _ref;
+        })
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: InnerComponent,
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: OuterComponent,
+        template: '{{inner-component submit=(action submitTask 1 2 3)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        innerComponent.fireAction();
+      });
+
+      this.assert.equal(actionArgs, 123);
+      this.assert.deepEqual(invokableArgs, [1, 2, 3, 4, 5, 6]);
+    };
+
+    return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
