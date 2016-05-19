@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+df824add
+ * @version   2.7.0-canary+9a72fea4
  */
 
 var enifed, requireModule, require, Ember;
@@ -34257,7 +34257,7 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-routing-htmlbars/keywords/closure-action', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberRoutingHtmlbarsKeywordsClosureAction, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-htmlbars/keywords/closure-action', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberHtmlbarsKeywordsClosureAction, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
   var _slice = Array.prototype.slice;
@@ -35368,7 +35368,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
           var _ref,
               _this9 = this;
 
-          return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+          return _ref = {}, _ref[_emberHtmlbarsKeywordsClosureAction.INVOKE] = function () {
             for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
               args[_key] = arguments[_key];
             }
@@ -58213,7 +58213,7 @@ enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'embe
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-routing-htmlbars/keywords/closure-action', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberRoutingHtmlbarsKeywordsClosureAction, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
+enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
   var _slice = Array.prototype.slice;
@@ -59324,7 +59324,7 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
           var _ref,
               _this9 = this;
 
-          return _ref = {}, _ref[_emberRoutingHtmlbarsKeywordsClosureAction.INVOKE] = function () {
+          return _ref = {}, _ref[_emberHtmlbarsKeywordsClosureAction.INVOKE] = function () {
             for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
               args[_key] = arguments[_key];
             }
