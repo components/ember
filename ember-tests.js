@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+65dc1e86
+ * @version   2.7.0-canary+9a993e58
  */
 
 var enifed, requireModule, require, Ember;
@@ -68301,6 +68301,40 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     equal(location.getURL(), '/foo/bar');
   });
 
+  QUnit.test('HistoryLocation.getURL() returns the current url, does not remove rootURL if its not at start of url', function () {
+    expect(1);
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        _emberMetalProperty_set.set(this, 'location', mockBrowserLocation('/foo/bar/baz'));
+        _emberMetalProperty_set.set(this, 'rootURL', '/bar/');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/foo/bar/baz');
+  });
+
+  QUnit.test('HistoryLocation.getURL() returns the current url, does not remove baseURL if its not at start of url', function () {
+    expect(1);
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        _emberMetalProperty_set.set(this, 'location', mockBrowserLocation('/foo/bar/baz'));
+        _emberMetalProperty_set.set(this, 'baseURL', '/bar/');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/foo/bar/baz');
+  });
+
   QUnit.test('HistoryLocation.getURL() includes location.search', function () {
     expect(1);
 
@@ -68344,6 +68378,79 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     createLocation();
 
     equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
+  });
+});
+enifed('ember-routing/tests/location/none_location_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-routing/location/none_location'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRoutingLocationNone_location) {
+  'use strict';
+
+  var NoneTestLocation, location;
+
+  function createLocation(options) {
+    if (!options) {
+      options = {};
+    }
+    location = NoneTestLocation.create(options);
+  }
+
+  QUnit.module('Ember.NoneLocation', {
+    setup: function () {
+      NoneTestLocation = _emberRoutingLocationNone_location.default.extend({});
+    },
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        if (location) {
+          location.destroy();
+        }
+      });
+    }
+  });
+
+  QUnit.test('NoneLocation.formatURL() returns the current url always appending rootURL', function () {
+    expect(1);
+
+    NoneTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        _emberMetalProperty_set.set(this, 'rootURL', '/en/');
+      }
+    });
+
+    createLocation();
+
+    equal(location.formatURL('/foo/bar'), '/en/foo/bar');
+  });
+
+  QUnit.test('NoneLocation.getURL() returns the current path minus rootURL', function () {
+    expect(1);
+
+    NoneTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        _emberMetalProperty_set.set(this, 'rootURL', '/foo/');
+        _emberMetalProperty_set.set(this, 'path', '/foo/bar');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/bar');
+  });
+
+  QUnit.test('NonoLocation.getURL() will remove the rootURL only from the beginning of a url', function () {
+    expect(1);
+
+    NoneTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        _emberMetalProperty_set.set(this, 'rootURL', '/bar/');
+        _emberMetalProperty_set.set(this, 'path', '/foo/bar/baz');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/foo/bar/baz');
   });
 });
 enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal/assign', 'ember-routing/location/util'], function (exports, _emberMetalAssign, _emberRoutingLocationUtil) {

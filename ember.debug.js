@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+65dc1e86
+ * @version   2.7.0-canary+9a993e58
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+65dc1e86";
+  exports.default = "2.7.0-canary+9a993e58";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -4036,10 +4036,13 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
         }
       };
 
-      // Keeps the location adapter's internal URL in-sync
-      _emberMetalProperty_get.get(router, 'location').setURL(url);
+      var location = _emberMetalProperty_get.get(router, 'location');
 
-      return router.handleURL(url).then(handleResolve, handleReject);
+      // Keeps the location adapter's internal URL in-sync
+      location.setURL(url);
+
+      // getURL returns the set url with the rootURL stripped off
+      return router.handleURL(location.getURL()).then(handleResolve, handleReject);
     }
   });
 
@@ -31062,8 +31065,8 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       rootURL = rootURL.replace(/\/$/, '');
       baseURL = baseURL.replace(/\/$/, '');
 
-      // remove baseURL and rootURL from path
-      var url = path.replace(baseURL, '').replace(rootURL, '');
+      // remove baseURL and rootURL from start of path
+      var url = path.replace(new RegExp('^' + baseURL), '').replace(new RegExp('^' + rootURL), '');
 
       var search = location.search || '';
       url += search;
@@ -31220,7 +31223,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
     getHash: _emberRoutingLocationApi.default._getHash
   });
 });
-enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
+enifed('ember-routing/location/none_location', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
   'use strict';
 
   /**
@@ -31243,14 +31246,35 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
     implementation: 'none',
     path: '',
 
+    detect: function () {
+      var rootURL = this.rootURL;
+
+      _emberMetalDebug.assert('rootURL must end with a trailing forward slash e.g. "/app/"', rootURL.charAt(rootURL.length - 1) === '/');
+    },
+
     /**
-      Returns the current path.
+      Will be pre-pended to path.
+       @private
+      @property rootURL
+      @default '/'
+    */
+    rootURL: '/',
+
+    /**
+      Returns the current path without `rootURL`.
        @private
       @method getURL
       @return {String} path
     */
     getURL: function () {
-      return _emberMetalProperty_get.get(this, 'path');
+      var path = _emberMetalProperty_get.get(this, 'path');
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
+
+      // remove trailing slashes if they exists
+      rootURL = rootURL.replace(/\/$/, '');
+
+      // remove rootURL from url
+      return path.replace(new RegExp('^' + rootURL), '');
     },
 
     /**
@@ -31298,10 +31322,14 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
       @return {String} url
     */
     formatURL: function (url) {
-      // The return value is not overly meaningful, but we do not want to throw
-      // errors when test code renders templates containing {{action href=true}}
-      // helpers.
-      return url;
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
+
+      if (url !== '') {
+        // remove trailing slashes if they exists
+        rootURL = rootURL.replace(/\/$/, '');
+      }
+
+      return rootURL + url;
     }
   });
 });
