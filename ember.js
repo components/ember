@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9a993e58
+ * @version   2.7.0-canary+0e796e77
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+9a993e58";
+  exports.default = "2.7.0-canary+0e796e77";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -34435,16 +34435,26 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
           }
         }
 
-        if (_emberMetalFeatures.default('ember-route-serializers')) {
-          _emberMetalDebug.deprecate('Defining a serialize function on route \'' + name + '\' is deprecated. Instead, define it in the router\'s map as an option.', _emberRoutingSystemRoute.hasDefaultSerialize(handler), { id: 'ember-routing.serialize-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_route-serialize' });
-
-          if (_this2._serializeMethods[name]) {
-            handler.serialize = _this2._serializeMethods[name];
-          }
-        }
-
         handler.routeName = name;
         return handler;
+      };
+    },
+
+    _getSerializerFunction: function () {
+      var _this3 = this;
+
+      return function (name) {
+        var serializer = _this3._serializeMethods[name];
+
+        if (!serializer) {
+          var handler = _this3.router.getHandler(name);
+
+          _emberMetalDebug.deprecate('Defining a serialize function on route \'' + name + '\' is deprecated. Instead, define it in the router\'s map as an option.', _emberRoutingSystemRoute.hasDefaultSerialize(handler), { id: 'ember-routing.serialize-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_route-serialize' });
+
+          _this3._serializeMethods[name] = handler.serialize;
+        }
+
+        return serializer;
       };
     },
 
@@ -34453,6 +34463,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       var emberRouter = this;
 
       router.getHandler = this._getHandlerFunction();
+
+      if (_emberMetalFeatures.default('ember-route-serializers')) {
+        router.getSerializer = this._getSerializerFunction();
+      }
 
       var doUpdateURL = function () {
         location.setURL(lastURL);
@@ -64453,7 +64467,8 @@ enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'rou
     serialize: function (_model) {
       var model = _model || this.context,
           names = this.names,
-          handler = this.handler;
+          handler = this.handler,
+          serializer = this.serializer || handler && handler.serialize;
 
       var object = {};
       if (_routerUtils.isParam(model)) {
@@ -64462,8 +64477,8 @@ enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'rou
       }
 
       // Use custom serialize if it exists.
-      if (handler.serialize) {
-        return handler.serialize(model, names);
+      if (serializer) {
+        return serializer(model, names);
       }
 
       if (names.length !== 1) {
@@ -64677,6 +64692,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
   function Router(_options) {
     var options = _options || {};
     this.getHandler = options.getHandler || this.getHandler;
+    this.getSerializer = options.getSerializer || this.getSerializer;
     this.updateURL = options.updateURL || this.updateURL;
     this.replaceURL = options.replaceURL || this.replaceURL;
     this.didTransition = options.didTransition || this.didTransition;
@@ -64694,7 +64710,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
     var oldState = wasTransitioning ? this.activeTransition.state : this.state;
     var newTransition;
 
-    var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate);
+    var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate, this.getSerializer);
     var queryParamChangelist = _routerUtils.getChangelist(oldState.queryParams, newState.queryParams);
 
     if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
@@ -64768,6 +64784,8 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
 
     getHandler: function () {},
 
+    getSerializer: function () {},
+
     queryParamsTransition: function (changelist, wasTransitioning, oldState, newState) {
       var router = this;
 
@@ -64825,6 +64843,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
         });
       }
 
+      this.oldState = undefined;
       this.state = new _routerTransitionState.default();
       this.currentHandlerInfos = null;
     },
@@ -64929,7 +64948,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
       // Construct a TransitionIntent with the provided params
       // and apply it to the present state of the router.
       var intent = new _routerTransitionIntentNamedTransitionIntent.default({ name: handlerName, contexts: suppliedParams });
-      var state = intent.applyToState(this.state, this.recognizer, this.getHandler);
+      var state = intent.applyToState(this.state, this.recognizer, this.getHandler, null, this.getSerializer);
       var params = {};
 
       for (var i = 0, len = state.handlerInfos.length; i < len; ++i) {
@@ -64949,7 +64968,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
       });
 
       var state = this.activeTransition && this.activeTransition.state || this.state;
-      return intent.applyToState(state, this.recognizer, this.getHandler);
+      return intent.applyToState(state, this.recognizer, this.getHandler, null, this.getSerializer);
     },
 
     isActiveIntent: function (handlerName, contexts, queryParams, _state) {
@@ -64992,7 +65011,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
         contexts: contexts
       });
 
-      var newState = intent.applyToHandlers(testState, recogHandlers, this.getHandler, targetHandler, true, true);
+      var newState = intent.applyToHandlers(testState, recogHandlers, this.getHandler, targetHandler, true, true, this.getSerializer);
 
       var handlersEqual = handlerInfosEqual(newState.handlerInfos, testState.handlerInfos);
       if (!queryParams || !handlersEqual) {
@@ -65490,7 +65509,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
       this.queryParams = props.queryParams;
     },
 
-    applyToState: function (oldState, recognizer, getHandler, isIntermediate) {
+    applyToState: function (oldState, recognizer, getHandler, isIntermediate, getSerializer) {
 
       var partitionedArgs = _routerUtils.extractQueryParams([this.name].concat(this.contexts)),
           pureArgs = partitionedArgs[0],
@@ -65499,10 +65518,10 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
 
       var targetRouteName = handlers[handlers.length - 1].handler;
 
-      return this.applyToHandlers(oldState, handlers, getHandler, targetRouteName, isIntermediate);
+      return this.applyToHandlers(oldState, handlers, getHandler, targetRouteName, isIntermediate, null, getSerializer);
     },
 
-    applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive) {
+    applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
 
       var i, len;
       var newState = new _routerTransitionState.default();
@@ -65534,7 +65553,8 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
           if (i >= invalidateIndex) {
             newHandlerInfo = this.createParamHandlerInfo(name, handler, result.names, objects, oldHandlerInfo);
           } else {
-            newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, handler, result.names, objects, oldHandlerInfo, targetRouteName, i);
+            var serializer = getSerializer(name);
+            newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, handler, result.names, objects, oldHandlerInfo, targetRouteName, i, serializer);
           }
         } else {
           // This route has no dynamic segment.
@@ -65592,7 +65612,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
       }
     },
 
-    getHandlerInfoForDynamicSegment: function (name, handler, names, objects, oldHandlerInfo, targetRouteName, i) {
+    getHandlerInfoForDynamicSegment: function (name, handler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
 
       var numNames = names.length;
       var objectToUse;
@@ -65627,6 +65647,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
       return _routerHandlerInfoFactory.default('object', {
         name: name,
         handler: handler,
+        serializer: serializer,
         context: objectToUse,
         names: names
       });
