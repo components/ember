@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0e796e77
+ * @version   2.7.0-canary+5a665633
  */
 
 var enifed, requireModule, require, Ember;
@@ -11340,8 +11340,12 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     assert.ok(called, 'instrumentation called on transition to non-view backed route');
   });
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container/registry'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _containerRegistry) {
   'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var app = undefined,
       appInstance = undefined;
@@ -11487,6 +11491,34 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
 
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.test('can build and boot a registered engine', function (assert) {
+      assert.expect(7);
+
+      var ChatEngine = _emberApplicationSystemEngine.default.extend();
+      var chatEngineInstance = undefined;
+
+      app.register('engine:chat', ChatEngine);
+
+      _emberMetalRun_loop.default(function () {
+        appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+        chatEngineInstance = appInstance.buildChildEngineInstance('chat');
+      });
+
+      return chatEngineInstance.boot().then(function () {
+        assert.ok(true, 'boot successful');
+
+        ['route:basic', 'event_dispatcher:main', _containerRegistry.privatize(_templateObject), 'service:-routing'].forEach(function (key) {
+          assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
+        });
+
+        ['router:main', '-view-registry:main'].forEach(function (key) {
+          assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
+        });
+      });
+    });
+  }
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-templates/template_registry', 'container/registry', 'ember-application/tests/test-helpers/registry-check', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberVersion, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberTemplatesTemplate_registry, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   /*globals EmberDev */
@@ -12880,7 +12912,14 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
 
   function buildEngineInstance(EngineClass) {
     var engineInstance = EngineClass.buildInstance();
-    _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
+    _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {
+      lookup: function () {
+        return {};
+      },
+      resolveRegistration: function () {
+        return {};
+      }
+    });
     return engineInstance;
   }
 
@@ -13308,23 +13347,31 @@ enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember
     assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
   });
 
-  QUnit.test('can be booted when its parent has been set', function (assert) {
-    _emberMetalRun_loop.default(function () {
-      engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
-    });
-
-    expectAssertion(function () {
-      engineInstance._bootSync();
-    }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
-
-    _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
-
-    return engineInstance.boot().then(function () {
-      assert.ok(true, 'boot successful');
-    });
-  });
-
   if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.test('can be booted when its parent has been set', function (assert) {
+      assert.expect(3);
+
+      _emberMetalRun_loop.default(function () {
+        engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+      });
+
+      expectAssertion(function () {
+        engineInstance._bootSync();
+      }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
+
+      _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
+
+      // Stub `cloneParentDependencies`, the internals of which are tested along
+      // with application instances.
+      engineInstance.cloneParentDependencies = function () {
+        assert.ok(true, 'parent dependencies are cloned');
+      };
+
+      return engineInstance.boot().then(function () {
+        assert.ok(true, 'boot successful');
+      });
+    });
+
     QUnit.test('can build a child instance of a registered engine', function (assert) {
       var ChatEngine = _emberApplicationSystemEngine.default.extend();
       var chatEngineInstance = undefined;

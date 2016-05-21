@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0e796e77
+ * @version   2.7.0-canary+5a665633
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+0e796e77";
+  exports.default = "2.7.0-canary+5a665633";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -5234,6 +5234,10 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
   'use strict';
 
+  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
   /**
     The `EngineInstance` encapsulates all of the stateful aspects of a
     running `Engine`.
@@ -5321,6 +5325,10 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
       _emberMetalDebug.assert('An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.', _emberApplicationSystemEngineParent.getEngineParent(this));
 
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        this.cloneParentDependencies();
+      }
+
       this.base.runInstanceInitializers(this);
 
       this._booted = true;
@@ -5376,6 +5384,25 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
         _emberApplicationSystemEngineParent.setEngineParent(engineInstance, this);
 
         return engineInstance;
+      },
+
+      /**
+        Clone dependencies shared between an engine instance and its parent.
+         @private
+        @method cloneParentDependencies
+      */
+      cloneParentDependencies: function () {
+        var _this2 = this;
+
+        var parent = _emberApplicationSystemEngineParent.getEngineParent(this);
+
+        ['route:basic', 'event_dispatcher:main', _containerRegistry.privatize(_templateObject), 'service:-routing'].forEach(function (key) {
+          _this2.register(key, parent.resolveRegistration(key));
+        });
+
+        ['router:main', '-view-registry:main'].forEach(function (key) {
+          _this2.register(key, parent.lookup(key), { instantiate: false });
+        });
       }
     });
   }
