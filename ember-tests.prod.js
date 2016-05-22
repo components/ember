@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1cb1e12c
+ * @version   2.7.0-canary+3a61d987
  */
 
 var enifed, requireModule, require, Ember;
@@ -1951,7 +1951,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('div.ember-view > div.ember-view', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
   });
 
-  QUnit.test('If a component is registered, it is used', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('If a component is registered, it is used', function () {
     boot(function () {
       appInstance.register('component:expand-it', _emberTemplatesComponent.default.extend({
         classNames: 'testing123'
@@ -1961,7 +1961,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('div.testing123', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
   });
 
-  QUnit.test('Late-registered components can be rendered with custom `layout` property', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Late-registered components can be rendered with custom `layout` property', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>there goes {{my-hero}}</div>'));
 
     boot(function () {
@@ -1975,7 +1975,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     ok(!_emberHtmlbarsHelpers.default['my-hero'], 'Component wasn\'t saved to global helpers hash');
   });
 
-  QUnit.test('Late-registered components can be rendered with template registered on the container', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Late-registered components can be rendered with template registered on the container', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>'));
 
     boot(function () {
@@ -2102,12 +2102,12 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     }, /A helper named 'no-good' could not be found/);
   });
 
-  QUnit.module('Application Lifecycle - Component Context', {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('Application Lifecycle - Component Context', {
     setup: prepare,
     teardown: cleanup
   });
 
-  QUnit.test('Components with a block should have the proper content when a template is provided', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Components with a block should have the proper content when a template is provided', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
     _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}-{{yield}}'));
 
@@ -2124,7 +2124,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
-  QUnit.test('Components with a block should yield the proper content without a template provided', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Components with a block should yield the proper content without a template provided', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
 
     boot(function () {
@@ -2140,7 +2140,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'outer', 'The component is composed correctly');
   });
 
-  QUnit.test('Components without a block should have the proper content when a template is provided', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Components without a block should have the proper content when a template is provided', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component}}</div>'));
     _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}'));
 
@@ -2157,7 +2157,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'inner', 'The component is composed correctly');
   });
 
-  QUnit.test('Components without a block should have the proper content', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Components without a block should have the proper content', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component}}</div>'));
 
     boot(function () {
@@ -2176,7 +2176,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   // The test following this one is the non-deprecated version
-  QUnit.test('properties of a component without a template should not collide with internal structures [DEPRECATED]', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('properties of a component without a template should not collide with internal structures [DEPRECATED]', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component data=foo}}</div>'));
 
     boot(function () {
@@ -2215,7 +2215,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
   });
 
-  QUnit.test('Components trigger actions in the parents context when called from within a block', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Components trigger actions in the parents context when called from within a block', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>{{/my-component}}</div>'));
 
     boot(function () {
@@ -2235,7 +2235,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     });
   });
 
-  QUnit.test('Components trigger actions in the components context when called from within its template', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Components trigger actions in the components context when called from within its template', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
     _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>'));
 
