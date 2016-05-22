@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e5e6d253
+ * @version   2.7.0-canary+3a61d987
  */
 
 var enifed, requireModule, require, Ember;
@@ -2808,7 +2808,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
   }
 
   if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('The {{link-to}} helper: invoking with query params when defined on a route', {
+    QUnit.module('The {{link-to}} helper: invoking with query params when defined on a route', {
       setup: function () {
         _emberMetalRun_loop.default(function () {
           sharedSetup();
@@ -2851,7 +2851,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
     // jscs:disable
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("doesn't update controller QP properties on current route when invoked", function () {
+    QUnit.test("doesn't update controller QP properties on current route when invoked", function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -2860,7 +2860,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function () {
+    QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -2876,7 +2876,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       }, /one or more/);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function () {
+    QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -2885,7 +2885,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates controller QP properties on current route when invoked', function () {
+    QUnit.test('updates controller QP properties on current route when invoked', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -2894,7 +2894,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates controller QP properties on current route when invoked (inferred route)', function () {
+    QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -2903,7 +2903,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates controller QP properties on other route after transitioning to that route', function () {
+    QUnit.test('updates controller QP properties on other route after transitioning to that route', function () {
       Router.map(function () {
         this.route('about');
       });
@@ -2919,7 +2919,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(container.lookup('controller:application').get('currentPath'), 'about');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('supplied QP properties can be bound', function () {
+    QUnit.test('supplied QP properties can be bound', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -2930,7 +2930,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?foo=ASL');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('supplied QP properties can be bound (booleans)', function () {
+    QUnit.test('supplied QP properties can be bound (booleans)', function () {
       var indexController = container.lookup('controller:index');
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}"));
 
@@ -2945,7 +2945,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar', 'abool'), { foo: '123', bar: 'abc', abool: false });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('href updates when unsupplied controller QP props change', function () {
+    QUnit.test('href updates when unsupplied controller QP props change', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
@@ -2959,7 +2959,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?bar=BORF&foo=lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
+    QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
       // Test harness for bug #12033
 
       _emberTemplatesTemplate_registry.set('cars', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'cars.create' id='create-link'}}Create new car{{/link-to}} " + "{{#link-to (query-params page='2') id='page2-link'}}Page 2{{/link-to}}" + '{{outlet}}'));
@@ -3003,7 +3003,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} applies activeClass when query params are not changed', function () {
+    QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " + "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"));
 
       _emberTemplatesTemplate_registry.set('search', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params archive=true) id='only-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='both-same'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=true) id='change-one'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=false) id='remove-one'}}Index{{/link-to}} " + '{{outlet}}'));
@@ -3082,7 +3082,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#change-search-same-sort-child-and-parent');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} applies active class when query-param is number', function () {
+    QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} "));
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -3104,7 +3104,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldBeActive('#page-link');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} applies active class when query-param is array', function () {
+    QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "));
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -3138,7 +3138,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#empty-link');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper applies active class to parent route', function () {
+    QUnit.test('The {{link-to}} helper applies active class to parent route', function () {
       App.Router.map(function () {
         this.route('parent', function () {
           this.route('child');
@@ -3164,7 +3164,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#parent-link-qp');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper disregards query-params in activeness computation when current-when specified', function () {
+    QUnit.test('The {{link-to}} helper disregards query-params in activeness computation when current-when specified', function () {
       App.Router.map(function () {
         this.route('parent');
       });
@@ -3201,7 +3201,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(router.get('location.path'), '/parent');
     });
   } else {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('The {{link-to}} helper: invoking with query params', {
+    QUnit.module('The {{link-to}} helper: invoking with query params', {
       setup: function () {
         _emberMetalRun_loop.default(function () {
           sharedSetup();
@@ -3228,7 +3228,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       teardown: sharedTeardown
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("doesn't update controller QP properties on current route when invoked", function () {
+    QUnit.test("doesn't update controller QP properties on current route when invoked", function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -3237,7 +3237,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function () {
+    QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -3246,14 +3246,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('link-to with no params throws', function () {
+    QUnit.test('link-to with no params throws', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to id='the-link'}}Index{{/link-to}}"));
       expectAssertion(function () {
         bootApplication();
       }, /one or more/);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function () {
+    QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -3262,7 +3262,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates controller QP properties on current route when invoked', function () {
+    QUnit.test('updates controller QP properties on current route when invoked', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -3271,7 +3271,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates controller QP properties on current route when invoked (inferred route)', function () {
+    QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
@@ -3280,7 +3280,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates controller QP properties on other route after transitioning to that route', function () {
+    QUnit.test('updates controller QP properties on other route after transitioning to that route', function () {
       Router.map(function () {
         this.route('about');
       });
@@ -3296,7 +3296,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(container.lookup('controller:application').get('currentPath'), 'about');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('supplied QP properties can be bound', function () {
+    QUnit.test('supplied QP properties can be bound', function () {
       var indexController = container.lookup('controller:index');
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}"));
 
@@ -3307,7 +3307,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?foo=ASL');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('supplied QP properties can be bound (booleans)', function () {
+    QUnit.test('supplied QP properties can be bound (booleans)', function () {
       var indexController = container.lookup('controller:index');
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}"));
 
@@ -3322,7 +3322,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       deepEqual(indexController.getProperties('foo', 'bar', 'abool'), { foo: '123', bar: 'abc', abool: false });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('href updates when unsupplied controller QP props change', function () {
+    QUnit.test('href updates when unsupplied controller QP props change', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
@@ -3335,7 +3335,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?bar=BORF&foo=lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
+    QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
       // Test harness for bug #12033
 
       _emberTemplatesTemplate_registry.set('cars', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'cars.create' id='create-link'}}Create new car{{/link-to}} " + "{{#link-to (query-params page='2') id='page2-link'}}Page 2{{/link-to}}" + '{{outlet}}'));
@@ -3380,7 +3380,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} applies activeClass when query params are not changed', function () {
+    QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " + "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"));
 
       _emberTemplatesTemplate_registry.set('search', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params archive=true) id='only-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='both-same'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=true) id='change-one'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=false) id='remove-one'}}Index{{/link-to}} " + '{{outlet}}'));
@@ -3449,7 +3449,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#change-search-same-sort-child-and-parent');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} applies active class when query-param is number', function () {
+    QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} "));
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -3465,7 +3465,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldBeActive('#page-link');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} applies active class when query-param is array', function () {
+    QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
       _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "));
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -3493,7 +3493,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#empty-link');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper applies active class to parent route', function () {
+    QUnit.test('The {{link-to}} helper applies active class to parent route', function () {
       App.Router.map(function () {
         this.route('parent', function () {
           this.route('child');
@@ -3516,7 +3516,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#parent-link-qp');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper disregards query-params in activeness computation when current-when specified', function () {
+    QUnit.test('The {{link-to}} helper disregards query-params in activeness computation when current-when specified', function () {
       App.Router.map(function () {
         this.route('parent');
       });
@@ -3615,7 +3615,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     _emberTemplatesTemplate_registry.setTemplates({});
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('The {{link-to}} helper', {
+  QUnit.module('The {{link-to}} helper', {
     setup: function () {
       _emberMetalRun_loop.default(function () {
         sharedSetup();
@@ -5038,7 +5038,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} populates href with default query param values with empty query-params object', function () {
+  QUnit.test('{{link-to}} populates href with default query param values with empty query-params object', function () {
     if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -5059,7 +5059,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} populates href with supplied query param values', function () {
+  QUnit.test('{{link-to}} populates href with supplied query param values', function () {
     if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -5080,7 +5080,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?foo=456', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} populates href with partially supplied query param values', function () {
+  QUnit.test('{{link-to}} populates href with partially supplied query param values', function () {
     if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -5105,7 +5105,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?foo=456', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} populates href with partially supplied query param values, but omits if value is default value', function () {
+  QUnit.test('{{link-to}} populates href with partially supplied query param values, but omits if value is default value', function () {
     if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -5126,7 +5126,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} populates href with fully supplied query param values', function () {
+  QUnit.test('{{link-to}} populates href with fully supplied query param values', function () {
     if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -5151,7 +5151,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} with only query-params and a block updates when route changes', function () {
+  QUnit.test('{{link-to}} with only query-params and a block updates when route changes', function () {
     Router.map(function () {
       this.route('about');
     });
@@ -5185,7 +5185,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Block-less {{link-to}} with only query-params updates when route changes', function () {
+  QUnit.test('Block-less {{link-to}} with only query-params updates when route changes', function () {
     Router.map(function () {
       this.route('about');
     });
@@ -7006,7 +7006,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
   // jscs:disable
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('Routing with Query Params', {
+  QUnit.module('Routing with Query Params', {
     setup: function () {
       sharedSetup();
     },
@@ -7441,7 +7441,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(parentModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('URL transitions that remove QPs still register as QP changes when configuration lives on the route', function () {
+    QUnit.test('URL transitions that remove QPs still register as QP changes when configuration lives on the route', function () {
       expect(2);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -7461,7 +7461,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexController.get('omg'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Subresource naming style is supported when configuration is all on the route', function () {
+    QUnit.test('Subresource naming style is supported when configuration is all on the route', function () {
       App.Router.map(function () {
         this.route('abc.def', { path: '/abcdef' }, function () {
           this.route('zoo');
@@ -7763,7 +7763,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('opting into replace does not affect transitions between routes when configuration occurs on the route', function () {
+    QUnit.test('opting into replace does not affect transitions between routes when configuration occurs on the route', function () {
       expect(5);
       App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + '{{outlet}}'));
       App.Router.map(function () {
@@ -7919,7 +7919,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test("controllers won't be eagerly instantiated by internal query params logic when configured on the route", function () {
+    QUnit.test("controllers won't be eagerly instantiated by internal query params logic when configured on the route", function () {
       expect(10);
       App.Router.map(function () {
         this.route('cats', function () {
@@ -8307,7 +8307,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(appController, 'setProperties', { alex: 'sriracha' });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent when configured on the route', function () {
+    QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent when configured on the route', function () {
       App.register('template:parent', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
       App.register('template:parent.child', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}"));
 
@@ -8424,7 +8424,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexController.get('omg'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Subresource naming style is supported when configured on the route', function () {
+    QUnit.test('Subresource naming style is supported when configured on the route', function () {
       App.Router.map(function () {
         this.route('abc.def', { path: '/abcdef' }, function () {
           this.route('zoo');
@@ -8770,7 +8770,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('opting into replace does not affect transitions between routes when configured on route', function () {
+    QUnit.test('opting into replace does not affect transitions between routes when configured on route', function () {
       expect(5);
       App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + '{{outlet}}'));
       App.Router.map(function () {
@@ -8834,7 +8834,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(_emberMetalProperty_get.default(controller, 'foo'), undefined);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Changing a query param property on a controller after navigating using a {{link-to}} should preserve the unchanged query params', function () {
+    QUnit.test('Changing a query param property on a controller after navigating using a {{link-to}} should preserve the unchanged query params', function () {
       expect(11);
       App.Router.map(function () {
         this.route('example');
@@ -9069,7 +9069,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('controllers won\'t be eagerly instantiated by internal query params logic', function () {
+    QUnit.test('controllers won\'t be eagerly instantiated by internal query params logic', function () {
       expect(10);
       App.Router.map(function () {
         this.route('cats', function () {
@@ -9537,7 +9537,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(appController, 'setProperties', { alex: 'sriracha' });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent', function () {
+    QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent', function () {
       App.register('template:parent', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
       App.register('template:parent.child', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}'));
 
@@ -9663,7 +9663,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=' + encodeURIComponent(JSON.stringify(['OVERRIDE'])));
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('URL transitions that remove QPs still register as QP changes', function () {
+    QUnit.test('URL transitions that remove QPs still register as QP changes', function () {
       expect(2);
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -9680,7 +9680,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexController.get('omg'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Subresource naming style is supported', function () {
+    QUnit.test('Subresource naming style is supported', function () {
       App.Router.map(function () {
         this.route('abc.def', { path: '/abcdef' }, function () {
           this.route('zoo');
@@ -9990,7 +9990,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('opting into replace does not affect transitions between routes', function () {
+    QUnit.test('opting into replace does not affect transitions between routes', function () {
       expect(5);
       App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}'));
       App.Router.map(function () {
