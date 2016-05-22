@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3a61d987
+ * @version   2.7.0-canary+1cb1e12c
  */
 
 var enifed, requireModule, require, Ember;
@@ -3733,7 +3733,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+3a61d987";
+  exports.default = "2.7.0-canary+1cb1e12c";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7250,7 +7250,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _glimmerReference) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'glimmer-reference', 'ember-metal/debug'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _glimmerReference, _emberMetalDebug) {
   'use strict';
 
   var _CoreView$extend;
@@ -7278,6 +7278,14 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
       this._super.apply(this, arguments);
       this._viewRegistry = this._viewRegistry || _emberViewsViewsView.default.views;
       this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
+
+      // If a `defaultLayout` was specified move it to the `layout` prop.
+      // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
+      // logic is supported with a deprecation
+      if (this.defaultLayout && !this.layout) {
+
+        this.layout = this.defaultLayout;
+      }
     },
 
     rerender: function () {
