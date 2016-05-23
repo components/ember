@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1cb1e12c
+ * @version   2.7.0-canary+2a2b59ad
  */
 
 var enifed, requireModule, require, Ember;
@@ -2561,7 +2561,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
     ok(serviceCalled, 'service was injected, method called');
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_set, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry'], function (exports, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_set, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry) {
   'use strict';
 
   var Router, App, router, registry, container;
@@ -2620,7 +2620,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     _emberTemplatesTemplate_registry.setTemplates({});
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('The {{link-to}} helper: .transitioning-in .transitioning-out CSS classes', {
+  QUnit.module('The {{link-to}} helper: .transitioning-in .transitioning-out CSS classes', {
     setup: function () {
       _emberMetalRun_loop.default(function () {
         sharedSetup();
@@ -2657,7 +2657,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('while a transition is underway', function () {
+  QUnit.test('while a transition is underway', function () {
     expect(18);
     bootApplication();
 
@@ -2678,7 +2678,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('while a transition is underway with nested link-to\'s', function () {
+  QUnit.test('while a transition is underway with nested link-to\'s', function () {
     expect(54);
 
     Router.map(function () {
@@ -5352,7 +5352,7 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember-routing/system/ro
     equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
   });
 });
-enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-templates/component', 'ember-views/system/jquery', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsSystemJquery, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-templates/component', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsSystemJquery) {
   'use strict';
 
   var App1, App2, actions;
@@ -5407,7 +5407,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('booting multiple applications can properly handle events', function (assert) {
+  QUnit.test('booting multiple applications can properly handle events', function (assert) {
     _emberMetalRun_loop.default(App1, 'advanceReadiness');
     _emberMetalRun_loop.default(App2, 'advanceReadiness');
 
@@ -35026,7 +35026,7 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
   var engineName = 'Glimmer';
   exports.engineName = engineName;
 });
-enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -35037,7 +35037,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: boolean attribute', {
+  QUnit.module('ember-htmlbars: boolean attribute', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(view, view.destroy);
@@ -35045,7 +35045,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('disabled property can be set true', function () {
+  QUnit.test('disabled property can be set true', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: true },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
@@ -35056,7 +35056,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, true, 'boolean property is set true');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('disabled property can be set false with a blank string', function () {
+  QUnit.test('disabled property can be set false with a blank string', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: '' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
@@ -35067,7 +35067,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, false, 'boolean property is set false');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('disabled property can be set false', function () {
+  QUnit.test('disabled property can be set false', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: false },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
@@ -35078,7 +35078,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, false, 'boolean property is set false');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('disabled property can be set true with a string', function () {
+  QUnit.test('disabled property can be set true with a string', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: 'oh, no a string' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
@@ -35089,7 +35089,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, true, 'boolean property is set true');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('disabled attribute turns a value to a string', function () {
+  QUnit.test('disabled attribute turns a value to a string', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: false },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled=\'{{isDisabled}}\'>')
@@ -35100,7 +35100,7 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, true, 'boolean property is set true');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('disabled attribute preserves a blank string value', function () {
+  QUnit.test('disabled attribute preserves a blank string value', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: '' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled=\'{{isDisabled}}\'>')
@@ -35111,18 +35111,18 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/
     equal(view.element.firstChild.disabled, false, 'boolean property is set false');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
   'use strict';
 
   var view, originalSetAttribute, setAttributeCalls, renderer;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: data attribute', {
+  QUnit.module('ember-htmlbars: data attribute', {
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('property is output', function () {
+  QUnit.test('property is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: 'erik' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
@@ -35132,7 +35132,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('property set before didInsertElement', function () {
+  QUnit.test('property set before didInsertElement', function () {
     var matchingElement;
     view = _emberViewsViewsView.default.create({
       didInsertElement: function () {
@@ -35147,7 +35147,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('quoted attributes are concatenated', function () {
+  QUnit.test('quoted attributes are concatenated', function () {
     view = _emberViewsViewsView.default.create({
       context: { firstName: 'max', lastName: 'jackson' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name=\'{{firstName}} {{lastName}}\'>Hi!</div>')
@@ -35157,7 +35157,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="max jackson">Hi!</div>', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('quoted attributes are updated when changed', function () {
+  QUnit.test('quoted attributes are updated when changed', function () {
     view = _emberViewsViewsView.default.create({
       context: { firstName: 'max', lastName: 'jackson' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name=\'{{firstName}} {{lastName}}\'>Hi!</div>')
@@ -35171,7 +35171,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="james jackson">Hi!</div>', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('quoted attributes are not removed when value is null', function () {
+  QUnit.test('quoted attributes are not removed when value is null', function () {
     view = _emberViewsViewsView.default.create({
       context: { firstName: 'max', lastName: 'jackson' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name=\'{{firstName}}\'>Hi!</div>')
@@ -35185,7 +35185,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     equal(view.element.firstChild.getAttribute('data-name'), '', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unquoted attributes are removed when value is null', function () {
+  QUnit.test('unquoted attributes are removed when value is null', function () {
     view = _emberViewsViewsView.default.create({
       context: { firstName: 'max' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{firstName}}>Hi!</div>')
@@ -35199,7 +35199,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     ok(!view.element.firstChild.hasAttribute('data-name'), 'attribute is removed output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unquoted attributes that are null are not added', function () {
+  QUnit.test('unquoted attributes that are null are not added', function () {
     view = _emberViewsViewsView.default.create({
       context: { firstName: null },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{firstName}}>Hi!</div>')
@@ -35209,7 +35209,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div>Hi!</div>', 'attribute is not present');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unquoted attributes are added when changing from null', function () {
+  QUnit.test('unquoted attributes are added when changing from null', function () {
     view = _emberViewsViewsView.default.create({
       context: { firstName: null },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{firstName}}>Hi!</div>')
@@ -35223,7 +35223,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="max">Hi!</div>', 'attribute is added output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('property value is directly added to attribute', function () {
+  QUnit.test('property value is directly added to attribute', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: '"" data-foo="blah"' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
@@ -35233,7 +35233,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     equal(view.element.firstChild.getAttribute('data-name'), '"" data-foo="blah"', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('path is output', function () {
+  QUnit.test('path is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: { firstName: 'erik' } },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name.firstName}}>Hi!</div>')
@@ -35243,7 +35243,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('changed property updates', function () {
+  QUnit.test('changed property updates', function () {
     var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
     view = _emberViewsViewsView.default.create({
       context: context,
@@ -35258,7 +35258,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', 'attribute is updated output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates are scheduled in the render queue', function () {
+  QUnit.test('updates are scheduled in the render queue', function () {
     expect(4);
 
     var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
@@ -35285,7 +35285,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', 'attribute is updated output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('updates fail silently after an element is destroyed', function () {
+  QUnit.test('updates fail silently after an element is destroyed', function () {
     var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
     view = _emberViewsViewsView.default.create({
       context: context,
@@ -35301,7 +35301,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{attribute}} helper -- setAttribute', {
+  QUnit.module('ember-htmlbars: {{attribute}} helper -- setAttribute', {
     setup: function () {
       renderer = _emberHtmlbarsRenderer.InteractiveRenderer.create({ dom: _emberHtmlbarsEnv.domHelper });
 
@@ -35324,7 +35324,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('calls setAttribute for new values', function () {
+  QUnit.test('calls setAttribute for new values', function () {
     var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
     view = _emberViewsViewsView.default.create({
       renderer: renderer,
@@ -35340,7 +35340,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     deepEqual(setAttributeCalls, expected);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('does not call setAttribute if the same value is set', function () {
+  QUnit.test('does not call setAttribute if the same value is set', function () {
     var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
     view = _emberViewsViewsView.default.create({
       renderer: renderer,
@@ -35359,7 +35359,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
     deepEqual(setAttributeCalls, expected);
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -35370,7 +35370,7 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/vie
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: href attribute', {
+  QUnit.module('ember-htmlbars: href attribute', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(view, view.destroy);
@@ -35378,7 +35378,7 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/vie
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('href is set', function () {
+  QUnit.test('href is set', function () {
     view = _emberViewsViewsView.default.create({
       context: { url: 'http://example.com' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<a href={{url}}></a>')
@@ -35388,7 +35388,7 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<a href="http://example.com"></a>', 'attribute is output');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
   var view;
@@ -35406,7 +35406,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views
     return input.maxLength === 0;
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: property', {
+  QUnit.module('ember-htmlbars: property', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(view, view.destroy);
@@ -35414,7 +35414,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('maxlength sets the property and attribute', function () {
+  QUnit.test('maxlength sets the property and attribute', function () {
     view = _emberViewsViewsView.default.create({
       context: { length: 5 },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input maxlength={{length}}>')
@@ -35427,7 +35427,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views
     equal(view.element.firstChild.maxLength, 1);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('quoted maxlength sets the attribute and is reflected as a property', function () {
+  QUnit.test('quoted maxlength sets the attribute and is reflected as a property', function () {
     view = _emberViewsViewsView.default.create({
       context: { length: 5 },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input maxlength=\'{{length}}\'>')
@@ -35445,7 +35445,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('array value can be set as property', function () {
+  QUnit.test('array value can be set as property', function () {
     view = _emberViewsViewsView.default.create({
       context: {},
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value={{items}}>')
@@ -35457,14 +35457,14 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views
     ok(true, 'no legacy assertion prohibited setting an array');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-environment', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberEnvironment, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-environment'], function (exports, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberEnvironment) {
   /* jshint scripturl:true */
 
   'use strict';
 
   var view;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: sanitized attribute', {
+  QUnit.module('ember-htmlbars: sanitized attribute', {
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
     }
@@ -35506,7 +35506,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
         return;
       }
 
-      _emberGlimmerTestsUtilsSkipIfGlimmer.test(subject.tag + ' ' + subject.attr + ' is sanitized when using blacklisted protocol', function () {
+      QUnit.test(subject.tag + ' ' + subject.attr + ' is sanitized when using blacklisted protocol', function () {
         view = _emberViewsViewsView.default.create({
           context: { url: 'javascript://example.com' },
           template: subject.unquotedTemplate
@@ -35517,7 +35517,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
         equal(view.element.firstChild.getAttribute(subject.attr), 'unsafe:javascript://example.com', 'attribute is output');
       });
 
-      _emberGlimmerTestsUtilsSkipIfGlimmer.test(subject.tag + ' ' + subject.attr + ' is sanitized when using quoted non-whitelisted protocol', function () {
+      QUnit.test(subject.tag + ' ' + subject.attr + ' is sanitized when using quoted non-whitelisted protocol', function () {
         view = _emberViewsViewsView.default.create({
           context: { url: 'javascript://example.com' },
           template: subject.quotedTemplate
@@ -35528,7 +35528,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
         equal(view.element.firstChild.getAttribute(subject.attr), 'unsafe:javascript://example.com', 'attribute is output');
       });
 
-      _emberGlimmerTestsUtilsSkipIfGlimmer.test(subject.tag + ' ' + subject.attr + ' is not sanitized when using non-whitelisted protocol with a SafeString', function () {
+      QUnit.test(subject.tag + ' ' + subject.attr + ' is not sanitized when using non-whitelisted protocol with a SafeString', function () {
         view = _emberViewsViewsView.default.create({
           context: { url: new _emberHtmlbarsUtilsString.SafeString('javascript://example.com') },
           template: subject.unquotedTemplate
@@ -35544,7 +35544,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
         }
       });
 
-      _emberGlimmerTestsUtilsSkipIfGlimmer.test(subject.tag + ' ' + subject.attr + ' is sanitized when using quoted+concat non-whitelisted protocol', function () {
+      QUnit.test(subject.tag + ' ' + subject.attr + ' is sanitized when using quoted+concat non-whitelisted protocol', function () {
         view = _emberViewsViewsView.default.create({
           context: { protocol: 'javascript:', path: '//example.com' },
           template: subject.multipartTemplate
@@ -35558,7 +35558,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
   }
   // jscs:enable disallowTrailingWhitespace
 });
-enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -35569,7 +35569,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/view
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: svg attribute', {
+  QUnit.module('ember-htmlbars: svg attribute', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(view, view.destroy);
@@ -35577,7 +35577,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/view
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unquoted viewBox property is output', function () {
+  QUnit.test('unquoted viewBox property is output', function () {
     var viewBoxString = '0 0 100 100';
     view = _emberViewsViewsView.default.create({
       context: { viewBoxString: viewBoxString },
@@ -35591,7 +35591,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/view
     equal(view.element.getAttribute('svg'), null, 'attribute is removed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('quoted viewBox property is output', function () {
+  QUnit.test('quoted viewBox property is output', function () {
     var viewBoxString = '0 0 100 100';
     view = _emberViewsViewsView.default.create({
       context: { viewBoxString: viewBoxString },
@@ -35602,7 +35602,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/view
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg viewBox="' + viewBoxString + '"></svg>', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('quoted viewBox property is concat', function () {
+  QUnit.test('quoted viewBox property is concat', function () {
     var viewBoxString = '100 100';
     view = _emberViewsViewsView.default.create({
       context: { viewBoxString: viewBoxString },
@@ -35618,7 +35618,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/view
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg viewBox="0 0 ' + newViewBoxString + '"></svg>', 'attribute is output');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('class is output', function () {
+  QUnit.test('class is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { color: 'blue' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<svg class=\'{{color}} tall\'></svg>')
@@ -35632,7 +35632,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/view
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg class="red tall"></svg>', 'attribute is output');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
   var view;
@@ -35643,7 +35643,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: value attribute', {
+  QUnit.module('ember-htmlbars: value attribute', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(view, view.destroy);
@@ -35651,7 +35651,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('property is output', function () {
+  QUnit.test('property is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: 'rick' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value={{name}}>')
@@ -35662,7 +35662,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     equal(view.element.firstChild.value, 'rick', 'property is set true');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('string property is output', function () {
+  QUnit.test('string property is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: 'rick' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value=\'{{name}}\'>')
@@ -35673,7 +35673,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     equal(view.element.firstChild.value, 'rick', 'property is set true');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('blank property is output', function () {
+  QUnit.test('blank property is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: '' },
       template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value={{name}}>')
@@ -35684,14 +35684,14 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     equal(view.element.firstChild.value, '', 'property is set true');
   });
 });
-enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-htmlbars/component', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberHtmlbarsComponent, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-htmlbars/component', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberHtmlbarsComponent, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils) {
   /* globals EmberDev */
 
   'use strict';
 
   var component, registry, container, warnings, originalWarn;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{-html-safe}} helper', {
+  QUnit.module('ember-htmlbars: {{-html-safe}} helper', {
     setup: function () {
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
@@ -35713,7 +35713,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('adds the attribute to the element', function () {
+  QUnit.test('adds the attribute to the element', function () {
     component = _emberHtmlbarsComponent.default.create({
       container: container,
 
@@ -35726,7 +35726,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
   });
 
   if (!EmberDev.runningProdBuild) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('no warnings are triggered from setting style attribute', function () {
+    QUnit.test('no warnings are triggered from setting style attribute', function () {
       component = _emberHtmlbarsComponent.default.create({
         container: container,
 
@@ -37741,7 +37741,7 @@ enifed('ember-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-en
     view.$('button').trigger(event);
   });
 });
-enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-views/component_lookup', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtilsHelpers, _emberViewsComponent_lookup, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-views/component_lookup', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtilsHelpers, _emberViewsComponent_lookup, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var view;
@@ -37758,7 +37758,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     dispatcher.setup({}, '#qunit-fixture');
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'text\'}}', {
+  QUnit.module('{{input type=\'text\'}}', {
     setup: function () {
       var _View$extend;
 
@@ -37784,11 +37784,11 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should insert a text field into DOM', function () {
+  QUnit.test('should insert a text field into DOM', function () {
     equal(view.$('input').length, 1, 'A single text field was inserted');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should become disabled if the disabled attribute is true', function () {
+  QUnit.test('should become disabled if the disabled attribute is true', function () {
     ok(view.$('input').is(':not(:disabled)'), 'There are no disabled text fields');
 
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'disabled', true);
@@ -37798,7 +37798,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     ok(view.$('input').is(':not(:disabled)'), 'There are no disabled text fields');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input value is updated when setting value property of view', function () {
+  QUnit.test('input value is updated when setting value property of view', function () {
     equal(view.$('input').val(), 'hello', 'renders text field with value');
 
     var id = view.$('input').prop('id');
@@ -37809,37 +37809,37 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.$('input').prop('id'), id, 'the component hasn\'t changed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input placeholder is updated when setting placeholder property of view', function () {
+  QUnit.test('input placeholder is updated when setting placeholder property of view', function () {
     equal(view.$('input').attr('placeholder'), 'Enter some text', 'renders text field with placeholder');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'place', 'Text, please enter it');
     equal(view.$('input').attr('placeholder'), 'Text, please enter it', 'updates text field after placeholder changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input name is updated when setting name property of view', function () {
+  QUnit.test('input name is updated when setting name property of view', function () {
     equal(view.$('input').attr('name'), 'some-name', 'renders text field with name');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'name', 'other-name');
     equal(view.$('input').attr('name'), 'other-name', 'updates text field after name changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input maxlength is updated when setting maxlength property of view', function () {
+  QUnit.test('input maxlength is updated when setting maxlength property of view', function () {
     equal(view.$('input').attr('maxlength'), '30', 'renders text field with maxlength');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'max', 40);
     equal(view.$('input').attr('maxlength'), '40', 'updates text field after maxlength changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input size is updated when setting size property of view', function () {
+  QUnit.test('input size is updated when setting size property of view', function () {
     equal(view.$('input').attr('size'), '30', 'renders text field with size');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'size', 40);
     equal(view.$('input').attr('size'), '40', 'updates text field after size changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input tabindex is updated when setting tabindex property of view', function () {
+  QUnit.test('input tabindex is updated when setting tabindex property of view', function () {
     equal(view.$('input').attr('tabindex'), '5', 'renders text field with the tabindex');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'tab', 3);
     equal(view.$('input').attr('tabindex'), '3', 'updates text field after tabindex changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('cursor position is not lost when updating content', function () {
+  QUnit.test('cursor position is not lost when updating content', function () {
     equal(view.$('input').val(), 'hello', 'precondition - renders text field with value');
 
     var $input = view.$('input');
@@ -37860,7 +37860,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(input.selectionEnd, 3, 'cursor position was not lost');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input can be updated multiple times', function () {
+  QUnit.test('input can be updated multiple times', function () {
     equal(view.$('input').val(), 'hello', 'precondition - renders text field with value');
 
     var $input = view.$('input');
@@ -37880,7 +37880,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.$('input').val(), '', 'updates third time');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'text\'}} - static values', {
+  QUnit.module('{{input type=\'text\'}} - static values', {
     setup: function () {
       var _View$extend2;
 
@@ -37899,39 +37899,39 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should insert a text field into DOM', function () {
+  QUnit.test('should insert a text field into DOM', function () {
     equal(view.$('input').length, 1, 'A single text field was inserted');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should become disabled if the disabled attribute is true', function () {
+  QUnit.test('should become disabled if the disabled attribute is true', function () {
     ok(view.$('input').is(':disabled'), 'The text field is disabled');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input value is updated when setting value property of view', function () {
+  QUnit.test('input value is updated when setting value property of view', function () {
     equal(view.$('input').val(), 'hello', 'renders text field with value');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input placeholder is updated when setting placeholder property of view', function () {
+  QUnit.test('input placeholder is updated when setting placeholder property of view', function () {
     equal(view.$('input').attr('placeholder'), 'Enter some text', 'renders text field with placeholder');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input name is updated when setting name property of view', function () {
+  QUnit.test('input name is updated when setting name property of view', function () {
     equal(view.$('input').attr('name'), 'some-name', 'renders text field with name');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input maxlength is updated when setting maxlength property of view', function () {
+  QUnit.test('input maxlength is updated when setting maxlength property of view', function () {
     equal(view.$('input').attr('maxlength'), '30', 'renders text field with maxlength');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input size is updated when setting size property of view', function () {
+  QUnit.test('input size is updated when setting size property of view', function () {
     equal(view.$('input').attr('size'), '30', 'renders text field with size');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('input tabindex is updated when setting tabindex property of view', function () {
+  QUnit.test('input tabindex is updated when setting tabindex property of view', function () {
     equal(view.$('input').attr('tabindex'), '5', 'renders text field with the tabindex');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('specifying `on="someevent" action="foo"` triggers the action', function () {
+  QUnit.test('specifying `on="someevent" action="foo"` triggers the action', function () {
     var _View$create;
 
     expect(2);
@@ -37954,7 +37954,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'text\'}} - dynamic type', {
+  QUnit.module('{{input type=\'text\'}} - dynamic type', {
     setup: function () {
       var _View$extend3;
 
@@ -37975,11 +37975,11 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should insert a text field into DOM', function () {
+  QUnit.test('should insert a text field into DOM', function () {
     equal(view.$('input').attr('type'), 'password', 'a bound property can be used to determine type.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should change if the type changes', function () {
+  QUnit.test('should change if the type changes', function () {
     equal(view.$('input').attr('type'), 'password', 'a bound property can be used to determine type.');
 
     _emberMetalRun_loop.default(function () {
@@ -37989,7 +37989,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.$('input').attr('type'), 'text', 'it changes after the type changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input}} - default type', {
+  QUnit.module('{{input}} - default type', {
     setup: function () {
       var _View$extend4;
 
@@ -38008,11 +38008,11 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should have the default type', function () {
+  QUnit.test('should have the default type', function () {
     equal(view.$('input').attr('type'), 'text', 'Has a default text type');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'checkbox\'}}', {
+  QUnit.module('{{input type=\'checkbox\'}}', {
     setup: function () {
       var _View$extend5;
 
@@ -38035,35 +38035,35 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should append a checkbox', function () {
+  QUnit.test('should append a checkbox', function () {
     equal(view.$('input[type=checkbox]').length, 1, 'A single checkbox is added');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should begin disabled if the disabled attribute is true', function () {
+  QUnit.test('should begin disabled if the disabled attribute is true', function () {
     ok(view.$('input').is(':not(:disabled)'), 'The checkbox isn\'t disabled');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'disabled', true);
     ok(view.$('input').is(':disabled'), 'The checkbox is now disabled');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should support the tabindex property', function () {
+  QUnit.test('should support the tabindex property', function () {
     equal(view.$('input').prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'tab', 3);
     equal(view.$('input').prop('tabindex'), '3', 'the checkbox tabindex changes when it is changed in the view');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('checkbox name is updated', function () {
+  QUnit.test('checkbox name is updated', function () {
     equal(view.$('input').attr('name'), 'hello', 'renders checkbox with the name');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'name', 'bye');
     equal(view.$('input').attr('name'), 'bye', 'updates checkbox after name changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('checkbox checked property is updated', function () {
+  QUnit.test('checkbox checked property is updated', function () {
     equal(view.$('input').prop('checked'), false, 'the checkbox isn\'t checked yet');
     _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', true);
     equal(view.$('input').prop('checked'), true, 'the checkbox is checked now');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'checkbox\'}} - prevent value= usage', {
+  QUnit.module('{{input type=\'checkbox\'}} - prevent value= usage', {
     setup: function () {
       var _View$extend6;
 
@@ -38078,13 +38078,13 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('It asserts the presence of checked=', function () {
+  QUnit.test('It asserts the presence of checked=', function () {
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(view);
     }, /you must use `checked=/);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=boundType}}', {
+  QUnit.module('{{input type=boundType}}', {
     setup: function () {
       var _View$extend7;
 
@@ -38106,17 +38106,17 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should append a checkbox', function () {
+  QUnit.test('should append a checkbox', function () {
     equal(view.$('input[type=checkbox]').length, 1, 'A single checkbox is added');
   });
 
   // Checking for the checked property is a good way to verify that the correct
   // view was used.
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('checkbox checked property is updated', function () {
+  QUnit.test('checkbox checked property is updated', function () {
     equal(view.$('input').prop('checked'), true, 'the checkbox is checked');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'checkbox\'}} - static values', {
+  QUnit.module('{{input type=\'checkbox\'}} - static values', {
     setup: function () {
       var _View$extend8;
 
@@ -38139,23 +38139,23 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should begin disabled if the disabled attribute is true', function () {
+  QUnit.test('should begin disabled if the disabled attribute is true', function () {
     ok(view.$().is(':not(:disabled)'), 'The checkbox isn\'t disabled');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should support the tabindex property', function () {
+  QUnit.test('should support the tabindex property', function () {
     equal(view.$('input').prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('checkbox name is updated', function () {
+  QUnit.test('checkbox name is updated', function () {
     equal(view.$('input').attr('name'), 'hello', 'renders checkbox with the name');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('checkbox checked property is updated', function () {
+  QUnit.test('checkbox checked property is updated', function () {
     equal(view.$('input').prop('checked'), false, 'the checkbox isn\'t checked yet');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('{{input type=\'text\'}} - null/undefined values', {
+  QUnit.module('{{input type=\'text\'}} - null/undefined values', {
     setup: function () {
       commonSetup();
     },
@@ -38166,7 +38166,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('placeholder attribute bound to undefined is not present', function () {
+  QUnit.test('placeholder attribute bound to undefined is not present', function () {
     var _View$extend9;
 
     view = _emberViewsViewsView.default.extend((_View$extend9 = {}, _View$extend9[_containerOwner.OWNER] = owner, _View$extend9.controller = {}, _View$extend9.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input placeholder=someThingNotThere}}'), _View$extend9)).create();
@@ -38180,7 +38180,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('placeholder attribute bound to null is not present', function () {
+  QUnit.test('placeholder attribute bound to null is not present', function () {
     var _View$extend10;
 
     view = _emberViewsViewsView.default.extend((_View$extend10 = {}, _View$extend10[_containerOwner.OWNER] = owner, _View$extend10.controller = {
@@ -38196,7 +38196,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
   });
 });
-enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var owner, view;
@@ -38237,7 +38237,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be able to be inserted in DOM when the router is not present', function () {
+  QUnit.test('should be able to be inserted in DOM when the router is not present', function () {
     var _EmberView$create;
 
     var template = '{{#link-to \'index\'}}Go to Index{{/link-to}}';
@@ -38248,7 +38248,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$().text(), 'Go to Index');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('re-renders when title changes', function () {
+  QUnit.test('re-renders when title changes', function () {
     var _EmberView$create2;
 
     var template = '{{link-to title routeName}}';
@@ -38268,7 +38268,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$().text(), 'bar');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('can read bound title', function () {
+  QUnit.test('can read bound title', function () {
     var _EmberView$create3;
 
     var template = '{{link-to title routeName}}';
@@ -38282,7 +38282,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$().text(), 'foo');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('escaped inline form (double curlies) escapes link title', function () {
+  QUnit.test('escaped inline form (double curlies) escapes link title', function () {
     var _EmberView$create4;
 
     view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to view.title "index"}}'), _EmberView$create4));
@@ -38292,7 +38292,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$('b').length, 0, 'no <b> were found');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('escaped inline form with (-html-safe) does not escape link title', function () {
+  QUnit.test('escaped inline form with (-html-safe) does not escape link title', function () {
     var _EmberView$create5;
 
     view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.title = '<b>blah</b>', _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create5));
@@ -38302,7 +38302,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$('b').length, 1, '<b> was found');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unescaped inline form (triple curlies) does not escape link title', function () {
+  QUnit.test('unescaped inline form (triple curlies) does not escape link title', function () {
     var _EmberView$create6;
 
     view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = '<b>blah</b>', _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{{link-to view.title "index"}}}'), _EmberView$create6));
@@ -38312,7 +38312,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$('b').length, 1, '<b> was found');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('unwraps controllers', function () {
+  QUnit.test('unwraps controllers', function () {
     var _EmberView$create7;
 
     var template = '{{#link-to \'index\' view.otherController}}Text{{/link-to}}';
@@ -38328,7 +38328,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$().text(), 'Text');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('able to safely extend the built-in component and use the normal path', function () {
+  QUnit.test('able to safely extend the built-in component and use the normal path', function () {
     var _EmberView$create8;
 
     view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.title = 'my custom link-to component', _EmberView$create8.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create8));
@@ -38338,7 +38338,7 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
+  QUnit.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
     var _EmberView$create9;
 
     view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.title = 'my custom link-to component', _EmberView$create9.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{custom-link-to view.title \'index\'}}'), _EmberView$create9));
@@ -38348,14 +38348,14 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
   });
 });
-enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
 
   var appInstance, top;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{outlet}} helper', {
+  QUnit.module('ember-htmlbars: {{outlet}} helper', {
     setup: function () {
       appInstance = _emberHtmlbarsTestsUtils.buildAppInstance();
       var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
@@ -38369,7 +38369,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('view should render the outlet when set after dom insertion', function () {
+  QUnit.test('view should render the outlet when set after dom insertion', function () {
     var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
     top.setOutletState(routerState);
     _emberRuntimeTestsUtils.runAppend(top);
@@ -38386,7 +38386,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(trim(top.$().text()), 'HIBYE');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a top-level outlet should always be a view', function () {
+  QUnit.test('a top-level outlet should always be a view', function () {
     appInstance.register('view:toplevel', _emberViewsViewsView.default.extend({
       elementId: 'top-level'
     }));
@@ -38399,7 +38399,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(trim(top.$('#top-level').text()), 'HIBYE');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('view should render the outlet when set before dom insertion', function () {
+  QUnit.test('view should render the outlet when set before dom insertion', function () {
     var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
     routerState.outlets.main = withTemplate('<p>BYE</p>');
     top.setOutletState(routerState);
@@ -38409,7 +38409,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(trim(top.$().text()), 'HIBYE');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('outlet should support an optional name', function () {
+  QUnit.test('outlet should support an optional name', function () {
     var routerState = withTemplate('<h1>HI</h1>{{outlet \'mainView\'}}');
     top.setOutletState(routerState);
     _emberRuntimeTestsUtils.runAppend(top);
@@ -38426,7 +38426,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(trim(top.$().text()), 'HIBYE');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Outlets bind to the current view, not the current concrete view', function () {
+  QUnit.test('Outlets bind to the current view, not the current concrete view', function () {
     var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
     top.setOutletState(routerState);
     _emberRuntimeTestsUtils.runAppend(top);
@@ -38443,7 +38443,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(output, 'BOTTOM', 'all templates were rendered');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Outlets bind to the current template\'s view, not inner contexts [DEPRECATED]', function () {
+  QUnit.test('Outlets bind to the current template\'s view, not inner contexts [DEPRECATED]', function () {
     var parentTemplate = '<h1>HI</h1>{{#if view.alwaysTrue}}{{outlet}}{{/if}}';
     var bottomTemplate = '<h3>BOTTOM</h3>';
 
@@ -38471,19 +38471,19 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(output, 'BOTTOM', 'all templates were rendered');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not throw deprecations if {{outlet}} is used without a name', function () {
+  QUnit.test('should not throw deprecations if {{outlet}} is used without a name', function () {
     expectNoDeprecation();
     top.setOutletState(withTemplate('{{outlet}}'));
     _emberRuntimeTestsUtils.runAppend(top);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not throw deprecations if {{outlet}} is used with a quoted name', function () {
+  QUnit.test('should not throw deprecations if {{outlet}} is used with a quoted name', function () {
     expectNoDeprecation();
     top.setOutletState(withTemplate('{{outlet "foo"}}'));
     _emberRuntimeTestsUtils.runAppend(top);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} should work with an unquoted name', function () {
+  QUnit.test('{{outlet}} should work with an unquoted name', function () {
     var routerState = {
       render: {
         controller: _emberRuntimeControllersController.default.create({
@@ -38502,7 +38502,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(top.$().text().trim(), 'It\'s magic');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{outlet}} should rerender when bound name changes', function () {
+  QUnit.test('{{outlet}} should rerender when bound name changes', function () {
     var routerState = {
       render: {
         controller: _emberRuntimeControllersController.default.create({
@@ -38525,7 +38525,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     equal(top.$().text().trim(), 'second');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('views created by {{outlet}} should get destroyed', function () {
+  QUnit.test('views created by {{outlet}} should get destroyed', function () {
     var inserted = 0;
     var destroyed = 0;
     var routerState = {
@@ -38559,7 +38559,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     };
   }
 });
-enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/helpers', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-runtime/tests/utils', 'container/owner', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsHelpers, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberRuntimeTestsUtils, _containerOwner, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/helpers', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-runtime/tests/utils', 'container/owner', 'ember-templates/template_registry'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsHelpers, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberRuntimeTestsUtils, _containerOwner, _emberTemplatesTemplate_registry) {
   'use strict';
 
   function runSet(object, key, value) {
@@ -38571,7 +38571,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   var ORIGINAL_LEGACY_CONTROLLER_FLAG = _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
   var view, appInstance;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{render}} helper', {
+  QUnit.module('ember-htmlbars: {{render}} helper', {
     setup: function () {
       appInstance = _emberHtmlbarsTestsUtils.buildAppInstance();
     },
@@ -38584,7 +38584,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render given template', function () {
+  QUnit.test('{{render}} helper should render given template', function () {
     var _EmberView$create;
 
     var template = '<h1>HI</h1>{{render \'home\'}}';
@@ -38602,7 +38602,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     ok(appInstance.lookup('router:main')._lookupActiveComponentNode('home'), 'should register home as active view');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render nested helpers', function () {
+  QUnit.test('{{render}} helper should render nested helpers', function () {
     var _EmberView$create2;
 
     var template = '<h1>HI</h1>{{render \'foo\'}}';
@@ -38619,7 +38619,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(view.$().text(), 'HIFOOBARBAZ');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should have assertion if neither template nor view exists', function () {
+  QUnit.test('{{render}} helper should have assertion if neither template nor view exists', function () {
     var _EmberView$create3;
 
     var template = '<h1>HI</h1>{{render \'oops\'}}';
@@ -38632,7 +38632,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as either a template or a view.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not have assertion if view exists without a template', function () {
+  QUnit.test('{{render}} helper should not have assertion if view exists without a template', function () {
     var _EmberView$create4;
 
     var template = '<h1>HI</h1>{{render \'oops\'}}';
@@ -38647,7 +38647,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(view.$().text(), 'HI');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render given template with a supplied model', function () {
+  QUnit.test('{{render}} helper should render given template with a supplied model', function () {
     var _Controller$create;
 
     var template = '<h1>HI</h1>{{render \'post\' post}}';
@@ -38689,7 +38689,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     deepEqual(postController.get('model'), { title: 'Rails is unagi' });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper with a supplied model should not fire observers on the controller', function () {
+  QUnit.test('{{render}} helper with a supplied model should not fire observers on the controller', function () {
     var _EmberController$create;
 
     var template = '<h1>HI</h1>{{render \'post\' post}}';
@@ -38719,7 +38719,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(modelDidChange, 0, 'model observer did not fire');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
+  QUnit.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
     var _Controller$create2, _EmberView$create7;
 
     var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
@@ -38737,7 +38737,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     }, 'The controller name you supplied \'postss\' did not resolve to a controller.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render with given controller', function () {
+  QUnit.test('{{render}} helper should render with given controller', function () {
     var _Controller$create3, _EmberView$create8;
 
     var template = '{{render "home" controller="posts"}}';
@@ -38768,7 +38768,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(renderedModel, model, 'rendered with model on controller');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should rerender with given controller', function () {
+  QUnit.test('{{render}} helper should rerender with given controller', function () {
     var _Controller$create4, _EmberView$create9;
 
     var template = '{{render "home" controller="posts"}}';
@@ -38803,7 +38803,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(renderedModel, model, 'rendered with model on controller');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render a template without a model only once', function () {
+  QUnit.test('{{render}} helper should render a template without a model only once', function () {
     var _Controller$create5, _EmberView$create10;
 
     var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
@@ -38819,7 +38819,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     }, /\{\{render\}\} helper once/i);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render templates with models multiple times', function () {
+  QUnit.test('{{render}} helper should render templates with models multiple times', function () {
     var _Controller$create6;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
@@ -38870,7 +38870,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     deepEqual(postController1.get('model'), { title: 'I am new' });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not leak controllers', function () {
+  QUnit.test('{{render}} helper should not leak controllers', function () {
     var _Controller$create7;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}}';
@@ -38908,7 +38908,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     ok(postController.isDestroyed, 'expected postController to be destroyed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
+  QUnit.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
     var _EmberController$create2;
 
     var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
@@ -38943,7 +38943,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(postController2.get('model'), undefined);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should render templates both with and without models', function () {
+  QUnit.test('{{render}} helper should render templates both with and without models', function () {
     var _Controller$create8;
 
     var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
@@ -38990,7 +38990,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     deepEqual(postController2.get('model'), { title: 'Rails is unagi' });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should be able to render a template again when it was removed', function () {
+  QUnit.test('{{render}} helper should be able to render a template again when it was removed', function () {
     var _Controller$create9, _CoreOutlet$create;
 
     var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
@@ -39034,7 +39034,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(view.$().text(), 'HI2BYE');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} works with dot notation', function () {
+  QUnit.test('{{render}} works with dot notation', function () {
     var _ContextController$create, _EmberView$create15;
 
     var template = '{{render "blog.post"}}';
@@ -39063,7 +39063,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(singletonController.uniqueId, view.$().html(), 'rendered with correct singleton controller');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
+  QUnit.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
     var _Controller$create10;
 
     var template = '<h1>HI</h1>{{render home}}';
@@ -39082,7 +39082,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     }, 'The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('throws an assertion if {{render}} is called with a literal for a model', function () {
+  QUnit.test('throws an assertion if {{render}} is called with a literal for a model', function () {
     var _Controller$create11, _EmberView$create16;
 
     var template = '<h1>HI</h1>{{render "home" "model"}}';
@@ -39098,7 +39098,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     }, 'The second argument of {{render}} must be a path, e.g. {{render "post" post}}.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should let view provide its own template', function () {
+  QUnit.test('{{render}} helper should let view provide its own template', function () {
     var _Controller$create12, _EmberView$create17;
 
     var template = '{{render \'fish\'}}';
@@ -39119,7 +39119,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(view.$().text(), 'Hello other!');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should not require view to provide its own template', function () {
+  QUnit.test('{{render}} helper should not require view to provide its own template', function () {
     var _Controller$create13, _EmberView$create18;
 
     var template = '{{render \'fish\'}}';
@@ -39137,7 +39137,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     equal(view.$().text(), 'Hello fish!');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{render}} helper should set router as target when parentController is not found', function () {
+  QUnit.test('{{render}} helper should set router as target when parentController is not found', function () {
     expect(3);
 
     _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
@@ -39173,7 +39173,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     postController.send('someAction');
   });
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-htmlbars/components/text_field', 'ember-runtime/system/object', 'htmlbars-util/safe-string', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberHtmlbarsComponentsText_field, _emberRuntimeSystemObject, _htmlbarsUtilSafeString, _emberHtmlbarsTestsUtilsHelpers, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-htmlbars/components/text_field', 'ember-runtime/system/object', 'htmlbars-util/safe-string', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-runtime/mixins/array'], function (exports, _emberEnvironment, _emberMetalDebug, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberHtmlbarsComponentsText_field, _emberRuntimeSystemObject, _htmlbarsUtilSafeString, _emberHtmlbarsTestsUtilsHelpers, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberRuntimeMixinsArray) {
   /*globals EmberDev */
   'use strict';
 
@@ -39195,7 +39195,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
 
   var firstChild = nthChild;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: {{#view}} helper', {
+  QUnit.module('ember-htmlbars: {{#view}} helper', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
 
@@ -39220,7 +39220,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
   });
 
   // https://github.com/emberjs/ember.js/issues/120
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not enter an infinite loop when binding an attribute in Handlebars', function () {
+  QUnit.test('should not enter an infinite loop when binding an attribute in Handlebars', function () {
     var LinkView = _emberViewsViewsView.default.extend({
       classNames: ['app-link'],
       tagName: 'a',
@@ -39249,7 +39249,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     _emberRuntimeTestsUtils.runDestroy(parentView);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('By default view:toplevel is used', function () {
+  QUnit.test('By default view:toplevel is used', function () {
     var _EmberView$extend;
 
     var DefaultView = viewClass({
@@ -39266,7 +39266,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsSystemJquery.default('#toplevel-view').text(), 'hello world');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('By default, without an owner, EmberView is used', function () {
+  QUnit.test('By default, without an owner, EmberView is used', function () {
     view = _emberViewsViewsView.default.extend({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view tagName="span"}}')
     }).create();
@@ -39276,7 +39276,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(_emberViewsSystemJquery.default('#qunit-fixture').html().toUpperCase().match(/<SPAN/), 'contains view with span');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('View lookup - \'fu\'', function () {
+  QUnit.test('View lookup - \'fu\'', function () {
     var _EmberView$extend2;
 
     var FuView = viewClass({
@@ -39293,7 +39293,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsSystemJquery.default('#fu').text(), 'bro');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('View lookup - \'fu\' when fu is a property and a view name', function () {
+  QUnit.test('View lookup - \'fu\' when fu is a property and a view name', function () {
     var _EmberView$extend3;
 
     var FuView = viewClass({
@@ -39310,7 +39310,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsSystemJquery.default('#fu').text(), 'bro');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('View lookup - view.computed', function () {
+  QUnit.test('View lookup - view.computed', function () {
     var _EmberView$extend4;
 
     var FuView = viewClass({
@@ -39327,7 +39327,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsSystemJquery.default('#fu').text(), 'bro');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('id bindings downgrade to one-time property lookup', function () {
+  QUnit.test('id bindings downgrade to one-time property lookup', function () {
     view = _emberViewsViewsView.default.extend({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{#view id=view.meshuggah}}{{view.parentView.meshuggah}}{{/view}}'),
       meshuggah: 'stengah'
@@ -39340,7 +39340,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsSystemJquery.default('#stengah').text(), 'omg', 'id didn\'t change');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('specifying `id` as a static value works properly', function () {
+  QUnit.test('specifying `id` as a static value works properly', function () {
     view = _emberViewsViewsView.default.extend({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{#view id=\'blah\'}}{{view.parentView.meshuggah}}{{/view}}'),
       meshuggah: 'stengah'
@@ -39351,7 +39351,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('#blah').text(), 'stengah', 'id binding performed property lookup');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('mixing old and new styles of property binding fires a warning, treats value as if it were quoted', function () {
+  QUnit.test('mixing old and new styles of property binding fires a warning, treats value as if it were quoted', function () {
     if (EmberDev && EmberDev.runningProdBuild) {
       ok(true, 'Logging does not occur in production builds');
       return;
@@ -39383,7 +39383,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     _emberMetalDebug.setDebugFunction('warn', oldWarn);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('"Binding"-suffixed bindings are runloop-synchronized [DEPRECATED]', function () {
+  QUnit.test('"Binding"-suffixed bindings are runloop-synchronized [DEPRECATED]', function () {
     var subview;
 
     var Subview = _emberViewsViewsView.default.extend({
@@ -39432,7 +39432,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberMetalProperty_get.get(subview, 'color'), 'persian rose', 'bound property is updated after runloop flush');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Non-"Binding"-suffixed bindings are runloop-synchronized', function () {
+  QUnit.test('Non-"Binding"-suffixed bindings are runloop-synchronized', function () {
     var subview;
 
     var Subview = _emberViewsViewsView.default.extend({
@@ -39475,7 +39475,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberMetalProperty_get.get(subview, 'color'), 'persian rose', 'bound property is updated after runloop flush');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('allows you to pass attributes that will be assigned to the class instance, like class="foo"', function () {
+  QUnit.test('allows you to pass attributes that will be assigned to the class instance, like class="foo"', function () {
     var _EmberView$extend5;
 
     expect(4);
@@ -39492,7 +39492,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsSystemJquery.default('#bar').text(), 'Bar');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Should apply class without condition always', function () {
+  QUnit.test('Should apply class without condition always', function () {
     view = _emberViewsViewsView.default.create({
       controller: _emberRuntimeSystemObject.default.create(),
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{#view id="foo" classBinding=":foo"}} Foo{{/view}}')
@@ -39503,7 +39503,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(_emberViewsSystemJquery.default('#foo').hasClass('foo'), 'Always applies classbinding without condition');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Should apply classes when bound property specified', function () {
+  QUnit.test('Should apply classes when bound property specified', function () {
     view = _emberViewsViewsView.default.create({
       controller: {
         someProp: 'foo'
@@ -39516,7 +39516,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(_emberViewsSystemJquery.default('#foo').hasClass('foo'), 'Always applies classbinding without condition');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Should apply a class from a sub expression', function () {
+  QUnit.test('Should apply a class from a sub expression', function () {
     var _EmberView$create;
 
     owner.register('helper:string-concat', _emberHtmlbarsHelper.helper(function (params) {
@@ -39538,7 +39538,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(_emberViewsSystemJquery.default('#foo').hasClass('btn-medium'), 'adds classname from subexpression update');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Should not apply classes when bound property specified is false', function () {
+  QUnit.test('Should not apply classes when bound property specified is false', function () {
     view = _emberViewsViewsView.default.create({
       controller: {
         someProp: false
@@ -39551,7 +39551,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(!_emberViewsSystemJquery.default('#foo').hasClass('some-prop'), 'does not add class when value is falsey');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Should apply classes of the dasherized property name when bound property specified is true', function () {
+  QUnit.test('Should apply classes of the dasherized property name when bound property specified is true', function () {
     view = _emberViewsViewsView.default.create({
       controller: {
         someProp: true
@@ -39564,7 +39564,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(_emberViewsSystemJquery.default('#foo').hasClass('some-prop'), 'adds dasherized class when value is true');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Should update classes from a bound property', function () {
+  QUnit.test('Should update classes from a bound property', function () {
     var controller = {
       someProp: true
     };
@@ -39591,7 +39591,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(_emberViewsSystemJquery.default('#foo').hasClass('fooBar'), 'changes property to string value (but does not dasherize)');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('bound properties should be available in the view', function () {
+  QUnit.test('bound properties should be available in the view', function () {
     var _EmberView$extend6;
 
     var FuView = viewClass({
@@ -39614,7 +39614,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('#fu').text(), 'second value');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should escape HTML in normal mustaches', function () {
+  QUnit.test('should escape HTML in normal mustaches', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view.output}}'),
       output: 'you need to be more <b>bold</b>'
@@ -39632,7 +39632,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('i').length, 0, 'does not create an element when value is updated');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not escape HTML in triple mustaches', function () {
+  QUnit.test('should not escape HTML in triple mustaches', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{{view.output}}}'),
       output: 'you need to be more <b>bold</b>'
@@ -39649,7 +39649,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('i').length, 1, 'creates an element when value is updated');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not escape HTML if string is a Handlebars.SafeString', function () {
+  QUnit.test('should not escape HTML if string is a Handlebars.SafeString', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view.output}}'),
       output: new _htmlbarsUtilSafeString.default('you need to be more <b>bold</b>')
@@ -39666,7 +39666,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('i').length, 1, 'creates an element when value is updated');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should teardown observers from bound properties on rerender', function () {
+  QUnit.test('should teardown observers from bound properties on rerender', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view.foo}}'),
       foo: 'bar'
@@ -39683,7 +39683,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberMetalObserver.observersFor(view, 'foo').length, 1);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should update bound values after the view is removed and then re-appended', function () {
+  QUnit.test('should update bound values after the view is removed and then re-appended', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{#if view.showStuff}}{{view.boundValue}}{{else}}Not true.{{/if}}'),
       showStuff: true,
@@ -39718,7 +39718,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(trim(view.$().text()), 'bar');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('views set the template of their children to a passed block', function () {
+  QUnit.test('views set the template of their children to a passed block', function () {
     var _EmberView$create2;
 
     owner.register('template:parent', _emberHtmlbarsTestsUtilsHelpers.compile('<h1>{{#view}}<span>It worked!</span>{{/view}}</h1>'));
@@ -39729,7 +39729,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(view.$('h1:has(span)').length === 1, 'renders the passed template inside the parent template');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should not override class bindings defined on a child view', function () {
+  QUnit.test('{{view}} should not override class bindings defined on a child view', function () {
     var _EmberView$create3;
 
     var LabelView = _emberViewsViewsView.default.extend({
@@ -39749,7 +39749,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(view.$('.visible').length > 0, 'class bindings are not overriden');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('child views can be inserted using the {{view}} helper', function () {
+  QUnit.test('child views can be inserted using the {{view}} helper', function () {
     var _EmberView$create4;
 
     owner.register('template:nester', _emberHtmlbarsTestsUtilsHelpers.compile('<h1 id="hello-world">Hello {{world}}</h1>{{view view.labelView}}'));
@@ -39775,7 +39775,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(view.$().text().match(/Hello world!.*Goodbye cruel world\!/), 'parent view should appear before the child view');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be able to explicitly set a view\'s context', function () {
+  QUnit.test('should be able to explicitly set a view\'s context', function () {
     var context = _emberRuntimeSystemObject.default.create({
       test: 'test'
     });
@@ -39795,7 +39795,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$().text(), 'test');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Template views add an elementId to child views created using the view helper', function () {
+  QUnit.test('Template views add an elementId to child views created using the view helper', function () {
     var _EmberView$create5;
 
     owner.register('template:parent', _emberHtmlbarsTestsUtilsHelpers.compile('<div>{{view view.childView}}</div>'));
@@ -39813,7 +39813,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$().children().first().children().first().attr('id'), _emberMetalProperty_get.get(childView, 'elementId'));
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Child views created using the view helper should have their parent view set properly', function () {
+  QUnit.test('Child views created using the view helper should have their parent view set properly', function () {
     var template = '{{#view}}{{#view}}{{view}}{{/view}}{{/view}}';
 
     view = _emberViewsViewsView.default.create({
@@ -39826,7 +39826,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(childView, _emberMetalProperty_get.get(firstChild(childView), 'parentView'), 'parent view is correct');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Child views created using the view helper should have their IDs registered for events', function () {
+  QUnit.test('Child views created using the view helper should have their IDs registered for events', function () {
     var template = '{{view}}{{view id="templateViewTest"}}';
 
     view = _emberViewsViewsView.default.create({
@@ -39845,7 +39845,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberViewsViewsView.default.views[id], childView, 'childView with passed ID is registered with View.views so that it can properly receive events from EventDispatcher');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Child views created using the view helper and that have a viewName should be registered as properties on their parentView', function () {
+  QUnit.test('Child views created using the view helper and that have a viewName should be registered as properties on their parentView', function () {
     var template = '{{#view}}{{view viewName="ohai"}}{{/view}}';
 
     view = _emberViewsViewsView.default.create({
@@ -39860,7 +39860,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(_emberMetalProperty_get.get(parentView, 'ohai'), childView);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} id attribute should set id on layer', function () {
+  QUnit.test('{{view}} id attribute should set id on layer', function () {
     var _EmberView$create6;
 
     owner.register('template:foo', _emberHtmlbarsTestsUtilsHelpers.compile('{{#view view.idView id="bar"}}baz{{/view}}'));
@@ -39875,7 +39875,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('#bar').text(), 'baz', 'emits content');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} tag attribute should set tagName of the view', function () {
+  QUnit.test('{{view}} tag attribute should set tagName of the view', function () {
     var _EmberView$create7;
 
     owner.register('template:foo', _emberHtmlbarsTestsUtilsHelpers.compile('{{#view view.tagView tag="span"}}baz{{/view}}'));
@@ -39890,7 +39890,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('span').text(), 'baz', 'emits content');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} class attribute should set class on layer', function () {
+  QUnit.test('{{view}} class attribute should set class on layer', function () {
     var _EmberView$create8;
 
     owner.register('template:foo', _emberHtmlbarsTestsUtilsHelpers.compile('{{#view view.idView class="bar"}}baz{{/view}}'));
@@ -39905,7 +39905,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('.bar').text(), 'baz', 'emits content');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should not allow attributeBindings to be set', function () {
+  QUnit.test('{{view}} should not allow attributeBindings to be set', function () {
     expectAssertion(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view attributeBindings="one two"}}')
@@ -39914,7 +39914,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     }, /Setting 'attributeBindings' via template helpers is not allowed/);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should be able to point to a local view', function () {
+  QUnit.test('{{view}} should be able to point to a local view', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view view.common}}'),
 
@@ -39928,7 +39928,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$().text(), 'common', 'tries to look up view name locally');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should evaluate class bindings set in the current context', function () {
+  QUnit.test('{{view}} should evaluate class bindings set in the current context', function () {
     view = _emberViewsViewsView.default.create({
       isView: true,
       isEditable: true,
@@ -39957,7 +39957,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should evaluate other attributes bindings set in the current context', function () {
+  QUnit.test('{{view}} should evaluate other attributes bindings set in the current context', function () {
     view = _emberViewsViewsView.default.create({
       name: 'myView',
       textField: _emberHtmlbarsComponentsText_field.default,
@@ -39969,7 +39969,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('input').val(), 'myView', 'evaluates attributes bound in the current context');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should be able to bind class names to truthy properties', function () {
+  QUnit.test('{{view}} should be able to bind class names to truthy properties', function () {
     var _EmberView$create9;
 
     owner.register('template:template', _emberHtmlbarsTestsUtilsHelpers.compile('{{#view view.classBindingView classBinding="view.number:is-truthy"}}foo{{/view}}'));
@@ -39989,7 +39989,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('.is-truthy').length, 0, 'removes class name if bound property is set to falsey');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should be able to bind class names to truthy or falsy properties', function () {
+  QUnit.test('{{view}} should be able to bind class names to truthy or falsy properties', function () {
     var _EmberView$create10;
 
     owner.register('template:template', _emberHtmlbarsTestsUtilsHelpers.compile('{{#view view.classBindingView classBinding="view.number:is-truthy:is-falsy"}}foo{{/view}}'));
@@ -40011,7 +40011,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('.is-falsy').length, 1, 'sets class name to falsy value');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a view helper\'s bindings are to the parent context', function () {
+  QUnit.test('a view helper\'s bindings are to the parent context', function () {
     var Subview = _emberViewsViewsView.default.extend({
       classNameBindings: ['attrs.color'],
       controller: _emberRuntimeSystemObject.default.create({
@@ -40037,7 +40037,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('h1 .mauve').text(), 'foo bar', 'renders property bound in template from subview context');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should expose a controller that can be used in the view instance', function () {
+  QUnit.test('should expose a controller that can be used in the view instance', function () {
     var _EmberView$create11;
 
     var templateString = '{{#view view.childThing tagName="div"}}Stuff{{/view}}';
@@ -40056,7 +40056,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(controller, childThingController, 'childThing should get the same controller as the outer scope');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should work with precompiled templates', function () {
+  QUnit.test('should work with precompiled templates', function () {
     var templateString = _emberHtmlbarsTestsUtilsHelpers.precompile('{{view.value}}');
     var compiledTemplate = _emberHtmlbarsTestsUtilsHelpers.template(eval(templateString));
 
@@ -40076,7 +40076,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$().text(), 'updated', 'the precompiled template was updated');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('bindings should be relative to the current context [DEPRECATED]', function () {
+  QUnit.test('bindings should be relative to the current context [DEPRECATED]', function () {
     view = _emberViewsViewsView.default.create({
       museumOpen: true,
 
@@ -40097,7 +40097,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('bindings should respect keywords [DEPRECATED]', function () {
+  QUnit.test('bindings should respect keywords [DEPRECATED]', function () {
     view = _emberViewsViewsView.default.create({
       museumOpen: true,
 
@@ -40121,7 +40121,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should respect keywords', function () {
+  QUnit.test('should respect keywords', function () {
     view = _emberViewsViewsView.default.create({
       museumOpen: true,
 
@@ -40145,7 +40145,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should bind to the property if no registered helper found for a mustache without parameters', function () {
+  QUnit.test('should bind to the property if no registered helper found for a mustache without parameters', function () {
     view = _emberViewsViewsView.default.extend({
       foobarProperty: _emberMetalComputed.computed(function () {
         return 'foobarProperty';
@@ -40159,7 +40159,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     ok(view.$().text() === 'foobarProperty', 'Property was bound to correctly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should be able to point to a local instance of view', function () {
+  QUnit.test('{{view}} should be able to point to a local instance of view', function () {
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view view.common}}'),
 
@@ -40172,7 +40172,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$().text(), 'common', 'tries to look up view name locally');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} should be able to point to a local instance of subclass of view', function () {
+  QUnit.test('{{view}} should be able to point to a local instance of subclass of view', function () {
     var MyView = _emberViewsViewsView.default.extend();
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view view.subclassed}}'),
@@ -40185,7 +40185,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$().text(), 'subclassed', 'tries to look up view name locally');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} asserts that a view class is present', function () {
+  QUnit.test('{{view}} asserts that a view class is present', function () {
     var MyView = _emberRuntimeSystemObject.default.extend();
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view view.notView}}'),
@@ -40199,7 +40199,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     }, /must be a subclass or an instance of Ember.View/);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} asserts that a view class is present off controller', function () {
+  QUnit.test('{{view}} asserts that a view class is present off controller', function () {
     var MyView = _emberRuntimeSystemObject.default.extend();
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view notView}}'),
@@ -40215,7 +40215,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     }, /must be a subclass or an instance of Ember.View/);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} asserts that a view instance is present', function () {
+  QUnit.test('{{view}} asserts that a view instance is present', function () {
     var MyView = _emberRuntimeSystemObject.default.extend();
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view view.notView}}'),
@@ -40229,7 +40229,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     }, /must be a subclass or an instance of Ember.View/);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{view}} asserts that a view subclass instance is present off controller', function () {
+  QUnit.test('{{view}} asserts that a view subclass instance is present off controller', function () {
     var MyView = _emberRuntimeSystemObject.default.extend();
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view notView}}'),
@@ -40245,7 +40245,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     }, /must be a subclass or an instance of Ember.View/);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Specifying `id` to {{view}} is set on the view.', function () {
+  QUnit.test('Specifying `id` to {{view}} is set on the view.', function () {
     var _EmberView$create12;
 
     owner.register('view:derp', _emberViewsViewsView.default.extend({
@@ -40261,7 +40261,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('#view-elementId').text(), 'bar', 'the views elementId property is set');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Specifying `id` to {{view}} does not allow bound id changes.', function () {
+  QUnit.test('Specifying `id` to {{view}} does not allow bound id changes.', function () {
     var _EmberView$create13;
 
     owner.register('view:derp', _emberViewsViewsView.default.extend({
@@ -40279,7 +40279,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('#bar #view-id').text(), 'baz', 'the views id property is not changed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('using a bound view name does not change on view name property changes', function () {
+  QUnit.test('using a bound view name does not change on view name property changes', function () {
     var _EmberView$extend7;
 
     owner.register('view:foo', viewClass({
@@ -40304,7 +40304,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     equal(view.$('#foo').length, 1, 'the originally rendered view is still present');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should have the correct action target', function () {
+  QUnit.test('should have the correct action target', function () {
     var _EmberView$extend8;
 
     owner.register('component:x-outer', _emberHtmlbarsComponent.default.extend({
@@ -40336,7 +40336,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-environment'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Throw an `Unsupported Content` error when attempting to bind to a function', function () {
+  QUnit.test('Throw an `Unsupported Content` error when attempting to bind to a function', function () {
     view = _emberViewsViewsView.default.extend({
       someFunction: function () {},
       template: _emberHtmlbarsTestsUtilsHelpers.compile('{{view.someFunction}}')
@@ -40393,12 +40393,12 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-views/views
     equal(view.$('div > p').text(), 'hello', 'view keyword inside component yield block should refer to the correct view');
   });
 });
-enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/env', 'htmlbars-test-helpers', 'ember-metal/assign', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsEnv, _htmlbarsTestHelpers, _emberMetalAssign, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/env', 'htmlbars-test-helpers', 'ember-metal/assign'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsEnv, _htmlbarsTestHelpers, _emberMetalAssign) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: main');
+  QUnit.module('ember-htmlbars: main');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('HTMLBars is present and can be executed', function () {
+  QUnit.test('HTMLBars is present and can be executed', function () {
     var template = _emberHtmlbarsTestsUtilsHelpers.compile('ohai');
 
     var env = _emberMetalAssign.default({ dom: _emberHtmlbarsEnv.domHelper }, _emberHtmlbarsEnv.default);
@@ -40714,18 +40714,18 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
 });
-enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   var view;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: custom morph integration tests', {
+  QUnit.module('ember-htmlbars: custom morph integration tests', {
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('can properly re-render an if/else with attribute morphs', function () {
+  QUnit.test('can properly re-render an if/else with attribute morphs', function () {
     view = _emberViewsViewsView.default.create({
       trueClass: 'truthy',
       falseClass: 'falsey',
@@ -40745,7 +40745,7 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('can properly re-render an if/else with element morphs', function () {
+  QUnit.test('can properly re-render an if/else with element morphs', function () {
     view = _emberViewsViewsView.default.create({
       trueClass: 'truthy',
       falseClass: 'falsey',
@@ -40843,7 +40843,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var owner, component;
@@ -40861,7 +40861,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner = component = null;
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('component - invocation', {
+  QUnit.module('component - invocation', {
     setup: function () {
       commonSetup();
     },
@@ -40871,7 +40871,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('moduleName is available on _renderNode when a layout is present', function () {
+  QUnit.test('moduleName is available on _renderNode when a layout is present', function () {
     var _Component$extend;
 
     expect(1);
@@ -40892,7 +40892,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     _emberRuntimeTestsUtils.runAppend(component);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('moduleName is available on _renderNode when no layout is present', function () {
+  QUnit.test('moduleName is available on _renderNode when no layout is present', function () {
     var _Component$extend2;
 
     expect(1);
@@ -40911,7 +40911,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     _emberRuntimeTestsUtils.runAppend(component);
   });
 });
-enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberViewsSystemJquery, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsSystemJquery, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var owner, view;
@@ -40955,7 +40955,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       return { isString: true, value: val };
     }
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('component - lifecycle hooks (' + style.name + ')', {
+    QUnit.module('component - lifecycle hooks (' + style.name + ')', {
       setup: function () {
         owner = _containerTestsTestHelpersBuildOwner.default();
         owner.registerOptionsForType('component', { singleton: false });
@@ -40981,7 +40981,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       return { type: type, view: view, arg: arg };
     }
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('lifecycle hooks are invoked in a predictable order', function () {
+    QUnit.test('lifecycle hooks are invoked in a predictable order', function () {
       var _EmberView$extend;
 
       var components = {};
@@ -41095,7 +41095,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       deepEqual(hooks, [hook('top', 'didUpdateAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'didReceiveAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('passing values through attrs causes lifecycle hooks to fire if the attribute values have changed', function () {
+    QUnit.test('passing values through attrs causes lifecycle hooks to fire if the attribute values have changed', function () {
       var _EmberView$extend2;
 
       var components = {};
@@ -41196,7 +41196,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
+    QUnit.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
       var _style$class$extend;
 
       var component = undefined;
@@ -41216,7 +41216,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('DEPRECATED: didInitAttrs is deprecated', function (assert) {
+    QUnit.test('DEPRECATED: didInitAttrs is deprecated', function (assert) {
       var _style$class$extend2;
 
       var component = undefined;
@@ -41234,7 +41234,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       });
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('properties set during `init` are availabe in `didReceiveAttrs`', function (assert) {
+    QUnit.test('properties set during `init` are availabe in `didReceiveAttrs`', function (assert) {
       var _EmberView$extend3;
 
       assert.expect(1);
@@ -57098,12 +57098,12 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
     return _class3;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 'ember-htmlbars/node-managers/view-node-manager', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: node-managers - ViewNodeManager');
+  QUnit.module('ember-htmlbars: node-managers - ViewNodeManager');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('create method should assert if component hasn\'t been found', function (assert) {
+  QUnit.test('create method should assert if component hasn\'t been found', function (assert) {
     assert.expect(1);
 
     var found = {
@@ -57118,7 +57118,7 @@ enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 
     }, 'HTMLBars error: Could not find component named "' + path + '" (no component or template with that name was found)');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('create method shouldn\'t assert if `found.component` is truthy', function (assert) {
+  QUnit.test('create method shouldn\'t assert if `found.component` is truthy', function (assert) {
     assert.expect(1);
 
     var found = {
@@ -57139,7 +57139,7 @@ enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 
     _emberHtmlbarsNodeManagersViewNodeManager.default.create(renderNode, env, attrs, found);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('create method shouldn\'t assert if `found.layout` is truthy', function (assert) {
+  QUnit.test('create method shouldn\'t assert if `found.layout` is truthy', function (assert) {
     assert.expect(0);
 
     var found = {
@@ -57150,7 +57150,7 @@ enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 
     _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('create method shouldn\'t assert if `path` is falsy and `contentTemplate` is truthy', function (assert) {
+  QUnit.test('create method shouldn\'t assert if `path` is falsy and `contentTemplate` is truthy', function (assert) {
     assert.expect(0);
 
     var found = {
@@ -57564,7 +57564,7 @@ enifed('ember-htmlbars/tests/streams/stream-test', ['exports', 'ember-htmlbars/s
     equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'bar');
   });
 });
-enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'ember-htmlbars/helper', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _emberHtmlbarsHelper, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'ember-htmlbars/helper', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _emberHtmlbarsHelper, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   function generateEnv(helpers, owner) {
@@ -57584,9 +57584,9 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     return owner;
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: lookupHelper hook');
+  QUnit.module('ember-htmlbars: lookupHelper hook');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('looks for helpers in the provided `env.helpers`', function () {
+  QUnit.test('looks for helpers in the provided `env.helpers`', function () {
     var env = generateEnv({
       'flubarb': function () {}
     });
@@ -57596,7 +57596,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     equal(actual, env.helpers.flubarb, 'helpers are looked up on env');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('returns undefined if no container exists (and helper is not found in env)', function () {
+  QUnit.test('returns undefined if no container exists (and helper is not found in env)', function () {
     var env = generateEnv();
     var view = {};
 
@@ -57605,7 +57605,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     equal(actual, undefined, 'does not blow up if view does not have a container');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('does not lookup in the container if the name does not contain a dash (and helper is not found in env)', function () {
+  QUnit.test('does not lookup in the container if the name does not contain a dash (and helper is not found in env)', function () {
     var env = generateEnv();
     var view = {
       container: {
@@ -57620,7 +57620,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     equal(actual, undefined, 'does not blow up if view does not have a container');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('does a lookup in the container if the name contains a dash (and helper is not found in env)', function () {
+  QUnit.test('does a lookup in the container if the name contains a dash (and helper is not found in env)', function () {
     var _view;
 
     var owner = generateOwner();
@@ -57635,7 +57635,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     ok(someName.detect(actual), 'helper is an instance of the helper class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('does a lookup in the container if the name is found in knownHelpers', function () {
+  QUnit.test('does a lookup in the container if the name is found in knownHelpers', function () {
     var _view2;
 
     var owner = generateOwner();
@@ -57651,7 +57651,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     ok(t.detect(actual), 'helper is an instance of the helper class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('looks up a shorthand helper in the container', function () {
+  QUnit.test('looks up a shorthand helper in the container', function () {
     var _view3;
 
     expect(2);
@@ -57674,7 +57674,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     ok(called, 'HTMLBars compatible wrapper is wraping the provided function');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('fails with a useful error when resolving a function', function () {
+  QUnit.test('fails with a useful error when resolving a function', function () {
     var _view4;
 
     expect(1);
@@ -59233,25 +59233,25 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(TogglingSyntaxConditionalsTest, SyntaxCondtionalTestHelpers);
 });
-enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: SafeString');
+  QUnit.module('ember-htmlbars: SafeString');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('htmlSafe should return an instance of SafeString', function () {
+  QUnit.test('htmlSafe should return an instance of SafeString', function () {
     var safeString = _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>');
 
     ok(safeString instanceof _htmlbarsUtilSafeString.default, 'should be a SafeString');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('htmlSafe should return an empty string for null', function () {
+  QUnit.test('htmlSafe should return an empty string for null', function () {
     var safeString = _emberHtmlbarsUtilsString.htmlSafe(null);
 
     equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
     equal(safeString.toString(), '', 'should return an empty string');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('htmlSafe should return an empty string for undefined', function () {
+  QUnit.test('htmlSafe should return an empty string for undefined', function () {
     var safeString = _emberHtmlbarsUtilsString.htmlSafe();
 
     equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
