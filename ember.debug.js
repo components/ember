@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2a2b59ad
+ * @version   2.7.0-canary+dfcd6f19
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2a2b59ad";
+  exports.default = "2.7.0-canary+dfcd6f19";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7855,7 +7855,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'glimmer-reference', 'ember-metal/debug'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _glimmerReference, _emberMetalDebug) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _glimmerReference, _emberMetalDebug, _emberMetalMixin) {
   'use strict';
 
   var _CoreView$extend;
@@ -7873,7 +7873,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
 
   exports.HAS_BLOCK = HAS_BLOCK;
-  exports.default = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
+  var Component = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
     isComponent: true,
     template: null,
     layoutName: null,
@@ -7926,6 +7926,8 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
     }
   }, _CoreView$extend));
 
+  Component[_emberMetalMixin.NAME_KEY] = 'Ember.Component';
+
   function strip(_ref) {
     for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       values[_key - 1] = arguments[_key];
@@ -7941,6 +7943,8 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
       return s.trim();
     }).join(' ');
   }
+
+  exports.default = Component;
 });
 enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/component'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerComponent) {
   'use strict';
@@ -12689,7 +12693,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
-enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
@@ -13220,6 +13224,8 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-envir
       @since 1.13.0
     */
   });
+
+  Component[_emberMetalMixin.NAME_KEY] = 'Ember.Component';
 
   Component.reopenClass({
     isComponentFactory: true
