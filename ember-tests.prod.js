@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2393f452
+ * @version   2.7.0-canary+748a0ef7
  */
 
 var enifed, requireModule, require, Ember;
@@ -1685,7 +1685,7 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'ember-routing/system/controller_for', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _emberRoutingSystemController_for, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'ember-routing/system/controller_for'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _emberRoutingSystemController_for) {
   'use strict';
 
   var App, TEMPLATES, appInstance, router;
@@ -1806,7 +1806,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     equal(_emberRoutingSystemController_for.default(appInstance, 'application').get('selectedMenuItem'), null);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('initializers can augment an applications customEvents hash', function (assert) {
+  QUnit.test('initializers can augment an applications customEvents hash', function (assert) {
     assert.expect(1);
 
     _emberMetalRun_loop.default(App, 'destroy');
@@ -1840,7 +1840,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('instanceInitializers can augment an the customEvents hash', function (assert) {
+  QUnit.test('instanceInitializers can augment an the customEvents hash', function (assert) {
     assert.expect(1);
 
     _emberMetalRun_loop.default(App, 'destroy');
