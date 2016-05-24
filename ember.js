@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d5027f37
+ * @version   2.7.0-canary+3db5305d
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d5027f37";
+  exports.default = "2.7.0-canary+3db5305d";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -9138,6 +9138,10 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
+  var builtInComponents = {
+    textarea: '-text-area'
+  };
+
   var builtInHelpers = {
     concat: _emberGlimmerHelpersConcat.default,
     if: _emberGlimmerHelpersIfUnless.inlineIf,
@@ -9235,6 +9239,8 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     }
 
     Environment.prototype.refineStatement = function refineStatement(statement) {
+      var _this = this;
+
       var isSimple = statement.isSimple;
       var isInline = statement.isInline;
       var isBlock = statement.isBlock;
@@ -9257,6 +9263,26 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
             wrapClassAttribute(args);
             return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
           }
+        } else {
+          var _ret = (function () {
+            // Check if it's a keyword
+            var mappedKey = builtInComponents[key];
+            if (mappedKey) {
+              if (mappedKey !== key) {
+                path = path.map(function (segment) {
+                  return segment === key ? mappedKey : segment;
+                });
+              }
+              var definition = _this.getComponentDefinition(path);
+              wrapClassBindingAttribute(args);
+              wrapClassAttribute(args);
+              return {
+                v: new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates })
+              };
+            }
+          })();
+
+          if (typeof _ret === 'object') return _ret.v;
         }
       }
 

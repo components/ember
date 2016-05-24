@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d5027f37
+ * @version   2.7.0-canary+3db5305d
  */
 
 var enifed, requireModule, require, Ember;
@@ -29800,7 +29800,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       _TextAreaRenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars Should insert a textarea'] = function htmlbarsShouldInsertATextarea() {
+    _class.prototype['@test Should insert a textarea'] = function testShouldInsertATextarea() {
       this.render('{{textarea}}');
 
       equal(this.$('textarea').length, 1);
@@ -29808,7 +29808,21 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars Should become disabled when the context changes'] = function htmlbarsShouldBecomeDisabledWhenTheContextChanges() {
+    _class.prototype['@test Should respect disabled'] = function testShouldRespectDisabled() {
+      this.render('{{textarea disabled=disabled}}', {
+        disabled: true
+      });
+      ok(this.$('textarea').is(':disabled'));
+    };
+
+    _class.prototype['@test Should respect disabled when false'] = function testShouldRespectDisabledWhenFalse() {
+      this.render('{{textarea disabled=disabled}}', {
+        disabled: false
+      });
+      ok(this.$('textarea').is(':not(:disabled)'));
+    };
+
+    _class.prototype['@test Should become disabled when the context changes'] = function testShouldBecomeDisabledWhenTheContextChanges() {
       var _this = this;
 
       this.render('{{textarea disabled=disabled}}');
@@ -29827,7 +29841,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       ok(this.$('textarea').is(':not(:disabled)'));
     };
 
-    _class.prototype['@htmlbars Should bind its contents to the specified value'] = function htmlbarsShouldBindItsContentsToTheSpecifiedValue() {
+    _class.prototype['@test Should bind its contents to the specified value'] = function testShouldBindItsContentsToTheSpecifiedValue() {
       var _this2 = this;
 
       this.render('{{textarea value=model.val}}', {
@@ -51669,7 +51683,7 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
       _TextAreaRenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars Should insert a textarea'] = function htmlbarsShouldInsertATextarea() {
+    _class.prototype['@test Should insert a textarea'] = function testShouldInsertATextarea() {
       this.render('{{textarea}}');
 
       equal(this.$('textarea').length, 1);
@@ -51677,7 +51691,21 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
       this.assertStableRerender();
     };
 
-    _class.prototype['@htmlbars Should become disabled when the context changes'] = function htmlbarsShouldBecomeDisabledWhenTheContextChanges() {
+    _class.prototype['@test Should respect disabled'] = function testShouldRespectDisabled() {
+      this.render('{{textarea disabled=disabled}}', {
+        disabled: true
+      });
+      ok(this.$('textarea').is(':disabled'));
+    };
+
+    _class.prototype['@test Should respect disabled when false'] = function testShouldRespectDisabledWhenFalse() {
+      this.render('{{textarea disabled=disabled}}', {
+        disabled: false
+      });
+      ok(this.$('textarea').is(':not(:disabled)'));
+    };
+
+    _class.prototype['@test Should become disabled when the context changes'] = function testShouldBecomeDisabledWhenTheContextChanges() {
       var _this = this;
 
       this.render('{{textarea disabled=disabled}}');
@@ -51696,7 +51724,7 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
       ok(this.$('textarea').is(':not(:disabled)'));
     };
 
-    _class.prototype['@htmlbars Should bind its contents to the specified value'] = function htmlbarsShouldBindItsContentsToTheSpecifiedValue() {
+    _class.prototype['@test Should bind its contents to the specified value'] = function testShouldBindItsContentsToTheSpecifiedValue() {
       var _this2 = this;
 
       this.render('{{textarea value=model.val}}', {
