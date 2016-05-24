@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d5027f37
+ * @version   2.7.0-canary+748a0ef7
  */
 
 var enifed, requireModule, require, Ember;
@@ -38865,7 +38865,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     _emberRuntimeTestsUtils.runAppend(component);
   });
 });
-enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-views/component_lookup', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberViewsComponent_lookup, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsSystemJquery, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var owner, view;
@@ -38873,7 +38873,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
   var styles = [{
     name: 'curly',
-    class: _emberHtmlbarsTestsUtilsHelpers.Component
+    class: _emberHtmlbarsComponent.default
   }];
 
   styles.forEach(function (style) {
@@ -38987,11 +38987,11 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       owner.register('component:the-middle', component('middle'));
       owner.register('component:the-bottom', component('bottom'));
 
-      owner.register('template:components/the-top', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Twitter: {{attrs.twitter}} ' + invoke('the-middle', { name: string('Tom Dale') }) + '</div>'));
-      owner.register('template:components/the-middle', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Name: {{attrs.name}} ' + invoke('the-bottom', { website: string('tomdale.net') }) + '</div>'));
-      owner.register('template:components/the-bottom', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Website: {{attrs.website}}</div>'));
+      owner.register('template:components/the-top', _emberHtmlbarsTemplateCompiler.compile('<div>Twitter: {{attrs.twitter}} ' + invoke('the-middle', { name: string('Tom Dale') }) + '</div>'));
+      owner.register('template:components/the-middle', _emberHtmlbarsTemplateCompiler.compile('<div>Name: {{attrs.name}} ' + invoke('the-bottom', { website: string('tomdale.net') }) + '</div>'));
+      owner.register('template:components/the-bottom', _emberHtmlbarsTemplateCompiler.compile('<div>Website: {{attrs.website}}</div>'));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberHtmlbarsTestsUtilsHelpers.compile(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend.twitter = '@tomdale', _EmberView$extend)).create();
+      view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberHtmlbarsTemplateCompiler.compile(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend.twitter = '@tomdale', _EmberView$extend)).create();
 
       expectDeprecation(function () {
         _emberRuntimeTestsUtils.runAppend(view);
@@ -39101,11 +39101,11 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       owner.register('component:the-middle', component('middle'));
       owner.register('component:the-bottom', component('bottom'));
 
-      owner.register('template:components/the-top', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Top: ' + invoke('the-middle', { twitterTop: 'attrs.twitter' }) + '</div>'));
-      owner.register('template:components/the-middle', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Middle: ' + invoke('the-bottom', { twitterMiddle: 'attrs.twitterTop' }) + '</div>'));
-      owner.register('template:components/the-bottom', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Bottom: {{attrs.twitterMiddle}}</div>'));
+      owner.register('template:components/the-top', _emberHtmlbarsTemplateCompiler.compile('<div>Top: ' + invoke('the-middle', { twitterTop: 'attrs.twitter' }) + '</div>'));
+      owner.register('template:components/the-middle', _emberHtmlbarsTemplateCompiler.compile('<div>Middle: ' + invoke('the-bottom', { twitterMiddle: 'attrs.twitterTop' }) + '</div>'));
+      owner.register('template:components/the-bottom', _emberHtmlbarsTemplateCompiler.compile('<div>Bottom: {{attrs.twitterMiddle}}</div>'));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberHtmlbarsTestsUtilsHelpers.compile(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend2.twitter = '@tomdale', _EmberView$extend2)).create();
+      view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberHtmlbarsTemplateCompiler.compile(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend2.twitter = '@tomdale', _EmberView$extend2)).create();
 
       expectDeprecation(function () {
         _emberRuntimeTestsUtils.runAppend(view);
@@ -39155,7 +39155,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
       var component = undefined;
 
-      component = style.class.extend((_style$class$extend = {}, _style$class$extend[_containerOwner.OWNER] = owner, _style$class$extend.layout = _emberHtmlbarsTestsUtilsHelpers.compile('<div>{{handle}}</div>'), _style$class$extend.handle = '@wycats', _style$class$extend.didInsertElement = function () {
+      component = style.class.extend((_style$class$extend = {}, _style$class$extend[_containerOwner.OWNER] = owner, _style$class$extend.layout = _emberHtmlbarsTemplateCompiler.compile('<div>{{handle}}</div>'), _style$class$extend.handle = '@wycats', _style$class$extend.didInsertElement = function () {
         this.set('handle', '@tomdale');
       }, _style$class$extend)).create();
 
@@ -39175,7 +39175,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
       var component = undefined;
 
-      var componentClass = style.class.extend((_style$class$extend2 = {}, _style$class$extend2[_containerOwner.OWNER] = owner, _style$class$extend2.layout = _emberHtmlbarsTestsUtilsHelpers.compile('<div>{{handle}}</div>'), _style$class$extend2.handle = '@wycats', _style$class$extend2.didInitAttrs = function () {
+      var componentClass = style.class.extend((_style$class$extend2 = {}, _style$class$extend2[_containerOwner.OWNER] = owner, _style$class$extend2.layout = _emberHtmlbarsTemplateCompiler.compile('<div>{{handle}}</div>'), _style$class$extend2.handle = '@wycats', _style$class$extend2.didInitAttrs = function () {
         this._super.apply(this, arguments);
       }, _style$class$extend2));
 
@@ -39206,7 +39206,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
         }
       }));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend3 = {}, _EmberView$extend3[_containerOwner.OWNER] = owner, _EmberView$extend3.template = _emberHtmlbarsTestsUtilsHelpers.compile(invoke('the-thing')), _EmberView$extend3)).create();
+      view = _emberViewsViewsView.default.extend((_EmberView$extend3 = {}, _EmberView$extend3[_containerOwner.OWNER] = owner, _EmberView$extend3.template = _emberHtmlbarsTemplateCompiler.compile(invoke('the-thing')), _EmberView$extend3)).create();
 
       _emberRuntimeTestsUtils.runAppend(view);
     });
