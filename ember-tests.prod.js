@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0c64d88b
+ * @version   2.7.0-canary+a3a72a7a
  */
 
 var enifed, requireModule, require, Ember;
@@ -3676,7 +3676,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     assert.strictEqual(component.$('a').length, 1, 'the link is rendered');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper moves into the named route', function () {
+  QUnit.test('The {{link-to}} helper moves into the named route', function () {
     Router.map(function (match) {
       this.route('about');
     });
@@ -3700,7 +3700,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports URL replacement', function () {
+  QUnit.test('The {{link-to}} helper supports URL replacement', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3724,7 +3724,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(replaceCount, 1, 'replaceURL should be called once');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports URL replacement via replace=boundTruthyThing', function () {
+  QUnit.test('The {{link-to}} helper supports URL replacement via replace=boundTruthyThing', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}'));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -3752,7 +3752,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(replaceCount, 1, 'replaceURL should be called once');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports setting replace=boundFalseyThing', function () {
+  QUnit.test('The {{link-to}} helper supports setting replace=boundFalseyThing', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}'));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -3782,7 +3782,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
 
   // jscs:disable
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test("the {{link-to}} helper doesn't add an href when the tagName isn't 'a'", function () {
+  QUnit.test("the {{link-to}} helper doesn't add an href when the tagName isn't 'a'", function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3798,7 +3798,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#about-link').attr('href'), undefined, 'there is no href attribute');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test("the {{link-to}} applies a 'disabled' class when disabled", function () {
+  QUnit.test("the {{link-to}} applies a 'disabled' class when disabled", function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('\n    {{#link-to "about" id="about-link-static" disabledWhen="shouldDisable"}}About{{/link-to}}\n    {{#link-to "about" id="about-link-dynamic" disabledWhen=dynamicDisabledWhen}}About{{/link-to}}\n  '));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -3826,7 +3826,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#about-link-dynamic.disabled', '#qunit-fixture').length, 0, 'The dynamic link is re-enabled when its disabledWhen becomes false');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test("the {{link-to}} doesn't apply a 'disabled' class if disabledWhen is not provided", function () {
+  QUnit.test("the {{link-to}} doesn't apply a 'disabled' class if disabledWhen is not provided", function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link"}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3842,7 +3842,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     ok(!_emberViewsSystemJquery.default('#about-link', '#qunit-fixture').hasClass('disabled'), 'The link is not disabled if disabledWhen not provided');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper supports a custom disabledClass', function () {
+  QUnit.test('the {{link-to}} helper supports a custom disabledClass', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3858,7 +3858,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper supports a custom disabledClass set via bound param', function () {
+  QUnit.test('the {{link-to}} helper supports a custom disabledClass set via bound param', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass=disabledClass}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3878,7 +3878,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class via bound param');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper does not respond to clicks when disabled', function () {
+  QUnit.test('the {{link-to}} helper does not respond to clicks when disabled', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3898,7 +3898,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper responds to clicks according to its disabledWhen bound param', function () {
+  QUnit.test('the {{link-to}} helper responds to clicks according to its disabledWhen bound param', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}'));
 
     Router.map(function () {
@@ -3931,7 +3931,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('h3:contains(About)', '#qunit-fixture').length, 1, 'Transitioning did occur when disabledWhen became false');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports a custom activeClass', function () {
+  QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link' activeClass='zomg-active'}}Self{{/link-to}}"));
 
     Router.map(function () {
@@ -3949,7 +3949,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports a custom activeClass from a bound param', function () {
+  QUnit.test('The {{link-to}} helper supports a custom activeClass from a bound param', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}'));
 
     Router.map(function () {
@@ -3998,7 +3998,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#about-link.foo-is-true', '#qunit-fixture').length, 1, 'The about-link was rendered with the truthy class after toggling the property');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports leaving off .index for nested routes', function () {
+  QUnit.test('The {{link-to}} helper supports leaving off .index for nested routes', function () {
     Router.map(function () {
       this.route('about', function () {
         this.route('item');
@@ -4016,7 +4016,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(normalizeUrl(_emberViewsSystemJquery.default('#item a', '#qunit-fixture').attr('href')), '/about');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports currentWhen (DEPRECATED)', function () {
+  QUnit.test('The {{link-to}} helper supports currentWhen (DEPRECATED)', function () {
     expectDeprecation('Usage of `currentWhen` is deprecated, use `current-when` instead.');
 
     Router.map(function (match) {
@@ -4039,7 +4039,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports custom, nested, current-when', function () {
+  QUnit.test('The {{link-to}} helper supports custom, nested, current-when', function () {
     Router.map(function (match) {
       this.route('index', { path: '/' }, function () {
         this.route('about');
@@ -4060,7 +4060,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper does not disregard current-when when it is given explicitly for a route', function () {
+  QUnit.test('The {{link-to}} helper does not disregard current-when when it is given explicitly for a route', function () {
     Router.map(function (match) {
       this.route('index', { path: '/' }, function () {
         this.route('about');
@@ -4083,7 +4083,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a route');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper does not disregard current-when when it is set via a bound param', function () {
+  QUnit.test('The {{link-to}} helper does not disregard current-when when it is set via a bound param', function () {
     Router.map(function (match) {
       this.route('index', { path: '/' }, function () {
         this.route('about');
@@ -4110,7 +4110,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a route');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports multiple current-when routes', function () {
+  QUnit.test('The {{link-to}} helper supports multiple current-when routes', function () {
     Router.map(function (match) {
       this.route('index', { path: '/' }, function () {
         this.route('about');
@@ -4145,7 +4145,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#link3.active', '#qunit-fixture').length, 0, 'The link is not active since current-when does not contain the active route');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper defaults to bubbling', function () {
+  QUnit.test('The {{link-to}} helper defaults to bubbling', function () {
     _emberTemplatesTemplate_registry.set('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}"));
     _emberTemplatesTemplate_registry.set('about/contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h1 id='contact'>Contact</h1>"));
 
@@ -4180,7 +4180,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(hidden, 1, 'The link bubbles');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports bubbles=false', function () {
+  QUnit.test('The {{link-to}} helper supports bubbles=false', function () {
     _emberTemplatesTemplate_registry.set('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=false}}About{{/link-to}}</div>{{outlet}}"));
     _emberTemplatesTemplate_registry.set('about/contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h1 id='contact'>Contact</h1>"));
 
@@ -4215,7 +4215,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(hidden, 0, "The link didn't bubble");
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports bubbles=boundFalseyThing', function () {
+  QUnit.test('The {{link-to}} helper supports bubbles=boundFalseyThing', function () {
     _emberTemplatesTemplate_registry.set('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=boundFalseyThing}}About{{/link-to}}</div>{{outlet}}"));
     _emberTemplatesTemplate_registry.set('about/contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h1 id='contact'>Contact</h1>"));
 
@@ -4254,7 +4254,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(hidden, 0, "The link didn't bubble");
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper moves into the named route with context', function () {
+  QUnit.test('The {{link-to}} helper moves into the named route with context', function () {
     Router.map(function (match) {
       this.route('about');
       this.route('item', { path: '/item/:id' });
@@ -4303,7 +4303,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('p', '#qunit-fixture').text(), 'Erik Brynroflsson', 'The name is correct');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper binds some anchor html tag common attributes', function () {
+  QUnit.test('The {{link-to}} helper binds some anchor html tag common attributes', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}"));
     bootApplication();
 
@@ -4317,7 +4317,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(link.attr('tabindex'), '-1', 'The self-link contains tabindex attribute');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports `target` attribute', function () {
+  QUnit.test('The {{link-to}} helper supports `target` attribute', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
     bootApplication();
 
@@ -4329,7 +4329,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper supports `target` attribute specified as a bound param', function () {
+  QUnit.test('The {{link-to}} helper supports `target` attribute specified as a bound param', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target=boundLinkTarget}}Self{{/link-to}}"));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -4346,7 +4346,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper does not call preventDefault if `target` attribute is provided', function () {
+  QUnit.test('The {{link-to}} helper does not call preventDefault if `target` attribute is provided', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
     bootApplication();
 
@@ -4360,7 +4360,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(event.isDefaultPrevented(), false, 'should not preventDefault when target attribute is specified');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper should preventDefault when `target = _self`', function () {
+  QUnit.test('The {{link-to}} helper should preventDefault when `target = _self`', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}"));
     bootApplication();
 
@@ -4374,7 +4374,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper should not transition if target is not equal to _self or empty', function () {
+  QUnit.test('The {{link-to}} helper should not transition if target is not equal to _self or empty', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}"));
 
     Router.map(function () {
@@ -4394,7 +4394,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     notEqual(appInstance.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper accepts string/numeric arguments', function () {
+  QUnit.test('The {{link-to}} helper accepts string/numeric arguments', function () {
     Router.map(function () {
       this.route('filter', { path: '/filters/:filter' });
       this.route('post', { path: '/post/:post_id' });
@@ -4423,7 +4423,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(normalizeUrl(_emberViewsSystemJquery.default('#repo-object-link', '#qunit-fixture').attr('href')), '/repo/ember/ember.js');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test("Issue 4201 - Shorthand for route.index shouldn't throw errors about context arguments", function () {
+  QUnit.test("Issue 4201 - Shorthand for route.index shouldn't throw errors about context arguments", function () {
     expect(2);
     Router.map(function () {
       this.route('lobby', function () {
@@ -4558,7 +4558,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     assertEquality('/about');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('link-to with null/undefined dynamic parameters are put in a loading state', function () {
+  QUnit.test('link-to with null/undefined dynamic parameters are put in a loading state', function () {
     expect(19);
 
     var oldWarn = _emberConsole.default.warn;
@@ -4649,7 +4649,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     _emberConsole.default.warn = oldWarn;
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper refreshes href element when one of params changes', function () {
+  QUnit.test('The {{link-to}} helper refreshes href element when one of params changes', function () {
     Router.map(function () {
       this.route('post', { path: '/posts/:post_id' });
     });
@@ -4687,7 +4687,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#post', '#qunit-fixture').attr('href'), '#', 'href attr becomes # when one of the arguments in nullified');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper is active when a route is active', function () {
+  QUnit.test('The {{link-to}} helper is active when a route is active', function () {
     Router.map(function () {
       this.route('about', function () {
         this.route('item');
@@ -4711,7 +4711,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#item-link.active', '#qunit-fixture').length, 1, 'The item route link is active');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test("The {{link-to}} helper works in an #each'd array of string route names", function () {
+  QUnit.test("The {{link-to}} helper works in an #each'd array of string route names", function () {
     Router.map(function () {
       this.route('foo');
       this.route('bar');
@@ -4751,7 +4751,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     linksEqual(_emberViewsSystemJquery.default('a', '#qunit-fixture'), ['/bar', '/rar', '/bar', '/rar', '/rar', '/foo']);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The non-block form {{link-to}} helper moves into the named route', function () {
+  QUnit.test('The non-block form {{link-to}} helper moves into the named route', function () {
     expect(3);
     Router.map(function (match) {
       this.route('contact');
@@ -4771,7 +4771,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The non-block form {{link-to}} helper updates the link text when it is a binding', function () {
+  QUnit.test('The non-block form {{link-to}} helper updates the link text when it is a binding', function () {
     expect(8);
     Router.map(function (match) {
       this.route('contact');
@@ -4819,7 +4819,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the route changes');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The non-block form {{link-to}} helper moves into the named route with context', function () {
+  QUnit.test('The non-block form {{link-to}} helper moves into the named route with context', function () {
     expect(5);
 
     Router.map(function (match) {
@@ -4891,7 +4891,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     assertEquality('/about');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The non-block form {{link-to}} protects against XSS', function () {
+  QUnit.test('The non-block form {{link-to}} protects against XSS', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to display 'index' id='link'}}"));
 
     App.ApplicationController = _emberRuntimeControllersController.default.extend({
@@ -4913,7 +4913,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('b', '#qunit-fixture').length, 0);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper calls preventDefault', function () {
+  QUnit.test('the {{link-to}} helper calls preventDefault', function () {
     Router.map(function () {
       this.route('about');
     });
@@ -4928,7 +4928,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(event.isDefaultPrevented(), true, 'should preventDefault');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper does not call preventDefault if `preventDefault=false` is passed as an option', function () {
+  QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=false` is passed as an option', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' id='about-link' preventDefault=false}}About{{/link-to}}"));
 
     Router.map(function () {
@@ -4945,7 +4945,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper does not call preventDefault if `preventDefault=boundFalseyThing` is passed as an option', function () {
+  QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=boundFalseyThing` is passed as an option', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' id='about-link' preventDefault=boundFalseyThing}}About{{/link-to}}"));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -4966,7 +4966,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
+  QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
     expect(0);
 
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' id='post-link'}}Post{{/link-to}}{{/if}}"));
@@ -4997,7 +4997,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} active property respects changing parent route context', function () {
+  QUnit.test('{{link-to}} active property respects changing parent route context', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'OMG' 'things' 'omg' id='omg-link'}} " + "{{link-to 'LOL' 'things' 'lol' id='lol-link'}} "));
 
     Router.map(function () {
@@ -5017,7 +5017,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     shouldNotBeActive('#lol-link');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('{{link-to}} populates href with default query param values even without query-params object', function () {
+  QUnit.test('{{link-to}} populates href with default query param values even without query-params object', function () {
     if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -5219,7 +5219,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('The {{link-to}} helper can use dynamic params', function () {
+  QUnit.test('The {{link-to}} helper can use dynamic params', function () {
     Router.map(function (match) {
       this.route('foo', { path: 'foo/:some/:thing' });
       this.route('bar', { path: 'bar/:some/:thing/:else' });
@@ -5255,7 +5255,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(link.attr('href'), '/bar/one/two/three');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('GJ: {{link-to}} to a parent root model hook which performs a `transitionTo` has correct active class #13256', function () {
+  QUnit.test('GJ: {{link-to}} to a parent root model hook which performs a `transitionTo` has correct active class #13256', function () {
     expect(1);
 
     Router.map(function () {
