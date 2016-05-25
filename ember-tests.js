@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a3a72a7a
+ * @version   2.7.0-canary+ceb2b150
  */
 
 var enifed, requireModule, require, Ember;
@@ -6777,7 +6777,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
   }
 });
-enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemString, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemString, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry) {
   'use strict';
 
   var App, container, router, registry;
@@ -6851,7 +6851,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('Routing with Query Params', {
+  QUnit.module('Routing with Query Params', {
     setup: function () {
       sharedSetup();
     },
@@ -6864,7 +6864,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
   var startingURL = '';
 
   var testParamlessLinks = function (routeName) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
+    QUnit.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
       expect(1);
 
       _emberTemplatesTemplate_registry.set(routeName, _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'index\' \'index\' id=\'index-link\'}}'));
@@ -6882,7 +6882,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
   };
 
   var testParamlessLinksWithRouteConfig = function (routeName) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
+    QUnit.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
       expect(1);
 
       _emberTemplatesTemplate_registry.set(routeName, _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'index\' \'index\' id=\'index-link\'}}'));
@@ -7017,7 +7017,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
   });
 
   if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Single query params can be set on the route', function () {
+    QUnit.test('Single query params can be set on the route', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -7042,7 +7042,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=987');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('a query param can have define a `type` for type casting', function () {
+    QUnit.test('a query param can have define a `type` for type casting', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -7064,7 +7064,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('page'), 4);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Query params can map to different url keys configured on the route', function () {
+    QUnit.test('Query params can map to different url keys configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: { as: 'other_foo', defaultValue: 'FOO' },
@@ -7090,7 +7090,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(router, 'transitionTo', '/?other_bar=NERK&other_foo=NAW');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Routes have overridable serializeQueryParamKey hook and it works with route-configured query params', function () {
+    QUnit.test('Routes have overridable serializeQueryParamKey hook and it works with route-configured query params', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           funTimes: {
@@ -7109,7 +7109,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?fun-times=woot');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('No replaceURL occurs on startup when configured via Route because default values don\'t show up in URL', function () {
+    QUnit.test('No replaceURL occurs on startup when configured via Route because default values don\'t show up in URL', function () {
       expect(0);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -7125,7 +7125,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hooks receives query params when configred on Route', function () {
+    QUnit.test('model hooks receives query params when configred on Route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           omg: {
@@ -7142,7 +7142,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hooks receives query params (overridden by incoming url value) when configured on route', function () {
+    QUnit.test('model hooks receives query params (overridden by incoming url value) when configured on route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           omg: {
@@ -7160,7 +7160,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=yes');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#paramsFor fetches query params when configured on the route', function () {
+    QUnit.test('Route#paramsFor fetches query params when configured on the route', function () {
       expect(1);
 
       App.Router.map(function () {
@@ -7182,7 +7182,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#paramsFor fetches falsy query params when they\'re configured on the route', function () {
+    QUnit.test('Route#paramsFor fetches falsy query params when they\'re configured on the route', function () {
       expect(1);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -7200,7 +7200,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hook can query prefix-less application params when they\'re configured on the route', function () {
+    QUnit.test('model hook can query prefix-less application params when they\'re configured on the route', function () {
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           appomg: {
@@ -7229,7 +7229,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into full transition by setting refreshModel in route queryParams when all configuration is in route', function () {
+    QUnit.test('can opt into full transition by setting refreshModel in route queryParams when all configuration is in route', function () {
       expect(6);
 
       var appModelCount = 0;
@@ -7275,7 +7275,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('refreshModel does not cause a second transition during app boot ', function () {
+    QUnit.test('refreshModel does not cause a second transition during app boot ', function () {
       expect(0);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -7302,7 +7302,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can use refreshModel even w URL changes that remove QPs from address bar when QP configured on route', function () {
+    QUnit.test('can use refreshModel even w URL changes that remove QPs from address bar when QP configured on route', function () {
       expect(4);
 
       var indexModelCount = 0;
@@ -7335,7 +7335,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexController.get('omg'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into a replace query by specifying replace:true in the Router config hash when all configuration lives on route', function () {
+    QUnit.test('can opt into a replace query by specifying replace:true in the Router config hash when all configuration lives on route', function () {
       expect(2);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -7356,7 +7356,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'alex', 'wallace');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route query params config can be configured using property name instead of URL key when configured on the route', function () {
+    QUnit.test('Route query params config can be configured using property name instead of URL key when configured on the route', function () {
       expect(2);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -7377,7 +7377,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'commitBy', 'igor_seb');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('An explicit replace:false on a changed QP always wins and causes a pushState even when configuration is all on the route', function () {
+    QUnit.test('An explicit replace:false on a changed QP always wins and causes a pushState even when configuration is all on the route', function () {
       expect(3);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -7495,7 +7495,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/abcdef/zoo?bar=456&foo=123');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo supports query params when configuration occurs on the route', function () {
+    QUnit.test('transitionTo supports query params when configuration occurs on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -7518,7 +7518,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo supports query params (multiple) when configuration occurs on the route', function () {
+    QUnit.test('transitionTo supports query params (multiple) when configuration occurs on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -7544,7 +7544,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('A default boolean value deserializes QPs as booleans rather than strings when configuration occurs on the route', function () {
+    QUnit.test('A default boolean value deserializes QPs as booleans rather than strings when configuration occurs on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -7566,7 +7566,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('foo'), false);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Query param without value are empty string when configuration occurs on the route', function () {
+    QUnit.test('Query param without value are empty string when configuration occurs on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -7582,7 +7582,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('foo'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Array query params can be set when configured on the route', function () {
+    QUnit.test('Array query params can be set when configured on the route', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -7607,7 +7607,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=%5B3%2C4%5D');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('(de)serialization: arrays when configuration occurs on the route', function () {
+    QUnit.test('(de)serialization: arrays when configuration occurs on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -7628,7 +7628,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=%5B%5D', 'longform supported');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Url with array query param sets controller property to array when configuration occurs on the route', function () {
+    QUnit.test('Url with array query param sets controller property to array when configuration occurs on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -7644,7 +7644,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.get('foo'), ['1', '2', '3']);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Url with array query param sets controller property to array when configuration occurs on the route and there is still a controller', function () {
+    QUnit.test('Url with array query param sets controller property to array when configuration occurs on the route and there is still a controller', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend();
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -7662,7 +7662,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.get('foo'), ['1', '2', '3']);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Array query params can be pushed/popped when configuration occurs on the route but there is still a controller', function () {
+    QUnit.test('Array query params can be pushed/popped when configuration occurs on the route but there is still a controller', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -7709,7 +7709,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.foo, ['lol', 1]);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Overwriting with array with same content shouldn\'t refire update when configuration occurs on router but there is still a controller', function () {
+    QUnit.test('Overwriting with array with same content shouldn\'t refire update when configuration occurs on router but there is still a controller', function () {
       expect(3);
       var modelCount = 0;
 
@@ -7739,7 +7739,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param when configuration occurs on the router', function () {
+    QUnit.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param when configuration occurs on the router', function () {
       expect(1);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -7799,7 +7799,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#bar-link'), 'click');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Undefined isn\'t deserialized into a string when configuration occurs on the route', function () {
+    QUnit.test('Undefined isn\'t deserialized into a string when configuration occurs on the route', function () {
       expect(3);
       App.Router.map(function () {
         this.route('example');
@@ -7829,7 +7829,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(_emberMetalProperty_get.default(controller, 'foo'), undefined);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('query params have been set by the time setupController is called when configuration occurs on the router', function () {
+    QUnit.test('query params have been set by the time setupController is called when configuration occurs on the router', function () {
       expect(1);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -7847,7 +7847,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('query params have been set by the time setupController is called when configuration occurs on the router and there is still a controller', function () {
+    QUnit.test('query params have been set by the time setupController is called when configuration occurs on the router and there is still a controller', function () {
       expect(1);
 
       App.ApplicationController = _emberRuntimeControllersController.default.extend();
@@ -7867,7 +7867,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hooks receives query params when configured on the route', function () {
+    QUnit.test('model hooks receives query params when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           omg: {
@@ -7884,7 +7884,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Routes have overridable serializeQueryParamKey hook when configured on the route', function () {
+    QUnit.test('Routes have overridable serializeQueryParamKey hook when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           funTimes: {
@@ -7903,7 +7903,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?fun-times=woot');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('No replaceURL occurs on startup because default values don\'t show up in URL when configured on the route', function () {
+    QUnit.test('No replaceURL occurs on startup because default values don\'t show up in URL when configured on the route', function () {
       expect(0);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -8022,7 +8022,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/cats?name=domino', 'url is correct');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('query params have been set by the time setupController is called when configured on the route', function () {
+    QUnit.test('query params have been set by the time setupController is called when configured on the route', function () {
       expect(1);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -8040,7 +8040,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hooks receives query params (overridden by incoming url value) when configured on the route', function () {
+    QUnit.test('model hooks receives query params (overridden by incoming url value) when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           omg: {
@@ -8058,7 +8058,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=yes');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#paramsFor fetches query params when configured on the route', function () {
+    QUnit.test('Route#paramsFor fetches query params when configured on the route', function () {
       expect(1);
 
       App.Router.map(function () {
@@ -8080,7 +8080,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hook can query prefix-less application params (overridden by incoming url value) when they\'re configured on the route', function () {
+    QUnit.test('model hook can query prefix-less application params (overridden by incoming url value) when they\'re configured on the route', function () {
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           appomg: {
@@ -8110,7 +8110,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?appomg=appyes&omg=yes');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#paramsFor fetches falsy query params when configured on the route', function () {
+    QUnit.test('Route#paramsFor fetches falsy query params when configured on the route', function () {
       expect(1);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -8128,7 +8128,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hook can query prefix-less application params when configured on the route', function () {
+    QUnit.test('model hook can query prefix-less application params when configured on the route', function () {
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           appomg: {
@@ -8157,7 +8157,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into full transition by setting refreshModel in route queryParams when configured on the route', function () {
+    QUnit.test('can opt into full transition by setting refreshModel in route queryParams when configured on the route', function () {
       expect(6);
 
       var appModelCount = 0;
@@ -8203,7 +8203,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can use refreshModel even w URL changes that remove QPs from address bar when configured on the route', function () {
+    QUnit.test('can use refreshModel even w URL changes that remove QPs from address bar when configured on the route', function () {
       expect(4);
 
       var indexModelCount = 0;
@@ -8236,7 +8236,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexController.get('omg'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into a replace query by specifying replace:true in the Router config hash when configured on the route', function () {
+    QUnit.test('can opt into a replace query by specifying replace:true in the Router config hash when configured on the route', function () {
       expect(2);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -8257,7 +8257,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'alex', 'wallace');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route query params config can be configured using property name instead of URL key when configured on the route', function () {
+    QUnit.test('Route query params config can be configured using property name instead of URL key when configured on the route', function () {
       expect(2);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -8278,7 +8278,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'commitBy', 'igor_seb');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('An explicit replace:false on a changed QP always wins and causes a pushState when configured on the route', function () {
+    QUnit.test('An explicit replace:false on a changed QP always wins and causes a pushState when configured on the route', function () {
       expect(3);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -8342,7 +8342,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(parentModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can override incoming QP values in setupController when configured on the route', function () {
+    QUnit.test('can override incoming QP values in setupController when configured on the route', function () {
       expect(3);
 
       App.Router.map(function () {
@@ -8373,7 +8373,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=OVERRIDE');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can override incoming QP array values in setupController when configured on the route', function () {
+    QUnit.test('can override incoming QP array values in setupController when configured on the route', function () {
       expect(3);
 
       App.Router.map(function () {
@@ -8404,7 +8404,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=' + encodeURIComponent(JSON.stringify(['OVERRIDE'])));
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('URL transitions that remove QPs still register as QP changes when configured on the route', function () {
+    QUnit.test('URL transitions that remove QPs still register as QP changes when configured on the route', function () {
       expect(2);
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
@@ -8460,7 +8460,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/abcdef/zoo?bar=456&foo=123');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo supports query params when configured on the route', function () {
+    QUnit.test('transitionTo supports query params when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -8483,7 +8483,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo supports query params (multiple) when configured on the route', function () {
+    QUnit.test('transitionTo supports query params (multiple) when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -8509,7 +8509,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('setting controller QP to empty string doesn\'t generate null in URL when configured on the route', function () {
+    QUnit.test('setting controller QP to empty string doesn\'t generate null in URL when configured on the route', function () {
       expect(1);
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -8526,7 +8526,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(controller, 'foo', '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('setting QP to empty string doesn\'t generate null in URL when configured on the route', function () {
+    QUnit.test('setting QP to empty string doesn\'t generate null in URL when configured on the route', function () {
       expect(1);
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -8543,7 +8543,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(controller, 'foo', '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('A default boolean value deserializes QPs as booleans rather than strings when configured on the route', function () {
+    QUnit.test('A default boolean value deserializes QPs as booleans rather than strings when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -8565,7 +8565,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('foo'), false);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Query param without value are empty string when configured on the route', function () {
+    QUnit.test('Query param without value are empty string when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -8581,7 +8581,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('foo'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Array query params can be set when configured on the route', function () {
+    QUnit.test('Array query params can be set when configured on the route', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -8606,7 +8606,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=%5B3%2C4%5D');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('(de)serialization: arrays when configured on the route', function () {
+    QUnit.test('(de)serialization: arrays when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -8627,7 +8627,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=%5B%5D', 'longform supported');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Url with array query param sets controller property to array when configured on the route', function () {
+    QUnit.test('Url with array query param sets controller property to array when configured on the route', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
           foo: {
@@ -8643,7 +8643,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.get('foo'), ['1', '2', '3']);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Array query params can be pushed/popped when configured on the route', function () {
+    QUnit.test('Array query params can be pushed/popped when configured on the route', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -8688,7 +8688,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.foo, ['lol', 1]);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Overwriting with array with same content shouldn\'t refire update when configured on the route', function () {
+    QUnit.test('Overwriting with array with same content shouldn\'t refire update when configured on the route', function () {
       expect(3);
       var modelCount = 0;
 
@@ -8716,7 +8716,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Defaulting to params hash as the model should not result in that params object being watched when configured on the route', function () {
+    QUnit.test('Defaulting to params hash as the model should not result in that params object being watched when configured on the route', function () {
       expect(1);
 
       App.Router.map(function () {
@@ -8747,7 +8747,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(router, 'transitionTo', 'other');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param when configured on the route', function () {
+    QUnit.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param when configured on the route', function () {
       expect(1);
 
       App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -8806,7 +8806,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#bar-link'), 'click');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Undefined isn\'t deserialized into a string when configured on the route', function () {
+    QUnit.test('Undefined isn\'t deserialized into a string when configured on the route', function () {
       expect(3);
       App.Router.map(function () {
         this.route('example');
@@ -8874,7 +8874,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(_emberMetalProperty_get.default(controller, 'foo'), '456');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Calling transitionTo does not lose query params already on the activeTransition', function () {
+    QUnit.test('Calling transitionTo does not lose query params already on the activeTransition', function () {
       expect(2);
       App.Router.map(function () {
         this.route('parent', function () {
@@ -8902,7 +8902,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(parentController.get('foo'), 'lol');
     });
   } else {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Calling transitionTo does not lose query params already on the activeTransition', function () {
+    QUnit.test('Calling transitionTo does not lose query params already on the activeTransition', function () {
       expect(2);
       App.Router.map(function () {
         this.route('parent', function () {
@@ -8931,7 +8931,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(parentController.get('foo'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Single query params can be set on the controller [DEPRECATED]', function () {
+    QUnit.test('Single query params can be set on the controller [DEPRECATED]', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -8953,7 +8953,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=987');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Single query params can be set on the controller [DEPRECATED]', function () {
+    QUnit.test('Single query params can be set on the controller [DEPRECATED]', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -8975,7 +8975,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=987');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Query params can map to different url keys configured on the controller [DEPRECATED]', function () {
+    QUnit.test('Query params can map to different url keys configured on the controller [DEPRECATED]', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: [{ foo: 'other_foo', bar: { as: 'other_bar' } }],
         foo: 'FOO',
@@ -8999,7 +8999,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(router, 'transitionTo', '/?other_bar=NERK&other_foo=NAW');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Routes have overridable serializeQueryParamKey hook', function () {
+    QUnit.test('Routes have overridable serializeQueryParamKey hook', function () {
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         serializeQueryParamKey: _emberRuntimeSystemString.dasherize
       });
@@ -9018,7 +9018,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?fun-times=woot');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('No replaceURL occurs on startup because default values don\'t show up in URL', function () {
+    QUnit.test('No replaceURL occurs on startup because default values don\'t show up in URL', function () {
       expect(0);
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -9031,7 +9031,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Can override inherited QP behavior by specifying queryParams as a computed property', function () {
+    QUnit.test('Can override inherited QP behavior by specifying queryParams as a computed property', function () {
       expect(0);
       var SharedMixin = _emberMetalMixin.default.create({
         queryParams: ['a'],
@@ -9052,7 +9052,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(indexController, 'set', 'a', 1);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hooks receives query params', function () {
+    QUnit.test('model hooks receives query params', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['omg'],
         omg: 'lol'
@@ -9161,7 +9161,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/cats?name=domino', 'url is correct');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('query params have been set by the time setupController is called', function () {
+    QUnit.test('query params have been set by the time setupController is called', function () {
       expect(1);
 
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
@@ -9179,7 +9179,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hooks receives query params (overridden by incoming url value)', function () {
+    QUnit.test('model hooks receives query params (overridden by incoming url value)', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['omg'],
         omg: 'lol'
@@ -9197,7 +9197,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=yes');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#paramsFor fetches query params', function () {
+    QUnit.test('Route#paramsFor fetches query params', function () {
       expect(1);
 
       App.Router.map(function () {
@@ -9219,7 +9219,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hook can query prefix-less application params (overridden by incoming url value)', function () {
+    QUnit.test('model hook can query prefix-less application params (overridden by incoming url value)', function () {
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['appomg'],
         appomg: 'applol'
@@ -9249,7 +9249,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?appomg=appyes&omg=yes');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route#paramsFor fetches falsy query params', function () {
+    QUnit.test('Route#paramsFor fetches falsy query params', function () {
       expect(1);
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -9267,7 +9267,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('model hook can query prefix-less application params', function () {
+    QUnit.test('model hook can query prefix-less application params', function () {
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['appomg'],
         appomg: 'applol'
@@ -9296,7 +9296,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into full transition by setting refreshModel in route queryParams', function () {
+    QUnit.test('can opt into full transition by setting refreshModel in route queryParams', function () {
       expect(6);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['appomg'],
@@ -9345,7 +9345,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('refreshModel does not cause a second transition during app boot ', function () {
+    QUnit.test('refreshModel does not cause a second transition during app boot ', function () {
       expect(0);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['appomg'],
@@ -9372,7 +9372,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
+    QUnit.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
       expect(6);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['appomg'],
@@ -9421,7 +9421,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can use refreshModel even w URL changes that remove QPs from address bar', function () {
+    QUnit.test('can use refreshModel even w URL changes that remove QPs from address bar', function () {
       expect(4);
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -9458,7 +9458,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(indexController.get('omg'), 'lol');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can opt into a replace query by specifying replace:true in the Router config hash', function () {
+    QUnit.test('can opt into a replace query by specifying replace:true in the Router config hash', function () {
       expect(2);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['alex'],
@@ -9482,7 +9482,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'alex', 'wallace');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Route query params config can be configured using property name instead of URL key', function () {
+    QUnit.test('Route query params config can be configured using property name instead of URL key', function () {
       expect(2);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: [{ commitBy: 'commit_by' }]
@@ -9505,7 +9505,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'commitBy', 'igor_seb');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('An explicit replace:false on a changed QP always wins and causes a pushState', function () {
+    QUnit.test('An explicit replace:false on a changed QP always wins and causes a pushState', function () {
       expect(3);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['alex', 'steely'],
@@ -9576,7 +9576,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(parentModelCount, 2);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Use Ember.get to retrieve query params \'replace\' configuration', function () {
+    QUnit.test('Use Ember.get to retrieve query params \'replace\' configuration', function () {
       expect(2);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['alex'],
@@ -9601,7 +9601,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(appController, 'alex', 'wallace');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can override incoming QP values in setupController', function () {
+    QUnit.test('can override incoming QP values in setupController', function () {
       expect(3);
 
       App.Router.map(function () {
@@ -9632,7 +9632,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?omg=OVERRIDE');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('can override incoming QP array values in setupController', function () {
+    QUnit.test('can override incoming QP array values in setupController', function () {
       expect(3);
 
       App.Router.map(function () {
@@ -9710,7 +9710,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/abcdef/zoo?bar=456&foo=123');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo supports query params', function () {
+    QUnit.test('transitionTo supports query params', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
         foo: 'lol'
@@ -9730,7 +9730,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('transitionTo supports query params (multiple)', function () {
+    QUnit.test('transitionTo supports query params (multiple)', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo', 'bar'],
         foo: 'lol',
@@ -9751,7 +9751,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('setting controller QP to empty string doesn\'t generate null in URL', function () {
+    QUnit.test('setting controller QP to empty string doesn\'t generate null in URL', function () {
       expect(1);
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
@@ -9765,7 +9765,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(controller, 'foo', '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('setting QP to empty string doesn\'t generate null in URL', function () {
+    QUnit.test('setting QP to empty string doesn\'t generate null in URL', function () {
       expect(1);
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -9782,7 +9782,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       setAndFlush(controller, 'foo', '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('A default boolean value deserializes QPs as booleans rather than strings', function () {
+    QUnit.test('A default boolean value deserializes QPs as booleans rather than strings', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
         foo: false
@@ -9804,7 +9804,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('foo'), false);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Query param without value are empty string', function () {
+    QUnit.test('Query param without value are empty string', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
         foo: ''
@@ -9817,7 +9817,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(controller.get('foo'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Array query params can be set', function () {
+    QUnit.test('Array query params can be set', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -9839,7 +9839,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=%5B3%2C4%5D');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('(de)serialization: arrays', function () {
+    QUnit.test('(de)serialization: arrays', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
         foo: [1]
@@ -9857,7 +9857,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '/?foo=%5B%5D', 'longform supported');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Url with array query param sets controller property to array', function () {
+    QUnit.test('Url with array query param sets controller property to array', function () {
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
         foo: ''
@@ -9870,7 +9870,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.get('foo'), ['1', '2', '3']);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Array query params can be pushed/popped', function () {
+    QUnit.test('Array query params can be pushed/popped', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
       });
@@ -9912,7 +9912,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       deepEqual(controller.foo, ['lol', 1]);
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Overwriting with array with same content shouldn\'t refire update', function () {
+    QUnit.test('Overwriting with array with same content shouldn\'t refire update', function () {
       expect(3);
       var modelCount = 0;
 
@@ -9940,7 +9940,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       equal(router.get('location.path'), '');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Defaulting to params hash as the model should not result in that params object being watched', function () {
+    QUnit.test('Defaulting to params hash as the model should not result in that params object being watched', function () {
       expect(1);
 
       App.Router.map(function () {
@@ -9968,7 +9968,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(router, 'transitionTo', 'other');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param', function () {
+    QUnit.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param', function () {
       expect(1);
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
@@ -10030,7 +10030,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#bar-link'), 'click');
     });
 
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('Undefined isn\'t deserialized into a string', function () {
+    QUnit.test('Undefined isn\'t deserialized into a string', function () {
       expect(3);
       App.Router.map(function () {
         this.route('example');
@@ -10060,7 +10060,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('warn user that routes query params configuration must be an Object, not an Array', function () {
+  QUnit.test('warn user that routes query params configuration must be an Object, not an Array', function () {
     expect(1);
 
     App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
@@ -10072,7 +10072,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
     }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('handle routes names that clash with Object.prototype properties', function () {
+  QUnit.test('handle routes names that clash with Object.prototype properties', function () {
     expect(1);
 
     App.Router.map(function () {
@@ -59960,7 +59960,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], functio
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-htmlbars/component', 'ember-metal/events', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberHtmlbarsComponent, _emberMetalEvents, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-htmlbars/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberHtmlbarsComponent, _emberMetalEvents) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -60226,7 +60226,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
     equal(triggered, 1, 'should invoke from subclass property');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
+  QUnit.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
     var obj = _emberHtmlbarsComponent.default.create();
 
     expectDeprecation(function () {
@@ -79965,12 +79965,12 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
   exports.runAppend = runAppend;
   exports.runDestroy = runDestroy;
 });
-enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['exports', 'ember-template-compiler/tests/utils/helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberTemplateCompilerTestsUtilsHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-template-compiler: deprecate-model-render');
+  QUnit.module('ember-template-compiler: deprecate-model-render');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Using `{{render` with model provides a deprecation', function () {
+  QUnit.test('Using `{{render` with model provides a deprecation', function () {
     expect(1);
 
     var expectedMessage = 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ';
@@ -79982,12 +79982,12 @@ enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ex
     }, expectedMessage);
   });
 });
-enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-template-compiler/tests/utils/helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberTemplateCompilerTestsUtilsHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support');
+  QUnit.module('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Can transform an inline {{link-to}} without error', function () {
+  QUnit.test('Can transform an inline {{link-to}} without error', function () {
     expect(0);
 
     _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'foo\' \'index\'}}', {
@@ -79995,12 +79995,12 @@ enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['
     });
   });
 });
-enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler/tests/utils/helpers', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberTemplateCompilerTestsUtilsHelpers, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-template-compiler: transform-input-on');
+  QUnit.module('ember-template-compiler: transform-input-on');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Using `action` without `on` provides a deprecation', function () {
+  QUnit.test('Using `action` without `on` provides a deprecation', function () {
     expect(1);
 
     expectDeprecation(function () {
@@ -80010,7 +80010,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input enter="foo"}}\' instead.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Using `action` with `on` provides a deprecation', function () {
+  QUnit.test('Using `action` with `on` provides a deprecation', function () {
     expect(1);
 
     expectDeprecation(function () {
@@ -80020,7 +80020,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input on="focus-in" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input focus-in="foo"}}\' instead.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Using `on=\'keyPress\'` does not clobber `keyPress`', function () {
+  QUnit.test('Using `on=\'keyPress\'` does not clobber `keyPress`', function () {
     expect(1);
 
     expectDeprecation(function () {
@@ -80030,7 +80030,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input on="keyPress" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input key-press="foo"}}\' instead.');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Using `on=\'foo\'` without `action=\'asdf\'` raises specific deprecation', function () {
+  QUnit.test('Using `on=\'foo\'` without `action=\'asdf\'` raises specific deprecation', function () {
     expect(1);
 
     expectDeprecation(function () {
@@ -80162,7 +80162,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     _emberRuntimeTestsUtils.runDestroy(view);
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: bootstrap', {
+  QUnit.module('ember-htmlbars: bootstrap', {
     setup: function () {
       _emberEnvironment.context.lookup = lookup = {};
     },
@@ -80193,7 +80193,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
   });
 
   if (typeof Handlebars === 'object') {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('template with type text/x-raw-handlebars should be parsed', function () {
+    QUnit.test('template with type text/x-raw-handlebars should be parsed', function () {
       _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
 
       _emberMetalRun_loop.default(function () {
@@ -80209,7 +80209,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('duplicated default application templates should throw exception', function () {
+  QUnit.test('duplicated default application templates should throw exception', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
 
     throws(function () {
@@ -80217,7 +80217,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('default application template and id application template present should throw exception', function () {
+  QUnit.test('default application template and id application template present should throw exception', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
 
     throws(function () {
@@ -80225,7 +80225,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('default application template and data-template-name application template present should throw exception', function () {
+  QUnit.test('default application template and data-template-name application template present should throw exception', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
 
     throws(function () {
@@ -80233,7 +80233,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('duplicated template id should throw exception', function () {
+  QUnit.test('duplicated template id should throw exception', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
 
     throws(function () {
@@ -80241,7 +80241,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('duplicated template data-template-name should throw exception', function () {
+  QUnit.test('duplicated template data-template-name should throw exception', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
 
     throws(function () {
@@ -80299,7 +80299,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
 
   var App, find, click, fillIn, currentRoute, currentURL, visit, originalAdapter, andThen, indexHitCount;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-testing Acceptance', {
+  QUnit.module('ember-testing Acceptance', {
     setup: function () {
       _emberViewsSystemJquery.default('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
       _emberViewsSystemJquery.default('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
@@ -80533,7 +80533,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Aborted transitions are not logged via Ember.Test.adapter#exception', function () {
+  QUnit.test('Aborted transitions are not logged via Ember.Test.adapter#exception', function () {
     expect(0);
 
     _emberTestingTest.default.adapter = _emberTestingAdaptersQunit.default.create({
@@ -80545,7 +80545,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     visit('/abort_transition');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Unhandled exceptions are logged via Ember.Test.adapter#exception', function () {
+  QUnit.test('Unhandled exceptions are logged via Ember.Test.adapter#exception', function () {
     expect(2);
 
     var asyncHandled;
@@ -80565,7 +80565,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     asyncHandled = click('.does-not-exist');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Unhandled exceptions in `andThen` are logged via Ember.Test.adapter#exception', function () {
+  QUnit.test('Unhandled exceptions in `andThen` are logged via Ember.Test.adapter#exception', function () {
     expect(1);
 
     _emberTestingTest.default.adapter = _emberTestingAdaptersQunit.default.create({
@@ -80581,7 +80581,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not start routing on the root URL when visiting another', function () {
+  QUnit.test('should not start routing on the root URL when visiting another', function () {
     expect(4);
 
     visit('/posts');
@@ -80594,7 +80594,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('only enters the index route once when visiting /', function () {
+  QUnit.test('only enters the index route once when visiting /', function () {
     expect(1);
 
     visit('/');
@@ -80604,7 +80604,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('test must not finish while asyncHelpers are pending', function () {
+  QUnit.test('test must not finish while asyncHelpers are pending', function () {
     expect(2);
 
     var async = 0;
@@ -80639,7 +80639,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('visiting a URL that causes another transition should yield the correct URL', function () {
+  QUnit.test('visiting a URL that causes another transition should yield the correct URL', function () {
     expect(1);
 
     visit('/redirect');
@@ -80649,7 +80649,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('visiting a URL and then visiting a second URL with a transition should yield the correct URL', function () {
+  QUnit.test('visiting a URL and then visiting a second URL with a transition should yield the correct URL', function () {
     expect(2);
 
     visit('/posts');
@@ -80665,9 +80665,9 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-testing Acceptance – teardown');
+  QUnit.module('ember-testing Acceptance – teardown');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('that the setup/teardown happens correct', function () {
+  QUnit.test('that the setup/teardown happens correct', function () {
     expect(2);
 
     _emberViewsSystemJquery.default('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
@@ -82289,13 +82289,13 @@ enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', '
     ok(true === view.triggerAction(), 'a valid target and action were specified');
   });
 });
-enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalInstrumentation, _emberMetalFeatures, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-metal/instrumentation', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberMetalInstrumentation, _emberMetalFeatures) {
   'use strict';
 
   var owner, view, originalViewKeyword;
   var dispatcher;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('EventDispatcher', {
+  QUnit.module('EventDispatcher', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
 
@@ -82320,7 +82320,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
   });
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
-    _emberGlimmerTestsUtilsSkipIfGlimmer.test('should instrument triggered events', function () {
+    QUnit.test('should instrument triggered events', function () {
       var clicked = 0;
 
       _emberMetalRun_loop.default(function () {
@@ -82372,7 +82372,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     });
   }
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should dispatch events to views', function () {
+  QUnit.test('should dispatch events to views', function () {
     var receivedEvent;
     var parentMouseDownCalled = 0;
     var childKeyDownCalled = 0;
@@ -82425,7 +82425,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     equal(parentKeyDownCalled, 0, 'does not call keyDown on parent if child handles event');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not dispatch events to views not inDOM', function () {
+  QUnit.test('should not dispatch events to views not inDOM', function () {
     var receivedEvent;
 
     view = _emberViewsViewsView.default.extend({
@@ -82461,7 +82461,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     $element.remove();
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should send change events up view hierarchy if view contains form elements', function () {
+  QUnit.test('should send change events up view hierarchy if view contains form elements', function () {
     var receivedEvent;
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTemplateCompiler.compile('<input id="is-done" type="checkbox">'),
@@ -82480,7 +82480,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     equal(receivedEvent.target, _emberViewsSystemJquery.default('#is-done')[0], 'target property is the element that was clicked');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('events should stop propagating if the view is destroyed', function () {
+  QUnit.test('events should stop propagating if the view is destroyed', function () {
     var _Component$extend;
 
     var parentComponentReceived, receivedEvent;
@@ -82510,7 +82510,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     ok(!parentComponentReceived, 'parent component does not receive the event');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should dispatch events to nearest event manager', function () {
+  QUnit.test('should dispatch events to nearest event manager', function () {
     var receivedEvent = 0;
     view = _emberViewsViewsView.default.create({
       template: _emberHtmlbarsTemplateCompiler.compile('<input id="is-done" type="checkbox">'),
@@ -82532,7 +82532,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     equal(receivedEvent, 1, 'event should go to manager and not view');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('event manager should be able to re-dispatch events to view', function () {
+  QUnit.test('event manager should be able to re-dispatch events to view', function () {
     var _Component$extend$create;
 
     var receivedEvent = 0;
@@ -82571,7 +82571,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     equal(receivedEvent, 2, 'event should go to manager and not view');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('event handlers should be wrapped in a run loop', function () {
+  QUnit.test('event handlers should be wrapped in a run loop', function () {
     expect(1);
 
     view = _emberViewsViewsView.default.extend({
@@ -82610,7 +82610,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('additional events which should be listened on can be passed', function () {
+  QUnit.test('additional events which should be listened on can be passed', function () {
     expect(1);
 
     _emberMetalRun_loop.default(function () {
@@ -82627,7 +82627,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     _emberViewsSystemJquery.default('#leView').trigger('myevent');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('additional events and rootElement can be specified', function () {
+  QUnit.test('additional events and rootElement can be specified', function () {
     expect(3);
 
     _emberViewsSystemJquery.default('#qunit-fixture').append('<div class=\'custom-root\'></div>');
@@ -82649,7 +82649,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     _emberViewsSystemJquery.default('#leView').trigger('myevent');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('default events can be disabled via `customEvents`', function () {
+  QUnit.test('default events can be disabled via `customEvents`', function () {
     expect(1);
 
     _emberMetalRun_loop.default(function () {
@@ -84214,7 +84214,7 @@ enifed('ember-views/tests/views/view/actions_test', ['exports', 'ember-metal/run
     });
   });
 });
-enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var owner, View, view, otherView, willDestroyCalled, originalViewKeyword;
@@ -84277,7 +84277,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be added to the document body when calling append()', function () {
+  QUnit.test('should be added to the document body when calling append()', function () {
     view = View.create({
       template: _emberHtmlbarsTemplateCompiler.compile('foo bar baz')
     });
@@ -84302,7 +84302,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('append calls willInsertElement and didInsertElement callbacks', function () {
+  QUnit.test('append calls willInsertElement and didInsertElement callbacks', function () {
     var willInsertElementCalled = false;
     var willInsertElementCalledInChild = false;
     var didInsertElementCalled = false;
@@ -84333,7 +84333,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(didInsertElementCalled, 'didInsertElement called');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('a view calls its children\'s willInsertElement and didInsertElement', function () {
+  QUnit.test('a view calls its children\'s willInsertElement and didInsertElement', function () {
     var parentView;
     var willInsertElementCalled = false;
     var didInsertElementCalled = false;
@@ -84372,7 +84372,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('replacing a view should invalidate childView elements', function () {
+  QUnit.test('replacing a view should invalidate childView elements', function () {
     var elementOnDidInsert;
 
     view = _emberViewsViewsView.default.create({
@@ -84410,7 +84410,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('trigger rerender of parent and SimpleBoundView', function () {
+  QUnit.test('trigger rerender of parent and SimpleBoundView', function () {
     var view = _emberViewsViewsView.default.create({
       show: true,
       foo: 'bar',
@@ -84490,7 +84490,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('EmberView - append() and appendTo() in a view hierarchy', {
+  QUnit.module('EmberView - append() and appendTo() in a view hierarchy', {
     setup: function () {
       var _Component$extend;
 
@@ -84508,7 +84508,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be added to the specified element when calling appendTo()', function () {
+  QUnit.test('should be added to the specified element when calling appendTo()', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
 
     view = View.create();
@@ -84523,7 +84523,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be added to the document body when calling append()', function () {
+  QUnit.test('should be added to the document body when calling append()', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
 
     view = View.create();
@@ -84843,7 +84843,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember
     });
   });
 });
-enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var view, originalViewKeyword;
@@ -84872,7 +84872,7 @@ enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-me
     equal(ret, view, 'returns receiver');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('calls render and turns resultant string into element', function () {
+  QUnit.test('calls render and turns resultant string into element', function () {
     view = _emberViewsViewsView.default.create({
       tagName: 'span',
       template: _emberHtmlbarsTemplateCompiler.compile('foo')
@@ -85319,7 +85319,7 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
     equal(view.$().attr('style'), 'color: blue; display: none;', 'has concatenated style attribute');
   });
 });
-enifed('ember-views/tests/views/view/jquery_test', ['exports', 'ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars-template-compiler', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsTemplateCompiler, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/jquery_test', ['exports', 'ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsTemplateCompiler) {
   'use strict';
 
   var view;
@@ -85354,7 +85354,7 @@ enifed('ember-views/tests/views/view/jquery_test', ['exports', 'ember-metal/prop
     equal(jquery[0], _emberMetalProperty_get.get(view, 'element'), 'element should be element');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('returns jQuery object selecting element inside element if provided', function () {
+  QUnit.test('returns jQuery object selecting element inside element if provided', function () {
     ok(_emberMetalProperty_get.get(view, 'element'), 'precond - should have element');
 
     var jquery = view.$('span');
@@ -85472,7 +85472,7 @@ enifed('ember-views/tests/views/view/layout_test', ['exports', 'ember-metal/prop
     equal('used layout', view.$().text(), 'default layout was not printed');
   });
 });
-enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var parentView, view;
@@ -85480,7 +85480,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-m
 
   var Mixin, Parent;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('View#nearest*', {
+  QUnit.module('View#nearest*', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
       Mixin = _emberMetalMixin.Mixin.create({});
@@ -85501,7 +85501,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-m
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('nearestOfType should find the closest view by view class', function () {
+  QUnit.test('nearestOfType should find the closest view by view class', function () {
     var child;
 
     _emberMetalRun_loop.default(function () {
@@ -85513,7 +85513,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-m
     equal(child.nearestOfType(Parent), parentView, 'finds closest view in the hierarchy by class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('nearestOfType should find the closest view by mixin', function () {
+  QUnit.test('nearestOfType should find the closest view by mixin', function () {
     var child;
 
     _emberMetalRun_loop.default(function () {
@@ -85525,7 +85525,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-m
     equal(child.nearestOfType(Mixin), parentView, 'finds closest view in the hierarchy by class');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('nearestWithProperty should search immediate parent', function () {
+  QUnit.test('nearestWithProperty should search immediate parent', function () {
     var childView;
 
     view = _emberViewsViewsView.default.create({
@@ -85541,7 +85541,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-m
     equal(childView.nearestWithProperty('myProp'), view);
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('nearestChildOf should be deprecated', function () {
+  QUnit.test('nearestChildOf should be deprecated', function () {
     var child;
 
     _emberMetalRun_loop.default(function () {
@@ -85610,7 +85610,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
   // .......................................................
   // removeFromParent()
   //
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('View#removeFromParent', {
+  QUnit.module('View#removeFromParent', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
     },
@@ -85671,7 +85671,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
     equal(removed, child, 'receiver');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('does nothing if not in parentView', function () {
+  QUnit.test('does nothing if not in parentView', function () {
     child = _emberViewsViewsView.default.create();
 
     // monkey patch for testing...
@@ -85684,7 +85684,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
     });
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the DOM element is gone after doing append and remove in two separate runloops', function () {
+  QUnit.test('the DOM element is gone after doing append and remove in two separate runloops', function () {
     view = _emberViewsViewsView.default.create();
     _emberMetalRun_loop.default(function () {
       view.append();
@@ -85697,7 +85697,7 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
     ok(viewElem.length === 0, 'view\'s element doesn\'t exist in DOM');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('the DOM element is gone after doing append and remove in a single runloop', function () {
+  QUnit.test('the DOM element is gone after doing append and remove in a single runloop', function () {
     view = _emberViewsViewsView.default.create();
     _emberMetalRun_loop.default(function () {
       view.append();
@@ -85708,12 +85708,12 @@ enifed('ember-views/tests/views/view/remove_test', ['exports', 'ember-metal/prop
     ok(viewElem.length === 0, 'view\'s element doesn\'t exist in DOM');
   });
 });
-enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler) {
   'use strict';
 
   var View, view;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('EmberView - renderToElement()', {
+  QUnit.module('EmberView - renderToElement()', {
     setup: function () {
       View = _emberViewsViewsView.default.extend({
         template: _emberHtmlbarsTemplateCompiler.compile('<h1>hello world</h1> goodbye world')
@@ -85729,7 +85729,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should render into and return a body element', function () {
+  QUnit.test('should render into and return a body element', function () {
     view = View.create();
 
     ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
@@ -85746,7 +85746,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     equal(element.firstChild.firstChild.nextSibling.nodeValue, ' goodbye world', 'renders the text node');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should create and render into an element with a provided tagName', function () {
+  QUnit.test('should create and render into an element with a provided tagName', function () {
     view = View.create();
 
     ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
@@ -85763,7 +85763,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     equal(element.firstChild.firstChild.nextSibling.nodeValue, ' goodbye world', 'renders the text node');
   });
 });
-enifed('ember-views/tests/views/view/replace_in_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember-views/tests/views/view/replace_in_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var View, view;
@@ -85838,7 +85838,7 @@ enifed('ember-views/tests/views/view/replace_in_test', ['exports', 'ember-metal/
     equal(view._currentState, view._states.inDOM, 'the view is in the inDOM state');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('EmberView - replaceIn() in a view hierarchy', {
+  QUnit.module('EmberView - replaceIn() in a view hierarchy', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
 
@@ -85858,7 +85858,7 @@ enifed('ember-views/tests/views/view/replace_in_test', ['exports', 'ember-metal/
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should be added to the specified element when calling replaceIn()', function () {
+  QUnit.test('should be added to the specified element when calling replaceIn()', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
 
     view = View.create();
@@ -86023,7 +86023,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
   var originalViewKeyword;
   var lookup, view;
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('views/view/view_lifecycle_test - pre-render', {
+  QUnit.module('views/view/view_lifecycle_test - pre-render', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
       _emberEnvironment.context.lookup = lookup = {};
@@ -86069,7 +86069,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     equal(view.$().text(), 'controllerPropertyValue', 'renders and appends after bindings have synced');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should throw an exception if trying to append a child before rendering has begun', function () {
+  QUnit.test('should throw an exception if trying to append a child before rendering has begun', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create();
     });
@@ -86147,7 +86147,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }, /Something you did caused a view to re-render after it rendered but before it was inserted into the DOM./, 'expected error was not raised');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('views/view/view_lifecycle_test - hasElement', {
+  QUnit.module('views/view/view_lifecycle_test - hasElement', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(function () {
@@ -86157,7 +86157,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('createElement puts the view into the hasElement state', function () {
+  QUnit.test('createElement puts the view into the hasElement state', function () {
     var hasCalledInsertElement = false;
     view = _emberViewsViewsView.default.create({
       didInsertElement: function () {
@@ -86173,7 +86173,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     equal(view.element.tagName, 'DIV', 'content is rendered');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('trigger rerender on a view in the hasElement state doesn\'t change its state to inDOM', function () {
+  QUnit.test('trigger rerender on a view in the hasElement state doesn\'t change its state to inDOM', function () {
     var hasCalledInsertElement = false;
     view = _emberViewsViewsView.default.create({
       didInsertElement: function () {
@@ -86190,7 +86190,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     equal(view.element.tagName, 'DIV', 'content is rendered');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('views/view/view_lifecycle_test - in DOM', {
+  QUnit.module('views/view/view_lifecycle_test - in DOM', {
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(function () {
@@ -86200,7 +86200,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should throw an exception when calling appendChild when DOM element exists', function () {
+  QUnit.test('should throw an exception when calling appendChild when DOM element exists', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('Wait for the kick')
@@ -86244,7 +86244,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     equal(view.$().text(), 'Do not taunt happy fun ball', 'rerenders DOM element when rerender() is called');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should destroy DOM representation when destroyElement is called', function () {
+  QUnit.test('should destroy DOM representation when destroyElement is called', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('Don\'t fear the reaper')
@@ -86262,7 +86262,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     ok(!view.get('element'), 'destroys view when destroyElement() is called');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should destroy DOM representation when destroy is called', function () {
+  QUnit.test('should destroy DOM representation when destroy is called', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('<div id=\'warning\'>Don\'t fear the reaper</div>')
@@ -86280,7 +86280,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     ok(_emberViewsSystemJquery.default('#warning').length === 0, 'destroys element when destroy() is called');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should throw an exception if trying to append an element that is already in DOM', function () {
+  QUnit.test('should throw an exception if trying to append an element that is already in DOM', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('Broseidon, King of the Brocean')
@@ -86298,9 +86298,9 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }, null, 'raises an exception on second append');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('views/view/view_lifecycle_test - destroyed');
+  QUnit.module('views/view/view_lifecycle_test - destroyed');
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should throw an exception when calling appendChild after view is destroyed', function () {
+  QUnit.test('should throw an exception when calling appendChild after view is destroyed', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('Wait for the kick')
@@ -86320,7 +86320,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }, null, 'throws an exception when calling appendChild');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should throw an exception when rerender is called after view is destroyed', function () {
+  QUnit.test('should throw an exception when rerender is called after view is destroyed', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('foo')
@@ -86338,7 +86338,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }, null, 'throws an exception when calling rerender');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should throw an exception when destroyElement is called after view is destroyed', function () {
+  QUnit.test('should throw an exception when destroyElement is called after view is destroyed', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('foo')
@@ -86356,7 +86356,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }, null, 'throws an exception when calling destroyElement');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('trigger rerender on a view in the inDOM state keeps its state as inDOM', function () {
+  QUnit.test('trigger rerender on a view in the inDOM state keeps its state as inDOM', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompiler.compile('foo')
