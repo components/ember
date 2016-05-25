@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+ceb2b150
+ * @version   2.7.0-canary+b8c5e08e
  */
 
 var enifed, requireModule, require, Ember;
@@ -29624,7 +29624,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars should render other templates registered with the container'] = function htmlbarsShouldRenderOtherTemplatesRegisteredWithTheContainer() {
+    _class.prototype['@test should render other templates registered with the container'] = function testShouldRenderOtherTemplatesRegisteredWithTheContainer() {
       this.registerPartial('_subTemplateFromContainer', 'sub-template');
 
       this.render('This {{partial "subTemplateFromContainer"}} is pretty great.');
@@ -29634,7 +29634,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@htmlbars should render other slash-separated templates registered with the container'] = function htmlbarsShouldRenderOtherSlashSeparatedTemplatesRegisteredWithTheContainer() {
+    _class.prototype['@test should render other slash-separated templates registered with the container'] = function testShouldRenderOtherSlashSeparatedTemplatesRegisteredWithTheContainer() {
       this.registerPartial('child/_subTemplateFromContainer', 'sub-template');
 
       this.render('This {{partial "child/subTemplateFromContainer"}} is pretty great.');
@@ -29644,7 +29644,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@htmlbars should use the current context'] = function htmlbarsShouldUseTheCurrentContext() {
+    _class.prototype['@test should use the current context'] = function testShouldUseTheCurrentContext() {
       var _this = this;
 
       this.registerPartial('_person_name', '{{model.firstName}} {{model.lastName}}');
@@ -29673,7 +29673,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('Who is Kris Selden?');
     };
 
-    _class.prototype['@htmlbars Quoteless parameters passed to {{partial}} perform a bound property lookup of the partial name'] = function htmlbarsQuotelessParametersPassedToPartialPerformABoundPropertyLookupOfThePartialName() {
+    _class.prototype['@test Quoteless parameters passed to {{partial}} perform a bound property lookup of the partial name'] = function testQuotelessParametersPassedToPartialPerformABoundPropertyLookupOfThePartialName() {
       var _this2 = this;
 
       this.registerPartial('_subTemplate', 'sub-template');
@@ -29706,7 +29706,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@htmlbars dynamic partials in {{#each}}'] = function htmlbarsDynamicPartialsInEach() {
+    _class.prototype['@test dynamic partials in {{#each}}'] = function testDynamicPartialsInEach() {
       var _this3 = this;
 
       this.registerPartial('_odd', 'ODD{{i}}');
@@ -29739,7 +29739,7 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
     };
 
-    _class.prototype['@htmlbars dynamic partials in {{#with}}'] = function htmlbarsDynamicPartialsInWith() {
+    _class.prototype['@test dynamic partials in {{#with}}'] = function testDynamicPartialsInWith() {
       var _this4 = this;
 
       this.registerPartial('_thing', '{{t}}');
@@ -33197,7 +33197,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompiler) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler', 'glimmer-runtime'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompiler, _glimmerRuntime) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -33639,11 +33639,15 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     };
 
     RenderingTest.prototype.registerPartial = function registerPartial(name, template) {
-      var owner = this.owner;
-
+      var owner = this.env.owner || this.owner;
       if (typeof template === 'string') {
         var moduleName = 'template:' + name;
-        owner.register(moduleName, this.compile(template, { moduleName: moduleName }));
+        if (_emberMetalFeatures.default('ember-glimmer')) {
+          var partial = new _glimmerRuntime.PartialDefinition(moduleName, this.compile(template, { moduleName: moduleName, env: this.env }));
+          owner.register(moduleName, partial.template);
+        } else {
+          owner.register(moduleName, this.compile(template, { moduleName: moduleName }));
+        }
       }
     };
 
@@ -51507,7 +51511,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars should render other templates registered with the container'] = function htmlbarsShouldRenderOtherTemplatesRegisteredWithTheContainer() {
+    _class.prototype['@test should render other templates registered with the container'] = function testShouldRenderOtherTemplatesRegisteredWithTheContainer() {
       this.registerPartial('_subTemplateFromContainer', 'sub-template');
 
       this.render('This {{partial "subTemplateFromContainer"}} is pretty great.');
@@ -51517,7 +51521,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@htmlbars should render other slash-separated templates registered with the container'] = function htmlbarsShouldRenderOtherSlashSeparatedTemplatesRegisteredWithTheContainer() {
+    _class.prototype['@test should render other slash-separated templates registered with the container'] = function testShouldRenderOtherSlashSeparatedTemplatesRegisteredWithTheContainer() {
       this.registerPartial('child/_subTemplateFromContainer', 'sub-template');
 
       this.render('This {{partial "child/subTemplateFromContainer"}} is pretty great.');
@@ -51527,7 +51531,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@htmlbars should use the current context'] = function htmlbarsShouldUseTheCurrentContext() {
+    _class.prototype['@test should use the current context'] = function testShouldUseTheCurrentContext() {
       var _this = this;
 
       this.registerPartial('_person_name', '{{model.firstName}} {{model.lastName}}');
@@ -51556,7 +51560,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('Who is Kris Selden?');
     };
 
-    _class.prototype['@htmlbars Quoteless parameters passed to {{partial}} perform a bound property lookup of the partial name'] = function htmlbarsQuotelessParametersPassedToPartialPerformABoundPropertyLookupOfThePartialName() {
+    _class.prototype['@test Quoteless parameters passed to {{partial}} perform a bound property lookup of the partial name'] = function testQuotelessParametersPassedToPartialPerformABoundPropertyLookupOfThePartialName() {
       var _this2 = this;
 
       this.registerPartial('_subTemplate', 'sub-template');
@@ -51589,7 +51593,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@htmlbars dynamic partials in {{#each}}'] = function htmlbarsDynamicPartialsInEach() {
+    _class.prototype['@test dynamic partials in {{#each}}'] = function testDynamicPartialsInEach() {
       var _this3 = this;
 
       this.registerPartial('_odd', 'ODD{{i}}');
@@ -51622,7 +51626,7 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
     };
 
-    _class.prototype['@htmlbars dynamic partials in {{#with}}'] = function htmlbarsDynamicPartialsInWith() {
+    _class.prototype['@test dynamic partials in {{#with}}'] = function testDynamicPartialsInWith() {
       var _this4 = this;
 
       this.registerPartial('_thing', '{{t}}');
@@ -55673,7 +55677,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompiler) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-glimmer/templates/component', 'ember-views/system/event_dispatcher', 'ember-template-compiler', 'glimmer-runtime'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberGlimmerTemplatesComponent, _emberViewsSystemEvent_dispatcher, _emberTemplateCompiler, _glimmerRuntime) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -56115,11 +56119,15 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     };
 
     RenderingTest.prototype.registerPartial = function registerPartial(name, template) {
-      var owner = this.owner;
-
+      var owner = this.env.owner || this.owner;
       if (typeof template === 'string') {
         var moduleName = 'template:' + name;
-        owner.register(moduleName, this.compile(template, { moduleName: moduleName }));
+        if (_emberMetalFeatures.default('ember-glimmer')) {
+          var partial = new _glimmerRuntime.PartialDefinition(moduleName, this.compile(template, { moduleName: moduleName, env: this.env }));
+          owner.register(moduleName, partial.template);
+        } else {
+          owner.register(moduleName, this.compile(template, { moduleName: moduleName }));
+        }
       }
     };
 
