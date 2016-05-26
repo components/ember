@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b8c5e08e
+ * @version   2.7.0-canary+2f938804
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b8c5e08e";
+  exports.default = "2.7.0-canary+2f938804";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -2638,7 +2638,6 @@ enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'e
   exports.removePlugin = removePlugin;
 
   var compileOptions = undefined;
-  var fragmentReason = undefined;
 
   var PLUGINS = [_emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax.default];
 
@@ -2705,7 +2704,6 @@ enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'e
 
     options.buildMeta = function buildMeta(program) {
       return {
-        fragmentReason: fragmentReason(program),
         revision: 'Ember@' + _emberVersion.default,
         loc: program.loc,
         moduleName: options.moduleName
@@ -2713,63 +2711,6 @@ enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'e
     };
 
     return options;
-  };
-
-  fragmentReason = function (program) {
-    var loc = program.loc;
-    var body = program.body;
-
-    if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
-      return false;
-    }
-
-    var candidate = undefined;
-    var nodeCount = 0;
-
-    var problems = {};
-
-    for (var i = 0; i < body.length; i++) {
-      var curr = body[i];
-
-      // text node with whitespace only
-      if (curr.type === 'TextNode' && /^[\s]*$/.test(curr.chars)) {
-        continue;
-      }
-
-      // has multiple root elements if we've been here before
-      if (nodeCount++ > 0) {
-        problems['multiple-nodes'] = true;
-      }
-
-      if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
-        candidate = curr;
-      } else {
-        problems['wrong-type'] = true;
-      }
-    }
-
-    if (nodeCount === 0) {
-      return { name: 'missing-wrapper', problems: ['empty-body'] };
-    }
-
-    var problemList = Object.keys(problems);
-    if (problemList.length) {
-      return { name: 'missing-wrapper', problems: problemList };
-    }
-
-    if (candidate.type === 'ComponentNode') {
-      return false;
-    } else if (candidate.modifiers.length) {
-      return { name: 'modifiers', modifiers: candidate.modifiers.map(function (m) {
-          return m.path.original;
-        }) };
-    } else if (candidate.attributes.some(function (attr) {
-      return !attr.value.escaped;
-    })) {
-      return { name: 'triple-curlies' };
-    } else {
-      return false;
-    }
   };
 
   exports.default = compileOptions;
