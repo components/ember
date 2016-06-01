@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+52297dff
+ * @version   2.7.0-canary+091b9a02
  */
 
 var enifed, requireModule, require, Ember;
@@ -67252,6 +67252,17 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     set(obj, 'one', 1);
 
     equal(get(obj, 'oneTwoThree'), 1, 'returns truthy value as in ||');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('computed.or and computed.and warn about dependent keys with spaces', function (get, set) {
+    var obj = { one: true, two: true };
+    expectAssertion(function () {
+      _emberMetalProperties.defineProperty(obj, 'oneOrTwo', _emberRuntimeComputedComputed_macros.or('one', 'two three'));
+    }, /Dependent keys passed to Ember\.computed\.or\(\) can't have spaces\./);
+
+    expectAssertion(function () {
+      _emberMetalProperties.defineProperty(obj, 'oneAndTwo', _emberRuntimeComputedComputed_macros.and('one', 'two three'));
+    }, /Dependent keys passed to Ember\.computed\.and\(\) can't have spaces\./);
   });
 
   _emberMetalTestsProps_helper.testBoth('computed.oneWay', function (get, set) {

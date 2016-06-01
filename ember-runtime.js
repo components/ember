@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+52297dff
+ * @version   2.7.0-canary+091b9a02
  */
 
 var enifed, requireModule, require, Ember;
@@ -2491,7 +2491,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+52297dff";
+  exports.default = "2.7.0-canary+091b9a02";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -11170,7 +11170,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
   @submodule ember-metal
   */
 
-  function expandPropertiesToArray(properties) {
+  function expandPropertiesToArray(predicateName, properties) {
     var expandedProperties = [];
 
     function extractProperty(entry) {
@@ -11178,19 +11178,22 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
     }
 
     for (var i = 0; i < properties.length; i++) {
-      _emberMetalExpand_properties.default(properties[i], extractProperty);
+      var property = properties[i];
+      _emberMetalDebug.assert('Dependent keys passed to Ember.computed.' + predicateName + '() can\'t have spaces.', property.indexOf(' ') < 0);
+
+      _emberMetalExpand_properties.default(property, extractProperty);
     }
 
     return expandedProperties;
   }
 
-  function generateComputedWithPredicate(predicate) {
+  function generateComputedWithPredicate(name, predicate) {
     return function () {
       for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
         properties[_key] = arguments[_key];
       }
 
-      var expandedProperties = expandPropertiesToArray(properties);
+      var expandedProperties = expandPropertiesToArray(name, properties);
 
       var computedFunc = _emberMetalComputed.computed(function () {
         var lastIdx = expandedProperties.length - 1;
@@ -11627,7 +11630,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
     a logical `and` on the values of all the original values for properties.
     @public
   */
-  var and = generateComputedWithPredicate(function (value) {
+  var and = generateComputedWithPredicate('and', function (value) {
     return value;
   });
 
@@ -11667,7 +11670,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  var or = generateComputedWithPredicate(function (value) {
+  var or = generateComputedWithPredicate('or', function (value) {
     return !value;
   });
 
