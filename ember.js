@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+44a299b5
+ * @version   2.7.0-canary+52297dff
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+44a299b5";
+  exports.default = "2.7.0-canary+52297dff";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -8007,7 +8007,7 @@ enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal/property_ge
     }
   });
 });
-enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent) {
+enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-glimmer/templates/link-to', 'ember-glimmer/component', 'ember-metal/instrumentation'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent, _emberMetalInstrumentation) {
   /**
   @module ember
   @submodule ember-templates
@@ -8635,13 +8635,24 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
         return false;
       }
 
-      var routing = _emberMetalProperty_get.get(this, '_routing');
       var qualifiedRouteName = _emberMetalProperty_get.get(this, 'qualifiedRouteName');
       var models = _emberMetalProperty_get.get(this, 'models');
-      var queryParamValues = _emberMetalProperty_get.get(this, 'queryParams.values');
+      var queryParams = _emberMetalProperty_get.get(this, 'queryParams.values');
       var shouldReplace = _emberMetalProperty_get.get(this, 'replace');
 
-      routing.transitionTo(qualifiedRouteName, models, queryParamValues, shouldReplace);
+      var payload = {
+        queryParams: queryParams,
+        routeName: qualifiedRouteName
+      };
+
+      _emberMetalInstrumentation.flaggedInstrument('interaction.link-to', payload, this._generateTransition(payload, qualifiedRouteName, models, queryParams, shouldReplace));
+    },
+
+    _generateTransition: function (payload, qualifiedRouteName, models, queryParams, shouldReplace) {
+      var routing = _emberMetalProperty_get.get(this, '_routing');
+      return function () {
+        payload.transition = routing.transitionTo(qualifiedRouteName, models, queryParams, shouldReplace);
+      };
     },
 
     queryParams: null,
@@ -13336,7 +13347,7 @@ enifed('ember-htmlbars/components/checkbox', ['exports', 'ember-metal/property_g
     }
   });
 });
-enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to', 'ember-htmlbars/component'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo, _emberHtmlbarsComponent) {
+enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/computed/computed_macros', 'ember-views/system/utils', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to', 'ember-htmlbars/component', 'ember-metal/instrumentation'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeComputedComputed_macros, _emberViewsSystemUtils, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo, _emberHtmlbarsComponent, _emberMetalInstrumentation) {
   /**
   @module ember
   @submodule ember-templates
@@ -13964,13 +13975,24 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
         return false;
       }
 
-      var routing = _emberMetalProperty_get.get(this, '_routing');
       var qualifiedRouteName = _emberMetalProperty_get.get(this, 'qualifiedRouteName');
       var models = _emberMetalProperty_get.get(this, 'models');
-      var queryParamValues = _emberMetalProperty_get.get(this, 'queryParams.values');
+      var queryParams = _emberMetalProperty_get.get(this, 'queryParams.values');
       var shouldReplace = _emberMetalProperty_get.get(this, 'replace');
 
-      routing.transitionTo(qualifiedRouteName, models, queryParamValues, shouldReplace);
+      var payload = {
+        queryParams: queryParams,
+        routeName: qualifiedRouteName
+      };
+
+      _emberMetalInstrumentation.flaggedInstrument('interaction.link-to', payload, this._generateTransition(payload, qualifiedRouteName, models, queryParams, shouldReplace));
+    },
+
+    _generateTransition: function (payload, qualifiedRouteName, models, queryParams, shouldReplace) {
+      var routing = _emberMetalProperty_get.get(this, '_routing');
+      return function () {
+        payload.transition = routing.transitionTo(qualifiedRouteName, models, queryParams, shouldReplace);
+      };
     },
 
     queryParams: null,
@@ -32150,6 +32172,8 @@ enifed('ember-routing/services/routing', ['exports', 'ember-runtime/system/servi
       if (shouldReplace) {
         transition.method('replace');
       }
+
+      return transition;
     },
 
     normalizeQueryParams: function (routeName, models, queryParams) {

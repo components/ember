@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+44a299b5
+ * @version   2.7.0-canary+52297dff
  */
 
 var enifed, requireModule, require, Ember;
@@ -3551,7 +3551,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
   }
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-templates/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler/tests/utils/helpers', 'ember-views/views/view', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsViewsView, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-templates/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler/tests/utils/helpers', 'ember-views/views/view', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsViewsView, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
   var Router, App, AppView, router, appInstance;
@@ -3613,6 +3613,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       App.destroy();
     });
     _emberTemplatesTemplate_registry.setTemplates({});
+    _emberMetalInstrumentation.reset();
   }
 
   QUnit.module('The {{link-to}} helper', {
@@ -3699,6 +3700,84 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViewsSystemJquery.default('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
     equal(_emberViewsSystemJquery.default('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
+
+  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+    QUnit.test('The {{link-to}} helper fires an interaction event', function (assert) {
+      assert.expect(2);
+      Router.map(function (match) {
+        this.route('about');
+      });
+
+      bootApplication();
+
+      _emberMetalRun_loop.default(function () {
+        router.handleURL('/');
+      });
+
+      _emberMetalInstrumentation.subscribe('interaction.link-to', {
+        before: function () {
+          assert.ok(true, 'instrumentation subscriber was called');
+        },
+        after: function () {
+          assert.ok(true, 'instrumentation subscriber was called');
+        }
+      });
+
+      _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+    });
+
+    QUnit.test('The {{link-to}} helper interaction event includes the route name', function (assert) {
+      assert.expect(2);
+      Router.map(function (match) {
+        this.route('about');
+      });
+
+      bootApplication();
+
+      _emberMetalRun_loop.default(function () {
+        router.handleURL('/');
+      });
+
+      _emberMetalInstrumentation.subscribe('interaction.link-to', {
+        before: function (name, timestamp, _ref) {
+          var routeName = _ref.routeName;
+
+          assert.equal(routeName, 'about', 'instrumentation subscriber was passed route name');
+        },
+        after: function (name, timestamp, _ref2) {
+          var routeName = _ref2.routeName;
+
+          assert.equal(routeName, 'about', 'instrumentation subscriber was passed route name');
+        }
+      });
+
+      _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+    });
+
+    QUnit.test('The {{link-to}} helper interaction event includes the transition in the after hook', function (assert) {
+      assert.expect(1);
+      Router.map(function (match) {
+        this.route('about');
+      });
+
+      bootApplication();
+
+      _emberMetalRun_loop.default(function () {
+        router.handleURL('/');
+      });
+
+      _emberMetalInstrumentation.subscribe('interaction.link-to', {
+        before: function () {},
+        after: function (name, timestamp, _ref3) {
+          var transition = _ref3.transition;
+
+          assert.equal(transition.targetName, 'about', 'instrumentation subscriber was passed route name');
+        }
+      });
+
+      _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+    });
+  }
 
   QUnit.test('The {{link-to}} helper supports URL replacement', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}'));
@@ -11222,7 +11301,6 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     return _emberMetalRun_loop.default(router, 'handleURL', path);
   }
 
-  var subscriber = undefined;
   _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('View Instrumentation', {
     setup: function () {
       _emberMetalRun_loop.default(function () {
@@ -11241,9 +11319,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     },
 
     teardown: function () {
-      if (subscriber) {
-        _emberMetalInstrumentation.unsubscribe(subscriber);
-      }
+      _emberMetalInstrumentation.reset();
       _emberMetalRun_loop.default(App, 'destroy');
       App = null;
       _emberTemplatesTemplate_registry.setTemplates({});
@@ -11252,7 +11328,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('Nodes without view instances are instrumented', function (assert) {
     var called = false;
-    subscriber = _emberMetalInstrumentation.subscribe('render', {
+    _emberMetalInstrumentation.subscribe('render', {
       before: function () {
         called = true;
       },
@@ -82166,7 +82242,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
       _emberRuntimeTestsUtils.runDestroy(owner);
-
+      _emberMetalInstrumentation.reset();
       _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
     }
   });
@@ -82190,7 +82266,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
       equal(clicked, 1, 'precond - The click handler was invoked');
 
       var clickInstrumented = 0;
-      var clickSubscriber = _emberMetalInstrumentation.subscribe('interaction.click', {
+      _emberMetalInstrumentation.subscribe('interaction.click', {
         before: function () {
           clickInstrumented++;
           equal(clicked, 1, 'invoked before event is handled');
@@ -82202,7 +82278,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
       });
 
       var keypressInstrumented = 0;
-      var keypressSubscriber = _emberMetalInstrumentation.subscribe('interaction.keypress', {
+      _emberMetalInstrumentation.subscribe('interaction.keypress', {
         before: function () {
           keypressInstrumented++;
         },
@@ -82218,8 +82294,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
         equal(clickInstrumented, 2, 'The click was instrumented');
         strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
       } finally {
-        _emberMetalInstrumentation.unsubscribe(clickSubscriber);
-        _emberMetalInstrumentation.unsubscribe(keypressSubscriber);
+        _emberMetalInstrumentation.reset();
       }
     });
   }
