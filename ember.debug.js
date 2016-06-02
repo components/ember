@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+859e27cf
+ * @version   2.7.0-canary+4e0c44fa
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+859e27cf";
+  exports.default = "2.7.0-canary+4e0c44fa";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10443,10 +10443,12 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
 
   exports.default = ActionModifierManager;
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _glimmerReference) {
+enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'ember-metal/tags', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _emberMetalTags, _glimmerReference) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var backburner = _emberMetalRun_loop.default.backburner;
 
   var DynamicScope = (function () {
     function DynamicScope(_ref) {
@@ -10470,39 +10472,99 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     return DynamicScope;
   })();
 
+  var SchedulerRegistrar = (function () {
+    function SchedulerRegistrar() {
+      var _this = this;
+
+      _classCallCheck(this, SchedulerRegistrar);
+
+      this.callback = null;
+      this.callbacks = null;
+
+      backburner.on('begin', function (arg1, arg2) {
+        if (_this.callback) {
+          _this.callback(arg1, arg2);
+        } else if (_this.callbacks) {
+          for (var i = 0; i < _this.callbacks.length; ++i) {
+            _this.callbacks[i](arg1, arg2);
+          }
+        }
+      });
+    }
+
+    SchedulerRegistrar.prototype.register = function register(callback) {
+      if (this.callbacks) {
+        this.callbacks.push(callback);
+      } else if (!this.callback) {
+        this.callback = callback;
+      } else {
+        this.callbacks = [this.callback, callback];
+        this.callback = null;
+      }
+    };
+
+    SchedulerRegistrar.prototype.deregister = function deregister(callback) {
+      var foundCallback = false;
+      if (this.callbacks) {
+        var callbackIndex = this.callbacks.indexOf(callback);
+        foundCallback = ~callbackIndex;
+        if (foundCallback) {
+          this.callbacks.splice(callbackIndex, 1);
+        }
+      } else if (this.callback === callback) {
+        this.callback = null;
+        foundCallback = true;
+      }
+
+      if (!foundCallback) {
+        throw new TypeError('Cannot deregister a callback that has not been registered.');
+      }
+    };
+
+    SchedulerRegistrar.prototype.hasRegistrations = function hasRegistrations() {
+      return !!this.callback || !!this.callbacks && !!this.callbacks.length;
+    };
+
+    return SchedulerRegistrar;
+  })();
+
+  var schedulerRegistrar = new SchedulerRegistrar();
+
+  _emberMetalTags.setHasViews(function rendererHasViews() {
+    return schedulerRegistrar.hasRegistrations();
+  });
+
   var Scheduler = (function () {
     function Scheduler() {
-      var _this = this;
+      var _this2 = this;
 
       _classCallCheck(this, Scheduler);
 
-      this._roots = [];
+      this._root = null;
       this._scheduleMaybeUpdate = function () {
-        _emberMetalRun_loop.default.backburner.schedule('render', _this, _this._maybeUpdate, _glimmerReference.CURRENT_TAG.value());
+        _emberMetalRun_loop.default.backburner.schedule('render', _this2, _this2._maybeUpdate, _glimmerReference.CURRENT_TAG.value());
       };
     }
 
     Scheduler.prototype.destroy = function destroy() {
-      if (this._roots.length) {
-        this._roots.splice(0, this._roots.length);
-        _emberMetalRun_loop.default.backburner.off('begin', this._scheduleMaybeUpdate);
+      if (this._root) {
+        this.deregisterView(this._root);
       }
     };
 
     Scheduler.prototype.registerView = function registerView(view) {
-      if (!this._roots.length) {
-        _emberMetalRun_loop.default.backburner.on('begin', this._scheduleMaybeUpdate);
+      if (!this.root) {
+        schedulerRegistrar.register(this._scheduleMaybeUpdate);
+        this._root = view;
+      } else {
+        throw new TypeError('Cannot register more than one root view.');
       }
-      this._roots.push(view);
     };
 
     Scheduler.prototype.deregisterView = function deregisterView(view) {
-      var viewIndex = this._roots.indexOf(view);
-      if (~viewIndex) {
-        this._roots.splice(viewIndex, 1);
-        if (!this._roots.length) {
-          _emberMetalRun_loop.default.backburner.off('begin', this._scheduleMaybeUpdate);
-        }
+      if (this._root === view) {
+        this._root = null;
+        schedulerRegistrar.deregister(this._scheduleMaybeUpdate);
       }
     };
 
@@ -10510,8 +10572,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       if (_glimmerReference.CURRENT_TAG.validate(lastTagValue)) {
         return;
       }
-      for (var i = 0; i < this._roots.length; ++i) {
-        var view = this._roots[i];
+      var view = this._root;
+      if (view) {
         view.renderer.rerender(view);
       }
     };
@@ -29872,13 +29934,23 @@ enifed('ember-metal/symbol', ['exports', 'ember-metal/utils'], function (exports
 enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function (exports, _emberMetalMeta, _require2) {
   'use strict';
 
+  exports.setHasViews = setHasViews;
   exports.tagFor = tagFor;
 
   var hasGlimmer = _require2.has('glimmer-reference');
   var CONSTANT_TAG = undefined,
       CURRENT_TAG = undefined,
       DirtyableTag = undefined,
-      makeTag = undefined;
+      makeTag = undefined,
+      run = undefined;
+
+  var hasViews = function () {
+    return false;
+  };
+
+  function setHasViews(fn) {
+    hasViews = fn;
+  }
 
   var markObjectAsDirty = undefined;
 
@@ -29897,6 +29969,17 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
     }
   }
 
+  function K() {}
+  function ensureRunloop() {
+    if (!run) {
+      run = _require2.default('ember-metal/run_loop').default;
+    }
+
+    if (hasViews() && !run.backburner.currentInstance) {
+      run.schedule('actions', K);
+    }
+  }
+
   if (hasGlimmer) {
     var _require = _require2.default('glimmer-reference');
 
@@ -29909,6 +29992,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
     };
 
     exports.markObjectAsDirty = markObjectAsDirty = function (meta) {
+      ensureRunloop();
       var tag = meta && meta.readableTag() || CURRENT_TAG;
       tag.dirty();
     };

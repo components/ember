@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+859e27cf
+ * @version   2.7.0-canary+4e0c44fa
  */
 
 var enifed, requireModule, require, Ember;
@@ -16793,7 +16793,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
       deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
     };
 
-    adapter.watchModelTypes(modelTypesAdded);
+    _emberMetalRun_loop.default(adapter, 'watchModelTypes', modelTypesAdded);
   });
 
   QUnit.test('getRecords gets a model name as second argument', function () {
@@ -16844,7 +16844,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
       deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
     };
 
-    adapter.watchModelTypes(modelTypesAdded);
+    _emberMetalRun_loop.default(adapter, 'watchModelTypes', modelTypesAdded);
   });
 
   QUnit.test('Model Types Updated', function () {
@@ -16871,7 +16871,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
       equal(postType.count, 4, 'Correctly updates the count');
     };
 
-    adapter.watchModelTypes(modelTypesAdded, modelTypesUpdated);
+    _emberMetalRun_loop.default(adapter, 'watchModelTypes', modelTypesAdded, modelTypesUpdated);
   });
 
   QUnit.test('Records Added', function () {
@@ -19422,7 +19422,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop) {
   /* globals EmberDev */
   'use strict';
 
@@ -19547,7 +19547,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       if (EmberDev && !EmberDev.runningProdBuild) {
         var willThrow = function () {
-          return _emberMetalProperty_set.set(component, 'elementId', 'herpyderpy');
+          return _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, component, 'elementId', 'herpyderpy');
         };
 
         assert.throws(willThrow, /Changing a view's elementId after creation is not allowed/);
@@ -41315,7 +41315,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop) {
   /* globals EmberDev */
   'use strict';
 
@@ -41440,7 +41440,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       if (EmberDev && !EmberDev.runningProdBuild) {
         var willThrow = function () {
-          return _emberMetalProperty_set.set(component, 'elementId', 'herpyderpy');
+          return _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, component, 'elementId', 'herpyderpy');
         };
 
         assert.throws(willThrow, /Changing a view's elementId after creation is not allowed/);

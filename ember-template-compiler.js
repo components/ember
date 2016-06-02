@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+859e27cf
+ * @version   2.7.0-canary+4e0c44fa
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+859e27cf";
+  exports.default = "2.7.0-canary+4e0c44fa";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -9935,13 +9935,23 @@ enifed('ember-metal/symbol', ['exports', 'ember-metal/utils'], function (exports
 enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function (exports, _emberMetalMeta, _require2) {
   'use strict';
 
+  exports.setHasViews = setHasViews;
   exports.tagFor = tagFor;
 
   var hasGlimmer = _require2.has('glimmer-reference');
   var CONSTANT_TAG = undefined,
       CURRENT_TAG = undefined,
       DirtyableTag = undefined,
-      makeTag = undefined;
+      makeTag = undefined,
+      run = undefined;
+
+  var hasViews = function () {
+    return false;
+  };
+
+  function setHasViews(fn) {
+    hasViews = fn;
+  }
 
   var markObjectAsDirty = undefined;
 
@@ -9960,6 +9970,17 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
     }
   }
 
+  function K() {}
+  function ensureRunloop() {
+    if (!run) {
+      run = _require2.default('ember-metal/run_loop').default;
+    }
+
+    if (hasViews() && !run.backburner.currentInstance) {
+      run.schedule('actions', K);
+    }
+  }
+
   if (hasGlimmer) {
     var _require = _require2.default('glimmer-reference');
 
@@ -9972,6 +9993,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
     };
 
     exports.markObjectAsDirty = markObjectAsDirty = function (meta) {
+      ensureRunloop();
       var tag = meta && meta.readableTag() || CURRENT_TAG;
       tag.dirty();
     };
