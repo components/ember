@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+cd1fa4a9
+ * @version   2.7.0-canary+da9443ea
  */
 
 var enifed, requireModule, require, Ember;
@@ -2437,15 +2437,12 @@ enifed('ember/tests/global-api-test', ['exports', 'ember-metal/property_get', 'e
   confirmExport('Ember.Helper.helper');
   confirmExport('Ember.isArray', _emberRuntimeUtils.isArray);
 });
-enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-htmlbars/helpers', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helper', 'ember-application/system/application', 'ember-routing/system/router', 'ember-runtime/system/service', 'ember-views/system/jquery', 'ember-runtime/inject', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberHtmlbarsHelpers, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelper, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberRuntimeSystemService, _emberViewsSystemJquery, _emberRuntimeInject, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/helper', 'ember-application/system/application', 'ember-routing/system/router', 'ember-runtime/system/service', 'ember-views/system/jquery', 'ember-runtime/inject', 'ember-templates/template_registry'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesHelper, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberRuntimeSystemService, _emberViewsSystemJquery, _emberRuntimeInject, _emberTemplatesTemplate_registry) {
   'use strict';
 
-  var App, appInstance, originalViewKeyword;
+  var App, appInstance;
 
   QUnit.module('Application Lifecycle - Helper Registration', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-    },
     teardown: function () {
       _emberMetalRun_loop.default(function () {
         if (App) {
@@ -2455,8 +2452,6 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
         App = appInstance = null;
         _emberTemplatesTemplate_registry.setTemplates({});
       });
-      delete _emberHtmlbarsHelpers.default['foo-bar-baz-widget'];
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
     }
   });
 
@@ -2490,7 +2485,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
 
   QUnit.test('Unbound dashed helpers registered on the container can be late-invoked', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>'));
-    var myHelper = _emberHtmlbarsHelper.helper(function (params) {
+    var myHelper = _emberTemplatesHelper.helper(function (params) {
       return params[0] || 'BORF';
     });
 
@@ -2499,7 +2494,6 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
     });
 
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'BORF YES', 'The helper was invoked from the container');
-    ok(!_emberHtmlbarsHelpers.default['x-borf'], 'Container-registered helper doesn\'t wind up on global helpers hash');
   });
 
   QUnit.test('Bound helpers registered on the container can be late-invoked', function () {
@@ -2510,7 +2504,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
         foo: 'alex'
       }));
 
-      appInstance.register('helper:x-reverse', _emberHtmlbarsHelper.helper(function (_ref) {
+      appInstance.register('helper:x-reverse', _emberTemplatesHelper.helper(function (_ref) {
         var value = _ref[0];
 
         return value ? value.split('').reverse().join('') : '--';
@@ -2518,18 +2512,17 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
     });
 
     equal(_emberViewsSystemJquery.default('#wrapper').text(), '-- xela', 'The bound helper was invoked from the container');
-    ok(!_emberHtmlbarsHelpers.default['x-reverse'], 'Container-registered helper doesn\'t wind up on global helpers hash');
   });
 
   QUnit.test('Undashed helpers registered on the container can be invoked', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>'));
 
     boot(function () {
-      appInstance.register('helper:omg', _emberHtmlbarsHelper.helper(function () {
+      appInstance.register('helper:omg', _emberTemplatesHelper.helper(function () {
         return 'OMG';
       }));
 
-      appInstance.register('helper:yorp', _emberHtmlbarsHelper.helper(function (_ref2) {
+      appInstance.register('helper:yorp', _emberTemplatesHelper.helper(function (_ref2) {
         var value = _ref2[0];
 
         return value;
@@ -2539,8 +2532,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'OMG|boo|ya', 'The helper was invoked from the container');
   });
 
-  // needs glimmer Helper
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Helpers can receive injections', function () {
+  QUnit.test('Helpers can receive injections', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{full-name}}</div>'));
 
     var serviceCalled = false;
@@ -2550,7 +2542,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
           serviceCalled = true;
         }
       }));
-      appInstance.register('helper:full-name', _emberHtmlbarsHelper.default.extend({
+      appInstance.register('helper:full-name', _emberTemplatesHelper.default.extend({
         nameBuilder: _emberRuntimeInject.default.service('name-builder'),
         compute: function () {
           this.get('nameBuilder').build();
