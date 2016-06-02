@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+091b9a02
+ * @version   2.7.0-canary+cd1fa4a9
  */
 
 var enifed, requireModule, require, Ember;
@@ -3748,7 +3748,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+091b9a02";
+  exports.default = "2.7.0-canary+cd1fa4a9";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -8765,10 +8765,20 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
     willRender: function () {
       var queryParams = undefined;
 
-      // Do not mutate params in place
-      var params = _emberMetalProperty_get.get(this, 'params').slice();
+      var params = _emberMetalProperty_get.get(this, 'params');
 
-      _emberMetalDebug.assert('You must provide one or more parameters to the link-to component.', params.length);
+      if (params) {
+        // Do not mutate params in place
+        params = params.slice();
+      }
+
+      _emberMetalDebug.assert('You must provide one or more parameters to the link-to component.', function () {
+        if (!params) {
+          return false;
+        }
+
+        return params.length;
+      });
 
       var disabledWhen = _emberMetalProperty_get.get(this, 'disabledWhen');
       if (disabledWhen !== undefined) {
@@ -12422,7 +12432,9 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
     };
 
     OutletView.prototype.destroy = function destroy() {
-      this._renderResult.destroy();
+      if (this._renderResult) {
+        this._renderResult.destroy();
+      }
     };
 
     return OutletView;
@@ -14105,10 +14117,20 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
     willRender: function () {
       var queryParams = undefined;
 
-      // Do not mutate params in place
-      var params = _emberMetalProperty_get.get(this, 'params').slice();
+      var params = _emberMetalProperty_get.get(this, 'params');
 
-      _emberMetalDebug.assert('You must provide one or more parameters to the link-to component.', params.length);
+      if (params) {
+        // Do not mutate params in place
+        params = params.slice();
+      }
+
+      _emberMetalDebug.assert('You must provide one or more parameters to the link-to component.', function () {
+        if (!params) {
+          return false;
+        }
+
+        return params.length;
+      });
 
       var disabledWhen = _emberMetalProperty_get.get(this, 'disabledWhen');
       if (disabledWhen !== undefined) {
