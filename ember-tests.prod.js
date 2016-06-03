@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4e0c44fa
+ * @version   2.7.0-canary+c65f57ce
  */
 
 var enifed, requireModule, require, Ember;
@@ -69656,20 +69656,20 @@ enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal/injected_prop
       owner.register('foo:main', AnObject);
       owner._lookupFactory('foo:main');
     });
-  }
 
-  QUnit.test('attempting to inject a nonexistent container key should error', function () {
-    var owner = _containerTestsTestHelpersBuildOwner.default();
-    var AnObject = _emberRuntimeSystemObject.default.extend({
-      foo: new _emberMetalInjected_property.default('bar', 'baz')
+    QUnit.test('attempting to inject a nonexistent container key should error', function () {
+      var owner = _containerTestsTestHelpersBuildOwner.default();
+      var AnObject = _emberRuntimeSystemObject.default.extend({
+        foo: new _emberMetalInjected_property.default('bar', 'baz')
+      });
+
+      owner.register('foo:main', AnObject);
+
+      throws(function () {
+        owner.lookup('foo:main');
+      }, /Attempting to inject an unknown injection: `bar:baz`/);
     });
-
-    owner.register('foo:main', AnObject);
-
-    throws(function () {
-      owner.lookup('foo:main');
-    }, /Attempting to inject an unknown injection: `bar:baz`/);
-  });
+  }
 
   QUnit.test('factories should return a list of lazy injection full names', function () {
     var AnObject = _emberRuntimeSystemObject.default.extend({

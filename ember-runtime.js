@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4e0c44fa
+ * @version   2.7.0-canary+c65f57ce
  */
 
 var enifed, requireModule, require, Ember;
@@ -1483,13 +1483,15 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
 
       validationCache = container.validationCache;
 
-      // Ensure that all lazy injections are valid at instantiation time
-      if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
-        lazyInjections = factory._lazyInjections();
-        lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
+      _emberMetalDebug.runInDebug(function () {
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
+          lazyInjections = factory._lazyInjections();
+          lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
 
-        container.registry.validateInjections(lazyInjections);
-      }
+          container.registry.validateInjections(lazyInjections);
+        }
+      });
 
       validationCache[fullName] = true;
 
@@ -2491,7 +2493,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+4e0c44fa";
+  exports.default = "2.7.0-canary+c65f57ce";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
