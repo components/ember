@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c65f57ce
+ * @version   2.7.0-canary+78cea046
  */
 
 var enifed, requireModule, require, Ember;
@@ -34459,6 +34459,79 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T1');
     };
 
+    TogglingHelperConditionalsTest.prototype['@glimmer evaluation should be lazy'] = function glimmerEvaluationShouldBeLazy(assert) {
+      var _this16 = this;
+
+      var truthyEvaluated = undefined;
+      var falsyEvaluated = undefined;
+
+      var withoutEvaluatingTruthy = function (callback) {
+        truthyEvaluated = false;
+        callback();
+        assert.ok(!truthyEvaluated, 'x-truthy is not evaluated');
+      };
+
+      var withoutEvaluatingFalsy = function (callback) {
+        falsyEvaluated = false;
+        callback();
+        assert.ok(!falsyEvaluated, 'x-falsy is not evaluated');
+      };
+
+      this.registerHelper('x-truthy', {
+        compute: function () {
+          truthyEvaluated = true;
+          return 'T';
+        }
+      });
+
+      this.registerHelper('x-falsy', {
+        compute: function () {
+          falsyEvaluated = true;
+          return 'F';
+        }
+      });
+
+      var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '(x-truthy)', falsy: '(x-falsy)' });
+
+      withoutEvaluatingFalsy(function () {
+        return _this16.render(template, { cond: _this16.truthyValue });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingFalsy(function () {
+        return _this16.runTask(function () {
+          return _this16.rerender();
+        });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingTruthy(function () {
+        return _this16.runTask(function () {
+          return _emberMetalProperty_set.set(_this16.context, 'cond', _this16.falsyValue);
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingTruthy(function () {
+        return _this16.runTask(function () {
+          return _this16.rerender();
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingFalsy(function () {
+        return _this16.runTask(function () {
+          return _emberMetalProperty_set.set(_this16.context, 'cond', _this16.truthyValue);
+        });
+      });
+
+      this.assertText('T');
+    };
+
     return TogglingHelperConditionalsTest;
   })(TogglingConditionalsTest);
 
@@ -34498,7 +34571,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     }
 
     TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
-      var _this16 = this;
+      var _this17 = this;
 
       var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
 
@@ -34507,34 +34580,34 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.falsyValue);
+        return _emberMetalProperty_set.set(_this17.context, 'cond1', _this17.falsyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.truthyValue);
-        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.truthyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond1', _this17.truthyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond2', _this17.truthyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.truthyValue);
-        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.falsyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond1', _this17.truthyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond2', _this17.falsyValue);
       });
 
       this.assertText('T1F2');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
-      var _this17 = this;
+      var _this18 = this;
 
       var template = this.wrappedTemplateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
 
@@ -34543,26 +34616,26 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T1');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertText('T1');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this17.context, 'isTruthy', _this17.falsyValue);
+        return _emberMetalProperty_set.set(_this18.context, 'isTruthy', _this18.falsyValue);
       });
 
       this.assertText('F1');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this17.context, 'isTruthy', _this17.truthyValue);
+        return _emberMetalProperty_set.set(_this18.context, 'isTruthy', _this18.truthyValue);
       });
 
       this.assertText('T1');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing another conditional'] = function testItUpdatesCorrectlyWhenEnclosingAnotherConditional() {
-      var _this18 = this;
+      var _this19 = this;
 
       // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
       var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#if inner}}T-inner{{else}}F-inner{{/if}}', falsy: 'F-outer' });
@@ -34572,86 +34645,33 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T-inner');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('T-inner');
 
       // Changes the inner bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'inner', _this18.falsyValue);
+        return _emberMetalProperty_set.set(_this19.context, 'inner', _this19.falsyValue);
       });
 
       this.assertText('F-inner');
 
       // Now rerender the outer conditional, which require first clearing its bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'outer', _this18.falsyValue);
+        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
       });
 
       this.assertText('F-outer');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing #each'] = function testItUpdatesCorrectlyWhenEnclosingEach() {
-      var _this19 = this;
+      var _this20 = this;
 
       // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
       var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
 
       this.render(template, { outer: this.truthyValue, inner: ['inner', '-', 'before'] });
-
-      this.assertText('inner-before');
-
-      this.runTask(function () {
-        return _this19.rerender();
-      });
-
-      this.assertText('inner-before');
-
-      // Changes the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'inner', ['inner-after']);
-      });
-
-      this.assertText('inner-after');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
-      });
-
-      this.assertText('F-outer');
-
-      // Reset
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'inner', ['inner-again']);
-        _emberMetalProperty_set.set(_this19.context, 'outer', _this19.truthyValue);
-      });
-
-      this.assertText('inner-again');
-
-      // Now clear the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'inner', []);
-      });
-
-      this.assertText('');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
-      });
-
-      this.assertText('F-outer');
-    };
-
-    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
-      var _this20 = this;
-
-      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
-
-      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
 
       this.assertText('inner-before');
 
@@ -34663,7 +34683,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
       // Changes the inner bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'inner', '<p>inner-after</p>');
+        return _emberMetalProperty_set.set(_this20.context, 'inner', ['inner-after']);
       });
 
       this.assertText('inner-after');
@@ -34674,10 +34694,63 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       });
 
       this.assertText('F-outer');
+
+      // Reset
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this20.context, 'inner', ['inner-again']);
+        _emberMetalProperty_set.set(_this20.context, 'outer', _this20.truthyValue);
+      });
+
+      this.assertText('inner-again');
+
+      // Now clear the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'inner', []);
+      });
+
+      this.assertText('');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'outer', _this20.falsyValue);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
+      var _this21 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'inner', '<p>inner-after</p>');
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'outer', _this21.falsyValue);
+      });
+
+      this.assertText('F-outer');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test child conditional should not render children if parent conditional becomes false'] = function testChildConditionalShouldNotRenderChildrenIfParentConditionalBecomesFalse(assert) {
-      var _this21 = this;
+      var _this22 = this;
 
       var childCreated = false;
 
@@ -34700,27 +34773,100 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'cond2', _this21.truthyValue);
-        _emberMetalProperty_set.set(_this21.context, 'cond1', _this21.falsyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond2', _this22.truthyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond1', _this22.falsyValue);
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'cond2', _this21.falsyValue);
-        _emberMetalProperty_set.set(_this21.context, 'cond1', _this21.truthyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond2', _this22.falsyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond1', _this22.truthyValue);
       });
 
       assert.ok(!childCreated);
       this.assertText('');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test evaluation should be lazy'] = function testEvaluationShouldBeLazy(assert) {
+      var _this23 = this;
+
+      var truthyEvaluated = undefined;
+      var falsyEvaluated = undefined;
+
+      var withoutEvaluatingTruthy = function (callback) {
+        truthyEvaluated = false;
+        callback();
+        assert.ok(!truthyEvaluated, 'x-truthy is not evaluated');
+      };
+
+      var withoutEvaluatingFalsy = function (callback) {
+        falsyEvaluated = false;
+        callback();
+        assert.ok(!falsyEvaluated, 'x-falsy is not evaluated');
+      };
+
+      this.registerHelper('x-truthy', {
+        compute: function () {
+          truthyEvaluated = true;
+          return 'T';
+        }
+      });
+
+      this.registerHelper('x-falsy', {
+        compute: function () {
+          falsyEvaluated = true;
+          return 'F';
+        }
+      });
+
+      var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '{{x-truthy}}', falsy: '{{x-falsy}}' });
+
+      withoutEvaluatingFalsy(function () {
+        return _this23.render(template, { cond: _this23.truthyValue });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingFalsy(function () {
+        return _this23.runTask(function () {
+          return _this23.rerender();
+        });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingTruthy(function () {
+        return _this23.runTask(function () {
+          return _emberMetalProperty_set.set(_this23.context, 'cond', _this23.falsyValue);
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingTruthy(function () {
+        return _this23.runTask(function () {
+          return _this23.rerender();
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingFalsy(function () {
+        return _this23.runTask(function () {
+          return _emberMetalProperty_set.set(_this23.context, 'cond', _this23.truthyValue);
+        });
+      });
+
+      this.assertText('T');
     };
 
     return TogglingSyntaxConditionalsTest;
@@ -56957,6 +57103,79 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T1');
     };
 
+    TogglingHelperConditionalsTest.prototype['@glimmer evaluation should be lazy'] = function glimmerEvaluationShouldBeLazy(assert) {
+      var _this16 = this;
+
+      var truthyEvaluated = undefined;
+      var falsyEvaluated = undefined;
+
+      var withoutEvaluatingTruthy = function (callback) {
+        truthyEvaluated = false;
+        callback();
+        assert.ok(!truthyEvaluated, 'x-truthy is not evaluated');
+      };
+
+      var withoutEvaluatingFalsy = function (callback) {
+        falsyEvaluated = false;
+        callback();
+        assert.ok(!falsyEvaluated, 'x-falsy is not evaluated');
+      };
+
+      this.registerHelper('x-truthy', {
+        compute: function () {
+          truthyEvaluated = true;
+          return 'T';
+        }
+      });
+
+      this.registerHelper('x-falsy', {
+        compute: function () {
+          falsyEvaluated = true;
+          return 'F';
+        }
+      });
+
+      var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '(x-truthy)', falsy: '(x-falsy)' });
+
+      withoutEvaluatingFalsy(function () {
+        return _this16.render(template, { cond: _this16.truthyValue });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingFalsy(function () {
+        return _this16.runTask(function () {
+          return _this16.rerender();
+        });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingTruthy(function () {
+        return _this16.runTask(function () {
+          return _emberMetalProperty_set.set(_this16.context, 'cond', _this16.falsyValue);
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingTruthy(function () {
+        return _this16.runTask(function () {
+          return _this16.rerender();
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingFalsy(function () {
+        return _this16.runTask(function () {
+          return _emberMetalProperty_set.set(_this16.context, 'cond', _this16.truthyValue);
+        });
+      });
+
+      this.assertText('T');
+    };
+
     return TogglingHelperConditionalsTest;
   })(TogglingConditionalsTest);
 
@@ -56996,7 +57215,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     }
 
     TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
-      var _this16 = this;
+      var _this17 = this;
 
       var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
 
@@ -57005,34 +57224,34 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.falsyValue);
+        return _emberMetalProperty_set.set(_this17.context, 'cond1', _this17.falsyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.truthyValue);
-        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.truthyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond1', _this17.truthyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond2', _this17.truthyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.truthyValue);
-        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.falsyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond1', _this17.truthyValue);
+        _emberMetalProperty_set.set(_this17.context, 'cond2', _this17.falsyValue);
       });
 
       this.assertText('T1F2');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it tests for `isTruthy` on the context if available'] = function testItTestsForIsTruthyOnTheContextIfAvailable() {
-      var _this17 = this;
+      var _this18 = this;
 
       var template = this.wrappedTemplateFor({ cond: 'this', truthy: 'T1', falsy: 'F1' });
 
@@ -57041,26 +57260,26 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T1');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertText('T1');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this17.context, 'isTruthy', _this17.falsyValue);
+        return _emberMetalProperty_set.set(_this18.context, 'isTruthy', _this18.falsyValue);
       });
 
       this.assertText('F1');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this17.context, 'isTruthy', _this17.truthyValue);
+        return _emberMetalProperty_set.set(_this18.context, 'isTruthy', _this18.truthyValue);
       });
 
       this.assertText('T1');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing another conditional'] = function testItUpdatesCorrectlyWhenEnclosingAnotherConditional() {
-      var _this18 = this;
+      var _this19 = this;
 
       // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
       var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#if inner}}T-inner{{else}}F-inner{{/if}}', falsy: 'F-outer' });
@@ -57070,86 +57289,33 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T-inner');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('T-inner');
 
       // Changes the inner bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'inner', _this18.falsyValue);
+        return _emberMetalProperty_set.set(_this19.context, 'inner', _this19.falsyValue);
       });
 
       this.assertText('F-inner');
 
       // Now rerender the outer conditional, which require first clearing its bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'outer', _this18.falsyValue);
+        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
       });
 
       this.assertText('F-outer');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing #each'] = function testItUpdatesCorrectlyWhenEnclosingEach() {
-      var _this19 = this;
+      var _this20 = this;
 
       // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
       var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
 
       this.render(template, { outer: this.truthyValue, inner: ['inner', '-', 'before'] });
-
-      this.assertText('inner-before');
-
-      this.runTask(function () {
-        return _this19.rerender();
-      });
-
-      this.assertText('inner-before');
-
-      // Changes the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'inner', ['inner-after']);
-      });
-
-      this.assertText('inner-after');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
-      });
-
-      this.assertText('F-outer');
-
-      // Reset
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'inner', ['inner-again']);
-        _emberMetalProperty_set.set(_this19.context, 'outer', _this19.truthyValue);
-      });
-
-      this.assertText('inner-again');
-
-      // Now clear the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'inner', []);
-      });
-
-      this.assertText('');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
-      });
-
-      this.assertText('F-outer');
-    };
-
-    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
-      var _this20 = this;
-
-      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
-
-      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
 
       this.assertText('inner-before');
 
@@ -57161,7 +57327,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
       // Changes the inner bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'inner', '<p>inner-after</p>');
+        return _emberMetalProperty_set.set(_this20.context, 'inner', ['inner-after']);
       });
 
       this.assertText('inner-after');
@@ -57172,10 +57338,63 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       });
 
       this.assertText('F-outer');
+
+      // Reset
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this20.context, 'inner', ['inner-again']);
+        _emberMetalProperty_set.set(_this20.context, 'outer', _this20.truthyValue);
+      });
+
+      this.assertText('inner-again');
+
+      // Now clear the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'inner', []);
+      });
+
+      this.assertText('');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'outer', _this20.falsyValue);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
+      var _this21 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this21.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'inner', '<p>inner-after</p>');
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this21.context, 'outer', _this21.falsyValue);
+      });
+
+      this.assertText('F-outer');
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test child conditional should not render children if parent conditional becomes false'] = function testChildConditionalShouldNotRenderChildrenIfParentConditionalBecomesFalse(assert) {
-      var _this21 = this;
+      var _this22 = this;
 
       var childCreated = false;
 
@@ -57198,27 +57417,100 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'cond2', _this21.truthyValue);
-        _emberMetalProperty_set.set(_this21.context, 'cond1', _this21.falsyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond2', _this22.truthyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond1', _this22.falsyValue);
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'cond2', _this21.falsyValue);
-        _emberMetalProperty_set.set(_this21.context, 'cond1', _this21.truthyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond2', _this22.falsyValue);
+        _emberMetalProperty_set.set(_this22.context, 'cond1', _this22.truthyValue);
       });
 
       assert.ok(!childCreated);
       this.assertText('');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test evaluation should be lazy'] = function testEvaluationShouldBeLazy(assert) {
+      var _this23 = this;
+
+      var truthyEvaluated = undefined;
+      var falsyEvaluated = undefined;
+
+      var withoutEvaluatingTruthy = function (callback) {
+        truthyEvaluated = false;
+        callback();
+        assert.ok(!truthyEvaluated, 'x-truthy is not evaluated');
+      };
+
+      var withoutEvaluatingFalsy = function (callback) {
+        falsyEvaluated = false;
+        callback();
+        assert.ok(!falsyEvaluated, 'x-falsy is not evaluated');
+      };
+
+      this.registerHelper('x-truthy', {
+        compute: function () {
+          truthyEvaluated = true;
+          return 'T';
+        }
+      });
+
+      this.registerHelper('x-falsy', {
+        compute: function () {
+          falsyEvaluated = true;
+          return 'F';
+        }
+      });
+
+      var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '{{x-truthy}}', falsy: '{{x-falsy}}' });
+
+      withoutEvaluatingFalsy(function () {
+        return _this23.render(template, { cond: _this23.truthyValue });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingFalsy(function () {
+        return _this23.runTask(function () {
+          return _this23.rerender();
+        });
+      });
+
+      this.assertText('T');
+
+      withoutEvaluatingTruthy(function () {
+        return _this23.runTask(function () {
+          return _emberMetalProperty_set.set(_this23.context, 'cond', _this23.falsyValue);
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingTruthy(function () {
+        return _this23.runTask(function () {
+          return _this23.rerender();
+        });
+      });
+
+      this.assertText('F');
+
+      withoutEvaluatingFalsy(function () {
+        return _this23.runTask(function () {
+          return _emberMetalProperty_set.set(_this23.context, 'cond', _this23.truthyValue);
+        });
+      });
+
+      this.assertText('T');
     };
 
     return TogglingSyntaxConditionalsTest;
