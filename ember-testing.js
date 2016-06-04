@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a841b2e4
+ * @version   2.7.0-canary+235a6cb7
  */
 
 var enifed, requireModule, require, Ember;
@@ -747,7 +747,38 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
     }
   });
 });
-enifed('ember-testing/events', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop) {
+enifed('ember-testing/events/_jquery', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop) {
+  'use strict';
+
+  exports.focus = focus;
+  exports.fireEvent = fireEvent;
+
+  function focus(el) {
+    if (el && el.is(':input, [contenteditable=true]')) {
+      var type = el.prop('type');
+      if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
+        _emberMetalRun_loop.default(el, function () {
+          // Firefox does not trigger the `focusin` event if the window
+          // does not have focus. If the document doesn't have focus just
+          // use trigger('focusin') instead.
+          if (!document.hasFocus || document.hasFocus()) {
+            this.focus();
+          } else {
+            this.trigger('focusin');
+          }
+        });
+      }
+    }
+  }
+
+  function fireEvent(element, type) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    var event = _emberViewsSystemJquery.default.Event(type, options);
+    _emberViewsSystemJquery.default(element).trigger(event);
+  }
+});
+enifed('ember-testing/events/_native', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop) {
   'use strict';
 
   exports.focus = focus;
@@ -842,6 +873,17 @@ enifed('ember-testing/events', ['exports', 'ember-views/system/jquery', 'ember-m
     }
     return event;
   }
+});
+enifed('ember-testing/events', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
+  'use strict';
+
+  var events = undefined;
+
+  events = _require.default('ember-testing/events/_native');
+  var focus = events.focus;
+  exports.focus = focus;
+  var fireEvent = events.fireEvent;
+  exports.fireEvent = fireEvent;
 });
 enifed('ember-testing/ext/application', ['exports', 'ember-application/system/application', 'ember-testing/setup_for_testing', 'ember-testing/test/helpers', 'ember-testing/test/promise', 'ember-testing/test/run', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/adapter'], function (exports, _emberApplicationSystemApplication, _emberTestingSetup_for_testing, _emberTestingTestHelpers, _emberTestingTestPromise, _emberTestingTestRun, _emberTestingTestOn_inject_helpers, _emberTestingTestAdapter) {
   'use strict';

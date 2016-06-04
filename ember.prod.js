@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a841b2e4
+ * @version   2.7.0-canary+235a6cb7
  */
 
 var enifed, requireModule, require, Ember;
@@ -1153,7 +1153,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     this._platform.clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
+enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
   'use strict';
 
   var CONTAINER_OVERRIDE = _emberMetalSymbol.default('CONTAINER_OVERRIDE');
@@ -1655,7 +1655,7 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     object[OWNER] = owner;
   }
 });
-enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/assign', 'container/container', 'ember-metal/utils'], function (exports, _emberMetalDebug, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalAssign, _containerContainer, _emberMetalUtils) {
+enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/assign', 'container/container', 'ember-metal/utils'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalAssign, _containerContainer, _emberMetalUtils) {
   'use strict';
 
   exports.privatize = privatize;
@@ -1970,7 +1970,9 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
         return false;
       }
 
-      var source = options && options.source && this.normalize(options.source);
+      var source = undefined;
+
+      source = options && options.source && this.normalize(options.source);
 
       return has(this, this.normalize(fullName), source);
     },
@@ -2340,23 +2342,20 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
   }
 
   /**
-   Given a fullName and a source fullName returns the fully resolved
-   fullName. Used to allow for local lookup.
-  
-   ```javascript
-   var registry = new Registry();
-  
-   // the twitter factory is added to the module system
-   registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-   ```
-  
-   @private
-   @method expandLocalLookup
-   @param {String} fullName
-   @param {Object} [options]
-   @param {String} [options.source] the fullname of the request source (used for local lookups)
-   @return {String} fullName
-   */
+    Given a fullName and a source fullName returns the fully resolved
+    fullName. Used to allow for local lookup.
+     ```javascript
+    var registry = new Registry();
+     // the twitter factory is added to the module system
+    registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
+    ```
+     @private
+    @method expandLocalLookup
+    @param {String} fullName
+    @param {Object} [options]
+    @param {String} [options.source] the fullname of the request source (used for local lookups)
+    @return {String} fullName
+  */
   Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
     if (this.resolver && this.resolver.expandLocalLookup) {
 
@@ -3702,7 +3701,7 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null };
 });
 enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
   // require the main entry points for each of these packages
@@ -3728,7 +3727,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a841b2e4";
+  exports.default = "2.7.0-canary+235a6cb7";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10910,7 +10909,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
     return Iterable;
   })();
 });
-enifed('ember-glimmer/utils/lookup-component', ['exports', 'container/registry'], function (exports, _containerRegistry) {
+enifed('ember-glimmer/utils/lookup-component', ['exports', 'ember-metal/features', 'container/registry'], function (exports, _emberMetalFeatures, _containerRegistry) {
   'use strict';
 
   exports.default = lookupComponent;
@@ -14647,7 +14646,7 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/system/build-component-template'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsSystemBuildComponentTemplate) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/system/build-component-template'], function (exports, _emberMetalFeatures, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsSystemBuildComponentTemplate) {
   'use strict';
 
   exports.default = componentHook;
@@ -14700,6 +14699,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
 
     var parentView = env.view;
     var options = {};
+
     var moduleName = env.meta && env.meta.moduleName;
     if (moduleName) {
       options.source = 'template:' + moduleName;
@@ -21260,7 +21260,7 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
     }
   }
 });
-enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-metal/features', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalFeatures, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsStreamsUtils) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -21315,10 +21315,11 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/l
     }
   }
 });
-enifed('ember-htmlbars/utils/lookup-component', ['exports'], function (exports) {
+enifed('ember-htmlbars/utils/lookup-component', ['exports', 'ember-metal/features'], function (exports, _emberMetalFeatures) {
   'use strict';
 
   exports.default = lookupComponent;
+
   function lookupComponentPair(componentLookup, owner, name, options) {
     return {
       component: componentLookup.componentFor(name, owner, options),
@@ -37199,7 +37200,9 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
 
-  EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
+  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
+    EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
+  }
 
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
@@ -39533,34 +39536,36 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
     }
   });
 
-  Enumerable.reopen({
-    /**
-      Returns a new enumerable that contains only items containing a unique property value.
-      The default implementation returns an array regardless of the receiver type.
-       ```javascript
-      var arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
-      arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
-      ```
-       @method uniqBy
-      @return {Ember.Enumerable}
-      @public
-    */
+  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
+    Enumerable.reopen({
+      /**
+        Returns a new enumerable that contains only items containing a unique property value.
+        The default implementation returns an array regardless of the receiver type.
+         ```javascript
+        var arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
+        arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
+        ```
+         @method uniqBy
+        @return {Ember.Enumerable}
+        @public
+      */
 
-    uniqBy: function (key) {
-      var ret = emberA();
-      var seen = new _emberMetalEmpty_object.default();
+      uniqBy: function (key) {
+        var ret = emberA();
+        var seen = new _emberMetalEmpty_object.default();
 
-      this.forEach(function (item) {
-        var guid = _emberMetalUtils.guidFor(_emberMetalProperty_get.get(item, key));
-        if (!(guid in seen)) {
-          seen[guid] = true;
-          ret.push(item);
-        }
-      });
+        this.forEach(function (item) {
+          var guid = _emberMetalUtils.guidFor(_emberMetalProperty_get.get(item, key));
+          if (!(guid in seen)) {
+            seen[guid] = true;
+            ret.push(item);
+          }
+        });
 
-      return ret;
-    }
-  });
+        return ret;
+      }
+    });
+  }
 
   if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
     Enumerable.reopen({
