@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a841b2e4
+ * @version   2.7.0-canary+9b3219a9
  */
 
 var enifed, requireModule, require, Ember;
@@ -3728,7 +3728,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a841b2e4";
+  exports.default = "2.7.0-canary+9b3219a9";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11828,6 +11828,7 @@ enifed('ember-glimmer-template-compiler/index', ['exports', 'ember-glimmer-templ
   exports.compile = _emberGlimmerTemplateCompilerSystemCompile.default;
   exports.precompile = _emberGlimmerTemplateCompilerSystemPrecompile.default;
   exports.template = _emberGlimmerTemplateCompilerSystemTemplate.default;
+  exports.defaultCompileOptions = _emberGlimmerTemplateCompilerSystemCompileOptions.default;
   exports.registerPlugin = _emberGlimmerTemplateCompilerSystemCompileOptions.registerPlugin;
 });
 enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
@@ -11973,13 +11974,15 @@ enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['e
     return ast;
   };
 });
-enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-metal/assign'], function (exports, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberMetalAssign) {
+enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberMetalAssign) {
   'use strict';
 
   exports.default = compileOptions;
   exports.registerPlugin = registerPlugin;
   exports.removePlugin = removePlugin;
-  var PLUGINS = [_emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default];
+  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
+  // the following are ember-glimmer specific
+  _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];
@@ -11988,7 +11991,7 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
     options = options || {};
     options = _emberMetalAssign.default({}, options);
     if (!options.plugins) {
-      options.plugins = PLUGINS;
+      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
     } else {
       var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
       var pluginsToAdd = potententialPugins.filter(function (plugin) {
@@ -21511,6 +21514,7 @@ enifed('ember-htmlbars-template-compiler/index', ['exports', 'ember-htmlbars-tem
   exports.compile = _emberHtmlbarsTemplateCompilerSystemCompile.default;
   exports.precompile = _emberHtmlbarsTemplateCompilerSystemPrecompile.default;
   exports.template = _emberHtmlbarsTemplateCompilerSystemTemplate.default;
+  exports.defaultCompileOptions = _emberHtmlbarsTemplateCompilerSystemCompileOptions.default;
   exports.registerPlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.registerPlugin;
 });
 enifed('ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
@@ -21803,7 +21807,7 @@ enifed('ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syn
     return segments;
   }
 });
-enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberVersion, _emberMetalAssign, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax) {
+enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -21816,7 +21820,10 @@ enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'e
 
   var compileOptions = undefined;
 
-  var PLUGINS = [_emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax.default];
+  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
+
+  // the following are ember-htmlbars specific
+  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];
@@ -21825,7 +21832,7 @@ enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'e
     options = options || {};
     options = _emberMetalAssign.default({}, options);
     if (!options.plugins) {
-      options.plugins = PLUGINS;
+      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
     } else {
       var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
       var pluginsToAdd = potententialPugins.filter(function (plugin) {
@@ -44304,18 +44311,13 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
     return moduleInfo;
   }
 });
-enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberMetalAssign) {
+enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/compiler'], function (exports, _emberTemplateCompilerCompiler) {
   'use strict';
 
-  exports.default = compileOptions;
+  var _compiler = _emberTemplateCompilerCompiler.default();
 
-  function compileOptions() {
-    return _emberMetalAssign.default({}, {
-      plugins: {
-        ast: [].concat(_emberTemplateCompilerPlugins.default)
-      }
-    });
-  }
+  var defaultCompileOptions = _compiler.defaultCompileOptions;
+  exports.default = defaultCompileOptions;
 });
 enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/compiler', 'ember-template-compiler/system/compile-options', 'ember-metal/assign'], function (exports, _emberTemplateCompilerCompiler, _emberTemplateCompilerSystemCompileOptions, _emberMetalAssign) {
   /**
