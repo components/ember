@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b0332ef7
+ * @version   2.7.0-canary+235a6cb7
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b0332ef7";
+  exports.default = "2.7.0-canary+235a6cb7";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -11007,16 +11007,19 @@ enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
+  var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
 
   var _compiler = _emberTemplateCompilerCompiler.default();
 
   var precompile = _compiler.precompile;
   var compile = _compiler.compile;
   var template = _compiler.template;
+  var registerPlugin = _compiler.registerPlugin;
 
-  EmberHandlebars.precompile = precompile;
-  EmberHandlebars.compile = compile;
-  EmberHandlebars.template = template;
+  EmberHTMLBars.precompile = EmberHandlebars.precompile = precompile;
+  EmberHTMLBars.compile = EmberHandlebars.compile = compile;
+  EmberHTMLBars.template = EmberHandlebars.template = template;
+  EmberHTMLBars.registerPlugin = registerPlugin;
 });
 // reexports
 enifed('ember-template-compiler/compiler', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
