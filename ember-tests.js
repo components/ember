@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+235a6cb7
+ * @version   2.7.0-canary+a841b2e4
  */
 
 var enifed, requireModule, require, Ember;
@@ -112,7 +112,7 @@ var mainContext = this;
   }
 })();
 
-enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'container/registry', 'container/tests/test-helpers/factory', 'container/owner', 'ember-metal/features'], function (exports, _emberEnvironment, _emberMetalProperty_get, _containerRegistry, _containerTestsTestHelpersFactory, _containerOwner, _emberMetalFeatures) {
+enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'container/registry', 'container/tests/test-helpers/factory', 'container/owner'], function (exports, _emberEnvironment, _emberMetalProperty_get, _containerRegistry, _containerTestsTestHelpersFactory, _containerOwner) {
   'use strict';
 
   var originalModelInjections;
@@ -846,7 +846,7 @@ enifed('container/tests/owner_test', ['exports', 'container/owner'], function (e
     strictEqual(obj[_containerOwner.OWNER], owner, 'owner has been set to the OWNER symbol');
   });
 });
-enifed('container/tests/registry_test', ['exports', 'container', 'container/tests/test-helpers/factory', 'ember-metal/features'], function (exports, _container, _containerTestsTestHelpersFactory, _emberMetalFeatures) {
+enifed('container/tests/registry_test', ['exports', 'container', 'container/tests/test-helpers/factory'], function (exports, _container, _containerTestsTestHelpersFactory) {
   'use strict';
 
   QUnit.module('Registry');
@@ -1377,8 +1377,6 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
 
     equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
   });
-
-  // jscs:disable validateIndentation
 
   QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
     assert.expect(1);
@@ -58939,7 +58937,7 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     }, 'Setting alias \'bar\' on self');
   });
 });
-enifed('ember-metal/tests/assign_test', ['exports', 'ember-metal/assign', 'ember-metal/features'], function (exports, _emberMetalAssign, _emberMetalFeatures) {
+enifed('ember-metal/tests/assign_test', ['exports', 'ember-metal/assign'], function (exports, _emberMetalAssign) {
   'use strict';
 
   QUnit.module('Ember.assign');
@@ -68625,63 +68623,61 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     });
   });
 
-  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
-    QUnit.module('computed.uniqBy', {
-      setup: function () {
-        obj = _emberRuntimeSystemObject.default.extend({
-          list: null,
-          uniqueById: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'id')
-        }).create({
-          list: _emberRuntimeSystemNative_array.A([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
-        });
-      },
-      teardown: function () {
-        _emberMetalRun_loop.default(obj, 'destroy');
-      }
-    });
-
-    QUnit.test('uniqBy is readOnly', function () {
-      QUnit.throws(function () {
-        obj.set('uniqueById', 1);
-      }, /Cannot set read-only property "uniqueById" on object:/);
-    });
-    QUnit.test('does not include duplicates', function () {
-      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
-    });
-
-    QUnit.test('it does not share state among instances', function () {
-      var MyObject = _emberRuntimeSystemObject.default.extend({
-        list: [],
-        uniqueByName: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
-      });
-      var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
-      var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
-
-      deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
-      // Making sure that 'mitch' appears
-      deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
-    });
-
-    QUnit.test('it handles changes to the dependent array', function () {
-      obj.get('list').pushObject({ id: 3, value: 'three' });
-
-      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
-
-      obj.get('list').pushObject({ id: 3, value: 'three' });
-
-      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
-    });
-
-    QUnit.test('it returns an empty array when computed on a non-array', function () {
-      var MyObject = _emberRuntimeSystemObject.default.extend({
+  QUnit.module('computed.uniqBy', {
+    setup: function () {
+      obj = _emberRuntimeSystemObject.default.extend({
         list: null,
-        uniq: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+        uniqueById: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'id')
+      }).create({
+        list: _emberRuntimeSystemNative_array.A([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
       });
-      var a = MyObject.create({ list: 'not an array' });
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(obj, 'destroy');
+    }
+  });
 
-      deepEqual(a.get('uniq'), []);
+  QUnit.test('uniqBy is readOnly', function () {
+    QUnit.throws(function () {
+      obj.set('uniqueById', 1);
+    }, /Cannot set read-only property "uniqueById" on object:/);
+  });
+  QUnit.test('does not include duplicates', function () {
+    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+  });
+
+  QUnit.test('it does not share state among instances', function () {
+    var MyObject = _emberRuntimeSystemObject.default.extend({
+      list: [],
+      uniqueByName: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
     });
-  }
+    var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
+    var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
+
+    deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
+    // Making sure that 'mitch' appears
+    deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
+  });
+
+  QUnit.test('it handles changes to the dependent array', function () {
+    obj.get('list').pushObject({ id: 3, value: 'three' });
+
+    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
+
+    obj.get('list').pushObject({ id: 3, value: 'three' });
+
+    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
+  });
+
+  QUnit.test('it returns an empty array when computed on a non-array', function () {
+    var MyObject = _emberRuntimeSystemObject.default.extend({
+      list: null,
+      uniq: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+    });
+    var a = MyObject.create({ list: 'not an array' });
+
+    deepEqual(a.get('uniq'), []);
+  });
 
   QUnit.module('computed.intersect', {
     setup: function () {
@@ -75325,13 +75321,10 @@ enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtim
 
   suite.module('uniqBy');
 
-  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
-    suite.test('should return new instance with duplicates removed', function () {
-      var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
-      deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
-    });
-  }
-
+  suite.test('should return new instance with duplicates removed', function () {
+    var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
+    deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+  });
   exports.default = suite;
 });
 enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/features'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalFeatures) {
@@ -75653,9 +75646,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableToArray.default);
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniq.default);
 
-  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
-    EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
-  }
+  EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
 
   if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
