@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+78cea046
+ * @version   2.7.0-canary+b0332ef7
  */
 
 var enifed, requireModule, require, Ember;
@@ -3701,7 +3701,7 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null, "ember-improved-instrumentation": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-runtime-computed-uniq-by": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null };
 });
 enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
   // require the main entry points for each of these packages
@@ -3727,7 +3727,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+78cea046";
+  exports.default = "2.7.0-canary+b0332ef7";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -37693,7 +37693,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', '
     });
   }
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-metal/meta', 'ember-metal/tags', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberMetalMeta, _emberMetalTags, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-metal/meta', 'ember-metal/tags', 'ember-runtime/system/each_proxy', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberMetalMeta, _emberMetalTags, _emberRuntimeSystemEach_proxy, _emberMetalDebug, _emberMetalFeatures) {
   /**
   @module ember
   @submodule ember-runtime
@@ -37792,7 +37792,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     @since Ember 0.9.0
     @public
   */
-  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsEnumerable.default, (_Mixin$create = {}, _Mixin$create[EMBER_ARRAY] = true, _Mixin$create.length = null, _Mixin$create.objectAt = function (idx) {
+  var ArrayMixin = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsEnumerable.default, (_Mixin$create = {}, _Mixin$create[EMBER_ARRAY] = true, _Mixin$create.length = null, _Mixin$create.objectAt = function (idx) {
     if (idx < 0 || idx >= _emberMetalProperty_get.get(this, 'length')) {
       return undefined;
     }
@@ -37819,6 +37819,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   }).readOnly(), _Mixin$create.lastObject = _emberMetalComputed.computed(function () {
     return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
   }).readOnly(), _Mixin$create.contains = function (obj) {
+    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {}
+
     return this.indexOf(obj) >= 0;
   }, _Mixin$create.slice = function (beginIndex, endIndex) {
     var ret = _emberMetalCore.default.A();
@@ -37987,6 +37989,58 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
 
     return this.__each;
   }).volatile(), _Mixin$create));
+
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    ArrayMixin.reopen({
+      /**
+        Returns `true` if the passed object can be found in the array.
+        This method is a Polyfill for ES 2016 Array.includes.
+        If no `startAt` argument is given, the starting location to
+        search is 0. If it's negative, searches from the index of
+        `this.length + startAt` by asc.
+        ```javascript
+        [1, 2, 3].includes(2);     // true
+        [1, 2, 3].includes(4);     // false
+        [1, 2, 3].includes(3, 2);  // true
+        [1, 2, 3].includes(3, 3);  // false
+        [1, 2, 3].includes(3, -1); // true
+        [1, 2, 3].includes(1, -1); // false
+        [1, 2, 3].includes(1, -4); // true
+        [1, 2, NaN].includes(NaN); // true
+        ```
+        @method includes
+        @param {Object} obj The object to search for.
+        @param {Number} startAt optional starting location to search, default 0
+        @return {Boolean} `true` if object is found in the array.
+        @public
+      */
+      includes: function (obj, startAt) {
+        var len = _emberMetalProperty_get.get(this, 'length');
+        var idx, currentObj;
+
+        if (startAt === undefined) {
+          startAt = 0;
+        }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx < len; idx++) {
+          currentObj = objectAt(this, idx);
+
+          // SameValueZero comparison (NaN !== NaN)
+          if (obj === currentObj || obj !== obj && currentObj !== currentObj) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+    });
+  }
+
+  exports.default = ArrayMixin;
 });
 // ES6TODO: Ember.A
 
@@ -38507,7 +38561,7 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/debug', 'ember-
     }
   });
 });
-enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/empty_object', 'ember-metal/features', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/compare', 'require'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalUtils, _emberMetalComputed, _emberMetalEmpty_object, _emberMetalFeatures, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeCompare, _require) {
+enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/empty_object', 'ember-metal/features', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/compare', 'require', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalUtils, _emberMetalComputed, _emberMetalEmpty_object, _emberMetalFeatures, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeCompare, _require, _emberMetalDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -38703,6 +38757,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
       @public
     */
     contains: function (obj) {
+      if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {}
+
       var found = this.find(function (item) {
         return item === obj;
       });
@@ -39210,8 +39266,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
 
     /**
       Returns a new enumerable that excludes the passed value. The default
-      implementation returns an array regardless of the receiver type unless
-      the receiver does not contain the value.
+      implementation returns an array regardless of the receiver type.
+      If the receiver does not contain the value it returns the original enumerable.
        ```javascript
       var arr = ['a', 'b', 'a', 'c'];
       arr.without('a');  // ['b', 'c']
@@ -39515,6 +39571,64 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
     });
   }
 
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    Enumerable.reopen({
+      /**
+        Returns `true` if the passed object can be found in the enumerable.
+        ```javascript
+        [1, 2, 3].includes(2);                     // true
+        [1, 2, 3].includes(4);                     // false
+        [1, 2, undefined].includes(undefined);     // true
+        [1, 2, null].includes(null);               // true
+        [1, 2, NaN].includes(NaN);                 // true
+        ```
+        @method includes
+        @param {Object} obj The object to search for.
+        @return {Boolean} `true` if object is found in the enumerable.
+        @public
+      */
+      includes: function (obj) {
+
+        var len = _emberMetalProperty_get.get(this, 'length');
+        var idx, next;
+        var last = null;
+        var found = false;
+
+        var context = popCtx();
+
+        for (idx = 0; idx < len && !found; idx++) {
+          next = this.nextObject(idx, last, context);
+
+          found = obj === next || obj !== obj && next !== next;
+
+          last = next;
+        }
+
+        next = last = null;
+        context = pushCtx(context);
+
+        return found;
+      },
+
+      without: function (value) {
+        if (!this.includes(value)) {
+          return this; // nothing to do
+        }
+
+        var ret = emberA();
+
+        this.forEach(function (k) {
+          // SameValueZero comparison (NaN !== NaN)
+          if (!(k === value || k !== k && value !== value)) {
+            ret[ret.length] = k;
+          }
+        });
+
+        return ret;
+      }
+    });
+  }
+
   exports.default = Enumerable;
 });
 enifed('ember-runtime/mixins/evented', ['exports', 'ember-metal/mixin', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalEvents) {
@@ -39763,7 +39877,7 @@ enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal/debug', 'ember
   var FROZEN_ERROR = 'Frozen object cannot be modified.';
   exports.FROZEN_ERROR = FROZEN_ERROR;
 });
-enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/mixin', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalMixin, _emberRuntimeMixinsArray, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsEnumerable) {
+enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/mixin', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalMixin, _emberRuntimeMixinsArray, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsEnumerable, _emberMetalFeatures) {
   /**
   @module ember
   @submodule ember-runtime
@@ -40108,7 +40222,15 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       @public
     */
     addObject: function (obj) {
-      if (!this.contains(obj)) {
+      var included;
+
+      if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+        included = this.includes(obj);
+      } else {
+        included = this.contains(obj);
+      }
+
+      if (!included) {
         this.pushObject(obj);
       }
 

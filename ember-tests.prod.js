@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+78cea046
+ * @version   2.7.0-canary+b0332ef7
  */
 
 var enifed, requireModule, require, Ember;
@@ -1874,7 +1874,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-htmlbars/views/outlet', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberHtmlbarsViewsOutlet, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-htmlbars/views/outlet', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'ember-glimmer/tests/utils/skip-if-glimmer', 'ember-metal/features'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberHtmlbarsViewsOutlet, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _emberGlimmerTestsUtilsSkipIfGlimmer, _emberMetalFeatures) {
   'use strict';
 
   var App, appInstance;
@@ -1904,8 +1904,16 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   }
 
   function cleanupHelpers() {
+    var included;
+
     keys(_emberHtmlbarsHelpers.default).forEach(function (name) {
-      if (!originalHelpers.contains(name)) {
+      if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+        included = originalHelpers.includes(name);
+      } else {
+        included = originalHelpers.contains(name);
+      }
+
+      if (!included) {
         delete _emberHtmlbarsHelpers.default[name];
       }
     });
@@ -72503,7 +72511,7 @@ enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/te
     }
   }).run();
 });
-enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/system/object', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/mixin'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeSystemObject, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsArray, _emberRuntimeSystemNative_array, _emberMetalProperty_get, _emberMetalComputed, _emberMetalMixin) {
+enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/system/object', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/features'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeSystemObject, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsArray, _emberRuntimeSystemNative_array, _emberMetalProperty_get, _emberMetalComputed, _emberMetalMixin, _emberMetalFeatures) {
   'use strict';
 
   function K() {
@@ -72594,11 +72602,21 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
   });
 
   QUnit.test('should apply Ember.Array to return value of without', function () {
-    var x = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default, {
+    var X = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default, {
       contains: function () {
         return true;
       }
-    }).create();
+    });
+
+    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+      X.reopen({
+        includes: function () {
+          return true;
+        }
+      });
+    }
+
+    var x = X.create();
     var y = x.without(K);
     equal(_emberRuntimeMixinsArray.default.detect(y), true, 'should have mixin applied');
   });
@@ -72668,6 +72686,17 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
     allWhite = allWhiteKittens.isEvery('color', 'white');
     equal(allWhite, true);
   });
+
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    QUnit.test('should throw an error passing a second argument to includes', function () {
+      var x = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default).create();
+
+      equal(x.includes('any'), false);
+      expectAssertion(function () {
+        x.includes('any', 1);
+      }, /Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered./);
+    });
+  }
 
   // ..........................................................
   // CONTENT DID CHANGE
@@ -73546,6 +73575,47 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['exports', 'emb
     ok(true === obj.triggerAction({ actionContext: null }), 'a valid target and action were specified');
   });
 });
+enifed('ember-runtime/tests/suites/array/includes', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+  'use strict';
+
+  var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
+
+  suite.module('includes');
+
+  suite.test('includes returns correct value if startAt is positive', function () {
+    var data = this.newFixture(3);
+    var obj = this.newObject(data);
+
+    equal(obj.includes(data[1], 1), true, 'should return true if included');
+    equal(obj.includes(data[0], 1), false, 'should return false if not included');
+  });
+
+  suite.test('includes returns correct value if startAt is negative', function () {
+    var data = this.newFixture(3);
+    var obj = this.newObject(data);
+
+    equal(obj.includes(data[1], -2), true, 'should return true if included');
+    equal(obj.includes(data[0], -2), false, 'should return false if not included');
+  });
+
+  suite.test('includes returns true if startAt + length is still negative', function () {
+    var data = this.newFixture(1);
+    var obj = this.newObject(data);
+
+    equal(obj.includes(data[0], -2), true, 'should return true if included');
+    equal(obj.includes(this.newFixture(1), -2), false, 'should return false if not included');
+  });
+
+  suite.test('includes returns false if startAt out of bounds', function () {
+    var data = this.newFixture(1);
+    var obj = this.newObject(data);
+
+    equal(obj.includes(data[0], 2), false, 'should return false if startAt >= length');
+    equal(obj.includes(this.newFixture(1), 2), false, 'should return false if startAt >= length');
+  });
+
+  exports.default = suite;
+});
 enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
@@ -73666,7 +73736,7 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt', 'ember-runtime/mixins/array'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeTestsSuitesArrayIndexOf, _emberRuntimeTestsSuitesArrayLastIndexOf, _emberRuntimeTestsSuitesArrayObjectAt, _emberRuntimeMixinsArray) {
+enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt', 'ember-runtime/tests/suites/array/includes', 'ember-runtime/mixins/array', 'ember-metal/features'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeTestsSuitesArrayIndexOf, _emberRuntimeTestsSuitesArrayLastIndexOf, _emberRuntimeTestsSuitesArrayObjectAt, _emberRuntimeTestsSuitesArrayIncludes, _emberRuntimeMixinsArray, _emberMetalFeatures) {
   'use strict';
 
   var ObserverClass = _emberRuntimeTestsSuitesEnumerable.ObserverClass.extend({
@@ -73704,6 +73774,10 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayIndexOf.default);
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayLastIndexOf.default);
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayObjectAt.default);
+
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayIncludes.default);
+  }
 
   exports.ArrayTests = ArrayTests;
   exports.ObserverClass = ObserverClass;
@@ -73882,22 +73956,30 @@ enifed('ember-runtime/tests/suites/enumerable/compact', ['exports', 'ember-runti
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/features'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalFeatures) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
   suite.module('contains');
 
-  suite.test('contains returns true if items is in enumerable', function () {
+  suite.test('contains returns true if item is in enumerable', function () {
     var data = this.newFixture(3);
     var obj = this.newObject(data);
+
+    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+      expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
+    }
     equal(obj.contains(data[1]), true, 'should return true if contained');
   });
 
   suite.test('contains returns false if item is not in enumerable', function () {
     var data = this.newFixture(1);
     var obj = this.newObject(this.newFixture(3));
+
+    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+      expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
+    }
     equal(obj.contains(data[0]), false, 'should return false if not contained');
   });
 
@@ -74284,6 +74366,33 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-runti
       equal(_emberMetalUtils.guidFor(enumerable), _emberMetalUtils.guidFor(obj), 'enumerable param');
       loc++;
     });
+  });
+
+  exports.default = suite;
+});
+enifed('ember-runtime/tests/suites/enumerable/includes', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+  'use strict';
+
+  var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
+
+  suite.module('includes');
+
+  suite.test('includes returns true if item is in enumerable', function () {
+    var data = this.newFixture(1);
+    var obj = this.newObject([].concat(data, [NaN, undefined, null]));
+
+    equal(obj.includes(data[0]), true, 'should return true if included');
+    equal(obj.includes(NaN), true, 'should return true if NaN included');
+    equal(obj.includes(undefined), true, 'should return true if undefined included');
+    equal(obj.includes(null), true, 'should return true if null included');
+  });
+
+  suite.test('includes returns false if item is not in enumerable', function () {
+    var data = this.newFixture(1);
+    var obj = this.newObject([].concat(this.newFixture(3), [null]));
+
+    equal(obj.includes(data[0]), false, 'should return false if not included');
+    equal(obj.includes(undefined), false, 'should return false if undefined not included but null is included');
   });
 
   exports.default = suite;
@@ -74724,7 +74833,7 @@ enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtim
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/features'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalFeatures) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -74743,6 +74852,19 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     deepEqual(this.toArray(obj), before, 'should not have changed original');
   });
 
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    suite.test('should remove NaN value', function () {
+      var before, after, obj, ret;
+
+      before = [].concat(this.newFixture(2), [NaN]);
+      after = [before[0], before[1]];
+      obj = this.newObject(before);
+
+      ret = obj.without(NaN);
+      deepEqual(this.toArray(ret), after, 'should have removed item');
+    });
+  }
+
   suite.test('should return same instance if object not found', function () {
     var item, obj, ret;
 
@@ -74755,7 +74877,7 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/observer', 'ember-metal/features', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalComputed, _emberMetalProperty_get, _emberMetalObserver, _emberMetalFeatures, _emberRuntimeTestsSuitesEnumerableAny, _emberRuntimeTestsSuitesEnumerableIs_any, _emberRuntimeTestsSuitesEnumerableCompact, _emberRuntimeTestsSuitesEnumerableContains, _emberRuntimeTestsSuitesEnumerableEvery, _emberRuntimeTestsSuitesEnumerableFilter, _emberRuntimeTestsSuitesEnumerableFind, _emberRuntimeTestsSuitesEnumerableFirstObject, _emberRuntimeTestsSuitesEnumerableForEach, _emberRuntimeTestsSuitesEnumerableMapBy, _emberRuntimeTestsSuitesEnumerableInvoke, _emberRuntimeTestsSuitesEnumerableLastObject, _emberRuntimeTestsSuitesEnumerableMap, _emberRuntimeTestsSuitesEnumerableReduce, _emberRuntimeTestsSuitesEnumerableReject, _emberRuntimeTestsSuitesEnumerableSortBy, _emberRuntimeTestsSuitesEnumerableToArray, _emberRuntimeTestsSuitesEnumerableUniq, _emberRuntimeTestsSuitesEnumerableUniqBy, _emberRuntimeTestsSuitesEnumerableWithout) {
+enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/observer', 'ember-metal/features', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalComputed, _emberMetalProperty_get, _emberMetalObserver, _emberMetalFeatures, _emberRuntimeTestsSuitesEnumerableAny, _emberRuntimeTestsSuitesEnumerableIs_any, _emberRuntimeTestsSuitesEnumerableCompact, _emberRuntimeTestsSuitesEnumerableContains, _emberRuntimeTestsSuitesEnumerableIncludes, _emberRuntimeTestsSuitesEnumerableEvery, _emberRuntimeTestsSuitesEnumerableFilter, _emberRuntimeTestsSuitesEnumerableFind, _emberRuntimeTestsSuitesEnumerableFirstObject, _emberRuntimeTestsSuitesEnumerableForEach, _emberRuntimeTestsSuitesEnumerableMapBy, _emberRuntimeTestsSuitesEnumerableInvoke, _emberRuntimeTestsSuitesEnumerableLastObject, _emberRuntimeTestsSuitesEnumerableMap, _emberRuntimeTestsSuitesEnumerableReduce, _emberRuntimeTestsSuitesEnumerableReject, _emberRuntimeTestsSuitesEnumerableSortBy, _emberRuntimeTestsSuitesEnumerableToArray, _emberRuntimeTestsSuitesEnumerableUniq, _emberRuntimeTestsSuitesEnumerableUniqBy, _emberRuntimeTestsSuitesEnumerableWithout) {
   'use strict';
 
   var ObserverClass = _emberRuntimeSystemObject.default.extend({
@@ -75032,6 +75154,10 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
 
   if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
+  }
+
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
   }
 
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableWithout.default);
