@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.5
+ * @version   2.4.5+13504c18
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10557,7 +10557,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.5+13504c18';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -16146,7 +16146,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.5
+    @version 2.4.5+13504c18
     @public
   */
 
@@ -16188,11 +16188,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.5'
+    @default '2.4.5+13504c18'
     @static
     @public
   */
-  Ember.VERSION = '2.4.5';
+  Ember.VERSION = '2.4.5+13504c18';
 
   /**
     The hash of environment variables used to control various configuration
@@ -26303,7 +26303,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         var totalChanged = Object.keys(changed).concat(Object.keys(removed));
         for (var i = 0, len = totalChanged.length; i < len; ++i) {
           var qp = qpMap[totalChanged[i]];
-          if (qp && _emberMetalProperty_get.get(this._optionsForQueryParam(qp), 'refreshModel') && this.router.currentState) {
+          if (qp && _emberMetalProperty_get.get(this._optionsForQueryParam(qp), 'refreshModel')) {
             this.refresh();
           }
         }
@@ -28299,12 +28299,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       _emberMetalDebug.assert('The route ' + targetRouteName + ' was not found', targetRouteName && this.router.hasRoute(targetRouteName));
 
       var queryParams = {};
-      // merge in any queryParams from the active transition which could include
-      // queryparams from the url on initial load.
-      if (this.router.activeTransition) {
-        _emberMetalAssign.default(queryParams, this.router.activeTransition.queryParams);
-      }
-
       _emberMetalAssign.default(queryParams, _queryParams);
       this._prepareQueryParams(targetRouteName, models, queryParams);
 
@@ -30293,7 +30287,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.5';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.5+13504c18';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30796,7 +30790,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.5+13504c18';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39951,7 +39945,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.5',
+        revision: 'Ember@2.4.5+13504c18',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45392,7 +45386,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.5';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.5+13504c18';
 
   /**
   @module ember

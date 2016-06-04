@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.5
+ * @version   2.4.5+13504c18
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -6140,35 +6140,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
     }
   });
 
-  QUnit.test('Calling transitionTo does not lose query params already on the activeTransition', function () {
-    expect(2);
-    App.Router.map(function () {
-      this.route('parent', function () {
-        this.route('child');
-        this.route('sibling');
-      });
-    });
-
-    App.ParentChildRoute = _emberRoutingSystemRoute.default.extend({
-      afterModel: function () {
-        ok(true, 'The after model hook was called');
-        this.transitionTo('parent.sibling');
-      }
-    });
-
-    App.ParentController = _emberRuntimeControllersController.default.extend({
-      queryParams: ['foo'],
-      foo: 'bar'
-    });
-
-    startingURL = '/parent/child?foo=lol';
-    bootApplication();
-
-    var parentController = container.lookup('controller:parent');
-
-    equal(parentController.get('foo'), 'lol');
-  });
-
   QUnit.test('Single query params can be set on the controller [DEPRECATED]', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -6581,33 +6552,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
 
     equal(appModelCount, 1);
     equal(indexModelCount, 2);
-  });
-
-  QUnit.test('refreshModel does not cause a second transition during app boot ', function () {
-    expect(0);
-    App.ApplicationController = _emberRuntimeControllersController.default.extend({
-      queryParams: ['appomg'],
-      appomg: 'applol'
-    });
-
-    App.IndexController = _emberRuntimeControllersController.default.extend({
-      queryParams: ['omg'],
-      omg: 'lol'
-    });
-
-    App.IndexRoute = _emberRoutingSystemRoute.default.extend({
-      queryParams: {
-        omg: {
-          refreshModel: true
-        }
-      },
-      refresh: function () {
-        ok(false);
-      }
-    });
-
-    startingURL = '/?appomg=hello&omg=world';
-    bootApplication();
   });
 
   QUnit.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
@@ -51074,7 +51018,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.5+13504c18', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
