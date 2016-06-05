@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dfd80f3e
+ * @version   2.7.0-canary+dc4b60be
  */
 
 var enifed, requireModule, require, Ember;
@@ -2004,7 +2004,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     ok(!_emberHtmlbarsHelpers.default['borf-snorlax'], 'Component wasn\'t saved to global helpers hash');
   });
 
-  QUnit.test('Component-like invocations are treated as bound paths if neither template nor component are registered on the container', function () {
+  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Component-like invocations are treated as bound paths if neither template nor component are registered on the container', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{user-name}} hello {{api-key}} world</div>'));
 
     boot(function () {
@@ -2016,7 +2016,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'machty hello  world', 'The component is composed correctly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Assigning layoutName to a component should setup the template as a layout', function () {
+  QUnit.test('Assigning layoutName to a component should setup the template as a layout', function () {
     expect(1);
 
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
@@ -2036,7 +2036,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Assigning layoutName and layout to a component should use the `layout` value', function () {
+  QUnit.test('Assigning layoutName and layout to a component should use the `layout` value', function () {
     expect(1);
 
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
@@ -2057,7 +2057,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]', function () {
+  QUnit.test('Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]', function () {
     expect(2);
 
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
@@ -2078,7 +2078,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]', function () {
+  QUnit.test('Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]', function () {
     expect(2);
 
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
@@ -2100,12 +2100,12 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('Using name of component that does not exist', function () {
+  QUnit.test('Using name of component that does not exist', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>'));
 
     expectAssertion(function () {
       boot();
-    }, /A helper named 'no-good' could not be found/);
+    }, /.* named "no-good" .*/);
   });
 
   QUnit.module('Application Lifecycle - Component Context', {
@@ -19505,6 +19505,61 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       }
     };
 
+    _class.prototype['@test can specify template with `layoutName` property'] = function testCanSpecifyTemplateWithLayoutNameProperty() {
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        layoutName: 'fizz-bar',
+        init: function () {
+          this._super.apply(this, arguments);
+          this.local = 'hey';
+        }
+      });
+
+      this.registerTemplate('fizz-bar', 'FIZZ BAR {{local}}');
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('FIZZ BAR hey');
+    };
+
+    _class.prototype['@test can specify template with `defaultLayout` property [DEPRECATED]'] = function testCanSpecifyTemplateWithDefaultLayoutPropertyDEPRECATED() {
+      expectDeprecation(/Specifying `defaultLayout` to .* is deprecated. Please use `layout` instead/);
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        defaultLayout: _emberGlimmerTestsUtilsHelpers.compile('much wat {{lulz}}'),
+        init: function () {
+          this._super.apply(this, arguments);
+          this.lulz = 'hey';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('much wat hey');
+    };
+
+    _class.prototype['@test layout takes precedence over defaultLayout'] = function testLayoutTakesPrecedenceOverDefaultLayout() {
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        layout: _emberGlimmerTestsUtilsHelpers.compile('so much layout wat {{lulz}}'),
+        defaultLayout: _emberGlimmerTestsUtilsHelpers.compile('much wat {{lulz}}'),
+        init: function () {
+          this._super.apply(this, arguments);
+          this.lulz = 'hey';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('so much layout wat hey');
+    };
+
     _class.prototype['@test passing undefined elementId results in a default elementId'] = function testPassingUndefinedElementIdResultsInADefaultElementId(assert) {
       var _this3 = this;
 
@@ -20330,6 +20385,49 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
+    // Glimmers implementation is different here as we cache based on
+    // <number>templateId.
+
+    _class.prototype['@glimmer late bound layouts return the same definition'] = function glimmerLateBoundLayoutsReturnTheSameDefinition(assert) {
+      var templateIds = [];
+      var component = undefined;
+
+      // This is testing the scenario where you import a template and
+      // set it to the layout property:
+      //
+      // import layout from './template';
+      //
+      // export default Ember.Component.extend({
+      //   layout
+      // });
+      var hello = _emberGlimmerTestsUtilsHelpers.compile('Hello');
+      var bye = _emberGlimmerTestsUtilsHelpers.compile('Bye');
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.layout = this.cond ? hello : bye;
+          component = this;
+          templateIds.push(this.layout.id);
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar cond=true}}{{foo-bar cond=false}}{{foo-bar cond=true}}{{foo-bar cond=false}}');
+
+      var t1 = templateIds[0];
+      var t2 = templateIds[1];
+      var t3 = templateIds[2];
+      var t4 = templateIds[3];
+
+      templateIds.forEach(function (n) {
+        return assert.ok(typeof n === 'number');
+      });
+      assert.equal(t1, t3);
+      assert.equal(t2, t4);
+    };
+
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
       var _this30 = this;
 
@@ -20372,7 +20470,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { content: 'true' });
     };
 
-    _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
+    _class.prototype['@htmlbars lookup of component takes priority over property'] = function htmlbarsLookupOfComponentTakesPriorityOverProperty() {
       var _this31 = this;
 
       this.registerComponent('some-component', {
@@ -23454,7 +23552,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
 
       expectAssertion(function () {
         _this5.render('{{x-outer}}');
-      }, /A helper named 'x-inner' could not be found/);
+      }, /A helper named "x-inner" could not be found/);
     };
 
     _class.prototype['@htmlbars overrides global lookup'] = function htmlbarsOverridesGlobalLookup() {
@@ -33657,6 +33755,7 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-glimmer-template-compiler', 'ember-glimmer/helper', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberMetalAssign, _emberGlimmerTemplateCompiler, _emberGlimmerHelper, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _glimmerRuntime, _emberGlimmerRenderer) {
   'use strict';
 
+  exports.precompile = precompile;
   exports.compile = compile;
   exports.Helper = _emberGlimmerHelper.default;
   exports.helper = _emberGlimmerHelper.helper;
@@ -33667,6 +33766,10 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'e
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
+
+  function precompile(string) {
+    return _emberGlimmerTemplateCompiler.template(_emberGlimmerTemplateCompiler.precompile(string));
+  }
 
   function compile(string, options) {
     return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
@@ -35105,6 +35208,35 @@ enifed('ember-glimmer-template-compiler/tests/plugins-test', ['exports', 'ember-
     expect(2);
 
     _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile('some random template', { plugins: { ast: [TestPlugin] } });
+  });
+});
+enifed('ember-glimmer-template-compiler/tests/precompile-test', ['exports', 'ember-glimmer-template-compiler'], function (exports, _emberGlimmerTemplateCompiler) {
+  'use strict';
+
+  QUnit.module('Glimmer Precompile:');
+
+  QUnit.test('returns a string', function (assert) {
+    var str = _emberGlimmerTemplateCompiler.precompile('Hello');
+    assert.equal(typeof str, 'string');
+  });
+
+  QUnit.test('when wrapped in a template, precompile is the same as compile', function (assert) {
+    // Simulating what happens in a broccoli plugin
+    // when it is creating an AMD module. e.g.
+    // ...
+    // processString(content) {
+    //   return `template(${precompile(content)})`;
+    // }
+    var Precompiled = _emberGlimmerTemplateCompiler.template(JSON.parse(_emberGlimmerTemplateCompiler.precompile('Hello')));
+    var Compiled = _emberGlimmerTemplateCompiler.compile('Hello');
+
+    assert.equal(Precompiled.toString(), Compiled.toString(), 'Both return factories');
+
+    var precompiled = new Precompiled({ env: {} });
+    var compiled = new Compiled({ env: {} });
+
+    assert.ok(typeof precompiled.spec !== 'string', 'Spec has been parsed');
+    assert.ok(typeof compiled.spec !== 'string', 'Spec has been parsed');
   });
 });
 enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmerTemplateCompilerSystemCompileOptions) {
@@ -41528,6 +41660,61 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       }
     };
 
+    _class.prototype['@test can specify template with `layoutName` property'] = function testCanSpecifyTemplateWithLayoutNameProperty() {
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        layoutName: 'fizz-bar',
+        init: function () {
+          this._super.apply(this, arguments);
+          this.local = 'hey';
+        }
+      });
+
+      this.registerTemplate('fizz-bar', 'FIZZ BAR {{local}}');
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('FIZZ BAR hey');
+    };
+
+    _class.prototype['@test can specify template with `defaultLayout` property [DEPRECATED]'] = function testCanSpecifyTemplateWithDefaultLayoutPropertyDEPRECATED() {
+      expectDeprecation(/Specifying `defaultLayout` to .* is deprecated. Please use `layout` instead/);
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        defaultLayout: _emberHtmlbarsTestsUtilsHelpers.compile('much wat {{lulz}}'),
+        init: function () {
+          this._super.apply(this, arguments);
+          this.lulz = 'hey';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('much wat hey');
+    };
+
+    _class.prototype['@test layout takes precedence over defaultLayout'] = function testLayoutTakesPrecedenceOverDefaultLayout() {
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        layout: _emberHtmlbarsTestsUtilsHelpers.compile('so much layout wat {{lulz}}'),
+        defaultLayout: _emberHtmlbarsTestsUtilsHelpers.compile('much wat {{lulz}}'),
+        init: function () {
+          this._super.apply(this, arguments);
+          this.lulz = 'hey';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('so much layout wat hey');
+    };
+
     _class.prototype['@test passing undefined elementId results in a default elementId'] = function testPassingUndefinedElementIdResultsInADefaultElementId(assert) {
       var _this3 = this;
 
@@ -42353,6 +42540,49 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
     };
 
+    // Glimmers implementation is different here as we cache based on
+    // <number>templateId.
+
+    _class.prototype['@glimmer late bound layouts return the same definition'] = function glimmerLateBoundLayoutsReturnTheSameDefinition(assert) {
+      var templateIds = [];
+      var component = undefined;
+
+      // This is testing the scenario where you import a template and
+      // set it to the layout property:
+      //
+      // import layout from './template';
+      //
+      // export default Ember.Component.extend({
+      //   layout
+      // });
+      var hello = _emberHtmlbarsTestsUtilsHelpers.compile('Hello');
+      var bye = _emberHtmlbarsTestsUtilsHelpers.compile('Bye');
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.layout = this.cond ? hello : bye;
+          component = this;
+          templateIds.push(this.layout.id);
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar cond=true}}{{foo-bar cond=false}}{{foo-bar cond=true}}{{foo-bar cond=false}}');
+
+      var t1 = templateIds[0];
+      var t2 = templateIds[1];
+      var t3 = templateIds[2];
+      var t4 = templateIds[3];
+
+      templateIds.forEach(function (n) {
+        return assert.ok(typeof n === 'number');
+      });
+      assert.equal(t1, t3);
+      assert.equal(t2, t4);
+    };
+
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
       var _this30 = this;
 
@@ -42395,7 +42625,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { content: 'true' });
     };
 
-    _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
+    _class.prototype['@htmlbars lookup of component takes priority over property'] = function htmlbarsLookupOfComponentTakesPriorityOverProperty() {
       var _this31 = this;
 
       this.registerComponent('some-component', {
@@ -45477,7 +45707,7 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
 
       expectAssertion(function () {
         _this5.render('{{x-outer}}');
-      }, /A helper named 'x-inner' could not be found/);
+      }, /A helper named "x-inner" could not be found/);
     };
 
     _class.prototype['@htmlbars overrides global lookup'] = function htmlbarsOverridesGlobalLookup() {
@@ -84976,109 +85206,6 @@ enifed('ember-views/tests/views/view/jquery_test', ['exports', 'ember-metal/prop
     equal(jquery.length, 0, 'view.$(body) should have no elements');
   });
 });
-enifed('ember-views/tests/views/view/layout_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsHelpers, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
-  'use strict';
-
-  var owner, view;
-
-  QUnit.module('EmberView - Layout Functionality', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('template', { instantiate: false });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        view.destroy();
-        owner.destroy();
-      });
-      owner = view = null;
-    }
-  });
-
-  QUnit.test('Layout views return throw if their layout cannot be found', function () {
-    var _EmberView$create;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = {
-      lookup: function () {}
-    }, _EmberView$create.layoutName = 'cantBeFound', _EmberView$create));
-
-    expectAssertion(function () {
-      _emberMetalProperty_get.get(view, 'layout');
-    }, /cantBeFound/);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should use the template of the associated layout', function () {
-    var _EmberView$create2;
-
-    var templateCalled = 0;
-    var layoutCalled = 0;
-
-    _emberHtmlbarsHelpers.registerHelper('call-template', function () {
-      templateCalled++;
-    });
-
-    _emberHtmlbarsHelpers.registerHelper('call-layout', function () {
-      layoutCalled++;
-    });
-
-    owner.register('template:template', _emberTemplateCompiler.compile('{{call-template}}'));
-    owner.register('template:layout', _emberTemplateCompiler.compile('{{call-layout}}'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.layoutName = 'layout', _EmberView$create2.templateName = 'template', _EmberView$create2));
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(templateCalled, 0, 'template is not called when layout is present');
-    equal(layoutCalled, 1, 'layout is called when layout is present');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should use the associated template with itself as the context', function () {
-    var _EmberView$create3;
-
-    owner.register('template:testTemplate', _emberTemplateCompiler.compile('<h1 id=\'twas-called\'>template was called for {{personName}}</h1>'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.layoutName = 'testTemplate', _EmberView$create3.context = {
-      personName: 'Tom DAAAALE'
-    }, _EmberView$create3));
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('template was called for Tom DAAAALE', view.$('#twas-called').text(), 'the named template was called with the view as the data source');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should fall back to defaultLayout if neither template nor templateName are provided', function () {
-    var View = _emberViewsViewsView.default.extend({
-      defaultLayout: _emberTemplateCompiler.compile('used default layout')
-    });
-
-    view = View.create();
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('used default layout', view.$().text(), 'the named template was called with the view as the data source');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not use defaultLayout if layout is provided', function () {
-    var View = _emberViewsViewsView.default.extend({
-      layout: _emberTemplateCompiler.compile('used layout'),
-      defaultLayout: _emberTemplateCompiler.compile('used default layout')
-    });
-
-    view = View.create();
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('used layout', view.$().text(), 'default layout was not printed');
-  });
-});
 enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
@@ -85282,149 +85409,6 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     equal(element.firstChild.tagName, 'DIV', 'renders the view div');
     equal(element.firstChild.firstChild.tagName, 'H1', 'renders the view div');
     equal(element.firstChild.firstChild.nextSibling.nodeValue, ' goodbye world', 'renders the text node');
-  });
-});
-enifed('ember-views/tests/views/view/template_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberGlimmerTestsUtilsSkipIfGlimmer) {
-  'use strict';
-
-  var owner, view;
-
-  QUnit.module('EmberView - Template Functionality', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('template', { instantiate: false });
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        if (view) {
-          view.destroy();
-        }
-        owner.destroy();
-        owner = view = null;
-      });
-    }
-  });
-
-  QUnit.test('Template views return throw if their template cannot be found', function () {
-    var _EmberView$create;
-
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = {
-      lookup: function () {}
-    }, _EmberView$create.templateName = 'cantBeFound', _EmberView$create));
-
-    expectAssertion(function () {
-      _emberMetalProperty_get.get(view, 'template');
-    }, /cantBeFound/);
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should call the function of the associated template', function () {
-    var _EmberView$create2;
-
-    owner.register('template:testTemplate', _emberTemplateCompiler.compile('<h1 id=\'twas-called\'>template was called</h1>'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.templateName = 'testTemplate', _EmberView$create2));
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    ok(view.$('#twas-called').length, 'the named template was called');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should call the function of the associated template with itself as the context', function () {
-    var _EmberView$create3;
-
-    owner.register('template:testTemplate', _emberTemplateCompiler.compile('<h1 id=\'twas-called\'>template was called for {{personName}}</h1>'));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.templateName = 'testTemplate', _EmberView$create3.context = {
-      personName: 'Tom DAAAALE'
-    }, _EmberView$create3));
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('template was called for Tom DAAAALE', view.$('#twas-called').text(), 'the named template was called with the view as the data source');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should fall back to defaultTemplate if neither template nor templateName are provided', function () {
-    var View;
-
-    View = _emberViewsViewsView.default.extend({
-      defaultTemplate: _emberTemplateCompiler.compile('<h1 id=\'twas-called\'>template was called for {{personName}}</h1>')
-    });
-
-    view = View.create({
-      context: {
-        personName: 'Tom DAAAALE'
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('template was called for Tom DAAAALE', view.$('#twas-called').text(), 'the named template was called with the view as the data source');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not use defaultTemplate if template is provided', function () {
-    var View = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompiler.compile('foo'),
-      defaultTemplate: _emberTemplateCompiler.compile('<h1 id=\'twas-called\'>template was called for {{personName}}</h1>')
-    });
-
-    view = View.create();
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('foo', view.$().text(), 'default template was not printed');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('should not use defaultTemplate if template is provided', function () {
-    var _View$create;
-
-    owner.register('template:foobar', _emberTemplateCompiler.compile('foo'));
-
-    var View = _emberViewsViewsView.default.extend({
-      templateName: 'foobar',
-      defaultTemplate: _emberTemplateCompiler.compile('<h1 id=\'twas-called\'>template was called for {{personName}}</h1>')
-    });
-
-    view = View.create((_View$create = {}, _View$create[_containerOwner.OWNER] = owner, _View$create));
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal('foo', view.$().text(), 'default template was not printed');
-  });
-
-  QUnit.test('should render an empty element if no template is specified', function () {
-    view = _emberViewsViewsView.default.create();
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    equal(view.$().text(), '', 'view div should be empty');
-  });
-
-  QUnit.test('should throw an assertion if no container has been set', function () {
-    expect(1);
-    var View;
-
-    View = _emberViewsViewsView.default.extend({
-      templateName: 'foobar'
-    });
-
-    throws(function () {
-      view = View.create();
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-    }, /Container was not found when looking up a views template./);
-
-    view._renderNode = null;
   });
 });
 enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsHelpers, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberGlimmerTestsUtilsSkipIfGlimmer) {
