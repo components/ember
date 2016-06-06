@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dc4b60be
+ * @version   2.7.0-canary+1a61ed01
  */
 
 var enifed, requireModule, require, Ember;
@@ -29437,6 +29437,519 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var InputRenderingTest = (function (_RenderingTest) {
+    _inherits(InputRenderingTest, _RenderingTest);
+
+    function InputRenderingTest() {
+      _classCallCheck(this, InputRenderingTest);
+
+      _RenderingTest.call(this);
+
+      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
+      this.registerComponent('-checkbox', { ComponentClass: _emberGlimmerTestsUtilsHelpers.Checkbox });
+    }
+
+    InputRenderingTest.prototype.$input = function $input() {
+      return this.$('input');
+    };
+
+    InputRenderingTest.prototype.inputID = function inputID() {
+      return this.$input().prop('id');
+    };
+
+    InputRenderingTest.prototype.assertDisabled = function assertDisabled() {
+      this.assert.ok(this.$('input').is(':disabled'), 'The input is disabled');
+    };
+
+    InputRenderingTest.prototype.assertNotDisabled = function assertNotDisabled() {
+      this.assert.ok(this.$('input').is(':not(:disabled)'), 'The input is not disabled');
+    };
+
+    InputRenderingTest.prototype.assertInputId = function assertInputId(expectedId) {
+      this.assert.equal(this.inputID(), expectedId, 'the input id should be `expectedId`');
+    };
+
+    InputRenderingTest.prototype.assertSingleInput = function assertSingleInput() {
+      this.assert.equal(this.$('input').length, 1, 'A single text field was inserted');
+    };
+
+    InputRenderingTest.prototype.assertSingleCheckbox = function assertSingleCheckbox() {
+      this.assert.equal(this.$('input[type=checkbox]').length, 1, 'A single checkbox is added');
+    };
+
+    InputRenderingTest.prototype.assertCheckboxIsChecked = function assertCheckboxIsChecked() {
+      this.assert.equal(this.$input().prop('checked'), true, 'the checkbox is checked');
+    };
+
+    InputRenderingTest.prototype.assertCheckboxIsNotChecked = function assertCheckboxIsNotChecked() {
+      this.assert.equal(this.$input().prop('checked'), false, 'the checkbox is not checked');
+    };
+
+    InputRenderingTest.prototype.assertValue = function assertValue(expected) {
+      this.assert.equal(this.$input().val(), expected, 'the input value should be ' + expected);
+    };
+
+    InputRenderingTest.prototype.assertAttr = function assertAttr(name, expected) {
+      this.assert.equal(this.$input().attr(name), expected, 'the input ' + name + ' attribute has the value \'' + expected + '\'');
+    };
+
+    InputRenderingTest.prototype.assertAllAttrs = function assertAllAttrs(names, expected) {
+      var _this = this;
+
+      names.forEach(function (name) {
+        return _this.assertAttr(name, expected);
+      });
+    };
+
+    InputRenderingTest.prototype.assertSelectionRange = function assertSelectionRange(start, end) {
+      var input = this.$input()[0];
+      this.assert.equal(input.selectionStart, start, 'the cursor start position should be ' + start);
+      this.assert.equal(input.selectionEnd, end, 'the cursor end position should be ' + end);
+    };
+
+    return InputRenderingTest;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}}', (function (_InputRenderingTest) {
+    _inherits(_class, _InputRenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _InputRenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test a single text field is inserted into the DOM'] = function testASingleTextFieldIsInsertedIntoTheDOM(assert) {
+      var _this2 = this;
+
+      this.render('{{input type="text" value=value}}', { value: 'hello' });
+
+      var id = this.inputID();
+
+      this.assertValue('hello');
+      this.assertSingleInput();
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertValue('hello');
+      this.assertSingleInput();
+      this.assertInputId(id);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'value', 'goodbye');
+      });
+
+      this.assertValue('goodbye');
+      this.assertSingleInput();
+      this.assertInputId(id);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'value', 'hello');
+      });
+
+      this.assertValue('hello');
+      this.assertSingleInput();
+      this.assertInputId(id);
+    };
+
+    _class.prototype['@test default type'] = function testDefaultType() {
+      var _this3 = this;
+
+      this.render('{{input}}');
+
+      this.assertAttr('type', 'text');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertAttr('type', 'text');
+    };
+
+    _class.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
+      var _this4 = this;
+
+      this.render('\n      {{input type="text"\n        disabled=disabled\n        value=value\n        placeholder=placeholder\n        name=name\n        maxlength=maxlength\n        size=size\n        tabindex=tabindex\n      }}', {
+        disabled: false,
+        value: 'Original value',
+        placeholder: 'Original placeholder',
+        name: 'original-name',
+        maxlength: 10,
+        size: 20,
+        tabindex: 30
+      });
+
+      this.assertNotDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20'); //NOTE: failing in IE  (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertNotDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20'); //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.context, 'value', 'Updated value');
+        _emberMetalProperty_set.set(_this4.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this4.context, 'placeholder', 'Updated placeholder');
+        _emberMetalProperty_set.set(_this4.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this4.context, 'maxlength', 11);
+        // set(this.context, 'size', 21); //NOTE: failing in IE (TEST_SUITE=sauce)
+        // set(this.context, 'tabindex', 31); //NOTE: failing in IE (TEST_SUITE=sauce)
+      });
+
+      this.assertDisabled();
+      this.assertValue('Updated value');
+      this.assertAttr('placeholder', 'Updated placeholder');
+      this.assertAttr('name', 'updated-name');
+      this.assertAttr('maxlength', '11');
+      // this.assertAttr('size', '21'); //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '31'); //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.context, 'value', 'Original value');
+        _emberMetalProperty_set.set(_this4.context, 'disabled', false);
+        _emberMetalProperty_set.set(_this4.context, 'placeholder', 'Original placeholder');
+        _emberMetalProperty_set.set(_this4.context, 'name', 'original-name');
+        _emberMetalProperty_set.set(_this4.context, 'maxlength', 10);
+        // set(this.context, 'size', 20); //NOTE: failing in IE (TEST_SUITE=sauce)
+        // set(this.context, 'tabindex', 30); //NOTE: failing in IE (TEST_SUITE=sauce)
+      });
+
+      this.assertNotDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20'); //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
+    };
+
+    _class.prototype['@test static attributes'] = function testStaticAttributes() {
+      var _this5 = this;
+
+      this.render('\n      {{input type="text"\n        disabled=true\n        value="Original value"\n        placeholder="Original placeholder"\n        name="original-name"\n        maxlength=10\n        size=20\n        tabindex=30\n      }}');
+
+      this.assertDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20');  //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30');  //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20');  //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30');  //NOTE: failing in IE (TEST_SUITE=sauce)
+    };
+
+    _class.prototype['@test cursor selection range'] = function testCursorSelectionRange(assert) {
+      var _this6 = this;
+
+      this.render('{{input type="text" value=value}}', { value: 'original' });
+
+      var input = this.$input()[0];
+
+      // See https://ember-twiddle.com/33e506329f8176ae874422644d4cc08c?openFiles=components.input-component.js%2Ctemplates.components.input-component.hbs
+      // this.assertSelectionRange(8, 8); //NOTE: this is (0, 0) on Firefox (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      // this.assertSelectionRange(8, 8); //NOTE: this is (0, 0) on Firefox (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        input.selectionStart = 2;
+        input.selectionEnd = 4;
+      });
+
+      this.assertSelectionRange(2, 4);
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertSelectionRange(2, 4);
+
+      // this.runTask(() => set(this.context, 'value', 'updated'));
+      //
+      // this.assertSelectionRange(7, 7); //NOTE: this fails in IE, the range is 0 -> 0 (TEST_SUITE=sauce)
+      //
+      // this.runTask(() => set(this.context, 'value', 'original'));
+      //
+      // this.assertSelectionRange(8, 8); //NOTE: this fails in IE, the range is 0 -> 0 (TEST_SUITE=sauce)
+    };
+
+    _class.prototype['@test specifying `on="someevent" action="foo"` results in a deprecation warning'] = function testSpecifyingOnSomeeventActionFooResultsInADeprecationWarning() {
+      var _this7 = this;
+
+      expectDeprecation(function () {
+        _this7.render('{{input on="focus-in" action="doFoo" value="hello"}}');
+      }, 'Using \'{{input on="focus-in" action="doFoo"}}\' (\'-top-level\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
+    };
+
+    return _class;
+  })(InputRenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
+    _inherits(_class2, _InputRenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _InputRenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test a bound property can be used to determine type'] = function testABoundPropertyCanBeUsedToDetermineType() {
+      var _this8 = this;
+
+      this.render('{{input type=type}}', { type: 'password' });
+
+      this.assertAttr('type', 'password');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertAttr('type', 'password');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'type', 'text');
+      });
+
+      this.assertAttr('type', 'text');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'type', 'password');
+      });
+
+      this.assertAttr('type', 'password');
+    };
+
+    return _class2;
+  })(InputRenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
+    _inherits(_class3, _InputRenderingTest3);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _InputRenderingTest3.apply(this, arguments);
+    }
+
+    _class3.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
+      var _this9 = this;
+
+      this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
+        disabled: false,
+        name: 'original-name',
+        checked: false,
+        tabindex: 10
+      });
+
+      this.assertSingleCheckbox();
+      this.assertNotDisabled();
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('tabindex', '10');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertSingleCheckbox();
+      this.assertNotDisabled();
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('tabindex', '10');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this9.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this9.context, 'tabindex', 11);
+      });
+
+      this.assertSingleCheckbox();
+      this.assertDisabled();
+      this.assertAttr('name', 'updated-name');
+      this.assertAttr('tabindex', '11');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'disabled', false);
+        _emberMetalProperty_set.set(_this9.context, 'name', 'original-name');
+        _emberMetalProperty_set.set(_this9.context, 'tabindex', 10);
+      });
+
+      this.assertSingleCheckbox();
+      this.assertNotDisabled();
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('tabindex', '10');
+    };
+
+    _class3.prototype['@test `value` property assertion'] = function testValuePropertyAssertion() {
+      var _this10 = this;
+
+      expectAssertion(function () {
+        _this10.render('{{input type="checkbox" value=value}}', { value: 'value' });
+      }, /you must use `checked=/);
+    };
+
+    _class3.prototype['@test with a bound type'] = function testWithABoundType(assert) {
+      var _this11 = this;
+
+      this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsChecked();
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertCheckboxIsChecked();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'isChecked', false);
+      });
+
+      this.assertCheckboxIsNotChecked();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'isChecked', true);
+      });
+
+      this.assertCheckboxIsChecked();
+    };
+
+    _class3.prototype['@test with static values'] = function testWithStaticValues(assert) {
+      var _this12 = this;
+
+      this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsNotChecked();
+      this.assertNotDisabled();
+      this.assertAttr('tabindex', '10');
+      this.assertAttr('name', 'original-name');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsNotChecked();
+      this.assertNotDisabled();
+      this.assertAttr('tabindex', '10');
+      this.assertAttr('name', 'original-name');
+    };
+
+    return _class3;
+  })(InputRenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
+    _inherits(_class4, _InputRenderingTest4);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _InputRenderingTest4.apply(this, arguments);
+    }
+
+    _class4.prototype['@test null values'] = function testNullValues(assert) {
+      var _this13 = this;
+
+      var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
+
+      this.render('\n      {{input type="text"\n        disabled=disabled\n        value=value\n        placeholder=placeholder\n        name=name\n        maxlength=maxlength\n        size=size\n        tabindex=tabindex\n      }}', {
+        disabled: null,
+        value: null,
+        placeholder: null,
+        name: null,
+        maxlength: null,
+        size: null,
+        tabindex: null
+      });
+
+      this.assertValue('');
+      this.assertAllAttrs(attributes, undefined);
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertValue('');
+      this.assertAllAttrs(attributes, undefined);
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this13.context, 'value', 'Updated value');
+        _emberMetalProperty_set.set(_this13.context, 'placeholder', 'Updated placeholder');
+        _emberMetalProperty_set.set(_this13.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this13.context, 'maxlength', 11);
+        _emberMetalProperty_set.set(_this13.context, 'size', 21);
+        _emberMetalProperty_set.set(_this13.context, 'tabindex', 31);
+      });
+
+      this.assertDisabled();
+      this.assertValue('Updated value');
+      this.assertAttr('placeholder', 'Updated placeholder');
+      this.assertAttr('name', 'updated-name');
+      this.assertAttr('maxlength', '11');
+      this.assertAttr('size', '21');
+      this.assertAttr('tabindex', '31');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'disabled', null);
+        _emberMetalProperty_set.set(_this13.context, 'value', null);
+        _emberMetalProperty_set.set(_this13.context, 'placeholder', null);
+        _emberMetalProperty_set.set(_this13.context, 'name', null);
+        _emberMetalProperty_set.set(_this13.context, 'maxlength', null);
+        // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
+        _emberMetalProperty_set.set(_this13.context, 'tabindex', null);
+      });
+
+      this.assertAttr('disabled', undefined);
+      this.assertValue('');
+      // this.assertAttr('placeholder', undefined); //NOTE: this fails with a value of "null" (TEST_SUITE=sauce)
+      // this.assertAttr('name', undefined); //NOTE: this fails with a value of "null" (TEST_SUITE=sauce)
+      this.assertAttr('maxlength', undefined);
+      // this.assertAttr('size', undefined); //NOTE: re-enable once `size` bug above has been addressed
+      this.assertAttr('tabindex', undefined);
+    };
+
+    return _class4;
+  })(InputRenderingTest));
+});
 enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/core'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalCore) {
   'use strict';
 
@@ -35966,461 +36479,6 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
       deepEqual(warnings, [], 'no warnings were triggered');
     });
   }
-});
-enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-views/component_lookup', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtilsHelpers, _emberViewsComponent_lookup, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var view;
-  var controller, owner;
-
-  function commonSetup() {
-    owner = _containerTestsTestHelpersBuildOwner.default();
-    owner.register('component:-text-field', _emberHtmlbarsComponentsText_field.default);
-    owner.register('component:-checkbox', _emberHtmlbarsComponentsCheckbox.default);
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-    owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
-
-    var dispatcher = owner.lookup('event_dispatcher:main');
-    dispatcher.setup({}, '#qunit-fixture');
-  }
-
-  QUnit.module('{{input type=\'text\'}}', {
-    setup: function () {
-      var _View$extend;
-
-      commonSetup();
-
-      controller = {
-        val: 'hello',
-        place: 'Enter some text',
-        name: 'some-name',
-        max: 30,
-        size: 30,
-        tab: 5
-      };
-
-      view = _emberViewsViewsView.default.extend((_View$extend = {}, _View$extend[_containerOwner.OWNER] = owner, _View$extend.controller = controller, _View$extend.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type="text" disabled=disabled value=val placeholder=place name=name maxlength=max size=size tabindex=tab}}'), _View$extend)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should insert a text field into DOM', function () {
-    equal(view.$('input').length, 1, 'A single text field was inserted');
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is true', function () {
-    ok(view.$('input').is(':not(:disabled)'), 'There are no disabled text fields');
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'disabled', true);
-    ok(view.$('input').is(':disabled'), 'The text field is disabled');
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'disabled', false);
-    ok(view.$('input').is(':not(:disabled)'), 'There are no disabled text fields');
-  });
-
-  QUnit.test('input value is updated when setting value property of view', function () {
-    equal(view.$('input').val(), 'hello', 'renders text field with value');
-
-    var id = view.$('input').prop('id');
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', 'bye!');
-    equal(view.$('input').val(), 'bye!', 'updates text field after value changes');
-
-    equal(view.$('input').prop('id'), id, 'the component hasn\'t changed');
-  });
-
-  QUnit.test('input placeholder is updated when setting placeholder property of view', function () {
-    equal(view.$('input').attr('placeholder'), 'Enter some text', 'renders text field with placeholder');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'place', 'Text, please enter it');
-    equal(view.$('input').attr('placeholder'), 'Text, please enter it', 'updates text field after placeholder changes');
-  });
-
-  QUnit.test('input name is updated when setting name property of view', function () {
-    equal(view.$('input').attr('name'), 'some-name', 'renders text field with name');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'name', 'other-name');
-    equal(view.$('input').attr('name'), 'other-name', 'updates text field after name changes');
-  });
-
-  QUnit.test('input maxlength is updated when setting maxlength property of view', function () {
-    equal(view.$('input').attr('maxlength'), '30', 'renders text field with maxlength');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'max', 40);
-    equal(view.$('input').attr('maxlength'), '40', 'updates text field after maxlength changes');
-  });
-
-  QUnit.test('input size is updated when setting size property of view', function () {
-    equal(view.$('input').attr('size'), '30', 'renders text field with size');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'size', 40);
-    equal(view.$('input').attr('size'), '40', 'updates text field after size changes');
-  });
-
-  QUnit.test('input tabindex is updated when setting tabindex property of view', function () {
-    equal(view.$('input').attr('tabindex'), '5', 'renders text field with the tabindex');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'tab', 3);
-    equal(view.$('input').attr('tabindex'), '3', 'updates text field after tabindex changes');
-  });
-
-  QUnit.test('cursor position is not lost when updating content', function () {
-    equal(view.$('input').val(), 'hello', 'precondition - renders text field with value');
-
-    var $input = view.$('input');
-    var input = $input[0];
-
-    // set the cursor position to 3 (no selection)
-    _emberMetalRun_loop.default(function () {
-      input.value = 'derp';
-      view.childViews[0]._elementValueDidChange();
-      input.selectionStart = 3;
-      input.selectionEnd = 3;
-    });
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', 'derp');
-
-    equal(view.$('input').val(), 'derp', 'updates text field after value changes');
-
-    equal(input.selectionStart, 3, 'cursor position was not lost');
-    equal(input.selectionEnd, 3, 'cursor position was not lost');
-  });
-
-  QUnit.test('input can be updated multiple times', function () {
-    equal(view.$('input').val(), 'hello', 'precondition - renders text field with value');
-
-    var $input = view.$('input');
-    var input = $input[0];
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', '');
-    equal(view.$('input').val(), '', 'updates first time');
-
-    // Simulates setting the input to the same value as it already is which won't cause a rerender
-    _emberMetalRun_loop.default(function () {
-      input.value = 'derp';
-    });
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', 'derp');
-    equal(view.$('input').val(), 'derp', 'updates second time');
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', '');
-    equal(view.$('input').val(), '', 'updates third time');
-  });
-
-  QUnit.module('{{input type=\'text\'}} - static values', {
-    setup: function () {
-      var _View$extend2;
-
-      commonSetup();
-
-      controller = {};
-
-      view = _emberViewsViewsView.default.extend((_View$extend2 = {}, _View$extend2[_containerOwner.OWNER] = owner, _View$extend2.controller = controller, _View$extend2.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type="text" disabled=true value="hello" placeholder="Enter some text" name="some-name" maxlength=30 size=30 tabindex=5}}'), _View$extend2)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should insert a text field into DOM', function () {
-    equal(view.$('input').length, 1, 'A single text field was inserted');
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is true', function () {
-    ok(view.$('input').is(':disabled'), 'The text field is disabled');
-  });
-
-  QUnit.test('input value is updated when setting value property of view', function () {
-    equal(view.$('input').val(), 'hello', 'renders text field with value');
-  });
-
-  QUnit.test('input placeholder is updated when setting placeholder property of view', function () {
-    equal(view.$('input').attr('placeholder'), 'Enter some text', 'renders text field with placeholder');
-  });
-
-  QUnit.test('input name is updated when setting name property of view', function () {
-    equal(view.$('input').attr('name'), 'some-name', 'renders text field with name');
-  });
-
-  QUnit.test('input maxlength is updated when setting maxlength property of view', function () {
-    equal(view.$('input').attr('maxlength'), '30', 'renders text field with maxlength');
-  });
-
-  QUnit.test('input size is updated when setting size property of view', function () {
-    equal(view.$('input').attr('size'), '30', 'renders text field with size');
-  });
-
-  QUnit.test('input tabindex is updated when setting tabindex property of view', function () {
-    equal(view.$('input').attr('tabindex'), '5', 'renders text field with the tabindex');
-  });
-
-  QUnit.test('specifying `on="someevent" action="foo"` triggers the action', function () {
-    var _View$create;
-
-    expect(2);
-    _emberRuntimeTestsUtils.runDestroy(view);
-    expectDeprecation('Using \'{{input on="focus-in" action="doFoo"}}\' (\'foo.hbs\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
-
-    controller = {
-      send: function (actionName, value, sender) {
-        equal(actionName, 'doFoo', 'text field sent correct action name');
-      }
-    };
-
-    view = _emberViewsViewsView.default.create((_View$create = {}, _View$create[_containerOwner.OWNER] = owner, _View$create.controller = controller, _View$create.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type="text" on="focus-in" action="doFoo"}}', { moduleName: 'foo.hbs' }), _View$create));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberMetalRun_loop.default(function () {
-      var textField = view.$('input');
-      textField.trigger('focusin');
-    });
-  });
-
-  QUnit.module('{{input type=\'text\'}} - dynamic type', {
-    setup: function () {
-      var _View$extend3;
-
-      commonSetup();
-
-      controller = {
-        someProperty: 'password'
-      };
-
-      view = _emberViewsViewsView.default.extend((_View$extend3 = {}, _View$extend3[_containerOwner.OWNER] = owner, _View$extend3.controller = controller, _View$extend3.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type=someProperty}}'), _View$extend3)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should insert a text field into DOM', function () {
-    equal(view.$('input').attr('type'), 'password', 'a bound property can be used to determine type.');
-  });
-
-  QUnit.test('should change if the type changes', function () {
-    equal(view.$('input').attr('type'), 'password', 'a bound property can be used to determine type.');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(controller, 'someProperty', 'text');
-    });
-
-    equal(view.$('input').attr('type'), 'text', 'it changes after the type changes');
-  });
-
-  QUnit.module('{{input}} - default type', {
-    setup: function () {
-      var _View$extend4;
-
-      commonSetup();
-
-      controller = {};
-
-      view = _emberViewsViewsView.default.extend((_View$extend4 = {}, _View$extend4[_containerOwner.OWNER] = owner, _View$extend4.controller = controller, _View$extend4.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input}}'), _View$extend4)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should have the default type', function () {
-    equal(view.$('input').attr('type'), 'text', 'Has a default text type');
-  });
-
-  QUnit.module('{{input type=\'checkbox\'}}', {
-    setup: function () {
-      var _View$extend5;
-
-      commonSetup();
-
-      controller = {
-        tab: 6,
-        name: 'hello',
-        val: false
-      };
-
-      view = _emberViewsViewsView.default.extend((_View$extend5 = {}, _View$extend5[_containerOwner.OWNER] = owner, _View$extend5.controller = controller, _View$extend5.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type="checkbox" disabled=disabled tabindex=tab name=name checked=val}}'), _View$extend5)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should append a checkbox', function () {
-    equal(view.$('input[type=checkbox]').length, 1, 'A single checkbox is added');
-  });
-
-  QUnit.test('should begin disabled if the disabled attribute is true', function () {
-    ok(view.$('input').is(':not(:disabled)'), 'The checkbox isn\'t disabled');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'disabled', true);
-    ok(view.$('input').is(':disabled'), 'The checkbox is now disabled');
-  });
-
-  QUnit.test('should support the tabindex property', function () {
-    equal(view.$('input').prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'tab', 3);
-    equal(view.$('input').prop('tabindex'), '3', 'the checkbox tabindex changes when it is changed in the view');
-  });
-
-  QUnit.test('checkbox name is updated', function () {
-    equal(view.$('input').attr('name'), 'hello', 'renders checkbox with the name');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'name', 'bye');
-    equal(view.$('input').attr('name'), 'bye', 'updates checkbox after name changes');
-  });
-
-  QUnit.test('checkbox checked property is updated', function () {
-    equal(view.$('input').prop('checked'), false, 'the checkbox isn\'t checked yet');
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, controller, 'val', true);
-    equal(view.$('input').prop('checked'), true, 'the checkbox is checked now');
-  });
-
-  QUnit.module('{{input type=\'checkbox\'}} - prevent value= usage', {
-    setup: function () {
-      var _View$extend6;
-
-      commonSetup();
-
-      view = _emberViewsViewsView.default.extend((_View$extend6 = {}, _View$extend6[_containerOwner.OWNER] = owner, _View$extend6.controller = controller, _View$extend6.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type="checkbox" disabled=disabled tabindex=tab name=name value=val}}'), _View$extend6)).create();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('It asserts the presence of checked=', function () {
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /you must use `checked=/);
-  });
-
-  QUnit.module('{{input type=boundType}}', {
-    setup: function () {
-      var _View$extend7;
-
-      commonSetup();
-
-      controller = {
-        inputType: 'checkbox',
-        isChecked: true
-      };
-
-      view = _emberViewsViewsView.default.extend((_View$extend7 = {}, _View$extend7[_containerOwner.OWNER] = owner, _View$extend7.controller = controller, _View$extend7.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type=inputType checked=isChecked}}'), _View$extend7)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should append a checkbox', function () {
-    equal(view.$('input[type=checkbox]').length, 1, 'A single checkbox is added');
-  });
-
-  // Checking for the checked property is a good way to verify that the correct
-  // view was used.
-  QUnit.test('checkbox checked property is updated', function () {
-    equal(view.$('input').prop('checked'), true, 'the checkbox is checked');
-  });
-
-  QUnit.module('{{input type=\'checkbox\'}} - static values', {
-    setup: function () {
-      var _View$extend8;
-
-      commonSetup();
-
-      controller = {
-        tab: 6,
-        name: 'hello',
-        val: false
-      };
-
-      view = _emberViewsViewsView.default.extend((_View$extend8 = {}, _View$extend8[_containerOwner.OWNER] = owner, _View$extend8.controller = controller, _View$extend8.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input type="checkbox" disabled=true tabindex=6 name="hello" checked=false}}'), _View$extend8)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should begin disabled if the disabled attribute is true', function () {
-    ok(view.$().is(':not(:disabled)'), 'The checkbox isn\'t disabled');
-  });
-
-  QUnit.test('should support the tabindex property', function () {
-    equal(view.$('input').prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
-  });
-
-  QUnit.test('checkbox name is updated', function () {
-    equal(view.$('input').attr('name'), 'hello', 'renders checkbox with the name');
-  });
-
-  QUnit.test('checkbox checked property is updated', function () {
-    equal(view.$('input').prop('checked'), false, 'the checkbox isn\'t checked yet');
-  });
-
-  QUnit.module('{{input type=\'text\'}} - null/undefined values', {
-    setup: function () {
-      commonSetup();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('placeholder attribute bound to undefined is not present', function () {
-    var _View$extend9;
-
-    view = _emberViewsViewsView.default.extend((_View$extend9 = {}, _View$extend9[_containerOwner.OWNER] = owner, _View$extend9.controller = {}, _View$extend9.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input placeholder=someThingNotThere}}'), _View$extend9)).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(!view.element.childNodes[1].hasAttribute('placeholder'), 'attribute not present');
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, view, 'controller.someThingNotThere', 'foo');
-
-    equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
-  });
-
-  QUnit.test('placeholder attribute bound to null is not present', function () {
-    var _View$extend10;
-
-    view = _emberViewsViewsView.default.extend((_View$extend10 = {}, _View$extend10[_containerOwner.OWNER] = owner, _View$extend10.controller = {
-      someNullProperty: null
-    }, _View$extend10.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{input placeholder=someNullProperty}}'), _View$extend10)).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(!view.element.childNodes[1].hasAttribute('placeholder'), 'attribute not present');
-
-    _emberMetalRun_loop.default(null, _emberMetalProperty_set.set, view, 'controller.someNullProperty', 'foo');
-
-    equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
-  });
 });
 enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
@@ -51591,6 +51649,519 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
     return _class11;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+});
+enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var InputRenderingTest = (function (_RenderingTest) {
+    _inherits(InputRenderingTest, _RenderingTest);
+
+    function InputRenderingTest() {
+      _classCallCheck(this, InputRenderingTest);
+
+      _RenderingTest.call(this);
+
+      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
+      this.registerComponent('-checkbox', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Checkbox });
+    }
+
+    InputRenderingTest.prototype.$input = function $input() {
+      return this.$('input');
+    };
+
+    InputRenderingTest.prototype.inputID = function inputID() {
+      return this.$input().prop('id');
+    };
+
+    InputRenderingTest.prototype.assertDisabled = function assertDisabled() {
+      this.assert.ok(this.$('input').is(':disabled'), 'The input is disabled');
+    };
+
+    InputRenderingTest.prototype.assertNotDisabled = function assertNotDisabled() {
+      this.assert.ok(this.$('input').is(':not(:disabled)'), 'The input is not disabled');
+    };
+
+    InputRenderingTest.prototype.assertInputId = function assertInputId(expectedId) {
+      this.assert.equal(this.inputID(), expectedId, 'the input id should be `expectedId`');
+    };
+
+    InputRenderingTest.prototype.assertSingleInput = function assertSingleInput() {
+      this.assert.equal(this.$('input').length, 1, 'A single text field was inserted');
+    };
+
+    InputRenderingTest.prototype.assertSingleCheckbox = function assertSingleCheckbox() {
+      this.assert.equal(this.$('input[type=checkbox]').length, 1, 'A single checkbox is added');
+    };
+
+    InputRenderingTest.prototype.assertCheckboxIsChecked = function assertCheckboxIsChecked() {
+      this.assert.equal(this.$input().prop('checked'), true, 'the checkbox is checked');
+    };
+
+    InputRenderingTest.prototype.assertCheckboxIsNotChecked = function assertCheckboxIsNotChecked() {
+      this.assert.equal(this.$input().prop('checked'), false, 'the checkbox is not checked');
+    };
+
+    InputRenderingTest.prototype.assertValue = function assertValue(expected) {
+      this.assert.equal(this.$input().val(), expected, 'the input value should be ' + expected);
+    };
+
+    InputRenderingTest.prototype.assertAttr = function assertAttr(name, expected) {
+      this.assert.equal(this.$input().attr(name), expected, 'the input ' + name + ' attribute has the value \'' + expected + '\'');
+    };
+
+    InputRenderingTest.prototype.assertAllAttrs = function assertAllAttrs(names, expected) {
+      var _this = this;
+
+      names.forEach(function (name) {
+        return _this.assertAttr(name, expected);
+      });
+    };
+
+    InputRenderingTest.prototype.assertSelectionRange = function assertSelectionRange(start, end) {
+      var input = this.$input()[0];
+      this.assert.equal(input.selectionStart, start, 'the cursor start position should be ' + start);
+      this.assert.equal(input.selectionEnd, end, 'the cursor end position should be ' + end);
+    };
+
+    return InputRenderingTest;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}}', (function (_InputRenderingTest) {
+    _inherits(_class, _InputRenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _InputRenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test a single text field is inserted into the DOM'] = function testASingleTextFieldIsInsertedIntoTheDOM(assert) {
+      var _this2 = this;
+
+      this.render('{{input type="text" value=value}}', { value: 'hello' });
+
+      var id = this.inputID();
+
+      this.assertValue('hello');
+      this.assertSingleInput();
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertValue('hello');
+      this.assertSingleInput();
+      this.assertInputId(id);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'value', 'goodbye');
+      });
+
+      this.assertValue('goodbye');
+      this.assertSingleInput();
+      this.assertInputId(id);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'value', 'hello');
+      });
+
+      this.assertValue('hello');
+      this.assertSingleInput();
+      this.assertInputId(id);
+    };
+
+    _class.prototype['@test default type'] = function testDefaultType() {
+      var _this3 = this;
+
+      this.render('{{input}}');
+
+      this.assertAttr('type', 'text');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertAttr('type', 'text');
+    };
+
+    _class.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
+      var _this4 = this;
+
+      this.render('\n      {{input type="text"\n        disabled=disabled\n        value=value\n        placeholder=placeholder\n        name=name\n        maxlength=maxlength\n        size=size\n        tabindex=tabindex\n      }}', {
+        disabled: false,
+        value: 'Original value',
+        placeholder: 'Original placeholder',
+        name: 'original-name',
+        maxlength: 10,
+        size: 20,
+        tabindex: 30
+      });
+
+      this.assertNotDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20'); //NOTE: failing in IE  (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertNotDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20'); //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.context, 'value', 'Updated value');
+        _emberMetalProperty_set.set(_this4.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this4.context, 'placeholder', 'Updated placeholder');
+        _emberMetalProperty_set.set(_this4.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this4.context, 'maxlength', 11);
+        // set(this.context, 'size', 21); //NOTE: failing in IE (TEST_SUITE=sauce)
+        // set(this.context, 'tabindex', 31); //NOTE: failing in IE (TEST_SUITE=sauce)
+      });
+
+      this.assertDisabled();
+      this.assertValue('Updated value');
+      this.assertAttr('placeholder', 'Updated placeholder');
+      this.assertAttr('name', 'updated-name');
+      this.assertAttr('maxlength', '11');
+      // this.assertAttr('size', '21'); //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '31'); //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.context, 'value', 'Original value');
+        _emberMetalProperty_set.set(_this4.context, 'disabled', false);
+        _emberMetalProperty_set.set(_this4.context, 'placeholder', 'Original placeholder');
+        _emberMetalProperty_set.set(_this4.context, 'name', 'original-name');
+        _emberMetalProperty_set.set(_this4.context, 'maxlength', 10);
+        // set(this.context, 'size', 20); //NOTE: failing in IE (TEST_SUITE=sauce)
+        // set(this.context, 'tabindex', 30); //NOTE: failing in IE (TEST_SUITE=sauce)
+      });
+
+      this.assertNotDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20'); //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
+    };
+
+    _class.prototype['@test static attributes'] = function testStaticAttributes() {
+      var _this5 = this;
+
+      this.render('\n      {{input type="text"\n        disabled=true\n        value="Original value"\n        placeholder="Original placeholder"\n        name="original-name"\n        maxlength=10\n        size=20\n        tabindex=30\n      }}');
+
+      this.assertDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20');  //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30');  //NOTE: failing in IE (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertDisabled();
+      this.assertValue('Original value');
+      this.assertAttr('placeholder', 'Original placeholder');
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('maxlength', '10');
+      // this.assertAttr('size', '20');  //NOTE: failing in IE (TEST_SUITE=sauce)
+      // this.assertAttr('tabindex', '30');  //NOTE: failing in IE (TEST_SUITE=sauce)
+    };
+
+    _class.prototype['@test cursor selection range'] = function testCursorSelectionRange(assert) {
+      var _this6 = this;
+
+      this.render('{{input type="text" value=value}}', { value: 'original' });
+
+      var input = this.$input()[0];
+
+      // See https://ember-twiddle.com/33e506329f8176ae874422644d4cc08c?openFiles=components.input-component.js%2Ctemplates.components.input-component.hbs
+      // this.assertSelectionRange(8, 8); //NOTE: this is (0, 0) on Firefox (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      // this.assertSelectionRange(8, 8); //NOTE: this is (0, 0) on Firefox (TEST_SUITE=sauce)
+
+      this.runTask(function () {
+        input.selectionStart = 2;
+        input.selectionEnd = 4;
+      });
+
+      this.assertSelectionRange(2, 4);
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertSelectionRange(2, 4);
+
+      // this.runTask(() => set(this.context, 'value', 'updated'));
+      //
+      // this.assertSelectionRange(7, 7); //NOTE: this fails in IE, the range is 0 -> 0 (TEST_SUITE=sauce)
+      //
+      // this.runTask(() => set(this.context, 'value', 'original'));
+      //
+      // this.assertSelectionRange(8, 8); //NOTE: this fails in IE, the range is 0 -> 0 (TEST_SUITE=sauce)
+    };
+
+    _class.prototype['@test specifying `on="someevent" action="foo"` results in a deprecation warning'] = function testSpecifyingOnSomeeventActionFooResultsInADeprecationWarning() {
+      var _this7 = this;
+
+      expectDeprecation(function () {
+        _this7.render('{{input on="focus-in" action="doFoo" value="hello"}}');
+      }, 'Using \'{{input on="focus-in" action="doFoo"}}\' (\'-top-level\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
+    };
+
+    return _class;
+  })(InputRenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
+    _inherits(_class2, _InputRenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _InputRenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test a bound property can be used to determine type'] = function testABoundPropertyCanBeUsedToDetermineType() {
+      var _this8 = this;
+
+      this.render('{{input type=type}}', { type: 'password' });
+
+      this.assertAttr('type', 'password');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertAttr('type', 'password');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'type', 'text');
+      });
+
+      this.assertAttr('type', 'text');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'type', 'password');
+      });
+
+      this.assertAttr('type', 'password');
+    };
+
+    return _class2;
+  })(InputRenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
+    _inherits(_class3, _InputRenderingTest3);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _InputRenderingTest3.apply(this, arguments);
+    }
+
+    _class3.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
+      var _this9 = this;
+
+      this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
+        disabled: false,
+        name: 'original-name',
+        checked: false,
+        tabindex: 10
+      });
+
+      this.assertSingleCheckbox();
+      this.assertNotDisabled();
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('tabindex', '10');
+
+      this.runTask(function () {
+        return _this9.rerender();
+      });
+
+      this.assertSingleCheckbox();
+      this.assertNotDisabled();
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('tabindex', '10');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this9.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this9.context, 'tabindex', 11);
+      });
+
+      this.assertSingleCheckbox();
+      this.assertDisabled();
+      this.assertAttr('name', 'updated-name');
+      this.assertAttr('tabindex', '11');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.context, 'disabled', false);
+        _emberMetalProperty_set.set(_this9.context, 'name', 'original-name');
+        _emberMetalProperty_set.set(_this9.context, 'tabindex', 10);
+      });
+
+      this.assertSingleCheckbox();
+      this.assertNotDisabled();
+      this.assertAttr('name', 'original-name');
+      this.assertAttr('tabindex', '10');
+    };
+
+    _class3.prototype['@test `value` property assertion'] = function testValuePropertyAssertion() {
+      var _this10 = this;
+
+      expectAssertion(function () {
+        _this10.render('{{input type="checkbox" value=value}}', { value: 'value' });
+      }, /you must use `checked=/);
+    };
+
+    _class3.prototype['@test with a bound type'] = function testWithABoundType(assert) {
+      var _this11 = this;
+
+      this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsChecked();
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertCheckboxIsChecked();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'isChecked', false);
+      });
+
+      this.assertCheckboxIsNotChecked();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this11.context, 'isChecked', true);
+      });
+
+      this.assertCheckboxIsChecked();
+    };
+
+    _class3.prototype['@test with static values'] = function testWithStaticValues(assert) {
+      var _this12 = this;
+
+      this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsNotChecked();
+      this.assertNotDisabled();
+      this.assertAttr('tabindex', '10');
+      this.assertAttr('name', 'original-name');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsNotChecked();
+      this.assertNotDisabled();
+      this.assertAttr('tabindex', '10');
+      this.assertAttr('name', 'original-name');
+    };
+
+    return _class3;
+  })(InputRenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
+    _inherits(_class4, _InputRenderingTest4);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _InputRenderingTest4.apply(this, arguments);
+    }
+
+    _class4.prototype['@test null values'] = function testNullValues(assert) {
+      var _this13 = this;
+
+      var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
+
+      this.render('\n      {{input type="text"\n        disabled=disabled\n        value=value\n        placeholder=placeholder\n        name=name\n        maxlength=maxlength\n        size=size\n        tabindex=tabindex\n      }}', {
+        disabled: null,
+        value: null,
+        placeholder: null,
+        name: null,
+        maxlength: null,
+        size: null,
+        tabindex: null
+      });
+
+      this.assertValue('');
+      this.assertAllAttrs(attributes, undefined);
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertValue('');
+      this.assertAllAttrs(attributes, undefined);
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this13.context, 'value', 'Updated value');
+        _emberMetalProperty_set.set(_this13.context, 'placeholder', 'Updated placeholder');
+        _emberMetalProperty_set.set(_this13.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this13.context, 'maxlength', 11);
+        _emberMetalProperty_set.set(_this13.context, 'size', 21);
+        _emberMetalProperty_set.set(_this13.context, 'tabindex', 31);
+      });
+
+      this.assertDisabled();
+      this.assertValue('Updated value');
+      this.assertAttr('placeholder', 'Updated placeholder');
+      this.assertAttr('name', 'updated-name');
+      this.assertAttr('maxlength', '11');
+      this.assertAttr('size', '21');
+      this.assertAttr('tabindex', '31');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'disabled', null);
+        _emberMetalProperty_set.set(_this13.context, 'value', null);
+        _emberMetalProperty_set.set(_this13.context, 'placeholder', null);
+        _emberMetalProperty_set.set(_this13.context, 'name', null);
+        _emberMetalProperty_set.set(_this13.context, 'maxlength', null);
+        // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
+        _emberMetalProperty_set.set(_this13.context, 'tabindex', null);
+      });
+
+      this.assertAttr('disabled', undefined);
+      this.assertValue('');
+      // this.assertAttr('placeholder', undefined); //NOTE: this fails with a value of "null" (TEST_SUITE=sauce)
+      // this.assertAttr('name', undefined); //NOTE: this fails with a value of "null" (TEST_SUITE=sauce)
+      this.assertAttr('maxlength', undefined);
+      // this.assertAttr('size', undefined); //NOTE: re-enable once `size` bug above has been addressed
+      this.assertAttr('tabindex', undefined);
+    };
+
+    return _class4;
+  })(InputRenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/core'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalCore) {
   'use strict';
