@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3bff3d01
+ * @version   2.7.0-canary+899e4e47
  */
 
 var enifed, requireModule, require, Ember;
@@ -58596,6 +58596,20 @@ enifed('ember-htmlbars-template-compiler/tests/plugins-test', ['exports', 'ember
     _emberHtmlbarsTemplateCompilerTestsUtilsHelpers.compile('some random template', { plugins: { ast: [TestPlugin] } });
   });
 });
+enifed('ember-htmlbars-template-compiler/tests/system/compile_test', ['exports', 'ember-htmlbars-template-compiler/tests/utils/helpers'], function (exports, _emberHtmlbarsTemplateCompilerTestsUtilsHelpers) {
+  'use strict';
+
+  QUnit.module('ember-htmlbars: compile');
+
+  QUnit.test('calls template on the compiled function', function () {
+    var templateString = '{{foo}} -- {{some-bar blah=\'foo\'}}';
+
+    var actual = _emberHtmlbarsTemplateCompilerTestsUtilsHelpers.compile(templateString);
+
+    ok(actual.isTop, 'sets isTop via template function');
+    ok(actual.isMethod === false, 'sets isMethod via template function');
+  });
+});
 enifed('ember-htmlbars-template-compiler/tests/utils/helpers', ['exports', 'ember-htmlbars-template-compiler', 'ember-metal/assign', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _emberHtmlbarsTemplateCompiler, _emberMetalAssign, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
   'use strict';
 
@@ -80764,25 +80778,7 @@ enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 
 enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-template-compiler/tests/utils/helpers', 'htmlbars-compiler/compiler', 'ember/version', 'ember-glimmer/tests/utils/skip-if-glimmer'], function (exports, _emberTemplateCompilerTestsUtilsHelpers, _htmlbarsCompilerCompiler, _emberVersion, _emberGlimmerTestsUtilsSkipIfGlimmer) {
   'use strict';
 
-  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-htmlbars: compile');
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('compiles the provided template with htmlbars', function () {
-    var templateString = '{{foo}} -- {{some-bar blah=\'foo\'}}';
-
-    var actual = _emberTemplateCompilerTestsUtilsHelpers.compile(templateString);
-    var expected = _htmlbarsCompilerCompiler.compile(templateString);
-
-    equal(actual.toString(), expected.toString(), 'compile function matches content with htmlbars compile');
-  });
-
-  _emberGlimmerTestsUtilsSkipIfGlimmer.test('calls template on the compiled function', function () {
-    var templateString = '{{foo}} -- {{some-bar blah=\'foo\'}}';
-
-    var actual = _emberTemplateCompilerTestsUtilsHelpers.compile(templateString);
-
-    ok(actual.isTop, 'sets isTop via template function');
-    ok(actual.isMethod === false, 'sets isMethod via template function');
-  });
+  _emberGlimmerTestsUtilsSkipIfGlimmer.testModule('ember-template-compiler: compile');
 
   _emberGlimmerTestsUtilsSkipIfGlimmer.test('includes the current revision in the compiled template', function () {
     var templateString = '{{foo}} -- {{some-bar blah=\'foo\'}}';
