@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.4+9fad3c42
+ * @version   2.6.0-beta.4+29032176
  */
 
 var enifed, requireModule, require, Ember;
@@ -1478,14 +1478,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
       validationCache = container.validationCache;
 
-      // Ensure that all lazy injections are valid at instantiation time
-      if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
-        lazyInjections = factory._lazyInjections();
-        lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
-
-        container.registry.validateInjections(lazyInjections);
-      }
-
       validationCache[fullName] = true;
 
       var obj = undefined;
@@ -1575,6 +1567,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
   exports.default = Container;
 });
+
+// Ensure that all lazy injections are valid at instantiation time
 enifed('container/index', ['exports', 'ember-metal/core', 'container/registry', 'container/container', 'container/owner'], function (exports, _emberMetalCore, _containerRegistry, _containerContainer, _containerOwner) {
   'use strict';
 
@@ -4040,10 +4034,13 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
         }
       };
 
-      // Keeps the location adapter's internal URL in-sync
-      _emberMetalProperty_get.get(router, 'location').setURL(url);
+      var location = _emberMetalProperty_get.get(router, 'location');
 
-      return router.handleURL(url).then(handleResolve, handleReject);
+      // Keeps the location adapter's internal URL in-sync
+      location.setURL(url);
+
+      // getURL returns the set url with the rootURL stripped off
+      return router.handleURL(location.getURL()).then(handleResolve, handleReject);
     }
   });
 
@@ -9608,7 +9605,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     mutate a value. For example:
   
     ```handlebars
-    {{my-child childClickCount=totalClicks click-count-change=(action (mut "totalClicks"))}}
+    {{my-child childClickCount=totalClicks click-count-change=(action (mut totalClicks))}}
     ```
   
     The child `Component` would invoke the action with the new click value:
@@ -9693,7 +9690,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.4+9fad3c42';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.4+29032176';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -14530,7 +14527,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.4+9fad3c42
+    @version 2.6.0-beta.4+29032176
     @public
   */
 
@@ -14572,11 +14569,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.4+9fad3c42'
+    @default '2.6.0-beta.4+29032176'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.4+9fad3c42';
+  Ember.VERSION = '2.6.0-beta.4+29032176';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23250,8 +23247,8 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       rootURL = rootURL.replace(/\/$/, '');
       baseURL = baseURL.replace(/\/$/, '');
 
-      // remove baseURL and rootURL from path
-      var url = path.replace(baseURL, '').replace(rootURL, '');
+      // remove baseURL and rootURL from start of path
+      var url = path.replace(new RegExp('^' + baseURL), '').replace(new RegExp('^' + rootURL), '');
 
       var search = location.search || '';
       url += search;
@@ -23408,7 +23405,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
     getHash: _emberRoutingLocationApi.default._getHash
   });
 });
-enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
+enifed('ember-routing/location/none_location', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
   'use strict';
 
   /**
@@ -23431,14 +23428,33 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
     implementation: 'none',
     path: '',
 
+    detect: function () {
+      var rootURL = this.rootURL;
+    },
+
     /**
-      Returns the current path.
+      Will be pre-pended to path.
+       @private
+      @property rootURL
+      @default '/'
+    */
+    rootURL: '/',
+
+    /**
+      Returns the current path without `rootURL`.
        @private
       @method getURL
       @return {String} path
     */
     getURL: function () {
-      return _emberMetalProperty_get.get(this, 'path');
+      var path = _emberMetalProperty_get.get(this, 'path');
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
+
+      // remove trailing slashes if they exists
+      rootURL = rootURL.replace(/\/$/, '');
+
+      // remove rootURL from url
+      return path.replace(new RegExp('^' + rootURL), '');
     },
 
     /**
@@ -23486,10 +23502,14 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
       @return {String} url
     */
     formatURL: function (url) {
-      // The return value is not overly meaningful, but we do not want to throw
-      // errors when test code renders templates containing {{action href=true}}
-      // helpers.
-      return url;
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
+
+      if (url !== '') {
+        // remove trailing slashes if they exists
+        rootURL = rootURL.replace(/\/$/, '');
+      }
+
+      return rootURL + url;
     }
   });
 });
@@ -38152,7 +38172,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.4+9fad3c42',
+        revision: 'Ember@2.6.0-beta.4+29032176',
         loc: program.loc,
         moduleName: options.moduleName
       };
