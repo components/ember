@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d638d524
+ * @version   2.7.0-canary+8d948623
  */
 
 var enifed, requireModule, require, Ember;
@@ -22439,7 +22439,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       }, /Could not find component named "does-not-exist"/);
     };
 
-    _class.prototype['@htmlbars component with dynamic component name resolving to a component, then non-existent component'] = function htmlbarsComponentWithDynamicComponentNameResolvingToAComponentThenNonExistentComponent(assert) {
+    _class.prototype['@test component with dynamic component name resolving to a component, then non-existent component'] = function testComponentWithDynamicComponentNameResolvingToAComponentThenNonExistentComponent(assert) {
       var _this18 = this;
 
       this.registerComponent('foo-bar', { template: 'hello {{name}}' });
@@ -44629,7 +44629,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       }, /Could not find component named "does-not-exist"/);
     };
 
-    _class.prototype['@htmlbars component with dynamic component name resolving to a component, then non-existent component'] = function htmlbarsComponentWithDynamicComponentNameResolvingToAComponentThenNonExistentComponent(assert) {
+    _class.prototype['@test component with dynamic component name resolving to a component, then non-existent component'] = function testComponentWithDynamicComponentNameResolvingToAComponentThenNonExistentComponent(assert) {
       var _this18 = this;
 
       this.registerComponent('foo-bar', { template: 'hello {{name}}' });
