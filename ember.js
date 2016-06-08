@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0-beta.4
+ * @version   2.6.0
  */
 
 var enifed, requireModule, require, Ember;
@@ -1480,13 +1480,15 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
       validationCache = container.validationCache;
 
-      // Ensure that all lazy injections are valid at instantiation time
-      if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
-        lazyInjections = factory._lazyInjections();
-        lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
+      _emberMetalDebug.runInDebug(function () {
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
+          lazyInjections = factory._lazyInjections();
+          lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
 
-        container.registry.validateInjections(lazyInjections);
-      }
+          container.registry.validateInjections(lazyInjections);
+        }
+      });
 
       validationCache[fullName] = true;
 
@@ -4055,10 +4057,13 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
         }
       };
 
-      // Keeps the location adapter's internal URL in-sync
-      _emberMetalProperty_get.get(router, 'location').setURL(url);
+      var location = _emberMetalProperty_get.get(router, 'location');
 
-      return router.handleURL(url).then(handleResolve, handleReject);
+      // Keeps the location adapter's internal URL in-sync
+      location.setURL(url);
+
+      // getURL returns the set url with the rootURL stripped off
+      return router.handleURL(location.getURL()).then(handleResolve, handleReject);
     }
   });
 
@@ -10223,7 +10228,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     mutate a value. For example:
   
     ```handlebars
-    {{my-child childClickCount=totalClicks click-count-change=(action (mut "totalClicks"))}}
+    {{my-child childClickCount=totalClicks click-count-change=(action (mut totalClicks))}}
     ```
   
     The child `Component` would invoke the action with the new click value:
@@ -10310,7 +10315,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0-beta.4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -15237,7 +15242,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0-beta.4
+    @version 2.6.0
     @public
   */
 
@@ -15279,11 +15284,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0-beta.4'
+    @default '2.6.0'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0-beta.4';
+  Ember.VERSION = '2.6.0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24106,8 +24111,8 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       rootURL = rootURL.replace(/\/$/, '');
       baseURL = baseURL.replace(/\/$/, '');
 
-      // remove baseURL and rootURL from path
-      var url = path.replace(baseURL, '').replace(rootURL, '');
+      // remove baseURL and rootURL from start of path
+      var url = path.replace(new RegExp('^' + baseURL), '').replace(new RegExp('^' + rootURL), '');
 
       var search = location.search || '';
       url += search;
@@ -24264,7 +24269,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
     getHash: _emberRoutingLocationApi.default._getHash
   });
 });
-enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
+enifed('ember-routing/location/none_location', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
   'use strict';
 
   /**
@@ -24287,14 +24292,35 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
     implementation: 'none',
     path: '',
 
+    detect: function () {
+      var rootURL = this.rootURL;
+
+      _emberMetalDebug.assert('rootURL must end with a trailing forward slash e.g. "/app/"', rootURL.charAt(rootURL.length - 1) === '/');
+    },
+
     /**
-      Returns the current path.
+      Will be pre-pended to path.
+       @private
+      @property rootURL
+      @default '/'
+    */
+    rootURL: '/',
+
+    /**
+      Returns the current path without `rootURL`.
        @private
       @method getURL
       @return {String} path
     */
     getURL: function () {
-      return _emberMetalProperty_get.get(this, 'path');
+      var path = _emberMetalProperty_get.get(this, 'path');
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
+
+      // remove trailing slashes if they exists
+      rootURL = rootURL.replace(/\/$/, '');
+
+      // remove rootURL from url
+      return path.replace(new RegExp('^' + rootURL), '');
     },
 
     /**
@@ -24342,10 +24368,14 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
       @return {String} url
     */
     formatURL: function (url) {
-      // The return value is not overly meaningful, but we do not want to throw
-      // errors when test code renders templates containing {{action href=true}}
-      // helpers.
-      return url;
+      var rootURL = _emberMetalProperty_get.get(this, 'rootURL');
+
+      if (url !== '') {
+        // remove trailing slashes if they exists
+        rootURL = rootURL.replace(/\/$/, '');
+      }
+
+      return rootURL + url;
     }
   });
 });
@@ -36031,7 +36061,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
         for (var i = 0, l = props.length; i < l; i++) {
           var properties = props[i];
 
-          _emberMetalDebug.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create seperately instead.', !(properties instanceof _emberMetalMixin.Mixin));
+          _emberMetalDebug.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetalMixin.Mixin));
 
           if (typeof properties !== 'object' && properties !== undefined) {
             throw new _emberMetalError.default('Ember.Object.create only accepts objects.');
@@ -39144,7 +39174,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0-beta.4',
+        revision: 'Ember@2.6.0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40718,7 +40748,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
     ```handlebars
     <!-- app-profile template -->
     <h1>{{person.title}}</h1>
-    {{! Executed in the components context. }}
+    {{! Executed in the component's context. }}
     {{yield}} {{! block contents }}
     ```
   
@@ -40769,7 +40799,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/debug', 'emb
     isComponent: true,
     /*
       This is set so that the proto inspection in appendTemplatedView does not
-      think that it should set the components `context` to that of the parent view.
+      think that it should set the component's `context` to that of the parent view.
     */
     controller: null,
     context: null,
