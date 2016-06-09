@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1be03540
+ * @version   2.7.0-canary+d5c6b68c
  */
 
 var enifed, requireModule, require, Ember;
@@ -3751,7 +3751,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+1be03540";
+  exports.default = "2.7.0-canary+d5c6b68c";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7878,7 +7878,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   exports.HAS_BLOCK = HAS_BLOCK;
   var Component = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
     isComponent: true,
-    template: null,
     layoutName: null,
     layout: null,
 
@@ -9153,7 +9152,7 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
     classNameBindings: EMPTY_ARRAY
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-glimmer/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/query-param', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberGlimmerUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersQueryParam, _containerOwner, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/query-param', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersQueryParam, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -9315,7 +9314,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
       var definition = this._components[name];
 
       if (!definition) {
-        var _lookupComponent = _emberGlimmerUtilsLookupComponent.default(this.owner, name);
+        var _lookupComponent = _emberViewsUtilsLookupComponent.default(this.owner, name);
 
         var ComponentClass = _lookupComponent.component;
         var layout = _lookupComponent.layout;
@@ -11637,35 +11636,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
     return Iterable;
   })();
 });
-enifed('ember-glimmer/utils/lookup-component', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = lookupComponent;
-  function lookupComponentPair(componentLookup, owner, name, options) {
-    var component = componentLookup.componentFor(name, owner, options);
-    var layout = componentLookup.layoutFor(name, owner, options);
-    return {
-      component: component,
-      layout: layout
-    };
-  }
-
-  function lookupComponent(owner, name, options) {
-    var componentLookup = owner.lookup('component-lookup:main');
-
-    var source = options && options.source;
-
-    if (source) {
-      var localResult = lookupComponentPair(componentLookup, owner, name, options);
-
-      if (localResult.component || localResult.layout) {
-        return localResult;
-      }
-    }
-
-    return lookupComponentPair(componentLookup, owner, name);
-  }
-});
 enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/empty_object', 'ember-glimmer/component'], function (exports, _glimmerReference, _emberMetalDebug, _emberMetalEmpty_object, _emberGlimmerComponent) {
   'use strict';
 
@@ -12877,7 +12847,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
-enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/error', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberMetalError, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
@@ -12998,6 +12968,21 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
         return '{{' + this._debugContainerKey.split(':')[1] + '}}';
       }
     }),
+
+    templateForName: function (name, type) {
+      if (!name) {
+        return;
+      }
+      _emberMetalDebug.assert('templateNames are not allowed to contain periods: ' + name, name.indexOf('.') === -1);
+
+      var owner = _containerOwner.getOwner(this);
+
+      if (!owner) {
+        throw new _emberMetalError.default('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
+      }
+
+      return owner.lookup('template:' + name);
+    },
 
     init: function () {
       var _this = this;
@@ -14460,7 +14445,7 @@ enifed('ember-htmlbars/components/text_field', ['exports', 'ember-metal/computed
     max: null
   });
 });
-enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get', 'ember-htmlbars/keywords/action', 'ember-htmlbars/keywords/render', 'ember-htmlbars/keywords/element-action'], function (exports, _emberEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet, _emberHtmlbarsKeywordsAction, _emberHtmlbarsKeywordsRender, _emberHtmlbarsKeywordsElementAction) {
+enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get', 'ember-htmlbars/keywords/action', 'ember-htmlbars/keywords/render', 'ember-htmlbars/keywords/element-action'], function (exports, _emberEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet, _emberHtmlbarsKeywordsAction, _emberHtmlbarsKeywordsRender, _emberHtmlbarsKeywordsElementAction) {
   'use strict';
 
   var emberHooks = _emberMetalAssign.default({}, _htmlbarsRuntime.hooks);
@@ -14513,10 +14498,6 @@ enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime'
   _emberHtmlbarsKeywords.registerKeyword('action', _emberHtmlbarsKeywordsAction.default);
   _emberHtmlbarsKeywords.registerKeyword('render', _emberHtmlbarsKeywordsRender.default);
   _emberHtmlbarsKeywords.registerKeyword('@element_action', _emberHtmlbarsKeywordsElementAction.default);
-
-  if (_emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-    _emberHtmlbarsKeywords.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-  }
 
   exports.default = {
     hooks: emberHooks,
@@ -15417,7 +15398,7 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/system/build-component-template'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsSystemBuildComponentTemplate) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/system/build-component-template'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsSystemBuildComponentTemplate) {
   'use strict';
 
   exports.default = componentHook;
@@ -15475,7 +15456,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
       options.source = 'template:' + moduleName;
     }
 
-    var _lookupComponent = _emberHtmlbarsUtilsLookupComponent.default(env.owner, tagName, options);
+    var _lookupComponent = _emberViewsUtilsLookupComponent.default(env.owner, tagName, options);
 
     var component = _lookupComponent.component;
     var layout = _lookupComponent.layout;
@@ -16771,7 +16752,7 @@ enifed('ember-htmlbars/keywords/closure-action', ['exports', 'ember-htmlbars/str
     return closureAction;
   }
 });
-enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-htmlbars/streams/stream', 'ember-metal/empty_object', 'ember-htmlbars/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberHtmlbarsStreamsStream, _emberMetalEmpty_object, _emberHtmlbarsStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsUtilsLookupComponent) {
+enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-htmlbars/streams/stream', 'ember-metal/empty_object', 'ember-htmlbars/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-views/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberHtmlbarsStreamsStream, _emberMetalEmpty_object, _emberHtmlbarsStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberViewsUtilsLookupComponent) {
   /**
   @module ember
   @submodule ember-templates
@@ -16847,7 +16828,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
   }
 
   function isValidComponentPath(env, path) {
-    var result = _emberHtmlbarsUtilsLookupComponent.default(env.owner, path);
+    var result = _emberViewsUtilsLookupComponent.default(env.owner, path);
 
     return !!(result.component || result.layout);
   }
@@ -16890,7 +16871,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
     if (!componentPath) {
       return [];
     }
-    var result = _emberHtmlbarsUtilsLookupComponent.default(container, componentPath);
+    var result = _emberViewsUtilsLookupComponent.default(container, componentPath);
     var component = result.component;
 
     if (component && component.positionalParams) {
@@ -17211,7 +17192,7 @@ enifed('ember-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug'
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/utils/extract-positional-params'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsUtilsLookupComponent, _emberHtmlbarsUtilsExtractPositionalParams) {
+enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component', 'ember-views/utils/lookup-component', 'ember-htmlbars/utils/extract-positional-params'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent, _emberViewsUtilsLookupComponent, _emberHtmlbarsUtilsExtractPositionalParams) {
   'use strict';
 
   exports.default = {
@@ -17273,7 +17254,7 @@ enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/ass
     path = env.hooks.getValue(path);
 
     if (isRerender) {
-      var result = _emberHtmlbarsUtilsLookupComponent.default(env.owner, componentPath);
+      var result = _emberViewsUtilsLookupComponent.default(env.owner, componentPath);
       var component = result.component;
 
       _emberHtmlbarsUtilsExtractPositionalParams.default(null, component, params, hash);
@@ -18601,295 +18582,6 @@ enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/debug', 'embe
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/view', ['exports', 'ember-htmlbars/streams/utils', 'ember-views/views/view', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberHtmlbarsStreamsUtils, _emberViewsViewsView, _emberHtmlbarsNodeManagersViewNodeManager) {
-  /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  'use strict';
-
-  /**
-    `{{view}}` inserts a new instance of an `Ember.View` into a template passing its
-    options to the `Ember.View`'s `create` method and using the supplied block as
-    the view's own template.
-  
-    An empty `<body>` and the following template:
-  
-    ```handlebars
-    A span:
-    {{#view tagName="span"}}
-      hello.
-    {{/view}}
-    ```
-  
-    Will result in HTML structure:
-  
-    ```html
-    <body>
-      <!-- Note: the handlebars template script
-           also results in a rendered Ember.View
-           which is the outer <div> here -->
-  
-      <div class="ember-view">
-        A span:
-        <span id="ember1" class="ember-view">
-          Hello.
-        </span>
-      </div>
-    </body>
-    ```
-  
-    ### `parentView` setting
-  
-    The `parentView` property of the new `Ember.View` instance created through
-    `{{view}}` will be set to the `Ember.View` instance of the template where
-    `{{view}}` was called.
-  
-    ```javascript
-    aView = Ember.View.create({
-      template: Ember.Handlebars.compile("{{#view}} my parent: {{parentView.elementId}} {{/view}}")
-    });
-  
-    aView.appendTo('body');
-    ```
-  
-    Will result in HTML structure:
-  
-    ```html
-    <div id="ember1" class="ember-view">
-      <div id="ember2" class="ember-view">
-        my parent: ember1
-      </div>
-    </div>
-    ```
-  
-    ### Setting CSS id and class attributes
-  
-    The HTML `id` attribute can be set on the `{{view}}`'s resulting element with
-    the `id` option. This option will _not_ be passed to `Ember.View.create`.
-  
-    ```handlebars
-    {{#view tagName="span" id="a-custom-id"}}
-      hello.
-    {{/view}}
-    ```
-  
-    Results in the following HTML structure:
-  
-    ```html
-    <div class="ember-view">
-      <span id="a-custom-id" class="ember-view">
-        hello.
-      </span>
-    </div>
-    ```
-  
-    The HTML `class` attribute can be set on the `{{view}}`'s resulting element
-    with the `class` or `classNameBindings` options. The `class` option will
-    directly set the CSS `class` attribute and will not be passed to
-    `Ember.View.create`. `classNameBindings` will be passed to `create` and use
-    `Ember.View`'s class name binding functionality:
-  
-    ```handlebars
-    {{#view tagName="span" class="a-custom-class"}}
-      hello.
-    {{/view}}
-    ```
-  
-    Results in the following HTML structure:
-  
-    ```html
-    <div class="ember-view">
-      <span id="ember2" class="ember-view a-custom-class">
-        hello.
-      </span>
-    </div>
-    ```
-  
-    ### Supplying a different view class
-  
-    `{{view}}` can take an optional first argument before its supplied options to
-    specify a path to a custom view class.
-  
-    ```handlebars
-    {{#view "custom"}}{{! will look up App.CustomView }}
-      hello.
-    {{/view}}
-    ```
-  
-    The first argument can also be a relative path accessible from the current
-    context.
-  
-    ```javascript
-    MyApp = Ember.Application.create({});
-    MyApp.OuterView = Ember.View.extend({
-      innerViewClass: Ember.View.extend({
-        classNames: ['a-custom-view-class-as-property']
-      }),
-      template: Ember.Handlebars.compile('{{#view view.innerViewClass}} hi {{/view}}')
-    });
-  
-    MyApp.OuterView.create().appendTo('body');
-    ```
-  
-    Will result in the following HTML:
-  
-    ```html
-    <div id="ember1" class="ember-view">
-      <div id="ember2" class="ember-view a-custom-view-class-as-property">
-        hi
-      </div>
-    </div>
-    ```
-  
-    ### Blockless use
-  
-    If you supply a custom `Ember.View` subclass that specifies its own template
-    or provide a `templateName` option to `{{view}}` it can be used without
-    supplying a block. Attempts to use both a `templateName` option and supply a
-    block will throw an error.
-  
-    ```javascript
-    var App = Ember.Application.create();
-    App.WithTemplateDefinedView = Ember.View.extend({
-      templateName: 'defined-template'
-    });
-    ```
-  
-    ```handlebars
-    {{! application.hbs }}
-    {{view 'with-template-defined'}}
-    ```
-  
-    ```handlebars
-    {{! defined-template.hbs }}
-    Some content for the defined template view.
-    ```
-  
-    ### `viewName` property
-  
-    You can supply a `viewName` option to `{{view}}`. The `Ember.View` instance
-    will be referenced as a property of its parent view by this name.
-  
-    ```javascript
-    aView = Ember.View.create({
-      template: Ember.Handlebars.compile('{{#view viewName="aChildByName"}} hi {{/view}}')
-    });
-  
-    aView.appendTo('body');
-    aView.get('aChildByName') // the instance of Ember.View created by {{view}} helper
-    ```
-  
-    @method view
-    @for Ember.Templates.helpers
-    @public
-    @deprecated
-  */
-
-  exports.default = {
-    setupState: function (state, env, scope, params, hash) {
-      var read = env.hooks.getValue;
-      var targetObject = read(scope.getSelf());
-      var viewClassOrInstance = state.viewClassOrInstance;
-      if (!viewClassOrInstance) {
-        viewClassOrInstance = getView(read(params[0]), env.owner);
-      }
-
-      // if parentView exists, use its controller (the default
-      // behavior), otherwise use `scope.self` as the controller
-      var controller = scope.hasLocal('view') ? null : read(scope.getSelf());
-
-      return {
-        manager: state.manager,
-        parentView: env.view,
-        controller: controller,
-        targetObject: targetObject,
-        viewClassOrInstance: viewClassOrInstance
-      };
-    },
-
-    rerender: function (morph, env, scope, params, hash, template, inverse, visitor) {
-      // If the hash is empty, the component cannot have extracted a part
-      // of a mutable param and used it in its layout, because there are
-      // no params at all.
-      if (Object.keys(hash).length) {
-        return morph.getState().manager.rerender(env, hash, visitor, true);
-      }
-    },
-
-    render: function (node, env, scope, params, hash, template, inverse, visitor) {
-      if (hash.tag) {
-        hash = swapKey(hash, 'tag', 'tagName');
-      }
-
-      if (hash.classNameBindings) {
-        hash.classNameBindings = hash.classNameBindings.split(' ');
-      }
-
-      var state = node.getState();
-      var parentView = state.parentView;
-
-      var options = {
-        component: state.viewClassOrInstance,
-        layout: null
-      };
-
-      options.createOptions = {};
-      if (state.controller) {
-        // Use `_controller` to avoid stomping on a CP
-        // that exists in the target view/component
-        options.createOptions._controller = state.controller;
-      }
-
-      if (state.targetObject) {
-        // Use `_targetObject` to avoid stomping on a CP
-        // that exists in the target view/component
-        options.createOptions._targetObject = state.targetObject;
-      }
-
-      if (state.manager) {
-        state.manager.destroy();
-        state.manager = null;
-      }
-
-      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(node, env, hash, options, parentView, null, scope, template);
-      state.manager = nodeManager;
-
-      nodeManager.render(env, hash, visitor);
-    }
-  };
-
-  function getView(viewPath, owner) {
-    var viewClassOrInstance;
-
-    if (!viewPath) {
-      if (owner) {
-        viewClassOrInstance = owner._lookupFactory('view:toplevel');
-      } else {
-        viewClassOrInstance = _emberViewsViewsView.default;
-      }
-    } else {
-      viewClassOrInstance = _emberHtmlbarsStreamsUtils.readViewFactory(viewPath, owner);
-    }
-
-    return viewClassOrInstance;
-  }
-
-  function swapKey(hash, original, update) {
-    var newHash = {};
-
-    for (var prop in hash) {
-      if (prop === original) {
-        newHash[update] = hash[prop];
-      } else {
-        newHash[prop] = hash[prop];
-      }
-    }
-
-    return newHash;
-  }
-});
 enifed('ember-htmlbars/keywords/with', ['exports', 'ember-metal/debug', 'htmlbars-runtime'], function (exports, _emberMetalDebug, _htmlbarsRuntime) {
   /**
   @module ember
@@ -19891,7 +19583,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
   exports.InteractiveRenderer = InteractiveRenderer;
 });
-enifed('ember-htmlbars/setup-registry', ['exports', 'ember-htmlbars/renderer', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/templates/top-level-view', 'ember-htmlbars/views/outlet', 'ember-views/views/view', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/link-to'], function (exports, _emberHtmlbarsRenderer, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsTemplatesTopLevelView, _emberHtmlbarsViewsOutlet, _emberViewsViewsView, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsLinkTo) {
+enifed('ember-htmlbars/setup-registry', ['exports', 'ember-htmlbars/renderer', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/templates/top-level-view', 'ember-htmlbars/views/outlet', 'ember-views/views/view', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/link-to', 'ember-views/mixins/template_support'], function (exports, _emberHtmlbarsRenderer, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsTemplatesTopLevelView, _emberHtmlbarsViewsOutlet, _emberViewsViewsView, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsLinkTo, _emberViewsMixinsTemplate_support) {
   'use strict';
 
   exports.setupApplicationRegistry = setupApplicationRegistry;
@@ -19914,7 +19606,7 @@ enifed('ember-htmlbars/setup-registry', ['exports', 'ember-htmlbars/renderer', '
     registry.register('view:-outlet', _emberHtmlbarsViewsOutlet.OutletView);
 
     registry.register('template:-outlet', _emberHtmlbarsTemplatesTopLevelView.default);
-    registry.register('view:toplevel', _emberViewsViewsView.default.extend());
+    registry.register('view:toplevel', _emberViewsViewsView.default.extend(_emberViewsMixinsTemplate_support.default));
 
     registry.register('component:-text-field', _emberHtmlbarsComponentsText_field.default);
     registry.register('component:-text-area', _emberHtmlbarsComponentsText_area.default);
@@ -22184,33 +21876,6 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/l
     }
   }
 });
-enifed('ember-htmlbars/utils/lookup-component', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = lookupComponent;
-  function lookupComponentPair(componentLookup, owner, name, options) {
-    return {
-      component: componentLookup.componentFor(name, owner, options),
-      layout: componentLookup.layoutFor(name, owner, options)
-    };
-  }
-
-  function lookupComponent(owner, name, options) {
-    var componentLookup = owner.lookup('component-lookup:main');
-
-    var source = options && options.source;
-
-    if (source) {
-      var localResult = lookupComponentPair(componentLookup, owner, name, options);
-
-      if (localResult.component || localResult.layout) {
-        return localResult;
-      }
-    }
-
-    return lookupComponentPair(componentLookup, owner, name);
-  }
-});
 enifed('ember-htmlbars/utils/new-stream', ['exports', 'ember-htmlbars/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberHtmlbarsStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
   'use strict';
 
@@ -22331,7 +21996,7 @@ enifed('ember-htmlbars/utils/update-scope', ['exports', 'ember-htmlbars/streams/
     }
   }
 });
-enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
+enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view', 'ember-views/mixins/template_support'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView, _emberViewsMixinsTemplate_support) {
   /**
   @module ember
   @submodule ember-templates
@@ -22339,7 +22004,7 @@ enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'emb
 
   'use strict';
 
-  var CoreOutletView = _emberViewsViewsView.default.extend({
+  var CoreOutletView = _emberViewsViewsView.default.extend(_emberViewsMixinsTemplate_support.default, {
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
 
     init: function () {
@@ -47785,6 +47450,114 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/debug'
 
   exports.default = LegacyViewSupport;
 });
+enifed('ember-views/mixins/template_support', ['exports', 'ember-metal/error', 'ember-metal/computed', 'container/owner', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/debug'], function (exports, _emberMetalError, _emberMetalComputed, _containerOwner, _emberMetalMixin, _emberMetalProperty_get, _emberMetalDebug) {
+  'use strict';
+
+  exports.default = _emberMetalMixin.Mixin.create({
+    /**
+      @property isView
+      @type Boolean
+      @default true
+      @static
+      @private
+    */
+    isView: true,
+
+    // ..........................................................
+    // TEMPLATE SUPPORT
+    //
+
+    /**
+      The name of the template to lookup if no template is provided.
+       By default `Ember.View` will lookup a template with this name in
+      `Ember.TEMPLATES` (a shared global object).
+       @property templateName
+      @type String
+      @default null
+      @private
+    */
+    templateName: null,
+
+    /**
+      The name of the layout to lookup if no layout is provided.
+       By default `Ember.View` will lookup a template with this name in
+      `Ember.TEMPLATES` (a shared global object).
+       @property layoutName
+      @type String
+      @default null
+      @private
+    */
+    layoutName: null,
+
+    /**
+      The template used to render the view. This should be a function that
+      accepts an optional context parameter and returns a string of HTML that
+      will be inserted into the DOM relative to its parent view.
+       In general, you should set the `templateName` property instead of setting
+      the template yourself.
+       @property template
+      @type Function
+      @private
+    */
+    template: _emberMetalComputed.computed({
+      get: function () {
+        var templateName = _emberMetalProperty_get.get(this, 'templateName');
+        var template = this.templateForName(templateName, 'template');
+        _emberMetalDebug.assert('You specified the templateName ' + templateName + ' for ' + this + ', but it did not exist.', !templateName || !!template);
+        return template || _emberMetalProperty_get.get(this, 'defaultTemplate');
+      },
+      set: function (key, value) {
+        if (value !== undefined) {
+          return value;
+        }
+        return _emberMetalProperty_get.get(this, key);
+      }
+    }),
+
+    /**
+      A view may contain a layout. A layout is a regular template but
+      supersedes the `template` property during rendering. It is the
+      responsibility of the layout template to retrieve the `template`
+      property from the view (or alternatively, call `Handlebars.helpers.yield`,
+      `{{yield}}`) to render it in the correct location.
+       This is useful for a view that has a shared wrapper, but which delegates
+      the rendering of the contents of the wrapper to the `template` property
+      on a subclass.
+       @property layout
+      @type Function
+      @private
+    */
+    layout: _emberMetalComputed.computed({
+      get: function (key) {
+        var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
+        var layout = this.templateForName(layoutName, 'layout');
+
+        _emberMetalDebug.assert('You specified the layoutName ' + layoutName + ' for ' + this + ', but it did not exist.', !layoutName || !!layout);
+
+        return layout || _emberMetalProperty_get.get(this, 'defaultLayout');
+      },
+
+      set: function (key, value) {
+        return value;
+      }
+    }),
+
+    templateForName: function (name, type) {
+      if (!name) {
+        return;
+      }
+      _emberMetalDebug.assert('templateNames are not allowed to contain periods: ' + name, name.indexOf('.') === -1);
+
+      var owner = _containerOwner.getOwner(this);
+
+      if (!owner) {
+        throw new _emberMetalError.default('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
+      }
+
+      return owner.lookup('template:' + name);
+    }
+  });
+});
 enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-runtime/mixins/target_action_support'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberRuntimeMixinsTarget_action_support) {
   /**
   @module ember
@@ -48363,7 +48136,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/mixin']
 
   exports.default = ViewStateSupport;
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'container/owner', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _containerOwner, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _emberViewsSystemJquery) {
   'use strict';
 
   var _Mixin$create;
@@ -48377,108 +48150,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
   exports.default = _emberMetalMixin.Mixin.create((_Mixin$create = {
     concatenatedProperties: ['attributeBindings'],
 
-    /**
-      @property isView
-      @type Boolean
-      @default true
-      @static
-      @private
-    */
-    isView: true,
-
     // ..........................................................
     // TEMPLATE SUPPORT
     //
-
-    /**
-      The name of the template to lookup if no template is provided.
-       By default `Ember.View` will lookup a template with this name in
-      `Ember.TEMPLATES` (a shared global object).
-       @property templateName
-      @type String
-      @default null
-      @private
-    */
-    templateName: null,
-
-    /**
-      The name of the layout to lookup if no layout is provided.
-       By default `Ember.View` will lookup a template with this name in
-      `Ember.TEMPLATES` (a shared global object).
-       @property layoutName
-      @type String
-      @default null
-      @private
-    */
-    layoutName: null,
-
-    /**
-      The template used to render the view. This should be a function that
-      accepts an optional context parameter and returns a string of HTML that
-      will be inserted into the DOM relative to its parent view.
-       In general, you should set the `templateName` property instead of setting
-      the template yourself.
-       @property template
-      @type Function
-      @private
-    */
-    template: _emberMetalComputed.computed({
-      get: function () {
-        var templateName = _emberMetalProperty_get.get(this, 'templateName');
-        var template = this.templateForName(templateName, 'template');
-        _emberMetalDebug.assert('You specified the templateName ' + templateName + ' for ' + this + ', but it did not exist.', !templateName || !!template);
-        return template || _emberMetalProperty_get.get(this, 'defaultTemplate');
-      },
-      set: function (key, value) {
-        if (value !== undefined) {
-          return value;
-        }
-        return _emberMetalProperty_get.get(this, key);
-      }
-    }),
-
-    /**
-      A view may contain a layout. A layout is a regular template but
-      supersedes the `template` property during rendering. It is the
-      responsibility of the layout template to retrieve the `template`
-      property from the view (or alternatively, call `Handlebars.helpers.yield`,
-      `{{yield}}`) to render it in the correct location.
-       This is useful for a view that has a shared wrapper, but which delegates
-      the rendering of the contents of the wrapper to the `template` property
-      on a subclass.
-       @property layout
-      @type Function
-      @private
-    */
-    layout: _emberMetalComputed.computed({
-      get: function (key) {
-        var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
-        var layout = this.templateForName(layoutName, 'layout');
-
-        _emberMetalDebug.assert('You specified the layoutName ' + layoutName + ' for ' + this + ', but it did not exist.', !layoutName || !!layout);
-
-        return layout || _emberMetalProperty_get.get(this, 'defaultLayout');
-      },
-
-      set: function (key, value) {
-        return value;
-      }
-    }),
-
-    templateForName: function (name, type) {
-      if (!name) {
-        return;
-      }
-      _emberMetalDebug.assert('templateNames are not allowed to contain periods: ' + name, name.indexOf('.') === -1);
-
-      var owner = _containerOwner.getOwner(this);
-
-      if (!owner) {
-        throw new _emberMetalError.default('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
-      }
-
-      return owner.lookup('template:' + name);
-    },
 
     /**
       Return the nearest ancestor that is an instance of the provided
@@ -49708,6 +49382,35 @@ enifed("ember-views/system/utils", ["exports"], function (exports) {
   function getViewBoundingClientRect(view) {
     var range = getViewRange(view);
     return range.getBoundingClientRect();
+  }
+});
+enifed('ember-views/utils/lookup-component', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = lookupComponent;
+  function lookupComponentPair(componentLookup, owner, name, options) {
+    var component = componentLookup.componentFor(name, owner, options);
+    var layout = componentLookup.layoutFor(name, owner, options);
+    return {
+      component: component,
+      layout: layout
+    };
+  }
+
+  function lookupComponent(owner, name, options) {
+    var componentLookup = owner.lookup('component-lookup:main');
+
+    var source = options && options.source;
+
+    if (source) {
+      var localResult = lookupComponentPair(componentLookup, owner, name, options);
+
+      if (localResult.component || localResult.layout) {
+        return localResult;
+      }
+    }
+
+    return lookupComponentPair(componentLookup, owner, name);
   }
 });
 enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-htmlbars/renderer', 'ember-views/views/states', 'htmlbars-runtime', 'require'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberHtmlbarsRenderer, _emberViewsViewsStates, _htmlbarsRuntime, _require) {
