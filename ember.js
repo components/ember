@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8d948623
+ * @version   2.7.0-canary+1be03540
  */
 
 var enifed, requireModule, require, Ember;
@@ -3751,7 +3751,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+8d948623";
+  exports.default = "2.7.0-canary+1be03540";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10761,6 +10761,27 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
     }
   }
 
+  // We must traverse the attributeBindings in reverse keeping track of
+  // what has already been applied. This is essentially refining the concated
+  // properties applying right to left.
+  function applyAttributeBindings(attributeBindings, component, operations) {
+    var seen = [];
+    var i = attributeBindings.length - 1;
+
+    while (i !== -1) {
+      var binding = attributeBindings[i];
+      var parsedMicroSyntax = _emberGlimmerUtilsReferences.AttributeBindingReference.parseMicroSyntax(binding);
+      var prop = parsedMicroSyntax[0];
+
+      if (seen.indexOf(prop) === -1) {
+        seen.push(prop);
+        _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, parsedMicroSyntax, operations);
+      }
+
+      i--;
+    }
+  }
+
   var CurlyComponentSyntax = (function (_StatementSyntax) {
     _inherits(CurlyComponentSyntax, _StatementSyntax);
 
@@ -10918,9 +10939,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
       var classNameBindings = component.classNameBindings;
 
       if (attributeBindings) {
-        attributeBindings.forEach(function (binding) {
-          _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, binding, operations);
-        });
+        applyAttributeBindings(attributeBindings, component, operations);
       }
 
       if (classRef) {
@@ -12135,24 +12154,34 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   var AttributeBindingReference = (function (_CachedReference5) {
     _inherits(AttributeBindingReference, _CachedReference5);
 
-    AttributeBindingReference.apply = function apply(component, microsyntax, operations) {
-      var reference = this.parse(component, microsyntax);
+    AttributeBindingReference.apply = function apply(component, parsedMicroSyntax, operations) {
+      var reference = undefined;
+      var prop = parsedMicroSyntax[0];
+      var attr = undefined;
+
+      if (parsedMicroSyntax.length === 1) {
+        reference = new this(component, prop);
+      } else {
+        attr = parsedMicroSyntax[1];
+        reference = new this(component, prop, attr);
+      }
+
       operations.addAttribute(reference.attributeName, reference);
     };
 
-    AttributeBindingReference.parse = function parse(component, microsyntax) {
+    AttributeBindingReference.parseMicroSyntax = function parseMicroSyntax(microsyntax) {
       var colonIndex = microsyntax.indexOf(':');
 
       if (colonIndex === -1) {
         _emberMetalDebug.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', microsyntax !== 'class');
-        return new this(component, microsyntax);
+        return [microsyntax];
       } else {
         var prop = microsyntax.substring(0, colonIndex);
         var attr = microsyntax.substring(colonIndex + 1);
 
         _emberMetalDebug.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attr !== 'class');
 
-        return new this(component, prop, attr);
+        return [prop, attr];
       }
     };
 

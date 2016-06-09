@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8d948623
+ * @version   2.7.0-canary+1be03540
  */
 
 var enifed, requireModule, require, Ember;
@@ -17648,7 +17648,7 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'id': 'special-sauce' } });
     };
 
-    _class.prototype['@htmlbars attributeBindings are overwritten'] = function htmlbarsAttributeBindingsAreOverwritten() {
+    _class.prototype['@test attributeBindings are overwritten'] = function testAttributeBindingsAreOverwritten() {
       var _this12 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -39838,7 +39838,7 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'id': 'special-sauce' } });
     };
 
-    _class.prototype['@htmlbars attributeBindings are overwritten'] = function htmlbarsAttributeBindingsAreOverwritten() {
+    _class.prototype['@test attributeBindings are overwritten'] = function testAttributeBindingsAreOverwritten() {
       var _this12 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
