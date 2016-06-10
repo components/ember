@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e69ea1e3
+ * @version   2.7.0-canary+3d5c2a9b
  */
 
 var enifed, requireModule, require, Ember;
@@ -36093,7 +36093,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('hello');
     };
 
-    _class2.prototype['@htmlbars it receives the index as the second parameter'] = function htmlbarsItReceivesTheIndexAsTheSecondParameter() {
+    _class2.prototype['@test it receives the index as the second parameter'] = function testItReceivesTheIndexAsTheSecondParameter() {
       var _this2 = this;
 
       this.render('{{#each list as |item index|}}{{index}}. {{item.text}}{{/each}}', {
@@ -56587,7 +56587,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('hello');
     };
 
-    _class2.prototype['@htmlbars it receives the index as the second parameter'] = function htmlbarsItReceivesTheIndexAsTheSecondParameter() {
+    _class2.prototype['@test it receives the index as the second parameter'] = function testItReceivesTheIndexAsTheSecondParameter() {
       var _this2 = this;
 
       this.render('{{#each list as |item index|}}{{index}}. {{item.text}}{{/each}}', {
