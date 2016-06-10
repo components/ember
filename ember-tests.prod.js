@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+93a9aef8
+ * @version   2.7.0-canary+e69ea1e3
  */
 
 var enifed, requireModule, require, Ember;
@@ -84237,7 +84237,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     return wait();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`fillIn` fires `input` and `change` events in the proper order', function () {
+  QUnit.test('`fillIn` fires `input` and `change` events in the proper order', function () {
     expect(1);
 
     var fillIn, visit, andThen, wait;
@@ -84577,7 +84577,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
 });
 // ensure that the helpers are loaded
 // ensure the initializer is setup
-enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-testing/test', 'ember-routing/system/route', 'ember-application/system/application', 'ember-htmlbars-template-compiler', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'ember-application', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberTestingTest, _emberRoutingSystemRoute, _emberApplicationSystemApplication, _emberHtmlbarsTemplateCompiler, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _emberApplication, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-testing/test', 'ember-routing/system/route', 'ember-application/system/application', 'ember-template-compiler', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'ember-application'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberTestingTest, _emberRoutingSystemRoute, _emberApplicationSystemApplication, _emberTemplateCompiler, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _emberApplication) {
   'use strict';
 
   var App, find, visit;
@@ -84587,8 +84587,8 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop
     setup: function () {
       _emberViewsSystemJquery.default('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
       _emberMetalRun_loop.default(function () {
-        _emberTemplatesTemplate_registry.set('people', _emberHtmlbarsTemplateCompiler.compile('<div>{{#each model as |person|}}<div class="name">{{person.firstName}}</div>{{/each}}</div>'));
-        _emberTemplatesTemplate_registry.set('application', _emberHtmlbarsTemplateCompiler.compile('{{outlet}}'));
+        _emberTemplatesTemplate_registry.set('people', _emberTemplateCompiler.compile('<div>{{#each model as |person|}}<div class="name">{{person.firstName}}</div>{{/each}}</div>'));
+        _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('{{outlet}}'));
 
         App = _emberApplicationSystemApplication.default.create({
           rootElement: '#ember-testing'
@@ -84639,7 +84639,7 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop
     }
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('template is bound to empty array of people', function () {
+  QUnit.test('template is bound to empty array of people', function () {
     App.Person.find = function () {
       return _emberRuntimeSystemNative_array.A();
     };
@@ -84650,7 +84650,7 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('template is bound to array of 2 people', function () {
+  QUnit.test('template is bound to array of 2 people', function () {
     App.Person.find = function () {
       var people = _emberRuntimeSystemNative_array.A();
       var first = App.Person.create({ firstName: 'x' });
@@ -84666,7 +84666,7 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('template is again bound to empty array of people', function () {
+  QUnit.test('template is again bound to empty array of people', function () {
     App.Person.find = function () {
       return _emberRuntimeSystemNative_array.A();
     };
@@ -84677,7 +84677,7 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`visit` can be called without advancedReadiness.', function () {
+  QUnit.test('`visit` can be called without advancedReadiness.', function () {
     App.Person.find = function () {
       return _emberRuntimeSystemNative_array.A();
     };
