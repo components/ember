@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5766360c
+ * @version   2.7.0-canary+fa9866bf
  */
 
 var enifed, requireModule, require, Ember;
@@ -3728,7 +3728,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5766360c";
+  exports.default = "2.7.0-canary+fa9866bf";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -4747,16 +4747,6 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     _bootSync: function () {
       if (this._booted) {
         return;
-      }
-
-      if (_emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT && !warnedAboutLegacyViewAddon) {
-
-        warnedAboutLegacyViewAddon = true;
-      }
-
-      if (_emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT && !warnedAboutLegacyControllerAddon) {
-
-        warnedAboutLegacyControllerAddon = true;
       }
 
       // Even though this returns synchronously, we still need to make sure the
@@ -14576,7 +14566,7 @@ enifed("ember-htmlbars/hooks/bind-scope", ["exports"], function (exports) {
 
   function bindScope(env, scope) {}
 });
-enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember-htmlbars/streams/proxy-stream'], function (exports, _emberEnvironment, _emberHtmlbarsStreamsProxyStream) {
+enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-htmlbars/streams/proxy-stream'], function (exports, _emberHtmlbarsStreamsProxyStream) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -14586,14 +14576,6 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-environment', 'ember
   exports.default = bindSelf;
 
   function bindSelf(env, scope, self) {
-    if (self && self.isView) {
-      if (!!_emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-        scope.bindLocal('view', newStream(self, 'view'));
-      }
-      var _selfStream = newStream(self, '');
-      scope.bindSelf(newStream(_selfStream.getKey('context'), ''));
-      return;
-    }
     var selfStream = newStream(self, '');
     scope.bindSelf(selfStream);
   }
@@ -20286,10 +20268,6 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
   function tagNameFor(view) {
     var tagName = view.tagName;
 
-    if (tagName !== null && typeof tagName === 'object' && tagName.isDescriptor) {
-      tagName = _emberMetalProperty_get.get(view, 'tagName');
-    }
-
     if (tagName === null || tagName === undefined) {
       tagName = view._defaultTagName || 'div';
     }
@@ -24212,6 +24190,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/v
 
     return new BackburnerAlias(arguments);
   };
+
   _emberMetalCore.default._Backburner = _backburner.default;
 
   /**

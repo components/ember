@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5766360c
+ * @version   2.7.0-canary+fa9866bf
  */
 
 var enifed, requireModule, require, Ember;
@@ -11870,91 +11870,6 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     equal(_emberRuntimeSystemLazy_load._loaded.application, app);
     _emberMetalRun_loop.default(app, 'destroy');
     equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
-  });
-
-  var originalLegacyViewSupport = _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
-  var originalLegacyControllerSupport = _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
-
-  QUnit.module('Ember.Application - legacy addon deprecation warnings', {
-    setup: function () {
-      _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
-      _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
-
-      originalDebug = _emberMetalDebug.getDebugFunction('debug');
-      originalWarn = _emberMetalDebug.getDebugFunction('warn');
-
-      _emberApplicationSystemApplication._resetLegacyAddonWarnings();
-    },
-
-    teardown: function () {
-      _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = originalLegacyViewSupport;
-      _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = originalLegacyControllerSupport;
-
-      _emberMetalDebug.setDebugFunction('debug', originalDebug);
-      _emberMetalDebug.setDebugFunction('warn', originalWarn);
-
-      if (app) {
-        _emberMetalRun_loop.default(app, 'destroy');
-      }
-    }
-  });
-
-  QUnit.test('it does not warn about the ember-legacy-views addon on first boot when not installed', function () {
-    expectNoDeprecation();
-
-    _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
-
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
-  });
-
-  QUnit.test('it warns about the ember-legacy-views addon on first boot when installed', function () {
-    _emberEnvironment.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
-
-    expectDeprecation(function () {
-      app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
-    }, 'Support for the `ember-legacy-views` addon will end soon, please remove it from your application.');
-
-    _emberMetalRun_loop.default(app, 'destroy');
-
-    // It should not warn again on second boot
-    expectNoDeprecation(function () {
-      app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
-    });
-  });
-
-  QUnit.test('it does not warn about the ember-legacy-controllers addon on first boot when not installed', function () {
-    expectNoDeprecation();
-
-    _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
-
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
-  });
-
-  QUnit.test('it warns about the ember-legacy-controllers addon on first boot when installed', function () {
-    if (EmberDev.runningProdBuild) {
-      ok(true, 'warnings are disabled in prod builds');
-      return;
-    }
-
-    _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = true;
-
-    var warning = undefined;
-    _emberMetalDebug.setDebugFunction('warn', function (message, test) {
-      if (!test) {
-        warning = message;
-      }
-    });
-
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
-
-    equal(warning, 'Support for the `ember-legacy-controllers` has been removed, please remove it from your application.');
-
-    _emberMetalRun_loop.default(app, 'destroy');
-    warning = null;
-
-    // It should not warn again on second boot
-    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create');
-    equal(warning, null);
   });
 });
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerTestsUtilsHelpers) {
@@ -24427,38 +24342,40 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertText('');
     };
 
-    _class7.prototype['@test quoteless class attributes update correctly'] = function testQuotelessClassAttributesUpdateCorrectly() {
+    _class7.prototype['@test can set dynamic href'] = function testCanSetDynamicHref() {
       var _this18 = this;
 
-      this.render('<div class={{if fooBar "foo-bar"}}>hello</div>', {
-        fooBar: true
+      this.render('<a href={{model.url}}>Example</a>', {
+        model: {
+          url: 'http://example.com'
+        }
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://example.com' } });
 
       this.runTask(function () {
         return _this18.rerender();
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://example.com' } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'fooBar', false);
+        return _emberMetalProperty_set.set(_this18.context, 'model.url', 'http://linkedin.com');
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello' });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://linkedin.com' } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'fooBar', true);
+        return _emberMetalProperty_set.set(_this18.context, 'model', { url: 'http://example.com' });
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://example.com' } });
     };
 
-    _class7.prototype['@test quoted class attributes update correctly'] = function testQuotedClassAttributesUpdateCorrectly(assert) {
+    _class7.prototype['@test quoteless class attributes update correctly'] = function testQuotelessClassAttributesUpdateCorrectly() {
       var _this19 = this;
 
-      this.render('<div class="{{if fooBar "foo-bar"}}">hello</div>', {
+      this.render('<div class={{if fooBar "foo-bar"}}>hello</div>', {
         fooBar: true
       });
 
@@ -24474,9 +24391,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
         return _emberMetalProperty_set.set(_this19.context, 'fooBar', false);
       });
 
-      // HTMLBars differs in behavior here as it leaves the empty
-      // class attribute.
-      assert.equal(this.firstChild.className, '');
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this19.context, 'fooBar', true);
@@ -24485,8 +24400,38 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
     };
 
-    _class7.prototype['@test unquoted class attribute can contain multiple classes'] = function testUnquotedClassAttributeCanContainMultipleClasses() {
+    _class7.prototype['@test quoted class attributes update correctly'] = function testQuotedClassAttributesUpdateCorrectly(assert) {
       var _this20 = this;
+
+      this.render('<div class="{{if fooBar "foo-bar"}}">hello</div>', {
+        fooBar: true
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
+
+      this.runTask(function () {
+        return _this20.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'fooBar', false);
+      });
+
+      // HTMLBars differs in behavior here as it leaves the empty
+      // class attribute.
+      assert.equal(this.firstChild.className, '');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'fooBar', true);
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo-bar') } });
+    };
+
+    _class7.prototype['@test unquoted class attribute can contain multiple classes'] = function testUnquotedClassAttributeCanContainMultipleClasses() {
+      var _this21 = this;
 
       this.render('<div class={{model.classes}}>hello</div>', {
         model: {
@@ -24497,58 +24442,28 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'model.classes', 'fizz bizz');
+        return _emberMetalProperty_set.set(_this21.context, 'model.classes', 'fizz bizz');
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fizz bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'model', { classes: 'foo bar baz' });
+        return _emberMetalProperty_set.set(_this21.context, 'model', { classes: 'foo bar baz' });
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar baz') } });
     };
 
     _class7.prototype['@test unquoted class attribute'] = function testUnquotedClassAttribute() {
-      var _this21 = this;
-
-      this.render('<div class={{model.foo}}>hello</div>', {
-        model: {
-          foo: 'foo'
-        }
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
-
-      this.runTask(function () {
-        return _this21.rerender();
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'model.foo', 'fizz');
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fizz') } });
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'model', { foo: 'foo' });
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
-    };
-
-    _class7.prototype['@test quoted class attribute'] = function testQuotedClassAttribute() {
       var _this22 = this;
 
-      this.render('<div class="{{model.foo}}">hello</div>', {
+      this.render('<div class={{model.foo}}>hello</div>', {
         model: {
           foo: 'foo'
         }
@@ -24575,8 +24490,38 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
     };
 
-    _class7.prototype['@test quoted class attribute can contain multiple classes'] = function testQuotedClassAttributeCanContainMultipleClasses() {
+    _class7.prototype['@test quoted class attribute'] = function testQuotedClassAttribute() {
       var _this23 = this;
+
+      this.render('<div class="{{model.foo}}">hello</div>', {
+        model: {
+          foo: 'foo'
+        }
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
+
+      this.runTask(function () {
+        return _this23.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this23.context, 'model.foo', 'fizz');
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fizz') } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this23.context, 'model', { foo: 'foo' });
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo') } });
+    };
+
+    _class7.prototype['@test quoted class attribute can contain multiple classes'] = function testQuotedClassAttributeCanContainMultipleClasses() {
+      var _this24 = this;
 
       this.render('<div class="{{model.classes}}">hello</div>', {
         model: {
@@ -24587,26 +24532,26 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'model.classes', 'fizz bizz');
+        return _emberMetalProperty_set.set(_this24.context, 'model.classes', 'fizz bizz');
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fizz bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'model', { classes: 'foo bar baz' });
+        return _emberMetalProperty_set.set(_this24.context, 'model', { classes: 'foo bar baz' });
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar baz') } });
     };
 
     _class7.prototype['@test class attribute concats bound values'] = function testClassAttributeConcatsBoundValues() {
-      var _this24 = this;
+      var _this25 = this;
 
       this.render('<div class="{{model.foo}} {{model.bar}} {{model.bizz}}">hello</div>', {
         model: {
@@ -24619,25 +24564,25 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar bizz') } });
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this25.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'model.foo', 'fizz');
+        return _emberMetalProperty_set.set(_this25.context, 'model.foo', 'fizz');
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fizz bar bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'model.bar', null);
+        return _emberMetalProperty_set.set(_this25.context, 'model.bar', null);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fizz bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'model', {
+        return _emberMetalProperty_set.set(_this25.context, 'model', {
           foo: 'foo',
           bar: 'bar',
           bizz: 'bizz'
@@ -24648,7 +24593,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     };
 
     _class7.prototype['@test class attribute accepts nested helpers, and updates'] = function testClassAttributeAcceptsNestedHelpersAndUpdates() {
-      var _this25 = this;
+      var _this26 = this;
 
       this.render('<div class="{{if model.hasSize model.size}} {{if model.hasShape model.shape}}">hello</div>', {
         model: {
@@ -24662,25 +24607,25 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('large') } });
 
       this.runTask(function () {
-        return _this25.rerender();
+        return _this26.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('large') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this25.context, 'model.hasShape', true);
+        return _emberMetalProperty_set.set(_this26.context, 'model.hasShape', true);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('large round') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this25.context, 'model.hasSize', false);
+        return _emberMetalProperty_set.set(_this26.context, 'model.hasSize', false);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('round') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this25.context, 'model', {
+        return _emberMetalProperty_set.set(_this26.context, 'model', {
           size: 'large',
           hasSize: true,
           hasShape: false,
@@ -24692,7 +24637,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     };
 
     _class7.prototype['@test Multiple dynamic classes'] = function testMultipleDynamicClasses() {
-      var _this26 = this;
+      var _this27 = this;
 
       this.render('<div class="{{model.foo}} {{model.bar}} {{model.fizz}} {{model.baz}}">hello</div>', {
         model: {
@@ -24706,20 +24651,20 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar fizz baz') } });
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this27.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo bar fizz baz') } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'model.foo', null);
-        _emberMetalProperty_set.set(_this26.context, 'model.fizz', null);
+        _emberMetalProperty_set.set(_this27.context, 'model.foo', null);
+        _emberMetalProperty_set.set(_this27.context, 'model.fizz', null);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('bar baz') } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'model', {
+        _emberMetalProperty_set.set(_this27.context, 'model', {
           foo: 'foo',
           bar: 'bar',
           fizz: 'fizz',
@@ -24731,7 +24676,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     };
 
     _class7.prototype['@test classes are ordered: See issue #9912'] = function testClassesAreOrderedSeeIssue9912() {
-      var _this27 = this;
+      var _this28 = this;
 
       this.render('<div class="{{model.foo}}  static   {{model.bar}}">hello</div>', {
         model: {
@@ -24743,19 +24688,19 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': 'foo  static   bar' } });
 
       this.runTask(function () {
-        return _this27.rerender();
+        return _this28.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': 'foo  static   bar' } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this27.context, 'model.bar', null);
+        _emberMetalProperty_set.set(_this28.context, 'model.bar', null);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': 'foo  static   ' } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this27.context, 'model', {
+        _emberMetalProperty_set.set(_this28.context, 'model', {
           foo: 'foo',
           bar: 'bar'
         });
@@ -32211,6 +32156,161 @@ enifed('ember-glimmer/tests/integration/mutable-binding-test', ['exports', 'embe
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    ']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('SVG element tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars unquoted viewBox property is output'] = function htmlbarsUnquotedViewBoxPropertyIsOutput(assert) {
+      var _this = this;
+
+      var viewBoxString = '0 0 100 100';
+
+      this.render('<div><svg viewBox={{model.viewBoxString}}></svg></div>', {
+        model: {
+          viewBoxString: viewBoxString
+        }
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'model.viewBoxString', null);
+      });
+
+      assert.equal(this.firstChild.getAttribute('svg'), null);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'model', { viewBoxString: viewBoxString });
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+    };
+
+    _class.prototype['@htmlbars quoted viewBox property is output'] = function htmlbarsQuotedViewBoxPropertyIsOutput(assert) {
+      var _this2 = this;
+
+      var viewBoxString = '0 0 100 100';
+
+      this.render('<div><svg viewBox="{{model.viewBoxString}}"></svg></div>', {
+        model: {
+          viewBoxString: viewBoxString
+        }
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'model.viewBoxString', null);
+      });
+
+      assert.equal(this.firstChild.getAttribute('svg'), null);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'model', { viewBoxString: viewBoxString });
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+    };
+
+    _class.prototype['@htmlbars quoted viewBox property is concat'] = function htmlbarsQuotedViewBoxPropertyIsConcat() {
+      var _this3 = this;
+
+      var viewBoxString = '100 100';
+
+      this.render('<div><svg viewBox="0 0 {{model.viewBoxString}}"></svg></div>', {
+        model: {
+          viewBoxString: viewBoxString
+        }
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'model.viewBoxString', '200 200');
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'model', { viewBoxString: viewBoxString });
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
+    };
+
+    _class.prototype['@htmlbars class is output'] = function htmlbarsClassIsOutput() {
+      var _this4 = this;
+
+      this.render('<div><svg class=\'{{model.color}} tall\'></svg></div>', {
+        model: {
+          color: 'blue'
+        }
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model.color', 'yellow');
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model', { color: 'blue' });
+      });
+
+      this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -33972,6 +34072,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
     };
 
+    TestCase.prototype.assertInnerHTML = function assertInnerHTML(html) {
+      _emberGlimmerTestsUtilsTestHelpers.equalInnerHTML(this.element, html);
+    };
+
     TestCase.prototype.assertHTML = function assertHTML(html) {
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
@@ -35558,6 +35662,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
 enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
   'use strict';
 
+  exports.equalInnerHTML = equalInnerHTML;
   exports.equalTokens = equalTokens;
   exports.equalsElement = equalsElement;
   exports.regex = regex;
@@ -35576,6 +35681,37 @@ enifed('ember-glimmer/tests/utils/test-helpers', ['exports', 'simple-html-tokeni
         html: containerOrHTML.innerHTML
       };
     }
+  }
+
+  // detect side-effects of cloning svg elements in IE9-11
+  var ieSVGInnerHTML = (function () {
+    if (!document.createElementNS) {
+      return false;
+    }
+    var div = document.createElement('div');
+    var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    div.appendChild(node);
+    var clone = div.cloneNode(true);
+    return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
+  })();
+
+  function normalizeInnerHTML(actualHTML) {
+    if (ieSVGInnerHTML) {
+      // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+      // drop namespace attribute
+      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
+      // replace self-closing elements
+      actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
+        return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
+      });
+    }
+
+    return actualHTML;
+  }
+
+  function equalInnerHTML(fragment, html) {
+    var actualHTML = normalizeInnerHTML(fragment.innerHTML);
+    QUnit.push(actualHTML === html, actualHTML, html);
   }
 
   function normalizeTokens(tokens) {
@@ -35798,664 +35934,6 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
   var engineName = 'Glimmer';
   exports.engineName = engineName;
 });
-enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers) {
-  'use strict';
-
-  var view;
-
-  function appendView(view) {
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-  }
-
-  QUnit.module('ember-htmlbars: boolean attribute', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(view, view.destroy);
-      }
-    }
-  });
-
-  QUnit.test('disabled property can be set true', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { isDisabled: true },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.hasAttribute('disabled'), true, 'attribute is output');
-    equal(view.element.firstChild.disabled, true, 'boolean property is set true');
-  });
-
-  QUnit.test('disabled property can be set false with a blank string', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { isDisabled: '' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.hasAttribute('disabled'), false, 'attribute is not output');
-    equal(view.element.firstChild.disabled, false, 'boolean property is set false');
-  });
-
-  QUnit.test('disabled property can be set false', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { isDisabled: false },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<input>', 'attribute is not output');
-    equal(view.element.firstChild.disabled, false, 'boolean property is set false');
-  });
-
-  QUnit.test('disabled property can be set true with a string', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { isDisabled: 'oh, no a string' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled={{isDisabled}}>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.hasAttribute('disabled'), true, 'attribute is output');
-    equal(view.element.firstChild.disabled, true, 'boolean property is set true');
-  });
-
-  QUnit.test('disabled attribute turns a value to a string', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { isDisabled: false },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled=\'{{isDisabled}}\'>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.hasAttribute('disabled'), true, 'attribute is output');
-    equal(view.element.firstChild.disabled, true, 'boolean property is set true');
-  });
-
-  QUnit.test('disabled attribute preserves a blank string value', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { isDisabled: '' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input disabled=\'{{isDisabled}}\'>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<input>', 'attribute is not output');
-    equal(view.element.firstChild.disabled, false, 'boolean property is set false');
-  });
-});
-enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
-  'use strict';
-
-  var view, originalSetAttribute, setAttributeCalls, renderer;
-
-  QUnit.module('ember-htmlbars: data attribute', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('property is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: 'erik' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'attribute is output');
-  });
-
-  QUnit.test('property set before didInsertElement', function () {
-    var matchingElement;
-    view = _emberViewsViewsView.default.create({
-      didInsertElement: function () {
-        matchingElement = this.$('div[data-name=erik]');
-      },
-      context: { name: 'erik' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'attribute is output');
-    equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
-  });
-
-  QUnit.test('quoted attributes are concatenated', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { firstName: 'max', lastName: 'jackson' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name=\'{{firstName}} {{lastName}}\'>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="max jackson">Hi!</div>', 'attribute is output');
-  });
-
-  QUnit.test('quoted attributes are updated when changed', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { firstName: 'max', lastName: 'jackson' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name=\'{{firstName}} {{lastName}}\'>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="max jackson">Hi!</div>', 'precond - attribute is output');
-
-    _emberMetalRun_loop.default(view, view.set, 'context.firstName', 'james');
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="james jackson">Hi!</div>', 'attribute is output');
-  });
-
-  QUnit.test('quoted attributes are not removed when value is null', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { firstName: 'max', lastName: 'jackson' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name=\'{{firstName}}\'>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.getAttribute('data-name'), 'max', 'precond - attribute is output');
-
-    _emberMetalRun_loop.default(view, view.set, 'context.firstName', null);
-
-    equal(view.element.firstChild.getAttribute('data-name'), '', 'attribute is output');
-  });
-
-  QUnit.test('unquoted attributes are removed when value is null', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { firstName: 'max' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{firstName}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.getAttribute('data-name'), 'max', 'precond - attribute is output');
-
-    _emberMetalRun_loop.default(view, view.set, 'context.firstName', null);
-
-    ok(!view.element.firstChild.hasAttribute('data-name'), 'attribute is removed output');
-  });
-
-  QUnit.test('unquoted attributes that are null are not added', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { firstName: null },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{firstName}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div>Hi!</div>', 'attribute is not present');
-  });
-
-  QUnit.test('unquoted attributes are added when changing from null', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { firstName: null },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{firstName}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div>Hi!</div>', 'precond - attribute is not present');
-
-    _emberMetalRun_loop.default(view, view.set, 'context.firstName', 'max');
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="max">Hi!</div>', 'attribute is added output');
-  });
-
-  QUnit.test('property value is directly added to attribute', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: '"" data-foo="blah"' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.getAttribute('data-name'), '"" data-foo="blah"', 'attribute is output');
-  });
-
-  QUnit.test('path is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: { firstName: 'erik' } },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name.firstName}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'attribute is output');
-  });
-
-  QUnit.test('changed property updates', function () {
-    var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'precond - attribute is output');
-
-    _emberMetalRun_loop.default(context, context.set, 'name', 'mmun');
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', 'attribute is updated output');
-  });
-
-  QUnit.test('updates are scheduled in the render queue', function () {
-    expect(4);
-
-    var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'precond - attribute is output');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalRun_loop.default.schedule('render', function () {
-        _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'precond - attribute is not updated sync');
-      });
-
-      context.set('name', 'mmun');
-
-      _emberMetalRun_loop.default.schedule('render', function () {
-        _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', 'attribute is updated output');
-      });
-    });
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', 'attribute is updated output');
-  });
-
-  QUnit.test('updates fail silently after an element is destroyed', function () {
-    var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
-    view = _emberViewsViewsView.default.create({
-      context: context,
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', 'precond - attribute is output');
-
-    _emberMetalRun_loop.default(function () {
-      context.set('name', 'mmun');
-      _emberRuntimeTestsUtils.runDestroy(view);
-    });
-  });
-
-  QUnit.module('ember-htmlbars: {{attribute}} helper -- setAttribute', {
-    setup: function () {
-      renderer = _emberHtmlbarsRenderer.InteractiveRenderer.create({ dom: _emberHtmlbarsEnv.domHelper });
-
-      originalSetAttribute = _emberHtmlbarsEnv.domHelper.setAttribute;
-      _emberHtmlbarsEnv.domHelper.setAttribute = function (element, name, value) {
-        if (name.substr(0, 5) === 'data-') {
-          setAttributeCalls.push([name, value]);
-        }
-
-        originalSetAttribute.call(_emberHtmlbarsEnv.domHelper, element, name, value);
-      };
-
-      setAttributeCalls = [];
-    },
-
-    teardown: function () {
-      _emberHtmlbarsEnv.domHelper.setAttribute = originalSetAttribute;
-
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('calls setAttribute for new values', function () {
-    var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
-    view = _emberViewsViewsView.default.create({
-      renderer: renderer,
-      context: context,
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberMetalRun_loop.default(context, context.set, 'name', 'mmun');
-
-    var expected = [['data-name', 'erik'], ['data-name', 'mmun']];
-
-    deepEqual(setAttributeCalls, expected);
-  });
-
-  QUnit.test('does not call setAttribute if the same value is set', function () {
-    var context = _emberRuntimeSystemObject.default.create({ name: 'erik' });
-    view = _emberViewsViewsView.default.create({
-      renderer: renderer,
-      context: context,
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<div data-name={{name}}>Hi!</div>')
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberMetalRun_loop.default(function () {
-      context.set('name', 'mmun');
-      context.set('name', 'erik');
-    });
-
-    var expected = [['data-name', 'erik']];
-
-    deepEqual(setAttributeCalls, expected);
-  });
-});
-enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers) {
-  'use strict';
-
-  var view;
-
-  function appendView(view) {
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-  }
-
-  QUnit.module('ember-htmlbars: href attribute', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(view, view.destroy);
-      }
-    }
-  });
-
-  QUnit.test('href is set', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { url: 'http://example.com' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<a href={{url}}></a>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<a href="http://example.com"></a>', 'attribute is output');
-  });
-});
-enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
-  'use strict';
-
-  var view;
-
-  function appendView(view) {
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-  }
-
-  function canSetFalsyMaxLength() {
-    var input = document.createElement('input');
-    input.maxLength = 0;
-
-    return input.maxLength === 0;
-  }
-
-  QUnit.module('ember-htmlbars: property', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(view, view.destroy);
-      }
-    }
-  });
-
-  QUnit.test('maxlength sets the property and attribute', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { length: 5 },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input maxlength={{length}}>')
-    });
-
-    appendView(view);
-    equal(view.element.firstChild.maxLength, 5);
-
-    _emberMetalRun_loop.default(view, view.set, 'context.length', 1);
-    equal(view.element.firstChild.maxLength, 1);
-  });
-
-  QUnit.test('quoted maxlength sets the attribute and is reflected as a property', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { length: 5 },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input maxlength=\'{{length}}\'>')
-    });
-
-    appendView(view);
-    equal(view.element.firstChild.maxLength, '5');
-
-    if (canSetFalsyMaxLength()) {
-      _emberMetalRun_loop.default(view, view.set, 'context.length', null);
-      equal(view.element.firstChild.maxLength, document.createElement('input').maxLength);
-    } else {
-      _emberMetalRun_loop.default(view, view.set, 'context.length', 1);
-      equal(view.element.firstChild.maxLength, 1);
-    }
-  });
-
-  QUnit.test('array value can be set as property', function () {
-    view = _emberViewsViewsView.default.create({
-      context: {},
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value={{items}}>')
-    });
-
-    appendView(view);
-
-    _emberMetalRun_loop.default(view, view.set, 'context.items', [4, 5]);
-    ok(true, 'no legacy assertion prohibited setting an array');
-  });
-});
-enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-environment'], function (exports, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberEnvironment) {
-  /* jshint scripturl:true */
-
-  'use strict';
-
-  var view;
-
-  QUnit.module('ember-htmlbars: sanitized attribute', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  // jscs:disable disallowTrailingWhitespace
-  var badTags = [{ tag: 'a', attr: 'href',
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<a href={{url}}></a>'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<a href=\'{{url}}\'></a>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<a href=\'{{protocol}}{{path}}\'></a>') }, { tag: 'base', attr: 'href',
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<base href={{url}} />'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<base href=\'{{url}}\'/>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<base href=\'{{protocol}}{{path}}\'/>') }, { tag: 'embed', attr: 'src',
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<embed src={{url}} />'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<embed src=\'{{url}}\'/>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<embed src=\'{{protocol}}{{path}}\'/>') }, { tag: 'body', attr: 'background',
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<body background={{url}}></body>'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<body background=\'{{url}}\'></body>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<body background=\'{{protocol}}{{path}}\'></body>') }, { tag: 'link', attr: 'href',
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<link href={{url}}>'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<link href=\'{{url}}\'>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<link href=\'{{protocol}}{{path}}\'>') }, { tag: 'img', attr: 'src',
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<img src={{url}}>'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<img src=\'{{url}}\'>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<img src=\'{{protocol}}{{path}}\'>') }, { tag: 'iframe', attr: 'src',
-    // Setting an iframe with a bad protocol results in the browser
-    // being redirected. in IE8. Skip the iframe tests on that platform.
-    skip: _emberEnvironment.environment.hasDOM && document.documentMode && document.documentMode <= 8,
-    unquotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<iframe src={{url}}></iframe>'),
-    quotedTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<iframe src=\'{{url}}\'></iframe>'),
-    multipartTemplate: _emberHtmlbarsTestsUtilsHelpers.compile('<iframe src=\'{{protocol}}{{path}}\'></iframe>') }];
-
-  for (var i = 0; i < badTags.length; i++) {
-    /* jshint -W083 */
-    (function () {
-      var subject = badTags[i];
-
-      if (subject.skip) {
-        return;
-      }
-
-      QUnit.test(subject.tag + ' ' + subject.attr + ' is sanitized when using blacklisted protocol', function () {
-        view = _emberViewsViewsView.default.create({
-          context: { url: 'javascript://example.com' },
-          template: subject.unquotedTemplate
-        });
-
-        view.createElement();
-
-        equal(view.element.firstChild.getAttribute(subject.attr), 'unsafe:javascript://example.com', 'attribute is output');
-      });
-
-      QUnit.test(subject.tag + ' ' + subject.attr + ' is sanitized when using quoted non-whitelisted protocol', function () {
-        view = _emberViewsViewsView.default.create({
-          context: { url: 'javascript://example.com' },
-          template: subject.quotedTemplate
-        });
-
-        view.createElement();
-
-        equal(view.element.firstChild.getAttribute(subject.attr), 'unsafe:javascript://example.com', 'attribute is output');
-      });
-
-      QUnit.test(subject.tag + ' ' + subject.attr + ' is not sanitized when using non-whitelisted protocol with a SafeString', function () {
-        view = _emberViewsViewsView.default.create({
-          context: { url: new _emberHtmlbarsUtilsString.SafeString('javascript://example.com') },
-          template: subject.unquotedTemplate
-        });
-
-        try {
-          view.createElement();
-
-          equal(view.element.firstChild.getAttribute(subject.attr), 'javascript://example.com', 'attribute is output');
-        } catch (e) {
-          // IE does not allow javascript: to be set on img src
-          ok(true, 'caught exception ' + e);
-        }
-      });
-
-      QUnit.test(subject.tag + ' ' + subject.attr + ' is sanitized when using quoted+concat non-whitelisted protocol', function () {
-        view = _emberViewsViewsView.default.create({
-          context: { protocol: 'javascript:', path: '//example.com' },
-          template: subject.multipartTemplate
-        });
-        view.createElement();
-
-        equal(view.element.firstChild.getAttribute(subject.attr), 'unsafe:javascript://example.com', 'attribute is output');
-      });
-    })();
-    /* jshint +W083 */
-  }
-  // jscs:enable disallowTrailingWhitespace
-});
-enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _htmlbarsTestHelpers) {
-  'use strict';
-
-  var view;
-
-  function appendView(view) {
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-  }
-
-  QUnit.module('ember-htmlbars: svg attribute', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(view, view.destroy);
-      }
-    }
-  });
-
-  QUnit.test('unquoted viewBox property is output', function () {
-    var viewBoxString = '0 0 100 100';
-    view = _emberViewsViewsView.default.create({
-      context: { viewBoxString: viewBoxString },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<svg viewBox={{viewBoxString}}></svg>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg viewBox="' + viewBoxString + '"></svg>', 'attribute is output');
-
-    _emberMetalRun_loop.default(view, view.set, 'context.viewBoxString', null);
-    equal(view.element.getAttribute('svg'), null, 'attribute is removed');
-  });
-
-  QUnit.test('quoted viewBox property is output', function () {
-    var viewBoxString = '0 0 100 100';
-    view = _emberViewsViewsView.default.create({
-      context: { viewBoxString: viewBoxString },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<svg viewBox=\'{{viewBoxString}}\'></svg>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg viewBox="' + viewBoxString + '"></svg>', 'attribute is output');
-  });
-
-  QUnit.test('quoted viewBox property is concat', function () {
-    var viewBoxString = '100 100';
-    view = _emberViewsViewsView.default.create({
-      context: { viewBoxString: viewBoxString },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<svg viewBox=\'0 0 {{viewBoxString}}\'></svg>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg viewBox="0 0 ' + viewBoxString + '"></svg>', 'attribute is output');
-
-    var newViewBoxString = '200 200';
-    _emberMetalRun_loop.default(view, view.set, 'context.viewBoxString', newViewBoxString);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg viewBox="0 0 ' + newViewBoxString + '"></svg>', 'attribute is output');
-  });
-
-  QUnit.test('class is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { color: 'blue' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<svg class=\'{{color}} tall\'></svg>')
-    });
-    appendView(view);
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg class="blue tall"></svg>', 'attribute is output');
-
-    _emberMetalRun_loop.default(view, view.set, 'context.color', 'red');
-
-    _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg class="red tall"></svg>', 'attribute is output');
-  });
-});
-enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
-  'use strict';
-
-  var view;
-
-  function appendView(view) {
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-  }
-
-  QUnit.module('ember-htmlbars: value attribute', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(view, view.destroy);
-      }
-    }
-  });
-
-  QUnit.test('property is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: 'rick' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value={{name}}>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.tagName, 'INPUT', 'input element is created');
-    equal(view.element.firstChild.value, 'rick', 'property is set true');
-  });
-
-  QUnit.test('string property is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: 'rick' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value=\'{{name}}\'>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.tagName, 'INPUT', 'input element is created');
-    equal(view.element.firstChild.value, 'rick', 'property is set true');
-  });
-
-  QUnit.test('blank property is output', function () {
-    view = _emberViewsViewsView.default.create({
-      context: { name: '' },
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('<input value={{name}}>')
-    });
-    appendView(view);
-
-    equal(view.element.firstChild.tagName, 'INPUT', 'input element is created');
-    equal(view.element.firstChild.value, '', 'property is set true');
-  });
-});
 enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-htmlbars/component', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberHtmlbarsComponent, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils) {
   /* globals EmberDev */
 
@@ -36514,7 +35992,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
 enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
-  var owner, view;
+  var owner, view, component;
 
   QUnit.module('ember-htmlbars: link-to helper', {
     setup: function () {
@@ -36564,43 +36042,38 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('re-renders when title changes', function () {
-    var _EmberView$create2;
+    var _Component$create;
 
     var template = '{{link-to title routeName}}';
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.controller = {
-      title: 'foo',
-      routeName: 'index'
-    }, _EmberView$create2.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create2));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create = {}, _Component$create[_containerOwner.OWNER] = owner, _Component$create.title = 'foo', _Component$create.routeName = 'index', _Component$create.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create));
 
-    equal(view.$().text(), 'foo');
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    equal(component.$().text(), 'foo');
 
     _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'controller.title', 'bar');
+      _emberMetalProperty_set.set(component, 'title', 'bar');
     });
 
-    equal(view.$().text(), 'bar');
+    equal(component.$().text(), 'bar');
   });
 
   QUnit.test('can read bound title', function () {
-    var _EmberView$create3;
+    var _Component$create2;
 
     var template = '{{link-to title routeName}}';
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.controller = {
-      title: 'foo',
-      routeName: 'index'
-    }, _EmberView$create3.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create3));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create2 = {}, _Component$create2[_containerOwner.OWNER] = owner, _Component$create2.title = 'foo', _Component$create2.routeName = 'index', _Component$create2.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create2));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$().text(), 'foo');
+    equal(component.$().text(), 'foo');
   });
 
   QUnit.test('escaped inline form (double curlies) escapes link title', function () {
-    var _EmberView$create4;
+    var _EmberView$create2;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to view.title "index"}}'), _EmberView$create4));
+    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.title = '<b>blah</b>', _EmberView$create2.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to view.title "index"}}'), _EmberView$create2));
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -36608,9 +36081,9 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('escaped inline form with (-html-safe) does not escape link title', function () {
-    var _EmberView$create5;
+    var _EmberView$create3;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.title = '<b>blah</b>', _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create5));
+    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.title = '<b>blah</b>', _EmberView$create3.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create3));
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -36618,9 +36091,9 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('unescaped inline form (triple curlies) does not escape link title', function () {
-    var _EmberView$create6;
+    var _EmberView$create4;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = '<b>blah</b>', _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{{link-to view.title "index"}}}'), _EmberView$create6));
+    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{{link-to view.title "index"}}}'), _EmberView$create4));
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -36628,13 +36101,13 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('unwraps controllers', function () {
-    var _EmberView$create7;
+    var _EmberView$create5;
 
     var template = '{{#link-to \'index\' view.otherController}}Text{{/link-to}}';
 
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.otherController = _emberRuntimeControllersController.default.create({
+    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.otherController = _emberRuntimeControllersController.default.create({
       model: 'foo'
-    }), _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create7));
+    }), _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create5));
 
     expectDeprecation(function () {
       _emberRuntimeTestsUtils.runAppend(view);
@@ -36644,9 +36117,9 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('able to safely extend the built-in component and use the normal path', function () {
-    var _EmberView$create8;
+    var _EmberView$create6;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = owner, _EmberView$create8.title = 'my custom link-to component', _EmberView$create8.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create8));
+    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = 'my custom link-to component', _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create6));
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -36654,9 +36127,9 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
-    var _EmberView$create9;
+    var _EmberView$create7;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = owner, _EmberView$create9.title = 'my custom link-to component', _EmberView$create9.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{custom-link-to view.title \'index\'}}'), _EmberView$create9));
+    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.title = 'my custom link-to component', _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{custom-link-to view.title \'index\'}}'), _EmberView$create7));
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -36874,7 +36347,7 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
     };
   }
 });
-enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/helpers', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-runtime/tests/utils', 'container/owner', 'ember-templates/template_registry'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsHelpers, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberRuntimeTestsUtils, _containerOwner, _emberTemplatesTemplate_registry) {
+enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/helpers', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-runtime/tests/utils', 'container/owner', 'ember-templates/template_registry'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsHelpers, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberRuntimeTestsUtils, _containerOwner, _emberTemplatesTemplate_registry) {
   'use strict';
 
   function runSet(object, key, value) {
@@ -36883,7 +36356,6 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     });
   }
 
-  var ORIGINAL_LEGACY_CONTROLLER_FLAG = _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
   var view, appInstance;
 
   QUnit.module('ember-htmlbars: {{render}} helper', {
@@ -36892,7 +36364,6 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     },
 
     teardown: function () {
-      _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = ORIGINAL_LEGACY_CONTROLLER_FLAG;
       _emberRuntimeTestsUtils.runDestroy(appInstance);
       _emberRuntimeTestsUtils.runDestroy(view);
       _emberTemplatesTemplate_registry.setTemplates({});
@@ -36963,23 +36434,16 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should render given template with a supplied model', function () {
-    var _Controller$create;
-
     var template = '<h1>HI</h1>{{render \'post\' post}}';
+    var component;
     var post = {
       title: 'Rails is omakase'
     };
 
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post: post
-    });
-
-    var controller = Controller.create((_Controller$create = {}, _Controller$create[_containerOwner.OWNER] = appInstance, _Controller$create));
-
     expectDeprecation(function () {
-      var _EmberView$create5;
+      var _Component$create;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create5));
+      component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create = {}, _Component$create[_containerOwner.OWNER] = appInstance, _Component$create.post = post, _Component$create.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var postController;
@@ -36993,14 +36457,14 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
 
     _emberTemplatesTemplate_registry.set('post', _emberHtmlbarsTestsUtilsHelpers.compile('<p>{{model.title}}</p>'));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$().text(), 'HIRails is omakase');
+    equal(component.$().text(), 'HIRails is omakase');
     equal(postController.get('model'), post);
 
-    runSet(controller, 'post', { title: 'Rails is unagi' });
+    runSet(component, 'post', { title: 'Rails is unagi' });
 
-    equal(view.$().text(), 'HIRails is unagi');
+    equal(component.$().text(), 'HIRails is unagi');
     deepEqual(postController.get('model'), { title: 'Rails is unagi' });
   });
 
@@ -37014,9 +36478,9 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     var controller = _emberRuntimeControllersController.default.create((_EmberController$create = {}, _EmberController$create[_containerOwner.OWNER] = appInstance, _EmberController$create.post = post, _EmberController$create));
 
     expectDeprecation(function () {
-      var _EmberView$create6;
+      var _EmberView$create5;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create6));
+      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create5));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -37035,15 +36499,15 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
-    var _Controller$create2, _EmberView$create7;
+    var _Controller$create, _EmberView$create6;
 
     var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create2 = {}, _Controller$create2[_containerOwner.OWNER] = appInstance, _Controller$create2));
+    var controller = Controller.create((_Controller$create = {}, _Controller$create[_containerOwner.OWNER] = appInstance, _Controller$create));
 
     appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create7));
+    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create6));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('<p>BYE</p>'));
 
@@ -37053,6 +36517,37 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should render with given controller', function () {
+    var _Controller$create2, _EmberView$create7;
+
+    var template = '{{render "home" controller="posts"}}';
+    var Controller = _emberRuntimeControllersController.default.extend();
+    var model = {};
+    var controller = Controller.create((_Controller$create2 = {}, _Controller$create2[_containerOwner.OWNER] = appInstance, _Controller$create2));
+    var id = 0;
+
+    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.uniqueId = id++;
+        this.set('model', model);
+      }
+    }));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create7));
+
+    _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var renderedController = appInstance.lookup('controller:posts');
+    var uniqueId = renderedController.get('uniqueId');
+    var renderedModel = renderedController.get('model');
+    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
+    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
+    equal(renderedModel, model, 'rendered with model on controller');
+  });
+
+  QUnit.test('{{render}} helper should rerender with given controller', function () {
     var _Controller$create3, _EmberView$create8;
 
     var template = '{{render "home" controller="posts"}}';
@@ -37074,37 +36569,6 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
 
     _emberRuntimeTestsUtils.runAppend(view);
-
-    var renderedController = appInstance.lookup('controller:posts');
-    var uniqueId = renderedController.get('uniqueId');
-    var renderedModel = renderedController.get('model');
-    equal(uniqueId, 0, 'precond - first uniqueId is used for singleton');
-    equal(uniqueId, view.$().html(), 'rendered with singleton controller');
-    equal(renderedModel, model, 'rendered with model on controller');
-  });
-
-  QUnit.test('{{render}} helper should rerender with given controller', function () {
-    var _Controller$create4, _EmberView$create9;
-
-    var template = '{{render "home" controller="posts"}}';
-    var Controller = _emberRuntimeControllersController.default.extend();
-    var model = {};
-    var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
-    var id = 0;
-
-    appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        this.uniqueId = id++;
-        this.set('model', model);
-      }
-    }));
-
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create9));
-
-    _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
-
-    _emberRuntimeTestsUtils.runAppend(view);
     _emberMetalRun_loop.default(function () {
       view.rerender();
     });
@@ -37119,13 +36583,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should render a template without a model only once', function () {
-    var _Controller$create5, _EmberView$create10;
+    var _Controller$create4, _EmberView$create9;
 
     var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
+    var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create10));
+    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create9));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('<p>BYE</p>'));
 
@@ -37135,8 +36599,6 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should render templates with models multiple times', function () {
-    var _Controller$create6;
-
     var template = '<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}';
     var post1 = {
       title: 'Me first'
@@ -37144,21 +36606,16 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     var post2 = {
       title: 'Then me'
     };
-
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post1: post1,
-      post2: post2
-    });
-
-    var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
+    var component = undefined;
 
     expectDeprecation(function () {
-      var _EmberView$create11;
+      var _Component$create2;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create11));
+      component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create2 = {}, _Component$create2[_containerOwner.OWNER] = appInstance, _Component$create2.post1 = post1, _Component$create2.post2 = post2, _Component$create2.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create2));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
-    var postController1, postController2;
+    var postController1 = undefined,
+        postController2 = undefined;
     var PostController = _emberRuntimeControllersController.default.extend({
       init: function () {
         this._super.apply(this, arguments);
@@ -37173,20 +36630,20 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
 
     _emberTemplatesTemplate_registry.set('post', _emberHtmlbarsTestsUtilsHelpers.compile('<p>{{model.title}}</p>'));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    ok(view.$().text().match(/^HI ?Me first ?Then me$/));
+    ok(component.$().text().match(/^HI ?Me first ?Then me$/));
     equal(postController1.get('model'), post1);
     equal(postController2.get('model'), post2);
 
-    runSet(controller, 'post1', { title: 'I am new' });
+    runSet(component, 'post1', { title: 'I am new' });
 
-    ok(view.$().text().match(/^HI ?I am new ?Then me$/));
+    ok(component.$().text().match(/^HI ?I am new ?Then me$/));
     deepEqual(postController1.get('model'), { title: 'I am new' });
   });
 
   QUnit.test('{{render}} helper should not leak controllers', function () {
-    var _Controller$create7;
+    var _Controller$create5;
 
     var template = '<h1>HI</h1> {{render \'post\' post1}}';
     var post1 = {
@@ -37197,12 +36654,12 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
       post1: post1
     });
 
-    var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
+    var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
 
     expectDeprecation(function () {
-      var _EmberView$create12;
+      var _EmberView$create10;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create12));
+      view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create10));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var postController;
@@ -37224,16 +36681,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should not treat invocations with falsy contexts as context-less', function () {
-    var _EmberController$create2;
-
     var template = '<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}';
-
-    var controller = _emberRuntimeControllersController.default.create((_EmberController$create2 = {}, _EmberController$create2[_containerOwner.OWNER] = appInstance, _EmberController$create2.zero = false, _EmberController$create2));
+    var component = undefined;
 
     expectDeprecation(function () {
-      var _EmberView$create13;
+      var _Component$create3;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create13));
+      component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create3 = {}, _Component$create3[_containerOwner.OWNER] = appInstance, _Component$create3.zero = false, _Component$create3.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create3));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var postController1, postController2;
@@ -37251,34 +36705,28 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
 
     _emberTemplatesTemplate_registry.set('post', _emberHtmlbarsTestsUtilsHelpers.compile('<p>{{#unless model}}NOTHING{{/unless}}</p>'));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    ok(view.$().text().match(/^HI ?NOTHING ?NOTHING$/));
+    ok(component.$().text().match(/^HI ?NOTHING ?NOTHING$/));
     equal(postController1.get('model'), 0);
     equal(postController2.get('model'), undefined);
   });
 
   QUnit.test('{{render}} helper should render templates both with and without models', function () {
-    var _Controller$create8;
-
     var template = '<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}';
     var post = {
       title: 'Rails is omakase'
     };
-
-    var Controller = _emberRuntimeControllersController.default.extend({
-      post: post
-    });
-
-    var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
+    var component = undefined;
 
     expectDeprecation(function () {
-      var _EmberView$create14;
+      var _Component$create4;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.controller = controller, _EmberView$create14.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create14));
+      component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create4 = {}, _Component$create4[_containerOwner.OWNER] = appInstance, _Component$create4.post = post, _Component$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create4));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
-    var postController1, postController2;
+    var postController1 = undefined,
+        postController2 = undefined;
     var PostController = _emberRuntimeControllersController.default.extend({
       init: function () {
         this._super.apply(this, arguments);
@@ -37293,24 +36741,24 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
 
     _emberTemplatesTemplate_registry.set('post', _emberHtmlbarsTestsUtilsHelpers.compile('<p>Title:{{model.title}}</p>'));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    ok(view.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
+    ok(component.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
     equal(postController1.get('model'), null);
     equal(postController2.get('model'), post);
 
-    runSet(controller, 'post', { title: 'Rails is unagi' });
+    runSet(component, 'post', { title: 'Rails is unagi' });
 
-    ok(view.$().text().match(/^HI ?Title: ?Title:Rails is unagi$/));
+    ok(component.$().text().match(/^HI ?Title: ?Title:Rails is unagi$/));
     deepEqual(postController2.get('model'), { title: 'Rails is unagi' });
   });
 
   QUnit.test('{{render}} helper should be able to render a template again when it was removed', function () {
-    var _Controller$create9, _CoreOutlet$create;
+    var _Controller$create6, _CoreOutlet$create;
 
     var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
+    var controller = Controller.create((_Controller$create6 = {}, _Controller$create6[_containerOwner.OWNER] = appInstance, _Controller$create6));
 
     view = CoreOutlet.create((_CoreOutlet$create = {}, _CoreOutlet$create[_containerOwner.OWNER] = appInstance, _CoreOutlet$create));
 
@@ -37350,7 +36798,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} works with dot notation', function () {
-    var _ContextController$create, _EmberView$create15;
+    var _ContextController$create, _EmberView$create11;
 
     var template = '{{render "blog.post"}}';
 
@@ -37368,7 +36816,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
     });
     appInstance.register('controller:blog.post', BlogPostController);
 
-    view = _emberViewsViewsView.default.create((_EmberView$create15 = {}, _EmberView$create15[_containerOwner.OWNER] = appInstance, _EmberView$create15.controller = contextController, _EmberView$create15.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create15));
+    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = contextController, _EmberView$create11.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create11));
 
     _emberTemplatesTemplate_registry.set('blog.post', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
 
@@ -37379,11 +36827,11 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
-    var _Controller$create10;
+    var _Controller$create7;
 
     var template = '<h1>HI</h1>{{render home}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create10 = {}, _Controller$create10[_containerOwner.OWNER] = appInstance, _Controller$create10));
+    var controller = Controller.create((_Controller$create7 = {}, _Controller$create7[_containerOwner.OWNER] = appInstance, _Controller$create7));
 
     view = _emberViewsViewsView.default.create({
       controller: controller,
@@ -37398,13 +36846,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('throws an assertion if {{render}} is called with a literal for a model', function () {
-    var _Controller$create11, _EmberView$create16;
+    var _Controller$create8, _EmberView$create12;
 
     var template = '<h1>HI</h1>{{render "home" "model"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create11 = {}, _Controller$create11[_containerOwner.OWNER] = appInstance, _Controller$create11));
+    var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create16 = {}, _EmberView$create16[_containerOwner.OWNER] = appInstance, _EmberView$create16.controller = controller, _EmberView$create16.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create16));
+    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create12));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('<p>BYE</p>'));
 
@@ -37414,13 +36862,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   });
 
   QUnit.test('{{render}} helper should not require view to provide its own template', function () {
-    var _Controller$create12, _EmberView$create17;
+    var _Controller$create9, _EmberView$create13;
 
     var template = '{{render \'fish\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
-    var controller = Controller.create((_Controller$create12 = {}, _Controller$create12[_containerOwner.OWNER] = appInstance, _Controller$create12));
+    var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create17 = {}, _EmberView$create17[_containerOwner.OWNER] = appInstance, _EmberView$create17.controller = controller, _EmberView$create17.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create17));
+    view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create13));
 
     appInstance.register('template:fish', _emberHtmlbarsTestsUtilsHelpers.compile('Hello fish!'));
 
@@ -37434,14 +36882,12 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-environmen
   QUnit.test('{{render}} helper should set router as target when parentController is not found', function () {
     expect(3);
 
-    _emberEnvironment.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
-
     var template = '{{render \'post\' post1}}';
 
     expectDeprecation(function () {
-      var _EmberView$create18;
+      var _EmberView$create14;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create18 = {}, _EmberView$create18[_containerOwner.OWNER] = appInstance, _EmberView$create18.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create18));
+      view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create14));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var postController = undefined;
@@ -45471,38 +44917,40 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertText('');
     };
 
-    _class7.prototype['@test quoteless class attributes update correctly'] = function testQuotelessClassAttributesUpdateCorrectly() {
+    _class7.prototype['@test can set dynamic href'] = function testCanSetDynamicHref() {
       var _this18 = this;
 
-      this.render('<div class={{if fooBar "foo-bar"}}>hello</div>', {
-        fooBar: true
+      this.render('<a href={{model.url}}>Example</a>', {
+        model: {
+          url: 'http://example.com'
+        }
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://example.com' } });
 
       this.runTask(function () {
         return _this18.rerender();
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://example.com' } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'fooBar', false);
+        return _emberMetalProperty_set.set(_this18.context, 'model.url', 'http://linkedin.com');
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello' });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://linkedin.com' } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this18.context, 'fooBar', true);
+        return _emberMetalProperty_set.set(_this18.context, 'model', { url: 'http://example.com' });
       });
 
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
+      this.assertElement(this.firstChild, { tagName: 'a', content: 'Example', attrs: { 'href': 'http://example.com' } });
     };
 
-    _class7.prototype['@test quoted class attributes update correctly'] = function testQuotedClassAttributesUpdateCorrectly(assert) {
+    _class7.prototype['@test quoteless class attributes update correctly'] = function testQuotelessClassAttributesUpdateCorrectly() {
       var _this19 = this;
 
-      this.render('<div class="{{if fooBar "foo-bar"}}">hello</div>', {
+      this.render('<div class={{if fooBar "foo-bar"}}>hello</div>', {
         fooBar: true
       });
 
@@ -45518,9 +44966,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
         return _emberMetalProperty_set.set(_this19.context, 'fooBar', false);
       });
 
-      // HTMLBars differs in behavior here as it leaves the empty
-      // class attribute.
-      assert.equal(this.firstChild.className, '');
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello' });
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this19.context, 'fooBar', true);
@@ -45529,8 +44975,38 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
     };
 
-    _class7.prototype['@test unquoted class attribute can contain multiple classes'] = function testUnquotedClassAttributeCanContainMultipleClasses() {
+    _class7.prototype['@test quoted class attributes update correctly'] = function testQuotedClassAttributesUpdateCorrectly(assert) {
       var _this20 = this;
+
+      this.render('<div class="{{if fooBar "foo-bar"}}">hello</div>', {
+        fooBar: true
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
+
+      this.runTask(function () {
+        return _this20.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'fooBar', false);
+      });
+
+      // HTMLBars differs in behavior here as it leaves the empty
+      // class attribute.
+      assert.equal(this.firstChild.className, '');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this20.context, 'fooBar', true);
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo-bar') } });
+    };
+
+    _class7.prototype['@test unquoted class attribute can contain multiple classes'] = function testUnquotedClassAttributeCanContainMultipleClasses() {
+      var _this21 = this;
 
       this.render('<div class={{model.classes}}>hello</div>', {
         model: {
@@ -45541,58 +45017,28 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'model.classes', 'fizz bizz');
+        return _emberMetalProperty_set.set(_this21.context, 'model.classes', 'fizz bizz');
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fizz bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'model', { classes: 'foo bar baz' });
+        return _emberMetalProperty_set.set(_this21.context, 'model', { classes: 'foo bar baz' });
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar baz') } });
     };
 
     _class7.prototype['@test unquoted class attribute'] = function testUnquotedClassAttribute() {
-      var _this21 = this;
-
-      this.render('<div class={{model.foo}}>hello</div>', {
-        model: {
-          foo: 'foo'
-        }
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
-
-      this.runTask(function () {
-        return _this21.rerender();
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'model.foo', 'fizz');
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fizz') } });
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'model', { foo: 'foo' });
-      });
-
-      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
-    };
-
-    _class7.prototype['@test quoted class attribute'] = function testQuotedClassAttribute() {
       var _this22 = this;
 
-      this.render('<div class="{{model.foo}}">hello</div>', {
+      this.render('<div class={{model.foo}}>hello</div>', {
         model: {
           foo: 'foo'
         }
@@ -45619,8 +45065,38 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
     };
 
-    _class7.prototype['@test quoted class attribute can contain multiple classes'] = function testQuotedClassAttributeCanContainMultipleClasses() {
+    _class7.prototype['@test quoted class attribute'] = function testQuotedClassAttribute() {
       var _this23 = this;
+
+      this.render('<div class="{{model.foo}}">hello</div>', {
+        model: {
+          foo: 'foo'
+        }
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
+
+      this.runTask(function () {
+        return _this23.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this23.context, 'model.foo', 'fizz');
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fizz') } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this23.context, 'model', { foo: 'foo' });
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo') } });
+    };
+
+    _class7.prototype['@test quoted class attribute can contain multiple classes'] = function testQuotedClassAttributeCanContainMultipleClasses() {
+      var _this24 = this;
 
       this.render('<div class="{{model.classes}}">hello</div>', {
         model: {
@@ -45631,26 +45107,26 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar baz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'model.classes', 'fizz bizz');
+        return _emberMetalProperty_set.set(_this24.context, 'model.classes', 'fizz bizz');
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fizz bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'model', { classes: 'foo bar baz' });
+        return _emberMetalProperty_set.set(_this24.context, 'model', { classes: 'foo bar baz' });
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar baz') } });
     };
 
     _class7.prototype['@test class attribute concats bound values'] = function testClassAttributeConcatsBoundValues() {
-      var _this24 = this;
+      var _this25 = this;
 
       this.render('<div class="{{model.foo}} {{model.bar}} {{model.bizz}}">hello</div>', {
         model: {
@@ -45663,25 +45139,25 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar bizz') } });
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this25.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'model.foo', 'fizz');
+        return _emberMetalProperty_set.set(_this25.context, 'model.foo', 'fizz');
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fizz bar bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'model.bar', null);
+        return _emberMetalProperty_set.set(_this25.context, 'model.bar', null);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fizz bizz') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'model', {
+        return _emberMetalProperty_set.set(_this25.context, 'model', {
           foo: 'foo',
           bar: 'bar',
           bizz: 'bizz'
@@ -45692,7 +45168,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     };
 
     _class7.prototype['@test class attribute accepts nested helpers, and updates'] = function testClassAttributeAcceptsNestedHelpersAndUpdates() {
-      var _this25 = this;
+      var _this26 = this;
 
       this.render('<div class="{{if model.hasSize model.size}} {{if model.hasShape model.shape}}">hello</div>', {
         model: {
@@ -45706,25 +45182,25 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('large') } });
 
       this.runTask(function () {
-        return _this25.rerender();
+        return _this26.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('large') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this25.context, 'model.hasShape', true);
+        return _emberMetalProperty_set.set(_this26.context, 'model.hasShape', true);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('large round') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this25.context, 'model.hasSize', false);
+        return _emberMetalProperty_set.set(_this26.context, 'model.hasSize', false);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('round') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this25.context, 'model', {
+        return _emberMetalProperty_set.set(_this26.context, 'model', {
           size: 'large',
           hasSize: true,
           hasShape: false,
@@ -45736,7 +45212,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     };
 
     _class7.prototype['@test Multiple dynamic classes'] = function testMultipleDynamicClasses() {
-      var _this26 = this;
+      var _this27 = this;
 
       this.render('<div class="{{model.foo}} {{model.bar}} {{model.fizz}} {{model.baz}}">hello</div>', {
         model: {
@@ -45750,20 +45226,20 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar fizz baz') } });
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this27.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo bar fizz baz') } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'model.foo', null);
-        _emberMetalProperty_set.set(_this26.context, 'model.fizz', null);
+        _emberMetalProperty_set.set(_this27.context, 'model.foo', null);
+        _emberMetalProperty_set.set(_this27.context, 'model.fizz', null);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('bar baz') } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'model', {
+        _emberMetalProperty_set.set(_this27.context, 'model', {
           foo: 'foo',
           bar: 'bar',
           fizz: 'fizz',
@@ -45775,7 +45251,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     };
 
     _class7.prototype['@test classes are ordered: See issue #9912'] = function testClassesAreOrderedSeeIssue9912() {
-      var _this27 = this;
+      var _this28 = this;
 
       this.render('<div class="{{model.foo}}  static   {{model.bar}}">hello</div>', {
         model: {
@@ -45787,19 +45263,19 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': 'foo  static   bar' } });
 
       this.runTask(function () {
-        return _this27.rerender();
+        return _this28.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': 'foo  static   bar' } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this27.context, 'model.bar', null);
+        _emberMetalProperty_set.set(_this28.context, 'model.bar', null);
       });
 
       this.assertElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': 'foo  static   ' } });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this27.context, 'model', {
+        _emberMetalProperty_set.set(_this28.context, 'model', {
           foo: 'foo',
           bar: 'bar'
         });
@@ -53255,6 +52731,161 @@ enifed('ember-htmlbars/tests/integration/mutable-binding-test', ['exports', 'emb
     return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
+  'use strict';
+
+  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    ']),
+      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    ']),
+      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    ']),
+      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    ']),
+      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    ']);
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('SVG element tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars unquoted viewBox property is output'] = function htmlbarsUnquotedViewBoxPropertyIsOutput(assert) {
+      var _this = this;
+
+      var viewBoxString = '0 0 100 100';
+
+      this.render('<div><svg viewBox={{model.viewBoxString}}></svg></div>', {
+        model: {
+          viewBoxString: viewBoxString
+        }
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _this.rerender();
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'model.viewBoxString', null);
+      });
+
+      assert.equal(this.firstChild.getAttribute('svg'), null);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'model', { viewBoxString: viewBoxString });
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+    };
+
+    _class.prototype['@htmlbars quoted viewBox property is output'] = function htmlbarsQuotedViewBoxPropertyIsOutput(assert) {
+      var _this2 = this;
+
+      var viewBoxString = '0 0 100 100';
+
+      this.render('<div><svg viewBox="{{model.viewBoxString}}"></svg></div>', {
+        model: {
+          viewBoxString: viewBoxString
+        }
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'model.viewBoxString', null);
+      });
+
+      assert.equal(this.firstChild.getAttribute('svg'), null);
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'model', { viewBoxString: viewBoxString });
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
+    };
+
+    _class.prototype['@htmlbars quoted viewBox property is concat'] = function htmlbarsQuotedViewBoxPropertyIsConcat() {
+      var _this3 = this;
+
+      var viewBoxString = '100 100';
+
+      this.render('<div><svg viewBox="0 0 {{model.viewBoxString}}"></svg></div>', {
+        model: {
+          viewBoxString: viewBoxString
+        }
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'model.viewBoxString', '200 200');
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'model', { viewBoxString: viewBoxString });
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
+    };
+
+    _class.prototype['@htmlbars class is output'] = function htmlbarsClassIsOutput() {
+      var _this4 = this;
+
+      this.render('<div><svg class=\'{{model.color}} tall\'></svg></div>', {
+        model: {
+          color: 'blue'
+        }
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model.color', 'yellow');
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model', { color: 'blue' });
+      });
+
+      this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4));
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
@@ -55609,6 +55240,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.assert.strictEqual(this.textValue(), text, '#qunit-fixture content');
     };
 
+    TestCase.prototype.assertInnerHTML = function assertInnerHTML(html) {
+      _emberHtmlbarsTestsUtilsTestHelpers.equalInnerHTML(this.element, html);
+    };
+
     TestCase.prototype.assertHTML = function assertHTML(html) {
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
@@ -57204,6 +56839,7 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
 enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
   'use strict';
 
+  exports.equalInnerHTML = equalInnerHTML;
   exports.equalTokens = equalTokens;
   exports.equalsElement = equalsElement;
   exports.regex = regex;
@@ -57222,6 +56858,37 @@ enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-token
         html: containerOrHTML.innerHTML
       };
     }
+  }
+
+  // detect side-effects of cloning svg elements in IE9-11
+  var ieSVGInnerHTML = (function () {
+    if (!document.createElementNS) {
+      return false;
+    }
+    var div = document.createElement('div');
+    var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    div.appendChild(node);
+    var clone = div.cloneNode(true);
+    return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
+  })();
+
+  function normalizeInnerHTML(actualHTML) {
+    if (ieSVGInnerHTML) {
+      // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+      // drop namespace attribute
+      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
+      // replace self-closing elements
+      actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
+        return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
+      });
+    }
+
+    return actualHTML;
+  }
+
+  function equalInnerHTML(fragment, html) {
+    var actualHTML = normalizeInnerHTML(fragment.innerHTML);
+    QUnit.push(actualHTML === html, actualHTML, html);
   }
 
   function normalizeTokens(tokens) {
@@ -80170,13 +79837,13 @@ enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/a
     return compiler(string, options);
   }
 });
-enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-templates/bootstrap', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplatesBootstrap, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-templates/component', 'ember-runtime/tests/utils', 'ember-templates/bootstrap', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTemplatesComponent, _emberRuntimeTestsUtils, _emberTemplatesBootstrap, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
 
   var originalLookup = _emberEnvironment.context.lookup;
-  var lookup, App, view;
+  var lookup, App, component;
 
   function checkTemplate(templateName) {
     _emberMetalRun_loop.default(function () {
@@ -80185,18 +79852,16 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     var template = _emberTemplatesTemplate_registry.get(templateName);
     ok(template, 'template is available on Ember.TEMPLATES');
     equal(_emberViewsSystemJquery.default('#qunit-fixture script').length, 0, 'script removed');
-    var view = _emberViewsViewsView.default.create({
-      template: template,
-      context: {
-        firstName: 'Tobias',
-        drug: 'teamocil'
-      }
+    var component = _emberTemplatesComponent.default.create({
+      layout: template,
+      firstName: 'Tobias',
+      drug: 'teamocil'
     });
     _emberMetalRun_loop.default(function () {
-      view.createElement();
+      component.createElement();
     });
-    equal(trim(view.$().text()), 'Tobias takes teamocil', 'template works');
-    _emberRuntimeTestsUtils.runDestroy(view);
+    equal(trim(component.$().text()), 'Tobias takes teamocil', 'template works');
+    _emberRuntimeTestsUtils.runDestroy(component);
   }
 
   QUnit.module('ember-htmlbars: bootstrap', {
@@ -80207,7 +79872,7 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
       _emberTemplatesTemplate_registry.setTemplates({});
       _emberEnvironment.context.lookup = originalLookup;
       _emberRuntimeTestsUtils.runDestroy(App);
-      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(component);
     }
   });
 
@@ -85323,83 +84988,6 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     _emberMetalRun_loop.default(function () {
       view.destroy();
     });
-  });
-});
-enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalComputed, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _internalTestHelpersTestsSkipIfGlimmer) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('Ember.View', {
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        view.destroy();
-      });
-    }
-  });
-
-  QUnit.test('should add ember-view to views', function () {
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    ok(view.$().hasClass('ember-view'), 'the view has ember-view');
-  });
-
-  QUnit.test('should not add role attribute unless one is specified', function () {
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    ok(view.$().attr('role') === undefined, 'does not have a role attribute');
-  });
-
-  QUnit.test('should allow tagName to be a computed property [DEPRECATED]', function () {
-    view = _emberViewsViewsView.default.extend({
-      tagName: _emberMetalComputed.computed(function () {
-        return 'span';
-      })
-    }).create();
-
-    expectDeprecation(function () {
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-    }, /using a computed property to define tagName will not be permitted/);
-
-    equal(view.element.tagName, 'SPAN', 'the view has was created with the correct element');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('tagName', 'div');
-    });
-
-    equal(view.element.tagName, 'SPAN', 'the tagName cannot be changed after initial render');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should re-render if the context is changed', function () {
-    view = _emberViewsViewsView.default.create({
-      elementId: 'template-context-test',
-      context: { foo: 'bar' },
-      template: _emberTemplateCompiler.compile('{{foo}}')
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bar', 'precond - renders the view with the initial value');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('context', {
-        foo: 'bang baz'
-      });
-    });
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bang baz', 're-renders the view with the updated context');
   });
 });
 enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer/index", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizerIndex, _htmlbarsUtilArrayUtils) {
