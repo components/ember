@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+503e088f
+ * @version   2.7.0-canary+7a7cf570
  */
 
 var enifed, requireModule, require, Ember;
@@ -82579,7 +82579,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-htmlbars/comp
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -82636,37 +82636,12 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     strictEqual(component, component.get('controller'), 'A component\'s controller is itself');
   });
 
-  QUnit.test('Specifying both templateName and layoutName to a component is NOT deprecated', function () {
-    expectNoDeprecation();
-    component = _emberHtmlbarsComponent.default.extend({
-      templateName: 'blah-blah',
-      layoutName: 'hum-drum'
-    }).create();
-
-    equal(_emberMetalProperty_get.get(component, 'templateName'), 'blah-blah');
-    equal(_emberMetalProperty_get.get(component, 'layoutName'), 'hum-drum');
-  });
-
   QUnit.test('Specifying a defaultLayout to a component is deprecated', function () {
     expectDeprecation(function () {
       _emberHtmlbarsComponent.default.extend({
         defaultLayout: 'hum-drum'
       }).create();
     }, /Specifying `defaultLayout` to .+ is deprecated\./);
-  });
-
-  QUnit.test('Specifying a templateName on a component with a layoutName specified in a superclass is NOT deprecated', function () {
-    expectNoDeprecation();
-    var Parent = _emberHtmlbarsComponent.default.extend({
-      layoutName: 'hum-drum'
-    });
-
-    component = Parent.extend({
-      templateName: 'blah-blah'
-    }).create();
-
-    equal(_emberMetalProperty_get.get(component, 'templateName'), 'blah-blah');
-    equal(_emberMetalProperty_get.get(component, 'layoutName'), 'hum-drum');
   });
 
   QUnit.module('Ember.Component - Actions', {
