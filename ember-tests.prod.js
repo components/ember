@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7a7cf570
+ * @version   2.7.0-canary+60461a14
  */
 
 var enifed, requireModule, require, Ember;
@@ -3549,10 +3549,10 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
   }
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-templates/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler/tests/utils/helpers', 'ember-views/views/view', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsViewsView, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-templates/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
-  var Router, App, AppView, router, appInstance;
+  var Router, App, router, appInstance;
 
   function bootApplication() {
     router = appInstance.lookup('router:main');
@@ -3623,12 +3623,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
         _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}'));
         _emberTemplatesTemplate_registry.set('about', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>About</h3>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}'));
         _emberTemplatesTemplate_registry.set('item', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}'));
-
-        AppView = _emberViewsViewsView.default.extend({
-          templateName: 'app'
-        });
-
-        appInstance.register('view:app', AppView);
 
         appInstance.unregister('router:main');
         appInstance.register('router:main', Router);
@@ -4525,37 +4519,13 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     shouldBeActive('#lobby-link');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test("The {{link-to}} helper doesn't change view context", function () {
-    App.IndexView = _emberViewsViewsView.default.extend({
-      elementId: 'index',
-      name: 'test',
-      isTrue: true
-    });
-
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{view.name}}-{{#link-to 'index' id='self-link'}}Link: {{view.name}}-{{#if view.isTrue}}{{view.name}}{{/if}}{{/link-to}}"));
-
-    bootApplication();
-
-    _emberMetalRun_loop.default(function () {
-      router.handleURL('/');
-    });
-
-    equal(_emberViewsSystemJquery.default('#index', '#qunit-fixture').text(), 'test-Link: test-test', 'accesses correct view');
-  });
-
   _internalTestHelpersTestsSkipIfGlimmer.test('Quoteless route param performs property lookup', function () {
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}{{#link-to view.foo id='view-link'}}{{view.foo}}{{/link-to}}"));
+    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}"));
 
     function assertEquality(href) {
       equal(normalizeUrl(_emberViewsSystemJquery.default('#string-link', '#qunit-fixture').attr('href')), '/');
       equal(normalizeUrl(_emberViewsSystemJquery.default('#path-link', '#qunit-fixture').attr('href')), href);
-      equal(normalizeUrl(_emberViewsSystemJquery.default('#view-link', '#qunit-fixture').attr('href')), href);
     }
-
-    App.IndexView = _emberViewsViewsView.default.extend({
-      foo: 'index',
-      elementId: 'index-view'
-    });
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       foo: 'index'
@@ -4572,10 +4542,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     assertEquality('/');
 
     var controller = appInstance.lookup('controller:index');
-    var view = _emberViewsViewsView.default.views['index-view'];
     _emberMetalRun_loop.default(function () {
       controller.set('foo', 'about');
-      view.set('foo', 'about');
     });
 
     assertEquality('/about');
@@ -4877,18 +4845,12 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   _internalTestHelpersTestsSkipIfGlimmer.test('The non-block form {{link-to}} performs property lookup', function () {
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}{{link-to view.foo view.foo id='view-link'}}"));
+    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}"));
 
     function assertEquality(href) {
       equal(normalizeUrl(_emberViewsSystemJquery.default('#string-link', '#qunit-fixture').attr('href')), '/');
       equal(normalizeUrl(_emberViewsSystemJquery.default('#path-link', '#qunit-fixture').attr('href')), href);
-      equal(normalizeUrl(_emberViewsSystemJquery.default('#view-link', '#qunit-fixture').attr('href')), href);
     }
-
-    App.IndexView = _emberViewsViewsView.default.extend({
-      foo: 'index',
-      elementId: 'index-view'
-    });
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       foo: 'index'
@@ -4905,10 +4867,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     assertEquality('/');
 
     var controller = appInstance.lookup('controller:index');
-    var view = _emberViewsViewsView.default.views['index-view'];
     _emberMetalRun_loop.default(function () {
       controller.set('foo', 'about');
-      view.set('foo', 'about');
     });
 
     assertEquality('/about');
@@ -35917,10 +35877,10 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
-  var owner, view, component;
+  var owner, component;
 
   QUnit.module('ember-htmlbars: link-to helper', {
     setup: function () {
@@ -35953,28 +35913,28 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
     },
 
     teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(component);
       _emberRuntimeTestsUtils.runDestroy(owner);
     }
   });
 
   QUnit.test('should be able to be inserted in DOM when the router is not present', function () {
-    var _EmberView$create;
+    var _Component$create;
 
     var template = '{{#link-to \'index\'}}Go to Index{{/link-to}}';
-    view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create = {}, _Component$create[_containerOwner.OWNER] = owner, _Component$create.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$().text(), 'Go to Index');
+    equal(component.$().text(), 'Go to Index');
   });
 
   QUnit.test('re-renders when title changes', function () {
-    var _Component$create;
+    var _Component$create2;
 
     var template = '{{link-to title routeName}}';
 
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create = {}, _Component$create[_containerOwner.OWNER] = owner, _Component$create.title = 'foo', _Component$create.routeName = 'index', _Component$create.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create2 = {}, _Component$create2[_containerOwner.OWNER] = owner, _Component$create2.title = 'foo', _Component$create2.routeName = 'index', _Component$create2.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create2));
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -35988,10 +35948,10 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('can read bound title', function () {
-    var _Component$create2;
+    var _Component$create3;
 
     var template = '{{link-to title routeName}}';
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create2 = {}, _Component$create2[_containerOwner.OWNER] = owner, _Component$create2.title = 'foo', _Component$create2.routeName = 'index', _Component$create2.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create2));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create3 = {}, _Component$create3[_containerOwner.OWNER] = owner, _Component$create3.title = 'foo', _Component$create3.routeName = 'index', _Component$create3.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create3));
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -35999,69 +35959,69 @@ enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('escaped inline form (double curlies) escapes link title', function () {
-    var _EmberView$create2;
+    var _Component$create4;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create2 = {}, _EmberView$create2[_containerOwner.OWNER] = owner, _EmberView$create2.title = '<b>blah</b>', _EmberView$create2.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to view.title "index"}}'), _EmberView$create2));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create4 = {}, _Component$create4[_containerOwner.OWNER] = owner, _Component$create4.title = '<b>blah</b>', _Component$create4.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to title "index"}}'), _Component$create4));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$('b').length, 0, 'no <b> were found');
+    equal(component.$('b').length, 0, 'no <b> were found');
   });
 
   QUnit.test('escaped inline form with (-html-safe) does not escape link title', function () {
-    var _EmberView$create3;
+    var _Component$create5;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create3 = {}, _EmberView$create3[_containerOwner.OWNER] = owner, _EmberView$create3.title = '<b>blah</b>', _EmberView$create3.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to (-html-safe view.title) "index"}}'), _EmberView$create3));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create5 = {}, _Component$create5[_containerOwner.OWNER] = owner, _Component$create5.title = '<b>blah</b>', _Component$create5.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to (-html-safe title) "index"}}'), _Component$create5));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$('b').length, 1, '<b> was found');
+    equal(component.$('b').length, 1, '<b> was found');
   });
 
   QUnit.test('unescaped inline form (triple curlies) does not escape link title', function () {
-    var _EmberView$create4;
+    var _Component$create6;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = owner, _EmberView$create4.title = '<b>blah</b>', _EmberView$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{{link-to view.title "index"}}}'), _EmberView$create4));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create6 = {}, _Component$create6[_containerOwner.OWNER] = owner, _Component$create6.title = '<b>blah</b>', _Component$create6.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{{link-to title "index"}}}'), _Component$create6));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$('b').length, 1, '<b> was found');
+    equal(component.$('b').length, 1, '<b> was found');
   });
 
   QUnit.test('unwraps controllers', function () {
-    var _EmberView$create5;
+    var _Component$create7;
 
-    var template = '{{#link-to \'index\' view.otherController}}Text{{/link-to}}';
+    var template = '{{#link-to \'index\' otherController}}Text{{/link-to}}';
 
-    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = owner, _EmberView$create5.otherController = _emberRuntimeControllersController.default.create({
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create7 = {}, _Component$create7[_containerOwner.OWNER] = owner, _Component$create7.otherController = _emberRuntimeControllersController.default.create({
       model: 'foo'
-    }), _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create5));
+    }), _Component$create7.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create7));
 
     expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
+      _emberRuntimeTestsUtils.runAppend(component);
     }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
 
-    equal(view.$().text(), 'Text');
+    equal(component.$().text(), 'Text');
   });
 
   QUnit.test('able to safely extend the built-in component and use the normal path', function () {
-    var _EmberView$create6;
+    var _Component$create8;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = owner, _EmberView$create6.title = 'my custom link-to component', _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{#custom-link-to \'index\'}}{{view.title}}{{/custom-link-to}}'), _EmberView$create6));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create8 = {}, _Component$create8[_containerOwner.OWNER] = owner, _Component$create8.title = 'my custom link-to component', _Component$create8.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}'), _Component$create8));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
+    equal(component.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
   });
 
   QUnit.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
-    var _EmberView$create7;
+    var _Component$create9;
 
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = owner, _EmberView$create7.title = 'my custom link-to component', _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile('{{custom-link-to view.title \'index\'}}'), _EmberView$create7));
+    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create9 = {}, _Component$create9[_containerOwner.OWNER] = owner, _Component$create9.title = 'my custom link-to component', _Component$create9.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{custom-link-to title \'index\'}}'), _Component$create9));
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    _emberRuntimeTestsUtils.runAppend(component);
 
-    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
+    equal(component.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
   });
 });
 enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils) {
@@ -36343,22 +36303,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(view);
-    }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as either a template or a view.');
-  });
-
-  QUnit.test('{{render}} helper should not have assertion if view exists without a template', function () {
-    var _EmberView$create4;
-
-    var template = '<h1>HI</h1>{{render \'oops\'}}';
-    var controller = _emberRuntimeControllersController.default.extend();
-
-    view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = appInstance, _EmberView$create4.controller = controller.create(), _EmberView$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create4));
-
-    appInstance.register('view:oops', _emberViewsViewsView.default.extend());
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'HI');
+    }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as a template.');
   });
 
   QUnit.test('{{render}} helper should render given template with a supplied model', function () {
@@ -36406,9 +36351,9 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
     var controller = _emberRuntimeControllersController.default.create((_EmberController$create = {}, _EmberController$create[_containerOwner.OWNER] = appInstance, _EmberController$create.post = post, _EmberController$create));
 
     expectDeprecation(function () {
-      var _EmberView$create5;
+      var _EmberView$create4;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create5));
+      view = _emberViewsViewsView.default.create((_EmberView$create4 = {}, _EmberView$create4[_containerOwner.OWNER] = appInstance, _EmberView$create4.controller = controller, _EmberView$create4.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create4));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var PostController = _emberRuntimeControllersController.default.extend({
@@ -36427,7 +36372,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
-    var _Controller$create, _EmberView$create6;
+    var _Controller$create, _EmberView$create5;
 
     var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
@@ -36435,7 +36380,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
 
     appInstance.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create6));
+    view = _emberViewsViewsView.default.create((_EmberView$create5 = {}, _EmberView$create5[_containerOwner.OWNER] = appInstance, _EmberView$create5.controller = controller, _EmberView$create5.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create5));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('<p>BYE</p>'));
 
@@ -36445,7 +36390,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('{{render}} helper should render with given controller', function () {
-    var _Controller$create2, _EmberView$create7;
+    var _Controller$create2, _EmberView$create6;
 
     var template = '{{render "home" controller="posts"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
@@ -36461,7 +36406,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
       }
     }));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create7));
+    view = _emberViewsViewsView.default.create((_EmberView$create6 = {}, _EmberView$create6[_containerOwner.OWNER] = appInstance, _EmberView$create6.controller = controller, _EmberView$create6.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create6));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
 
@@ -36476,7 +36421,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('{{render}} helper should rerender with given controller', function () {
-    var _Controller$create3, _EmberView$create8;
+    var _Controller$create3, _EmberView$create7;
 
     var template = '{{render "home" controller="posts"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
@@ -36492,7 +36437,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
       }
     }));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = appInstance, _EmberView$create8.controller = controller, _EmberView$create8.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create8));
+    view = _emberViewsViewsView.default.create((_EmberView$create7 = {}, _EmberView$create7[_containerOwner.OWNER] = appInstance, _EmberView$create7.controller = controller, _EmberView$create7.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create7));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
 
@@ -36511,13 +36456,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('{{render}} helper should render a template without a model only once', function () {
-    var _Controller$create4, _EmberView$create9;
+    var _Controller$create4, _EmberView$create8;
 
     var template = '<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create4 = {}, _Controller$create4[_containerOwner.OWNER] = appInstance, _Controller$create4));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create9));
+    view = _emberViewsViewsView.default.create((_EmberView$create8 = {}, _EmberView$create8[_containerOwner.OWNER] = appInstance, _EmberView$create8.controller = controller, _EmberView$create8.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create8));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('<p>BYE</p>'));
 
@@ -36585,9 +36530,9 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
     var controller = Controller.create((_Controller$create5 = {}, _Controller$create5[_containerOwner.OWNER] = appInstance, _Controller$create5));
 
     expectDeprecation(function () {
-      var _EmberView$create10;
+      var _EmberView$create9;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = controller, _EmberView$create10.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create10));
+      view = _emberViewsViewsView.default.create((_EmberView$create9 = {}, _EmberView$create9[_containerOwner.OWNER] = appInstance, _EmberView$create9.controller = controller, _EmberView$create9.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create9));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var postController;
@@ -36726,7 +36671,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('{{render}} works with dot notation', function () {
-    var _ContextController$create, _EmberView$create11;
+    var _ContextController$create, _EmberView$create10;
 
     var template = '{{render "blog.post"}}';
 
@@ -36744,7 +36689,7 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
     });
     appInstance.register('controller:blog.post', BlogPostController);
 
-    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = contextController, _EmberView$create11.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create11));
+    view = _emberViewsViewsView.default.create((_EmberView$create10 = {}, _EmberView$create10[_containerOwner.OWNER] = appInstance, _EmberView$create10.controller = contextController, _EmberView$create10.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create10));
 
     _emberTemplatesTemplate_registry.set('blog.post', _emberHtmlbarsTestsUtilsHelpers.compile('{{uniqueId}}'));
 
@@ -36774,13 +36719,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('throws an assertion if {{render}} is called with a literal for a model', function () {
-    var _Controller$create8, _EmberView$create12;
+    var _Controller$create8, _EmberView$create11;
 
     var template = '<h1>HI</h1>{{render "home" "model"}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create8 = {}, _Controller$create8[_containerOwner.OWNER] = appInstance, _Controller$create8));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create12));
+    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = appInstance, _EmberView$create11.controller = controller, _EmberView$create11.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create11));
 
     _emberTemplatesTemplate_registry.set('home', _emberHtmlbarsTestsUtilsHelpers.compile('<p>BYE</p>'));
 
@@ -36790,13 +36735,13 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
   });
 
   QUnit.test('{{render}} helper should not require view to provide its own template', function () {
-    var _Controller$create9, _EmberView$create13;
+    var _Controller$create9, _EmberView$create12;
 
     var template = '{{render \'fish\'}}';
     var Controller = _emberRuntimeControllersController.default.extend();
     var controller = Controller.create((_Controller$create9 = {}, _Controller$create9[_containerOwner.OWNER] = appInstance, _Controller$create9));
 
-    view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.controller = controller, _EmberView$create13.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create13));
+    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = appInstance, _EmberView$create12.controller = controller, _EmberView$create12.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create12));
 
     appInstance.register('template:fish', _emberHtmlbarsTestsUtilsHelpers.compile('Hello fish!'));
 
@@ -36813,9 +36758,9 @@ enifed('ember-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/prop
     var template = '{{render \'post\' post1}}';
 
     expectDeprecation(function () {
-      var _EmberView$create14;
+      var _EmberView$create13;
 
-      view = _emberViewsViewsView.default.create((_EmberView$create14 = {}, _EmberView$create14[_containerOwner.OWNER] = appInstance, _EmberView$create14.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create14));
+      view = _emberViewsViewsView.default.create((_EmberView$create13 = {}, _EmberView$create13[_containerOwner.OWNER] = appInstance, _EmberView$create13.template = _emberHtmlbarsTestsUtilsHelpers.compile(template), _EmberView$create13));
     }, /Please refactor [\w\{\}"` ]+ to a component/);
 
     var postController = undefined;
@@ -37161,57 +37106,6 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
-});
-enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
-  'use strict';
-
-  var view;
-
-  QUnit.module('ember-htmlbars: custom morph integration tests', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('can properly re-render an if/else with attribute morphs', function () {
-    view = _emberViewsViewsView.default.create({
-      trueClass: 'truthy',
-      falseClass: 'falsey',
-      switch: true,
-
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('{{#if view.switch}}<div class={{view.trueClass}}>Truthy</div>{{else}}<div class={{view.falseClass}}>Falsey</div>{{/if}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('.truthy').length, 1, 'template block rendered properly');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'switch', false);
-    });
-
-    equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
-  });
-
-  QUnit.test('can properly re-render an if/else with element morphs', function () {
-    view = _emberViewsViewsView.default.create({
-      trueClass: 'truthy',
-      falseClass: 'falsey',
-      switch: true,
-
-      template: _emberHtmlbarsTestsUtilsHelpers.compile('{{#if view.switch}}<div class="truthy" {{action view.trueClass}}>Truthy</div>{{else}}<div class="falsey" {{action view.falseClass}}>Falsey</div>{{/if}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('.truthy').length, 1, 'template block rendered properly');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'switch', false);
-    });
-
-    equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
-  });
 });
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/binding'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalBinding) {
   'use strict';
@@ -56939,7 +56833,7 @@ enifed('ember-htmlbars/tests/utils/test-helpers', ['exports', 'simple-html-token
     }, _ref4;
   }
 });
-enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
+enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry', 'ember-template-compiler/plugins'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry, _emberTemplateCompilerPlugins) {
   'use strict';
 
   function registerAstPlugin(plugin) {
@@ -56949,18 +56843,6 @@ enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'em
   function removeAstPlugin(plugin) {
     var index = _emberTemplateCompilerPlugins.default['ast'].indexOf(plugin);
     _emberTemplateCompilerPlugins.default['ast'].splice(index, 1);
-  }
-
-  function registerKeyword(name, keyword) {
-    return _emberHtmlbarsKeywords.registerKeyword(name, keyword);
-  }
-
-  function resetKeyword(name, original) {
-    if (original) {
-      _emberHtmlbarsKeywords.default[name] = original;
-    } else {
-      delete _emberHtmlbarsKeywords.default[name];
-    }
   }
 
   function buildAppInstance() {
@@ -57021,8 +56903,6 @@ enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'em
 
   exports.registerAstPlugin = registerAstPlugin;
   exports.removeAstPlugin = removeAstPlugin;
-  exports.registerKeyword = registerKeyword;
-  exports.resetKeyword = resetKeyword;
   exports.resolverFor = resolverFor;
   exports.buildAppInstance = buildAppInstance;
 });
@@ -81284,28 +81164,6 @@ enifed('ember-testing/tests/simple_setup', ['exports', 'ember-metal/run_loop', '
     }
   });
 });
-enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView) {
-  'use strict';
-
-  var view, parentView;
-
-  QUnit.module('ember-views: View#render hook', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(parentView);
-    }
-  });
-
-  QUnit.test('the render hook triggers an assertion', function (assert) {
-    expectAssertion(function () {
-      view = _emberViewsViewsView.default.create({
-        render: function (buffer) {
-          buffer.push('<span>Nancy</span>');
-        }
-      });
-    }, 'Using a custom `.render` function is no longer supported.');
-  });
-});
 enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (exports, _emberRuntimeSystemObject, _emberViewsViewsView, _emberViewsMixinsView_target_action_support) {
   'use strict';
 
@@ -82048,7 +81906,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-htmlbars/comp
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner', 'ember-metal/computed'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner, _emberMetalComputed) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -82111,6 +81969,28 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         defaultLayout: 'hum-drum'
       }).create();
     }, /Specifying `defaultLayout` to .+ is deprecated\./);
+  });
+
+  QUnit.test('should warn if a computed property is used for classNames', function () {
+    expectAssertion(function () {
+      _emberHtmlbarsComponent.default.extend({
+        elementId: 'test',
+        classNames: _emberMetalComputed.default(function () {
+          return ['className'];
+        })
+      }).create();
+    }, /Only arrays of static class strings.*For dynamic classes/i);
+  });
+
+  QUnit.test('should warn if a non-array is used for classNameBindings', function () {
+    expectAssertion(function () {
+      _emberHtmlbarsComponent.default.extend({
+        elementId: 'test',
+        classNameBindings: _emberMetalComputed.default(function () {
+          return ['className'];
+        })
+      }).create();
+    }, /Only arrays are allowed/i);
   });
 
   QUnit.module('Ember.Component - Actions', {
@@ -83731,84 +83611,6 @@ enifed('ember-views/tests/views/view/evented_test', ['exports', 'ember-metal/run
 
     _emberMetalRun_loop.default(function () {
       listenObject.destroy();
-    });
-  });
-});
-enifed('ember-views/tests/views/view/init_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-template-compiler'], function (exports, _emberEnvironment, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalComputed, _emberViewsViewsView, _emberTemplateCompiler) {
-  'use strict';
-
-  var originalLookup = _emberEnvironment.context.lookup;
-  var lookup, view;
-
-  QUnit.module('EmberView.create', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        view.destroy();
-      });
-
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('registers view in the global views hash using layerId for event targeted', function () {
-    view = _emberViewsViewsView.default.create();
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-    equal(_emberViewsViewsView.default.views[_emberMetalProperty_get.get(view, 'elementId')], view, 'registers view');
-  });
-
-  QUnit.module('EmberView.extend');
-
-  QUnit.test('should warn if a computed property is used for classNames', function () {
-    expectAssertion(function () {
-      _emberViewsViewsView.default.extend({
-        elementId: 'test',
-        classNames: _emberMetalComputed.computed(function () {
-          return ['className'];
-        })
-      }).create();
-    }, /Only arrays of static class strings.*For dynamic classes/i);
-  });
-
-  QUnit.test('should warn if a non-array is used for classNameBindings', function () {
-    expectAssertion(function () {
-      _emberViewsViewsView.default.extend({
-        elementId: 'test',
-        classNameBindings: _emberMetalComputed.computed(function () {
-          return ['className'];
-        })
-      }).create();
-    }, /Only arrays are allowed/i);
-  });
-
-  QUnit.test('creates a renderer if one is not provided', function () {
-    var childView;
-
-    childView = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompiler.compile('ber')
-    });
-
-    view = _emberViewsViewsView.default.create({
-      childView: childView,
-      template: _emberTemplateCompiler.compile('Em{{view.childView}}')
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.append();
-    });
-
-    _emberMetalRun_loop.default(function () {
-      ok(_emberMetalProperty_get.get(view, 'renderer'), 'view created without container receives a renderer');
-      strictEqual(_emberMetalProperty_get.get(view, 'renderer'), _emberMetalProperty_get.get(childView, 'renderer'), 'parent and child share a renderer');
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.destroy();
-      childView.destroy();
     });
   });
 });

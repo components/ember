@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7a7cf570
+ * @version   2.7.0-canary+60461a14
  */
 
 var enifed, requireModule, require, Ember;
@@ -3751,7 +3751,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+7a7cf570";
+  exports.default = "2.7.0-canary+60461a14";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -18014,7 +18014,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/empty_object', 'ember-metal/error', 'ember-htmlbars/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalEmpty_object, _emberMetalError, _emberHtmlbarsStreamsUtils, _emberRuntimeSystemString, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
+enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember-metal/empty_object', 'ember-metal/error', 'ember-htmlbars/streams/utils', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalDebug, _emberMetalEmpty_object, _emberMetalError, _emberHtmlbarsStreamsUtils, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
   /**
   @module ember
   @submodule ember-templates
@@ -18129,11 +18129,6 @@ enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember
 
       var owner = env.owner;
 
-      // The render keyword presumes it can work without a router. This is really
-      // only to satisfy the test:
-      //
-      //     {{view}} should not override class bindings defined on a child view"
-      //
       var router = owner.lookup('router:main');
 
       _emberMetalDebug.assert('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', params.length < 2 || _emberHtmlbarsStreamsUtils.isStream(params[1]));
@@ -18146,19 +18141,10 @@ enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember
       }
 
       var templateName = 'template:' + name;
-      _emberMetalDebug.assert('You used `{{render \'' + name + '\'}}`, but \'' + name + '\' can not be ' + 'found as either a template or a view.', owner.hasRegistration('view:' + name) || owner.hasRegistration(templateName) || !!template);
+      _emberMetalDebug.assert('You used `{{render \'' + name + '\'}}`, but \'' + name + '\' can not be ' + 'found as a template.', owner.hasRegistration(templateName) || !!template);
 
-      var view = owner.lookup('view:' + name);
-      if (!view) {
-        view = owner.lookup('view:default');
-      }
-      var viewHasTemplateSpecified = view && !!_emberMetalProperty_get.get(view, 'template');
-      if (!template && !viewHasTemplateSpecified) {
+      if (!template) {
         template = owner.lookup(templateName);
-      }
-
-      if (view) {
-        view.ownerView = env.view.ownerView;
       }
 
       // provide controller override
@@ -18197,12 +18183,7 @@ enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember
         });
       }
 
-      if (view) {
-        view.set('controller', controller);
-      }
       state.controller = controller;
-
-      hash.viewName = _emberRuntimeSystemString.camelize(name);
 
       if (template && template.raw) {
         template = template.raw;
@@ -18212,10 +18193,6 @@ enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember
         layout: null,
         self: controller
       };
-
-      if (view) {
-        options.component = view;
-      }
 
       var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(node, env, hash, options, state.parentView, null, null, template);
       state.manager = nodeManager;
@@ -50049,132 +50026,6 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     `attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)
     documentation for more information about concatenated properties.
   
-    ## Templates
-  
-    The HTML contents of a view's rendered representation are determined by its
-    template. Templates can be any function that accepts an optional context
-    parameter and returns a string of HTML that will be inserted within the
-    view's tag. Most typically in Ember this function will be a compiled
-    template.
-  
-    ```javascript
-    AView = Ember.View.extend({
-      template: Ember.HTMLBars.compile('I am the template')
-    });
-    ```
-  
-    Will result in view instances with an HTML representation of:
-  
-    ```html
-    <div id="ember1" class="ember-view">I am the template</div>
-    ```
-  
-    Within an Ember application is more common to define a Handlebars templates as
-    part of a page:
-  
-    ```html
-    <script type='text/x-handlebars' data-template-name='some-template'>
-      Hello
-    </script>
-    ```
-  
-    And associate it by name using a view's `templateName` property:
-  
-    ```javascript
-    AView = Ember.View.extend({
-      templateName: 'some-template'
-    });
-    ```
-  
-    If you have nested routes, your Handlebars template will look like this:
-  
-    ```html
-    <script type='text/x-handlebars' data-template-name='posts/new'>
-      <h1>New Post</h1>
-    </script>
-    ```
-  
-    And `templateName` property:
-  
-    ```javascript
-    AView = Ember.View.extend({
-      templateName: 'posts/new'
-    });
-    ```
-  
-    Using a value for `templateName` that does not have a template
-    with a matching `data-template-name` attribute will throw an error.
-  
-    For views classes that may have a template later defined (e.g. as the block
-    portion of a `{{view}}` helper call in another template or in
-    a subclass), you can provide a `defaultTemplate` property set to compiled
-    template function. If a template is not later provided for the view instance
-    the `defaultTemplate` value will be used:
-  
-    ```javascript
-    AView = Ember.View.extend({
-      defaultTemplate: Ember.HTMLBars.compile('I was the default'),
-      template: null,
-      templateName: null
-    });
-    ```
-  
-    Will result in instances with an HTML representation of:
-  
-    ```html
-    <div id="ember1" class="ember-view">I was the default</div>
-    ```
-  
-    If a `template` or `templateName` is provided it will take precedence over
-    `defaultTemplate`:
-  
-    ```javascript
-    AView = Ember.View.extend({
-      defaultTemplate: Ember.HTMLBars.compile('I was the default')
-    });
-  
-    aView = AView.create({
-      template: Ember.HTMLBars.compile('I was the template, not default')
-    });
-    ```
-  
-    Will result in the following HTML representation when rendered:
-  
-    ```html
-    <div id="ember1" class="ember-view">I was the template, not default</div>
-    ```
-  
-    ## View Context
-  
-    The default context of the compiled template is the view's controller:
-  
-    ```javascript
-    AView = Ember.View.extend({
-      template: Ember.HTMLBars.compile('Hello {{excitedGreeting}}')
-    });
-  
-    aController = Ember.Object.create({
-      firstName: 'Barry',
-      excitedGreeting: Ember.computed('content.firstName', function() {
-        return this.get('content.firstName') + '!!!';
-      })
-    });
-  
-    aView = AView.create({
-      controller: aController
-    });
-    ```
-  
-    Will result in an HTML representation of:
-  
-    ```html
-    <div id="ember1" class="ember-view">Hello Barry!!!</div>
-    ```
-  
-    A context can also be explicitly supplied through the view's `context`
-    property. If the view has neither `context` nor `controller` properties, the
-    `parentView`'s context will be used.
-  
     ## Layouts
   
     Views can have a secondary template that wraps their main template. Like
@@ -50360,12 +50211,6 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     * `dragOver`
     * `dragEnd`
     * `drop`
-  
-    ## `{{view}}` Helper
-  
-    Other `Ember.View` instances can be included as part of a view's template by
-    using the `{{view}}` helper. See [Ember.Templates.helpers.view](/api/classes/Ember.Templates.helpers.html#method_view)
-    for additional information.
   
     @class View
     @namespace Ember
