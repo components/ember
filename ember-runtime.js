@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fa9866bf
+ * @version   2.7.0-canary+503e088f
  */
 
 var enifed, requireModule, require, Ember;
@@ -2485,7 +2485,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+fa9866bf";
+  exports.default = "2.7.0-canary+503e088f";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -11814,9 +11814,24 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
     though they were called on the original property, but also
     print a deprecation warning.
   
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      bananaCount: Ember.computed.deprecatingAlias('cavendishCount', {
+        id: 'hamster.deprecate-banana',
+        until: '3.0.0'
+      })
+    });
+  
+    var hamster = Hamster.create();
+  
+    hamster.set('bananaCount', 5); // Prints a deprecation warning.
+    hamster.get('cavendishCount'); // 5
+    ```
+  
     @method deprecatingAlias
     @for Ember.computed
     @param {String} dependentKey
+    @param {Object} options Options for `Ember.deprecate`.
     @return {Ember.ComputedProperty} computed property which creates an
     alias with a deprecation to the original value for property.
     @since 1.7.0
