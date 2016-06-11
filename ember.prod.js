@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3d5c2a9b
+ * @version   2.7.0-canary+b44f9dad
  */
 
 var enifed, requireModule, require, Ember;
@@ -3728,7 +3728,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+3d5c2a9b";
+  exports.default = "2.7.0-canary+b44f9dad";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -12152,7 +12152,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
-enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/error', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberMetalError, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
@@ -12274,30 +12274,10 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
       }
     }),
 
-    templateForName: function (name, type) {
-      if (!name) {
-        return;
-      }
-
-      var owner = _containerOwner.getOwner(this);
-
-      if (!owner) {
-        throw new _emberMetalError.default('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
-      }
-
-      return owner.lookup('template:' + name);
-    },
-
     init: function () {
       this._super.apply(this, arguments);
       _emberMetalProperty_set.set(this, 'controller', this);
       _emberMetalProperty_set.set(this, 'context', this);
-
-      if (!this.layout && this.layoutName && _containerOwner.getOwner(this)) {
-        var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
-
-        this.layout = this.templateForName(layoutName);
-      }
 
       // If a `defaultLayout` was specified move it to the `layout` prop.
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
@@ -18012,12 +17992,18 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     // Instantiate the component
     component = createComponent(component, createOptions, renderNode, env, attrs);
+    var layoutName = _emberMetalProperty_get.get(component, 'layoutName');
 
     // If the component specifies its layout via the `layout` property
     // instead of using the template looked up in the container, get it
     // now that we have the component instance.
     if (!layout) {
       layout = _emberMetalProperty_get.get(component, 'layout');
+    }
+
+    if (!layout && layoutName) {
+      var owner = _containerOwner.getOwner(component);
+      layout = owner.lookup('template:' + layoutName);
     }
 
     var results = _emberHtmlbarsSystemBuildComponentTemplate.default({ layout: layout, component: component }, attrs, { templates: templates, scope: parentScope });
