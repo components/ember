@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b44f9dad
+ * @version   2.7.0-canary+f30b50f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -3728,7 +3728,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b44f9dad";
+  exports.default = "2.7.0-canary+f30b50f6";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -46580,7 +46580,7 @@ enifed('ember-views/utils/lookup-component', ['exports'], function (exports) {
     return lookupComponentPair(componentLookup, owner, name);
   }
 });
-enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-htmlbars/renderer', 'ember-views/views/states', 'htmlbars-runtime', 'require'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberHtmlbarsRenderer, _emberViewsViewsStates, _htmlbarsRuntime, _require) {
+enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-htmlbars/renderer', 'ember-views/views/states', 'require'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberHtmlbarsRenderer, _emberViewsViewsStates, _require) {
   'use strict';
 
   // Normally, the renderer is injected by the container when the view is looked
@@ -46677,16 +46677,6 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-me
       }
 
       this._currentState.cleanup(this);
-
-      // If the destroyingSubtreeForView property is not set but we have an
-      // associated render node, it means this view is being destroyed from user
-      // code and not via a change in the templating layer (like an {{if}}
-      // becoming falsy, for example).  In this case, it is our responsibility to
-      // make sure that any render nodes created as part of the rendering process
-      // are cleaned up.
-      if (!this.ownerView._destroyingSubtreeForView && this._renderNode) {
-        _htmlbarsRuntime.internal.clearMorph(this._renderNode, this.ownerView.env, true);
-      }
 
       return this;
     }
