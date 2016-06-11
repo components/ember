@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f30b50f6
+ * @version   2.7.0-canary+2bb78900
  */
 
 var enifed, requireModule, require, Ember;
@@ -3751,7 +3751,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+f30b50f6";
+  exports.default = "2.7.0-canary+2bb78900";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -9140,7 +9140,7 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
     classNameBindings: EMPTY_ARRAY
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/query-param', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersQueryParam, _containerOwner, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/empty_object', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalEmpty_object, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersConcat, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -9165,7 +9165,8 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
     readonly: _emberGlimmerHelpersReadonly.default,
     unbound: _emberGlimmerHelpersUnbound.default,
     'query-params': _emberGlimmerHelpersQueryParam.default,
-    '-class': _emberGlimmerHelpersClass.default
+    '-class': _emberGlimmerHelpersClass.default,
+    '-each-in': _emberGlimmerHelpersEachIn.default
   };
 
   function wrapClassAttribute(args) {
@@ -9339,7 +9340,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
 
     Environment.prototype.lookupHelper = function lookupHelper(name) {
       var helper = builtInHelpers[name[0]] || this.owner.lookup('helper:' + name);
-
       // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
       if (helper.isInternalHelper) {
         return function (args) {
@@ -9740,6 +9740,63 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/helper', 'glim
   }
 
   exports.default = _emberGlimmerHelper.helper(concat);
+});
+enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-metal/symbol'], function (exports, _emberMetalSymbol) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  'use strict';
+
+  exports.isEachIn = isEachIn;
+
+  /**
+    The `{{each-in}}` helper loops over properties on an object. It is unbound,
+    in that new (or removed) properties added to the target object will not be
+    rendered.
+  
+    For example, given a `user` object that looks like:
+  
+    ```javascript
+    {
+      "name": "Shelly Sails",
+      "age": 42
+    }
+    ```
+  
+    This template would display all properties on the `user`
+    object in a list:
+  
+    ```handlebars
+    <ul>
+    {{#each-in user as |key value|}}
+      <li>{{key}}: {{value}}</li>
+    {{/each-in}}
+    </ul>
+    ```
+  
+    Outputting their name and age.
+  
+    @method each-in
+    @for Ember.Templates.helpers
+    @public
+    @since 2.1.0
+  */
+  var EACH_IN_REFERENCE = _emberMetalSymbol.default('EACH_IN');
+
+  function isEachIn(ref) {
+    return ref && ref[EACH_IN_REFERENCE];
+  }
+
+  exports.default = {
+    isInternalHelper: true,
+    toReference: function (args) {
+      var ref = Object.create(args.positional.at(0));
+      ref[EACH_IN_REFERENCE] = true;
+      return ref;
+    }
+  };
 });
 enifed('ember-glimmer/helpers/get', ['exports', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _glimmerReference) {
   'use strict';
@@ -11450,7 +11507,7 @@ enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer-temp
 
   exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
 });
-enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn) {
   'use strict';
 
   exports.default = iterableFor;
@@ -11562,6 +11619,42 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
     return EmberArrayIterator;
   })();
 
+  var ObjectKeysIterator = (function () {
+    function ObjectKeysIterator(keys, values, keyFor) {
+      _classCallCheck(this, ObjectKeysIterator);
+
+      this.keys = keys;
+      this.values = values;
+      this.keyFor = keyFor;
+      this.position = 0;
+    }
+
+    ObjectKeysIterator.prototype.isEmpty = function isEmpty() {
+      return this.keys.length === 0;
+    };
+
+    ObjectKeysIterator.prototype.next = function next() {
+      var keys = this.keys;
+      var values = this.values;
+      var keyFor = this.keyFor;
+      var position = this.position;
+
+      if (position >= keys.length) {
+        return null;
+      }
+
+      var value = values[position];
+      var memo = keys[position];
+      var key = keyFor(value, memo);
+
+      this.position++;
+
+      return { key: key, value: memo, memo: value };
+    };
+
+    return ObjectKeysIterator;
+  })();
+
   var EmptyIterator = (function () {
     function EmptyIterator() {
       _classCallCheck(this, EmptyIterator);
@@ -11600,6 +11693,12 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
         return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
       } else if (_emberRuntimeMixinsArray.isEmberArray(iterable)) {
         return new EmberArrayIterator(iterable, keyFor);
+      } else if (_emberGlimmerHelpersEachIn.isEachIn(ref)) {
+        var keys = Object.keys(iterable);
+        var values = keys.map(function (key) {
+          return iterable[key];
+        });
+        return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
       } else {
         throw new Error('Don\'t know how to {{#each ' + iterable + '}}');
       }
@@ -11614,7 +11713,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
     };
 
     Iterable.prototype.memoReferenceFor = function memoReferenceFor(item) {
-      return new _emberGlimmerUtilsReferences.UpdatableReference(item.memo);
+      return new _emberGlimmerUtilsReferences.UpdatablePrimitiveReference(item.memo);
     };
 
     Iterable.prototype.updateMemoReference = function updateMemoReference(reference, item) {
@@ -11965,6 +12064,24 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   })(EmberPathReference);
 
   exports.UpdatableReference = UpdatableReference;
+
+  var UpdatablePrimitiveReference = (function (_UpdatableReference) {
+    _inherits(UpdatablePrimitiveReference, _UpdatableReference);
+
+    function UpdatablePrimitiveReference() {
+      _classCallCheck(this, UpdatablePrimitiveReference);
+
+      _UpdatableReference.apply(this, arguments);
+    }
+
+    UpdatablePrimitiveReference.prototype.get = function get() {
+      return _glimmerRuntime.UNDEFINED_REFERENCE;
+    };
+
+    return UpdatablePrimitiveReference;
+  })(UpdatableReference);
+
+  exports.UpdatablePrimitiveReference = UpdatablePrimitiveReference;
 
   var ConditionalReference = (function (_GlimmerConditionalReference) {
     _inherits(ConditionalReference, _GlimmerConditionalReference);
@@ -12591,6 +12708,60 @@ enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['expo
     node.params.unshift(builders.path(''));
   }
 });
+enifed('ember-glimmer-template-compiler/plugins/transform-each-in-into-each', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   {{#each-in iterableThing as |key value|}}
+    ```
+  
+    with
+  
+    ```handlebars
+   {{#each (-each-in iterableThing) as |key value|}}
+    ```
+  
+    @private
+    @class TransformHasBlockSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformEachInIntoEach;
+
+  function TransformEachInIntoEach() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformEachInIntoEach.prototype.transform = function TransformEachInIntoEach_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      BlockStatement: function (node) {
+        if (node.path.original === 'each-in') {
+          node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
+          return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
+        }
+      }
+    });
+
+    return ast;
+  };
+});
 enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
   /**
    @module ember
@@ -12659,7 +12830,7 @@ enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['e
     return ast;
   };
 });
-enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberMetalAssign) {
+enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberMetalAssign) {
   'use strict';
 
   exports.default = compileOptions;
@@ -12667,7 +12838,7 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
   exports.removePlugin = removePlugin;
   var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
   // the following are ember-glimmer specific
-  _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default]);
+  _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];

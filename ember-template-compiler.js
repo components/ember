@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f30b50f6
+ * @version   2.7.0-canary+2bb78900
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+f30b50f6";
+  exports.default = "2.7.0-canary+2bb78900";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -2110,6 +2110,60 @@ enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['expo
     node.params.unshift(builders.path(''));
   }
 });
+enifed('ember-glimmer-template-compiler/plugins/transform-each-in-into-each', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   {{#each-in iterableThing as |key value|}}
+    ```
+  
+    with
+  
+    ```handlebars
+   {{#each (-each-in iterableThing) as |key value|}}
+    ```
+  
+    @private
+    @class TransformHasBlockSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformEachInIntoEach;
+
+  function TransformEachInIntoEach() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformEachInIntoEach.prototype.transform = function TransformEachInIntoEach_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      BlockStatement: function (node) {
+        if (node.path.original === 'each-in') {
+          node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
+          return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
+        }
+      }
+    });
+
+    return ast;
+  };
+});
 enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
   /**
    @module ember
@@ -2178,7 +2232,7 @@ enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['e
     return ast;
   };
 });
-enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberMetalAssign) {
+enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberMetalAssign) {
   'use strict';
 
   exports.default = compileOptions;
@@ -2186,7 +2240,7 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
   exports.removePlugin = removePlugin;
   var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
   // the following are ember-glimmer specific
-  _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default]);
+  _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];
