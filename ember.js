@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2bb78900
+ * @version   2.7.0-canary+7559b445
  */
 
 var enifed, requireModule, require, Ember;
@@ -3751,7 +3751,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2bb78900";
+  exports.default = "2.7.0-canary+7559b445";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -46164,13 +46164,12 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
   }
 });
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-testing/test'], function (exports, _emberRuntimeExtRsvp, _emberTestingTest) {
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
   'use strict';
 
   exports.default = pauseTest;
 
   function pauseTest() {
-    _emberTestingTest.default.adapter.asyncStart();
     return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
   }
 });
@@ -46514,7 +46513,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
    @return {Object} A promise that will never resolve
    @public
   */
-  _emberTestingTestHelpers.registerHelper('pauseTest', _emberTestingHelpersPause_test.default);
+  _emberTestingTestHelpers.registerAsyncHelper('pauseTest', _emberTestingHelpersPause_test.default);
 
   /**
     Triggers the given DOM event on the element identified by the provided selector.

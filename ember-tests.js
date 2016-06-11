@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2bb78900
+ * @version   2.7.0-canary+7559b445
  */
 
 var enifed, requireModule, require, Ember;
@@ -85014,11 +85014,14 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
 
   QUnit.test('pauseTest pauses', function () {
     expect(1);
+
     function fakeAdapterAsyncStart() {
-      ok(true, 'Async start should be called');
+      ok(true, 'Async start should be called after waiting for other helpers');
     }
 
-    _emberTestingTest.default.adapter.asyncStart = fakeAdapterAsyncStart;
+    App.testHelpers.andThen(function () {
+      _emberTestingTest.default.adapter.asyncStart = fakeAdapterAsyncStart;
+    });
 
     App.testHelpers.pauseTest();
   });
