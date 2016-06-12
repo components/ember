@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5903017d
+ * @version   2.7.0-canary+66e98212
  */
 
 var enifed, requireModule, require, Ember;
@@ -1872,8 +1872,15 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-htmlbars/views/outlet', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer', 'ember-metal/features'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberHtmlbarsViewsOutlet, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer, _emberMetalFeatures) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer', 'ember-metal/features', 'require'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer, _emberMetalFeatures, _require) {
   'use strict';
+
+  var OutletView = undefined;
+  if (_emberMetalFeatures.default('ember-glimmer')) {
+    OutletView = _require.default('ember-glimmer/views/outlet').default;
+  } else {
+    OutletView = _require.default('ember-htmlbars/views/outlet').OutletView;
+  }
 
   var App, appInstance;
   var originalHelpers;
@@ -2266,7 +2273,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     _emberViewsSystemJquery.default('#fizzbuzz', '#wrapper').click();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Components receive the top-level view as their ownerView', function (assert) {
+  QUnit.test('Components receive the top-level view as their ownerView', function (assert) {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{my-component}}'));
     _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('<div></div>'));
@@ -2287,10 +2294,8 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     // should not be considered a breaking change to public APIs.
     var ownerView = component.ownerView;
     assert.ok(ownerView, 'owner view was set');
-    assert.ok(ownerView instanceof _emberHtmlbarsViewsOutlet.OutletView, 'owner view has no parent view');
+    assert.ok(ownerView instanceof OutletView, 'owner view has no parent view');
     assert.notStrictEqual(component, ownerView, 'owner view is not itself');
-
-    assert.ok(ownerView._outlets, 'owner view has an internal array of outlets');
   });
 });
 enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-templates/component', 'ember-views/system/jquery', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
@@ -4497,7 +4502,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     shouldBeActive('#lobby-link');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Quoteless route param performs property lookup', function () {
+  QUnit.test('Quoteless route param performs property lookup', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}"));
 
     function assertEquality(href) {
@@ -4822,7 +4827,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(normalizeUrl(_emberViewsSystemJquery.default('li a:contains(Erik)').attr('href')), '/item/erik');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('The non-block form {{link-to}} performs property lookup', function () {
+  QUnit.test('The non-block form {{link-to}} performs property lookup', function () {
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}"));
 
     function assertEquality(href) {
@@ -7291,7 +7296,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     bootApplication();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Only use route rendered into main outlet for default into property on child', function () {
+  QUnit.test('Only use route rendered into main outlet for default into property on child', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet \'menu\'}}{{outlet}}'));
     _emberTemplatesTemplate_registry.set('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
     _emberTemplatesTemplate_registry.set('posts/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<p class="posts-index">postsIndex</p>'));
@@ -7383,7 +7388,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   if (_emberMetalFeatures.default('ember-route-serializers')) {
-    _internalTestHelpersTestsSkipIfGlimmer.test('Custom Route#serialize method still works [DEPRECATED]', function () {
+    QUnit.test('Custom Route#serialize method still works [DEPRECATED]', function () {
       Router.map(function () {
         this.route('posts', function () {
           this.route('index', {
@@ -8243,7 +8248,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     bootApplication();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Redirecting with null model doesn\'t error out', function () {
+  QUnit.test('Redirecting with null model doesn\'t error out', function () {
     function serializeAboutRoute(model) {
       if (model === null) {
         return { hurhurhur: 'TreeklesMcGeekles' };
@@ -84578,7 +84583,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`click` triggers native events with simulated X/Y coordinates', function () {
+  QUnit.test('`click` triggers native events with simulated X/Y coordinates', function () {
     expect(15);
 
     var click, wait, events;
@@ -88526,9 +88531,9 @@ enifed('internal-test-helpers/tests/skip-if-glimmer', ['exports', 'ember-metal/f
 
   function test(name, fn) {
     if (_emberMetalFeatures.default('ember-glimmer')) {
-      QUnit.skip('[GLIMMER] ' + name, fn);
+      QUnit.skip('[SKIPPED IN GLIMMER] ' + name, fn);
     } else {
-      QUnit.test(name, fn);
+      QUnit.test('[SKIPPED IN GLIMMER] ' + name, fn);
     }
   }
 
