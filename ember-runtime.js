@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+31d12657
+ * @version   2.7.0-canary+d801dc31
  */
 
 var enifed, requireModule, require, Ember;
@@ -1156,6 +1156,8 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
   'use strict';
 
+  exports.default = Container;
+
   var CONTAINER_OVERRIDE = _emberMetalSymbol.default('CONTAINER_OVERRIDE');
 
   /**
@@ -1171,6 +1173,7 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
    @private
    @class Container
    */
+
   function Container(registry, options) {
     this.registry = registry;
     this.owner = options && options.owner ? options.owner : null;
@@ -1179,6 +1182,7 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
     this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
     this[CONTAINER_OVERRIDE] = undefined;
+    this.isDestroyed = false;
   }
 
   Container.prototype = {
@@ -1224,23 +1228,23 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
      The singleton is scoped to the container, allowing multiple containers
      to all have their own locally scoped singletons.
       ```javascript
-     var registry = new Registry();
-     var container = registry.container();
+     let registry = new Registry();
+     let container = registry.container();
       registry.register('api:twitter', Twitter);
-      var twitter = container.lookup('api:twitter');
+      let twitter = container.lookup('api:twitter');
       twitter instanceof Twitter; // => true
       // by default the container will return singletons
-     var twitter2 = container.lookup('api:twitter');
+     let twitter2 = container.lookup('api:twitter');
      twitter2 instanceof Twitter; // => true
       twitter === twitter2; //=> true
      ```
       If singletons are not wanted, an optional flag can be provided at lookup.
       ```javascript
-     var registry = new Registry();
-     var container = registry.container();
+     let registry = new Registry();
+     let container = registry.container();
       registry.register('api:twitter', Twitter);
-      var twitter = container.lookup('api:twitter', { singleton: false });
-     var twitter2 = container.lookup('api:twitter', { singleton: false });
+      let twitter = container.lookup('api:twitter', { singleton: false });
+     let twitter2 = container.lookup('api:twitter', { singleton: false });
       twitter === twitter2; //=> false
      ```
       @private
@@ -1360,7 +1364,7 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
     if (arguments.length > 1) {
       var container = arguments[0];
       var injections = [];
-      var injection;
+      var injection = undefined;
 
       for (var i = 1; i < arguments.length; i++) {
         if (arguments[i]) {
@@ -1370,7 +1374,7 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
 
       container.registry.validateInjections(injections);
 
-      for (i = 0; i < injections.length; i++) {
+      for (var i = 0; i < injections.length; i++) {
         injection = injections[i];
         hash[injection.property] = lookup(container, injection.fullName);
         if (!isSingleton(container, injection.fullName)) {
@@ -1466,7 +1470,8 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
 
   function instantiate(container, fullName) {
     var factory = factoryFor(container, fullName);
-    var lazyInjections, validationCache;
+    var lazyInjections = undefined,
+        validationCache = undefined;
 
     if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
@@ -1474,7 +1479,7 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
 
     if (factory) {
       if (typeof factory.create !== 'function') {
-        throw new Error('Failed to create an instance of \'' + fullName + '\'. ' + 'Most likely an improperly defined class or an invalid module export.');
+        throw new Error('Failed to create an instance of \'' + fullName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
       }
 
       validationCache = container.validationCache;
@@ -1542,11 +1547,10 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
   function eachDestroyable(container, callback) {
     var cache = container.cache;
     var keys = Object.keys(cache);
-    var key, value;
 
     for (var i = 0; i < keys.length; i++) {
-      key = keys[i];
-      value = cache[key];
+      var key = keys[i];
+      var value = cache[key];
 
       if (container.registry.getOption(key, 'instantiate') !== false) {
         callback(value);
@@ -1577,8 +1581,6 @@ enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debu
       }
     }
   }
-
-  exports.default = Container;
 });
 enifed('container/index', ['exports', 'container/registry', 'container/container', 'container/owner'], function (exports, _containerRegistry, _containerContainer, _containerOwner) {
   /*
@@ -1670,6 +1672,7 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
 enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/assign', 'container/container', 'ember-metal/utils'], function (exports, _emberMetalDebug, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalAssign, _containerContainer, _emberMetalUtils) {
   'use strict';
 
+  exports.default = Registry;
   exports.privatize = privatize;
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
@@ -1687,6 +1690,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
    @class Registry
    @since 1.11.0
   */
+
   function Registry(options) {
     this.fallback = options && options.fallback ? options.fallback : null;
 
@@ -1809,7 +1813,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      Registers a factory for later injection.
       Example:
       ```javascript
-     var registry = new Registry();
+     let registry = new Registry();
       registry.register('model:user', Person, {singleton: false });
      registry.register('fruit:favorite', Orange);
      registry.register('communication:main', Email, {singleton: false});
@@ -1826,13 +1830,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       if (factory === undefined) {
-        throw new TypeError('Attempting to register an unknown factory: `' + fullName + '`');
+        throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
       }
 
       var normalizedName = this.normalize(fullName);
 
       if (this._resolveCache[normalizedName]) {
-        throw new Error('Cannot re-register: `' + fullName + '`, as it has already been resolved.');
+        throw new Error('Cannot re-register: \'' + fullName + '\', as it has already been resolved.');
       }
 
       delete this._failCache[normalizedName];
@@ -1843,7 +1847,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     /**
      Unregister a fullName
       ```javascript
-     var registry = new Registry();
+     let registry = new Registry();
      registry.register('model:user', User);
       registry.resolve('model:user').create() instanceof User //=> true
       registry.unregister('model:user')
@@ -1871,7 +1875,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       By default `resolve` will retrieve the factory from
      the registry.
       ```javascript
-     var registry = new Registry();
+     let registry = new Registry();
      registry.register('api:twitter', Twitter);
       registry.resolve('api:twitter') // => Twitter
      ```
@@ -1880,7 +1884,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      the opportunity to resolve the fullName, otherwise it will fallback
      to the registry.
       ```javascript
-     var registry = new Registry();
+     let registry = new Registry();
      registry.resolver = function(fullName) {
         // lookup via the module system of choice
       };
@@ -1994,17 +1998,17 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     /**
      Allow registering options for all factories of a type.
       ```javascript
-     var registry = new Registry();
-     var container = registry.container();
+     let registry = new Registry();
+     let container = registry.container();
       // if all of type `connection` must not be singletons
      registry.optionsForType('connection', { singleton: false });
       registry.register('connection:twitter', TwitterConnection);
      registry.register('connection:facebook', FacebookConnection);
-      var twitter = container.lookup('connection:twitter');
-     var twitter2 = container.lookup('connection:twitter');
+      let twitter = container.lookup('connection:twitter');
+     let twitter2 = container.lookup('connection:twitter');
       twitter === twitter2; // => false
-      var facebook = container.lookup('connection:facebook');
-     var facebook2 = container.lookup('connection:facebook');
+      let facebook = container.lookup('connection:facebook');
+     let facebook2 = container.lookup('connection:facebook');
       facebook === facebook2; // => false
      ```
       @private
@@ -2040,6 +2044,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     getOptions: function (fullName) {
       var normalizedName = this.normalize(fullName);
       var options = this._options[normalizedName];
+
       if (options === undefined && this.fallback) {
         options = this.fallback.getOptions(fullName);
       }
@@ -2071,14 +2076,14 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       For example, provided each object of type `controller` needed a `router`.
      one would do the following:
       ```javascript
-     var registry = new Registry();
-     var container = registry.container();
+     let registry = new Registry();
+     let container = registry.container();
       registry.register('router:main', Router);
      registry.register('controller:user', UserController);
      registry.register('controller:post', PostController);
       registry.typeInjection('controller', 'router', 'router:main');
-      var user = container.lookup('controller:user');
-     var post = container.lookup('controller:post');
+      let user = container.lookup('controller:user');
+     let post = container.lookup('controller:post');
       user.router instanceof Router; //=> true
      post.router instanceof Router; //=> true
       // both controllers share the same router
@@ -2095,7 +2100,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
 
       var fullNameType = fullName.split(':')[0];
       if (fullNameType === type) {
-        throw new Error('Cannot inject a `' + fullName + '` on other ' + type + '(s).');
+        throw new Error('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).');
       }
 
       var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
@@ -2115,8 +2120,8 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      * Injecting one fullName on a type
       Example:
       ```javascript
-     var registry = new Registry();
-     var container = registry.container();
+     let registry = new Registry();
+     let container = registry.container();
       registry.register('source:main', Source);
      registry.register('model:user', User);
      registry.register('model:post', Post);
@@ -2125,8 +2130,8 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      registry.injection('model:user', 'post', 'model:post');
       // injecting one fullName on another type
      registry.injection('model', 'source', 'source:main');
-      var user = container.lookup('model:user');
-     var post = container.lookup('model:post');
+      let user = container.lookup('model:user');
+     let post = container.lookup('model:post');
       user.source instanceof Source; //=> true
      post.source instanceof Source; //=> true
       user.post instanceof Post; //=> true
@@ -2166,11 +2171,11 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       For example, provided each factory of type `model` needed a `store`.
      one would do the following:
       ```javascript
-     var registry = new Registry();
+     let registry = new Registry();
       registry.register('store:main', SomeStore);
       registry.factoryTypeInjection('model', 'store', 'store:main');
-      var store = registry.lookup('store:main');
-     var UserFactory = registry.lookupFactory('model:user');
+      let store = registry.lookup('store:main');
+     let UserFactory = registry.lookupFactory('model:user');
       UserFactory.store instanceof SomeStore; //=> true
      ```
       @private
@@ -2199,8 +2204,8 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      * Injecting one fullName on a type
       Example:
       ```javascript
-     var registry = new Registry();
-     var container = registry.container();
+     let registry = new Registry();
+     let container = registry.container();
       registry.register('store:main', Store);
      registry.register('store:secondary', OtherStore);
      registry.register('model:user', User);
@@ -2209,9 +2214,9 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      registry.factoryInjection('model', 'store', 'store:main');
       // injecting one fullName on another fullName
      registry.factoryInjection('model:post', 'secondaryStore', 'store:secondary');
-      var UserFactory = container.lookupFactory('model:user');
-     var PostFactory = container.lookupFactory('model:post');
-     var store = container.lookup('store:main');
+      let UserFactory = container.lookupFactory('model:user');
+     let PostFactory = container.lookupFactory('model:post');
+     let store = container.lookup('store:main');
       UserFactory.store instanceof Store; //=> true
      UserFactory.secondaryStore instanceof OtherStore; //=> false
       PostFactory.store instanceof Store; //=> true
@@ -2276,7 +2281,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
 
     validateFullName: function (fullName) {
       if (!this.isValidFullName(fullName)) {
-        throw new TypeError('Invalid Fullname, expected: `type:name` got: ' + fullName);
+        throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
       }
 
       return true;
@@ -2291,13 +2296,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
         return;
       }
 
-      var fullName;
+      var fullName = undefined;
 
       for (var i = 0; i < injections.length; i++) {
         fullName = injections[i].fullName;
 
         if (!this.has(fullName)) {
-          throw new Error('Attempting to inject an unknown injection: `' + fullName + '`');
+          throw new Error('Attempting to inject an unknown injection: \'' + fullName + '\'');
         }
       }
     },
@@ -2364,7 +2369,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
    fullName. Used to allow for local lookup.
   
    ```javascript
-   var registry = new Registry();
+   let registry = new Registry();
   
    // the twitter factory is added to the module system
    registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
@@ -2457,7 +2462,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
   }
 
   var privateNames = _emberMetalDictionary.default(null);
-  var privateSuffix = Math.floor(Math.random() * new Date()) + '';
+  var privateSuffix = '' + Math.random() + Date.now();
 
   function privatize(_ref) {
     var fullName = _ref[0];
@@ -2474,8 +2479,6 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
 
     return privateNames[fullName] = _emberMetalUtils.intern(type + ':' + rawName + '-' + privateSuffix);
   }
-
-  exports.default = Registry;
 });
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
@@ -2485,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+31d12657";
+  exports.default = "2.7.0-canary+d801dc31";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';

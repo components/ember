@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+31d12657
+ * @version   2.7.0-canary+d801dc31
  */
 
 var enifed, requireModule, require, Ember;
@@ -115,7 +115,7 @@ var mainContext = this;
 enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'container/registry', 'container/tests/test-helpers/factory', 'container/owner'], function (exports, _emberEnvironment, _emberMetalProperty_get, _containerRegistry, _containerTestsTestHelpersFactory, _containerOwner) {
   'use strict';
 
-  var originalModelInjections;
+  var originalModelInjections = undefined;
 
   QUnit.module('Container', {
     setup: function () {
@@ -195,7 +195,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
     var registry = new _containerRegistry.default();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
-    var instance;
+    var instance = undefined;
 
     registry.register('controller:post', PostController);
     instance = container.lookupFactory('controller:post').create();
@@ -624,7 +624,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
 
     throws(function () {
       container.lookup('apple:main');
-    }, /Attempting to inject an unknown injection: `banana:main`/);
+    }, /Attempting to inject an unknown injection: 'banana:main'/);
   });
 
   QUnit.test('Lazy injection validations are cached', function () {
@@ -684,9 +684,9 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
     var container = registry.container({ owner: owner });
 
     // Define a simple non-extendable factory
-    var PostController = function (options) {
+    function PostController(options) {
       this.container = options.container;
-    };
+    }
 
     PostController.create = function (options) {
       ok(options.container, 'fake container has been injected and is available during `create`.');
@@ -911,7 +911,7 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
 
     throws(function () {
       registry.typeInjection('controller', 'injected', 'controller:post');
-    }, /Cannot inject a `controller:post` on other controller\(s\)\./);
+    }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
   });
 
   QUnit.test('The registry can take a hook to resolve factories lazily', function () {
@@ -983,11 +983,11 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
     registry.register('controller:post', PostController);
     throws(function () {
       registry.validateFullName('post');
-    }, /TypeError: Invalid Fullname, expected: `type:name` got: post/);
+    }, /TypeError: Invalid Fullname, expected: 'type:name' got: post/);
 
     throws(function () {
       registry.validateFullName('route:http://foo.bar.com/baz');
-    }, /TypeError: Invalid Fullname, expected: `type:name` got: route:http:\/\/foo.bar.com\/baz/);
+    }, /TypeError: Invalid Fullname, expected: 'type:name' got: route:http:\/\/foo.bar.com\/baz/);
   });
 
   QUnit.test('The registry normalizes names when injecting', function () {
@@ -1035,7 +1035,7 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
 
     throws(function () {
       registry.register('controller:apple', SecondApple);
-    }, /Cannot re-register: `controller:apple`, as it has already been resolved\./);
+    }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
 
     strictEqual(registry.resolve('controller:apple'), FirstApple);
   });
@@ -1618,23 +1618,24 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
   'use strict';
 
   exports.default = factory;
-  var setProperties = function (object, properties) {
+  function setProperties(object, properties) {
     for (var key in properties) {
       if (properties.hasOwnProperty(key)) {
         object[key] = properties[key];
       }
     }
-  };
+  }
 
   var guids = 0;
 
   function factory() {
     /*jshint validthis: true */
 
-    var Klass = function (options) {
+    function Klass(options) {
       setProperties(this, options);
       this._guid = guids++;
-    };
+      this.isDestroyed = false;
+    }
 
     Klass.prototype.constructor = Klass;
     Klass.prototype.destroy = function () {
@@ -1661,9 +1662,9 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
 
     function extend(options) {
-      var Child = function (options) {
+      function Child(options) {
         Klass.call(this, options);
-      };
+      }
 
       var Parent = this;
 
@@ -73245,7 +73246,7 @@ enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal/injected_prop
 
       throws(function () {
         owner.lookup('foo:main');
-      }, /Attempting to inject an unknown injection: `bar:baz`/);
+      }, /Attempting to inject an unknown injection: 'bar:baz'/);
     });
   }
 
