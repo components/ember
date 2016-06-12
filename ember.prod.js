@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7559b445
+ * @version   2.7.0-canary+5903017d
  */
 
 var enifed, requireModule, require, Ember;
@@ -3728,7 +3728,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+7559b445";
+  exports.default = "2.7.0-canary+5903017d";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11341,6 +11341,10 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
 
       if (parentValue && typeof parentValue === 'object') {
+        if (false) {
+          var meta = _emberMetalMeta.meta(parentValue);
+          _emberMetalWatch_key.watchKey(parentValue, _propertyKey, meta);
+        }
         return _emberMetalProperty_get.get(parentValue, _propertyKey);
       } else {
         return null;
@@ -25889,6 +25893,38 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     descriptor: META_DESC
   };
 
+  if (false) {
+    Meta.prototype.readInheritedValue = function (key, subkey) {
+      var internalKey = '_' + key;
+
+      var pointer = this;
+
+      while (pointer !== undefined) {
+        var map = pointer[internalKey];
+        if (map) {
+          var value = map[subkey];
+          if (value !== undefined || subkey in map) {
+            return map[subkey];
+          }
+        }
+        pointer = pointer.parent;
+      }
+
+      return UNDEFINED;
+    };
+
+    Meta.prototype.writeValue = function (obj, key, value) {
+      var descriptor = _emberMetalUtils.lookupDescriptor(obj, key);
+      var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
+
+      if (isMandatorySetter) {
+        this.writeValues(key, value);
+      } else {
+        obj[key] = value;
+      }
+    };
+  }
+
   // choose the one appropriate for given platform
   var setMeta = function (obj, meta) {
     // if `null` already, just set it to the new value
@@ -27427,9 +27463,20 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
 
     if (desc instanceof Descriptor) {
       value = desc;
-
-      obj[keyName] = value;
-
+      if (false) {
+        if (watching) {
+          Object.defineProperty(obj, keyName, {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: value
+          });
+        } else {
+          obj[keyName] = value;
+        }
+      } else {
+        obj[keyName] = value;
+      }
       if (desc.setup) {
         desc.setup(obj, keyName);
       }
@@ -27437,7 +27484,28 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
       if (desc == null) {
         value = data;
 
-        obj[keyName] = data;
+        if (false) {
+          if (watching) {
+            meta.writeValues(keyName, data);
+
+            var defaultDescriptor = {
+              configurable: true,
+              enumerable: true,
+              set: MANDATORY_SETTER_FUNCTION(keyName),
+              get: DEFAULT_GETTER_FUNCTION(keyName)
+            };
+
+            if (REDEFINE_SUPPORTED) {
+              Object.defineProperty(obj, keyName, defaultDescriptor);
+            } else {
+              handleBrokenPhantomDefineProperty(obj, keyName, defaultDescriptor);
+            }
+          } else {
+            obj[keyName] = data;
+          }
+        } else {
+          obj[keyName] = data;
+        }
       } else {
         value = desc;
 
@@ -27931,12 +27999,36 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     } else {
       _emberMetalProperty_events.propertyWillChange(obj, keyName);
 
-      obj[keyName] = value;
+      if (false) {
+        setWithMandatorySetter(meta, obj, keyName, value);
+      } else {
+        obj[keyName] = value;
+      }
 
       _emberMetalProperty_events.propertyDidChange(obj, keyName);
     }
 
     return value;
+  }
+
+  if (false) {
+    var setWithMandatorySetter = function (meta, obj, keyName, value) {
+      if (meta && meta.peekWatching(keyName) > 0) {
+        makeEnumerable(obj, keyName);
+        meta.writeValue(obj, keyName, value);
+      } else {
+        obj[keyName] = value;
+      }
+    };
+
+    var makeEnumerable = function (obj, key) {
+      var desc = Object.getOwnPropertyDescriptor(obj, key);
+
+      if (desc && desc.set && desc.set.isMandatorySetter) {
+        desc.enumerable = true;
+        Object.defineProperty(obj, key, desc);
+      }
+    };
   }
 
   function setPath(root, path, value, tolerant) {
@@ -29490,9 +29582,61 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
       if ('function' === typeof obj.willWatchProperty) {
         obj.willWatchProperty(keyName);
       }
+
+      if (false) {
+        // NOTE: this is dropped for prod + minified builds
+        handleMandatorySetter(m, obj, keyName);
+      }
     } else {
       m.writeWatching(keyName, (m.peekWatching(keyName) || 0) + 1);
     }
+  }
+
+  if (false) {
+    (function () {
+      var hasOwnProperty = function (obj, key) {
+        return Object.prototype.hasOwnProperty.call(obj, key);
+      };
+
+      var propertyIsEnumerable = function (obj, key) {
+        return Object.prototype.propertyIsEnumerable.call(obj, key);
+      };
+
+      // Future traveler, although this code looks scary. It merely exists in
+      // development to aid in development asertions. Production builds of
+      // ember strip this entire block out
+      handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+        var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+        var configurable = descriptor ? descriptor.configurable : true;
+        var isWritable = descriptor ? descriptor.writable : true;
+        var hasValue = descriptor ? 'value' in descriptor : true;
+        var possibleDesc = descriptor && descriptor.value;
+        var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+
+        if (isDescriptor) {
+          return;
+        }
+
+        // this x in Y deopts, so keeping it in this function is better;
+        if (configurable && isWritable && hasValue && keyName in obj) {
+          var desc = {
+            configurable: true,
+            set: _emberMetalProperties.MANDATORY_SETTER_FUNCTION(keyName),
+            enumerable: propertyIsEnumerable(obj, keyName),
+            get: undefined
+          };
+
+          if (hasOwnProperty(obj, keyName)) {
+            m.writeValues(keyName, obj[keyName]);
+            desc.get = _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName);
+          } else {
+            desc.get = _emberMetalProperties.INHERITING_GETTER_FUNCTION(keyName);
+          }
+
+          Object.defineProperty(obj, keyName, desc);
+        }
+      };
+    })();
   }
 
   function unwatchKey(obj, keyName, meta) {
@@ -29511,28 +29655,43 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
       if ('function' === typeof obj.didUnwatchProperty) {
         obj.didUnwatchProperty(keyName);
       }
+
+      if (false) {
+        // It is true, the following code looks quite WAT. But have no fear, It
+        // exists purely to improve development ergonomics and is removed from
+        // ember.min.js and ember.prod.js builds.
+        //
+        // Some further context: Once a property is watched by ember, bypassing `set`
+        // for mutation, will bypass observation. This code exists to assert when
+        // that occurs, and attempt to provide more helpful feedback. The alternative
+        // is tricky to debug partially observable properties.
+        if (!desc && keyName in obj) {
+          var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+
+          if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
+            if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
+              var possibleValue = m.readInheritedValue('values', keyName);
+              if (possibleValue === _emberMetalMeta.UNDEFINED) {
+                delete obj[keyName];
+                return;
+              }
+            }
+
+            Object.defineProperty(obj, keyName, {
+              configurable: true,
+              enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
+              writable: true,
+              value: m.peekValues(keyName)
+            });
+            m.deleteFromValues(keyName);
+          }
+        }
+      }
     } else if (count > 1) {
       m.writeWatching(keyName, count - 1);
     }
   }
 });
-
-// NOTE: this is dropped for prod + minified builds
-
-// Future traveler, although this code looks scary. It merely exists in
-// development to aid in development asertions. Production builds of
-// ember strip this entire block out
-
-// this x in Y deopts, so keeping it in this function is better;
-
-// It is true, the following code looks quite WAT. But have no fear, It
-// exists purely to improve development ergonomics and is removed from
-// ember.min.js and ember.prod.js builds.
-//
-// Some further context: Once a property is watched by ember, bypassing `set`
-// for mutation, will bypass observation. This code exists to assert when
-// that occurs, and attempt to provide more helpful feedback. The alternative
-// is tricky to debug partially observable properties.
 enifed('ember-metal/watch_path', ['exports', 'ember-metal/meta', 'ember-metal/chains'], function (exports, _emberMetalMeta, _emberMetalChains) {
   'use strict';
 
@@ -37037,7 +37196,9 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
 
-  EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
+  if (true) {
+    EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
+  }
 
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
@@ -39371,34 +39532,36 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
     }
   });
 
-  Enumerable.reopen({
-    /**
-      Returns a new enumerable that contains only items containing a unique property value.
-      The default implementation returns an array regardless of the receiver type.
-       ```javascript
-      var arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
-      arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
-      ```
-       @method uniqBy
-      @return {Ember.Enumerable}
-      @public
-    */
+  if (true) {
+    Enumerable.reopen({
+      /**
+        Returns a new enumerable that contains only items containing a unique property value.
+        The default implementation returns an array regardless of the receiver type.
+         ```javascript
+        var arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
+        arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
+        ```
+         @method uniqBy
+        @return {Ember.Enumerable}
+        @public
+      */
 
-    uniqBy: function (key) {
-      var ret = emberA();
-      var seen = new _emberMetalEmpty_object.default();
+      uniqBy: function (key) {
+        var ret = emberA();
+        var seen = new _emberMetalEmpty_object.default();
 
-      this.forEach(function (item) {
-        var guid = _emberMetalUtils.guidFor(_emberMetalProperty_get.get(item, key));
-        if (!(guid in seen)) {
-          seen[guid] = true;
-          ret.push(item);
-        }
-      });
+        this.forEach(function (item) {
+          var guid = _emberMetalUtils.guidFor(_emberMetalProperty_get.get(item, key));
+          if (!(guid in seen)) {
+            seen[guid] = true;
+            ret.push(item);
+          }
+        });
 
-      return ret;
-    }
-  });
+        return ret;
+      }
+    });
+  }
 
   if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
     Enumerable.reopen({
@@ -41707,7 +41870,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
               if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                this[keyName] = value;
+                if (false) {
+                  _emberMetalProperties.defineProperty(this, keyName, null, value); // setup mandatory setter
+                } else {
+                    this[keyName] = value;
+                  }
               }
             }
           }
@@ -42213,7 +42380,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
 
 // NOTE: this object should never be included directly. Instead use `Ember.Object`.
 // We only define this separately so that `Ember.Set` can depend on it.
-// setup mandatory setter
 
 /**
   Defines the properties that will be concatenated from the superclass

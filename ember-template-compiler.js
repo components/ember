@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7559b445
+ * @version   2.7.0-canary+5903017d
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+7559b445";
+  exports.default = "2.7.0-canary+5903017d";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -6994,35 +6994,37 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     descriptor: META_DESC
   };
 
-  Meta.prototype.readInheritedValue = function (key, subkey) {
-    var internalKey = '_' + key;
+  if (true) {
+    Meta.prototype.readInheritedValue = function (key, subkey) {
+      var internalKey = '_' + key;
 
-    var pointer = this;
+      var pointer = this;
 
-    while (pointer !== undefined) {
-      var map = pointer[internalKey];
-      if (map) {
-        var value = map[subkey];
-        if (value !== undefined || subkey in map) {
-          return map[subkey];
+      while (pointer !== undefined) {
+        var map = pointer[internalKey];
+        if (map) {
+          var value = map[subkey];
+          if (value !== undefined || subkey in map) {
+            return map[subkey];
+          }
         }
+        pointer = pointer.parent;
       }
-      pointer = pointer.parent;
-    }
 
-    return UNDEFINED;
-  };
+      return UNDEFINED;
+    };
 
-  Meta.prototype.writeValue = function (obj, key, value) {
-    var descriptor = _emberMetalUtils.lookupDescriptor(obj, key);
-    var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
+    Meta.prototype.writeValue = function (obj, key, value) {
+      var descriptor = _emberMetalUtils.lookupDescriptor(obj, key);
+      var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
 
-    if (isMandatorySetter) {
-      this.writeValues(key, value);
-    } else {
-      obj[key] = value;
-    }
-  };
+      if (isMandatorySetter) {
+        this.writeValues(key, value);
+      } else {
+        obj[key] = value;
+      }
+    };
+  }
 
   // choose the one appropriate for given platform
   var setMeta = function (obj, meta) {
@@ -8578,18 +8580,20 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
 
     if (desc instanceof Descriptor) {
       value = desc;
-
-      if (watching) {
-        Object.defineProperty(obj, keyName, {
-          configurable: true,
-          enumerable: true,
-          writable: true,
-          value: value
-        });
+      if (true) {
+        if (watching) {
+          Object.defineProperty(obj, keyName, {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: value
+          });
+        } else {
+          obj[keyName] = value;
+        }
       } else {
         obj[keyName] = value;
       }
-
       if (desc.setup) {
         desc.setup(obj, keyName);
       }
@@ -8597,20 +8601,24 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
       if (desc == null) {
         value = data;
 
-        if (watching) {
-          meta.writeValues(keyName, data);
+        if (true) {
+          if (watching) {
+            meta.writeValues(keyName, data);
 
-          var defaultDescriptor = {
-            configurable: true,
-            enumerable: true,
-            set: MANDATORY_SETTER_FUNCTION(keyName),
-            get: DEFAULT_GETTER_FUNCTION(keyName)
-          };
+            var defaultDescriptor = {
+              configurable: true,
+              enumerable: true,
+              set: MANDATORY_SETTER_FUNCTION(keyName),
+              get: DEFAULT_GETTER_FUNCTION(keyName)
+            };
 
-          if (REDEFINE_SUPPORTED) {
-            Object.defineProperty(obj, keyName, defaultDescriptor);
+            if (REDEFINE_SUPPORTED) {
+              Object.defineProperty(obj, keyName, defaultDescriptor);
+            } else {
+              handleBrokenPhantomDefineProperty(obj, keyName, defaultDescriptor);
+            }
           } else {
-            handleBrokenPhantomDefineProperty(obj, keyName, defaultDescriptor);
+            obj[keyName] = data;
           }
         } else {
           obj[keyName] = data;
@@ -9118,7 +9126,11 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     } else {
       _emberMetalProperty_events.propertyWillChange(obj, keyName);
 
-      setWithMandatorySetter(meta, obj, keyName, value);
+      if (true) {
+        setWithMandatorySetter(meta, obj, keyName, value);
+      } else {
+        obj[keyName] = value;
+      }
 
       _emberMetalProperty_events.propertyDidChange(obj, keyName);
     }
@@ -9126,23 +9138,25 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     return value;
   }
 
-  var setWithMandatorySetter = function (meta, obj, keyName, value) {
-    if (meta && meta.peekWatching(keyName) > 0) {
-      makeEnumerable(obj, keyName);
-      meta.writeValue(obj, keyName, value);
-    } else {
-      obj[keyName] = value;
-    }
-  };
+  if (true) {
+    var setWithMandatorySetter = function (meta, obj, keyName, value) {
+      if (meta && meta.peekWatching(keyName) > 0) {
+        makeEnumerable(obj, keyName);
+        meta.writeValue(obj, keyName, value);
+      } else {
+        obj[keyName] = value;
+      }
+    };
 
-  var makeEnumerable = function (obj, key) {
-    var desc = Object.getOwnPropertyDescriptor(obj, key);
+    var makeEnumerable = function (obj, key) {
+      var desc = Object.getOwnPropertyDescriptor(obj, key);
 
-    if (desc && desc.set && desc.set.isMandatorySetter) {
-      desc.enumerable = true;
-      Object.defineProperty(obj, key, desc);
-    }
-  };
+      if (desc && desc.set && desc.set.isMandatorySetter) {
+        desc.enumerable = true;
+        Object.defineProperty(obj, key, desc);
+      }
+    };
+  }
 
   function setPath(root, path, value, tolerant) {
     var keyName;
@@ -10700,55 +10714,61 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         obj.willWatchProperty(keyName);
       }
 
-      // NOTE: this is dropped for prod + minified builds
-      handleMandatorySetter(m, obj, keyName);
+      if (true) {
+        // NOTE: this is dropped for prod + minified builds
+        handleMandatorySetter(m, obj, keyName);
+      }
     } else {
       m.writeWatching(keyName, (m.peekWatching(keyName) || 0) + 1);
     }
   }
 
-  var hasOwnProperty = function (obj, key) {
-    return Object.prototype.hasOwnProperty.call(obj, key);
-  };
-
-  var propertyIsEnumerable = function (obj, key) {
-    return Object.prototype.propertyIsEnumerable.call(obj, key);
-  };
-
-  // Future traveler, although this code looks scary. It merely exists in
-  // development to aid in development asertions. Production builds of
-  // ember strip this entire block out
-  handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-    var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
-    var configurable = descriptor ? descriptor.configurable : true;
-    var isWritable = descriptor ? descriptor.writable : true;
-    var hasValue = descriptor ? 'value' in descriptor : true;
-    var possibleDesc = descriptor && descriptor.value;
-    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
-    if (isDescriptor) {
-      return;
-    }
-
-    // this x in Y deopts, so keeping it in this function is better;
-    if (configurable && isWritable && hasValue && keyName in obj) {
-      var desc = {
-        configurable: true,
-        set: _emberMetalProperties.MANDATORY_SETTER_FUNCTION(keyName),
-        enumerable: propertyIsEnumerable(obj, keyName),
-        get: undefined
+  if (true) {
+    (function () {
+      var hasOwnProperty = function (obj, key) {
+        return Object.prototype.hasOwnProperty.call(obj, key);
       };
 
-      if (hasOwnProperty(obj, keyName)) {
-        m.writeValues(keyName, obj[keyName]);
-        desc.get = _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName);
-      } else {
-        desc.get = _emberMetalProperties.INHERITING_GETTER_FUNCTION(keyName);
-      }
+      var propertyIsEnumerable = function (obj, key) {
+        return Object.prototype.propertyIsEnumerable.call(obj, key);
+      };
 
-      Object.defineProperty(obj, keyName, desc);
-    }
-  };
+      // Future traveler, although this code looks scary. It merely exists in
+      // development to aid in development asertions. Production builds of
+      // ember strip this entire block out
+      handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+        var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+        var configurable = descriptor ? descriptor.configurable : true;
+        var isWritable = descriptor ? descriptor.writable : true;
+        var hasValue = descriptor ? 'value' in descriptor : true;
+        var possibleDesc = descriptor && descriptor.value;
+        var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+
+        if (isDescriptor) {
+          return;
+        }
+
+        // this x in Y deopts, so keeping it in this function is better;
+        if (configurable && isWritable && hasValue && keyName in obj) {
+          var desc = {
+            configurable: true,
+            set: _emberMetalProperties.MANDATORY_SETTER_FUNCTION(keyName),
+            enumerable: propertyIsEnumerable(obj, keyName),
+            get: undefined
+          };
+
+          if (hasOwnProperty(obj, keyName)) {
+            m.writeValues(keyName, obj[keyName]);
+            desc.get = _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName);
+          } else {
+            desc.get = _emberMetalProperties.INHERITING_GETTER_FUNCTION(keyName);
+          }
+
+          Object.defineProperty(obj, keyName, desc);
+        }
+      };
+    })();
+  }
 
   function unwatchKey(obj, keyName, meta) {
     var m = meta || _emberMetalMeta.meta(obj);
@@ -10767,33 +10787,35 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         obj.didUnwatchProperty(keyName);
       }
 
-      // It is true, the following code looks quite WAT. But have no fear, It
-      // exists purely to improve development ergonomics and is removed from
-      // ember.min.js and ember.prod.js builds.
-      //
-      // Some further context: Once a property is watched by ember, bypassing `set`
-      // for mutation, will bypass observation. This code exists to assert when
-      // that occurs, and attempt to provide more helpful feedback. The alternative
-      // is tricky to debug partially observable properties.
-      if (!desc && keyName in obj) {
-        var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+      if (true) {
+        // It is true, the following code looks quite WAT. But have no fear, It
+        // exists purely to improve development ergonomics and is removed from
+        // ember.min.js and ember.prod.js builds.
+        //
+        // Some further context: Once a property is watched by ember, bypassing `set`
+        // for mutation, will bypass observation. This code exists to assert when
+        // that occurs, and attempt to provide more helpful feedback. The alternative
+        // is tricky to debug partially observable properties.
+        if (!desc && keyName in obj) {
+          var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
 
-        if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
-          if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
-            var possibleValue = m.readInheritedValue('values', keyName);
-            if (possibleValue === _emberMetalMeta.UNDEFINED) {
-              delete obj[keyName];
-              return;
+          if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
+            if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
+              var possibleValue = m.readInheritedValue('values', keyName);
+              if (possibleValue === _emberMetalMeta.UNDEFINED) {
+                delete obj[keyName];
+                return;
+              }
             }
-          }
 
-          Object.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-            writable: true,
-            value: m.peekValues(keyName)
-          });
-          m.deleteFromValues(keyName);
+            Object.defineProperty(obj, keyName, {
+              configurable: true,
+              enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
+              writable: true,
+              value: m.peekValues(keyName)
+            });
+            m.deleteFromValues(keyName);
+          }
         }
       }
     } else if (count > 1) {

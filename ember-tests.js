@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7559b445
+ * @version   2.7.0-canary+5903017d
  */
 
 var enifed, requireModule, require, Ember;
@@ -25185,14 +25185,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       this.assertText('foo – bar');
 
-      expectAssertion(function () {
-        component.foo = 'new foo';
-      }, /You must use Ember\.set\(\) to set the `foo` property \(of .+\) to `new foo`\./);
+      if (true) {
+        expectAssertion(function () {
+          component.foo = 'new foo';
+        }, /You must use Ember\.set\(\) to set the `foo` property \(of .+\) to `new foo`\./);
 
-      expectAssertion(function () {
-        component.bar = 'new bar';
-      }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `new bar`\./);
-      this.assertText('foo – bar');
+        expectAssertion(function () {
+          component.bar = 'new bar';
+        }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `new bar`\./);
+        this.assertText('foo – bar');
+      }
 
       throws(function () {
         _this60.runTask(function () {
@@ -25238,11 +25240,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       this.assertText('initial value - initial value');
 
-      expectAssertion(function () {
-        component.bar = 'foo-bar';
-      }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
+      if (true) {
+        expectAssertion(function () {
+          component.bar = 'foo-bar';
+        }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
 
-      this.assertText('initial value - initial value');
+        this.assertText('initial value - initial value');
+      }
 
       this.runTask(function () {
         component.set('bar', 'updated value');
@@ -45775,14 +45779,16 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       this.assertText('foo – bar');
 
-      expectAssertion(function () {
-        component.foo = 'new foo';
-      }, /You must use Ember\.set\(\) to set the `foo` property \(of .+\) to `new foo`\./);
+      if (true) {
+        expectAssertion(function () {
+          component.foo = 'new foo';
+        }, /You must use Ember\.set\(\) to set the `foo` property \(of .+\) to `new foo`\./);
 
-      expectAssertion(function () {
-        component.bar = 'new bar';
-      }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `new bar`\./);
-      this.assertText('foo – bar');
+        expectAssertion(function () {
+          component.bar = 'new bar';
+        }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `new bar`\./);
+        this.assertText('foo – bar');
+      }
 
       throws(function () {
         _this60.runTask(function () {
@@ -45828,11 +45834,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       this.assertText('initial value - initial value');
 
-      expectAssertion(function () {
-        component.bar = 'foo-bar';
-      }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
+      if (true) {
+        expectAssertion(function () {
+          component.bar = 'foo-bar';
+        }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
 
-      this.assertText('initial value - initial value');
+        this.assertText('initial value - initial value');
+      }
 
       this.runTask(function () {
         component.set('bar', 'updated value');
@@ -61123,421 +61131,423 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     return _emberMetalMeta.meta(object).hasInValues(property);
   }
 
-  QUnit.test('does not assert if property is not being watched', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
+  if (true) {
+    QUnit.test('does not assert if property is not being watched', function () {
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
 
-    obj.someProp = 'blastix';
-    equal(_emberMetalProperty_get.get(obj, 'someProp'), 'blastix');
-  });
-
-  QUnit.test('should not setup mandatory-setter if property is not writable', function () {
-    expect(6);
-
-    var obj = {};
-
-    Object.defineProperty(obj, 'a', { value: true });
-    Object.defineProperty(obj, 'b', { value: false });
-    Object.defineProperty(obj, 'c', { value: undefined });
-    Object.defineProperty(obj, 'd', { value: undefined, writable: false });
-    Object.defineProperty(obj, 'e', { value: undefined, configurable: false });
-    Object.defineProperty(obj, 'f', { value: undefined, configurable: true });
-
-    _emberMetalWatching.watch(obj, 'a');
-    _emberMetalWatching.watch(obj, 'b');
-    _emberMetalWatching.watch(obj, 'c');
-    _emberMetalWatching.watch(obj, 'd');
-    _emberMetalWatching.watch(obj, 'e');
-    _emberMetalWatching.watch(obj, 'f');
-
-    ok(!hasMandatorySetter(obj, 'a'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'b'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'c'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'd'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'e'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'f'), 'mandatory-setter should not be installed');
-  });
-
-  QUnit.test('should not teardown non mandatory-setter descriptor', function () {
-    expect(1);
-
-    var obj = { get a() {
-        return 'hi';
-      } };
-
-    _emberMetalWatching.watch(obj, 'a');
-    _emberMetalWatching.unwatch(obj, 'a');
-
-    equal(obj.a, 'hi');
-  });
-
-  QUnit.test('should not confuse non descriptor watched gets', function () {
-    expect(2);
-
-    var obj = { get a() {
-        return 'hi';
-      } };
-
-    _emberMetalWatching.watch(obj, 'a');
-    equal(_emberMetalProperty_get.get(obj, 'a'), 'hi');
-    equal(obj.a, 'hi');
-  });
-
-  QUnit.test('should not setup mandatory-setter if setter is already setup on property', function () {
-    expect(2);
-
-    var obj = { someProp: null };
-
-    Object.defineProperty(obj, 'someProp', {
-      get: function () {
-        return null;
-      },
-
-      set: function (value) {
-        equal(value, 'foo-bar', 'custom setter was called');
-      }
+      obj.someProp = 'blastix';
+      equal(_emberMetalProperty_get.get(obj, 'someProp'), 'blastix');
     });
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+    QUnit.test('should not setup mandatory-setter if property is not writable', function () {
+      expect(6);
 
-    obj.someProp = 'foo-bar';
-  });
+      var obj = {};
 
-  QUnit.test('watched ES5 setter should not be smashed by mandatory setter', function () {
-    var value = undefined;
-    var obj = {
-      get foo() {},
-      set foo(_value) {
-        value = _value;
-      }
-    };
+      Object.defineProperty(obj, 'a', { value: true });
+      Object.defineProperty(obj, 'b', { value: false });
+      Object.defineProperty(obj, 'c', { value: undefined });
+      Object.defineProperty(obj, 'd', { value: undefined, writable: false });
+      Object.defineProperty(obj, 'e', { value: undefined, configurable: false });
+      Object.defineProperty(obj, 'f', { value: undefined, configurable: true });
 
-    _emberMetalWatching.watch(obj, 'foo');
+      _emberMetalWatching.watch(obj, 'a');
+      _emberMetalWatching.watch(obj, 'b');
+      _emberMetalWatching.watch(obj, 'c');
+      _emberMetalWatching.watch(obj, 'd');
+      _emberMetalWatching.watch(obj, 'e');
+      _emberMetalWatching.watch(obj, 'f');
 
-    _emberMetalProperty_set.set(obj, 'foo', 2);
-    equal(value, 2);
-  });
-
-  QUnit.test('should not setup mandatory-setter if setter is already setup on property in parent prototype', function () {
-    expect(2);
-
-    function Foo() {}
-
-    Object.defineProperty(Foo.prototype, 'someProp', {
-      get: function () {
-        return null;
-      },
-
-      set: function (value) {
-        equal(value, 'foo-bar', 'custom setter was called');
-      }
+      ok(!hasMandatorySetter(obj, 'a'), 'mandatory-setter should not be installed');
+      ok(!hasMandatorySetter(obj, 'b'), 'mandatory-setter should not be installed');
+      ok(!hasMandatorySetter(obj, 'c'), 'mandatory-setter should not be installed');
+      ok(!hasMandatorySetter(obj, 'd'), 'mandatory-setter should not be installed');
+      ok(!hasMandatorySetter(obj, 'e'), 'mandatory-setter should not be installed');
+      ok(!hasMandatorySetter(obj, 'f'), 'mandatory-setter should not be installed');
     });
 
-    var obj = new Foo();
+    QUnit.test('should not teardown non mandatory-setter descriptor', function () {
+      expect(1);
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+      var obj = { get a() {
+          return 'hi';
+        } };
 
-    obj.someProp = 'foo-bar';
-  });
+      _emberMetalWatching.watch(obj, 'a');
+      _emberMetalWatching.unwatch(obj, 'a');
 
-  QUnit.test('should not setup mandatory-setter if setter is already setup on property in grandparent prototype', function () {
-    expect(2);
-
-    function Foo() {}
-
-    Object.defineProperty(Foo.prototype, 'someProp', {
-      get: function () {
-        return null;
-      },
-
-      set: function (value) {
-        equal(value, 'foo-bar', 'custom setter was called');
-      }
+      equal(obj.a, 'hi');
     });
 
-    function Bar() {}
-    Bar.prototype = Object.create(Foo.prototype);
-    Bar.prototype.constructor = Bar;
+    QUnit.test('should not confuse non descriptor watched gets', function () {
+      expect(2);
 
-    var obj = new Bar();
+      var obj = { get a() {
+          return 'hi';
+        } };
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
-
-    obj.someProp = 'foo-bar';
-  });
-
-  QUnit.test('should not setup mandatory-setter if setter is already setup on property in great grandparent prototype', function () {
-    expect(2);
-
-    function Foo() {}
-
-    Object.defineProperty(Foo.prototype, 'someProp', {
-      get: function () {
-        return null;
-      },
-
-      set: function (value) {
-        equal(value, 'foo-bar', 'custom setter was called');
-      }
+      _emberMetalWatching.watch(obj, 'a');
+      equal(_emberMetalProperty_get.get(obj, 'a'), 'hi');
+      equal(obj.a, 'hi');
     });
 
-    function Bar() {}
-    Bar.prototype = Object.create(Foo.prototype);
-    Bar.prototype.constructor = Bar;
+    QUnit.test('should not setup mandatory-setter if setter is already setup on property', function () {
+      expect(2);
 
-    function Qux() {}
-    Qux.prototype = Object.create(Bar.prototype);
-    Qux.prototype.constructor = Qux;
+      var obj = { someProp: null };
 
-    var obj = new Qux();
+      Object.defineProperty(obj, 'someProp', {
+        get: function () {
+          return null;
+        },
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+        set: function (value) {
+          equal(value, 'foo-bar', 'custom setter was called');
+        }
+      });
 
-    obj.someProp = 'foo-bar';
-  });
+      _emberMetalWatching.watch(obj, 'someProp');
+      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
 
-  QUnit.test('should assert if set without Ember.set when property is being watched', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    _emberMetalWatching.watch(obj, 'someProp');
-
-    expectAssertion(function () {
       obj.someProp = 'foo-bar';
-    }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
-  });
-
-  QUnit.test('should not assert if set with Ember.set when property is being watched', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    _emberMetalWatching.watch(obj, 'someProp');
-    _emberMetalProperty_set.set(obj, 'someProp', 'foo-bar');
-
-    equal(_emberMetalProperty_get.get(obj, 'someProp'), 'foo-bar');
-  });
-
-  QUnit.test('does not setup mandatory-setter if non-configurable', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    Object.defineProperty(obj, 'someProp', {
-      configurable: false,
-      enumerable: true,
-      value: 'blastix'
     });
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!hasMandatorySetter(obj, 'someProp'), 'blastix');
-  });
+    QUnit.test('watched ES5 setter should not be smashed by mandatory setter', function () {
+      var value = undefined;
+      var obj = {
+        get foo() {},
+        set foo(_value) {
+          value = _value;
+        }
+      };
 
-  QUnit.test('ensure after watch the property is restored (and the value is no-longer stored in meta) [non-enumerable]', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
+      _emberMetalWatching.watch(obj, 'foo');
 
-    Object.defineProperty(obj, 'someProp', {
-      configurable: true,
-      enumerable: false,
-      value: 'blastix'
+      _emberMetalProperty_set.set(obj, 'foo', 2);
+      equal(value, 2);
     });
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
+    QUnit.test('should not setup mandatory-setter if setter is already setup on property in parent prototype', function () {
+      expect(2);
 
-    var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+      function Foo() {}
 
-    equal(descriptor.enumerable, false, 'property should remain non-enumerable');
-    equal(descriptor.configurable, true, 'property should remain configurable');
-    equal(obj.someProp, 'blastix', 'expected value to be the getter');
+      Object.defineProperty(Foo.prototype, 'someProp', {
+        get: function () {
+          return null;
+        },
 
-    equal(descriptor.value, undefined, 'expected existing value to NOT remain');
+        set: function (value) {
+          equal(value, 'foo-bar', 'custom setter was called');
+        }
+      });
 
-    ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
+      var obj = new Foo();
 
-    _emberMetalWatching.unwatch(obj, 'someProp');
+      _emberMetalWatching.watch(obj, 'someProp');
+      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
 
-    ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
-
-    descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-    equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
-
-    equal(descriptor.enumerable, false, 'property should remain non-enumerable');
-    equal(descriptor.configurable, true, 'property should remain configurable');
-    equal(obj.someProp, 'blastix', 'expected value to be the getter');
-    equal(descriptor.value, 'blastix', 'expected existing value to remain');
-
-    obj.someProp = 'new value';
-
-    // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
-    descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-    equal(descriptor.enumerable, false, 'property should remain non-enumerable');
-    equal(descriptor.configurable, true, 'property should remain configurable');
-    equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
-    equal(obj.someProp, 'new value', 'expected value to be the getter');
-    equal(obj.someProp, 'new value');
-  });
-
-  QUnit.test('ensure after watch the property is restored (and the value is no-longer stored in meta) [enumerable]', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    Object.defineProperty(obj, 'someProp', {
-      configurable: true,
-      enumerable: true,
-      value: 'blastix'
+      obj.someProp = 'foo-bar';
     });
 
-    _emberMetalWatching.watch(obj, 'someProp');
-    equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
+    QUnit.test('should not setup mandatory-setter if setter is already setup on property in grandparent prototype', function () {
+      expect(2);
 
-    var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+      function Foo() {}
 
-    equal(descriptor.enumerable, true, 'property should remain enumerable');
-    equal(descriptor.configurable, true, 'property should remain configurable');
-    equal(obj.someProp, 'blastix', 'expected value to be the getter');
+      Object.defineProperty(Foo.prototype, 'someProp', {
+        get: function () {
+          return null;
+        },
 
-    equal(descriptor.value, undefined, 'expected existing value to NOT remain');
+        set: function (value) {
+          equal(value, 'foo-bar', 'custom setter was called');
+        }
+      });
 
-    ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
+      function Bar() {}
+      Bar.prototype = Object.create(Foo.prototype);
+      Bar.prototype.constructor = Bar;
 
-    _emberMetalWatching.unwatch(obj, 'someProp');
+      var obj = new Bar();
 
-    ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
+      _emberMetalWatching.watch(obj, 'someProp');
+      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
 
-    descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-    equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
-
-    equal(descriptor.enumerable, true, 'property should remain enumerable');
-    equal(descriptor.configurable, true, 'property should remain configurable');
-    equal(obj.someProp, 'blastix', 'expected value to be the getter');
-    equal(descriptor.value, 'blastix', 'expected existing value to remain');
-
-    obj.someProp = 'new value';
-
-    // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
-    descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
-
-    equal(descriptor.enumerable, true, 'property should remain enumerable');
-    equal(descriptor.configurable, true, 'property should remain configurable');
-    equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
-    equal(obj.someProp, 'new value');
-  });
-
-  QUnit.test('sets up mandatory-setter if property comes from prototype', function () {
-    expect(2);
-
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    var obj2 = Object.create(obj);
-
-    _emberMetalWatching.watch(obj2, 'someProp');
-
-    ok(hasMandatorySetter(obj2, 'someProp'), 'mandatory setter has been setup');
-
-    expectAssertion(function () {
-      obj2.someProp = 'foo-bar';
-    }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
-  });
-
-  QUnit.test('inheritance remains live', function () {
-    function Parent() {}
-    Parent.prototype.food = 'chips';
-
-    var child = new Parent();
-
-    equal(child.food, 'chips');
-
-    _emberMetalWatching.watch(child, 'food');
-
-    equal(child.food, 'chips');
-
-    Parent.prototype.food = 'icecreame';
-
-    equal(child.food, 'icecreame');
-
-    _emberMetalWatching.unwatch(child, 'food');
-
-    equal(child.food, 'icecreame');
-
-    Parent.prototype.food = 'chips';
-
-    equal(child.food, 'chips');
-  });
-
-  QUnit.test('inheritance remains live and preserves this', function () {
-    function Parent(food) {
-      this._food = food;
-    }
-
-    Object.defineProperty(Parent.prototype, 'food', {
-      get: function () {
-        return this._food;
-      }
+      obj.someProp = 'foo-bar';
     });
 
-    var child = new Parent('chips');
+    QUnit.test('should not setup mandatory-setter if setter is already setup on property in great grandparent prototype', function () {
+      expect(2);
 
-    equal(child.food, 'chips');
+      function Foo() {}
 
-    _emberMetalWatching.watch(child, 'food');
+      Object.defineProperty(Foo.prototype, 'someProp', {
+        get: function () {
+          return null;
+        },
 
-    equal(child.food, 'chips');
+        set: function (value) {
+          equal(value, 'foo-bar', 'custom setter was called');
+        }
+      });
 
-    child._food = 'icecreame';
+      function Bar() {}
+      Bar.prototype = Object.create(Foo.prototype);
+      Bar.prototype.constructor = Bar;
 
-    equal(child.food, 'icecreame');
+      function Qux() {}
+      Qux.prototype = Object.create(Bar.prototype);
+      Qux.prototype.constructor = Qux;
 
-    _emberMetalWatching.unwatch(child, 'food');
+      var obj = new Qux();
 
-    equal(child.food, 'icecreame');
+      _emberMetalWatching.watch(obj, 'someProp');
+      ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
 
-    var foodDesc = Object.getOwnPropertyDescriptor(Parent.prototype, 'food');
-    ok(!foodDesc.configurable, 'Parent.prototype.food desc should be non configable');
-    ok(!foodDesc.enumerable, 'Parent.prototype.food desc should be non enumerable');
+      obj.someProp = 'foo-bar';
+    });
 
-    equal(foodDesc.get.call({
-      _food: 'hi'
-    }), 'hi');
-    equal(foodDesc.set, undefined);
+    QUnit.test('should assert if set without Ember.set when property is being watched', function () {
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
 
-    equal(child.food, 'icecreame');
-  });
+      _emberMetalWatching.watch(obj, 'someProp');
+
+      expectAssertion(function () {
+        obj.someProp = 'foo-bar';
+      }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+    });
+
+    QUnit.test('should not assert if set with Ember.set when property is being watched', function () {
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
+
+      _emberMetalWatching.watch(obj, 'someProp');
+      _emberMetalProperty_set.set(obj, 'someProp', 'foo-bar');
+
+      equal(_emberMetalProperty_get.get(obj, 'someProp'), 'foo-bar');
+    });
+
+    QUnit.test('does not setup mandatory-setter if non-configurable', function () {
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
+
+      Object.defineProperty(obj, 'someProp', {
+        configurable: false,
+        enumerable: true,
+        value: 'blastix'
+      });
+
+      _emberMetalWatching.watch(obj, 'someProp');
+      ok(!hasMandatorySetter(obj, 'someProp'), 'blastix');
+    });
+
+    QUnit.test('ensure after watch the property is restored (and the value is no-longer stored in meta) [non-enumerable]', function () {
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
+
+      Object.defineProperty(obj, 'someProp', {
+        configurable: true,
+        enumerable: false,
+        value: 'blastix'
+      });
+
+      _emberMetalWatching.watch(obj, 'someProp');
+      equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
+
+      var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+      equal(descriptor.enumerable, false, 'property should remain non-enumerable');
+      equal(descriptor.configurable, true, 'property should remain configurable');
+      equal(obj.someProp, 'blastix', 'expected value to be the getter');
+
+      equal(descriptor.value, undefined, 'expected existing value to NOT remain');
+
+      ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
+
+      _emberMetalWatching.unwatch(obj, 'someProp');
+
+      ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
+
+      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+      equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
+
+      equal(descriptor.enumerable, false, 'property should remain non-enumerable');
+      equal(descriptor.configurable, true, 'property should remain configurable');
+      equal(obj.someProp, 'blastix', 'expected value to be the getter');
+      equal(descriptor.value, 'blastix', 'expected existing value to remain');
+
+      obj.someProp = 'new value';
+
+      // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
+      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+      equal(descriptor.enumerable, false, 'property should remain non-enumerable');
+      equal(descriptor.configurable, true, 'property should remain configurable');
+      equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
+      equal(obj.someProp, 'new value', 'expected value to be the getter');
+      equal(obj.someProp, 'new value');
+    });
+
+    QUnit.test('ensure after watch the property is restored (and the value is no-longer stored in meta) [enumerable]', function () {
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
+
+      Object.defineProperty(obj, 'someProp', {
+        configurable: true,
+        enumerable: true,
+        value: 'blastix'
+      });
+
+      _emberMetalWatching.watch(obj, 'someProp');
+      equal(hasMandatorySetter(obj, 'someProp'), true, 'should have a mandatory setter');
+
+      var descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+      equal(descriptor.enumerable, true, 'property should remain enumerable');
+      equal(descriptor.configurable, true, 'property should remain configurable');
+      equal(obj.someProp, 'blastix', 'expected value to be the getter');
+
+      equal(descriptor.value, undefined, 'expected existing value to NOT remain');
+
+      ok(hasMetaValue(obj, 'someProp'), 'someProp is stored in meta.values');
+
+      _emberMetalWatching.unwatch(obj, 'someProp');
+
+      ok(!hasMetaValue(obj, 'someProp'), 'someProp is no longer stored in meta.values');
+
+      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+      equal(hasMandatorySetter(obj, 'someProp'), false, 'should no longer have a mandatory setter');
+
+      equal(descriptor.enumerable, true, 'property should remain enumerable');
+      equal(descriptor.configurable, true, 'property should remain configurable');
+      equal(obj.someProp, 'blastix', 'expected value to be the getter');
+      equal(descriptor.value, 'blastix', 'expected existing value to remain');
+
+      obj.someProp = 'new value';
+
+      // make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
+      descriptor = Object.getOwnPropertyDescriptor(obj, 'someProp');
+
+      equal(descriptor.enumerable, true, 'property should remain enumerable');
+      equal(descriptor.configurable, true, 'property should remain configurable');
+      equal(descriptor.value, 'new value', 'expected existing value to NOT remain');
+      equal(obj.someProp, 'new value');
+    });
+
+    QUnit.test('sets up mandatory-setter if property comes from prototype', function () {
+      expect(2);
+
+      var obj = {
+        someProp: null,
+        toString: function () {
+          return 'custom-object';
+        }
+      };
+
+      var obj2 = Object.create(obj);
+
+      _emberMetalWatching.watch(obj2, 'someProp');
+
+      ok(hasMandatorySetter(obj2, 'someProp'), 'mandatory setter has been setup');
+
+      expectAssertion(function () {
+        obj2.someProp = 'foo-bar';
+      }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+    });
+
+    QUnit.test('inheritance remains live', function () {
+      function Parent() {}
+      Parent.prototype.food = 'chips';
+
+      var child = new Parent();
+
+      equal(child.food, 'chips');
+
+      _emberMetalWatching.watch(child, 'food');
+
+      equal(child.food, 'chips');
+
+      Parent.prototype.food = 'icecreame';
+
+      equal(child.food, 'icecreame');
+
+      _emberMetalWatching.unwatch(child, 'food');
+
+      equal(child.food, 'icecreame');
+
+      Parent.prototype.food = 'chips';
+
+      equal(child.food, 'chips');
+    });
+
+    QUnit.test('inheritance remains live and preserves this', function () {
+      function Parent(food) {
+        this._food = food;
+      }
+
+      Object.defineProperty(Parent.prototype, 'food', {
+        get: function () {
+          return this._food;
+        }
+      });
+
+      var child = new Parent('chips');
+
+      equal(child.food, 'chips');
+
+      _emberMetalWatching.watch(child, 'food');
+
+      equal(child.food, 'chips');
+
+      child._food = 'icecreame';
+
+      equal(child.food, 'icecreame');
+
+      _emberMetalWatching.unwatch(child, 'food');
+
+      equal(child.food, 'icecreame');
+
+      var foodDesc = Object.getOwnPropertyDescriptor(Parent.prototype, 'food');
+      ok(!foodDesc.configurable, 'Parent.prototype.food desc should be non configable');
+      ok(!foodDesc.enumerable, 'Parent.prototype.food desc should be non enumerable');
+
+      equal(foodDesc.get.call({
+        _food: 'hi'
+      }), 'hi');
+      equal(foodDesc.set, undefined);
+
+      equal(child.food, 'icecreame');
+    });
+  }
 });
 enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-environment', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberEnvironment, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
@@ -63504,52 +63514,6 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     expectAssertion(function () {
       _emberMetalExpand_properties.default('a, b', addProperty);
     }, /Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"/);
-  });
-});
-enifed('ember-metal/tests/features_test', ['exports', 'ember-environment', 'ember-metal/features', 'ember-metal/assign'], function (exports, _emberEnvironment, _emberMetalFeatures, _emberMetalAssign) {
-  'use strict';
-
-  var origFeatures, origEnableOptional;
-
-  QUnit.module('isEnabled', {
-    setup: function () {
-      origFeatures = _emberMetalAssign.default({}, _emberMetalFeatures.FEATURES);
-      origEnableOptional = _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES;
-    },
-
-    teardown: function () {
-      for (var feature in _emberMetalFeatures.FEATURES) {
-        delete _emberMetalFeatures.FEATURES[feature];
-      }
-      _emberMetalAssign.default(_emberMetalFeatures.FEATURES, origFeatures);
-
-      _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
-    }
-  });
-
-  QUnit.test('ENV.ENABLE_OPTIONAL_FEATURES', function () {
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = true;
-    _emberMetalFeatures.FEATURES['fred'] = false;
-    _emberMetalFeatures.FEATURES['barney'] = true;
-    _emberMetalFeatures.FEATURES['wilma'] = null;
-
-    equal(_emberMetalFeatures.default('fred'), false, 'returns flag value if false');
-    equal(_emberMetalFeatures.default('barney'), true, 'returns flag value if true');
-    equal(_emberMetalFeatures.default('wilma'), true, 'returns true if flag is not true|false|undefined');
-    equal(_emberMetalFeatures.default('betty'), undefined, 'returns flag value if undefined');
-  });
-
-  QUnit.test('isEnabled without ENV options', function () {
-    _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = false;
-
-    _emberMetalFeatures.FEATURES['fred'] = false;
-    _emberMetalFeatures.FEATURES['barney'] = true;
-    _emberMetalFeatures.FEATURES['wilma'] = null;
-
-    equal(_emberMetalFeatures.default('fred'), false, 'returns flag value if false');
-    equal(_emberMetalFeatures.default('barney'), true, 'returns flag value if true');
-    equal(_emberMetalFeatures.default('wilma'), false, 'returns false if flag is not set');
-    equal(_emberMetalFeatures.default('betty'), undefined, 'returns flag value if undefined');
   });
 });
 enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/injected_property', 'container/owner'], function (exports, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalInjected_property, _containerOwner) {
@@ -71490,61 +71454,63 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     });
   });
 
-  QUnit.module('computed.uniqBy', {
-    setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        list: null,
-        uniqueById: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'id')
-      }).create({
-        list: _emberRuntimeSystemNative_array.A([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
+  if (true) {
+    QUnit.module('computed.uniqBy', {
+      setup: function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          list: null,
+          uniqueById: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'id')
+        }).create({
+          list: _emberRuntimeSystemNative_array.A([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
+        });
+      },
+      teardown: function () {
+        _emberMetalRun_loop.default(obj, 'destroy');
+      }
+    });
+
+    QUnit.test('uniqBy is readOnly', function () {
+      QUnit.throws(function () {
+        obj.set('uniqueById', 1);
+      }, /Cannot set read-only property "uniqueById" on object:/);
+    });
+    QUnit.test('does not include duplicates', function () {
+      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+    });
+
+    QUnit.test('it does not share state among instances', function () {
+      var MyObject = _emberRuntimeSystemObject.default.extend({
+        list: [],
+        uniqueByName: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
       });
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(obj, 'destroy');
-    }
-  });
+      var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
+      var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
 
-  QUnit.test('uniqBy is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('uniqueById', 1);
-    }, /Cannot set read-only property "uniqueById" on object:/);
-  });
-  QUnit.test('does not include duplicates', function () {
-    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
-  });
-
-  QUnit.test('it does not share state among instances', function () {
-    var MyObject = _emberRuntimeSystemObject.default.extend({
-      list: [],
-      uniqueByName: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+      deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
+      // Making sure that 'mitch' appears
+      deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
     });
-    var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
-    var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
 
-    deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
-    // Making sure that 'mitch' appears
-    deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
-  });
+    QUnit.test('it handles changes to the dependent array', function () {
+      obj.get('list').pushObject({ id: 3, value: 'three' });
 
-  QUnit.test('it handles changes to the dependent array', function () {
-    obj.get('list').pushObject({ id: 3, value: 'three' });
+      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
 
-    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
+      obj.get('list').pushObject({ id: 3, value: 'three' });
 
-    obj.get('list').pushObject({ id: 3, value: 'three' });
-
-    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
-  });
-
-  QUnit.test('it returns an empty array when computed on a non-array', function () {
-    var MyObject = _emberRuntimeSystemObject.default.extend({
-      list: null,
-      uniq: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
     });
-    var a = MyObject.create({ list: 'not an array' });
 
-    deepEqual(a.get('uniq'), []);
-  });
+    QUnit.test('it returns an empty array when computed on a non-array', function () {
+      var MyObject = _emberRuntimeSystemObject.default.extend({
+        list: null,
+        uniq: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+      });
+      var a = MyObject.create({ list: 'not an array' });
+
+      deepEqual(a.get('uniq'), []);
+    });
+  }
 
   QUnit.module('computed.intersect', {
     setup: function () {
@@ -78188,10 +78154,13 @@ enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtim
 
   suite.module('uniqBy');
 
-  suite.test('should return new instance with duplicates removed', function () {
-    var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
-    deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
-  });
+  if (true) {
+    suite.test('should return new instance with duplicates removed', function () {
+      var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
+      deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+    });
+  }
+
   exports.default = suite;
 });
 enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/features'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalFeatures) {
@@ -78513,7 +78482,9 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableToArray.default);
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniq.default);
 
-  EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
+  if (true) {
+    EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
+  }
 
   if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
@@ -81478,22 +81449,24 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     equal(o.get('foo'), 'bar');
   });
 
-  QUnit.test('sets up mandatory setters for watched simple properties', function () {
-    var MyClass = _emberRuntimeSystemObject.default.extend({
-      foo: null,
-      bar: null,
-      fooDidChange: _emberMetalMixin.observer('foo', function () {})
+  if (true) {
+    QUnit.test('sets up mandatory setters for watched simple properties', function () {
+      var MyClass = _emberRuntimeSystemObject.default.extend({
+        foo: null,
+        bar: null,
+        fooDidChange: _emberMetalMixin.observer('foo', function () {})
+      });
+
+      var o = MyClass.create({ foo: 'bar', bar: 'baz' });
+      equal(o.get('foo'), 'bar');
+
+      var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
+      ok(descriptor.set, 'Mandatory setter was setup');
+
+      descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
+      ok(!descriptor.set, 'Mandatory setter was not setup');
     });
-
-    var o = MyClass.create({ foo: 'bar', bar: 'baz' });
-    equal(o.get('foo'), 'bar');
-
-    var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
-    ok(descriptor.set, 'Mandatory setter was setup');
-
-    descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
-    ok(!descriptor.set, 'Mandatory setter was not setup');
-  });
+  }
 
   QUnit.test('allows bindings to be defined', function () {
     var obj = undefined;
@@ -81617,24 +81590,26 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
   });
 
-  // MANDATORY_SETTER moves value to meta.values
-  // a destroyed object removes meta but leaves the accessor
-  // that looks it up
-  QUnit.test('should raise an exception when modifying watched properties on a destroyed object', function () {
-    var obj = _emberRuntimeSystemObject.default.extend({
-      fooDidChange: _emberMetalMixin.observer('foo', function () {})
-    }).create({
-      foo: 'bar'
-    });
+  if (true) {
+    // MANDATORY_SETTER moves value to meta.values
+    // a destroyed object removes meta but leaves the accessor
+    // that looks it up
+    QUnit.test('should raise an exception when modifying watched properties on a destroyed object', function () {
+      var obj = _emberRuntimeSystemObject.default.extend({
+        fooDidChange: _emberMetalMixin.observer('foo', function () {})
+      }).create({
+        foo: 'bar'
+      });
 
-    _emberMetalRun_loop.default(function () {
-      obj.destroy();
-    });
+      _emberMetalRun_loop.default(function () {
+        obj.destroy();
+      });
 
-    throws(function () {
-      _emberMetalProperty_set.set(obj, 'foo', 'baz');
-    }, Error, 'raises an exception');
-  });
+      throws(function () {
+        _emberMetalProperty_set.set(obj, 'foo', 'baz');
+      }, Error, 'raises an exception');
+    });
+  }
 
   QUnit.test('observers should not fire after an object has been destroyed', function () {
     var count = 0;
