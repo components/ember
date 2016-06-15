@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d801dc31
+ * @version   2.7.0-canary+bd4326a3
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d801dc31";
+  exports.default = "2.7.0-canary+bd4326a3";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11871,7 +11871,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     return PositionalArgs;
   })();
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberMetalDebug) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy, _emberMetalDebug) {
   'use strict';
 
   exports.applyClassNameBinding = applyClassNameBinding;
@@ -11885,17 +11885,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   var UPDATE = _emberMetalSymbol.default('UPDATE');
 
   exports.UPDATE = UPDATE;
-  // FIXME: fix tests that uses a "fake" proxy (i.e. a POJOs that "happen" to
-  // have an `isTruthy` property on them). This is not actually supported –
-  // we should fix the tests to use an actual proxy. When that's done, we should
-  // remove this and use the real `isProxy` from `ember-metal`.
-  //
-  // import { isProxy } from 'ember-metal/-proxy';
-  //
-  function isProxy(obj) {
-    return obj && typeof obj === 'object' && 'isTruthy' in obj;
-  }
-
   // @implements PathReference
 
   var PrimitiveReference = (function (_ConstReference) {
@@ -12018,7 +12007,11 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
       var parentValue = _parentReference.value();
 
-      _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
+      if (_emberRuntimeMixinsProxy.isProxy(parentValue)) {
+        _parentObjectTag.update(_glimmerReference.VOLATILE_TAG);
+      } else {
+        _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
+      }
 
       if (parentValue && typeof parentValue === 'object') {
         if (true) {
@@ -12094,7 +12087,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       if (_glimmerReference.isConst(reference)) {
         var value = reference.value();
 
-        if (!isProxy(value)) {
+        if (!_emberRuntimeMixinsProxy.isProxy(value)) {
           return new PrimitiveReference(_emberGlimmerUtilsToBool.default(value));
         }
       }
@@ -12112,13 +12105,13 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
     }
 
     ConditionalReference.prototype.toBool = function toBool(predicate) {
-      if (isProxy(predicate)) {
+      if (_emberRuntimeMixinsProxy.isProxy(predicate)) {
         this.objectTag.update(_glimmerReference.VOLATILE_TAG);
+        return _emberMetalProperty_get.get(predicate, 'isTruthy');
       } else {
         this.objectTag.update(_emberMetalTags.tagFor(predicate));
+        return _emberGlimmerUtilsToBool.default(predicate);
       }
-
-      return _emberGlimmerUtilsToBool.default(predicate);
     };
 
     return ConditionalReference;
@@ -12455,14 +12448,6 @@ enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime/utils', 'ember-
 
     if (predicate === true) {
       return true;
-    }
-
-    if (typeof predicate === 'object') {
-      var isTruthy = _emberMetalProperty_get.get(predicate, 'isTruthy');
-
-      if (typeof isTruthy === 'boolean') {
-        return isTruthy;
-      }
     }
 
     if (_emberRuntimeUtils.isArray(predicate)) {
