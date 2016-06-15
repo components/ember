@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bd4326a3
+ * @version   2.7.0-canary+a474f5e7
  */
 
 var enifed, requireModule, require, Ember;
@@ -7729,6 +7729,14 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       router.send('hideExtra');
     });
     equal(_emberViewsSystemJquery.default('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');
+    _emberMetalRun_loop.default(function () {
+      router.send('showModal');
+    });
+    equal(_emberViewsSystemJquery.default('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');
+    _emberMetalRun_loop.default(function () {
+      router.send('showExtra');
+    });
+    equal(_emberViewsSystemJquery.default('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');
 
     handleURL('/users');
 

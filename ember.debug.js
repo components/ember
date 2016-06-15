@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bd4326a3
+ * @version   2.7.0-canary+a474f5e7
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+bd4326a3";
+  exports.default = "2.7.0-canary+a474f5e7";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -34219,9 +34219,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
           // into its outlets, which won't render anywhere. All of this
           // statefulness should get the machete in 2.0.
           this.connections[i] = {
+            owner: connection.owner,
             into: connection.into,
             outlet: connection.outlet,
-            name: connection.name
+            name: connection.name,
+            controller: undefined,
+            template: undefined,
+            ViewClass: undefined
           };
           _emberMetalRun_loop.default.once(this.router, '_setOutlets');
         }
@@ -34323,7 +34327,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
       outlet: outlet,
       name: name,
       controller: controller,
-      template: template || route._topLevelViewTemplate
+      template: template || route._topLevelViewTemplate,
+      ViewClass: undefined
     };
 
     _emberMetalDebug.assert('Could not find "' + name + '" template, view, or component.', isDefaultRender || template);
