@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a474f5e7
+ * @version   2.7.0-canary+08deeaeb
  */
 
 var enifed, requireModule, require, Ember;
@@ -85584,23 +85584,14 @@ enifed('ember-views/tests/system/jquery_ext_test', ['exports', 'ember-metal/run_
   var view, dispatcher;
 
   // Adapted from https://github.com/jquery/jquery/blob/f30f7732e7775b6e417c4c22ced7adb2bf76bf89/test/data/testinit.js
-  var canDataTransfer, fireNativeWithDataTransfer;
 
-  if (document.createEvent) {
-    canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
-    fireNativeWithDataTransfer = function (node, type, dataTransfer) {
-      var event = document.createEvent('HTMLEvents');
-      event.initEvent(type, true, true);
-      event.dataTransfer = dataTransfer;
-      node.dispatchEvent(event);
-    };
-  } else {
-    canDataTransfer = !!document.createEventObject().dataTransfer;
-    fireNativeWithDataTransfer = function (node, type, dataTransfer) {
-      var event = document.createEventObject();
-      event.dataTransfer = dataTransfer;
-      node.fireEvent('on' + type, event);
-    };
+  var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
+
+  function fireNativeWithDataTransfer(node, type, dataTransfer) {
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent(type, true, true);
+    event.dataTransfer = dataTransfer;
+    node.dispatchEvent(event);
   }
 
   QUnit.module('EventDispatcher - jQuery integration', {
