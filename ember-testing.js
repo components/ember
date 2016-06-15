@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+08deeaeb
+ * @version   2.7.0-canary+28cedad1
  */
 
 var enifed, requireModule, require, Ember;
@@ -481,36 +481,38 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
   }
 
   if (!_emberMetalTesting.isTesting()) {
-    // Complain if they're using FEATURE flags in builds other than canary
-    _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
-    var featuresWereStripped = true;
+    (function () {
+      // Complain if they're using FEATURE flags in builds other than canary
+      _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
+      var featuresWereStripped = true;
 
-    if (_emberMetalFeatures.default('features-stripped-test')) {
-      exports.featuresWereStripped = featuresWereStripped = false;
-    }
+      if (_emberMetalFeatures.default('features-stripped-test')) {
+        featuresWereStripped = false;
+      }
 
-    delete _emberMetalFeatures.FEATURES['features-stripped-test'];
-    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetalFeatures.DEFAULT_FEATURES, featuresWereStripped);
+      delete _emberMetalFeatures.FEATURES['features-stripped-test'];
+      _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetalFeatures.DEFAULT_FEATURES, featuresWereStripped);
 
-    // Inform the developer about the Ember Inspector if not installed.
-    var isFirefox = _emberEnvironment.environment.isFirefox;
-    var isChrome = _emberEnvironment.environment.isChrome;
+      // Inform the developer about the Ember Inspector if not installed.
+      var isFirefox = _emberEnvironment.environment.isFirefox;
+      var isChrome = _emberEnvironment.environment.isChrome;
 
-    if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
-      window.addEventListener('load', function () {
-        if (document.documentElement && document.documentElement.dataset && !document.documentElement.dataset.emberExtension) {
-          var downloadURL;
+      if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
+        window.addEventListener('load', function () {
+          if (document.documentElement && document.documentElement.dataset && !document.documentElement.dataset.emberExtension) {
+            var downloadURL;
 
-          if (isChrome) {
-            downloadURL = 'https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi';
-          } else if (isFirefox) {
-            downloadURL = 'https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/';
+            if (isChrome) {
+              downloadURL = 'https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi';
+            } else if (isFirefox) {
+              downloadURL = 'https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/';
+            }
+
+            _emberMetalDebug.debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
           }
-
-          _emberMetalDebug.debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
-        }
-      }, false);
-    }
+        }, false);
+      }
+    })();
   }
   /**
     @public
@@ -685,7 +687,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
     @namespace Ember.Test
     @public
   */
-  var Adapter = _emberRuntimeSystemObject.default.extend({
+  exports.default = _emberRuntimeSystemObject.default.extend({
     /**
       This callback will be called whenever an async operation is about to start.
        Override this to call your framework's methods that handle async
@@ -720,8 +722,6 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
       throw error;
     }
   });
-
-  exports.default = Adapter;
 });
 enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapter', 'ember-metal/utils'], function (exports, _emberTestingAdaptersAdapter, _emberMetalUtils) {
   'use strict';
@@ -948,10 +948,10 @@ enifed('ember-testing/ext/application', ['exports', 'ember-application/system/ap
       });
 
       this.testHelpers = {};
-      for (var name in _emberTestingTestHelpers.helpers) {
-        this.originalMethods[name] = this.helperContainer[name];
-        this.testHelpers[name] = this.helperContainer[name] = helper(this, name);
-        protoWrap(_emberTestingTestPromise.default.prototype, name, helper(this, name), _emberTestingTestHelpers.helpers[name].meta.wait);
+      for (var _name in _emberTestingTestHelpers.helpers) {
+        this.originalMethods[_name] = this.helperContainer[_name];
+        this.testHelpers[_name] = this.helperContainer[_name] = helper(this, _name);
+        protoWrap(_emberTestingTestPromise.default.prototype, _name, helper(this, _name), _emberTestingTestHelpers.helpers[_name].meta.wait);
       }
 
       _emberTestingTestOn_inject_helpers.invokeInjectHelpersCallbacks(this);
@@ -972,11 +972,11 @@ enifed('ember-testing/ext/application', ['exports', 'ember-application/system/ap
         return;
       }
 
-      for (var name in _emberTestingTestHelpers.helpers) {
-        this.helperContainer[name] = this.originalMethods[name];
-        delete _emberTestingTestPromise.default.prototype[name];
-        delete this.testHelpers[name];
-        delete this.originalMethods[name];
+      for (var _name2 in _emberTestingTestHelpers.helpers) {
+        this.helperContainer[_name2] = this.originalMethods[_name2];
+        delete _emberTestingTestPromise.default.prototype[_name2];
+        delete this.testHelpers[_name2];
+        delete this.originalMethods[_name2];
       }
     }
   });
@@ -1117,7 +1117,9 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'emb
   exports.default = fillIn;
 
   function fillIn(app, selector, contextOrText, text) {
-    var $el, el, context;
+    var $el = undefined,
+        el = undefined,
+        context = undefined;
     if (typeof text === 'undefined') {
       text = contextOrText;
     } else {
@@ -1165,7 +1167,8 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
   exports.default = keyEvent;
 
   function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
-    var context, type;
+    var context = undefined,
+        type = undefined;
 
     if (typeof keyCode === 'undefined') {
       context = null;
@@ -1195,7 +1198,9 @@ enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-metal/run_loop'
 
   function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
     var arity = arguments.length;
-    var context, type, options;
+    var context = undefined,
+        type = undefined,
+        options = undefined;
 
     if (arity === 3) {
       // context and options are optional, so this is
