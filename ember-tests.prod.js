@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4f4b4708
+ * @version   2.7.0-canary+de30a9b1
  */
 
 var enifed, requireModule, require, Ember;
@@ -34116,7 +34116,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       this.assertText('HIFOOBARBAZ');
     };
 
-    _class.prototype['@test should have assertion if neither template nor view exists'] = function testShouldHaveAssertionIfNeitherTemplateNorViewExists() {
+    _class.prototype['@test should have assertion if the template does not exist'] = function testShouldHaveAssertionIfTheTemplateDoesNotExist() {
       var _this = this;
 
       this.owner.register('controller:oops', _emberRuntimeControllersController.default.extend());
@@ -54460,7 +54460,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       this.assertText('HIFOOBARBAZ');
     };
 
-    _class.prototype['@test should have assertion if neither template nor view exists'] = function testShouldHaveAssertionIfNeitherTemplateNorViewExists() {
+    _class.prototype['@test should have assertion if the template does not exist'] = function testShouldHaveAssertionIfTheTemplateDoesNotExist() {
       var _this = this;
 
       this.owner.register('controller:oops', _emberRuntimeControllersController.default.extend());
