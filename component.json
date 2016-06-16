@@ -1,7 +1,7 @@
 {
   "name": "ember",
   "repo": "components/ember",
-  "version": "2.7.0-canary+fd69da55",
+  "version": "2.7.0-canary+89a194d7",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
   "main": "ember.debug.js",
@@ -9,6 +9,6 @@
     "ember.debug.js"
   ],
   "dependencies": {
-    "components/jquery": ">= 1.7.0 < 4.0.0"
+    "components/jquery": ">= 1.7.0 < 3.0.0"
   }
 }

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fd69da55
+ * @version   2.7.0-canary+89a194d7
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+fd69da55";
+  exports.default = "2.7.0-canary+89a194d7";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -49311,16 +49311,12 @@ enifed('ember-views/system/jquery', ['exports', 'ember-environment', 'require'],
     }
 
     if (jQuery) {
-      if (jQuery.event.addProp) {
-        jQuery.event.addProp('dataTransfer');
-      } else {
-        // http://www.whatwg.org/specs/web-apps/current-work/multipage/dnd.html#dndevents
-        ['dragstart', 'drag', 'dragenter', 'dragleave', 'dragover', 'drop', 'dragend'].forEach(function (eventName) {
-          jQuery.event.fixHooks[eventName] = {
-            props: ['dataTransfer']
-          };
-        });
-      }
+      // http://www.whatwg.org/specs/web-apps/current-work/multipage/dnd.html#dndevents
+      ['dragstart', 'drag', 'dragenter', 'dragleave', 'dragover', 'drop', 'dragend'].forEach(function (eventName) {
+        jQuery.event.fixHooks[eventName] = {
+          props: ['dataTransfer']
+        };
+      });
     }
   }
 

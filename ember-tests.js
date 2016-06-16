@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fd69da55
+ * @version   2.7.0-canary+89a194d7
  */
 
 var enifed, requireModule, require, Ember;
@@ -7471,7 +7471,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     // should cause application template to re-render
     handleURL('/posts');
 
-    equal(_emberViewsSystemJquery.default('h3:contains(I Render Once)').length, 1);
+    equal(_emberViewsSystemJquery.default('h3:contains(I Render Once)').size(), 1);
   });
 
   QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function () {
