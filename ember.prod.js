@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f9ca19b4
+ * @version   2.7.0-canary+4f4b4708
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+f9ca19b4";
+  exports.default = "2.7.0-canary+4f4b4708";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -5108,13 +5108,12 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
         `controller` property
       * the application view receives the application template as its
         `defaultTemplate` property
-       @private
-      @method buildRegistry
+       @method buildRegistry
       @static
       @param {Ember.Application} namespace the application for which to
         build the registry
       @return {Ember.Registry} the built registry
-      @public
+      @private
     */
     buildRegistry: function (application) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -5734,13 +5733,12 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
         `controller` property
       * the application view receives the application template as its
         `defaultTemplate` property
-       @private
-      @method buildRegistry
+       @method buildRegistry
       @static
       @param {Ember.Application} namespace the application for which to
         build the registry
       @return {Ember.Registry} the built registry
-      @public
+      @private
     */
     buildRegistry: function (namespace) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -6039,10 +6037,9 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
       Convert the string name of the form 'type:name' to
       a Javascript object with the parsed aspects of the name
       broken out.
-       @protected
-      @param {String} fullName the lookup string
+       @param {String} fullName the lookup string
       @method parseName
-      @public
+      @protected
     */
 
     parseName: function (fullName) {
@@ -6090,10 +6087,9 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
       Application namespace in assertions to describe the
       precise name of the class that Ember is looking for, rather than
       container keys.
-       @protected
-      @param {String} fullName the lookup string
+       @param {String} fullName the lookup string
       @method lookupDescription
-      @public
+      @protected
     */
     lookupDescription: function (fullName) {
       var parsedName = this.parseName(fullName);
@@ -6119,11 +6115,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     /**
       Given a parseName object (output from `parseName`), apply
       the conventions expected by `Ember.Router`
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method useRouterNaming
-      @public
+      @protected
     */
     useRouterNaming: function (parsedName) {
       parsedName.name = parsedName.name.replace(/\./g, '_');
@@ -6133,11 +6128,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     },
     /**
       Look up the template in Ember.TEMPLATES
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveTemplate
-      @public
+      @protected
     */
     resolveTemplate: function (parsedName) {
       var templateName = parsedName.fullNameWithoutType.replace(/\./g, '/');
@@ -6147,11 +6141,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
 
     /**
       Lookup the view using `resolveOther`
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveView
-      @public
+      @protected
     */
     resolveView: function (parsedName) {
       this.useRouterNaming(parsedName);
@@ -6160,11 +6153,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
 
     /**
       Lookup the controller using `resolveOther`
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveController
-      @public
+      @protected
     */
     resolveController: function (parsedName) {
       this.useRouterNaming(parsedName);
@@ -6172,11 +6164,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     },
     /**
       Lookup the route using `resolveOther`
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveRoute
-      @public
+      @protected
     */
     resolveRoute: function (parsedName) {
       this.useRouterNaming(parsedName);
@@ -6185,11 +6176,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
 
     /**
       Lookup the model on the Application namespace
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveModel
-      @public
+      @protected
     */
     resolveModel: function (parsedName) {
       var className = _emberRuntimeSystemString.classify(parsedName.name);
@@ -6200,11 +6190,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     /**
       Look up the specified object (from parsedName) on the appropriate
       namespace (usually on the Application)
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveHelper
-      @public
+      @protected
     */
     resolveHelper: function (parsedName) {
       return this.resolveOther(parsedName);
@@ -6212,11 +6201,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     /**
       Look up the specified object (from parsedName) on the appropriate
       namespace (usually on the Application)
-       @protected
-      @param {Object} parsedName a parseName object with the parsed
+       @param {Object} parsedName a parseName object with the parsed
         fullName lookup string
       @method resolveOther
-      @public
+      @protected
     */
     resolveOther: function (parsedName) {
       var className = _emberRuntimeSystemString.classify(parsedName.name) + _emberRuntimeSystemString.classify(parsedName.type);
@@ -7971,8 +7959,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
 
     /**
       Event handler that invokes the link, activating the associated route.
-       @private
-      @method _invoke
+       @method _invoke
       @param {Event} event
       @private
     */
@@ -13475,8 +13462,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
 
     /**
       Event handler that invokes the link, activating the associated route.
-       @private
-      @method _invoke
+       @method _invoke
       @param {Event} event
       @private
     */
@@ -17100,7 +17086,6 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     See a [2.0 blog post](http://emberjs.com/blog/2015/05/10/run-up-to-two-oh.html#toc_the-code-mut-code-helper) for
     additional information on using `{{mut}}`.
   
-    @public
     @method mut
     @param {Object} [attr] the "two-way" attribute that can be modified.
     @for Ember.Templates.helpers
@@ -17220,7 +17205,6 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
   
     Note: Your content __will not render__ if there isn't an `{{outlet}}` for it.
   
-    @public
     @method outlet
     @param {String} [name]
     @for Ember.Templates.helpers
@@ -45784,8 +45768,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     },
 
     /**
-      @private
-       Creates a new DOM element, renders the view into it, then returns the
+      Creates a new DOM element, renders the view into it, then returns the
       element.
        By default, the element created and rendered into will be a `BODY` element,
       since this is the default context that views are rendered into when being
