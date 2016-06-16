@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fd69da55
+ * @version   2.7.0-canary+ade1ca6e
  */
 
 var enifed, requireModule, require, Ember;
@@ -30592,7 +30592,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/system/action_manager', 'ember-views/system/jquery'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery) {
+enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-views/system/action_manager', 'ember-views/system/jquery'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
@@ -31430,7 +31430,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       var actionId = this.$('a[data-ember-action]').attr('data-ember-action');
 
       this.runTask(function () {
-        things.removeAt(0);
+        _emberRuntimeMixinsMutable_array.removeAt(things, 0);
       });
 
       ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'After the virtual view was destroyed, the action was unregistered');
@@ -36411,7 +36411,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsSharedConditionalTests) {
+enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -36526,7 +36526,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.runTask(function () {
         var list = _emberMetalProperty_get.get(_this.context, 'list');
         list.pushObject({ text: 'Earth' });
-        list.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
         list.insertAt(1, { text: 'Globe' });
       });
 
@@ -36535,11 +36535,11 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.runTask(function () {
         var list = _emberMetalProperty_get.get(_this.context, 'list');
         list.pushObject({ text: 'Planet' });
-        list.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
         list.insertAt(1, { text: ' ' });
         list.pushObject({ text: ' ' });
         list.pushObject({ text: 'Earth' });
-        list.removeAt(3);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 3);
       });
 
       this.assertText('Hello WorldPlanet Earth');
@@ -36547,11 +36547,11 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.runTask(function () {
         var list = _emberMetalProperty_get.get(_this.context, 'list');
         list.pushObject({ text: 'Globe' });
-        list.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
         list.insertAt(1, { text: ' ' });
         list.pushObject({ text: ' ' });
         list.pushObject({ text: 'World' });
-        list.removeAt(2);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 2);
       });
 
       this.assertText('Hello Planet EarthGlobe World');
@@ -36896,7 +36896,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.runTask(function () {
         var people = _emberMetalProperty_get.get(_this13.context, 'people');
         _emberMetalProperty_set.set(people.objectAt(1), 'name', 'Stefan Penner');
-        people.removeAt(0);
+        _emberRuntimeMixinsMutable_array.removeAt(people, 0);
         people.pushObject({ name: 'Tom Dale' });
         people.insertAt(1, { name: 'Chad Hietala' });
         _emberMetalProperty_set.set(_this13.context, 'title', 'Principal Engineer');
@@ -37324,7 +37324,7 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     return _class4;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests, _emberGlimmerTestsUtilsAbstractTestCase, _emberRuntimeSystemObject_proxy) {
+enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-runtime/system/object_proxy', 'ember-runtime/mixins/mutable_array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests, _emberGlimmerTestsUtilsAbstractTestCase, _emberRuntimeSystemObject_proxy, _emberRuntimeMixinsMutable_array) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}'], ['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}']),
@@ -37608,7 +37608,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
       this.runTask(function () {
         var array = _emberMetalProperty_get.get(_this7.context, 'arrayThing');
         array.replace(0, 1, 'Goodbye');
-        array.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(array, 1);
         array.insertAt(1, ', ');
         array.pushObject('!');
       });
@@ -38392,7 +38392,7 @@ enifed('ember-glimmer/tests/utils/package-name', ['exports'], function (exports)
 
   exports.default = 'glimmer';
 });
-enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/mutable_array', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsMutable_array, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
   var _ObjectTestCases, _ArrayTestCases;
@@ -38835,7 +38835,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     this.assertText('T1F2');
 
     this.runTask(function () {
-      return _emberMetalProperty_get.get(_this9.context, 'cond1').removeAt(0);
+      return _emberRuntimeMixinsMutable_array.removeAt(_emberMetalProperty_get.get(_this9.context, 'cond1'), 0);
     });
 
     this.assertText('F1F2');
@@ -38900,7 +38900,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     this.assertText('T1F2');
 
     this.runTask(function () {
-      return _emberMetalProperty_get.get(_this11.context, 'cond1.content').removeAt(0);
+      return _emberRuntimeMixinsMutable_array.removeAt(_emberMetalProperty_get.get(_this11.context, 'cond1.content'), 0);
     });
 
     this.assertText('F1F2');
@@ -51158,7 +51158,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/system/action_manager', 'ember-views/system/jquery'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery) {
+enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-views/system/action_manager', 'ember-views/system/jquery'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
@@ -51996,7 +51996,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       var actionId = this.$('a[data-ember-action]').attr('data-ember-action');
 
       this.runTask(function () {
-        things.removeAt(0);
+        _emberRuntimeMixinsMutable_array.removeAt(things, 0);
       });
 
       ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'After the virtual view was destroyed, the action was unregistered');
@@ -56977,7 +56977,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
     return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
+enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -57092,7 +57092,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.runTask(function () {
         var list = _emberMetalProperty_get.get(_this.context, 'list');
         list.pushObject({ text: 'Earth' });
-        list.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
         list.insertAt(1, { text: 'Globe' });
       });
 
@@ -57101,11 +57101,11 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.runTask(function () {
         var list = _emberMetalProperty_get.get(_this.context, 'list');
         list.pushObject({ text: 'Planet' });
-        list.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
         list.insertAt(1, { text: ' ' });
         list.pushObject({ text: ' ' });
         list.pushObject({ text: 'Earth' });
-        list.removeAt(3);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 3);
       });
 
       this.assertText('Hello WorldPlanet Earth');
@@ -57113,11 +57113,11 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.runTask(function () {
         var list = _emberMetalProperty_get.get(_this.context, 'list');
         list.pushObject({ text: 'Globe' });
-        list.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
         list.insertAt(1, { text: ' ' });
         list.pushObject({ text: ' ' });
         list.pushObject({ text: 'World' });
-        list.removeAt(2);
+        _emberRuntimeMixinsMutable_array.removeAt(list, 2);
       });
 
       this.assertText('Hello Planet EarthGlobe World');
@@ -57462,7 +57462,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.runTask(function () {
         var people = _emberMetalProperty_get.get(_this13.context, 'people');
         _emberMetalProperty_set.set(people.objectAt(1), 'name', 'Stefan Penner');
-        people.removeAt(0);
+        _emberRuntimeMixinsMutable_array.removeAt(people, 0);
         people.pushObject({ name: 'Tom Dale' });
         people.insertAt(1, { name: 'Chad Hietala' });
         _emberMetalProperty_set.set(_this13.context, 'title', 'Principal Engineer');
@@ -57890,7 +57890,7 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     return _class4;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberRuntimeSystemObject_proxy) {
+enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-runtime/system/object_proxy', 'ember-runtime/mixins/mutable_array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberRuntimeSystemObject_proxy, _emberRuntimeMixinsMutable_array) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}'], ['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}']),
@@ -58174,7 +58174,7 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
       this.runTask(function () {
         var array = _emberMetalProperty_get.get(_this7.context, 'arrayThing');
         array.replace(0, 1, 'Goodbye');
-        array.removeAt(1);
+        _emberRuntimeMixinsMutable_array.removeAt(array, 1);
         array.insertAt(1, ', ');
         array.pushObject('!');
       });
@@ -59562,7 +59562,7 @@ enifed('ember-htmlbars/tests/utils/package-name', ['exports'], function (exports
 
   exports.default = 'htmlbars';
 });
-enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberHtmlbarsTestsUtilsHelpers) {
+enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/mutable_array', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsMutable_array, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
   var _ObjectTestCases, _ArrayTestCases;
@@ -60005,7 +60005,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     this.assertText('T1F2');
 
     this.runTask(function () {
-      return _emberMetalProperty_get.get(_this9.context, 'cond1').removeAt(0);
+      return _emberRuntimeMixinsMutable_array.removeAt(_emberMetalProperty_get.get(_this9.context, 'cond1'), 0);
     });
 
     this.assertText('F1F2');
@@ -60070,7 +60070,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     this.assertText('T1F2');
 
     this.runTask(function () {
-      return _emberMetalProperty_get.get(_this11.context, 'cond1.content').removeAt(0);
+      return _emberRuntimeMixinsMutable_array.removeAt(_emberMetalProperty_get.get(_this11.context, 'cond1.content'), 0);
     });
 
     this.assertText('F1F2');
@@ -71242,7 +71242,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'quz'), null);
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/properties', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalProperties, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalComputed, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/properties', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalProperties, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalComputed, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array) {
   'use strict';
 
   var obj = undefined;
@@ -71280,7 +71280,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
 
     deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
 
-    obj.get('array').removeAt(3);
+    _emberRuntimeMixinsMutable_array.removeAt(obj.get('array'), 3);
 
     deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
   });
@@ -71344,7 +71344,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
 
     deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }, { name: 'Eddard' }]);
 
-    obj.get('arrayObjects').removeAt(1);
+    _emberRuntimeMixinsMutable_array.removeAt(obj.get('arrayObjects'), 1);
 
     deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Eddard' }]);
 
@@ -71401,7 +71401,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
 
     deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
 
-    obj.get('array').removeAt(3);
+    _emberRuntimeMixinsMutable_array.removeAt(obj.get('array'), 3);
 
     deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
   });
@@ -71677,7 +71677,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
         return x - y;
       }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], name + ' adds new items');
 
-      array2.removeAt(6); // remove 7
+      _emberRuntimeMixinsMutable_array.removeAt(array2, 6); // remove 7
 
       deepEqual(obj.get('union').sort(function (x, y) {
         return x - y;
@@ -75582,15 +75582,15 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
     // MutableArray is just a standard API for mutation but not required.
     addObject: function (obj) {
       var idx = this._content.length;
-      this.arrayContentWillChange(idx, 0, 1);
+      _emberRuntimeMixinsArray.arrayContentWillChange(this, idx, 0, 1);
       this._content.push(obj);
-      this.arrayContentDidChange(idx, 0, 1);
+      _emberRuntimeMixinsArray.arrayContentDidChange(this, idx, 0, 1);
     },
 
     removeFirst: function (idx) {
-      this.arrayContentWillChange(0, 1, 0);
+      _emberRuntimeMixinsArray.arrayContentWillChange(this, 0, 1, 0);
       this._content.shift();
-      this.arrayContentDidChange(0, 1, 0);
+      _emberRuntimeMixinsArray.arrayContentDidChange(this, 0, 1, 0);
     },
 
     objectAt: function (idx) {
@@ -75679,8 +75679,8 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
 
     equal(obj._count, 0, 'should not have invoked yet');
 
-    obj.arrayContentWillChange(0, 1, 1);
-    obj.arrayContentDidChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 1, 1);
 
     equal(obj._count, 1, 'should have invoked');
   });
@@ -75708,27 +75708,27 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
   });
 
   QUnit.test('should notify observers when call with no params', function () {
-    obj.arrayContentWillChange();
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj);
     equal(obj._after, 0);
 
-    obj.arrayContentDidChange();
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj);
     equal(obj._after, 1);
   });
 
   // API variation that included items only
   QUnit.test('should not notify when passed lengths are same', function () {
-    obj.arrayContentWillChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 1, 1);
     equal(obj._after, 0);
 
-    obj.arrayContentDidChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 1, 1);
     equal(obj._after, 0);
   });
 
   QUnit.test('should notify when passed lengths are different', function () {
-    obj.arrayContentWillChange(0, 1, 2);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 1, 2);
     equal(obj._after, 0);
 
-    obj.arrayContentDidChange(0, 1, 2);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 1, 2);
     equal(obj._after, 1);
   });
 
@@ -75764,36 +75764,36 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
   });
 
   QUnit.test('should notify enumerable observers when called with no params', function () {
-    obj.arrayContentWillChange();
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj);
     deepEqual(observer._before, [obj, 0, -1, -1]);
 
-    obj.arrayContentDidChange();
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj);
     deepEqual(observer._after, [obj, 0, -1, -1]);
   });
 
   // API variation that included items only
   QUnit.test('should notify when called with same length items', function () {
-    obj.arrayContentWillChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 1, 1);
     deepEqual(observer._before, [obj, 0, 1, 1]);
 
-    obj.arrayContentDidChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 1, 1);
     deepEqual(observer._after, [obj, 0, 1, 1]);
   });
 
   QUnit.test('should notify when called with diff length items', function () {
-    obj.arrayContentWillChange(0, 2, 1);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 2, 1);
     deepEqual(observer._before, [obj, 0, 2, 1]);
 
-    obj.arrayContentDidChange(0, 2, 1);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 2, 1);
     deepEqual(observer._after, [obj, 0, 2, 1]);
   });
 
   QUnit.test('removing enumerable observer should disable', function () {
     _emberRuntimeMixinsArray.removeArrayObserver(obj, observer);
-    obj.arrayContentWillChange();
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj);
     deepEqual(observer._before, null);
 
-    obj.arrayContentDidChange();
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj);
     deepEqual(observer._after, null);
   });
 
@@ -75829,36 +75829,36 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
   });
 
   QUnit.test('should notify enumerable observers when called with no params', function () {
-    obj.arrayContentWillChange();
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj);
     deepEqual(observer._before, [obj, null, null], 'before');
 
-    obj.arrayContentDidChange();
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj);
     deepEqual(observer._after, [obj, null, null], 'after');
   });
 
   // API variation that included items only
   QUnit.test('should notify when called with same length items', function () {
-    obj.arrayContentWillChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 1, 1);
     deepEqual(observer._before, [obj, ['ITEM-0'], 1], 'before');
 
-    obj.arrayContentDidChange(0, 1, 1);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 1, 1);
     deepEqual(observer._after, [obj, 1, ['ITEM-0']], 'after');
   });
 
   QUnit.test('should notify when called with diff length items', function () {
-    obj.arrayContentWillChange(0, 2, 1);
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj, 0, 2, 1);
     deepEqual(observer._before, [obj, ['ITEM-0', 'ITEM-1'], 1], 'before');
 
-    obj.arrayContentDidChange(0, 2, 1);
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj, 0, 2, 1);
     deepEqual(observer._after, [obj, 2, ['ITEM-0']], 'after');
   });
 
   QUnit.test('removing enumerable observer should disable', function () {
     obj.removeEnumerableObserver(observer);
-    obj.arrayContentWillChange();
+    _emberRuntimeMixinsArray.arrayContentWillChange(obj);
     deepEqual(observer._before, null, 'before');
 
-    obj.arrayContentDidChange();
+    _emberRuntimeMixinsArray.arrayContentDidChange(obj);
     deepEqual(observer._after, null, 'after');
   });
 
@@ -76475,7 +76475,7 @@ enifed('ember-runtime/tests/mixins/freezable_test', ['exports', 'ember-runtime/s
     _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsFreezable.Freezable).create();
   });
 });
-enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal/computed', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal/computed', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (exports, _emberMetalComputed, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsArray) {
   'use strict';
 
   /*
@@ -76497,12 +76497,12 @@ enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal
       var removeAmt = amt;
       var addAmt = args.length;
 
-      this.arrayContentWillChange(idx, removeAmt, addAmt);
+      _emberRuntimeMixinsArray.arrayContentWillChange(this, idx, removeAmt, addAmt);
 
       args.unshift(amt);
       args.unshift(idx);
       this._content.splice.apply(this._content, args);
-      this.arrayContentDidChange(idx, removeAmt, addAmt);
+      _emberRuntimeMixinsArray.arrayContentDidChange(this, idx, removeAmt, addAmt);
       return this;
     },
 
@@ -79223,14 +79223,14 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObjects', ['exports', 'embe
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get', 'ember-runtime/mixins/mutable_array'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get, _emberRuntimeMixinsMutable_array) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
   suite.module('removeAt');
 
-  suite.test('[X].removeAt(0) => [] + notify', function () {
+  suite.test('removeAt([X], 0) => [] + notify', function () {
     var before = this.newFixture(1);
     var after = [];
     var obj = this.newObject(before);
@@ -79238,7 +79238,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.removeAt(0), obj, 'return self');
+    equal(_emberRuntimeMixinsMutable_array.removeAt(obj, 0), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
@@ -79250,14 +79250,14 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
   });
 
-  suite.test('[].removeAt(200) => OUT_OF_RANGE_EXCEPTION exception', function () {
+  suite.test('removeAt([], 200) => OUT_OF_RANGE_EXCEPTION exception', function () {
     var obj = this.newObject([]);
     throws(function () {
-      return obj.removeAt(200);
+      return _emberRuntimeMixinsMutable_array.removeAt(obj, 200);
     }, Error);
   });
 
-  suite.test('[A,B].removeAt(0) => [B] + notify', function () {
+  suite.test('removeAt([A,B], 0) => [B] + notify', function () {
     var before = this.newFixture(2);
     var after = [before[1]];
     var obj = this.newObject(before);
@@ -79265,7 +79265,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.removeAt(0), obj, 'return self');
+    equal(_emberRuntimeMixinsMutable_array.removeAt(obj, 0), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
@@ -79278,7 +79278,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 
-  suite.test('[A,B].removeAt(1) => [A] + notify', function () {
+  suite.test('removeAt([A,B], 1) => [A] + notify', function () {
     var before = this.newFixture(2);
     var after = [before[0]];
     var obj = this.newObject(before);
@@ -79286,7 +79286,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.removeAt(1), obj, 'return self');
+    equal(_emberRuntimeMixinsMutable_array.removeAt(obj, 1), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
@@ -79299,7 +79299,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
   });
 
-  suite.test('[A,B,C].removeAt(1) => [A,C] + notify', function () {
+  suite.test('removeAt([A,B,C], 1) => [A,C] + notify', function () {
     var before = this.newFixture(3);
     var after = [before[0], before[2]];
     var obj = this.newObject(before);
@@ -79307,7 +79307,28 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-    equal(obj.removeAt(1), obj, 'return self');
+    equal(_emberRuntimeMixinsMutable_array.removeAt(obj, 1), obj, 'return self');
+
+    deepEqual(this.toArray(obj), after, 'post item results');
+    equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
+
+    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+
+    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+    equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject once');
+  });
+
+  suite.test('removeAt([A,B,C,D], 1,2) => [A,D] + notify', function () {
+    var before = this.newFixture(4);
+    var after = [before[0], before[3]];
+    var obj = this.newObject(before);
+    var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
+
+    obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
+
+    equal(_emberRuntimeMixinsMutable_array.removeAt(obj, 1, 2), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
@@ -79321,11 +79342,12 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
   });
 
   suite.test('[A,B,C,D].removeAt(1,2) => [A,D] + notify', function () {
-    var before = this.newFixture(4);
-    var after = [before[0], before[3]];
-    var obj = this.newObject(before);
-    var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
+    var obj, before, after, observer;
 
+    before = this.newFixture(4);
+    after = [before[0], before[3]];
+    obj = this.newObject(before);
+    observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
     equal(obj.removeAt(1, 2), obj, 'return self');

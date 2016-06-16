@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fd69da55
+ * @version   2.7.0-canary+ade1ca6e
  */
 
 var enifed, requireModule, require, Ember;
@@ -2488,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+fd69da55";
+  exports.default = "2.7.0-canary+ade1ca6e";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -13698,6 +13698,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   exports.addArrayObserver = addArrayObserver;
   exports.removeArrayObserver = removeArrayObserver;
   exports.objectAt = objectAt;
+  exports.arrayContentWillChange = arrayContentWillChange;
+  exports.arrayContentDidChange = arrayContentDidChange;
   exports.isEmberArray = isEmberArray;
 
   function arrayObserversHelper(obj, target, opts, operation, notify) {
@@ -13733,6 +13735,100 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     return content[idx];
+  }
+
+  function arrayContentWillChange(array, startIdx, removeAmt, addAmt) {
+    var removing = undefined,
+        lim = undefined;
+
+    // if no args are passed assume everything changes
+    if (startIdx === undefined) {
+      startIdx = 0;
+      removeAmt = addAmt = -1;
+    } else {
+      if (removeAmt === undefined) {
+        removeAmt = -1;
+      }
+
+      if (addAmt === undefined) {
+        addAmt = -1;
+      }
+    }
+
+    if (array.__each) {
+      array.__each.arrayWillChange(array, startIdx, removeAmt, addAmt);
+    }
+
+    _emberMetalEvents.sendEvent(array, '@array:before', [array, startIdx, removeAmt, addAmt]);
+
+    if (startIdx >= 0 && removeAmt >= 0 && _emberMetalProperty_get.get(array, 'hasEnumerableObservers')) {
+      removing = [];
+      lim = startIdx + removeAmt;
+
+      for (var idx = startIdx; idx < lim; idx++) {
+        removing.push(objectAt(array, idx));
+      }
+    } else {
+      removing = removeAmt;
+    }
+
+    array.enumerableContentWillChange(removing, addAmt);
+
+    return array;
+  }
+
+  function arrayContentDidChange(array, startIdx, removeAmt, addAmt) {
+    _emberMetalTags.markObjectAsDirty(_emberMetalMeta.meta(array));
+
+    // if no args are passed assume everything changes
+    if (startIdx === undefined) {
+      startIdx = 0;
+      removeAmt = addAmt = -1;
+    } else {
+      if (removeAmt === undefined) {
+        removeAmt = -1;
+      }
+
+      if (addAmt === undefined) {
+        addAmt = -1;
+      }
+    }
+
+    var adding = undefined;
+    if (startIdx >= 0 && addAmt >= 0 && _emberMetalProperty_get.get(array, 'hasEnumerableObservers')) {
+      adding = [];
+      var lim = startIdx + addAmt;
+
+      for (var idx = startIdx; idx < lim; idx++) {
+        adding.push(objectAt(array, idx));
+      }
+    } else {
+      adding = addAmt;
+    }
+
+    array.enumerableContentDidChange(removeAmt, adding);
+
+    if (array.__each) {
+      array.__each.arrayDidChange(array, startIdx, removeAmt, addAmt);
+    }
+
+    _emberMetalEvents.sendEvent(array, '@array:change', [array, startIdx, removeAmt, addAmt]);
+
+    var length = _emberMetalProperty_get.get(array, 'length');
+    var cachedFirst = _emberMetalComputed.cacheFor(array, 'firstObject');
+    var cachedLast = _emberMetalComputed.cacheFor(array, 'lastObject');
+
+    if (objectAt(array, 0) !== cachedFirst) {
+      _emberMetalProperty_events.propertyWillChange(array, 'firstObject');
+      _emberMetalProperty_events.propertyDidChange(array, 'firstObject');
+    }
+
+    if (objectAt(array, length - 1) !== cachedLast) {
+      _emberMetalProperty_events.propertyWillChange(array, 'lastObject');
+      _emberMetalProperty_events.propertyDidChange(array, 'lastObject');
+    }
+
+    return array;
   }
 
   var EMBER_ARRAY = _emberMetalSymbol.default('EMBER_ARRAY');
@@ -13881,95 +13977,9 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   }, _Mixin$create.hasArrayObservers = _emberMetalComputed.computed(function () {
     return _emberMetalEvents.hasListeners(this, '@array:change') || _emberMetalEvents.hasListeners(this, '@array:before');
   }), _Mixin$create.arrayContentWillChange = function (startIdx, removeAmt, addAmt) {
-    var removing = undefined,
-        lim = undefined;
-
-    // if no args are passed assume everything changes
-    if (startIdx === undefined) {
-      startIdx = 0;
-      removeAmt = addAmt = -1;
-    } else {
-      if (removeAmt === undefined) {
-        removeAmt = -1;
-      }
-
-      if (addAmt === undefined) {
-        addAmt = -1;
-      }
-    }
-
-    if (this.__each) {
-      this.__each.arrayWillChange(this, startIdx, removeAmt, addAmt);
-    }
-
-    _emberMetalEvents.sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
-
-    if (startIdx >= 0 && removeAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
-      removing = [];
-      lim = startIdx + removeAmt;
-
-      for (var idx = startIdx; idx < lim; idx++) {
-        removing.push(objectAt(this, idx));
-      }
-    } else {
-      removing = removeAmt;
-    }
-
-    this.enumerableContentWillChange(removing, addAmt);
-
-    return this;
+    return arrayContentWillChange(this, startIdx, removeAmt, addAmt);
   }, _Mixin$create.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
-    _emberMetalTags.markObjectAsDirty(_emberMetalMeta.meta(this));
-
-    // if no args are passed assume everything changes
-    if (startIdx === undefined) {
-      startIdx = 0;
-      removeAmt = addAmt = -1;
-    } else {
-      if (removeAmt === undefined) {
-        removeAmt = -1;
-      }
-
-      if (addAmt === undefined) {
-        addAmt = -1;
-      }
-    }
-
-    var adding = undefined;
-    if (startIdx >= 0 && addAmt >= 0 && _emberMetalProperty_get.get(this, 'hasEnumerableObservers')) {
-      adding = [];
-      var lim = startIdx + addAmt;
-
-      for (var idx = startIdx; idx < lim; idx++) {
-        adding.push(objectAt(this, idx));
-      }
-    } else {
-      adding = addAmt;
-    }
-
-    this.enumerableContentDidChange(removeAmt, adding);
-
-    if (this.__each) {
-      this.__each.arrayDidChange(this, startIdx, removeAmt, addAmt);
-    }
-
-    _emberMetalEvents.sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
-
-    var length = _emberMetalProperty_get.get(this, 'length');
-    var cachedFirst = _emberMetalComputed.cacheFor(this, 'firstObject');
-    var cachedLast = _emberMetalComputed.cacheFor(this, 'lastObject');
-
-    if (objectAt(this, 0) !== cachedFirst) {
-      _emberMetalProperty_events.propertyWillChange(this, 'firstObject');
-      _emberMetalProperty_events.propertyDidChange(this, 'firstObject');
-    }
-
-    if (objectAt(this, length - 1) !== cachedLast) {
-      _emberMetalProperty_events.propertyWillChange(this, 'lastObject');
-      _emberMetalProperty_events.propertyDidChange(this, 'lastObject');
-    }
-
-    return this;
+    return arrayContentDidChange(this, startIdx, removeAmt, addAmt);
   }, _Mixin$create['@each'] = _emberMetalComputed.computed(function () {
     // TODO use Symbol or add to meta
     if (!this.__each) {
@@ -15896,12 +15906,30 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
 
   'use strict';
 
+  exports.removeAt = removeAt;
   var OUT_OF_RANGE_EXCEPTION = 'Index out of range';
   var EMPTY = [];
 
   // ..........................................................
   // HELPERS
   //
+
+  function removeAt(array, start, len) {
+    if ('number' === typeof start) {
+      if (start < 0 || start >= _emberMetalProperty_get.get(array, 'length')) {
+        throw new _emberMetalError.default(OUT_OF_RANGE_EXCEPTION);
+      }
+
+      // fast case
+      if (len === undefined) {
+        len = 1;
+      }
+
+      array.replace(start, len, EMPTY);
+    }
+
+    return array;
+  }
 
   /**
     This mixin defines the API for modifying array-like objects. These methods
@@ -16006,20 +16034,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       @public
     */
     removeAt: function (start, len) {
-      if ('number' === typeof start) {
-        if (start < 0 || start >= _emberMetalProperty_get.get(this, 'length')) {
-          throw new _emberMetalError.default(OUT_OF_RANGE_EXCEPTION);
-        }
-
-        // fast case
-        if (len === undefined) {
-          len = 1;
-        }
-
-        this.replace(start, len, EMPTY);
-      }
-
-      return this;
+      return removeAt(this, start, len);
     },
 
     /**
@@ -17757,11 +17772,11 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
     },
 
     arrangedContentArrayWillChange: function (item, idx, removedCnt, addedCnt) {
-      this.arrayContentWillChange(idx, removedCnt, addedCnt);
+      _emberRuntimeMixinsArray.arrayContentWillChange(this, idx, removedCnt, addedCnt);
     },
 
     arrangedContentArrayDidChange: function (item, idx, removedCnt, addedCnt) {
-      this.arrayContentDidChange(idx, removedCnt, addedCnt);
+      _emberRuntimeMixinsArray.arrayContentDidChange(this, idx, removedCnt, addedCnt);
     },
 
     init: function () {
@@ -19090,7 +19105,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
       // replaced range. Otherwise, pass the full remaining array length
       // since everything has shifted
       var len = objects ? _emberMetalProperty_get.get(objects, 'length') : 0;
-      this.arrayContentWillChange(idx, amt, len);
+      _emberRuntimeMixinsArray.arrayContentWillChange(this, idx, amt, len);
 
       if (len === 0) {
         this.splice(idx, amt);
@@ -19098,7 +19113,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
         _emberMetalReplace._replace(this, idx, amt, objects);
       }
 
-      this.arrayContentDidChange(idx, amt, len);
+      _emberRuntimeMixinsArray.arrayContentDidChange(this, idx, amt, len);
       return this;
     },
 
