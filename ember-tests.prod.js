@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+28cedad1
+ * @version   2.7.0-canary+89a194d7
  */
 
 var enifed, requireModule, require, Ember;
@@ -26917,6 +26917,166 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
     return JSON.parse(JSON.stringify(serializable));
   }
 });
+enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalRun_loop, _emberGlimmerTestsUtilsHelpers) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Link-to component', (function (_ApplicationTest) {
+    _inherits(_class, _ApplicationTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class.prototype.runTask = function runTask(fn) {
+      _emberMetalRun_loop.default(fn);
+    };
+
+    _class.prototype.visitWithDeprecation = function visitWithDeprecation(path, deprecation) {
+      var _this = this;
+
+      var p = undefined;
+
+      expectDeprecation(function () {
+        p = _this.visit(path);
+      }, deprecation);
+
+      return p;
+    };
+
+    _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresent() {
+      var _this2 = this;
+
+      this.registerTemplate('application', '{{#link-to \'index\'}}Go to Index{{/link-to}}');
+
+      return this.visit('/').then(function () {
+        _this2.assertText('Go to Index');
+      });
+    };
+
+    _class.prototype['@test re-renders when title changes'] = function testReRendersWhenTitleChanges() {
+      var _this3 = this;
+
+      var controller = undefined;
+
+      this.registerTemplate('application', '{{link-to title routeName}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          controller = this;
+        },
+        title: 'foo',
+        routeName: 'index'
+      }));
+
+      return this.visit('/').then(function () {
+        _this3.assertText('foo');
+        _this3.runTask(function () {
+          return _emberMetalProperty_set.set(controller, 'title', 'bar');
+        });
+        _this3.assertText('bar');
+      });
+    };
+
+    _class.prototype['@test escaped inline form (double curlies) escapes link title'] = function testEscapedInlineFormDoubleCurliesEscapesLinkTitle() {
+      var _this4 = this;
+
+      this.registerTemplate('application', '{{link-to title \'index\'}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: '<b>blah</b>'
+      }));
+
+      return this.visit('/').then(function () {
+        _this4.assertText('<b>blah</b>');
+      });
+    };
+
+    _class.prototype['@htmlbars escaped inline form with (-html-safe) does not escape link title'] = function htmlbarsEscapedInlineFormWithHtmlSafeDoesNotEscapeLinkTitle(assert) {
+      var _this5 = this;
+
+      this.registerTemplate('application', '{{link-to (-html-safe title) \'index\'}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: '<b>blah</b>'
+      }));
+
+      return this.visit('/').then(function () {
+        _this5.assertText('blah');
+        assert.equal(_this5.$('b').length, 1);
+      });
+    };
+
+    _class.prototype['@htmlbars unescaped inline form (triple curlies) does not escape link title'] = function htmlbarsUnescapedInlineFormTripleCurliesDoesNotEscapeLinkTitle(assert) {
+      var _this6 = this;
+
+      this.registerTemplate('application', '{{{link-to title \'index\'}}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: '<b>blah</b>'
+      }));
+
+      return this.visit('/').then(function () {
+        _this6.assertText('blah');
+        assert.equal(_this6.$('b').length, 1);
+      });
+    };
+
+    _class.prototype['@test unwraps controllers'] = function testUnwrapsControllers() {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('profile', { path: '/profile/:id' });
+      });
+      this.registerTemplate('application', '{{#link-to \'profile\' otherController}}Text{{/link-to}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        otherController: _emberRuntimeControllersController.default.create({
+          model: 'foo'
+        })
+      }));
+
+      var deprecation = /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./;
+
+      return this.visitWithDeprecation('/', deprecation).then(function () {
+        _this7.assertText('Text');
+      });
+    };
+
+    _class.prototype['@test able to safely extend the built-in component and use the normal path'] = function testAbleToSafelyExtendTheBuiltInComponentAndUseTheNormalPath() {
+      var _this8 = this;
+
+      this.registerComponent('custom-link-to', { ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkTo.extend() });
+      this.registerTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: 'Hello'
+      }));
+
+      return this.visit('/').then(function () {
+        _this8.assertText('Hello');
+      });
+    };
+
+    _class.prototype['@test [GH#13432] able to safely extend the built-in component and invoke it inline'] = function testGH13432AbleToSafelyExtendTheBuiltInComponentAndInvokeItInline() {
+      var _this9 = this;
+
+      this.registerComponent('custom-link-to', { ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkTo.extend() });
+      this.registerTemplate('application', '{{custom-link-to title \'index\'}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: 'Hello'
+      }));
+
+      return this.visit('/').then(function () {
+        _this9.assertText('Hello');
+      });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
+});
 enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
@@ -37936,6 +38096,23 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }));
     };
 
+    ApplicationTest.prototype.registerComponent = function registerComponent(name, _ref4) {
+      var _ref4$ComponentClass = _ref4.ComponentClass;
+      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
+      var _ref4$template = _ref4.template;
+      var template = _ref4$template === undefined ? null : _ref4$template;
+
+      if (ComponentClass) {
+        this.application.register('component:' + name, ComponentClass);
+      }
+
+      if (typeof template === 'string') {
+        this.application.register('template:components/' + name, this.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
     ApplicationTest.prototype.registerController = function registerController(name, controller) {
       this.application.register('controller:' + name, controller);
     };
@@ -38050,11 +38227,11 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref4) {
-      var _ref4$ComponentClass = _ref4.ComponentClass;
-      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
-      var _ref4$template = _ref4.template;
-      var template = _ref4$template === undefined ? null : _ref4$template;
+    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref5) {
+      var _ref5$ComponentClass = _ref5.ComponentClass;
+      var ComponentClass = _ref5$ComponentClass === undefined ? null : _ref5$ComponentClass;
+      var _ref5$template = _ref5.template;
+      var template = _ref5$template === undefined ? null : _ref5$template;
       var owner = this.owner;
 
       if (ComponentClass) {
@@ -38100,12 +38277,12 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
   exports.RenderingTest = RenderingTest;
 
-  function strip(_ref5) {
+  function strip(_ref6) {
     for (var _len3 = arguments.length, values = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
       values[_key3 - 1] = arguments[_key3];
     }
 
-    var strings = _ref5;
+    var strings = _ref6;
 
     var str = strings.map(function (string, index) {
       var interpolated = values[index];
@@ -38121,7 +38298,7 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-glimmer-template-compiler', 'ember-glimmer/helper', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberMetalAssign, _emberGlimmerTemplateCompiler, _emberGlimmerHelper, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _glimmerRuntime, _emberGlimmerRenderer) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-glimmer-template-compiler', 'ember-glimmer/helper', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberMetalAssign, _emberGlimmerTemplateCompiler, _emberGlimmerHelper, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer) {
   'use strict';
 
   exports.precompile = precompile;
@@ -38132,6 +38309,7 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'e
   exports.Checkbox = _emberGlimmerComponentsCheckbox.default;
   exports.TextArea = _emberGlimmerComponentsText_area.default;
   exports.TextField = _emberGlimmerComponentsText_field.default;
+  exports.LinkTo = _emberGlimmerComponentsLinkTo.default;
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
@@ -39563,154 +39741,6 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
       deepEqual(warnings, [], 'no warnings were triggered');
     });
   }
-});
-enifed('ember-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-htmlbars/components/link-to', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberHtmlbarsComponentsLinkTo, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var owner = undefined,
-      component = undefined;
-
-  QUnit.module('ember-htmlbars: link-to helper', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-
-      // These tests don't rely on the routing service, but LinkComponent makes
-      // some assumptions that it will exist. This small stub service ensures
-      // that the LinkComponent can render without raising an exception.
-      //
-      // TODO: Add tests that test actual behavior. Currently, all behavior
-      // is tested integration-style in the `ember` package.
-      owner.register('service:-routing', _emberRuntimeSystemObject.default.extend({
-        availableRoutes: function () {
-          return ['index'];
-        },
-        hasRoute: function (name) {
-          return name === 'index';
-        },
-        isActiveForRoute: function () {
-          return true;
-        },
-        generateURL: function () {
-          return '/';
-        }
-      }));
-
-      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      owner.register('component:link-to', _emberHtmlbarsComponentsLinkTo.default);
-      owner.register('component:custom-link-to', _emberHtmlbarsComponentsLinkTo.default.extend());
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(component);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-    }
-  });
-
-  QUnit.test('should be able to be inserted in DOM when the router is not present', function () {
-    var _Component$create;
-
-    var template = '{{#link-to \'index\'}}Go to Index{{/link-to}}';
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create = {}, _Component$create[_containerOwner.OWNER] = owner, _Component$create.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'Go to Index');
-  });
-
-  QUnit.test('re-renders when title changes', function () {
-    var _Component$create2;
-
-    var template = '{{link-to title routeName}}';
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create2 = {}, _Component$create2[_containerOwner.OWNER] = owner, _Component$create2.title = 'foo', _Component$create2.routeName = 'index', _Component$create2.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create2));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'foo');
-
-    _emberMetalRun_loop.default(function () {
-      return _emberMetalProperty_set.set(component, 'title', 'bar');
-    });
-
-    equal(component.$().text(), 'bar');
-  });
-
-  QUnit.test('can read bound title', function () {
-    var _Component$create3;
-
-    var template = '{{link-to title routeName}}';
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create3 = {}, _Component$create3[_containerOwner.OWNER] = owner, _Component$create3.title = 'foo', _Component$create3.routeName = 'index', _Component$create3.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create3));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'foo');
-  });
-
-  QUnit.test('escaped inline form (double curlies) escapes link title', function () {
-    var _Component$create4;
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create4 = {}, _Component$create4[_containerOwner.OWNER] = owner, _Component$create4.title = '<b>blah</b>', _Component$create4.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to title "index"}}'), _Component$create4));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$('b').length, 0, 'no <b> were found');
-  });
-
-  QUnit.test('escaped inline form with (-html-safe) does not escape link title', function () {
-    var _Component$create5;
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create5 = {}, _Component$create5[_containerOwner.OWNER] = owner, _Component$create5.title = '<b>blah</b>', _Component$create5.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{link-to (-html-safe title) "index"}}'), _Component$create5));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$('b').length, 1, '<b> was found');
-  });
-
-  QUnit.test('unescaped inline form (triple curlies) does not escape link title', function () {
-    var _Component$create6;
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create6 = {}, _Component$create6[_containerOwner.OWNER] = owner, _Component$create6.title = '<b>blah</b>', _Component$create6.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{{link-to title "index"}}}'), _Component$create6));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$('b').length, 1, '<b> was found');
-  });
-
-  QUnit.test('unwraps controllers', function () {
-    var _Component$create7;
-
-    var template = '{{#link-to \'index\' otherController}}Text{{/link-to}}';
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create7 = {}, _Component$create7[_containerOwner.OWNER] = owner, _Component$create7.otherController = _emberRuntimeControllersController.default.create({
-      model: 'foo'
-    }), _Component$create7.layout = _emberHtmlbarsTestsUtilsHelpers.compile(template), _Component$create7));
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
-
-    equal(component.$().text(), 'Text');
-  });
-
-  QUnit.test('able to safely extend the built-in component and use the normal path', function () {
-    var _Component$create8;
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create8 = {}, _Component$create8[_containerOwner.OWNER] = owner, _Component$create8.title = 'my custom link-to component', _Component$create8.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}'), _Component$create8));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
-  });
-
-  QUnit.test('[GH#13432] able to safely extend the built-in component and invoke it inline', function () {
-    var _Component$create9;
-
-    component = _emberHtmlbarsTestsUtilsHelpers.Component.create((_Component$create9 = {}, _Component$create9[_containerOwner.OWNER] = owner, _Component$create9.title = 'my custom link-to component', _Component$create9.layout = _emberHtmlbarsTestsUtilsHelpers.compile('{{custom-link-to title \'index\'}}'), _Component$create9));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
-  });
 });
 enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils) {
   'use strict';
@@ -47452,6 +47482,166 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
   function json(serializable) {
     return JSON.parse(JSON.stringify(serializable));
   }
+});
+enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Link-to component', (function (_ApplicationTest) {
+    _inherits(_class, _ApplicationTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class.prototype.runTask = function runTask(fn) {
+      _emberMetalRun_loop.default(fn);
+    };
+
+    _class.prototype.visitWithDeprecation = function visitWithDeprecation(path, deprecation) {
+      var _this = this;
+
+      var p = undefined;
+
+      expectDeprecation(function () {
+        p = _this.visit(path);
+      }, deprecation);
+
+      return p;
+    };
+
+    _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresent() {
+      var _this2 = this;
+
+      this.registerTemplate('application', '{{#link-to \'index\'}}Go to Index{{/link-to}}');
+
+      return this.visit('/').then(function () {
+        _this2.assertText('Go to Index');
+      });
+    };
+
+    _class.prototype['@test re-renders when title changes'] = function testReRendersWhenTitleChanges() {
+      var _this3 = this;
+
+      var controller = undefined;
+
+      this.registerTemplate('application', '{{link-to title routeName}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          controller = this;
+        },
+        title: 'foo',
+        routeName: 'index'
+      }));
+
+      return this.visit('/').then(function () {
+        _this3.assertText('foo');
+        _this3.runTask(function () {
+          return _emberMetalProperty_set.set(controller, 'title', 'bar');
+        });
+        _this3.assertText('bar');
+      });
+    };
+
+    _class.prototype['@test escaped inline form (double curlies) escapes link title'] = function testEscapedInlineFormDoubleCurliesEscapesLinkTitle() {
+      var _this4 = this;
+
+      this.registerTemplate('application', '{{link-to title \'index\'}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: '<b>blah</b>'
+      }));
+
+      return this.visit('/').then(function () {
+        _this4.assertText('<b>blah</b>');
+      });
+    };
+
+    _class.prototype['@htmlbars escaped inline form with (-html-safe) does not escape link title'] = function htmlbarsEscapedInlineFormWithHtmlSafeDoesNotEscapeLinkTitle(assert) {
+      var _this5 = this;
+
+      this.registerTemplate('application', '{{link-to (-html-safe title) \'index\'}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: '<b>blah</b>'
+      }));
+
+      return this.visit('/').then(function () {
+        _this5.assertText('blah');
+        assert.equal(_this5.$('b').length, 1);
+      });
+    };
+
+    _class.prototype['@htmlbars unescaped inline form (triple curlies) does not escape link title'] = function htmlbarsUnescapedInlineFormTripleCurliesDoesNotEscapeLinkTitle(assert) {
+      var _this6 = this;
+
+      this.registerTemplate('application', '{{{link-to title \'index\'}}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: '<b>blah</b>'
+      }));
+
+      return this.visit('/').then(function () {
+        _this6.assertText('blah');
+        assert.equal(_this6.$('b').length, 1);
+      });
+    };
+
+    _class.prototype['@test unwraps controllers'] = function testUnwrapsControllers() {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('profile', { path: '/profile/:id' });
+      });
+      this.registerTemplate('application', '{{#link-to \'profile\' otherController}}Text{{/link-to}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        otherController: _emberRuntimeControllersController.default.create({
+          model: 'foo'
+        })
+      }));
+
+      var deprecation = /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./;
+
+      return this.visitWithDeprecation('/', deprecation).then(function () {
+        _this7.assertText('Text');
+      });
+    };
+
+    _class.prototype['@test able to safely extend the built-in component and use the normal path'] = function testAbleToSafelyExtendTheBuiltInComponentAndUseTheNormalPath() {
+      var _this8 = this;
+
+      this.registerComponent('custom-link-to', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.LinkTo.extend() });
+      this.registerTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: 'Hello'
+      }));
+
+      return this.visit('/').then(function () {
+        _this8.assertText('Hello');
+      });
+    };
+
+    _class.prototype['@test [GH#13432] able to safely extend the built-in component and invoke it inline'] = function testGH13432AbleToSafelyExtendTheBuiltInComponentAndInvokeItInline() {
+      var _this9 = this;
+
+      this.registerComponent('custom-link-to', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.LinkTo.extend() });
+      this.registerTemplate('application', '{{custom-link-to title \'index\'}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        title: 'Hello'
+      }));
+
+      return this.visit('/').then(function () {
+        _this9.assertText('Hello');
+      });
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
 });
 enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
@@ -59069,6 +59259,23 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }));
     };
 
+    ApplicationTest.prototype.registerComponent = function registerComponent(name, _ref4) {
+      var _ref4$ComponentClass = _ref4.ComponentClass;
+      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
+      var _ref4$template = _ref4.template;
+      var template = _ref4$template === undefined ? null : _ref4$template;
+
+      if (ComponentClass) {
+        this.application.register('component:' + name, ComponentClass);
+      }
+
+      if (typeof template === 'string') {
+        this.application.register('template:components/' + name, this.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
     ApplicationTest.prototype.registerController = function registerController(name, controller) {
       this.application.register('controller:' + name, controller);
     };
@@ -59183,11 +59390,11 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref4) {
-      var _ref4$ComponentClass = _ref4.ComponentClass;
-      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
-      var _ref4$template = _ref4.template;
-      var template = _ref4$template === undefined ? null : _ref4$template;
+    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref5) {
+      var _ref5$ComponentClass = _ref5.ComponentClass;
+      var ComponentClass = _ref5$ComponentClass === undefined ? null : _ref5$ComponentClass;
+      var _ref5$template = _ref5.template;
+      var template = _ref5$template === undefined ? null : _ref5$template;
       var owner = this.owner;
 
       if (ComponentClass) {
@@ -59233,12 +59440,12 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
   exports.RenderingTest = RenderingTest;
 
-  function strip(_ref5) {
+  function strip(_ref6) {
     for (var _len3 = arguments.length, values = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
       values[_key3 - 1] = arguments[_key3];
     }
 
-    var strings = _ref5;
+    var strings = _ref6;
 
     var str = strings.map(function (string, index) {
       var interpolated = values[index];
@@ -59260,7 +59467,7 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/renderer'], function (exports, _emberMetalAssign, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsRenderer) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer'], function (exports, _emberMetalAssign, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer) {
   'use strict';
 
   exports.compile = compile;
@@ -59273,6 +59480,7 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', '
   exports.Checkbox = _emberHtmlbarsComponentsCheckbox.default;
   exports.TextArea = _emberHtmlbarsComponentsText_area.default;
   exports.TextField = _emberHtmlbarsComponentsText_field.default;
+  exports.LinkTo = _emberHtmlbarsComponentsLinkTo.default;
   exports.InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
 
