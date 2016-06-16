@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+ade1ca6e
+ * @version   2.7.0-canary+a1b7525e
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+ade1ca6e";
+  exports.default = "2.7.0-canary+a1b7525e";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -4381,9 +4381,8 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     not receive events.* If you specify a custom root element, make sure you only
     append views inside it!
   
-    To learn more about the advantages of event delegation and the Ember view
-    layer, and a list of the event listeners that are setup by default, visit the
-    [Ember View Layer guide](http://emberjs.com/guides/understanding-ember/the-view-layer/#toc_event-delegation).
+    To learn more about the events Ember components use, see
+    [components/handling-events](https://guides.emberjs.com/v2.6.0/components/handling-events/#toc_event-names).
   
     ### Initializers
   
