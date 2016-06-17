@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+daa214d2
+ * @version   2.7.0-canary+70ba8dd1
  */
 
 var enifed, requireModule, require, Ember;
@@ -38476,7 +38476,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberViewsSystemEvent_dispatcher, _require) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'container/registry', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _containerRegistry, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -38662,14 +38662,14 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
 
-    TestCase.prototype.assertElement = function assertElement(node, _ref2) {
-      var _ref2$ElementType = _ref2.ElementType;
-      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
-      var tagName = _ref2.tagName;
-      var _ref2$attrs = _ref2.attrs;
-      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
-      var _ref2$content = _ref2.content;
-      var content = _ref2$content === undefined ? null : _ref2$content;
+    TestCase.prototype.assertElement = function assertElement(node, _ref) {
+      var _ref$ElementType = _ref.ElementType;
+      var ElementType = _ref$ElementType === undefined ? HTMLElement : _ref$ElementType;
+      var tagName = _ref.tagName;
+      var _ref$attrs = _ref.attrs;
+      var attrs = _ref$attrs === undefined ? null : _ref$attrs;
+      var _ref$content = _ref.content;
+      var content = _ref$content === undefined ? null : _ref$content;
 
       if (!(node instanceof ElementType)) {
         throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
@@ -38678,15 +38678,15 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
     };
 
-    TestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref3) {
-      var _ref3$ElementType = _ref3.ElementType;
-      var ElementType = _ref3$ElementType === undefined ? HTMLElement : _ref3$ElementType;
-      var _ref3$tagName = _ref3.tagName;
-      var tagName = _ref3$tagName === undefined ? 'div' : _ref3$tagName;
-      var _ref3$attrs = _ref3.attrs;
-      var attrs = _ref3$attrs === undefined ? null : _ref3$attrs;
-      var _ref3$content = _ref3.content;
-      var content = _ref3$content === undefined ? null : _ref3$content;
+    TestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref2) {
+      var _ref2$ElementType = _ref2.ElementType;
+      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
+      var _ref2$tagName = _ref2.tagName;
+      var tagName = _ref2$tagName === undefined ? 'div' : _ref2$tagName;
+      var _ref2$attrs = _ref2.attrs;
+      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
+      var _ref2$content = _ref2.content;
+      var content = _ref2$content === undefined ? null : _ref2$content;
 
       attrs = _emberMetalAssign.default({}, { id: _emberGlimmerTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
@@ -38771,11 +38771,11 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     return false;
   }
 
-  var ApplicationTest = (function (_TestCase) {
-    _inherits(ApplicationTest, _TestCase);
+  var AbstractApplicationTest = (function (_TestCase) {
+    _inherits(AbstractApplicationTest, _TestCase);
 
-    function ApplicationTest() {
-      _classCallCheck(this, ApplicationTest);
+    function AbstractApplicationTest() {
+      _classCallCheck(this, AbstractApplicationTest);
 
       _TestCase.call(this);
 
@@ -38790,7 +38790,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.applicationInstance = null;
     }
 
-    ApplicationTest.prototype.teardown = function teardown() {
+    AbstractApplicationTest.prototype.teardown = function teardown() {
       if (this.applicationInstance) {
         _emberRuntimeTestsUtils.runDestroy(this.applicationInstance);
       }
@@ -38798,7 +38798,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       _emberRuntimeTestsUtils.runDestroy(this.application);
     };
 
-    ApplicationTest.prototype.visit = function visit(url) {
+    AbstractApplicationTest.prototype.visit = function visit(url) {
       var _this2 = this;
 
       var applicationInstance = this.applicationInstance;
@@ -38812,25 +38812,25 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    ApplicationTest.prototype.compile = function compile(string, options) {
+    AbstractApplicationTest.prototype.compile = function compile(string, options) {
       return _emberGlimmerTestsUtilsHelpers.compile.apply(undefined, arguments);
     };
 
-    ApplicationTest.prototype.registerRoute = function registerRoute(name, route) {
+    AbstractApplicationTest.prototype.registerRoute = function registerRoute(name, route) {
       this.application.register('route:' + name, route);
     };
 
-    ApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
+    AbstractApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
       this.application.register('template:' + name, this.compile(template, {
         moduleName: name
       }));
     };
 
-    ApplicationTest.prototype.registerComponent = function registerComponent(name, _ref4) {
-      var _ref4$ComponentClass = _ref4.ComponentClass;
-      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
-      var _ref4$template = _ref4.template;
-      var template = _ref4$template === undefined ? null : _ref4$template;
+    AbstractApplicationTest.prototype.registerComponent = function registerComponent(name, _ref3) {
+      var _ref3$ComponentClass = _ref3.ComponentClass;
+      var ComponentClass = _ref3$ComponentClass === undefined ? null : _ref3$ComponentClass;
+      var _ref3$template = _ref3.template;
+      var template = _ref3$template === undefined ? null : _ref3$template;
 
       if (ComponentClass) {
         this.application.register('component:' + name, ComponentClass);
@@ -38843,11 +38843,11 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    ApplicationTest.prototype.registerController = function registerController(name, controller) {
+    AbstractApplicationTest.prototype.registerController = function registerController(name, controller) {
       this.application.register('controller:' + name, controller);
     };
 
-    _createClass(ApplicationTest, [{
+    _createClass(AbstractApplicationTest, [{
       key: 'applicationOptions',
       get: function () {
         return {
@@ -38857,24 +38857,21 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     }]);
 
-    return ApplicationTest;
+    return AbstractApplicationTest;
   })(TestCase);
 
-  exports.ApplicationTest = ApplicationTest;
+  exports.AbstractApplicationTest = AbstractApplicationTest;
 
-  var RenderingTest = (function (_TestCase2) {
-    _inherits(RenderingTest, _TestCase2);
+  var AbstractRenderingTest = (function (_TestCase2) {
+    _inherits(AbstractRenderingTest, _TestCase2);
 
-    function RenderingTest() {
-      var _ref, _InteractiveRenderer$create;
-
-      _classCallCheck(this, RenderingTest);
+    function AbstractRenderingTest() {
+      _classCallCheck(this, AbstractRenderingTest);
 
       _TestCase2.call(this);
-      var dom = new _emberGlimmerTestsUtilsHelpers.DOMHelper(document);
-      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default(this.getOwnerOptions());
-      var env = this.env = new _emberGlimmerTestsUtilsEnvironment.default((_ref = { dom: dom, owner: owner }, _ref[_containerOwner.OWNER] = owner, _ref));
-      this.renderer = _emberGlimmerTestsUtilsHelpers.InteractiveRenderer.create((_InteractiveRenderer$create = { dom: dom, env: env }, _InteractiveRenderer$create[_containerOwner.OWNER] = owner, _InteractiveRenderer$create));
+      var owner = this.owner = _emberGlimmerTestsUtilsHelpers.buildOwner(this.getOwnerOptions());
+
+      this.renderer = this.owner.lookup('renderer:-dom');
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
 
@@ -38883,19 +38880,19 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
     }
 
-    RenderingTest.prototype.compile = function compile() {
+    AbstractRenderingTest.prototype.compile = function compile() {
       return _emberGlimmerTestsUtilsHelpers.compile.apply(undefined, arguments);
     };
 
-    RenderingTest.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+    AbstractRenderingTest.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
       return {};
     };
 
-    RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
+    AbstractRenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
       return {};
     };
 
-    RenderingTest.prototype.teardown = function teardown() {
+    AbstractRenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
         _emberRuntimeTestsUtils.runDestroy(this.component);
       }
@@ -38904,35 +38901,35 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.render = function render(templateStr) {
-      var _assign;
-
+    AbstractRenderingTest.prototype.render = function render(templateStr) {
       var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-      var renderer = this.renderer;
       var owner = this.owner;
 
       owner.register('template:-top-level', this.compile(templateStr, {
         moduleName: '-top-level'
       }));
 
-      var attrs = _emberMetalAssign.default({}, context, (_assign = {
-        tagName: ''
-      }, _assign[_containerOwner.OWNER] = owner, _assign.renderer = renderer, _assign.template = owner.lookup('template:-top-level'), _assign));
+      var attrs = _emberMetalAssign.default({}, context, {
+        tagName: '',
+        template: owner.lookup('template:-top-level')
+      });
 
-      this.component = _emberGlimmerTestsUtilsHelpers.Component.create(attrs);
+      owner.register('component:-top-level', _emberGlimmerTestsUtilsHelpers.Component.extend(attrs));
+
+      this.component = owner.lookup('component:-top-level');
 
       _emberRuntimeTestsUtils.runAppend(this.component);
     };
 
-    RenderingTest.prototype.rerender = function rerender() {
+    AbstractRenderingTest.prototype.rerender = function rerender() {
       this.component.rerender();
     };
 
-    RenderingTest.prototype.runTask = function runTask(callback) {
+    AbstractRenderingTest.prototype.runTask = function runTask(callback) {
       _emberMetalRun_loop.default(callback);
     };
 
-    RenderingTest.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
+    AbstractRenderingTest.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
       var type = typeof funcOrClassBody;
 
       if (type === 'function') {
@@ -38944,7 +38941,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.registerPartial = function registerPartial(name, template) {
+    AbstractRenderingTest.prototype.registerPartial = function registerPartial(name, template) {
       var owner = this.env.owner || this.owner;
       if (typeof template === 'string') {
         var moduleName = 'template:' + name;
@@ -38957,11 +38954,11 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref5) {
-      var _ref5$ComponentClass = _ref5.ComponentClass;
-      var ComponentClass = _ref5$ComponentClass === undefined ? null : _ref5$ComponentClass;
-      var _ref5$template = _ref5.template;
-      var template = _ref5$template === undefined ? null : _ref5$template;
+    AbstractRenderingTest.prototype.registerComponent = function registerComponent(name, _ref4) {
+      var _ref4$ComponentClass = _ref4.ComponentClass;
+      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
+      var _ref4$template = _ref4.template;
+      var template = _ref4$template === undefined ? null : _ref4$template;
       var owner = this.owner;
 
       if (ComponentClass) {
@@ -38975,7 +38972,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.registerTemplate = function registerTemplate(name, template) {
+    AbstractRenderingTest.prototype.registerTemplate = function registerTemplate(name, template) {
       var owner = this.owner;
 
       if (typeof template === 'string') {
@@ -38987,7 +38984,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
-    RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
+    AbstractRenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
       if (!(node instanceof TextNode)) {
         throw new Error('Expecting a text node, but got ' + node);
       }
@@ -38995,24 +38992,24 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
-    _createClass(RenderingTest, [{
+    _createClass(AbstractRenderingTest, [{
       key: 'context',
       get: function () {
         return this.component;
       }
     }]);
 
-    return RenderingTest;
+    return AbstractRenderingTest;
   })(TestCase);
 
-  exports.RenderingTest = RenderingTest;
+  exports.AbstractRenderingTest = AbstractRenderingTest;
 
-  function strip(_ref6) {
+  function strip(_ref5) {
     for (var _len3 = arguments.length, values = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
       values[_key3 - 1] = arguments[_key3];
     }
 
-    var strings = _ref6;
+    var strings = _ref5;
 
     var str = strings.map(function (string, index) {
       var interpolated = values[index];
@@ -39028,9 +39025,10 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-glimmer-template-compiler', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberMetalAssign, _emberGlimmerTemplateCompiler, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-glimmer-template-compiler', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberMetalAssign, _emberGlimmerTemplateCompiler, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer) {
   'use strict';
 
+  exports.buildOwner = buildOwner;
   exports.precompile = precompile;
   exports.compile = compile;
   exports.Helper = _emberGlimmerHelper.default;
@@ -39044,6 +39042,16 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'e
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
+
+  function buildOwner(options) {
+    var owner = _containerTestsTestHelpersBuildOwner.default(options);
+    _emberGlimmerSetupRegistry.setupApplicationRegistry(owner.__registry__);
+    owner.register('service:-document', document, { instantiate: false });
+    owner.inject('service:-dom-helper', 'document', 'service:-document');
+    owner.inject('component', 'renderer', 'renderer:-dom');
+    owner.inject('template', 'env', 'service:-glimmer-environment');
+    return owner;
+  }
 
   function precompile(string) {
     return _emberGlimmerTemplateCompiler.template(_emberGlimmerTemplateCompiler.precompile(string));
@@ -40102,7 +40110,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
     }]);
 
     return ApplicationTest;
-  })(_emberGlimmerTestsUtilsAbstractTestCase.ApplicationTest);
+  })(_emberGlimmerTestsUtilsAbstractTestCase.AbstractApplicationTest);
 
   exports.ApplicationTest = ApplicationTest;
 
@@ -40113,12 +40121,10 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       _classCallCheck(this, RenderingTest);
 
       _AbstractRenderingTest.call(this);
-
       var owner = this.owner;
 
+      this.env = owner.lookup('service:-glimmer-environment');
       owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      owner.register('service:-glimmer-environment', this.env, { instantiate: false });
-      owner.inject('template', 'env', 'service:-glimmer-environment');
       owner.registerOptionsForType('helper', { instantiate: false });
       owner.registerOptionsForType('component', { singleton: false });
     }
@@ -40135,7 +40141,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
     };
 
     return RenderingTest;
-  })(_emberGlimmerTestsUtilsAbstractTestCase.RenderingTest);
+  })(_emberGlimmerTestsUtilsAbstractTestCase.AbstractRenderingTest);
 
   exports.RenderingTest = RenderingTest;
 });
@@ -59752,7 +59758,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features', 'container/registry', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures, _containerRegistry, _emberViewsSystemEvent_dispatcher, _require) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'container/registry', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _containerRegistry, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -59938,14 +59944,14 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
     };
 
-    TestCase.prototype.assertElement = function assertElement(node, _ref2) {
-      var _ref2$ElementType = _ref2.ElementType;
-      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
-      var tagName = _ref2.tagName;
-      var _ref2$attrs = _ref2.attrs;
-      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
-      var _ref2$content = _ref2.content;
-      var content = _ref2$content === undefined ? null : _ref2$content;
+    TestCase.prototype.assertElement = function assertElement(node, _ref) {
+      var _ref$ElementType = _ref.ElementType;
+      var ElementType = _ref$ElementType === undefined ? HTMLElement : _ref$ElementType;
+      var tagName = _ref.tagName;
+      var _ref$attrs = _ref.attrs;
+      var attrs = _ref$attrs === undefined ? null : _ref$attrs;
+      var _ref$content = _ref.content;
+      var content = _ref$content === undefined ? null : _ref$content;
 
       if (!(node instanceof ElementType)) {
         throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
@@ -59954,15 +59960,15 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       _emberHtmlbarsTestsUtilsTestHelpers.equalsElement(node, tagName, attrs, content);
     };
 
-    TestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref3) {
-      var _ref3$ElementType = _ref3.ElementType;
-      var ElementType = _ref3$ElementType === undefined ? HTMLElement : _ref3$ElementType;
-      var _ref3$tagName = _ref3.tagName;
-      var tagName = _ref3$tagName === undefined ? 'div' : _ref3$tagName;
-      var _ref3$attrs = _ref3.attrs;
-      var attrs = _ref3$attrs === undefined ? null : _ref3$attrs;
-      var _ref3$content = _ref3.content;
-      var content = _ref3$content === undefined ? null : _ref3$content;
+    TestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref2) {
+      var _ref2$ElementType = _ref2.ElementType;
+      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
+      var _ref2$tagName = _ref2.tagName;
+      var tagName = _ref2$tagName === undefined ? 'div' : _ref2$tagName;
+      var _ref2$attrs = _ref2.attrs;
+      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
+      var _ref2$content = _ref2.content;
+      var content = _ref2$content === undefined ? null : _ref2$content;
 
       attrs = _emberMetalAssign.default({}, { id: _emberHtmlbarsTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
@@ -60047,11 +60053,11 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     return false;
   }
 
-  var ApplicationTest = (function (_TestCase) {
-    _inherits(ApplicationTest, _TestCase);
+  var AbstractApplicationTest = (function (_TestCase) {
+    _inherits(AbstractApplicationTest, _TestCase);
 
-    function ApplicationTest() {
-      _classCallCheck(this, ApplicationTest);
+    function AbstractApplicationTest() {
+      _classCallCheck(this, AbstractApplicationTest);
 
       _TestCase.call(this);
 
@@ -60066,7 +60072,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.applicationInstance = null;
     }
 
-    ApplicationTest.prototype.teardown = function teardown() {
+    AbstractApplicationTest.prototype.teardown = function teardown() {
       if (this.applicationInstance) {
         _emberRuntimeTestsUtils.runDestroy(this.applicationInstance);
       }
@@ -60074,7 +60080,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       _emberRuntimeTestsUtils.runDestroy(this.application);
     };
 
-    ApplicationTest.prototype.visit = function visit(url) {
+    AbstractApplicationTest.prototype.visit = function visit(url) {
       var _this2 = this;
 
       var applicationInstance = this.applicationInstance;
@@ -60088,25 +60094,25 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    ApplicationTest.prototype.compile = function compile(string, options) {
+    AbstractApplicationTest.prototype.compile = function compile(string, options) {
       return _emberHtmlbarsTestsUtilsHelpers.compile.apply(undefined, arguments);
     };
 
-    ApplicationTest.prototype.registerRoute = function registerRoute(name, route) {
+    AbstractApplicationTest.prototype.registerRoute = function registerRoute(name, route) {
       this.application.register('route:' + name, route);
     };
 
-    ApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
+    AbstractApplicationTest.prototype.registerTemplate = function registerTemplate(name, template) {
       this.application.register('template:' + name, this.compile(template, {
         moduleName: name
       }));
     };
 
-    ApplicationTest.prototype.registerComponent = function registerComponent(name, _ref4) {
-      var _ref4$ComponentClass = _ref4.ComponentClass;
-      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
-      var _ref4$template = _ref4.template;
-      var template = _ref4$template === undefined ? null : _ref4$template;
+    AbstractApplicationTest.prototype.registerComponent = function registerComponent(name, _ref3) {
+      var _ref3$ComponentClass = _ref3.ComponentClass;
+      var ComponentClass = _ref3$ComponentClass === undefined ? null : _ref3$ComponentClass;
+      var _ref3$template = _ref3.template;
+      var template = _ref3$template === undefined ? null : _ref3$template;
 
       if (ComponentClass) {
         this.application.register('component:' + name, ComponentClass);
@@ -60119,11 +60125,11 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    ApplicationTest.prototype.registerController = function registerController(name, controller) {
+    AbstractApplicationTest.prototype.registerController = function registerController(name, controller) {
       this.application.register('controller:' + name, controller);
     };
 
-    _createClass(ApplicationTest, [{
+    _createClass(AbstractApplicationTest, [{
       key: 'applicationOptions',
       get: function () {
         return {
@@ -60133,24 +60139,21 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     }]);
 
-    return ApplicationTest;
+    return AbstractApplicationTest;
   })(TestCase);
 
-  exports.ApplicationTest = ApplicationTest;
+  exports.AbstractApplicationTest = AbstractApplicationTest;
 
-  var RenderingTest = (function (_TestCase2) {
-    _inherits(RenderingTest, _TestCase2);
+  var AbstractRenderingTest = (function (_TestCase2) {
+    _inherits(AbstractRenderingTest, _TestCase2);
 
-    function RenderingTest() {
-      var _ref, _InteractiveRenderer$create;
-
-      _classCallCheck(this, RenderingTest);
+    function AbstractRenderingTest() {
+      _classCallCheck(this, AbstractRenderingTest);
 
       _TestCase2.call(this);
-      var dom = new _emberHtmlbarsTestsUtilsHelpers.DOMHelper(document);
-      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default(this.getOwnerOptions());
-      var env = this.env = new _emberHtmlbarsTestsUtilsEnvironment.default((_ref = { dom: dom, owner: owner }, _ref[_containerOwner.OWNER] = owner, _ref));
-      this.renderer = _emberHtmlbarsTestsUtilsHelpers.InteractiveRenderer.create((_InteractiveRenderer$create = { dom: dom, env: env }, _InteractiveRenderer$create[_containerOwner.OWNER] = owner, _InteractiveRenderer$create));
+      var owner = this.owner = _emberHtmlbarsTestsUtilsHelpers.buildOwner(this.getOwnerOptions());
+
+      this.renderer = this.owner.lookup('renderer:-dom');
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
 
@@ -60159,19 +60162,19 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
     }
 
-    RenderingTest.prototype.compile = function compile() {
+    AbstractRenderingTest.prototype.compile = function compile() {
       return _emberHtmlbarsTestsUtilsHelpers.compile.apply(undefined, arguments);
     };
 
-    RenderingTest.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+    AbstractRenderingTest.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
       return {};
     };
 
-    RenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
+    AbstractRenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
       return {};
     };
 
-    RenderingTest.prototype.teardown = function teardown() {
+    AbstractRenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
         _emberRuntimeTestsUtils.runDestroy(this.component);
       }
@@ -60180,35 +60183,35 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.render = function render(templateStr) {
-      var _assign;
-
+    AbstractRenderingTest.prototype.render = function render(templateStr) {
       var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-      var renderer = this.renderer;
       var owner = this.owner;
 
       owner.register('template:-top-level', this.compile(templateStr, {
         moduleName: '-top-level'
       }));
 
-      var attrs = _emberMetalAssign.default({}, context, (_assign = {
-        tagName: ''
-      }, _assign[_containerOwner.OWNER] = owner, _assign.renderer = renderer, _assign.template = owner.lookup('template:-top-level'), _assign));
+      var attrs = _emberMetalAssign.default({}, context, {
+        tagName: '',
+        template: owner.lookup('template:-top-level')
+      });
 
-      this.component = _emberHtmlbarsTestsUtilsHelpers.Component.create(attrs);
+      owner.register('component:-top-level', _emberHtmlbarsTestsUtilsHelpers.Component.extend(attrs));
+
+      this.component = owner.lookup('component:-top-level');
 
       _emberRuntimeTestsUtils.runAppend(this.component);
     };
 
-    RenderingTest.prototype.rerender = function rerender() {
+    AbstractRenderingTest.prototype.rerender = function rerender() {
       this.component.rerender();
     };
 
-    RenderingTest.prototype.runTask = function runTask(callback) {
+    AbstractRenderingTest.prototype.runTask = function runTask(callback) {
       _emberMetalRun_loop.default(callback);
     };
 
-    RenderingTest.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
+    AbstractRenderingTest.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
       var type = typeof funcOrClassBody;
 
       if (type === 'function') {
@@ -60220,7 +60223,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.registerPartial = function registerPartial(name, template) {
+    AbstractRenderingTest.prototype.registerPartial = function registerPartial(name, template) {
       var owner = this.env.owner || this.owner;
       if (typeof template === 'string') {
         var moduleName = 'template:' + name;
@@ -60233,11 +60236,11 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.registerComponent = function registerComponent(name, _ref5) {
-      var _ref5$ComponentClass = _ref5.ComponentClass;
-      var ComponentClass = _ref5$ComponentClass === undefined ? null : _ref5$ComponentClass;
-      var _ref5$template = _ref5.template;
-      var template = _ref5$template === undefined ? null : _ref5$template;
+    AbstractRenderingTest.prototype.registerComponent = function registerComponent(name, _ref4) {
+      var _ref4$ComponentClass = _ref4.ComponentClass;
+      var ComponentClass = _ref4$ComponentClass === undefined ? null : _ref4$ComponentClass;
+      var _ref4$template = _ref4.template;
+      var template = _ref4$template === undefined ? null : _ref4$template;
       var owner = this.owner;
 
       if (ComponentClass) {
@@ -60251,7 +60254,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.registerTemplate = function registerTemplate(name, template) {
+    AbstractRenderingTest.prototype.registerTemplate = function registerTemplate(name, template) {
       var owner = this.owner;
 
       if (typeof template === 'string') {
@@ -60263,7 +60266,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       }
     };
 
-    RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
+    AbstractRenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
       if (!(node instanceof TextNode)) {
         throw new Error('Expecting a text node, but got ' + node);
       }
@@ -60271,24 +60274,24 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
-    _createClass(RenderingTest, [{
+    _createClass(AbstractRenderingTest, [{
       key: 'context',
       get: function () {
         return this.component;
       }
     }]);
 
-    return RenderingTest;
+    return AbstractRenderingTest;
   })(TestCase);
 
-  exports.RenderingTest = RenderingTest;
+  exports.AbstractRenderingTest = AbstractRenderingTest;
 
-  function strip(_ref6) {
+  function strip(_ref5) {
     for (var _len3 = arguments.length, values = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
       values[_key3 - 1] = arguments[_key3];
     }
 
-    var strings = _ref6;
+    var strings = _ref5;
 
     var str = strings.map(function (string, index) {
       var interpolated = values[index];
@@ -60310,9 +60313,10 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer'], function (exports, _emberMetalAssign, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-htmlbars-template-compiler', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer'], function (exports, _emberMetalAssign, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer) {
   'use strict';
 
+  exports.buildOwner = buildOwner;
   exports.compile = compile;
   exports.precompile = precompile;
   exports.template = _emberHtmlbarsTemplateCompiler.template;
@@ -60327,6 +60331,14 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', '
   exports.LinkTo = _emberHtmlbarsComponentsLinkTo.default;
   exports.InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
+
+  function buildOwner(options) {
+    var owner = _containerTestsTestHelpersBuildOwner.default(options);
+    _emberHtmlbarsSetupRegistry.setupApplicationRegistry(owner.__registry__);
+    owner.register('service:-htmlbars-environment', new _emberHtmlbarsTestsUtilsEnvironment.default(), { instantiate: false });
+    owner.inject('service:-htmlbars-environment', 'dom', 'service:-dom-helper');
+    return owner;
+  }
 
   function compile(string, options) {
     return _emberHtmlbarsTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberHtmlbarsTemplateCompiler.defaultCompileOptions(), options));
@@ -61399,7 +61411,7 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
     }
 
     return ApplicationTest;
-  })(_emberHtmlbarsTestsUtilsAbstractTestCase.ApplicationTest);
+  })(_emberHtmlbarsTestsUtilsAbstractTestCase.AbstractApplicationTest);
 
   exports.ApplicationTest = ApplicationTest;
 
@@ -61413,6 +61425,8 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
 
       var owner = this.owner;
 
+      this.env = owner.lookup('service:-htmlbars-environment');
+
       owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
       owner.registerOptionsForType('helper', { instantiate: false });
       owner.registerOptionsForType('template', { instantiate: false });
@@ -61420,7 +61434,7 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
     }
 
     return RenderingTest;
-  })(_emberHtmlbarsTestsUtilsAbstractTestCase.RenderingTest);
+  })(_emberHtmlbarsTestsUtilsAbstractTestCase.AbstractRenderingTest);
 
   exports.RenderingTest = RenderingTest;
 });
