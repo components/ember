@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bbe54b0a
+ * @version   2.7.0-canary+9b2b705a
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+bbe54b0a";
+  exports.default = "2.7.0-canary+9b2b705a";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -6434,13 +6434,13 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
     @constructor
   */
   function Map() {
-    if (this instanceof this.constructor) {
+    if (this instanceof Map) {
       this._keys = OrderedSet.create();
       this._keys._silenceRemoveDeprecation = true;
       this._values = new _emberMetalEmpty_object.default();
       this.size = 0;
     } else {
-      missingNew('OrderedSet');
+      missingNew('Map');
     }
   }
 

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bbe54b0a
+ * @version   2.7.0-canary+9b2b705a
  */
 
 var enifed, requireModule, require, Ember;
@@ -65428,6 +65428,13 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
     equal(map.constructor, _emberMetalMap.Map);
   });
 
+  QUnit.test('Map() without `new`', function () {
+    QUnit.throws(function () {
+      // jshint newcap:false
+      _emberMetalMap.Map();
+    }, /Constructor Map requires 'new'/);
+  });
+
   QUnit.test('MapWithDefault.prototype.constructor', function () {
     var map = new _emberMetalMap.MapWithDefault({
       defaultValue: function (key) {
@@ -65474,6 +65481,13 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
 
       map = _emberMetalMap.OrderedSet.create();
     }
+  });
+
+  QUnit.test('OrderedSet() without `new`', function () {
+    QUnit.throws(function () {
+      // jshint newcap:false
+      _emberMetalMap.OrderedSet();
+    }, /Constructor OrderedSet requires 'new'/);
   });
 
   QUnit.test('add returns the set', function () {
