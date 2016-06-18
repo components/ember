@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+29579b2b
+ * @version   2.7.0-canary+bbe54b0a
  */
 
 var enifed, requireModule, require, Ember;
@@ -6100,7 +6100,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
   */
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('The Special page returning an error invokes SpecialRoute\'s error handler', function () {
+  QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
       this.route('special', { path: '/specials/:menu_item_id' });
@@ -6189,7 +6189,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
   };
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('ApplicationRoute\'s default error handler can be overridden', function () {
+  QUnit.test('ApplicationRoute\'s default error handler can be overridden', function () {
     testOverridableErrorHandler('actions');
   });
 
@@ -7242,7 +7242,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Router accounts for rootURL on page load when using history location', function () {
+  QUnit.test('Router accounts for rootURL on page load when using history location', function () {
     var rootURL = window.location.pathname + '/app';
     var postsTemplateRendered = false;
     var setHistory = undefined,
@@ -7778,7 +7778,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Route supports clearing outlet using string parameter', function () {
+  QUnit.test('Route supports clearing outlet using string parameter', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet \'modal\'}}'));
     _emberTemplatesTemplate_registry.set('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
     _emberTemplatesTemplate_registry.set('users', _emberTemplateCompilerTestsUtilsHelpers.compile('users'));
@@ -7828,7 +7828,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Route silently fails when cleaning an outlet from an inactive view', function () {
+  QUnit.test('Route silently fails when cleaning an outlet from an inactive view', function () {
     expect(1); // handleURL
 
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
@@ -8270,7 +8270,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(childcount, 2);
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Specifying non-existent controller name in route#render throws', function () {
+  QUnit.test('Specifying non-existent controller name in route#render throws', function () {
     expect(1);
 
     Router.map(function () {
@@ -8670,7 +8670,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can disconnect a named outlet at the top level', function () {
+  QUnit.test('Can disconnect a named outlet at the top level', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
     _emberTemplatesTemplate_registry.set('modal', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello world'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('The index'));
@@ -8792,7 +8792,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('#app-sub #sub').length, 1, 'Finds sub while viewing /app/sub');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Tolerates stacked renders', function () {
+  QUnit.test('Tolerates stacked renders', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet "modal"}}'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('hi'));
     _emberTemplatesTemplate_registry.set('layer', _emberTemplateCompilerTestsUtilsHelpers.compile('layer'));
@@ -8848,7 +8848,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('#qunit-fixture .a .b .c').length, 1);
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Allows any route to disconnectOutlet another route\'s templates', function () {
+  QUnit.test('Allows any route to disconnectOutlet another route\'s templates', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet "modal"}}'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('hi'));
     _emberTemplatesTemplate_registry.set('layer', _emberTemplateCompilerTestsUtilsHelpers.compile('layer'));

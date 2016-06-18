@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+29579b2b
+ * @version   2.7.0-canary+bbe54b0a
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+29579b2b";
+  exports.default = "2.7.0-canary+bbe54b0a";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10799,9 +10799,11 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
 
       definition = revalidate(definition, lastState, newState);
 
+      var hasTemplate = newState && newState.render.template;
+
       if (definition) {
         return definition;
-      } else if (newState) {
+      } else if (hasTemplate) {
         return this.definition = new OutletComponentDefinition(outletName, newState.render.template);
       } else {
         return this.definition = EMPTY_OUTLET_DEFINITION;
