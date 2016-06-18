@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1daa6ea2
+ * @version   2.7.0-canary+7df95174
  */
 
 var enifed, requireModule, require, Ember;
@@ -63270,7 +63270,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-runtime/system/obje
         set: function () {},
         other: function () {}
       });
-    }, 'Config object pased to a Ember.computed can only contain `get` or `set` keys.');
+    }, 'Config object passed to an Ember.computed can only contain `get` or `set` keys.');
   });
 
   QUnit.test('defining computed property should invoke property on get', function () {
