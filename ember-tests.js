@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+81102a1f
+ * @version   2.7.0-canary+1daa6ea2
  */
 
 var enifed, requireModule, require, Ember;
@@ -3540,7 +3540,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
   }
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-templates/component', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'container/owner', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _containerOwner, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var Router = undefined,
@@ -3625,43 +3625,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     },
 
     teardown: sharedTeardown
-  });
-
-  // These two tests are designed to simulate the context of an ember-qunit/ember-test-helpers component integration test,
-  // so the container is available but it does not boot the entire app
-  _internalTestHelpersTestsSkipIfGlimmer.test('Using {{link-to}} does not cause an exception if it is rendered before the router has started routing', function (assert) {
-    var _Component$extend;
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    appInstance.register('component-lookup:main', _emberViewsComponent_lookup.default);
-
-    var component = _emberTemplatesComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.layout = _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about"}}Go to About{{/link-to}}'), _Component$extend)).create();
-
-    var router = appInstance.lookup('router:main');
-    router.setupRouter();
-
-    _emberMetalRun_loop.default(function () {
-      return component.appendTo('#qunit-fixture');
-    });
-
-    assert.strictEqual(component.$('a').length, 1, 'the link is rendered');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('Using {{link-to}} does not cause an exception if it is rendered without a router.js instance', function (assert) {
-    var _Component$extend2;
-
-    appInstance.register('component-lookup:main', _emberViewsComponent_lookup.default);
-
-    var component = _emberTemplatesComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.layout = _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "nonexistent"}}Does not work.{{/link-to}}'), _Component$extend2)).create();
-
-    _emberMetalRun_loop.default(function () {
-      return component.appendTo('#qunit-fixture');
-    });
-
-    assert.strictEqual(component.$('a').length, 1, 'the link is rendered');
   });
 
   QUnit.test('The {{link-to}} helper moves into the named route', function () {
