@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c8824b01
+ * @version   2.7.0-canary+95916566
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+c8824b01";
+  exports.default = "2.7.0-canary+95916566";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -37109,7 +37109,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-environment', 'ember-met
       will not immediately trigger an update of the computed property, but
       will instead clear the cache so that it is updated when the next `get`
       is called on the property.
-       See [Ember.ComputedProperty](/api/classes/Ember.ComputedProperty.html), [Ember.computed](/api/#method_computed).
+       See [Ember.ComputedProperty](/api/classes/Ember.ComputedProperty.html), [Ember.computed](/api/classes/Ember.computed.html).
        @method property
       @for Function
       @public
