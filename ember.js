@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2f3230a0
+ * @version   2.7.0-canary+c8824b01
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2f3230a0";
+  exports.default = "2.7.0-canary+c8824b01";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -9299,7 +9299,43 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
       };
     }
 
+    // Hello future traveler, welcome to the world of syntax refinement.
+    // The method below is called by Glimmer's runtime compiler to allow
+    // us to take generic statement syntax and refine it to more meaniful
+    // syntax for Ember's use case. This on the fly switch-a-roo sounds fine
+    // and dandy, however Ember has precedence on statement refinement that you
+    // need to be aware of. The presendence for language constructs is as follows:
+    //
+    // ------------------------
+    // Native & Built-in Syntax
+    // ------------------------
+    //   User-land components
+    // ------------------------
+    //     User-land helpers
+    // ------------------------
+    //
+    // The one caveat here is that Ember also allows for dashed references that are
+    // not a component or helper:
+    //
+    // export default Component.extend({
+    //   'foo-bar': 'LAME'
+    // });
+    //
+    // {{foo-bar}}
+    //
+    // The heuristic for the above situation is a dashed "key" in inline form
+    // that does not resolve to a defintion. In this case refine statement simply
+    // isn't going to return any syntax and the Glimmer engine knows how to handle
+    // this case.
+
     Environment.prototype.refineStatement = function refineStatement(statement) {
+      // 1. resolve any native syntax – if, unless, with, each, and partial
+      var nativeSyntax = _GlimmerEnvironment.prototype.refineStatement.call(this, statement);
+
+      if (nativeSyntax) {
+        return nativeSyntax;
+      }
+
       var isSimple = statement.isSimple;
       var isInline = statement.isInline;
       var isBlock = statement.isBlock;
@@ -9309,37 +9345,37 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
       var args = statement.args;
       var templates = statement.templates;
 
-      if (key !== 'partial' && isSimple && (isInline || isBlock)) {
+      _emberMetalDebug.assert('You attempted to overwrite the built-in helper "' + key + '" which is not allowed. Please rename the helper.', !(builtInHelpers[key] && this.owner.hasRegistration('helper:' + key)));
+
+      if (isSimple && (isInline || isBlock)) {
+        // 2. built-in syntax
         if (key === 'component') {
           return new _emberGlimmerSyntaxDynamicComponent.DynamicComponentSyntax({ args: args, templates: templates });
         } else if (key === 'outlet') {
           return new _emberGlimmerSyntaxOutlet.OutletSyntax({ args: args });
-        } else if (key.indexOf('-') >= 0) {
-          var definition = this.getComponentDefinition(path);
-
-          if (definition) {
-            wrapClassBindingAttribute(args);
-            wrapClassAttribute(args);
-            return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
-          } else if (isBlock && !this.hasHelper(key)) {
-            _emberMetalDebug.assert('A helper named \'' + path[0] + '\' could not be found', false);
-          }
-        } else {
-          // Check if it's a keyword
-          var mappedKey = builtInComponents[key];
-          if (mappedKey) {
-            var definition = this.getComponentDefinition([mappedKey]);
-            wrapClassBindingAttribute(args);
-            wrapClassAttribute(args);
-            return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
-          }
         }
+
+        var internalKey = builtInComponents[key];
+        var definition = null;
+
+        if (internalKey) {
+          definition = this.getComponentDefinition([internalKey]);
+        } else if (key.indexOf('-') >= 0) {
+          definition = this.getComponentDefinition(path);
+        }
+
+        if (definition) {
+          wrapClassBindingAttribute(args);
+          wrapClassAttribute(args);
+          return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
+        }
+
+        _emberMetalDebug.assert('Could not find component named "' + key + '" (no component or template with that name was found)', !isBlock || this.hasHelper(key));
       }
 
-      var nativeSyntax = _GlimmerEnvironment.prototype.refineStatement.call(this, statement);
-      _emberMetalDebug.assert('Helpers may not be used in the block form, for example {{#' + key + '}}{{/' + key + '}}. Please use a component, or alternatively use the helper in combination with a built-in Ember helper, for example {{#if (' + key + ')}}{{/if}}.', !nativeSyntax && key && this.hasHelper(key) ? !isBlock : true);
+      _emberMetalDebug.assert('Helpers may not be used in the block form, for example {{#' + key + '}}{{/' + key + '}}. Please use a component, or alternatively use the helper in combination with a built-in Ember helper, for example {{#if (' + key + ')}}{{/if}}.', !isBlock || !this.hasHelper(key));
+
       _emberMetalDebug.assert('Helpers may not be used in the element form.', !nativeSyntax && key && this.hasHelper(key) ? !isModifier : true);
-      return nativeSyntax;
     };
 
     Environment.prototype.hasComponentDefinition = function hasComponentDefinition() {
@@ -9358,8 +9394,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
 
         if (ComponentClass || layout) {
           definition = this._components[name] = new _emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout);
-        } else if (!this.hasHelper(name)) {
-          _emberMetalDebug.assert('Glimmer error: Could not find component named "' + name + '" (no component or template with that name was found)', !!(ComponentClass || layout));
         }
       }
 
@@ -11285,7 +11319,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
   exports.CurlyComponentDefinition = CurlyComponentDefinition;
 });
-enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference'], function (exports, _glimmerRuntime, _glimmerReference) {
+enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -11302,6 +11336,8 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
     if (_glimmerReference.isConst(nameRef)) {
       var _name = nameRef.value();
       var definition = env.getComponentDefinition([_name]);
+
+      _emberMetalDebug.assert('Could not find component named "' + _name + '" (no component or template with that name was found)', definition);
 
       return new _glimmerReference.ConstReference(definition);
     } else {
@@ -11355,6 +11391,9 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
 
       if (typeof name === 'string') {
         var definition = env.getComponentDefinition([name]);
+
+        _emberMetalDebug.assert('Could not find component named "' + name + '" (no component or template with that name was found)', definition);
+
         return definition;
       } else {
         return null;
