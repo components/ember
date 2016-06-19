@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7df95174
+ * @version   2.7.0-canary+48145b36
  */
 
 var enifed, requireModule, require, Ember;
@@ -15521,7 +15521,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
     equal(_emberViewsSystemJquery.default('h1', application.rootElement).text(), 'Fallback');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-htmlbars/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberHtmlbarsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-htmlbars/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-templates/template_registry'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberHtmlbarsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberTemplatesTemplate_registry) {
   /* globals EmberDev */
   'use strict';
 
@@ -15563,18 +15563,18 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     ok(nav instanceof UserInterface.NavigationController, 'the result should be an instance of the specified class');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('the default resolver looks up templates in Ember.TEMPLATES', function () {
-    function fooTemplate() {}
-    function fooBarTemplate() {}
-    function fooBarBazTemplate() {}
+  QUnit.test('the default resolver looks up templates in Ember.TEMPLATES', function () {
+    var fooTemplate = _emberTemplateCompiler.compile('foo template');
+    var fooBarTemplate = _emberTemplateCompiler.compile('fooBar template');
+    var fooBarBazTemplate = _emberTemplateCompiler.compile('fooBar/baz template');
 
     _emberTemplatesTemplate_registry.set('foo', fooTemplate);
     _emberTemplatesTemplate_registry.set('fooBar', fooBarTemplate);
     _emberTemplatesTemplate_registry.set('fooBar/baz', fooBarBazTemplate);
 
-    equal(locator.lookup('template:foo'), fooTemplate, 'resolves template:foo');
-    equal(locator.lookup('template:fooBar'), fooBarTemplate, 'resolves template:foo_bar');
-    equal(locator.lookup('template:fooBar.baz'), fooBarBazTemplate, 'resolves template:foo_bar.baz');
+    equal(locator.lookupFactory('template:foo'), fooTemplate, 'resolves template:foo');
+    equal(locator.lookupFactory('template:fooBar'), fooBarTemplate, 'resolves template:foo_bar');
+    equal(locator.lookupFactory('template:fooBar.baz'), fooBarBazTemplate, 'resolves template:foo_bar.baz');
   });
 
   QUnit.test('the default resolver looks up basic name as no prefix', function () {
@@ -38438,7 +38438,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'container/registry', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _containerRegistry, _emberViewsSystemEvent_dispatcher, _require) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -38447,18 +38447,13 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   exports.moduleFor = moduleFor;
   exports.strip = strip;
 
-  var _templateObject = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
-
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
-
   var packageTag = '@' + _emberGlimmerTestsUtilsPackageName.default + ' ';
-  var DefaultComponentTemplate = _require.default('ember-' + _emberGlimmerTestsUtilsPackageName.default + '/templates/component').default;
 
   var PartialDefinition = undefined;
   if (_emberGlimmerTestsUtilsPackageName.default === 'glimmer') {
@@ -38837,7 +38832,6 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
 
-      owner.register(_containerRegistry.privatize(_templateObject), DefaultComponentTemplate);
       owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
       owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
     }
@@ -39007,6 +39001,7 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'e
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
+    _emberGlimmerSetupRegistry.setupEngineRegistry(owner.__registry__);
     _emberGlimmerSetupRegistry.setupApplicationRegistry(owner.__registry__);
     owner.register('service:-document', document, { instantiate: false });
     owner.inject('service:-dom-helper', 'document', 'service:-document');
@@ -59731,7 +59726,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'container/registry', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _containerRegistry, _emberViewsSystemEvent_dispatcher, _require) {
+enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -59740,18 +59735,13 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   exports.moduleFor = moduleFor;
   exports.strip = strip;
 
-  var _templateObject = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
-
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
-
   var packageTag = '@' + _emberHtmlbarsTestsUtilsPackageName.default + ' ';
-  var DefaultComponentTemplate = _require.default('ember-' + _emberHtmlbarsTestsUtilsPackageName.default + '/templates/component').default;
 
   var PartialDefinition = undefined;
   if (_emberHtmlbarsTestsUtilsPackageName.default === 'glimmer') {
@@ -60130,7 +60120,6 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
       this.component = null;
 
-      owner.register(_containerRegistry.privatize(_templateObject), DefaultComponentTemplate);
       owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
       owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
     }
@@ -60307,6 +60296,7 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', '
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
+    _emberHtmlbarsSetupRegistry.setupEngineRegistry(owner.__registry__);
     _emberHtmlbarsSetupRegistry.setupApplicationRegistry(owner.__registry__);
     owner.register('service:-htmlbars-environment', new _emberHtmlbarsTestsUtilsEnvironment.default(), { instantiate: false });
     owner.inject('service:-htmlbars-environment', 'dom', 'service:-dom-helper');
@@ -84365,49 +84355,6 @@ enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 
     }
   });
 });
-enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-template-compiler/tests/utils/helpers', 'htmlbars-compiler/compiler', 'ember/version', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberTemplateCompilerTestsUtilsHelpers, _htmlbarsCompilerCompiler, _emberVersion, _internalTestHelpersTestsSkipIfGlimmer) {
-  'use strict';
-
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('ember-template-compiler: compile');
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('includes the current revision in the compiled template', function () {
-    var templateString = '{{foo}} -- {{some-bar blah=\'foo\'}}';
-
-    var actual = _emberTemplateCompilerTestsUtilsHelpers.compile(templateString);
-
-    equal(actual.meta.revision, 'Ember@' + _emberVersion.default, 'revision is included in generated template');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('the template revision is different than the HTMLBars default revision', function () {
-    var templateString = '{{foo}} -- {{some-bar blah=\'foo\'}}';
-
-    var actual = _emberTemplateCompilerTestsUtilsHelpers.compile(templateString);
-    var expected = _htmlbarsCompilerCompiler.compile(templateString);
-
-    ok(actual.meta.revision !== expected.meta.revision, 'revision differs from default');
-  });
-});
-enifed('ember-template-compiler/tests/system/template_test', ['exports', 'ember-template-compiler', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberTemplateCompiler, _internalTestHelpersTestsSkipIfGlimmer) {
-  'use strict';
-
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('ember-htmlbars: template');
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('sets `isTop` on the provided function', function () {
-    function test() {}
-
-    var result = _emberTemplateCompiler.template(test);
-
-    equal(result.isTop, true, 'sets isTop on the provided function');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('sets `isMethod` on the provided function', function () {
-    function test() {}
-
-    var result = _emberTemplateCompiler.template(test);
-
-    equal(result.isMethod, false, 'sets isMethod on the provided function');
-  });
-});
 enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-template-compiler', 'ember-metal/features', 'require'], function (exports, _emberMetalAssign, _emberTemplateCompiler, _emberMetalFeatures, _require) {
   'use strict';
 
@@ -84425,15 +84372,19 @@ enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/a
     return compiler(string, options);
   }
 });
-enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-templates/component', 'ember-runtime/tests/utils', 'ember-templates/bootstrap', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTemplatesComponent, _emberRuntimeTestsUtils, _emberTemplatesBootstrap, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-templates/component', 'ember-runtime/tests/utils', 'ember-templates/bootstrap', 'ember-templates/template_registry', 'ember-metal/features', 'require'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTemplatesComponent, _emberRuntimeTestsUtils, _emberTemplatesBootstrap, _emberTemplatesTemplate_registry, _emberMetalFeatures, _require) {
   'use strict';
+
+  var buildOwner = undefined;
+  if (_emberMetalFeatures.default('ember-glimmer')) {
+    buildOwner = _require.default('ember-glimmer/tests/utils/helpers').buildOwner;
+  } else {
+    buildOwner = _require.default('ember-htmlbars/tests/utils/helpers').buildOwner;
+  }
 
   var trim = _emberViewsSystemJquery.default.trim;
 
-  var originalLookup = _emberEnvironment.context.lookup;
-  var lookup = undefined,
-      App = undefined,
-      component = undefined;
+  var component = undefined;
 
   function checkTemplate(templateName) {
     _emberMetalRun_loop.default(function () {
@@ -84445,44 +84396,41 @@ enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-environment', 
     ok(template, 'template is available on Ember.TEMPLATES');
     equal(_emberViewsSystemJquery.default('#qunit-fixture script').length, 0, 'script removed');
 
-    var component = _emberTemplatesComponent.default.create({
-      layout: template,
+    var owner = buildOwner();
+    owner.register('template:-top-level', template);
+    owner.register('component:-top-level', _emberTemplatesComponent.default.extend({
+      template: owner.lookup('template:-top-level'),
       firstName: 'Tobias',
       drug: 'teamocil'
-    });
+    }));
 
-    _emberMetalRun_loop.default(function () {
-      return component.createElement();
-    });
-    equal(trim(component.$().text()), 'Tobias takes teamocil', 'template works');
+    component = owner.lookup('component:-top-level');
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    equal(_emberViewsSystemJquery.default('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
     _emberRuntimeTestsUtils.runDestroy(component);
   }
 
   QUnit.module('ember-htmlbars: bootstrap', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-    },
     teardown: function () {
       _emberTemplatesTemplate_registry.setTemplates({});
-      _emberEnvironment.context.lookup = originalLookup;
-      _emberRuntimeTestsUtils.runDestroy(App);
       _emberRuntimeTestsUtils.runDestroy(component);
     }
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('template with data-template-name should add a new template to Ember.TEMPLATES', function () {
+  QUnit.test('template with data-template-name should add a new template to Ember.TEMPLATES', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
 
     checkTemplate('funkyTemplate');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('template with id instead of data-template-name should add a new template to Ember.TEMPLATES', function () {
+  QUnit.test('template with id instead of data-template-name should add a new template to Ember.TEMPLATES', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
 
     checkTemplate('funkyTemplate');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('template without data-template-name or id should default to application', function () {
+  QUnit.test('template without data-template-name or id should default to application', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
 
     checkTemplate('application');
