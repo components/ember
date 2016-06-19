@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1083dacb
+ * @version   2.7.0-canary+a36564b6
  */
 
 var enifed, requireModule, require, Ember;
@@ -3728,7 +3728,7 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null, "ember-string-ishtmlsafe": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null };
 });
 enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
   // require the main entry points for each of these packages
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+1083dacb";
+  exports.default = "2.7.0-canary+a36564b6";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -13303,22 +13303,12 @@ enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (expo
 
   exports.Environment = _emberGlimmerEnvironment.default;
 });
-enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberMetalDebug, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-  Object.defineProperty(EmberHandlebars, 'SafeString', {
-    get: function () {
-      _emberMetalDebug.deprecate('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
-        id: 'ember-htmlbars.ember-handlebars-safestring',
-        until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
-      });
 
-      return _emberHtmlbarsUtilsString.SafeString;
-    }
-  });
-
+  EmberHandlebars.SafeString = _emberHtmlbarsUtilsString.SafeString;
   EmberHandlebars.Utils = {
     escapeExpression: _emberHtmlbarsUtilsString.escapeExpression
   };
@@ -22341,7 +22331,7 @@ enifed("ember-htmlbars/utils/normalize-self", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-runtime/system/string', 'htmlbars-util', 'ember-metal/features'], function (exports, _emberEnvironment, _emberRuntimeSystemString, _htmlbarsUtil, _emberMetalFeatures) {
+enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-runtime/system/string', 'htmlbars-util'], function (exports, _emberEnvironment, _emberRuntimeSystemString, _htmlbarsUtil) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -22380,34 +22370,8 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-ru
     };
   }
 
-  /**
-    Detects if a string was decorated using `Ember.String.htmlSafe`.
-  
-    ```javascript
-    var plainString = 'plain string',
-        safeString = Ember.String.htmlSafe('<div>someValue</div>');
-  
-    Ember.String.isHtmlSafe(plainString); // false
-    Ember.String.isHtmlSafe(safeString);  // true
-    ```
-  
-    @method isHtmlSafe
-    @for Ember.String
-    @static
-    @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
-    @public
-  */
-  function isHtmlSafe(str) {
-    return str && typeof str.toHTML === 'function';
-  }
-
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberRuntimeSystemString.default.isHtmlSafe = isHtmlSafe;
-  }
-
   exports.SafeString = _htmlbarsUtil.SafeString;
   exports.htmlSafe = htmlSafe;
-  exports.isHtmlSafe = isHtmlSafe;
   exports.escapeExpression = _htmlbarsUtil.escapeExpression;
 });
 enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {

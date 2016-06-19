@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1083dacb
+ * @version   2.7.0-canary+a36564b6
  */
 
 var enifed, requireModule, require, Ember;
@@ -20392,54 +20392,6 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  _emberGlimmerTestsUtilsTestCase.moduleFor('compat - SafeString', (function (_TestCase) {
-    _inherits(_class, _TestCase);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _TestCase.apply(this, arguments);
-    }
-
-    _class.prototype['@test using new results in a deprecation'] = function testUsingNewResultsInADeprecation() {
-      var _this = this;
-
-      var result = undefined;
-
-      expectDeprecation(function () {
-        result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-
-      this.assert.equal(result.toHTML(), '<b>test</b>');
-
-      // Ensure this functionality is maintained for backwards compat, but also deprecated.
-      expectDeprecation(function () {
-        _this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-    };
-
-    _class.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
-      var safeString = undefined;
-
-      expectDeprecation(function () {
-        safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-
-      this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
-    };
-
-    return _class;
-  })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
-});
 enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
   'use strict';
 
@@ -40082,75 +40034,6 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(TogglingSyntaxConditionalsTest, SyntaxCondtionalTestHelpers);
 });
-enifed('ember-glimmer/tests/utils/string-test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string', 'ember-metal/features', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString, _emberMetalFeatures, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString', (function (_TestCase) {
-    _inherits(_class, _TestCase);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _TestCase.apply(this, arguments);
-    }
-
-    _class.prototype['@test htmlSafe should return an instance of SafeString'] = function testHtmlSafeShouldReturnAnInstanceOfSafeString() {
-      var safeString = _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>');
-
-      this.assert.ok(safeString instanceof _htmlbarsUtilSafeString.default, 'should be a SafeString');
-    };
-
-    _class.prototype['@test htmlSafe should return an empty string for null'] = function testHtmlSafeShouldReturnAnEmptyStringForNull() {
-      var safeString = _emberHtmlbarsUtilsString.htmlSafe(null);
-
-      this.assert.equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
-      this.assert.equal(safeString.toString(), '', 'should return an empty string');
-    };
-
-    _class.prototype['@test htmlSafe should return an instance of SafeString'] = function testHtmlSafeShouldReturnAnInstanceOfSafeString() {
-      var safeString = _emberHtmlbarsUtilsString.htmlSafe();
-
-      this.assert.equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
-      this.assert.equal(safeString.toString(), '', 'should return an empty string');
-    };
-
-    return _class;
-  })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
-
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHtmlSafe', (function (_TestCase2) {
-      _inherits(_class2, _TestCase2);
-
-      function _class2() {
-        _classCallCheck(this, _class2);
-
-        _TestCase2.apply(this, arguments);
-      }
-
-      _class2.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
-        var safeString = _emberHtmlbarsUtilsString.htmlSafe('<em>Emphasize</em> the important things.');
-
-        this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
-      };
-
-      _class2.prototype['@test isHtmlSafe should not detect SafeString on primatives'] = function testIsHtmlSafeShouldNotDetectSafeStringOnPrimatives() {
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe('Hello World'));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe({}));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe([]));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(10));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(null));
-      };
-
-      return _class2;
-    })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
-  }
-});
 enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/assign', 'ember-application/system/engine', 'ember-views/component_lookup'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalAssign, _emberApplicationSystemEngine, _emberViewsComponent_lookup) {
   'use strict';
 
@@ -40493,54 +40376,6 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
   exports.packageName = packageName;
   var engineName = 'Glimmer';
   exports.engineName = engineName;
-});
-enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
-  'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('compat - SafeString', (function (_TestCase) {
-    _inherits(_class, _TestCase);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _TestCase.apply(this, arguments);
-    }
-
-    _class.prototype['@test using new results in a deprecation'] = function testUsingNewResultsInADeprecation() {
-      var _this = this;
-
-      var result = undefined;
-
-      expectDeprecation(function () {
-        result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-
-      this.assert.equal(result.toHTML(), '<b>test</b>');
-
-      // Ensure this functionality is maintained for backwards compat, but also deprecated.
-      expectDeprecation(function () {
-        _this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-    };
-
-    _class.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
-      var safeString = undefined;
-
-      expectDeprecation(function () {
-        safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
-
-      this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
-    };
-
-    return _class;
-  })(_emberHtmlbarsTestsUtilsAbstractTestCase.TestCase));
 });
 enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-htmlbars/component', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberHtmlbarsComponent, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils) {
   /* globals EmberDev */
@@ -61492,74 +61327,30 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(TogglingSyntaxConditionalsTest, SyntaxCondtionalTestHelpers);
 });
-enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string', 'ember-metal/features', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString, _emberMetalFeatures, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+  QUnit.module('ember-htmlbars: SafeString');
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  QUnit.test('htmlSafe should return an instance of SafeString', function () {
+    var safeString = _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>');
 
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+    ok(safeString instanceof _htmlbarsUtilSafeString.default, 'should be a SafeString');
+  });
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString', (function (_TestCase) {
-    _inherits(_class, _TestCase);
+  QUnit.test('htmlSafe should return an empty string for null', function () {
+    var safeString = _emberHtmlbarsUtilsString.htmlSafe(null);
 
-    function _class() {
-      _classCallCheck(this, _class);
+    equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
+    equal(safeString.toString(), '', 'should return an empty string');
+  });
 
-      _TestCase.apply(this, arguments);
-    }
+  QUnit.test('htmlSafe should return an empty string for undefined', function () {
+    var safeString = _emberHtmlbarsUtilsString.htmlSafe();
 
-    _class.prototype['@test htmlSafe should return an instance of SafeString'] = function testHtmlSafeShouldReturnAnInstanceOfSafeString() {
-      var safeString = _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>');
-
-      this.assert.ok(safeString instanceof _htmlbarsUtilSafeString.default, 'should be a SafeString');
-    };
-
-    _class.prototype['@test htmlSafe should return an empty string for null'] = function testHtmlSafeShouldReturnAnEmptyStringForNull() {
-      var safeString = _emberHtmlbarsUtilsString.htmlSafe(null);
-
-      this.assert.equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
-      this.assert.equal(safeString.toString(), '', 'should return an empty string');
-    };
-
-    _class.prototype['@test htmlSafe should return an instance of SafeString'] = function testHtmlSafeShouldReturnAnInstanceOfSafeString() {
-      var safeString = _emberHtmlbarsUtilsString.htmlSafe();
-
-      this.assert.equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
-      this.assert.equal(safeString.toString(), '', 'should return an empty string');
-    };
-
-    return _class;
-  })(_emberHtmlbarsTestsUtilsAbstractTestCase.TestCase));
-
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString isHtmlSafe', (function (_TestCase2) {
-      _inherits(_class2, _TestCase2);
-
-      function _class2() {
-        _classCallCheck(this, _class2);
-
-        _TestCase2.apply(this, arguments);
-      }
-
-      _class2.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
-        var safeString = _emberHtmlbarsUtilsString.htmlSafe('<em>Emphasize</em> the important things.');
-
-        this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
-      };
-
-      _class2.prototype['@test isHtmlSafe should not detect SafeString on primatives'] = function testIsHtmlSafeShouldNotDetectSafeStringOnPrimatives() {
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe('Hello World'));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe({}));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe([]));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(10));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(null));
-      };
-
-      return _class2;
-    })(_emberHtmlbarsTestsUtilsAbstractTestCase.TestCase));
-  }
+    equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
+    equal(safeString.toString(), '', 'should return an empty string');
+  });
 });
 enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-views/component_lookup'], function (exports, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberViewsComponent_lookup) {
   'use strict';
