@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+48145b36
+ * @version   2.7.0-canary+5b446c4a
  */
 
 var enifed, requireModule, require, Ember;
@@ -39544,10 +39544,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.render(wrappedTemplate, context);
     };
 
-    TogglingHelperConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+    TogglingHelperConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
       var _this12 = this;
 
-      var template = '' + this.wrappedTemplateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }) + this.wrappedTemplateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' });
+      var template = this.wrapperFor([this.templateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }), this.templateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' })]);
 
       this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue });
 
@@ -60837,10 +60837,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.render(wrappedTemplate, context);
     };
 
-    TogglingHelperConditionalsTest.prototype['@htmlbars it does not update when the unbound helper is used'] = function htmlbarsItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+    TogglingHelperConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
       var _this12 = this;
 
-      var template = '' + this.wrappedTemplateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }) + this.wrappedTemplateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' });
+      var template = this.wrapperFor([this.templateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }), this.templateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' })]);
 
       this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue });
 
