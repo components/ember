@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1083dacb
+ * @version   2.7.0-canary+10cc6e83
  */
 
 var enifed, requireModule, require, Ember;
@@ -1876,7 +1876,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer', 'ember-metal/features', 'require'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer, _emberMetalFeatures, _require) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'ember-metal/features', 'require'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _emberMetalFeatures, _require) {
   'use strict';
 
   var OutletView = undefined;
@@ -2201,7 +2201,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('attrs property of a component without a template should not collide with internal structures', function () {
+  QUnit.test('attrs property of a component without a template should not collide with internal structures', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component attrs=foo}}</div>'));
 
     boot(function () {

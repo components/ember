@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+1083dacb
+ * @version   2.7.0-canary+10cc6e83
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+1083dacb";
+  exports.default = "2.7.0-canary+10cc6e83";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11992,7 +11992,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
       var props = new _emberMetalEmpty_object.default();
       var args = new _emberMetalEmpty_object.default();
 
-      props.attrs = attrs;
       props[_emberGlimmerComponent.ARGS] = args;
 
       for (var i = 0, l = keys.length; i < l; i++) {
@@ -12007,6 +12006,8 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
         args[_name] = ref;
         props[_name] = value;
       }
+
+      props.attrs = attrs;
 
       return { attrs: attrs, props: props };
     };
