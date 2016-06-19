@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5b446c4a
+ * @version   2.7.0-canary+a36564b6
  */
 
 var enifed, requireModule, require, Ember;
@@ -38463,10 +38463,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
     function generateTest(name) {
       if (modulePackagePrefix && _emberGlimmerTestsUtilsPackageName.default !== modulePackagePrefix) {
-        return;
-      }
-
-      if (name.indexOf('@test ') === 0) {
+        QUnit.skip('SKIPPED IN ' + _emberGlimmerTestsUtilsPackageName.default.toUpperCase() + ' ' + name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      } else if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
           return context[name](assert);
         });
@@ -59751,10 +59751,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
     function generateTest(name) {
       if (modulePackagePrefix && _emberHtmlbarsTestsUtilsPackageName.default !== modulePackagePrefix) {
-        return;
-      }
-
-      if (name.indexOf('@test ') === 0) {
+        QUnit.skip('SKIPPED IN ' + _emberHtmlbarsTestsUtilsPackageName.default.toUpperCase() + ' ' + name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      } else if (name.indexOf('@test ') === 0) {
         QUnit.test(name.slice(5), function (assert) {
           return context[name](assert);
         });
