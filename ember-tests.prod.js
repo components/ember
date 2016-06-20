@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+10cc6e83
+ * @version   2.7.0-canary+a75be5c1
  */
 
 var enifed, requireModule, require, Ember;
@@ -20327,7 +20327,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/features'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalFeatures) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -20350,24 +20350,36 @@ enifed('ember-glimmer/tests/compat/safe-string-test', ['exports', 'ember-htmlbar
 
       var result = undefined;
 
-      expectDeprecation(function () {
+      if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+        expectDeprecation(function () {
+          result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
+        }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      } else {
         result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      }
 
       this.assert.equal(result.toHTML(), '<b>test</b>');
 
-      // Ensure this functionality is maintained for backwards compat, but also deprecated.
-      expectDeprecation(function () {
-        _this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+        // Ensure this functionality is maintained for backwards compat, but also deprecated.
+        expectDeprecation(function () {
+          _this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
+        }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      } else {
+        this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
+      }
     };
 
     _class.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
       var safeString = undefined;
 
-      expectDeprecation(function () {
+      if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+        expectDeprecation(function () {
+          safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
+        }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      } else {
         safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      }
 
       this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
     };
@@ -40429,7 +40441,7 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
   var engineName = 'Glimmer';
   exports.engineName = engineName;
 });
-enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/features'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalFeatures) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -40452,24 +40464,36 @@ enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlba
 
       var result = undefined;
 
-      expectDeprecation(function () {
+      if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+        expectDeprecation(function () {
+          result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
+        }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      } else {
         result = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      }
 
       this.assert.equal(result.toHTML(), '<b>test</b>');
 
-      // Ensure this functionality is maintained for backwards compat, but also deprecated.
-      expectDeprecation(function () {
-        _this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+        // Ensure this functionality is maintained for backwards compat, but also deprecated.
+        expectDeprecation(function () {
+          _this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
+        }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      } else {
+        this.assert.ok(result instanceof _emberHtmlbarsCompat.default.SafeString);
+      }
     };
 
     _class.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
       var safeString = undefined;
 
-      expectDeprecation(function () {
+      if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+        expectDeprecation(function () {
+          safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
+        }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      } else {
         safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
-      }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
+      }
 
       this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
     };
