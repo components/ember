@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d2b56a29
+ * @version   2.7.0-canary+53fa8feb
  */
 
 var enifed, requireModule, require, Ember;
@@ -37499,7 +37499,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertInvariants();
     };
 
-    _class2.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
+    _class2.prototype['@htmlbars it maintains DOM stability for stable keys when list is updated'] = function htmlbarsItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
       var _this11 = this;
 
       this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
@@ -37516,11 +37516,11 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
         var list = _emberMetalProperty_get.get(_this11.context, 'list');
         list.unshiftObject({ text: ', ' });
         list.unshiftObject({ text: 'Hi' });
-        list.pushObject({ text: '!' });
+        list.pushObject({ text: ' ' });
         list.pushObject({ text: 'earth' });
       });
 
-      this.assertText('Hi, Hello world!earth');
+      this.assertText('Hi, Hello world earth');
 
       this.assertPartialInvariants(2, 5);
 
@@ -58337,7 +58337,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertInvariants();
     };
 
-    _class2.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
+    _class2.prototype['@htmlbars it maintains DOM stability for stable keys when list is updated'] = function htmlbarsItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
       var _this11 = this;
 
       this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
@@ -58354,11 +58354,11 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
         var list = _emberMetalProperty_get.get(_this11.context, 'list');
         list.unshiftObject({ text: ', ' });
         list.unshiftObject({ text: 'Hi' });
-        list.pushObject({ text: '!' });
+        list.pushObject({ text: ' ' });
         list.pushObject({ text: 'earth' });
       });
 
-      this.assertText('Hi, Hello world!earth');
+      this.assertText('Hi, Hello world earth');
 
       this.assertPartialInvariants(2, 5);
 
