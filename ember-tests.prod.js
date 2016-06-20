@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a75be5c1
+ * @version   2.7.0-canary+53fa8feb
  */
 
 var enifed, requireModule, require, Ember;
@@ -37467,6 +37467,24 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertInvariants(oldSnapshot, this.takeSnapshot());
     };
 
+    _class2.prototype['@htmlbars it renders all items with duplicate key values'] = function htmlbarsItRendersAllItemsWithDuplicateKeyValues() {
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
+        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }])
+      });
+
+      this.assertText('HelloHelloHello');
+
+      var list = _emberMetalProperty_get.get(this.context, 'list');
+
+      this.runTask(function () {
+        list.forEach(function (hash) {
+          return _emberMetalProperty_set.set(hash, 'text', 'Goodbye');
+        });
+      });
+
+      this.assertText('GoodbyeGoodbyeGoodbye');
+    };
+
     _class2.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
       var _this12 = this;
 
@@ -58285,6 +58303,24 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
 
       this.assertText('Hello world');
       this.assertInvariants(oldSnapshot, this.takeSnapshot());
+    };
+
+    _class2.prototype['@htmlbars it renders all items with duplicate key values'] = function htmlbarsItRendersAllItemsWithDuplicateKeyValues() {
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
+        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }])
+      });
+
+      this.assertText('HelloHelloHello');
+
+      var list = _emberMetalProperty_get.get(this.context, 'list');
+
+      this.runTask(function () {
+        list.forEach(function (hash) {
+          return _emberMetalProperty_set.set(hash, 'text', 'Goodbye');
+        });
+      });
+
+      this.assertText('GoodbyeGoodbyeGoodbye');
     };
 
     _class2.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
