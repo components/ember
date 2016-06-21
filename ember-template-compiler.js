@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d5b0c5af
+ * @version   2.7.0-canary+0d8a7e07
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d5b0c5af";
+  exports.default = "2.7.0-canary+0d8a7e07";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -2595,147 +2595,7 @@ enifed('ember-htmlbars-template-compiler/plugins/transform-component-curly-to-re
     return node.type === 'ComponentNode';
   }
 });
-enifed('ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformOldClassBindingSyntax;
-
-  function TransformOldClassBindingSyntax(options) {
-    this.syntax = null;
-    this.options = options;
-  }
-
-  TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      var allOfTheMicrosyntaxes = [];
-      var allOfTheMicrosyntaxIndexes = [];
-      var classPair = undefined;
-
-      each(node.hash.pairs, function (pair, index) {
-        var key = pair.key;
-
-        if (key === 'classBinding' || key === 'classNameBindings') {
-          allOfTheMicrosyntaxIndexes.push(index);
-          allOfTheMicrosyntaxes.push(pair);
-        } else if (key === 'class') {
-          classPair = pair;
-        }
-      });
-
-      if (allOfTheMicrosyntaxes.length === 0) {
-        return;
-      }
-
-      var classValue = [];
-
-      if (classPair) {
-        classValue.push(classPair.value);
-        classValue.push(b.string(' '));
-      } else {
-        classPair = b.pair('class', null);
-        node.hash.pairs.push(classPair);
-      }
-
-      each(allOfTheMicrosyntaxIndexes, function (index) {
-        node.hash.pairs.splice(index, 1);
-      });
-
-      each(allOfTheMicrosyntaxes, function (_ref) {
-        var value = _ref.value;
-        var loc = _ref.loc;
-
-        var sexprs = [];
-        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
-        // be removed.
-
-        if (value.type === 'StringLiteral') {
-          var microsyntax = parseMicrosyntax(value.original);
-
-          buildSexprs(microsyntax, sexprs, b);
-
-          classValue.push.apply(classValue, sexprs);
-        }
-      });
-
-      var hash = b.hash();
-      classPair.value = b.sexpr(b.string('concat'), classValue, hash);
-    });
-
-    return ast;
-  };
-
-  function buildSexprs(microsyntax, sexprs, b) {
-    for (var i = 0; i < microsyntax.length; i++) {
-      var _microsyntax$i = microsyntax[i];
-      var propName = _microsyntax$i[0];
-      var activeClass = _microsyntax$i[1];
-      var inactiveClass = _microsyntax$i[2];
-
-      var sexpr = undefined;
-
-      // :my-class-name microsyntax for static values
-      if (propName === '') {
-        sexpr = b.string(activeClass);
-      } else {
-        var params = [b.path(propName)];
-
-        if (activeClass) {
-          params.push(b.string(activeClass));
-        } else {
-          var sexprParams = [b.string(propName), b.path(propName)];
-
-          var hash = b.hash();
-          if (activeClass !== undefined) {
-            hash.pairs.push(b.pair('activeClass', b.string(activeClass)));
-          }
-
-          if (inactiveClass !== undefined) {
-            hash.pairs.push(b.pair('inactiveClass', b.string(inactiveClass)));
-          }
-
-          params.push(b.sexpr(b.string('-normalize-class'), sexprParams, hash));
-        }
-
-        if (inactiveClass) {
-          params.push(b.string(inactiveClass));
-        }
-
-        sexpr = b.sexpr(b.string('if'), params);
-      }
-
-      sexprs.push(sexpr);
-      sexprs.push(b.string(' '));
-    }
-  }
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-
-  function each(list, callback) {
-    for (var i = 0; i < list.length; i++) {
-      callback(list[i], i);
-    }
-  }
-
-  function parseMicrosyntax(string) {
-    var segments = string.split(' ');
-
-    for (var i = 0; i < segments.length; i++) {
-      segments[i] = segments[i].split(':');
-    }
-
-    return segments;
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax) {
+enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -2749,7 +2609,7 @@ enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'e
   var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
 
   // the following are ember-htmlbars specific
-  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax.default]);
+  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];
@@ -11205,10 +11065,10 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
     return 'Please refactor `' + original + '` to a component and invoke via' + (' `' + preferred + '`. ' + sourceInformation);
   }
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/transform-inline-link-to'], function (exports, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateRenderModel, _emberTemplateCompilerPluginsTransformInlineLinkTo) {
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateRenderModel, _emberTemplateCompilerPluginsTransformInlineLinkTo, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax) {
   'use strict';
 
-  exports.default = Object.freeze([_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberTemplateCompilerPluginsTransformItemClass.default, _emberTemplateCompilerPluginsTransformAngleBracketComponents.default, _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default, _emberTemplateCompilerPluginsTransformTopLevelComponents.default, _emberTemplateCompilerPluginsDeprecateRenderModel.default, _emberTemplateCompilerPluginsTransformInlineLinkTo.default]);
+  exports.default = Object.freeze([_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberTemplateCompilerPluginsTransformItemClass.default, _emberTemplateCompilerPluginsTransformAngleBracketComponents.default, _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default, _emberTemplateCompilerPluginsTransformTopLevelComponents.default, _emberTemplateCompilerPluginsDeprecateRenderModel.default, _emberTemplateCompilerPluginsTransformInlineLinkTo.default, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default]);
 });
 enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
   'use strict';
@@ -11521,6 +11381,146 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
       case 'PathExpression':
         return expr.original;
     }
+  }
+});
+enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = TransformOldClassBindingSyntax;
+
+  function TransformOldClassBindingSyntax(options) {
+    this.syntax = null;
+    this.options = options;
+  }
+
+  TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      var allOfTheMicrosyntaxes = [];
+      var allOfTheMicrosyntaxIndexes = [];
+      var classPair = undefined;
+
+      each(node.hash.pairs, function (pair, index) {
+        var key = pair.key;
+
+        if (key === 'classBinding' || key === 'classNameBindings') {
+          allOfTheMicrosyntaxIndexes.push(index);
+          allOfTheMicrosyntaxes.push(pair);
+        } else if (key === 'class') {
+          classPair = pair;
+        }
+      });
+
+      if (allOfTheMicrosyntaxes.length === 0) {
+        return;
+      }
+
+      var classValue = [];
+
+      if (classPair) {
+        classValue.push(classPair.value);
+        classValue.push(b.string(' '));
+      } else {
+        classPair = b.pair('class', null);
+        node.hash.pairs.push(classPair);
+      }
+
+      each(allOfTheMicrosyntaxIndexes, function (index) {
+        node.hash.pairs.splice(index, 1);
+      });
+
+      each(allOfTheMicrosyntaxes, function (_ref) {
+        var value = _ref.value;
+        var loc = _ref.loc;
+
+        var sexprs = [];
+        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
+        // be removed.
+
+        if (value.type === 'StringLiteral') {
+          var microsyntax = parseMicrosyntax(value.original);
+
+          buildSexprs(microsyntax, sexprs, b);
+
+          classValue.push.apply(classValue, sexprs);
+        }
+      });
+
+      var hash = b.hash();
+      classPair.value = b.sexpr(b.path('concat'), classValue, hash);
+    });
+
+    return ast;
+  };
+
+  function buildSexprs(microsyntax, sexprs, b) {
+    for (var i = 0; i < microsyntax.length; i++) {
+      var _microsyntax$i = microsyntax[i];
+      var propName = _microsyntax$i[0];
+      var activeClass = _microsyntax$i[1];
+      var inactiveClass = _microsyntax$i[2];
+
+      var sexpr = undefined;
+
+      // :my-class-name microsyntax for static values
+      if (propName === '') {
+        sexpr = b.string(activeClass);
+      } else {
+        var params = [b.path(propName)];
+
+        if (activeClass || activeClass === '') {
+          params.push(b.string(activeClass));
+        } else {
+          var sexprParams = [b.string(propName), b.path(propName)];
+
+          var hash = b.hash();
+          if (activeClass !== undefined) {
+            hash.pairs.push(b.pair('activeClass', b.string(activeClass)));
+          }
+
+          if (inactiveClass !== undefined) {
+            hash.pairs.push(b.pair('inactiveClass', b.string(inactiveClass)));
+          }
+
+          params.push(b.sexpr(b.string('-normalize-class'), sexprParams, hash));
+        }
+
+        if (inactiveClass || inactiveClass === '') {
+          params.push(b.string(inactiveClass));
+        }
+
+        sexpr = b.sexpr(b.path('if'), params);
+      }
+
+      sexprs.push(sexpr);
+      sexprs.push(b.string(' '));
+    }
+  }
+
+  function validate(node) {
+    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
+  }
+
+  function each(list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  }
+
+  function parseMicrosyntax(string) {
+    var segments = string.split(' ');
+
+    for (var i = 0; i < segments.length; i++) {
+      segments[i] = segments[i].split(':');
+    }
+
+    return segments;
   }
 });
 enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
