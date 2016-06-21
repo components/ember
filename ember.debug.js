@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8bc716b7
+ * @version   2.7.0-canary+c9b09a35
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+8bc716b7";
+  exports.default = "2.7.0-canary+c9b09a35";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -36176,7 +36176,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
   // ,'________________                          \`-._`-','
   //  `._              ```````````------...___   '-.._'-:
   //     ```--.._      ,.                     ````--...__\-.
-  //             `.--. `-` "INFINTIY IS LESS     ____    |  |`
+  //             `.--. `-` "INFINITY IS LESS     ____    |  |`
   //               `. `.   THAN BEYOND"        ,'`````.  ;  ;`
   //                 `._`.        __________   `.      \'__/`
   //                    `-:._____/______/___/____`.     \  `
