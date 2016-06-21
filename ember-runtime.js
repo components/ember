@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2335a917
+ * @version   2.7.0-canary+8bc716b7
  */
 
 var enifed, requireModule, require, Ember;
@@ -2488,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2335a917";
+  exports.default = "2.7.0-canary+8bc716b7";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -12777,13 +12777,6 @@ enifed('ember-runtime/copy', ['exports', 'ember-metal/debug', 'ember-runtime/sys
     return _copy(obj, deep, deep ? [] : null, deep ? [] : null);
   }
 });
-enifed("ember-runtime/core", ["exports"], function (exports) {
-  "use strict";
-});
-/**
-@module ember
-@submodule ember-runtime
-*/
 enifed('ember-runtime/ext/function', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/mixin'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalComputed, _emberMetalMixin) {
   /**
   @module ember
