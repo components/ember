@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d2b56a29
+ * @version   2.7.0-canary+76b054ce
  */
 
 var enifed, requireModule, require, Ember;
@@ -5367,7 +5367,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
     assert.deepEqual(actions, ['#app-2', '#app-1']);
   });
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -6324,7 +6324,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.asyncTest('Events are triggered on the controller if a matching action name is implemented', function () {
+  QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -6360,15 +6360,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var actionId = _emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');
-    var _ActionManager$registeredActions$actionId = _emberViewsSystemAction_manager.default.registeredActions[actionId];
-    var action = _ActionManager$registeredActions$actionId[0];
-
-    var event = new _emberViewsSystemJquery.default.Event('click');
-    action.handler(event);
+    _emberViewsSystemJquery.default('#qunit-fixture a').click();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.asyncTest('Events are triggered on the current state when defined in `actions` object', function () {
+  QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -6394,15 +6389,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var actionId = _emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');
-    var _ActionManager$registeredActions$actionId2 = _emberViewsSystemAction_manager.default.registeredActions[actionId];
-    var action = _ActionManager$registeredActions$actionId2[0];
-
-    var event = new _emberViewsSystemJquery.default.Event('click');
-    action.handler(event);
+    _emberViewsSystemJquery.default('#qunit-fixture a').click();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested', function () {
+  QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested', function () {
     Router.map(function () {
       this.route('root', { path: '/' }, function () {
         this.route('index', { path: '/' });
@@ -6432,12 +6422,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var actionId = _emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');
-    var _ActionManager$registeredActions$actionId3 = _emberViewsSystemAction_manager.default.registeredActions[actionId];
-    var action = _ActionManager$registeredActions$actionId3[0];
-
-    var event = new _emberViewsSystemJquery.default.Event('click');
-    action.handler(event);
+    _emberViewsSystemJquery.default('#qunit-fixture a').click();
   });
 
   QUnit.test('Events can be handled by inherited event handlers', function () {
@@ -6478,7 +6463,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     router.send('baz');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method', function () {
+  QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
     });
@@ -6513,15 +6498,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var actionId = _emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');
-    var _ActionManager$registeredActions$actionId4 = _emberViewsSystemAction_manager.default.registeredActions[actionId];
-    var action = _ActionManager$registeredActions$actionId4[0];
-
-    var event = new _emberViewsSystemJquery.default.Event('click');
-    action.handler(event);
+    _emberViewsSystemJquery.default('#qunit-fixture a').click();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.asyncTest('actions can be triggered with multiple arguments', function () {
+  QUnit.asyncTest('actions can be triggered with multiple arguments', function () {
     Router.map(function () {
       this.route('root', { path: '/' }, function () {
         this.route('index', { path: '/' });
@@ -6552,12 +6532,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var actionId = _emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');
-    var _ActionManager$registeredActions$actionId5 = _emberViewsSystemAction_manager.default.registeredActions[actionId];
-    var action = _ActionManager$registeredActions$actionId5[0];
-
-    var event = new _emberViewsSystemJquery.default.Event('click');
-    action.handler(event);
+    _emberViewsSystemJquery.default('#qunit-fixture a').click();
   });
 
   QUnit.test('transitioning multiple times in a single run loop only sets the URL once', function () {
