@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+76b054ce
+ * @version   2.7.0-canary+61c6ab54
  */
 
 var enifed, requireModule, require, Ember;
@@ -85758,7 +85758,10 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     }).then(function () {
       equal(counter, 0, 'unregistered waiter was not checked');
       equal(otherWaiter(), true, 'other waiter is still registered');
-    }).finally(done);
+    }).finally(function () {
+      _emberTestingTestWaiters.unregisterWaiter(otherWaiter);
+      done();
+    });
   });
 
   QUnit.test('`visit` advances readiness.', function () {
@@ -85978,6 +85981,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     }).then(function () {
       equal(obj.counter, 0, 'the unregistered waiter should still be at 0');
       equal(otherWaiter(), true, 'other waiter should still be registered');
+    }).finally(function () {
+      _emberTestingTestWaiters.unregisterWaiter(otherWaiter);
     });
   });
 
@@ -86601,6 +86606,177 @@ enifed('ember-testing/tests/simple_setup', ['exports', 'ember-metal/run_loop', '
         App = null;
       }
     }
+  });
+});
+enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/features', 'ember-testing/test/waiters'], function (exports, _emberMetalFeatures, _emberTestingTestWaiters) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var Waiters = (function () {
+    function Waiters() {
+      _classCallCheck(this, Waiters);
+
+      this._waiters = [];
+    }
+
+    Waiters.prototype.add = function add() {
+      this._waiters.push([].concat(_slice.call(arguments)));
+    };
+
+    Waiters.prototype.register = function register() {
+      this.forEach(function () {
+        _emberTestingTestWaiters.registerWaiter.apply(undefined, arguments);
+      });
+    };
+
+    Waiters.prototype.unregister = function unregister() {
+      this.forEach(function () {
+        _emberTestingTestWaiters.unregisterWaiter.apply(undefined, arguments);
+      });
+    };
+
+    Waiters.prototype.forEach = function forEach(callback) {
+      for (var i = 0; i < this._waiters.length; i++) {
+        var args = this._waiters[i];
+
+        callback.apply(undefined, args);
+      }
+    };
+
+    Waiters.prototype.check = function check() {
+      this.register();
+      var result = _emberTestingTestWaiters.checkWaiters();
+      this.unregister();
+
+      return result;
+    };
+
+    return Waiters;
+  })();
+
+  QUnit.module('ember-testing: waiters', {
+    setup: function () {
+      this.waiters = new Waiters();
+    },
+
+    teardown: function () {
+      this.waiters.unregister();
+    }
+  });
+
+  QUnit.test('registering a waiter', function (assert) {
+    assert.expect(2);
+
+    var obj = { foo: true };
+
+    this.waiters.add(obj, function () {
+      assert.ok(this.foo, 'has proper `this` context');
+      return true;
+    });
+
+    this.waiters.add(function () {
+      assert.ok(true, 'is called');
+      return true;
+    });
+
+    this.waiters.check();
+  });
+
+  QUnit.test('unregistering a waiter', function (assert) {
+    assert.expect(2);
+
+    var obj = { foo: true };
+
+    this.waiters.add(obj, function () {
+      assert.ok(true, 'precond - waiter with context is registered');
+      return true;
+    });
+
+    this.waiters.add(function () {
+      assert.ok(true, 'precond - waiter without context is registered');
+      return true;
+    });
+
+    this.waiters.check();
+    this.waiters.unregister();
+
+    _emberTestingTestWaiters.checkWaiters();
+  });
+
+  QUnit.test('checkWaiters returns false if all waiters return true', function (assert) {
+    assert.expect(3);
+
+    this.waiters.add(function () {
+      assert.ok(true, 'precond - waiter is registered');
+
+      return true;
+    });
+
+    this.waiters.add(function () {
+      assert.ok(true, 'precond - waiter is registered');
+
+      return true;
+    });
+
+    assert.notOk(this.waiters.check(), 'checkWaiters returns true if all waiters return true');
+  });
+
+  QUnit.test('checkWaiters returns true if any waiters return false', function (assert) {
+    assert.expect(3);
+
+    this.waiters.add(function () {
+      assert.ok(true, 'precond - waiter is registered');
+
+      return true;
+    });
+
+    this.waiters.add(function () {
+      assert.ok(true, 'precond - waiter is registered');
+
+      return false;
+    });
+
+    assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
+  });
+
+  QUnit.test('checkWaiters short circuits after first falsey waiter', function (assert) {
+    assert.expect(2);
+
+    this.waiters.add(function () {
+      assert.ok(true, 'precond - waiter is registered');
+
+      return false;
+    });
+
+    this.waiters.add(function () {
+      assert.notOk(true, 'waiter should not be called');
+    });
+
+    assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
+  });
+
+  QUnit.test('generateDeprecatedWaitersArray provides deprecated access to waiters array', function (assert) {
+    var waiter1 = function () {};
+    var waiter2 = function () {};
+
+    this.waiters.add(waiter1);
+    this.waiters.add(waiter2);
+
+    this.waiters.register();
+
+    var waiters = undefined;
+    if (_emberMetalFeatures.default('ember-testing-check-waiters')) {
+      expectDeprecation(function () {
+        waiters = _emberTestingTestWaiters.generateDeprecatedWaitersArray();
+      }, /Usage of `Ember.Test.waiters` is deprecated/);
+    } else {
+      waiters = _emberTestingTestWaiters.generateDeprecatedWaitersArray();
+    }
+
+    assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
   });
 });
 enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (exports, _emberRuntimeSystemObject, _emberViewsViewsView, _emberViewsMixinsView_target_action_support) {

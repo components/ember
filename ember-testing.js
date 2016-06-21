@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+76b054ce
+ * @version   2.7.0-canary+61c6ab54
  */
 
 var enifed, requireModule, require, Ember;
@@ -2053,12 +2053,14 @@ enifed('ember-testing/test/run', ['exports', 'ember-metal/run_loop'], function (
     }
   }
 });
-enifed("ember-testing/test/waiters", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalFeatures, _emberMetalDebug) {
+  'use strict';
 
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
+  exports.generateDeprecatedWaitersArray = generateDeprecatedWaitersArray;
+
   var contexts = [];
   var callbacks = [];
 
@@ -2131,6 +2133,20 @@ enifed("ember-testing/test/waiters", ["exports"], function (exports) {
     callbacks.splice(i, 1);
   }
 
+  /**
+    Iterates through each registered test waiter, and invokes
+    its callback. If any waiter returns false, this method will return
+    true indicating that the waiters have not settled yet.
+  
+    This is generally used internally from the acceptance/integration test
+    infrastructure.
+  
+    @public
+    @for Ember.Test
+    @static
+    @method checkWaiters
+  */
+
   function checkWaiters() {
     if (!callbacks.length) {
       return false;
@@ -2153,8 +2169,22 @@ enifed("ember-testing/test/waiters", ["exports"], function (exports) {
     }
     return -1;
   }
+
+  function generateDeprecatedWaitersArray() {
+    _emberMetalDebug.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !_emberMetalFeatures.default('ember-testing-check-waiters'), { until: '2.8.0', id: 'ember-testing.test-waiters' });
+
+    var array = new Array(callbacks.length);
+    for (var i = 0; i < callbacks.length; i++) {
+      var context = contexts[i];
+      var callback = callbacks[i];
+
+      array[i] = [context, callback];
+    }
+
+    return array;
+  }
 });
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter) {
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
   /**
     @module ember
     @submodule ember-testing
@@ -2193,6 +2223,10 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
   };
 
+  if (_emberMetalFeatures.default('ember-testing-check-waiters')) {
+    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
+  }
+
   /**
    Used to allow ember-testing to communicate with a specific testing
    framework.
@@ -2216,6 +2250,10 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
   Object.defineProperty(Test, 'adapter', {
     get: _emberTestingTestAdapter.getAdapter,
     set: _emberTestingTestAdapter.setAdapter
+  });
+
+  Object.defineProperty(Test, 'waiters', {
+    get: _emberTestingTestWaiters.generateDeprecatedWaitersArray
   });
 
   exports.default = Test;
