@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2335a917
+ * @version   2.7.0-canary+0d8a7e07
  */
 
 var enifed, requireModule, require, Ember;
@@ -38964,12 +38964,12 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-glimmer-template-compiler', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberMetalAssign, _emberGlimmerTemplateCompiler, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer) {
   'use strict';
 
   exports.buildOwner = buildOwner;
-  exports.compile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile;
-  exports.precompile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.precompile;
+  exports.precompile = precompile;
+  exports.compile = compile;
   exports.Helper = _emberGlimmerHelper.default;
   exports.helper = _emberGlimmerHelper.helper;
   exports.INVOKE = _emberGlimmerHelpersAction.INVOKE;
@@ -38991,6 +38991,14 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
     owner.inject('component', 'renderer', 'renderer:-dom');
     owner.inject('template', 'env', 'service:-glimmer-environment');
     return owner;
+  }
+
+  function precompile(string) {
+    return _emberGlimmerTemplateCompiler.template(_emberGlimmerTemplateCompiler.precompile(string));
+  }
+
+  function compile(string, options) {
+    return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
   }
 });
 enifed('ember-glimmer/tests/utils/package-name', ['exports'], function (exports) {
@@ -40406,11 +40414,8 @@ enifed('ember-glimmer-template-compiler/tests/precompile-test', ['exports', 'emb
     assert.ok(typeof compiled.spec !== 'string', 'Spec has been parsed');
   });
 });
-enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember-glimmer-template-compiler', 'ember-metal/assign', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompiler, _emberMetalAssign, _emberGlimmerTemplateCompilerSystemCompileOptions) {
+enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmerTemplateCompilerSystemCompileOptions) {
   'use strict';
-
-  exports.precompile = precompile;
-  exports.compile = compile;
 
   function _interopExportWildcard(obj, defaults) { var newObj = defaults({}, obj); delete newObj['default']; return newObj; }
 
@@ -40422,16 +40427,7 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
   var packageName = 'glimmer';
   exports.packageName = packageName;
   var engineName = 'Glimmer';
-
   exports.engineName = engineName;
-
-  function precompile(string) {
-    return _emberGlimmerTemplateCompiler.template(_emberGlimmerTemplateCompiler.precompile(string));
-  }
-
-  function compile(string, options) {
-    return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
-  }
 });
 enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlbars/compat', 'ember-htmlbars/utils/string', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/features'], function (exports, _emberHtmlbarsCompat, _emberHtmlbarsUtilsString, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalFeatures) {
   'use strict';
@@ -60404,12 +60400,12 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars-template-compiler/tests/utils/helpers', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer'], function (exports, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-htmlbars-template-compiler', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer'], function (exports, _emberMetalAssign, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer) {
   'use strict';
 
   exports.buildOwner = buildOwner;
-  exports.compile = _emberHtmlbarsTemplateCompilerTestsUtilsHelpers.compile;
-  exports.precompile = _emberHtmlbarsTemplateCompilerTestsUtilsHelpers.precompile;
+  exports.compile = compile;
+  exports.precompile = precompile;
   exports.template = _emberHtmlbarsTemplateCompiler.template;
   exports.Helper = _emberHtmlbarsHelper.default;
   exports.helper = _emberHtmlbarsHelper.helper;
@@ -60430,6 +60426,14 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-r
     owner.register('service:-htmlbars-environment', new _emberHtmlbarsTestsUtilsEnvironment.default(), { instantiate: false });
     owner.inject('service:-htmlbars-environment', 'dom', 'service:-dom-helper');
     return owner;
+  }
+
+  function compile(string, options) {
+    return _emberHtmlbarsTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberHtmlbarsTemplateCompiler.defaultCompileOptions(), options));
+  }
+
+  function precompile(string, options) {
+    return _emberHtmlbarsTemplateCompiler.precompile(string, _emberMetalAssign.default({}, _emberHtmlbarsTemplateCompiler.defaultCompileOptions(), options));
   }
 });
 enifed('ember-htmlbars/tests/utils/package-name', ['exports'], function (exports) {
@@ -61888,7 +61892,6 @@ enifed('ember-htmlbars-template-compiler/tests/utils/helpers', ['exports', 'embe
   'use strict';
 
   exports.compile = compile;
-  exports.precompile = precompile;
 
   function _interopExportWildcard(obj, defaults) { var newObj = defaults({}, obj); delete newObj['default']; return newObj; }
 
@@ -61900,10 +61903,6 @@ enifed('ember-htmlbars-template-compiler/tests/utils/helpers', ['exports', 'embe
 
   function compile(string, options) {
     return _emberHtmlbarsTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberHtmlbarsTemplateCompiler.defaultCompileOptions(), options));
-  }
-
-  function precompile(string, options) {
-    return _emberHtmlbarsTemplateCompiler.precompile(string, _emberMetalAssign.default({}, _emberHtmlbarsTemplateCompiler.defaultCompileOptions(), options));
   }
 
   var packageName = 'htmlbars';
@@ -84525,17 +84524,18 @@ enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 
     }
   });
 });
-enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
+enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/assign', 'ember-template-compiler', 'ember-metal/features', 'require'], function (exports, _emberMetalAssign, _emberTemplateCompiler, _emberMetalFeatures, _require) {
   'use strict';
 
   exports.compile = compile;
 
   function compile(string, options) {
+    options = _emberMetalAssign.default({}, _emberTemplateCompiler.defaultCompileOptions(), options);
     var compiler = undefined;
     if (_emberMetalFeatures.default('ember-glimmer')) {
-      compiler = _require.default('ember-glimmer-template-compiler/tests/utils/helpers').compile;
+      compiler = _require.default('ember-glimmer-template-compiler').compile;
     } else {
-      compiler = _require.default('ember-htmlbars-template-compiler/tests/utils/helpers').compile;
+      compiler = _require.default('ember-htmlbars-template-compiler').compile;
     }
 
     return compiler(string, options);
