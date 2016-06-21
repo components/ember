@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+ece9045d
+ * @version   2.7.0-canary+39b606fd
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+ece9045d";
+  exports.default = "2.7.0-canary+39b606fd";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -4625,6 +4625,18 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   exports.dispatchError = dispatchError;
   exports.setDispatchOverride = setDispatchOverride;
 
+  // To maintain stacktrace consistency across browsers
+  var getStack = function (error) {
+    var stack = error.stack;
+    var message = error.message;
+
+    if (stack.indexOf(message) === -1) {
+      stack = message + '\n' + stack;
+    }
+
+    return stack;
+  };
+
   var onerror = undefined;
   // Ember.onerror getter
 
@@ -4662,7 +4674,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     if (onerror) {
       onerror(error);
     } else {
-      _emberConsole.default.error(error.stack);
+      _emberConsole.default.error(getStack(error));
     }
   }
 });
