@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+39b606fd
+ * @version   2.7.0-canary+eccb3636
  */
 
 var enifed, requireModule, require, Ember;
@@ -33262,7 +33262,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -33278,6 +33278,10 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       _classCallCheck(this, InputRenderingTest);
 
       _RenderingTest.call(this);
+
+      // Modifying input.selectionStart, which is utilized in the cursor tests,
+      // causes an event in Safari.
+      _emberRuntimeTestsUtils.runDestroy(this.owner.lookup('event_dispatcher:main'));
 
       this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
       this.registerComponent('-checkbox', { ComponentClass: _emberGlimmerTestsUtilsHelpers.Checkbox });
@@ -33344,7 +33348,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     return InputRenderingTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}}', (function (_InputRenderingTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input}}', (function (_InputRenderingTest) {
     _inherits(_class, _InputRenderingTest);
 
     function _class() {
@@ -33547,7 +33551,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     return _class;
   })(InputRenderingTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
     _inherits(_class2, _InputRenderingTest2);
 
     function _class2() {
@@ -33585,7 +33589,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     return _class2;
   })(InputRenderingTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
     _inherits(_class3, _InputRenderingTest3);
 
     function _class3() {
@@ -33701,7 +33705,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     return _class3;
   })(InputRenderingTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
     _inherits(_class4, _InputRenderingTest4);
 
     function _class4() {
@@ -54099,7 +54103,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     return _class11;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -54115,6 +54119,10 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       _classCallCheck(this, InputRenderingTest);
 
       _RenderingTest.call(this);
+
+      // Modifying input.selectionStart, which is utilized in the cursor tests,
+      // causes an event in Safari.
+      _emberRuntimeTestsUtils.runDestroy(this.owner.lookup('event_dispatcher:main'));
 
       this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
       this.registerComponent('-checkbox', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Checkbox });
@@ -54181,7 +54189,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     return InputRenderingTest;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}}', (function (_InputRenderingTest) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input}}', (function (_InputRenderingTest) {
     _inherits(_class, _InputRenderingTest);
 
     function _class() {
@@ -54384,7 +54392,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     return _class;
   })(InputRenderingTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
     _inherits(_class2, _InputRenderingTest2);
 
     function _class2() {
@@ -54422,7 +54430,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     return _class2;
   })(InputRenderingTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
     _inherits(_class3, _InputRenderingTest3);
 
     function _class3() {
@@ -54538,7 +54546,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     return _class3;
   })(InputRenderingTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
     _inherits(_class4, _InputRenderingTest4);
 
     function _class4() {
