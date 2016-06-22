@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+eccb3636
+ * @version   2.7.0-canary+1b2c171c
  */
 
 var enifed, requireModule, require, Ember;
@@ -85121,7 +85121,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     }
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('visiting a URL that causes another transition should yield the correct URL', function () {
+  QUnit.test('visiting a URL that causes another transition should yield the correct URL', function () {
     expect(1);
 
     visit('/redirect');
@@ -85131,7 +85131,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('visiting a URL and then visiting a second URL with a transition should yield the correct URL', function () {
+  QUnit.test('visiting a URL and then visiting a second URL with a transition should yield the correct URL', function () {
     expect(2);
 
     visit('/posts');
