@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+af590e3b
+ * @version   2.7.0-canary+9cb7486e
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+af590e3b";
+  exports.default = "2.7.0-canary+9cb7486e";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7225,7 +7225,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
   var _CoreView$extend;
@@ -7247,10 +7247,12 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
 
   exports.HAS_BLOCK = HAS_BLOCK;
-  var Component = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
+  var Component = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
     isComponent: true,
     layoutName: null,
     layout: null,
+    controller: null,
+    _controller: null,
 
     init: function () {
       this._super.apply(this, arguments);
@@ -7258,6 +7260,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
       this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
       this[ROOT_REF] = null;
       this[REFS] = new _emberMetalEmpty_object.default();
+      this.controller = this;
 
       // If a `defaultLayout` was specified move it to the `layout` prop.
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
@@ -10296,7 +10299,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     Renderer.prototype.appendTo = function appendTo(view, target) {
       var env = this._env;
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
-      var dynamicScope = new DynamicScope({ view: view });
+      var dynamicScope = new DynamicScope({ view: view, controller: view.controller });
 
       env.begin();
       var result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
@@ -10516,6 +10519,12 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       dynamicScope.view = component;
       parentView.appendChild(component);
+
+      if (parentView.controller) {
+        dynamicScope.controller = parentView.controller;
+      }
+
+      component._controller = dynamicScope.controller;
 
       component.trigger('didInitAttrs', { attrs: attrs });
       component.trigger('didReceiveAttrs', { newAttrs: attrs });
@@ -10983,8 +10992,10 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
     }
 
     OutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
-      var outletState = dynamicScope.outletState = dynamicScope.outletState.get(definition.outletName);
-      return outletState.value();
+      var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get(definition.outletName);
+      var outletState = outletStateReference.value();
+      dynamicScope.controller = outletState.render.controller;
+      return outletState;
     };
 
     return OutletComponentManager;
@@ -11328,7 +11339,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
     return Iterable;
   })();
 });
-enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'ember-metal/symbol', 'ember-metal/debug', 'ember-metal/empty_object', 'ember-glimmer/component', 'ember-glimmer/utils/references'], function (exports, _glimmerReference, _emberMetalSymbol, _emberMetalDebug, _emberMetalEmpty_object, _emberGlimmerComponent, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'ember-metal/symbol', 'ember-metal/debug', 'ember-metal/empty_object', 'ember-glimmer/component', 'ember-glimmer/utils/references', 'ember-views/compat/attrs-proxy'], function (exports, _glimmerReference, _emberMetalSymbol, _emberMetalDebug, _emberMetalEmpty_object, _emberGlimmerComponent, _emberGlimmerUtilsReferences, _emberViewsCompatAttrsProxy) {
   'use strict';
 
   exports.default = processArgs;
@@ -11405,10 +11416,8 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     return SimpleArgs;
   })();
 
-  var MUTABLE_CELL = _emberMetalSymbol.default('MUTABLE_CELL');
-
   function isCell(val) {
-    return val && val[MUTABLE_CELL];
+    return val && val[_emberViewsCompatAttrsProxy.MUTABLE_CELL];
   }
 
   var REF = _emberMetalSymbol.default('REF');
@@ -11417,7 +11426,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     function MutableCell(ref, value) {
       _classCallCheck(this, MutableCell);
 
-      this[MUTABLE_CELL] = true;
+      this[_emberViewsCompatAttrsProxy.MUTABLE_CELL] = true;
       this[REF] = ref;
       this.value = value;
     }
@@ -12786,20 +12795,12 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/deb
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
-enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/utils', 'ember-metal/computed', 'ember-views/compat/attrs-proxy', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalUtils, _emberMetalComputed, _emberViewsCompatAttrsProxy, _containerOwner, _emberMetalSymbol) {
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/mixins/action_support', 'ember-views/views/view', 'ember-metal/property_set', 'ember-metal/computed', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsMixinsAction_support, _emberViewsViewsView, _emberMetalProperty_set, _emberMetalComputed, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
 
   exports.HAS_BLOCK = HAS_BLOCK;
-  function validateAction(component, actionName) {
-    if (actionName && actionName[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
-      actionName = actionName.value;
-    }
-
-    return actionName;
-  }
-
   /**
   @module ember
   @submodule ember-views
@@ -12892,7 +12893,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
     @uses Ember.ViewTargetActionSupport
     @public
   */
-  var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, {
+  var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, {
     isComponent: true,
     /*
       This is set so that the proto inspection in appendTemplatedView does not
@@ -12930,25 +12931,6 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
     layout: null,
 
     /**
-      If the component is currently inserted into the DOM of a parent view, this
-      property will point to the controller of the parent view.
-       @property targetObject
-      @type Ember.Controller
-      @default null
-      @private
-    */
-    targetObject: _emberMetalComputed.computed('controller', function (key) {
-      if (this._targetObject) {
-        return this._targetObject;
-      }
-      if (this._controller) {
-        return this._controller;
-      }
-      var parentView = _emberMetalProperty_get.get(this, 'parentView');
-      return parentView ? _emberMetalProperty_get.get(parentView, 'controller') : null;
-    }),
-
-    /**
       Normally, Ember's component model is "write-only". The component takes a
       bunch of attributes that it got passed in, and uses them to render its
       template.
@@ -12982,130 +12964,6 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
         return null;
       }
       return attr.getContent();
-    },
-
-    /**
-      Calls an action passed to a component.
-       For example a component for playing or pausing music may translate click events
-      into action notifications of "play" or "stop" depending on some internal state
-      of the component:
-       ```javascript
-      // app/components/play-button.js
-      export default Ember.Component.extend({
-        click() {
-          if (this.get('isPlaying')) {
-            this.sendAction('play');
-          } else {
-            this.sendAction('stop');
-          }
-        }
-      });
-      ```
-       The actions "play" and "stop" must be passed to this `play-button` component:
-       ```handlebars
-      {{! app/templates/application.hbs }}
-      {{play-button play=(action "musicStarted") stop=(action "musicStopped")}}
-      ```
-       When the component receives a browser `click` event it translate this
-      interaction into application-specific semantics ("play" or "stop") and
-      calls the specified action.
-       ```javascript
-      // app/controller/application.js
-      export default Ember.Controller.extend({
-        actions: {
-          musicStarted() {
-            // called when the play button is clicked
-            // and the music started playing
-          },
-          musicStopped() {
-            // called when the play button is clicked
-            // and the music stopped playing
-          }
-        }
-      });
-      ```
-       If no action is passed to `sendAction` a default name of "action"
-      is assumed.
-       ```javascript
-      // app/components/next-button.js
-      export default Ember.Component.extend({
-        click() {
-          this.sendAction();
-        }
-      });
-      ```
-       ```handlebars
-      {{! app/templates/application.hbs }}
-      {{next-button action=(action "playNextSongInAlbum")}}
-      ```
-       ```javascript
-      // app/controllers/application.js
-      App.ApplicationController = Ember.Controller.extend({
-        actions: {
-          playNextSongInAlbum() {
-            ...
-          }
-        }
-      });
-      ```
-       @method sendAction
-      @param [action] {String} the action to call
-      @param [params] {*} arguments for the action
-      @public
-    */
-    sendAction: function (action) {
-      for (var _len = arguments.length, contexts = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        contexts[_key - 1] = arguments[_key];
-      }
-
-      var actionName = undefined;
-
-      // Send the default action
-      if (action === undefined) {
-        action = 'action';
-      }
-      actionName = _emberMetalProperty_get.get(this, 'attrs.' + action) || _emberMetalProperty_get.get(this, action);
-      actionName = validateAction(this, actionName);
-
-      // If no action name for that action could be found, just abort.
-      if (actionName === undefined) {
-        return;
-      }
-
-      if (typeof actionName === 'function') {
-        actionName.apply(undefined, contexts);
-      } else {
-        this.triggerAction({
-          action: actionName,
-          actionContext: contexts
-        });
-      }
-    },
-
-    send: function (actionName) {
-      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        args[_key2 - 1] = arguments[_key2];
-      }
-
-      var target = undefined;
-      var action = this.actions && this.actions[actionName];
-
-      if (action) {
-        var shouldBubble = action.apply(this, args) === true;
-        if (!shouldBubble) {
-          return;
-        }
-      }
-
-      if (target = _emberMetalProperty_get.get(this, 'target')) {
-        var _target;
-
-        (_target = target).send.apply(_target, arguments);
-      } else {
-        if (!action) {
-          throw new Error(_emberMetalUtils.inspect(this) + ' had no action handler for: ' + actionName);
-        }
-      }
     }
 
     /**
@@ -45241,6 +45099,158 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
   exports.default = _emberRuntime.default;
 });
 // for the side effect of extending Ember.run.queues
+enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/is_none', 'ember-metal/debug', 'ember-views/compat/attrs-proxy', 'ember-metal/utils'], function (exports, _emberMetalMixin, _emberMetalComputed, _emberMetalProperty_get, _emberMetalIs_none, _emberMetalDebug, _emberViewsCompatAttrsProxy, _emberMetalUtils) {
+  'use strict';
+
+  function validateAction(component, actionName) {
+    if (actionName && actionName[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
+      actionName = actionName.value;
+    }
+
+    return actionName;
+  }
+
+  exports.default = _emberMetalMixin.Mixin.create({
+    /**
+      Calls an action passed to a component.
+       For example a component for playing or pausing music may translate click events
+      into action notifications of "play" or "stop" depending on some internal state
+      of the component:
+       ```javascript
+      // app/components/play-button.js
+      export default Ember.Component.extend({
+        click() {
+          if (this.get('isPlaying')) {
+            this.sendAction('play');
+          } else {
+            this.sendAction('stop');
+          }
+        }
+      });
+      ```
+       The actions "play" and "stop" must be passed to this `play-button` component:
+       ```handlebars
+      {{! app/templates/application.hbs }}
+      {{play-button play=(action "musicStarted") stop=(action "musicStopped")}}
+      ```
+       When the component receives a browser `click` event it translate this
+      interaction into application-specific semantics ("play" or "stop") and
+      calls the specified action.
+       ```javascript
+      // app/controller/application.js
+      export default Ember.Controller.extend({
+        actions: {
+          musicStarted() {
+            // called when the play button is clicked
+            // and the music started playing
+          },
+          musicStopped() {
+            // called when the play button is clicked
+            // and the music stopped playing
+          }
+        }
+      });
+      ```
+       If no action is passed to `sendAction` a default name of "action"
+      is assumed.
+       ```javascript
+      // app/components/next-button.js
+      export default Ember.Component.extend({
+        click() {
+          this.sendAction();
+        }
+      });
+      ```
+       ```handlebars
+      {{! app/templates/application.hbs }}
+      {{next-button action=(action "playNextSongInAlbum")}}
+      ```
+       ```javascript
+      // app/controllers/application.js
+      App.ApplicationController = Ember.Controller.extend({
+        actions: {
+          playNextSongInAlbum() {
+            ...
+          }
+        }
+      });
+      ```
+       @method sendAction
+      @param [action] {String} the action to call
+      @param [params] {*} arguments for the action
+      @public
+    */
+    sendAction: function (action) {
+      for (var _len = arguments.length, contexts = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        contexts[_key - 1] = arguments[_key];
+      }
+
+      var actionName = undefined;
+
+      // Send the default action
+      if (action === undefined) {
+        action = 'action';
+      }
+      actionName = _emberMetalProperty_get.get(this, 'attrs.' + action) || _emberMetalProperty_get.get(this, action);
+      actionName = validateAction(this, actionName);
+
+      // If no action name for that action could be found, just abort.
+      if (actionName === undefined) {
+        return;
+      }
+
+      if (typeof actionName === 'function') {
+        actionName.apply(undefined, contexts);
+      } else {
+        this.triggerAction({
+          action: actionName,
+          actionContext: contexts
+        });
+      }
+    },
+
+    /**
+      If the component is currently inserted into the DOM of a parent view, this
+      property will point to the controller of the parent view.
+       @property targetObject
+      @type Ember.Controller
+      @default null
+      @private
+    */
+    targetObject: _emberMetalComputed.computed('controller', function (key) {
+      if (this._targetObject) {
+        return this._targetObject;
+      }
+      if (this._controller) {
+        return this._controller;
+      }
+      var parentView = _emberMetalProperty_get.get(this, 'parentView');
+      return parentView ? _emberMetalProperty_get.get(parentView, 'controller') : null;
+    }),
+
+    send: function (actionName) {
+      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
+      var target = undefined;
+      var action = this.actions && this.actions[actionName];
+
+      if (action) {
+        var shouldBubble = action.apply(this, args) === true;
+        if (!shouldBubble) {
+          return;
+        }
+      }
+
+      if (target = _emberMetalProperty_get.get(this, 'target')) {
+        var _target;
+
+        (_target = target).send.apply(_target, arguments);
+      } else {}
+    }
+  });
+});
 enifed('ember-views/mixins/aria_role_support', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
   /**
    @module ember

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+af590e3b
+ * @version   2.7.0-canary+9cb7486e
  */
 
 var enifed, requireModule, require, Ember;
@@ -20635,8 +20635,35 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
       });
     };
 
-    _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
+    _class.prototype['@test it should have the right controller in scope for the route template'] = function testItShouldHaveTheRightControllerInScopeForTheRouteTemplate() {
       var _this8 = this;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b');
+      });
+
+      this.registerController('a', _emberRuntimeControllersController.default.extend({
+        value: 'a'
+      }));
+
+      this.registerController('b', _emberRuntimeControllersController.default.extend({
+        value: 'b'
+      }));
+
+      this.registerTemplate('a', '{{value}}');
+      this.registerTemplate('b', '{{value}}');
+
+      return this.visit('/a').then(function () {
+        _this8.assertText('a');
+        return _this8.visit('/b');
+      }).then(function () {
+        return _this8.assertText('b');
+      });
+    };
+
+    _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
+      var _this9 = this;
 
       this.router.map(function () {
         this.route('color', { path: '/colors/:color' });
@@ -20663,17 +20690,17 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
       this.registerTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
 
       return this.visit('/colors/red').then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: red, controller color: red' });
-        _this8.takeSnapshot();
-        return _this8.visit('/colors/green');
+        _this9.assertComponentElement(_this9.firstChild, { content: 'model color: red, controller color: red' });
+        _this9.takeSnapshot();
+        return _this9.visit('/colors/green');
       }).then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: green, controller color: green' });
-        _this8.assertInvariants();
+        _this9.assertComponentElement(_this9.firstChild, { content: 'model color: green, controller color: green' });
+        _this9.assertInvariants();
       });
     };
 
     _class.prototype['@test it should produce a stable DOM when two routes render the same template'] = function testItShouldProduceAStableDOMWhenTwoRoutesRenderTheSameTemplate(assert) {
-      var _this9 = this;
+      var _this10 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -20707,12 +20734,12 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
       this.registerTemplate('common', '{{prefix}} {{model}}');
 
       return this.visit('/a').then(function () {
-        _this9.assertComponentElement(_this9.firstChild, { content: 'common A' });
-        _this9.takeSnapshot();
-        return _this9.visit('/b');
+        _this10.assertComponentElement(_this10.firstChild, { content: 'common A' });
+        _this10.takeSnapshot();
+        return _this10.visit('/b');
       }).then(function () {
-        _this9.assertComponentElement(_this9.firstChild, { content: 'common B' });
-        _this9.assertInvariants();
+        _this10.assertComponentElement(_this10.firstChild, { content: 'common B' });
+        _this10.assertInvariants();
       });
     };
 
@@ -20722,12 +20749,12 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
     // receive a didCreateElement.
 
     _class.prototype['@test a child outlet is always a fragment'] = function testAChildOutletIsAlwaysAFragment() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerTemplate('application', '{{outlet}}');
       this.registerTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
       return this.visit('/').then(function () {
-        _this10.assertComponentElement(_this10.firstChild, { content: '1<div>2</div>' });
+        _this11.assertComponentElement(_this11.firstChild, { content: '1<div>2</div>' });
       });
     };
 
@@ -25946,7 +25973,7 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       this.assertText('foo-bar Caracas Caracas arepas!');
     };
 
-    _class.prototype['@htmlbars component helper with actions'] = function htmlbarsComponentHelperWithActions(assert) {
+    _class.prototype['@test component helper with actions'] = function testComponentHelperWithActions(assert) {
       var _this14 = this;
 
       this.registerComponent('inner-component', {
@@ -27310,6 +27337,664 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
     };
 
     return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-metal/assign', 'ember-runtime/controllers/controller', 'ember-metal/mixin', 'ember-routing/system/route', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberMetalAssign, _emberRuntimeControllersController, _emberMetalMixin, _emberRoutingSystemRoute, _emberRuntimeSystemObject) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+      this.actionCounts = {};
+      this.sendCount = 0;
+      this.actionArguments = null;
+
+      var self = this;
+
+      this.registerComponent('action-delegate', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            self.delegate = this;
+          }
+        })
+      });
+    }
+
+    _class.prototype.renderDelegate = function renderDelegate() {
+      var template = arguments.length <= 0 || arguments[0] === undefined ? '{{action-delegate}}' : arguments[0];
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var root = this;
+      context = _emberMetalAssign.default(context, {
+        send: function (actionName) {
+          root.sendCount++;
+          root.actionCounts[actionName] = root.actionCounts[actionName] || 0;
+          root.actionCounts[actionName]++;
+
+          for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+            args[_key - 1] = arguments[_key];
+          }
+
+          root.actionArguments = args;
+        }
+      });
+      this.render(template, context);
+    };
+
+    _class.prototype.assertSendCount = function assertSendCount(count) {
+      this.assert.equal(this.sendCount, count, 'Send was called ' + count + ' time(s)');
+    };
+
+    _class.prototype.assertNamedSendCount = function assertNamedSendCount(actionName, count) {
+      this.assert.equal(this.actionCounts[actionName], count, 'An action named \'' + actionName + '\' was sent ' + count + ' times');
+    };
+
+    _class.prototype.assertSentWithArgs = function assertSentWithArgs(expected) {
+      var message = arguments.length <= 1 || arguments[1] === undefined ? 'arguments were sent with the action' : arguments[1];
+
+      this.assert.deepEqual(this.actionArguments, expected, message);
+    };
+
+    _class.prototype['@test Calling sendAction on a component without an action defined does nothing'] = function testCallingSendActionOnAComponentWithoutAnActionDefinedDoesNothing() {
+      var _this = this;
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        return _this.delegate.sendAction();
+      });
+
+      this.assertSendCount(0);
+    };
+
+    _class.prototype['@test Calling sendAction on a component with an action defined calls send on the controller'] = function testCallingSendActionOnAComponentWithAnActionDefinedCallsSendOnTheController() {
+      var _this2 = this;
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.delegate, 'action', 'addItem');
+        _this2.delegate.sendAction();
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('addItem', 1);
+    };
+
+    _class.prototype['@test Calling sendAction on a component with a function calls the function'] = function testCallingSendActionOnAComponentWithAFunctionCallsTheFunction() {
+      var _this3 = this;
+
+      this.assert.expect(1);
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this3.delegate, 'action', function () {
+          return _this3.assert.ok(true, 'function is called');
+        });
+        _this3.delegate.sendAction();
+      });
+    };
+
+    _class.prototype['@test Calling sendAction on a component with a function calls the function with arguments'] = function testCallingSendActionOnAComponentWithAFunctionCallsTheFunctionWithArguments() {
+      var _this4 = this;
+
+      this.assert.expect(1);
+      var argument = {};
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.delegate, 'action', function (actualArgument) {
+          _this4.assert.deepEqual(argument, actualArgument, 'argument is passed');
+        });
+        _this4.delegate.sendAction('action', argument);
+      });
+    };
+
+    // TODO consolidate these next 2 tests
+
+    _class.prototype['@glimmer Calling sendAction on a component with a reference attr calls the function with arguments'] = function glimmerCallingSendActionOnAComponentWithAReferenceAttrCallsTheFunctionWithArguments() {
+      var _this5 = this;
+
+      this.renderDelegate('{{action-delegate playing=playing}}', {
+        playing: null
+      });
+
+      this.runTask(function () {
+        return _this5.delegate.sendAction();
+      });
+
+      this.assertSendCount(0);
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'playing', 'didStartPlaying');
+      });
+
+      this.runTask(function () {
+        _this5.delegate.sendAction('playing');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+    };
+
+    _class.prototype['@htmlbars Calling sendAction on a component with a {{mut}} attr calls the function with arguments'] = function htmlbarsCallingSendActionOnAComponentWithAMutAttrCallsTheFunctionWithArguments() {
+      var _this6 = this;
+
+      this.renderDelegate('{{action-delegate playing=(mut playing)}}', {
+        playing: null
+      });
+
+      this.runTask(function () {
+        return _this6.delegate.sendAction('playing');
+      });
+
+      this.assertSendCount(0);
+
+      this.runTask(function () {
+        return _this6.delegate.attrs.playing.update('didStartPlaying');
+      });
+      this.runTask(function () {
+        return _this6.delegate.sendAction('playing');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+    };
+
+    _class.prototype['@test Calling sendAction with a named action uses the component\'s property as the action name'] = function testCallingSendActionWithANamedActionUsesTheComponentSPropertyAsTheActionName() {
+      var _this7 = this;
+
+      this.renderDelegate();
+
+      var component = this.delegate;
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this7.delegate, 'playing', 'didStartPlaying');
+        component.sendAction('playing');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+
+      this.runTask(function () {
+        return component.sendAction('playing');
+      });
+
+      this.assertSendCount(2);
+      this.assertNamedSendCount('didStartPlaying', 2);
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(component, 'action', 'didDoSomeBusiness');
+        component.sendAction();
+      });
+
+      this.assertSendCount(3);
+      this.assertNamedSendCount('didDoSomeBusiness', 1);
+    };
+
+    _class.prototype['@test Calling sendAction when the action name is not a string raises an exception'] = function testCallingSendActionWhenTheActionNameIsNotAStringRaisesAnException() {
+      var _this8 = this;
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this8.delegate, 'action', {});
+        _emberMetalProperty_set.set(_this8.delegate, 'playing', {});
+      });
+
+      expectAssertion(function () {
+        return _this8.delegate.sendAction();
+      });
+      expectAssertion(function () {
+        return _this8.delegate.sendAction('playing');
+      });
+    };
+
+    _class.prototype['@test Calling sendAction on a component with contexts'] = function testCallingSendActionOnAComponentWithContexts() {
+      var _this9 = this;
+
+      this.renderDelegate();
+
+      var testContext = { song: 'She Broke My Ember' };
+      var firstContext = { song: 'She Broke My Ember' };
+      var secondContext = { song: 'My Achey Breaky Ember' };
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.delegate, 'playing', 'didStartPlaying');
+        _this9.delegate.sendAction('playing', testContext);
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+      this.assertSentWithArgs([testContext], 'context was sent with the action');
+
+      this.runTask(function () {
+        _this9.delegate.sendAction('playing', firstContext, secondContext);
+      });
+
+      this.assertSendCount(2);
+      this.assertNamedSendCount('didStartPlaying', 2);
+      this.assertSentWithArgs([firstContext, secondContext], 'multiple contexts were sent to the action');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction to a controller', (function (_ApplicationTest) {
+    _inherits(_class2, _ApplicationTest);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class2.prototype['@test sendAction should trigger an action on the parent component\'s controller if it exists'] = function testSendActionShouldTriggerAnActionOnTheParentComponentSControllerIfItExists(assert) {
+      var _this10 = this;
+
+      assert.expect(15);
+
+      var component = undefined;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b');
+        this.route('c', function () {
+          this.route('d');
+          this.route('e');
+        });
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '{{val}}'
+      });
+
+      this.registerController('a', _emberRuntimeControllersController.default.extend({
+        send: function (actionName, actionContext) {
+          assert.equal(actionName, 'poke', 'send() method was invoked from a top level controller');
+          assert.equal(actionContext, 'top', 'action arguments were passed into the top level controller');
+        }
+      }));
+      this.registerTemplate('a', '{{foo-bar val="a" poke="poke"}}');
+
+      this.registerRoute('b', _emberRoutingSystemRoute.default.extend({
+        actions: {
+          poke: function (actionContext) {
+            assert.ok(true, 'Unhandled action sent to route');
+            assert.equal(actionContext, 'top no controller');
+          }
+        }
+      }));
+      this.registerTemplate('b', '{{foo-bar val="b" poke="poke"}}');
+
+      this.registerRoute('c', _emberRoutingSystemRoute.default.extend({
+        actions: {
+          poke: function (actionContext) {
+            assert.ok(true, 'Unhandled action sent to route');
+            assert.equal(actionContext, 'top with nested no controller');
+          }
+        }
+      }));
+      this.registerTemplate('c', '{{foo-bar val="c" poke="poke"}}{{outlet}}');
+
+      this.registerRoute('c.d', _emberRoutingSystemRoute.default.extend({}));
+
+      this.registerController('c.d', _emberRuntimeControllersController.default.extend({
+        send: function (actionName, actionContext) {
+          assert.equal(actionName, 'poke', 'send() method was invoked from a nested controller');
+          assert.equal(actionContext, 'nested', 'action arguments were passed into the nested controller');
+        }
+      }));
+      this.registerTemplate('c.d', '{{foo-bar val=".d" poke="poke"}}');
+
+      this.registerRoute('c.e', _emberRoutingSystemRoute.default.extend({
+        actions: {
+          poke: function (actionContext) {
+            assert.ok(true, 'Unhandled action sent to route');
+            assert.equal(actionContext, 'nested no controller');
+          }
+        }
+      }));
+      this.registerTemplate('c.e', '{{foo-bar val=".e" poke="poke"}}');
+
+      return this.visit('/a').then(function () {
+        return component.sendAction('poke', 'top');
+      }).then(function () {
+        _this10.assertText('a');
+        return _this10.visit('/b');
+      }).then(function () {
+        return component.sendAction('poke', 'top no controller');
+      }).then(function () {
+        _this10.assertText('b');
+        return _this10.visit('/c');
+      }).then(function () {
+        return component.sendAction('poke', 'top with nested no controller');
+      }).then(function () {
+        _this10.assertText('c');
+        return _this10.visit('/c/d');
+      }).then(function () {
+        return component.sendAction('poke', 'nested');
+      }).then(function () {
+        _this10.assertText('c.d');
+        return _this10.visit('/c/e');
+      }).then(function () {
+        return component.sendAction('poke', 'nested no controller');
+      }).then(function () {
+        return _this10.assertText('c.e');
+      });
+    };
+
+    _class2.prototype['@test sendAction should not trigger an action in an outlet\'s controller if a parent component handles it'] = function testSendActionShouldNotTriggerAnActionInAnOutletSControllerIfAParentComponentHandlesIt(assert) {
+      assert.expect(1);
+
+      var component = undefined;
+
+      this.registerComponent('x-parent', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            poke: function () {
+              assert.ok(true, 'parent component handled the aciton');
+            }
+          }
+        }),
+        template: '{{x-child poke="poke"}}'
+      });
+
+      this.registerComponent('x-child', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        })
+      });
+
+      this.registerTemplate('application', '{{x-parent}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        send: function (actionName) {
+          throw new Error('controller action should not be called');
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        return component.sendAction('poke');
+      });
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction of a closure action', (function (_RenderingTest2) {
+    _inherits(_class3, _RenderingTest2);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class3.prototype['@test action should be called'] = function testActionShouldBeCalled(assert) {
+      assert.expect(1);
+      var component = undefined;
+
+      this.registerComponent('inner-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {
+            assert.ok(true, 'outerSubmit called');
+          }
+        }),
+        template: '{{inner-component submitAction=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        return component.sendAction('submitAction');
+      });
+    };
+
+    _class3.prototype['@test contexts passed to sendAction are appended to the bound arguments on a closure action'] = function testContextsPassedToSendActionAreAppendedToTheBoundArgumentsOnAClosureAction() {
+      var first = 'mitch';
+      var second = 'martin';
+      var third = 'matt';
+      var fourth = 'wacky wycats';
+
+      var innerComponent = undefined;
+      var actualArgs = undefined;
+
+      this.registerComponent('inner-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerComponent = this;
+          }
+        }),
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          third: third,
+          actions: {
+            outerSubmit: function () {
+              actualArgs = [].concat(_slice.call(arguments));
+            }
+          }
+        }),
+        template: '{{inner-component innerSubmit=(action (action "outerSubmit" "' + first + '") "' + second + '" third)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        return innerComponent.sendAction('innerSubmit', fourth);
+      });
+
+      this.assert.deepEqual(actualArgs, [first, second, third, fourth], 'action has the correct args');
+    };
+
+    return _class3;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: send', (function (_RenderingTest3) {
+    _inherits(_class4, _RenderingTest3);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _RenderingTest3.apply(this, arguments);
+    }
+
+    _class4.prototype['@test sending to undefined actions triggers an error'] = function testSendingToUndefinedActionsTriggersAnError(assert) {
+      assert.expect(2);
+
+      var component = undefined;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            component = this;
+          },
+          actions: {
+            foo: function (message) {
+              assert.equal('bar', message);
+            }
+          }
+        })
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.runTask(function () {
+        return component.send('foo', 'bar');
+      });
+
+      expectAssertion(function () {
+        return component.send('baz', 'bar');
+      }, /had no action handler for: baz/);
+    };
+
+    _class4.prototype['@test `send` will call send from a target if it is defined'] = function testSendWillCallSendFromATargetIfItIsDefined() {
+      var _this11 = this;
+
+      var component = undefined;
+      var target = {
+        send: function (message, payload) {
+          _this11.assert.equal('foo', message);
+          _this11.assert.equal('baz', payload);
+        }
+      };
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            component = this;
+          },
+          target: target
+        })
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.runTask(function () {
+        return component.send('foo', 'baz');
+      });
+    };
+
+    _class4.prototype['@test a handled action can be bubbled to the target for continued processing'] = function testAHandledActionCanBeBubbledToTheTargetForContinuedProcessing() {
+      var _this12 = this;
+
+      this.assert.expect(2);
+
+      var component = undefined;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+          actions: {
+            poke: function () {
+              _this12.assert.ok(true, 'component action called');
+              return true;
+            }
+          },
+          target: _emberRuntimeControllersController.default.extend({
+            actions: {
+              poke: function () {
+                _this12.assert.ok(true, 'action bubbled to controller');
+              }
+            }
+          }).create()
+        })
+      });
+
+      this.render('{{foo-bar poke="poke"}}');
+
+      this.runTask(function () {
+        return component.send('poke');
+      });
+    };
+
+    _class4.prototype['@test action can be handled by a superclass\' actions object'] = function testActionCanBeHandledByASuperclassActionsObject(assert) {
+      this.assert.expect(4);
+
+      var component = undefined;
+
+      var SuperComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        actions: {
+          foo: function () {
+            assert.ok(true, 'foo');
+          },
+          bar: function (msg) {
+            assert.equal(msg, 'HELLO');
+          }
+        }
+      });
+
+      var BarViewMixin = _emberMetalMixin.Mixin.create({
+        actions: {
+          bar: function (msg) {
+            assert.equal(msg, 'HELLO');
+            this._super(msg);
+          }
+        }
+      });
+
+      this.registerComponent('x-index', {
+        ComponentClass: SuperComponent.extend(BarViewMixin, {
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+          actions: {
+            baz: function () {
+              assert.ok(true, 'baz');
+            }
+          }
+        })
+      });
+
+      this.render('{{x-index}}');
+
+      this.runTask(function () {
+        component.send('foo');
+        component.send('bar', 'HELLO');
+        component.send('baz');
+      });
+    };
+
+    _class4.prototype['@test actions cannot be provided at create time'] = function testActionsCannotBeProvidedAtCreateTime(assert) {
+      expectAssertion(function () {
+        return _emberGlimmerTestsUtilsHelpers.Component.create({
+          actions: {
+            foo: function () {
+              assert.ok(true, 'foo');
+            }
+          }
+        });
+      });
+      // but should be OK on an object that doesn't mix in Ember.ActionHandler
+      _emberRuntimeSystemObject.default.create({
+        actions: ['foo']
+      });
+    };
+
+    return _class4;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
@@ -41055,8 +41740,35 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
       });
     };
 
-    _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
+    _class.prototype['@test it should have the right controller in scope for the route template'] = function testItShouldHaveTheRightControllerInScopeForTheRouteTemplate() {
       var _this8 = this;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b');
+      });
+
+      this.registerController('a', _emberRuntimeControllersController.default.extend({
+        value: 'a'
+      }));
+
+      this.registerController('b', _emberRuntimeControllersController.default.extend({
+        value: 'b'
+      }));
+
+      this.registerTemplate('a', '{{value}}');
+      this.registerTemplate('b', '{{value}}');
+
+      return this.visit('/a').then(function () {
+        _this8.assertText('a');
+        return _this8.visit('/b');
+      }).then(function () {
+        return _this8.assertText('b');
+      });
+    };
+
+    _class.prototype['@test it should update correctly when the controller changes'] = function testItShouldUpdateCorrectlyWhenTheControllerChanges(assert) {
+      var _this9 = this;
 
       this.router.map(function () {
         this.route('color', { path: '/colors/:color' });
@@ -41083,17 +41795,17 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
       this.registerTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
 
       return this.visit('/colors/red').then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: red, controller color: red' });
-        _this8.takeSnapshot();
-        return _this8.visit('/colors/green');
+        _this9.assertComponentElement(_this9.firstChild, { content: 'model color: red, controller color: red' });
+        _this9.takeSnapshot();
+        return _this9.visit('/colors/green');
       }).then(function () {
-        _this8.assertComponentElement(_this8.firstChild, { content: 'model color: green, controller color: green' });
-        _this8.assertInvariants();
+        _this9.assertComponentElement(_this9.firstChild, { content: 'model color: green, controller color: green' });
+        _this9.assertInvariants();
       });
     };
 
     _class.prototype['@test it should produce a stable DOM when two routes render the same template'] = function testItShouldProduceAStableDOMWhenTwoRoutesRenderTheSameTemplate(assert) {
-      var _this9 = this;
+      var _this10 = this;
 
       this.router.map(function () {
         this.route('a');
@@ -41127,12 +41839,12 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
       this.registerTemplate('common', '{{prefix}} {{model}}');
 
       return this.visit('/a').then(function () {
-        _this9.assertComponentElement(_this9.firstChild, { content: 'common A' });
-        _this9.takeSnapshot();
-        return _this9.visit('/b');
+        _this10.assertComponentElement(_this10.firstChild, { content: 'common A' });
+        _this10.takeSnapshot();
+        return _this10.visit('/b');
       }).then(function () {
-        _this9.assertComponentElement(_this9.firstChild, { content: 'common B' });
-        _this9.assertInvariants();
+        _this10.assertComponentElement(_this10.firstChild, { content: 'common B' });
+        _this10.assertInvariants();
       });
     };
 
@@ -41142,12 +41854,12 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
     // receive a didCreateElement.
 
     _class.prototype['@test a child outlet is always a fragment'] = function testAChildOutletIsAlwaysAFragment() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerTemplate('application', '{{outlet}}');
       this.registerTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
       return this.visit('/').then(function () {
-        _this10.assertComponentElement(_this10.firstChild, { content: '1<div>2</div>' });
+        _this11.assertComponentElement(_this11.firstChild, { content: '1<div>2</div>' });
       });
     };
 
@@ -46787,7 +47499,7 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       this.assertText('foo-bar Caracas Caracas arepas!');
     };
 
-    _class.prototype['@htmlbars component helper with actions'] = function htmlbarsComponentHelperWithActions(assert) {
+    _class.prototype['@test component helper with actions'] = function testComponentHelperWithActions(assert) {
       var _this14 = this;
 
       this.registerComponent('inner-component', {
@@ -48151,6 +48863,664 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
     };
 
     return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/target-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/assign', 'ember-runtime/controllers/controller', 'ember-metal/mixin', 'ember-routing/system/route', 'ember-runtime/system/object'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberMetalAssign, _emberRuntimeControllersController, _emberMetalMixin, _emberRoutingSystemRoute, _emberRuntimeSystemObject) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: sendAction', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+      this.actionCounts = {};
+      this.sendCount = 0;
+      this.actionArguments = null;
+
+      var self = this;
+
+      this.registerComponent('action-delegate', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            self.delegate = this;
+          }
+        })
+      });
+    }
+
+    _class.prototype.renderDelegate = function renderDelegate() {
+      var template = arguments.length <= 0 || arguments[0] === undefined ? '{{action-delegate}}' : arguments[0];
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var root = this;
+      context = _emberMetalAssign.default(context, {
+        send: function (actionName) {
+          root.sendCount++;
+          root.actionCounts[actionName] = root.actionCounts[actionName] || 0;
+          root.actionCounts[actionName]++;
+
+          for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+            args[_key - 1] = arguments[_key];
+          }
+
+          root.actionArguments = args;
+        }
+      });
+      this.render(template, context);
+    };
+
+    _class.prototype.assertSendCount = function assertSendCount(count) {
+      this.assert.equal(this.sendCount, count, 'Send was called ' + count + ' time(s)');
+    };
+
+    _class.prototype.assertNamedSendCount = function assertNamedSendCount(actionName, count) {
+      this.assert.equal(this.actionCounts[actionName], count, 'An action named \'' + actionName + '\' was sent ' + count + ' times');
+    };
+
+    _class.prototype.assertSentWithArgs = function assertSentWithArgs(expected) {
+      var message = arguments.length <= 1 || arguments[1] === undefined ? 'arguments were sent with the action' : arguments[1];
+
+      this.assert.deepEqual(this.actionArguments, expected, message);
+    };
+
+    _class.prototype['@test Calling sendAction on a component without an action defined does nothing'] = function testCallingSendActionOnAComponentWithoutAnActionDefinedDoesNothing() {
+      var _this = this;
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        return _this.delegate.sendAction();
+      });
+
+      this.assertSendCount(0);
+    };
+
+    _class.prototype['@test Calling sendAction on a component with an action defined calls send on the controller'] = function testCallingSendActionOnAComponentWithAnActionDefinedCallsSendOnTheController() {
+      var _this2 = this;
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.delegate, 'action', 'addItem');
+        _this2.delegate.sendAction();
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('addItem', 1);
+    };
+
+    _class.prototype['@test Calling sendAction on a component with a function calls the function'] = function testCallingSendActionOnAComponentWithAFunctionCallsTheFunction() {
+      var _this3 = this;
+
+      this.assert.expect(1);
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this3.delegate, 'action', function () {
+          return _this3.assert.ok(true, 'function is called');
+        });
+        _this3.delegate.sendAction();
+      });
+    };
+
+    _class.prototype['@test Calling sendAction on a component with a function calls the function with arguments'] = function testCallingSendActionOnAComponentWithAFunctionCallsTheFunctionWithArguments() {
+      var _this4 = this;
+
+      this.assert.expect(1);
+      var argument = {};
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this4.delegate, 'action', function (actualArgument) {
+          _this4.assert.deepEqual(argument, actualArgument, 'argument is passed');
+        });
+        _this4.delegate.sendAction('action', argument);
+      });
+    };
+
+    // TODO consolidate these next 2 tests
+
+    _class.prototype['@glimmer Calling sendAction on a component with a reference attr calls the function with arguments'] = function glimmerCallingSendActionOnAComponentWithAReferenceAttrCallsTheFunctionWithArguments() {
+      var _this5 = this;
+
+      this.renderDelegate('{{action-delegate playing=playing}}', {
+        playing: null
+      });
+
+      this.runTask(function () {
+        return _this5.delegate.sendAction();
+      });
+
+      this.assertSendCount(0);
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this5.context, 'playing', 'didStartPlaying');
+      });
+
+      this.runTask(function () {
+        _this5.delegate.sendAction('playing');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+    };
+
+    _class.prototype['@htmlbars Calling sendAction on a component with a {{mut}} attr calls the function with arguments'] = function htmlbarsCallingSendActionOnAComponentWithAMutAttrCallsTheFunctionWithArguments() {
+      var _this6 = this;
+
+      this.renderDelegate('{{action-delegate playing=(mut playing)}}', {
+        playing: null
+      });
+
+      this.runTask(function () {
+        return _this6.delegate.sendAction('playing');
+      });
+
+      this.assertSendCount(0);
+
+      this.runTask(function () {
+        return _this6.delegate.attrs.playing.update('didStartPlaying');
+      });
+      this.runTask(function () {
+        return _this6.delegate.sendAction('playing');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+    };
+
+    _class.prototype['@test Calling sendAction with a named action uses the component\'s property as the action name'] = function testCallingSendActionWithANamedActionUsesTheComponentSPropertyAsTheActionName() {
+      var _this7 = this;
+
+      this.renderDelegate();
+
+      var component = this.delegate;
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this7.delegate, 'playing', 'didStartPlaying');
+        component.sendAction('playing');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+
+      this.runTask(function () {
+        return component.sendAction('playing');
+      });
+
+      this.assertSendCount(2);
+      this.assertNamedSendCount('didStartPlaying', 2);
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(component, 'action', 'didDoSomeBusiness');
+        component.sendAction();
+      });
+
+      this.assertSendCount(3);
+      this.assertNamedSendCount('didDoSomeBusiness', 1);
+    };
+
+    _class.prototype['@test Calling sendAction when the action name is not a string raises an exception'] = function testCallingSendActionWhenTheActionNameIsNotAStringRaisesAnException() {
+      var _this8 = this;
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this8.delegate, 'action', {});
+        _emberMetalProperty_set.set(_this8.delegate, 'playing', {});
+      });
+
+      expectAssertion(function () {
+        return _this8.delegate.sendAction();
+      });
+      expectAssertion(function () {
+        return _this8.delegate.sendAction('playing');
+      });
+    };
+
+    _class.prototype['@test Calling sendAction on a component with contexts'] = function testCallingSendActionOnAComponentWithContexts() {
+      var _this9 = this;
+
+      this.renderDelegate();
+
+      var testContext = { song: 'She Broke My Ember' };
+      var firstContext = { song: 'She Broke My Ember' };
+      var secondContext = { song: 'My Achey Breaky Ember' };
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this9.delegate, 'playing', 'didStartPlaying');
+        _this9.delegate.sendAction('playing', testContext);
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('didStartPlaying', 1);
+      this.assertSentWithArgs([testContext], 'context was sent with the action');
+
+      this.runTask(function () {
+        _this9.delegate.sendAction('playing', firstContext, secondContext);
+      });
+
+      this.assertSendCount(2);
+      this.assertNamedSendCount('didStartPlaying', 2);
+      this.assertSentWithArgs([firstContext, secondContext], 'multiple contexts were sent to the action');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: sendAction to a controller', (function (_ApplicationTest) {
+    _inherits(_class2, _ApplicationTest);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class2.prototype['@test sendAction should trigger an action on the parent component\'s controller if it exists'] = function testSendActionShouldTriggerAnActionOnTheParentComponentSControllerIfItExists(assert) {
+      var _this10 = this;
+
+      assert.expect(15);
+
+      var component = undefined;
+
+      this.router.map(function () {
+        this.route('a');
+        this.route('b');
+        this.route('c', function () {
+          this.route('d');
+          this.route('e');
+        });
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '{{val}}'
+      });
+
+      this.registerController('a', _emberRuntimeControllersController.default.extend({
+        send: function (actionName, actionContext) {
+          assert.equal(actionName, 'poke', 'send() method was invoked from a top level controller');
+          assert.equal(actionContext, 'top', 'action arguments were passed into the top level controller');
+        }
+      }));
+      this.registerTemplate('a', '{{foo-bar val="a" poke="poke"}}');
+
+      this.registerRoute('b', _emberRoutingSystemRoute.default.extend({
+        actions: {
+          poke: function (actionContext) {
+            assert.ok(true, 'Unhandled action sent to route');
+            assert.equal(actionContext, 'top no controller');
+          }
+        }
+      }));
+      this.registerTemplate('b', '{{foo-bar val="b" poke="poke"}}');
+
+      this.registerRoute('c', _emberRoutingSystemRoute.default.extend({
+        actions: {
+          poke: function (actionContext) {
+            assert.ok(true, 'Unhandled action sent to route');
+            assert.equal(actionContext, 'top with nested no controller');
+          }
+        }
+      }));
+      this.registerTemplate('c', '{{foo-bar val="c" poke="poke"}}{{outlet}}');
+
+      this.registerRoute('c.d', _emberRoutingSystemRoute.default.extend({}));
+
+      this.registerController('c.d', _emberRuntimeControllersController.default.extend({
+        send: function (actionName, actionContext) {
+          assert.equal(actionName, 'poke', 'send() method was invoked from a nested controller');
+          assert.equal(actionContext, 'nested', 'action arguments were passed into the nested controller');
+        }
+      }));
+      this.registerTemplate('c.d', '{{foo-bar val=".d" poke="poke"}}');
+
+      this.registerRoute('c.e', _emberRoutingSystemRoute.default.extend({
+        actions: {
+          poke: function (actionContext) {
+            assert.ok(true, 'Unhandled action sent to route');
+            assert.equal(actionContext, 'nested no controller');
+          }
+        }
+      }));
+      this.registerTemplate('c.e', '{{foo-bar val=".e" poke="poke"}}');
+
+      return this.visit('/a').then(function () {
+        return component.sendAction('poke', 'top');
+      }).then(function () {
+        _this10.assertText('a');
+        return _this10.visit('/b');
+      }).then(function () {
+        return component.sendAction('poke', 'top no controller');
+      }).then(function () {
+        _this10.assertText('b');
+        return _this10.visit('/c');
+      }).then(function () {
+        return component.sendAction('poke', 'top with nested no controller');
+      }).then(function () {
+        _this10.assertText('c');
+        return _this10.visit('/c/d');
+      }).then(function () {
+        return component.sendAction('poke', 'nested');
+      }).then(function () {
+        _this10.assertText('c.d');
+        return _this10.visit('/c/e');
+      }).then(function () {
+        return component.sendAction('poke', 'nested no controller');
+      }).then(function () {
+        return _this10.assertText('c.e');
+      });
+    };
+
+    _class2.prototype['@test sendAction should not trigger an action in an outlet\'s controller if a parent component handles it'] = function testSendActionShouldNotTriggerAnActionInAnOutletSControllerIfAParentComponentHandlesIt(assert) {
+      assert.expect(1);
+
+      var component = undefined;
+
+      this.registerComponent('x-parent', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            poke: function () {
+              assert.ok(true, 'parent component handled the aciton');
+            }
+          }
+        }),
+        template: '{{x-child poke="poke"}}'
+      });
+
+      this.registerComponent('x-child', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        })
+      });
+
+      this.registerTemplate('application', '{{x-parent}}');
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        send: function (actionName) {
+          throw new Error('controller action should not be called');
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        return component.sendAction('poke');
+      });
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: sendAction of a closure action', (function (_RenderingTest2) {
+    _inherits(_class3, _RenderingTest2);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class3.prototype['@test action should be called'] = function testActionShouldBeCalled(assert) {
+      assert.expect(1);
+      var component = undefined;
+
+      this.registerComponent('inner-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          outerSubmit: function () {
+            assert.ok(true, 'outerSubmit called');
+          }
+        }),
+        template: '{{inner-component submitAction=(action outerSubmit)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        return component.sendAction('submitAction');
+      });
+    };
+
+    _class3.prototype['@test contexts passed to sendAction are appended to the bound arguments on a closure action'] = function testContextsPassedToSendActionAreAppendedToTheBoundArgumentsOnAClosureAction() {
+      var first = 'mitch';
+      var second = 'martin';
+      var third = 'matt';
+      var fourth = 'wacky wycats';
+
+      var innerComponent = undefined;
+      var actualArgs = undefined;
+
+      this.registerComponent('inner-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerComponent = this;
+          }
+        }),
+        template: 'inner'
+      });
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          third: third,
+          actions: {
+            outerSubmit: function () {
+              actualArgs = [].concat(_slice.call(arguments));
+            }
+          }
+        }),
+        template: '{{inner-component innerSubmit=(action (action "outerSubmit" "' + first + '") "' + second + '" third)}}'
+      });
+
+      this.render('{{outer-component}}');
+
+      this.runTask(function () {
+        return innerComponent.sendAction('innerSubmit', fourth);
+      });
+
+      this.assert.deepEqual(actualArgs, [first, second, third, fourth], 'action has the correct args');
+    };
+
+    return _class3;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: send', (function (_RenderingTest3) {
+    _inherits(_class4, _RenderingTest3);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _RenderingTest3.apply(this, arguments);
+    }
+
+    _class4.prototype['@test sending to undefined actions triggers an error'] = function testSendingToUndefinedActionsTriggersAnError(assert) {
+      assert.expect(2);
+
+      var component = undefined;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            component = this;
+          },
+          actions: {
+            foo: function (message) {
+              assert.equal('bar', message);
+            }
+          }
+        })
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.runTask(function () {
+        return component.send('foo', 'bar');
+      });
+
+      expectAssertion(function () {
+        return component.send('baz', 'bar');
+      }, /had no action handler for: baz/);
+    };
+
+    _class4.prototype['@test `send` will call send from a target if it is defined'] = function testSendWillCallSendFromATargetIfItIsDefined() {
+      var _this11 = this;
+
+      var component = undefined;
+      var target = {
+        send: function (message, payload) {
+          _this11.assert.equal('foo', message);
+          _this11.assert.equal('baz', payload);
+        }
+      };
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            component = this;
+          },
+          target: target
+        })
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.runTask(function () {
+        return component.send('foo', 'baz');
+      });
+    };
+
+    _class4.prototype['@test a handled action can be bubbled to the target for continued processing'] = function testAHandledActionCanBeBubbledToTheTargetForContinuedProcessing() {
+      var _this12 = this;
+
+      this.assert.expect(2);
+
+      var component = undefined;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+          actions: {
+            poke: function () {
+              _this12.assert.ok(true, 'component action called');
+              return true;
+            }
+          },
+          target: _emberRuntimeControllersController.default.extend({
+            actions: {
+              poke: function () {
+                _this12.assert.ok(true, 'action bubbled to controller');
+              }
+            }
+          }).create()
+        })
+      });
+
+      this.render('{{foo-bar poke="poke"}}');
+
+      this.runTask(function () {
+        return component.send('poke');
+      });
+    };
+
+    _class4.prototype['@test action can be handled by a superclass\' actions object'] = function testActionCanBeHandledByASuperclassActionsObject(assert) {
+      this.assert.expect(4);
+
+      var component = undefined;
+
+      var SuperComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        actions: {
+          foo: function () {
+            assert.ok(true, 'foo');
+          },
+          bar: function (msg) {
+            assert.equal(msg, 'HELLO');
+          }
+        }
+      });
+
+      var BarViewMixin = _emberMetalMixin.Mixin.create({
+        actions: {
+          bar: function (msg) {
+            assert.equal(msg, 'HELLO');
+            this._super(msg);
+          }
+        }
+      });
+
+      this.registerComponent('x-index', {
+        ComponentClass: SuperComponent.extend(BarViewMixin, {
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+          actions: {
+            baz: function () {
+              assert.ok(true, 'baz');
+            }
+          }
+        })
+      });
+
+      this.render('{{x-index}}');
+
+      this.runTask(function () {
+        component.send('foo');
+        component.send('bar', 'HELLO');
+        component.send('baz');
+      });
+    };
+
+    _class4.prototype['@test actions cannot be provided at create time'] = function testActionsCannotBeProvidedAtCreateTime(assert) {
+      expectAssertion(function () {
+        return _emberHtmlbarsTestsUtilsHelpers.Component.create({
+          actions: {
+            foo: function () {
+              assert.ok(true, 'foo');
+            }
+          }
+        });
+      });
+      // but should be OK on an object that doesn't mix in Ember.ActionHandler
+      _emberRuntimeSystemObject.default.create({
+        actions: ['foo']
+      });
+    };
+
+    return _class4;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
@@ -87757,24 +89127,6 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   });
 
   QUnit.module('Ember.Component - subscribed and sent actions trigger errors');
-
-  QUnit.test('something', function () {
-    expect(2);
-
-    var appComponent = _emberHtmlbarsComponent.default.extend({
-      actions: {
-        foo: function (message) {
-          equal('bar', message);
-        }
-      }
-    }).create();
-
-    appComponent.send('foo', 'bar');
-
-    throws(function () {
-      return appComponent.send('baz', 'bar');
-    }, /had no action handler for: baz/, 'asdf');
-  });
 
   QUnit.test('component with target', function () {
     expect(2);
