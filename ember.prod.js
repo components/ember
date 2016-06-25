@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9cb7486e
+ * @version   2.7.0-canary+01e16a7a
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+9cb7486e";
+  exports.default = "2.7.0-canary+01e16a7a";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -17615,7 +17615,17 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
       var toRender = outletState && outletState.render;
       var meta = toRender && toRender.template && toRender.template.meta;
 
-      return env.childWithOutletState(outletState && outletState.outlets, true, meta);
+      var childEnv = env.childWithOutletState(outletState && outletState.outlets, true, meta);
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        var owner = outletState && outletState.render && outletState.render.owner;
+        if (owner && owner !== childEnv.owner) {
+          childEnv.originalOwner = childEnv.owner;
+          childEnv.owner = owner;
+        }
+      }
+
+      return childEnv;
     },
 
     isStable: function (lastState, nextState) {
@@ -17628,16 +17638,21 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
     render: function (renderNode, env, scope, params, hash, _template, inverse, visitor) {
       var state = renderNode.getState();
+      var owner = env.owner;
       var parentView = env.view;
       var outletState = state.outletState;
       var toRender = outletState.render;
-      var namespace = env.owner.lookup('application:main');
+      var namespace = owner.lookup('application:main');
       var LOG_VIEW_LOOKUPS = _emberMetalProperty_get.get(namespace, 'LOG_VIEW_LOOKUPS');
 
       var ViewClass = outletState.render.ViewClass;
 
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        owner = env.originalOwner || owner;
+      }
+
       if (!state.hasParentOutlet && !ViewClass) {
-        ViewClass = env.owner._lookupFactory('view:toplevel');
+        ViewClass = owner._lookupFactory('view:toplevel');
       }
 
       var attrs = {};
@@ -17656,6 +17671,16 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
       if (state.manager) {
         state.manager.destroy();
         state.manager = null;
+      }
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        // detect if we are crossing into an engine
+        if (env.originalOwner) {
+          // when this outlet represents an engine we must ensure that a `ViewClass` is present
+          // even if the engine does not contain a `view:application`. We need a `ViewClass` to
+          // ensure that an `ownerView` is set on the `env` created just above
+          options.component = options.component || owner._lookupFactory('view:toplevel');
+        }
       }
 
       var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(renderNode, env, attrs, options, parentView, null, null, template);
@@ -31507,7 +31532,7 @@ enifed("ember-routing/system/controller_for", ["exports"], function (exports) {
     return container.lookup("controller:" + controllerName, lookupOptions);
   }
 });
-enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
+enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalAssign, _emberMetalFeatures) {
   'use strict';
 
   /**
@@ -31567,6 +31592,16 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
 
     push: function (url, name, callback) {
       var parts = name.split('.');
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        if (this.options.engineInfo) {
+          var localFullName = name.slice(this.options.engineInfo.fullName.length + 1);
+          var routeInfo = _emberMetalAssign.default({ localFullName: localFullName }, this.options.engineInfo);
+
+          this.options.addRouteForEngine(name, routeInfo);
+        }
+      }
+
       if (url === '' || url === '/' || parts[parts.length - 1] === 'index') {
         this.explicitIndex = true;
       }
@@ -31634,6 +31669,65 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
     callback.call(dsl);
     return dsl;
   };
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    (function () {
+      var uuid = 0;
+
+      DSL.prototype.mount = function (_name, _options) {
+        var options = _options || {};
+        var engineRouteMap = this.options.resolveRouteMap(_name);
+        var name = _name;
+
+        if (options.as) {
+          name = options.as;
+        }
+
+        var fullName = getFullName(this, name, options.resetNamespace);
+
+        var engineInfo = {
+          name: _name,
+          instanceId: uuid++,
+          mountPoint: fullName,
+          fullName: fullName
+        };
+
+        var path = options.path;
+
+        if (typeof path !== 'string') {
+          path = '/' + name;
+        }
+
+        var callback = undefined;
+        if (engineRouteMap) {
+          var shouldResetEngineInfo = false;
+          var oldEngineInfo = this.options.engineInfo;
+          if (oldEngineInfo) {
+            shouldResetEngineInfo = true;
+            this.options.engineInfo = engineInfo;
+          }
+
+          var optionsForChild = _emberMetalAssign.default({ engineInfo: engineInfo }, this.options);
+          var childDSL = new DSL(fullName, optionsForChild);
+
+          engineRouteMap.call(childDSL);
+
+          callback = childDSL.generate();
+
+          if (shouldResetEngineInfo) {
+            this.options.engineInfo = oldEngineInfo;
+          }
+        }
+
+        var localFullName = 'application';
+        var routeInfo = _emberMetalAssign.default({ localFullName: localFullName }, engineInfo);
+
+        this.options.addRouteForEngine(fullName, routeInfo);
+
+        this.push(path, fullName, callback);
+      };
+    })();
+  }
 });
 enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/debug', 'ember-metal/property_get'], function (exports, _emberMetalDebug, _emberMetalProperty_get) {
   'use strict';
@@ -32036,7 +32130,14 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
       var state = transition ? transition.state : this.router.router.state;
 
       var params = {};
-      _emberMetalAssign.default(params, state.params[name]);
+      var fullName = name;
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        fullName = getEngineRouteName(_containerOwner.getOwner(this), name);
+      }
+
+      _emberMetalAssign.default(params, state.params[fullName]);
+
       _emberMetalAssign.default(params, getQueryParamsFor(route, state));
 
       return params;
@@ -33668,6 +33769,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
     state.queryParamsFor = state.queryParamsFor || {};
     var name = route.routeName;
 
+    if (_emberMetalFeatures.default('ember-application-engines')) {
+      name = getEngineRouteName(_containerOwner.getOwner(route), name);
+    }
+
     if (state.queryParamsFor[name]) {
       return state.queryParamsFor[name];
     }
@@ -33757,6 +33862,95 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
 
   function deprecateQueryParamDefaultValuesSetOnController(controllerName, routeName, propName) {}
 
+  /*
+    Returns an arguments array where the route name arg is prefixed based on the mount point
+  
+    @private
+  */
+  function prefixRouteNameArg() {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    var routeName = args[0];
+    var owner = _containerOwner.getOwner(this);
+    var prefix = owner.mountPoint;
+
+    // only alter the routeName if it's actually referencing a route.
+    if (owner.routable && typeof routeName === 'string') {
+      if (resemblesURL(routeName)) {
+        throw new _emberMetalError.default('Route#transitionTo cannot be used for URLs. Please use the route name instead.');
+      } else {
+        routeName = prefix + '.' + routeName;
+        args[0] = routeName;
+      }
+    }
+
+    return args;
+  }
+
+  /*
+    Check if a routeName resembles a url instead
+  
+    @private
+  */
+  function resemblesURL(str) {
+    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
+  }
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    Route.reopen({
+      replaceWith: function () {
+        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+          args[_key3] = arguments[_key3];
+        }
+
+        return this._super.apply(this, prefixRouteNameArg.call.apply(prefixRouteNameArg, [this].concat(args)));
+      },
+
+      transitionTo: function () {
+        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+          args[_key4] = arguments[_key4];
+        }
+
+        return this._super.apply(this, prefixRouteNameArg.call.apply(prefixRouteNameArg, [this].concat(args)));
+      },
+
+      modelFor: function (_routeName) {
+        var routeName = undefined;
+        var owner = _containerOwner.getOwner(this);
+
+        if (owner.routable && this.router && this.router.router.activeTransition) {
+          // only change the routeName when there is an active transition.
+          // otherwise, we need the passed in route name.
+          routeName = getEngineRouteName(owner, _routeName);
+        } else {
+          routeName = _routeName;
+        }
+
+        for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+          args[_key5 - 1] = arguments[_key5];
+        }
+
+        return this._super.apply(this, [routeName].concat(args));
+      }
+    });
+  }
+
+  function getEngineRouteName(engine, routeName) {
+    if (engine.routable) {
+      var prefix = engine.mountPoint;
+
+      if (routeName === 'application') {
+        return prefix;
+      } else {
+        return prefix + '.' + routeName;
+      }
+    }
+
+    return routeName;
+  }
+
   exports.default = Route;
 });
 enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-metal/utils', 'ember-routing/system/router_state', 'container/owner', 'ember-metal/dictionary', 'router', 'router/transition'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalError, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberMetalUtils, _emberRoutingSystemRouter_state, _containerOwner, _emberMetalDictionary, _router4, _routerTransition) {
@@ -33830,6 +34024,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     },
 
     _buildDSL: function () {
+      var _this = this;
+
       var moduleBasedResolver = this._hasModuleBasedResolver();
       var options = {
         enableLoadingSubstates: !!moduleBasedResolver
@@ -33837,6 +34033,25 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
 
       if (_emberMetalFeatures.default('ember-route-serializers')) {
         options.router = this;
+      }
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        (function () {
+          var owner = _containerOwner.getOwner(_this);
+          var router = _this;
+
+          options.enableLoadingSubstates = !!moduleBasedResolver;
+
+          options.resolveRouteMap = function (name) {
+            return owner._lookupFactory('route-map:' + name);
+          };
+
+          options.addRouteForEngine = function (name, engineInfo) {
+            if (!router._engineInfoByRoute[name]) {
+              router._engineInfoByRoute[name] = engineInfo;
+            }
+          };
+        })();
       }
 
       return new _emberRoutingSystemDsl.default(null, options);
@@ -33852,6 +34067,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
 
       if (_emberMetalFeatures.default('ember-route-serializers')) {
         this._serializeMethods = new _emberMetalEmpty_object.default();
+      }
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        this._engineInstances = new _emberMetalEmpty_object.default();
+        this._engineInfoByRoute = new _emberMetalEmpty_object.default();
       }
     },
 
@@ -33913,7 +34133,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     },
 
     setupRouter: function () {
-      var _this = this;
+      var _this2 = this;
 
       this._initRouterJs();
       this._setupLocation();
@@ -33930,7 +34150,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       this._setupRouter(router, location);
 
       location.onUpdateURL(function (url) {
-        _this.handleURL(url);
+        _this2.handleURL(url);
       });
 
       return true;
@@ -34164,6 +34384,16 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
         this._toplevelView = null;
       }
       this._super.apply(this, arguments);
+
+      if (_emberMetalFeatures.default('ember-application-engines')) {
+        var instances = this._engineInstances;
+        for (var _name in instances) {
+          for (var id in instances[_name]) {
+            _emberMetalRun_loop.default(instances[_name][id], 'destroy');
+          }
+        }
+      }
+
       this.reset();
     },
 
@@ -34258,15 +34488,29 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     },
 
     _getHandlerFunction: function () {
-      var _this2 = this;
+      var _this3 = this;
 
       var seen = new _emberMetalEmpty_object.default();
       var owner = _containerOwner.getOwner(this);
-      var DefaultRoute = owner._lookupFactory('route:basic');
 
       return function (name) {
-        var routeName = 'route:' + name;
-        var handler = owner.lookup(routeName);
+        var routeName = name;
+        var routeOwner = owner;
+
+        if (_emberMetalFeatures.default('ember-application-engines')) {
+          var engineInfo = _this3._engineInfoByRoute[routeName];
+
+          if (engineInfo) {
+            var engineInstance = _this3._getEngineInstance(engineInfo);
+
+            routeOwner = engineInstance;
+            routeName = engineInfo.localFullName;
+          }
+        }
+
+        var fullRouteName = 'route:' + routeName;
+
+        var handler = routeOwner.lookup(fullRouteName);
 
         if (seen[name]) {
           return handler;
@@ -34275,27 +34519,30 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
         seen[name] = true;
 
         if (!handler) {
-          owner.register(routeName, DefaultRoute.extend());
-          handler = owner.lookup(routeName);
+          var DefaultRoute = routeOwner._lookupFactory('route:basic');
 
-          if (_emberMetalProperty_get.get(_this2, 'namespace.LOG_ACTIVE_GENERATION')) {}
+          routeOwner.register(fullRouteName, DefaultRoute.extend());
+          handler = routeOwner.lookup(fullRouteName);
+
+          if (_emberMetalProperty_get.get(_this3, 'namespace.LOG_ACTIVE_GENERATION')) {}
         }
 
-        handler.routeName = name;
+        handler.routeName = routeName;
+
         return handler;
       };
     },
 
     _getSerializerFunction: function () {
-      var _this3 = this;
+      var _this4 = this;
 
       return function (name) {
-        var serializer = _this3._serializeMethods[name];
+        var serializer = _this4._serializeMethods[name];
 
         if (!serializer) {
-          var handler = _this3.router.getHandler(name);
+          var handler = _this4.router.getHandler(name);
 
-          _this3._serializeMethods[name] = handler.serialize;
+          _this4._serializeMethods[name] = handler.serialize;
         }
 
         return serializer;
@@ -34969,6 +35216,39 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       };
       return defaultParentState;
     }
+  }
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    EmberRouter.reopen({
+      _getEngineInstance: function (_ref) {
+        var name = _ref.name;
+        var instanceId = _ref.instanceId;
+        var mountPoint = _ref.mountPoint;
+
+        var engineInstances = this._engineInstances;
+
+        if (!engineInstances[name]) {
+          engineInstances[name] = new _emberMetalEmpty_object.default();
+        }
+
+        var engineInstance = engineInstances[name][instanceId];
+
+        if (!engineInstance) {
+          var owner = _containerOwner.getOwner(this);
+
+          engineInstance = owner.buildChildEngineInstance(name, {
+            routable: true,
+            mountPoint: mountPoint
+          });
+
+          engineInstance.boot();
+
+          engineInstances[name][instanceId] = engineInstance;
+        }
+
+        return engineInstance;
+      }
+    });
   }
 
   exports.default = EmberRouter;

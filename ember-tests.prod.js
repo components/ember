@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9cb7486e
+ * @version   2.7.0-canary+01e16a7a
  */
 
 var enifed, requireModule, require, Ember;
@@ -72405,18 +72405,22 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   });
 });
 // A
-enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router'], function (exports, _emberRoutingSystemRouter) {
+enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
   'use strict';
 
   var Router = undefined;
 
+  function setup() {
+    Router = _emberRoutingSystemRouter.default.extend();
+  }
+
+  function teardown() {
+    Router = null;
+  }
+
   QUnit.module('Ember Router DSL', {
-    setup: function () {
-      Router = _emberRoutingSystemRouter.default.extend();
-    },
-    teardown: function () {
-      Router = null;
-    }
+    setup: setup,
+    teardown: teardown
   });
 
   QUnit.test('should fail when using a reserved route name', function () {
@@ -72516,8 +72520,87 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     ok(!router.router.recognizer.names['blork_loading'], 'loading route was not added');
     ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
   });
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.module('Ember Router DSL with engines', {
+      setup: setup,
+      teardown: teardown
+    });
+
+    QUnit.test('should allow mounting of engines', function (assert) {
+      assert.expect(3);
+
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat');
+          });
+        });
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create();
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs();
+
+      assert.ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      assert.ok(router.router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      assert.ok(router.router.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
+    });
+
+    QUnit.test('should allow mounting of engines at a custom path', function (assert) {
+      assert.expect(1);
+
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat', { path: 'custom-chat' });
+          });
+        });
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create();
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs();
+
+      assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
+        return s.string;
+      }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
+    });
+
+    QUnit.test('should allow aliasing of engine names with `as`', function (assert) {
+      assert.expect(1);
+
+      Router = Router.map(function () {
+        this.route('bleep', function () {
+          this.route('bloop', function () {
+            this.mount('chat', { as: 'blork' });
+          });
+        });
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create();
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs();
+
+      assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
+        return s.string;
+      }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
+    });
+  }
 });
-enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
   var route = undefined,
@@ -72838,6 +72921,95 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
 
     equal(authService, appRoute.get('authService'), 'service.auth is injected');
   });
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.module('Ember.Route with engines');
+
+    QUnit.test('paramsFor considers an engine\'s mountPoint', function (assert) {
+      expect(2);
+
+      var router = {
+        _deserializeQueryParams: function () {},
+        router: {
+          state: {
+            handlerInfos: [{ name: 'posts' }],
+            params: {
+              'foo.bar': { a: 'b' },
+              'foo.bar.posts': { c: 'd' }
+            }
+          }
+        }
+      };
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true,
+
+        mountPoint: 'foo.bar',
+
+        lookup: function (name) {
+          if (name === 'route:posts') {
+            return postsRoute;
+          } else if (name === 'route:application') {
+            return applicationRoute;
+          }
+        }
+      });
+
+      var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
+      var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
+      var route = _emberRoutingSystemRoute.default.create({ router: router });
+
+      _containerOwner.setOwner(applicationRoute, engineInstance);
+      _containerOwner.setOwner(postsRoute, engineInstance);
+      _containerOwner.setOwner(route, engineInstance);
+
+      assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
+      assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
+    });
+
+    QUnit.test('modelFor considers an engine\'s mountPoint', function () {
+      expect(2);
+
+      var applicationModel = { id: '1' };
+      var postsModel = { id: '2' };
+
+      var router = {
+        router: {
+          activeTransition: {
+            resolvedModels: {
+              'foo.bar': applicationModel,
+              'foo.bar.posts': postsModel
+            }
+          }
+        }
+      };
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true,
+
+        mountPoint: 'foo.bar',
+
+        lookup: function (name) {
+          if (name === 'route:posts') {
+            return postsRoute;
+          } else if (name === 'route:application') {
+            return applicationRoute;
+          }
+        }
+      });
+
+      var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
+      var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
+      var route = _emberRoutingSystemRoute.default.create({ router: router });
+
+      _containerOwner.setOwner(applicationRoute, engineInstance);
+      _containerOwner.setOwner(postsRoute, engineInstance);
+      _containerOwner.setOwner(route, engineInstance);
+
+      strictEqual(route.modelFor('application'), applicationModel);
+      strictEqual(route.modelFor('posts'), postsModel);
+    });
+  }
 });
 enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
