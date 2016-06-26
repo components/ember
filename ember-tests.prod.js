@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+01e16a7a
+ * @version   2.7.0-canary+b68dcc4d
  */
 
 var enifed, requireModule, require, Ember;
@@ -71336,30 +71336,54 @@ enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], f
     assert.strictEqual(map.get(b), undefined);
   });
 
-  QUnit.test('invoking the WeakMap constructor with arguments is not supported at this time', function (assert) {
-    expectAssertion(function () {
-      new _emberMetalWeak_map.default([[{}, 1]]);
-    }, /Invoking the WeakMap constructor with arguments is not supported at this time/);
+  QUnit.test('WeakMap constructor requres new', function (assert) {
+    var expectedError = new TypeError('Constructor WeakMap requires \'new\'');
+
+    assert.throws(function () {
+      // jshint newcap: false
+      _emberMetalWeak_map.default();
+    }, expectedError);
+  });
+
+  QUnit.test('constructing a WeakMap with an invalid iterator throws an error', function (assert) {
+    var expectedError = new TypeError('The weak map constructor polyfill only supports an array argument');
+
+    assert.throws(function () {
+      new _emberMetalWeak_map.default({ a: 1 });
+    }, expectedError);
+  });
+
+  QUnit.test('constructing a WeakMap with a valid iterator inserts the entries', function (assert) {
+    var a = {};
+    var b = {};
+    var c = {};
+
+    var map = new _emberMetalWeak_map.default([[a, 1], [b, 2], [c, 3]]);
+
+    assert.strictEqual(map.get(a), 1);
+    assert.strictEqual(map.get(b), 2);
+    assert.strictEqual(map.get(c), 3);
   });
 
   QUnit.test('that error is thrown when using a primitive key', function (assert) {
+    var expectedError = new TypeError('Invalid value used as weak map key');
     var map = new _emberMetalWeak_map.default();
 
-    expectAssertion(function () {
+    assert.throws(function () {
       return map.set('a', 1);
-    }, /Uncaught TypeError: Invalid value used as weak map key/);
-    expectAssertion(function () {
+    }, expectedError);
+    assert.throws(function () {
       return map.set(1, 1);
-    }, /Uncaught TypeError: Invalid value used as weak map key/);
-    expectAssertion(function () {
+    }, expectedError);
+    assert.throws(function () {
       return map.set(true, 1);
-    }, /Uncaught TypeError: Invalid value used as weak map key/);
-    expectAssertion(function () {
+    }, expectedError);
+    assert.throws(function () {
       return map.set(null, 1);
-    }, /Uncaught TypeError: Invalid value used as weak map key/);
-    expectAssertion(function () {
+    }, expectedError);
+    assert.throws(function () {
       return map.set(undefined, 1);
-    }, /Uncaught TypeError: Invalid value used as weak map key/);
+    }, expectedError);
   });
 
   QUnit.test('that .has and .delete work as expected', function (assert) {
@@ -71380,6 +71404,12 @@ enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], f
     assert.strictEqual(map.delete(a), true);
     assert.strictEqual(map.delete(a), false);
     assert.strictEqual(map.has(a), false);
+  });
+
+  QUnit.test('that .toString works as expected', function (assert) {
+    var map = new _emberMetalWeak_map.default();
+
+    assert.strictEqual(map.toString(), '[object WeakMap]');
   });
 });
 enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerTestsTestHelpersBuildOwner, _containerOwner) {
