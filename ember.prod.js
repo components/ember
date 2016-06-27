@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.0+81abad37
+ * @version   2.6.1
  */
 
 var enifed, requireModule, require, Ember;
@@ -9695,7 +9695,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0+81abad37';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.1';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -14532,7 +14532,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.0+81abad37
+    @version 2.6.1
     @public
   */
 
@@ -14574,11 +14574,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.0+81abad37'
+    @default '2.6.1'
     @static
     @public
   */
-  Ember.VERSION = '2.6.0+81abad37';
+  Ember.VERSION = '2.6.1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -38129,7 +38129,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.0+81abad37',
+        revision: 'Ember@2.6.1',
         loc: program.loc,
         moduleName: options.moduleName
       };
