@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+503834b4
+ * @version   2.7.0-canary+7e62fb0e
  */
 
 var enifed, requireModule, require, Ember;
@@ -10412,7 +10412,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     testParamlessLinks('index');
   }
 });
-enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-templates/template_registry', 'ember-runtime/system/string', 'ember-metal/mixin', 'ember-metal/meta'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry, _emberRuntimeSystemString, _emberMetalMixin, _emberMetalMeta) {
+enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-templates/template_registry', 'ember-runtime/system/string', 'ember-metal/mixin', 'ember-metal/meta'], function (exports, _emberRuntimeControllersController, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry, _emberRuntimeSystemString, _emberMetalMixin, _emberMetalMeta) {
   'use strict';
 
   var App = undefined,
@@ -12877,6 +12877,41 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
       bootApplication();
     });
 
+    QUnit.test('queryParams are updated when a controller property is set and the route is refreshed. Issue #13263  ', function () {
+      _emberTemplatesTemplate_registry.setTemplates({
+        application: _emberTemplateCompilerTestsUtilsHelpers.compile('<button id="test-button" {{action \'increment\'}}>Increment</button>' + '<span id="test-value">{{foo}}</span>' + '{{outlet}}')
+      });
+      App.ApplicationController = _emberRuntimeControllersController.default.extend({
+        queryParams: ['foo'],
+        foo: 1,
+        actions: {
+          increment: function () {
+            this.incrementProperty('foo');
+            this.send('refreshRoute');
+          }
+        }
+      });
+
+      App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
+        actions: {
+          refreshRoute: function () {
+            this.refresh();
+          }
+        }
+      });
+
+      startingURL = '/';
+      bootApplication();
+      equal(_emberViewsSystemJquery.default('#test-value').text().trim(), '1');
+      equal(router.get('location.path'), '/', 'url is correct');
+      _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#test-button'), 'click');
+      equal(_emberViewsSystemJquery.default('#test-value').text().trim(), '2');
+      equal(router.get('location.path'), '/?foo=2', 'url is correct');
+      _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#test-button'), 'click');
+      equal(_emberViewsSystemJquery.default('#test-value').text().trim(), '3');
+      equal(router.get('location.path'), '/?foo=3', 'url is correct');
+    });
+
     QUnit.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
       expect(6);
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
@@ -13562,6 +13597,133 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
       var controller = container.lookup('controller:example');
       equal(_emberMetalProperty_get.default(controller, 'foo'), undefined);
+    });
+
+    QUnit.test('when refreshModel is true and loading action returns false, model hook will rerun when QPs change even if previous did not finish', function () {
+      expect(6);
+
+      var appModelCount = 0;
+      var promiseResolve;
+
+      App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
+        queryParams: {
+          'appomg': {
+            defaultValue: 'applol'
+          }
+        },
+        model: function (params) {
+          appModelCount++;
+        }
+      });
+
+      App.IndexController = _emberRuntimeControllersController.default.extend({
+        queryParams: ['omg']
+        // uncommon to not support default value, but should assume undefined.
+      });
+
+      var indexModelCount = 0;
+      App.IndexRoute = _emberRoutingSystemRoute.default.extend({
+        queryParams: {
+          omg: {
+            refreshModel: true
+          }
+        },
+        actions: {
+          loading: function () {
+            return false;
+          }
+        },
+        model: function (params) {
+          indexModelCount++;
+          if (indexModelCount === 2) {
+            deepEqual(params, { omg: 'lex' });
+            return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+              promiseResolve = resolve;
+              return;
+            });
+          } else if (indexModelCount === 3) {
+            deepEqual(params, { omg: 'hello' }, 'Model hook reruns even if the previous one didnt finish');
+          }
+        }
+      });
+
+      bootApplication();
+
+      equal(indexModelCount, 1);
+
+      var indexController = container.lookup('controller:index');
+      setAndFlush(indexController, 'omg', 'lex');
+      equal(indexModelCount, 2);
+
+      setAndFlush(indexController, 'omg', 'hello');
+      equal(indexModelCount, 3);
+      _emberMetalRun_loop.default(function () {
+        promiseResolve();
+      });
+      equal(_emberMetalProperty_get.default(indexController, 'omg'), 'hello', 'At the end last value prevails');
+    });
+
+    QUnit.test('when refreshModel is true and loading action does not return false, model hook will not rerun when QPs change even if previous did not finish', function () {
+      expect(7);
+
+      var appModelCount = 0;
+      var promiseResolve;
+
+      App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
+        queryParams: {
+          'appomg': {
+            defaultValue: 'applol'
+          }
+        },
+        model: function (params) {
+          appModelCount++;
+        }
+      });
+
+      App.IndexController = _emberRuntimeControllersController.default.extend({
+        queryParams: ['omg']
+        // uncommon to not support default value, but should assume undefined.
+      });
+
+      var indexModelCount = 0;
+      App.IndexRoute = _emberRoutingSystemRoute.default.extend({
+        queryParams: {
+          omg: {
+            refreshModel: true
+          }
+        },
+        model: function (params) {
+          indexModelCount++;
+
+          if (indexModelCount === 2) {
+            deepEqual(params, { omg: 'lex' });
+            return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+              promiseResolve = resolve;
+              return;
+            });
+          } else if (indexModelCount === 3) {
+            ok(false, 'shouldnt get here');
+          }
+        }
+      });
+
+      bootApplication();
+
+      equal(appModelCount, 1);
+      equal(indexModelCount, 1);
+
+      var indexController = container.lookup('controller:index');
+      setAndFlush(indexController, 'omg', 'lex');
+
+      equal(appModelCount, 1);
+      equal(indexModelCount, 2);
+
+      setAndFlush(indexController, 'omg', 'hello');
+      equal(_emberMetalProperty_get.default(indexController, 'omg'), 'hello', ' value was set');
+      equal(indexModelCount, 2);
+      _emberMetalRun_loop.default(function () {
+        promiseResolve();
+      });
     });
   }
 
