@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b68dcc4d
+ * @version   2.7.0-canary+c7991fcc
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b68dcc4d";
+  exports.default = "2.7.0-canary+c7991fcc";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11175,17 +11175,14 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       props.renderer = parentView.renderer;
       props[_emberGlimmerComponent.HAS_BLOCK] = hasBlock;
+      // parentView.controller represents any parent components
+      // dynamicScope.controller represents the outlet controller
+      props._targetObject = parentView.controller || dynamicScope.controller;
 
       var component = klass.create(props);
 
       dynamicScope.view = component;
       parentView.appendChild(component);
-
-      if (parentView.controller) {
-        dynamicScope.controller = parentView.controller;
-      }
-
-      component._controller = dynamicScope.controller;
 
       component.trigger('didInitAttrs', { attrs: attrs });
       component.trigger('didReceiveAttrs', { newAttrs: attrs });
@@ -42783,25 +42780,6 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
     action: null,
     actionContext: null,
 
-    targetObject: _emberMetalComputed.computed('target', function () {
-      if (this._targetObject) {
-        return this._targetObject;
-      }
-
-      var target = _emberMetalProperty_get.get(this, 'target');
-
-      if (typeof target === 'string') {
-        var value = _emberMetalProperty_get.get(this, target);
-        if (value === undefined) {
-          value = _emberMetalProperty_get.get(_emberEnvironment.context.lookup, target);
-        }
-
-        return value;
-      } else {
-        return target;
-      }
-    }),
-
     actionContextObject: _emberMetalComputed.computed('actionContext', function () {
       var actionContext = _emberMetalProperty_get.get(this, 'actionContext');
 
@@ -42867,7 +42845,12 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
       var action = opts.action || _emberMetalProperty_get.get(this, 'action');
-      var target = opts.target || _emberMetalProperty_get.get(this, 'targetObject');
+      var target = opts.target;
+
+      if (!target) {
+        target = getTarget(this);
+      }
+
       var actionContext = opts.actionContext;
 
       function args(options, actionName) {
@@ -42903,6 +42886,47 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       }
     }
   });
+
+  function getTarget(instance) {
+    // TODO: Deprecate specifying `targetObject`
+    var target = _emberMetalProperty_get.get(instance, 'targetObject');
+
+    // if a `targetObject` CP was provided, use it
+    if (target) {
+      return target;
+    }
+
+    // if _targetObject use it
+    if (instance._targetObject) {
+      return instance._targetObject;
+    }
+
+    target = _emberMetalProperty_get.get(instance, 'target');
+    if (target) {
+      if (typeof target === 'string') {
+        var value = _emberMetalProperty_get.get(instance, target);
+        if (value === undefined) {
+          value = _emberMetalProperty_get.get(_emberEnvironment.context.lookup, target);
+        }
+
+        return value;
+      } else {
+        return target;
+      }
+    }
+
+    if (instance._controller) {
+      return instance._controller;
+    }
+
+    // fallback to `parentView.controller`
+    var parentViewController = _emberMetalProperty_get.get(instance, 'parentView.controller');
+    if (parentViewController) {
+      return parentViewController;
+    }
+
+    return null;
+  }
 });
 enifed("ember-runtime/string_registry", ["exports"], function (exports) {
   // STATE within a module is frowned apon, this exists
@@ -48070,7 +48094,7 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
   exports.default = _emberRuntime.default;
 });
 // for the side effect of extending Ember.run.queues
-enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/is_none', 'ember-metal/debug', 'ember-views/compat/attrs-proxy', 'ember-metal/utils'], function (exports, _emberMetalMixin, _emberMetalComputed, _emberMetalProperty_get, _emberMetalIs_none, _emberMetalDebug, _emberViewsCompatAttrsProxy, _emberMetalUtils) {
+enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/is_none', 'ember-metal/debug', 'ember-views/compat/attrs-proxy', 'ember-metal/utils'], function (exports, _emberMetalMixin, _emberMetalProperty_get, _emberMetalIs_none, _emberMetalDebug, _emberViewsCompatAttrsProxy, _emberMetalUtils) {
   'use strict';
 
   function validateAction(component, actionName) {
@@ -48180,25 +48204,6 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'em
         });
       }
     },
-
-    /**
-      If the component is currently inserted into the DOM of a parent view, this
-      property will point to the controller of the parent view.
-       @property targetObject
-      @type Ember.Controller
-      @default null
-      @private
-    */
-    targetObject: _emberMetalComputed.computed('controller', function (key) {
-      if (this._targetObject) {
-        return this._targetObject;
-      }
-      if (this._controller) {
-        return this._controller;
-      }
-      var parentView = _emberMetalProperty_get.get(this, 'parentView');
-      return parentView ? _emberMetalProperty_get.get(parentView, 'controller') : null;
-    }),
 
     send: function (actionName) {
       for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {

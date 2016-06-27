@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b68dcc4d
+ * @version   2.7.0-canary+c7991fcc
  */
 
 var enifed, requireModule, require, Ember;
@@ -2488,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b68dcc4d";
+  exports.default = "2.7.0-canary+c7991fcc";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -17294,25 +17294,6 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
     action: null,
     actionContext: null,
 
-    targetObject: _emberMetalComputed.computed('target', function () {
-      if (this._targetObject) {
-        return this._targetObject;
-      }
-
-      var target = _emberMetalProperty_get.get(this, 'target');
-
-      if (typeof target === 'string') {
-        var value = _emberMetalProperty_get.get(this, target);
-        if (value === undefined) {
-          value = _emberMetalProperty_get.get(_emberEnvironment.context.lookup, target);
-        }
-
-        return value;
-      } else {
-        return target;
-      }
-    }),
-
     actionContextObject: _emberMetalComputed.computed('actionContext', function () {
       var actionContext = _emberMetalProperty_get.get(this, 'actionContext');
 
@@ -17378,7 +17359,12 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
       var action = opts.action || _emberMetalProperty_get.get(this, 'action');
-      var target = opts.target || _emberMetalProperty_get.get(this, 'targetObject');
+      var target = opts.target;
+
+      if (!target) {
+        target = getTarget(this);
+      }
+
       var actionContext = opts.actionContext;
 
       function args(options, actionName) {
@@ -17414,6 +17400,47 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       }
     }
   });
+
+  function getTarget(instance) {
+    // TODO: Deprecate specifying `targetObject`
+    var target = _emberMetalProperty_get.get(instance, 'targetObject');
+
+    // if a `targetObject` CP was provided, use it
+    if (target) {
+      return target;
+    }
+
+    // if _targetObject use it
+    if (instance._targetObject) {
+      return instance._targetObject;
+    }
+
+    target = _emberMetalProperty_get.get(instance, 'target');
+    if (target) {
+      if (typeof target === 'string') {
+        var value = _emberMetalProperty_get.get(instance, target);
+        if (value === undefined) {
+          value = _emberMetalProperty_get.get(_emberEnvironment.context.lookup, target);
+        }
+
+        return value;
+      } else {
+        return target;
+      }
+    }
+
+    if (instance._controller) {
+      return instance._controller;
+    }
+
+    // fallback to `parentView.controller`
+    var parentViewController = _emberMetalProperty_get.get(instance, 'parentView.controller');
+    if (parentViewController) {
+      return parentViewController;
+    }
+
+    return null;
+  }
 });
 enifed("ember-runtime/string_registry", ["exports"], function (exports) {
   // STATE within a module is frowned apon, this exists
