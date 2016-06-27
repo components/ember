@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7e62fb0e
+ * @version   2.7.0-canary+8e9ec7dd
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+7e62fb0e";
+  exports.default = "2.7.0-canary+8e9ec7dd";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -15001,6 +15001,21 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
   
     Additionally, class helpers can call `recompute` to force a new computation.
   
+    If the output of your helper is only dependent on the current input, then you
+    can use the `Helper.helper` function.
+    See [Ember.Helper.helper](/api/classes/Ember.Helper.html#method_helper).
+  
+    In this form the example above becomes:
+  
+    ```js
+    export default Ember.Helper.helper((params, hash) => {
+      let cents = params[0];
+      let currency = hash.currency;
+      return `${currency}${cents * 0.01}`;
+    });
+    ```
+  
+  
     @class Ember.Helper
     @public
     @since 1.13.0
@@ -15054,12 +15069,22 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
   
     ```js
     // app/helpers/format-currency.js
-    export default Ember.Helper.helper(function(params, hash) {
+    export function Ember.Helper.helper(function(params, hash) {
       let cents = params[0];
       let currency = hash.currency;
       return `${currency}${cents * 0.01}`;
     });
+  
+    export default Ember.Helper.helper(formatCurrency);
+  
+    // tests/myhelper.js
+    import {formatCurrency} from ..../helpers/myhelper
+    // add some tests
     ```
+  
+    This form is more efficient at run time and results in smaller compiled js.
+    It is also easier to test by using the following structure and importing the
+    `formatCurrency` function into a test.
   
     @static
     @param {Function} helper The helper function
