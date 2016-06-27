@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-beta.1
+ * @version   2.7.0-beta.2
  */
 
 var enifed, requireModule, require, Ember;
@@ -484,6 +484,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
     // Complain if they're using FEATURE flags in builds other than canary
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
+
+    if (false) {
+      exports.featuresWereStripped = featuresWereStripped = false;
+    }
 
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetalFeatures.DEFAULT_FEATURES, featuresWereStripped);
@@ -1175,13 +1179,12 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
   }
 });
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-testing/test'], function (exports, _emberRuntimeExtRsvp, _emberTestingTest) {
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
   'use strict';
 
   exports.default = pauseTest;
 
   function pauseTest() {
-    _emberTestingTest.default.adapter.asyncStart();
     return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
   }
 });
@@ -1525,7 +1528,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
    @return {Object} A promise that will never resolve
    @public
   */
-  _emberTestingTestHelpers.registerHelper('pauseTest', _emberTestingHelpersPause_test.default);
+  _emberTestingTestHelpers.registerAsyncHelper('pauseTest', _emberTestingHelpersPause_test.default);
 
   /**
     Triggers the given DOM event on the element identified by the provided selector.
@@ -2045,12 +2048,14 @@ enifed('ember-testing/test/run', ['exports', 'ember-metal/run_loop'], function (
     }
   }
 });
-enifed("ember-testing/test/waiters", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalFeatures, _emberMetalDebug) {
+  'use strict';
 
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
+  exports.generateDeprecatedWaitersArray = generateDeprecatedWaitersArray;
+
   var contexts = [];
   var callbacks = [];
 
@@ -2123,6 +2128,20 @@ enifed("ember-testing/test/waiters", ["exports"], function (exports) {
     callbacks.splice(i, 1);
   }
 
+  /**
+    Iterates through each registered test waiter, and invokes
+    its callback. If any waiter returns false, this method will return
+    true indicating that the waiters have not settled yet.
+  
+    This is generally used internally from the acceptance/integration test
+    infrastructure.
+  
+    @public
+    @for Ember.Test
+    @static
+    @method checkWaiters
+  */
+
   function checkWaiters() {
     if (!callbacks.length) {
       return false;
@@ -2145,8 +2164,22 @@ enifed("ember-testing/test/waiters", ["exports"], function (exports) {
     }
     return -1;
   }
+
+  function generateDeprecatedWaitersArray() {
+    _emberMetalDebug.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !false, { until: '2.8.0', id: 'ember-testing.test-waiters' });
+
+    var array = new Array(callbacks.length);
+    for (var i = 0; i < callbacks.length; i++) {
+      var context = contexts[i];
+      var callback = callbacks[i];
+
+      array[i] = [context, callback];
+    }
+
+    return array;
+  }
 });
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter) {
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
   /**
     @module ember
     @submodule ember-testing
@@ -2185,6 +2218,10 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
   };
 
+  if (false) {
+    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
+  }
+
   /**
    Used to allow ember-testing to communicate with a specific testing
    framework.
@@ -2208,6 +2245,10 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
   Object.defineProperty(Test, 'adapter', {
     get: _emberTestingTestAdapter.getAdapter,
     set: _emberTestingTestAdapter.setAdapter
+  });
+
+  Object.defineProperty(Test, 'waiters', {
+    get: _emberTestingTestWaiters.generateDeprecatedWaitersArray
   });
 
   exports.default = Test;
