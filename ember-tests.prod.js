@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2c5214d8
+ * @version   2.7.0-canary+503834b4
  */
 
 var enifed, requireModule, require, Ember;
@@ -2363,41 +2363,6 @@ enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/con
   function bootApp() {
     _emberMetalRun_loop.default(App, 'advanceReadiness');
   }
-});
-enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/system/application', 'ember-templates/components/text_field', 'ember-templates/components/checkbox', 'ember-metal/run_loop'], function (exports, _emberApplicationSystemApplication, _emberTemplatesComponentsText_field, _emberTemplatesComponentsCheckbox, _emberMetalRun_loop) {
-  'use strict';
-
-  var App = undefined;
-
-  QUnit.module('Default Registry', {
-    setup: function () {
-      _emberMetalRun_loop.default(function () {
-        App = _emberApplicationSystemApplication.default.create({
-          rootElement: '#qunit-fixture'
-        });
-
-        App.deferReadiness();
-      });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(App, 'destroy');
-    }
-  });
-
-  QUnit.test('Default objects are registered', function (assert) {
-    App.instanceInitializer({
-      name: 'test',
-      initialize: function (instance) {
-        assert.strictEqual(instance.resolveRegistration('component:-text-field'), _emberTemplatesComponentsText_field.default, 'TextField was registered');
-        assert.strictEqual(instance.resolveRegistration('component:-checkbox'), _emberTemplatesComponentsCheckbox.default, 'Checkbox was registered');
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return App.advanceReadiness();
-    });
-  });
 });
 enifed('ember/tests/global-api-test', ['exports', 'ember-metal/property_get', 'ember-runtime/utils'], function (exports, _emberMetalProperty_get, _emberRuntimeUtils) {
   'use strict';
