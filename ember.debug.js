@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-beta.1+35800032
+ * @version   2.7.0-beta.1+cf857f51
  */
 
 var enifed, requireModule, require, Ember;
@@ -3751,7 +3751,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-beta.1+35800032";
+  exports.default = "2.7.0-beta.1+cf857f51";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -30294,11 +30294,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       _emberMetalDebug.assert('The route ' + targetRouteName + ' was not found', targetRouteName && this.router.hasRoute(targetRouteName));
 
       var queryParams = {};
-      // merge in any queryParams from the active transition which could include
-      // queryparams from the url on initial load.
-      if (this.router.activeTransition) {
-        _emberMetalAssign.default(queryParams, this.router.activeTransition.queryParams);
-      }
+
+      this._processActiveTransitionQueryParams(targetRouteName, models, queryParams, _queryParams);
 
       _emberMetalAssign.default(queryParams, _queryParams);
       this._prepareQueryParams(targetRouteName, models, queryParams);
@@ -30309,6 +30306,29 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       didBeginTransition(transition, this);
 
       return transition;
+    },
+
+    _processActiveTransitionQueryParams: function (targetRouteName, models, queryParams, _queryParams) {
+      // merge in any queryParams from the active transition which could include
+      // queryParams from the url on initial load.
+      if (!this.router.activeTransition) {
+        return;
+      }
+
+      var unchangedQPs = {};
+      var qpUpdates = this._qpUpdates || {};
+      for (var key in this.router.activeTransition.queryParams) {
+        if (!qpUpdates[key]) {
+          unchangedQPs[key] = this.router.activeTransition.queryParams[key];
+        }
+      }
+
+      // We need to fully scope queryParams so that we can create one object
+      // that represents both pased in queryParams and ones that aren't changed
+      // from the active transition.
+      this._fullyScopeQueryParams(targetRouteName, models, _queryParams);
+      this._fullyScopeQueryParams(targetRouteName, models, unchangedQPs);
+      _emberMetalAssign.default(queryParams, unchangedQPs);
     },
 
     _prepareQueryParams: function (targetRouteName, models, queryParams) {
@@ -30356,6 +30376,30 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       };
     },
 
+    _fullyScopeQueryParams: function (leafRouteName, contexts, queryParams) {
+      var state = calculatePostTransitionState(this, leafRouteName, contexts);
+      var handlerInfos = state.handlerInfos;
+      _emberRoutingUtils.stashParamNames(this, handlerInfos);
+
+      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+        var route = handlerInfos[i].handler;
+        var qpMeta = _emberMetalProperty_get.get(route, '_qp');
+
+        for (var j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
+          var qp = qpMeta.qps[j];
+
+          var presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName || qp.urlKey in queryParams && qp.urlKey;
+
+          if (presentProp) {
+            if (presentProp !== qp.scopedPropertyName) {
+              queryParams[qp.scopedPropertyName] = queryParams[presentProp];
+              delete queryParams[presentProp];
+            }
+          }
+        }
+      }
+    },
+
     _hydrateUnsuppliedQueryParams: function (leafRouteName, contexts, queryParams) {
       var state = calculatePostTransitionState(this, leafRouteName, contexts);
       var handlerInfos = state.handlerInfos;
@@ -30369,7 +30413,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
         for (var j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
           var qp = qpMeta.qps[j];
 
-          var presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName;
+          var presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName || qp.urlKey in queryParams && qp.urlKey;
 
           if (presentProp) {
             if (presentProp !== qp.scopedPropertyName) {
@@ -30634,6 +30678,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
 
   function updatePaths(router) {
     var infos = router.router.currentHandlerInfos;
+    if (infos.length === 0) {
+      return;
+    }
+
     var path = EmberRouter._routePath(infos);
     var currentRouteName = infos[infos.length - 1].name;
 
