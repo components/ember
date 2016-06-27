@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c7991fcc
+ * @version   2.7.0-canary+41f378c4
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+c7991fcc";
+  exports.default = "2.7.0-canary+41f378c4";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -21483,7 +21483,7 @@ enifed('ember-htmlbars/system/append-templated-view', ['exports', 'ember-metal/p
     return parentView.appendChild(viewClassOrInstance, props);
   }
 });
-enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'htmlbars-runtime', 'htmlbars-util/template-utils', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _htmlbarsRuntime, _htmlbarsUtilTemplateUtils, _emberHtmlbarsHooksGetValue, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
   exports.default = buildComponentTemplate;
@@ -21543,7 +21543,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
       if (typeof val === 'string') {
         attrs[prop] = val;
       } else {
-        attrs[prop] = ['value', val];
+        attrs[prop] = _htmlbarsUtilTemplateUtils.buildStatement('value', val);
       }
     }
 
@@ -21645,17 +21645,17 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
         if (colonIndex !== -1) {
           var attrProperty = attr.substring(0, colonIndex);
           attrName = attr.substring(colonIndex + 1);
-          expression = ['get', '' + streamBasePath + attrProperty];
+          expression = _htmlbarsUtilTemplateUtils.buildStatement('get', '' + streamBasePath + attrProperty);
         } else if (attrs[attr]) {
           // TODO: For compatibility with 1.x, we probably need to `set`
           // the component's attribute here if it is a CP, but we also
           // probably want to suspend observers and allow the
           // willUpdateAttrs logic to trigger observers at the correct time.
           attrName = attr;
-          expression = ['value', attrs[attr]];
+          expression = _htmlbarsUtilTemplateUtils.buildStatement('value', attrs[attr]);
         } else {
           attrName = attr;
-          expression = ['get', '' + streamBasePath + attr];
+          expression = _htmlbarsUtilTemplateUtils.buildStatement('get', '' + streamBasePath + attr);
         }
 
         _emberMetalDebug.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attrName !== 'class');
@@ -21673,11 +21673,11 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
 
     if (_emberMetalProperty_get.get(component, 'isVisible') === false) {
-      var hiddenStyle = ['subexpr', '-html-safe', ['display: none;'], []];
+      var hiddenStyle = _htmlbarsUtilTemplateUtils.buildStatement('subexpr', '-html-safe', ['display: none;'], []);
       var existingStyle = normalized.style;
 
       if (existingStyle) {
-        normalized.style = ['subexpr', 'concat', [existingStyle, ' ', hiddenStyle], []];
+        normalized.style = _htmlbarsUtilTemplateUtils.buildStatement('subexpr', 'concat', [existingStyle, ' ', hiddenStyle], []);
       } else {
         normalized.style = hiddenStyle;
       }
@@ -21693,7 +21693,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
 
     if (attrs.class) {
       if (_emberHtmlbarsStreamsUtils.isStream(attrs.class)) {
-        normalizedClass.push(['subexpr', '-normalize-class', [['value', attrs.class.path], ['value', attrs.class]], []]);
+        normalizedClass.push(_htmlbarsUtilTemplateUtils.buildStatement('subexpr', '-normalize-class', [_htmlbarsUtilTemplateUtils.buildStatement('value', attrs.class.path), _htmlbarsUtilTemplateUtils.buildStatement('value', attrs.class)], []));
       } else {
         normalizedClass.push(attrs.class);
       }
@@ -21714,7 +21714,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
 
     if (normalizeClass.length) {
-      return ['subexpr', '-join-classes', normalizedClass, []];
+      return _htmlbarsUtilTemplateUtils.buildStatement('subexpr', '-join-classes', normalizedClass, []);
     }
   }
 
@@ -21737,11 +21737,11 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
 
       var prop = '' + streamBasePath + propName;
 
-      output.push(['subexpr', '-normalize-class', [
+      output.push(_htmlbarsUtilTemplateUtils.buildStatement('subexpr', '-normalize-class', [
       // params
-      ['value', propName], ['get', prop]], [
+      _htmlbarsUtilTemplateUtils.buildStatement('value', propName), _htmlbarsUtilTemplateUtils.buildStatement('get', prop)], [
       // hash
-      'activeClass', activeClass, 'inactiveClass', inactiveClass]]);
+      'activeClass', activeClass, 'inactiveClass', inactiveClass]));
     }
   }
 
@@ -22101,7 +22101,7 @@ enifed("ember-htmlbars/templates/component", ["exports", "ember-htmlbars-templat
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]], 0, 0, 0, 0]],
       locals: [],
       templates: []
     };
@@ -22154,7 +22154,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-htmlbars-template-
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["content", "linkTitle", ["loc", [null, [1, 17], [1, 30]]]]],
+        statements: [["content", "linkTitle", ["loc", [null, [1, 17], [1, 30]]], 0, 0, 0, 0]],
         locals: [],
         templates: []
       };
@@ -22179,7 +22179,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-htmlbars-template-
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["content", "yield", ["loc", [null, [1, 38], [1, 47]]]]],
+        statements: [["content", "yield", ["loc", [null, [1, 38], [1, 47]]], 0, 0, 0, 0]],
         locals: [],
         templates: []
       };
@@ -22203,7 +22203,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-htmlbars-template-
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "if", [["get", "linkTitle", ["loc", [null, [1, 6], [1, 15]]]]], [], 0, 1, ["loc", [null, [1, 0], [1, 54]]]]],
+      statements: [["block", "if", [["get", "linkTitle", ["loc", [null, [1, 6], [1, 15]]], 0, 0, 0, 0]], [], 0, 1, ["loc", [null, [1, 0], [1, 54]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -22232,7 +22232,7 @@ enifed("ember-htmlbars/templates/top-level-view", ["exports", "ember-htmlbars-te
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "outlet", ["loc", [null, [1, 0], [1, 10]]]]],
+      statements: [["content", "outlet", ["loc", [null, [1, 0], [1, 10]]], 0, 0, 0, 0]],
       locals: [],
       templates: []
     };
@@ -51317,10 +51317,12 @@ enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
 
     // Primitive literals are unambiguously non-array representations of
     // themselves.
-    if (typeof node !== 'object' || node === null) {
-      ret.value = node;
-    } else {
+    if (Array.isArray(node)) {
+      // if (node.length !== 7) { throw new Error('FIXME: Invalid statement length!'); }
+
       ret.value = evaluateNode(node, env, scope);
+    } else {
+      ret.value = node;
     }
 
     return ret;
@@ -52870,13 +52872,14 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "html
       if (typeof attributes[key] === 'string') {
         continue;
       }
-      statements.push(["attribute", key, attributes[key]]);
+
+      statements.push(_htmlbarsUtilTemplateUtils.buildStatement("attribute", key, attributes[key]));
     }
 
     var isEmpty = _isEmpty || _htmlbarsUtilVoidTagNames.default[tagName];
 
     if (!isEmpty) {
-      statements.push(['content', 'yield']);
+      statements.push(_htmlbarsUtilTemplateUtils.buildStatement('content', 'yield'));
     }
 
     var template = {
@@ -52938,7 +52941,7 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "html
       if (typeof attributes[key] === 'string') {
         continue;
       }
-      statements.push(["attribute", key, attributes[key]]);
+      statements.push(_htmlbarsUtilTemplateUtils.buildStatement("attribute", key, attributes[key]));
     }
 
     var template = {
@@ -53562,11 +53565,13 @@ enifed('htmlbars-util/safe-string', ['exports', 'htmlbars-util/handlebars/safe-s
 enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/render"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeRender) {
   "use strict";
 
+  var _slice = Array.prototype.slice;
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
   exports.clearMorph = clearMorph;
   exports.clearMorphList = clearMorphList;
+  exports.buildStatement = buildStatement;
 
   function RenderState(renderNode, morphList) {
     // The morph list that is no longer needed and can be
@@ -53759,6 +53764,17 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
     // Remove the MorphList from the morph.
     morphList.clear();
     morph.morphList = null;
+  }
+
+  function buildStatement() {
+    var statement = [].concat(_slice.call(arguments));
+
+    // ensure array length is 7 by padding with 0
+    for (var i = arguments.length; i < 7; i++) {
+      statement[i] = 0;
+    }
+
+    return statement;
   }
 });
 enifed("htmlbars-util/void-tag-names", ["exports", "htmlbars-util/array-utils"], function (exports, _htmlbarsUtilArrayUtils) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c7991fcc
+ * @version   2.7.0-canary+41f378c4
  */
 
 var enifed, requireModule, require, Ember;
@@ -1161,7 +1161,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+c7991fcc";
+  exports.default = "2.7.0-canary+41f378c4";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -12044,7 +12044,7 @@ enifed("htmlbars-compiler/fragment-opcode-compiler", ["exports", "htmlbars-compi
     this.opcode('setNamespace', [namespace]);
   };
 });
-enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-compiler/utils", "htmlbars-util/quoting"], function (exports, _htmlbarsCompilerUtils, _htmlbarsUtilQuoting) {
+enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-compiler/utils", "htmlbars-util/quoting", "htmlbars-util/template-utils"], function (exports, _htmlbarsCompilerUtils, _htmlbarsUtilQuoting, _htmlbarsUtilTemplateUtils) {
   "use strict";
 
   function HydrationJavaScriptCompiler() {
@@ -12181,15 +12181,17 @@ enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-
   };
 
   prototype.pushGetHook = function (path, meta) {
-    this.expressionStack.push(['get', path, meta]);
+    this.expressionStack.push(_htmlbarsUtilTemplateUtils.buildStatement('get', path, meta));
   };
 
   prototype.pushSexprHook = function (meta) {
-    this.expressionStack.push(['subexpr', this.expressionStack.pop(), this.expressionStack.pop(), this.expressionStack.pop(), meta]);
+    var statement = _htmlbarsUtilTemplateUtils.buildStatement('subexpr', this.expressionStack.pop(), this.expressionStack.pop(), this.expressionStack.pop(), meta);
+
+    this.expressionStack.push(statement);
   };
 
   prototype.pushConcatHook = function () {
-    this.expressionStack.push(['concat', this.expressionStack.pop()]);
+    this.expressionStack.push(_htmlbarsUtilTemplateUtils.buildStatement('concat', this.expressionStack.pop()));
   };
 
   prototype.printSetHook = function (name) {
@@ -12197,10 +12199,10 @@ enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-
   };
 
   prototype.printBlockHook = function (templateId, inverseId, meta) {
-    this.statements.push(['block', this.expressionStack.pop(), // path
+    this.pushStatement('block', this.expressionStack.pop(), // path
     this.expressionStack.pop(), // params
     this.expressionStack.pop(), // hash
-    templateId, inverseId, meta]);
+    templateId, inverseId, meta);
   };
 
   prototype.printInlineHook = function (meta) {
@@ -12208,30 +12210,30 @@ enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-
     var params = this.expressionStack.pop();
     var hash = this.expressionStack.pop();
 
-    this.statements.push(['inline', path, params, hash, meta]);
+    this.pushStatement('inline', path, params, hash, meta);
   };
 
   prototype.printContentHook = function (meta) {
-    this.statements.push(['content', this.expressionStack.pop(), meta]);
+    this.pushStatement('content', this.expressionStack.pop(), meta);
   };
 
   prototype.printComponentHook = function (templateId) {
-    this.statements.push(['component', this.expressionStack.pop(), // path
+    this.pushStatement('component', this.expressionStack.pop(), // path
     this.expressionStack.pop(), // attrs
-    templateId]);
+    templateId);
   };
 
   prototype.printAttributeHook = function () {
-    this.statements.push(['attribute', this.expressionStack.pop(), // name
+    this.pushStatement('attribute', this.expressionStack.pop(), // name
     this.expressionStack.pop() // value;
-    ]);
+    );
   };
 
   prototype.printElementHook = function (meta) {
-    this.statements.push(['element', this.expressionStack.pop(), // path
+    this.pushStatement('element', this.expressionStack.pop(), // path
     this.expressionStack.pop(), // params
     this.expressionStack.pop(), // hash
-    meta]);
+    meta);
   };
 
   prototype.createMorph = function (morphNum, parentPath, startIndex, endIndex, escaped) {
@@ -12292,6 +12294,10 @@ enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-
 
   prototype.lastParent = function () {
     return this.parents[this.parents.length - 1];
+  };
+
+  prototype.pushStatement = function () {
+    this.statements.push(_htmlbarsUtilTemplateUtils.buildStatement.apply(undefined, arguments));
   };
 });
 enifed("htmlbars-compiler/hydration-opcode-compiler", ["exports", "htmlbars-compiler/template-visitor", "htmlbars-compiler/utils", "htmlbars-util", "htmlbars-util/array-utils", "htmlbars-syntax/utils"], function (exports, _htmlbarsCompilerTemplateVisitor, _htmlbarsCompilerUtils, _htmlbarsUtil, _htmlbarsUtilArrayUtils, _htmlbarsSyntaxUtils) {
@@ -13097,10 +13103,12 @@ enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
 
     // Primitive literals are unambiguously non-array representations of
     // themselves.
-    if (typeof node !== 'object' || node === null) {
-      ret.value = node;
-    } else {
+    if (Array.isArray(node)) {
+      // if (node.length !== 7) { throw new Error('FIXME: Invalid statement length!'); }
+
       ret.value = evaluateNode(node, env, scope);
+    } else {
+      ret.value = node;
     }
 
     return ret;
@@ -14650,13 +14658,14 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "html
       if (typeof attributes[key] === 'string') {
         continue;
       }
-      statements.push(["attribute", key, attributes[key]]);
+
+      statements.push(_htmlbarsUtilTemplateUtils.buildStatement("attribute", key, attributes[key]));
     }
 
     var isEmpty = _isEmpty || _htmlbarsUtilVoidTagNames.default[tagName];
 
     if (!isEmpty) {
-      statements.push(['content', 'yield']);
+      statements.push(_htmlbarsUtilTemplateUtils.buildStatement('content', 'yield'));
     }
 
     var template = {
@@ -14718,7 +14727,7 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "html
       if (typeof attributes[key] === 'string') {
         continue;
       }
-      statements.push(["attribute", key, attributes[key]]);
+      statements.push(_htmlbarsUtilTemplateUtils.buildStatement("attribute", key, attributes[key]));
     }
 
     var template = {
@@ -18352,11 +18361,13 @@ enifed('htmlbars-util/safe-string', ['exports', 'htmlbars-util/handlebars/safe-s
 enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/render"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeRender) {
   "use strict";
 
+  var _slice = Array.prototype.slice;
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
   exports.clearMorph = clearMorph;
   exports.clearMorphList = clearMorphList;
+  exports.buildStatement = buildStatement;
 
   function RenderState(renderNode, morphList) {
     // The morph list that is no longer needed and can be
@@ -18549,6 +18560,17 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
     // Remove the MorphList from the morph.
     morphList.clear();
     morph.morphList = null;
+  }
+
+  function buildStatement() {
+    var statement = [].concat(_slice.call(arguments));
+
+    // ensure array length is 7 by padding with 0
+    for (var i = arguments.length; i < 7; i++) {
+      statement[i] = 0;
+    }
+
+    return statement;
   }
 });
 enifed("htmlbars-util/void-tag-names", ["exports", "htmlbars-util/array-utils"], function (exports, _htmlbarsUtilArrayUtils) {
