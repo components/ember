@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0e1fdbc1
+ * @version   2.7.0-canary+2c5214d8
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+0e1fdbc1";
+  exports.default = "2.7.0-canary+2c5214d8";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7225,7 +7225,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/child-views-support', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsChildViewsSupport, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
   var _CoreView$extend;
@@ -7247,12 +7247,10 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
 
   exports.HAS_BLOCK = HAS_BLOCK;
-  var Component = _emberViewsViewsCore_view.default.extend(_emberGlimmerEmberViewsChildViewsSupport.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
+  var Component = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberGlimmerEmberViewsClassNamesSupport.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsAria_role_support.default, _emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
     isComponent: true,
     layoutName: null,
     layout: null,
-    controller: null,
-    _controller: null,
 
     init: function () {
       this._super.apply(this, arguments);
@@ -7260,7 +7258,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
       this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
       this[ROOT_REF] = null;
       this[REFS] = new _emberMetalEmpty_object.default();
-      this.controller = this;
 
       // If a `defaultLayout` was specified move it to the `layout` prop.
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
@@ -8404,82 +8401,6 @@ enifed('ember-glimmer/dom', ['exports', 'glimmer-runtime'], function (exports, _
   'use strict';
 
   exports.default = _glimmerRuntime.DOMHelper;
-});
-enifed('ember-glimmer/ember-views/child-views-support', ['exports', 'ember-metal/mixin', 'container/owner'], function (exports, _emberMetalMixin, _containerOwner) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  exports.default = _emberMetalMixin.Mixin.create({
-    init: function () {
-      this._super.apply(this, arguments);
-
-      /**
-        Array of child views. You should never edit this array directly.
-        Instead, use `appendChild` and `removeFromParent`.
-         @property childViews
-        @type Array
-        @default []
-        @private
-      */
-      this.childViews = [];
-      this.parentView = null;
-      this.ownerView = this.ownerView || this;
-    },
-
-    appendChild: function (view) {
-      this.linkChild(view);
-      this.childViews.push(view);
-    },
-
-    destroyChild: function (view) {
-      view.destroy();
-    },
-
-    /**
-      Removes the child view from the parent view.
-       @method removeChild
-      @param {Ember.View} view
-      @return {Ember.View} receiver
-      @private
-    */
-    removeChild: function (view) {
-      // If we're destroying, the entire subtree will be
-      // freed, and the DOM will be handled separately,
-      // so no need to mess with childViews.
-      if (this.isDestroying) {
-        return;
-      }
-
-      // update parent node
-      this.unlinkChild(view);
-
-      // remove view from childViews array.
-      var childViews = this.childViews;
-
-      var index = childViews.indexOf(view);
-      if (index !== -1) {
-        childViews.splice(index, 1);
-      }
-
-      return this;
-    },
-
-    linkChild: function (instance) {
-      if (!instance[_containerOwner.OWNER]) {
-        _containerOwner.setOwner(instance, _containerOwner.getOwner(this));
-      }
-
-      instance.parentView = this;
-      instance.ownerView = this.ownerView;
-    },
-
-    unlinkChild: function (instance) {
-      instance.parentView = null;
-    }
-  });
 });
 enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal/debug', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberMetalMixin) {
   /**
@@ -10306,7 +10227,11 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var dynamicScope = new DynamicScope({
         view: view,
         controller: undefined,
-        targetObject: undefined,
+        // this is generally only used for the test harness, and is not a "supported"
+        // mechanism for setting up a template/test environment. We are defaulting the
+        // targetObject to the view instance based on the assumption that it is a component
+        // instance
+        targetObject: view,
         outletState: _glimmerReference.UNDEFINED_REFERENCE,
         isTopLevel: true
       });
@@ -12805,7 +12730,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/deb
   exports.default = EmberHandlebars;
 });
 // for Handlebars export
-enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/mixins/action_support', 'ember-views/views/view', 'ember-metal/property_set', 'ember-metal/computed', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsMixinsAction_support, _emberViewsViewsView, _emberMetalProperty_set, _emberMetalComputed, _containerOwner, _emberMetalSymbol) {
+enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/mixins/action_support', 'ember-views/views/view', 'ember-metal/computed', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsMixinsAction_support, _emberViewsViewsView, _emberMetalComputed, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
@@ -12905,12 +12830,6 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
   */
   var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, {
     isComponent: true,
-    /*
-      This is set so that the proto inspection in appendTemplatedView does not
-      think that it should set the component's `context` to that of the parent view.
-    */
-    controller: null,
-    context: null,
 
     instrumentName: 'component',
     instrumentDisplay: _emberMetalComputed.computed(function () {
@@ -12921,8 +12840,6 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
 
     init: function () {
       this._super.apply(this, arguments);
-      _emberMetalProperty_set.set(this, 'controller', this);
-      _emberMetalProperty_set.set(this, 'context', this);
 
       // If a `defaultLayout` was specified move it to the `layout` prop.
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
@@ -18503,7 +18420,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
     env.renderedNodes.add(this);
   };
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/component', 'ember-htmlbars/utils/extract-positional-params', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _containerOwner, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/component', 'ember-htmlbars/utils/extract-positional-params', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsComponent, _emberHtmlbarsUtilsExtractPositionalParams, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.default = ComponentNodeManager;
@@ -18544,14 +18461,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // properties ({ id: "foo" }).
     configureCreateOptions(attrs, createOptions);
 
-    // If there is a controller on the scope, pluck it off and save it on the
-    // component. This allows the component to target actions sent via
-    // `sendAction` correctly.
-    if (parentScope.hasLocal('controller')) {
-      createOptions._controller = _emberHtmlbarsHooksGetValue.default(parentScope.getLocal('controller'));
-    } else {
-      createOptions._targetObject = _emberHtmlbarsHooksGetValue.default(parentScope.getSelf());
-    }
+    // This allows the component to target actions sent via `sendAction` correctly.
+    createOptions._targetObject = _emberHtmlbarsHooksGetValue.default(parentScope.getSelf());
 
     _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, component, params, attrs);
 
@@ -18591,9 +18502,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
     if (attrs._defaultTagName) {
       createOptions._defaultTagName = _emberHtmlbarsHooksGetValue.default(attrs._defaultTagName);
-    }
-    if (attrs.viewName) {
-      createOptions.viewName = _emberHtmlbarsHooksGetValue.default(attrs.viewName);
     }
   }
 
@@ -18683,10 +18591,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     if (props.parentView) {
       props.parentView.appendChild(component);
-
-      if (props.viewName) {
-        _emberMetalProperty_set.set(props.parentView, props.viewName, component);
-      }
     }
 
     component._renderNode = renderNode;
@@ -18749,7 +18653,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 // be safe to import this until we make the hook system public
 // and it gets actively used in addons or other downstream
 // libraries.
-enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _containerOwner, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.default = ViewNodeManager;
@@ -18779,9 +18683,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       }
       if (attrs && attrs._defaultTagName) {
         options._defaultTagName = _emberHtmlbarsHooksGetValue.default(attrs._defaultTagName);
-      }
-      if (attrs && attrs.viewName) {
-        options.viewName = _emberHtmlbarsHooksGetValue.default(attrs.viewName);
       }
 
       if (found.component.create && contentScope) {
@@ -18950,10 +18851,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
     if (options.parentView) {
       options.parentView.appendChild(component);
-
-      if (options.viewName) {
-        _emberMetalProperty_set.set(options.parentView, options.viewName, component);
-      }
     }
 
     component._renderNode = renderNode;
@@ -38951,8 +38848,6 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
     */
     target: null,
 
-    parentController: null,
-
     store: null,
 
     /**
@@ -41906,16 +41801,6 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       } else {
         return target;
       }
-    }
-
-    if (instance._controller) {
-      return instance._controller;
-    }
-
-    // fallback to `parentView.controller`
-    var parentViewController = _emberMetalProperty_get.get(instance, 'parentView.controller');
-    if (parentViewController) {
-      return parentViewController;
     }
 
     return null;
@@ -45623,6 +45508,81 @@ enifed('ember-views/mixins/aria_role_support', ['exports', 'ember-metal/mixin'],
     ariaRole: null
   });
 });
+enifed('ember-views/mixins/child_views_support', ['exports', 'ember-metal/mixin', 'container/owner'], function (exports, _emberMetalMixin, _containerOwner) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
+  'use strict';
+
+  exports.default = _emberMetalMixin.Mixin.create({
+    init: function () {
+      this._super.apply(this, arguments);
+
+      /**
+        Array of child views. You should never edit this array directly.
+        Instead, use `appendChild` and `removeFromParent`.
+         @property childViews
+        @type Array
+        @default []
+        @private
+      */
+      this.childViews = [];
+      this.ownerView = this.ownerView || this;
+    },
+
+    appendChild: function (view) {
+      this.linkChild(view);
+      this.childViews.push(view);
+    },
+
+    destroyChild: function (view) {
+      view.destroy();
+    },
+
+    /**
+      Removes the child view from the parent view.
+       @method removeChild
+      @param {Ember.View} view
+      @return {Ember.View} receiver
+      @private
+    */
+    removeChild: function (view) {
+      // If we're destroying, the entire subtree will be
+      // freed, and the DOM will be handled separately,
+      // so no need to mess with childViews.
+      if (this.isDestroying) {
+        return;
+      }
+
+      // update parent node
+      this.unlinkChild(view);
+
+      // remove view from childViews array.
+      var childViews = this.childViews;
+
+      var index = childViews.indexOf(view);
+      if (index !== -1) {
+        childViews.splice(index, 1);
+      }
+
+      return this;
+    },
+
+    linkChild: function (instance) {
+      if (!instance[_containerOwner.OWNER]) {
+        _containerOwner.setOwner(instance, _containerOwner.getOwner(this));
+      }
+
+      instance.parentView = this;
+      instance.ownerView = this.ownerView;
+    },
+
+    unlinkChild: function (instance) {
+      instance.parentView = null;
+    }
+  });
+});
 enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-runtime/system/native_array'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberRuntimeSystemNative_array) {
   /**
   @module ember
@@ -45723,85 +45683,6 @@ enifed('ember-views/mixins/instrumentation_support', ['exports', 'ember-metal/mi
     instrumentDetails: function (hash) {
       hash.template = _emberMetalProperty_get.get(this, 'templateName');
       this._super(hash);
-    }
-  });
-});
-enifed('ember-views/mixins/legacy_child_views_support', ['exports', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set', 'container/owner'], function (exports, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set, _containerOwner) {
-  'use strict';
-
-  exports.default = _emberMetalMixin.Mixin.create({
-    linkChild: function (instance) {
-      if (!instance[_containerOwner.OWNER]) {
-        _containerOwner.setOwner(instance, _containerOwner.getOwner(this));
-      }
-
-      if (_emberMetalProperty_get.get(instance, 'parentView') !== this) {
-        // linkChild should be idempotent
-        _emberMetalProperty_set.set(instance, 'parentView', this);
-        instance.trigger('parentViewDidChange');
-      }
-      instance.ownerView = this.ownerView;
-    },
-
-    unlinkChild: function (instance) {
-      _emberMetalProperty_set.set(instance, 'parentView', null);
-      instance.trigger('parentViewDidChange');
-    }
-  });
-});
-enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberMetalProperty_get) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  /**
-    @class LegacyViewSupport
-    @namespace Ember
-    @private
-  */
-  exports.default = _emberMetalMixin.Mixin.create({
-    /**
-      Return the nearest ancestor whose parent is an instance of
-      `klass`.
-       @method nearestChildOf
-      @param {Class} klass Subclass of Ember.View (or Ember.View itself)
-      @return Ember.View
-      @deprecated
-      @private
-    */
-    nearestChildOf: function (klass) {
-
-      var view = _emberMetalProperty_get.get(this, 'parentView');
-
-      while (view) {
-        if (_emberMetalProperty_get.get(view, 'parentView') instanceof klass) {
-          return view;
-        }
-        view = _emberMetalProperty_get.get(view, 'parentView');
-      }
-    },
-
-    /**
-      Return the nearest ancestor that is an instance of the provided
-      class.
-       @method nearestInstanceOf
-      @param {Class} klass Subclass of Ember.View (or Ember.View itself)
-      @return Ember.View
-      @deprecated
-      @private
-    */
-    nearestInstanceOf: function (klass) {
-
-      var view = _emberMetalProperty_get.get(this, 'parentView');
-
-      while (view) {
-        if (view instanceof klass) {
-          return view;
-        }
-        view = _emberMetalProperty_get.get(view, 'parentView');
-      }
     }
   });
 });
@@ -46229,237 +46110,6 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
       }
     }
   }
-});
-enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-runtime/system/native_array', 'container/owner'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberRuntimeSystemNative_array, _containerOwner) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  var EMPTY_ARRAY = [];
-
-  exports.default = _emberMetalMixin.Mixin.create({
-    /**
-      Array of child views. You should never edit this array directly.
-       @property childViews
-      @type Array
-      @default []
-      @private
-    */
-    childViews: EMPTY_ARRAY,
-
-    init: function () {
-      this._super.apply(this, arguments);
-
-      // setup child views. be sure to clone the child views array first
-      // 2.0TODO: Remove Ember.A() here
-      this.childViews = _emberRuntimeSystemNative_array.A(this.childViews.slice());
-      this.ownerView = this.ownerView || this;
-    },
-
-    appendChild: function (view) {
-      this.linkChild(view);
-      this.childViews.push(view);
-    },
-
-    destroyChild: function (view) {
-      view.destroy();
-    },
-
-    /**
-      Removes the child view from the parent view.
-       @method removeChild
-      @param {Ember.View} view
-      @return {Ember.View} receiver
-      @private
-    */
-    removeChild: function (view) {
-      // If we're destroying, the entire subtree will be
-      // freed, and the DOM will be handled separately,
-      // so no need to mess with childViews.
-      if (this.isDestroying) {
-        return;
-      }
-
-      // update parent node
-      this.unlinkChild(view);
-
-      // remove view from childViews array.
-      var childViews = _emberMetalProperty_get.get(this, 'childViews');
-
-      var index = childViews.indexOf(view);
-      if (index !== -1) {
-        childViews.splice(index, 1);
-      }
-
-      return this;
-    },
-
-    /**
-      Instantiates a view to be added to the childViews array during view
-      initialization. You generally will not call this method directly unless
-      you are overriding `createChildViews()`. Note that this method will
-      automatically configure the correct settings on the new view instance to
-      act as a child of the parent.
-       @method createChildView
-      @param {Class|String} viewClass
-      @param {Object} [attrs] Attributes to add
-      @return {Ember.View} new instance
-      @private
-    */
-    createChildView: function (maybeViewClass) {
-      var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      if (!maybeViewClass) {
-        throw new TypeError('createChildViews first argument must exist');
-      }
-
-      var owner = _containerOwner.getOwner(this);
-
-      if (maybeViewClass.isView && maybeViewClass.parentView === this && _containerOwner.getOwner(maybeViewClass) === owner) {
-        return maybeViewClass;
-      }
-
-      var view = undefined;
-
-      attrs.parentView = this;
-      attrs.renderer = this.renderer;
-      attrs._viewRegistry = this._viewRegistry;
-
-      if (maybeViewClass.isViewFactory) {
-        _containerOwner.setOwner(attrs, owner);
-
-        view = maybeViewClass.create(attrs);
-
-        if (view.viewName) {
-          _emberMetalProperty_set.set(this, view.viewName, view);
-        }
-      } else if ('string' === typeof maybeViewClass) {
-        var fullName = 'view:' + maybeViewClass;
-        var ViewKlass = owner._lookupFactory(fullName);
-
-        view = ViewKlass.create(attrs);
-      } else {
-        view = maybeViewClass;
-
-        _containerOwner.setOwner(attrs, owner);
-        _emberMetalSet_properties.default(view, attrs);
-      }
-
-      this.linkChild(view);
-
-      return view;
-    },
-
-    linkChild: function (instance) {
-      if (!instance[_containerOwner.OWNER]) {
-        _containerOwner.setOwner(instance, _containerOwner.getOwner(this));
-      }
-
-      instance.parentView = this;
-      instance.ownerView = this.ownerView;
-    },
-
-    unlinkChild: function (instance) {
-      instance.parentView = null;
-    }
-  });
-});
-enifed('ember-views/mixins/view_context_support', ['exports', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/mixins/legacy_view_support', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalComputed, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsMixinsLegacy_view_support, _emberMetalEvents) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  exports.default = _emberMetalMixin.Mixin.create(_emberViewsMixinsLegacy_view_support.default, {
-    /**
-      The object from which templates should access properties.
-       This object will be passed to the template function each time the render
-      method is called, but it is up to the individual function to decide what
-      to do with it.
-       By default, this will be the view's controller.
-       @property context
-      @type Object
-      @private
-    */
-    context: _emberMetalComputed.computed({
-      get: function () {
-        return _emberMetalProperty_get.get(this, '_context');
-      },
-      set: function (key, value) {
-        _emberMetalProperty_set.set(this, '_context', value);
-        return value;
-      }
-    }),
-
-    /**
-      Private copy of the view's template context. This can be set directly
-      by Handlebars without triggering the observer that causes the view
-      to be re-rendered.
-       The context of a view is looked up as follows:
-       1. Supplied context (usually by Handlebars)
-      2. Specified controller
-      3. `parentView`'s context
-       The code in Handlebars that overrides the `_context` property first
-      checks to see whether the view has a specified controller. This is
-      something of a hack and should be revisited.
-       @property _context
-      @private
-    */
-    _context: _emberMetalComputed.computed({
-      get: function () {
-        var parentView, controller;
-
-        if (controller = _emberMetalProperty_get.get(this, 'controller')) {
-          return controller;
-        }
-
-        parentView = this.parentView;
-        if (parentView) {
-          return _emberMetalProperty_get.get(parentView, '_context');
-        }
-        return null;
-      },
-      set: function (key, value) {
-        return value;
-      }
-    }),
-
-    _controller: null,
-
-    /**
-      The controller managing this view. If this property is set, it will be
-      made available for use by the template.
-       @property controller
-      @type Object
-      @private
-    */
-    controller: _emberMetalComputed.computed({
-      get: function () {
-        if (this._controller) {
-          return this._controller;
-        }
-
-        return this.parentView ? _emberMetalProperty_get.get(this.parentView, 'controller') : null;
-      },
-      set: function (_, value) {
-        this._controller = value;
-        return value;
-      }
-    }),
-
-    _legacyControllerDidChange: _emberMetalMixin.observer('controller', function () {
-      this.childViews.forEach(function (view) {
-        return view.notifyPropertyChange('controller');
-      });
-    }),
-
-    _notifyControllerChange: _emberMetalEvents.on('parentViewDidChange', function () {
-      this.notifyPropertyChange('controller');
-    })
-  });
 });
 enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
   'use strict';
@@ -46944,17 +46594,8 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     }
     return this;
   }, _Mixin$create.destroy = function () {
-    // get parentView before calling super because it'll be destroyed
-    var parentView = this.parentView;
-    var viewName = this.viewName;
-
     if (!this._super.apply(this, arguments)) {
       return;
-    }
-
-    // remove from non-virtual parent view if viewName was specified
-    if (viewName && parentView) {
-      parentView.set(viewName, null);
     }
 
     // Destroy HTMLbars template
@@ -48011,7 +47652,7 @@ enifed('ember-views/views/states', ['exports', 'ember-metal/assign', 'ember-view
   };
   exports.states = states;
 });
-enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/legacy_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsLegacy_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
+enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
   'use strict';
 
   /**
@@ -48500,18 +48141,16 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     @extends Ember.CoreView
     @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-view
     @uses Ember.ViewSupport
-    @uses Ember.ViewContextSupport
     @uses Ember.ViewChildViewsSupport
     @uses Ember.ClassNamesSupport
     @uses Ember.AttributeBindingsSupport
-    @uses Ember.LegacyViewSupport
     @uses Ember.InstrumentationSupport
     @uses Ember.VisibilitySupport
     @uses Ember.AriaRoleSupport
     @public
   */
   // jscs:disable validateIndentation
-  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsView_context_support.default, _emberViewsMixinsView_child_views_support.default, _emberViewsMixinsLegacy_child_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsLegacy_view_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
+  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
     attributeBindings: ['ariaRole:role'],
 
     init: function () {
@@ -48577,8 +48216,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
   });
 
   exports.default = View;
-  exports.ViewContextSupport = _emberViewsMixinsView_context_support.default;
-  exports.ViewChildViewsSupport = _emberViewsMixinsView_child_views_support.default;
+  exports.ViewChildViewsSupport = _emberViewsMixinsChild_views_support.default;
   exports.ViewStateSupport = _emberViewsMixinsView_state_support.default;
   exports.ClassNamesSupport = _emberViewsMixinsClass_names_support.default;
 });

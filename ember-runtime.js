@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0e1fdbc1
+ * @version   2.7.0-canary+2c5214d8
  */
 
 var enifed, requireModule, require, Ember;
@@ -2488,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+0e1fdbc1";
+  exports.default = "2.7.0-canary+2c5214d8";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -14459,8 +14459,6 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
     */
     target: null,
 
-    parentController: null,
-
     store: null,
 
     /**
@@ -17427,16 +17425,6 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       } else {
         return target;
       }
-    }
-
-    if (instance._controller) {
-      return instance._controller;
-    }
-
-    // fallback to `parentView.controller`
-    var parentViewController = _emberMetalProperty_get.get(instance, 'parentView.controller');
-    if (parentViewController) {
-      return parentViewController;
     }
 
     return null;

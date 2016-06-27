@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0e1fdbc1
+ * @version   2.7.0-canary+2c5214d8
  */
 
 var enifed, requireModule, require, Ember;
@@ -33408,7 +33408,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'context.source.banana', 'yellow');
+        return _emberMetalProperty_set.set(_this14.context, 'source.banana', 'yellow');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'yellow');
@@ -54934,7 +54934,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'context.source.banana', 'yellow');
+        return _emberMetalProperty_set.set(_this14.context, 'source.banana', 'yellow');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'yellow');
@@ -89088,16 +89088,11 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-htmlbars/comp
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner', 'ember-metal/computed'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberViewsViewsView, _emberHtmlbarsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner, _emberMetalComputed) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'ember-metal/computed'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemService, _emberRuntimeInject, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _emberMetalComputed) {
   'use strict';
 
-  var a_slice = Array.prototype.slice;
-
   var component = undefined,
-      controller = undefined,
-      actionCounts = undefined,
-      sendCount = undefined,
-      actionArguments = undefined;
+      controller = undefined;
 
   QUnit.module('Ember.Component', {
     setup: function () {
@@ -89141,14 +89136,6 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     }, 'Usage of `_actions` is deprecated, use `actions` instead.');
   });
 
-  QUnit.test('The context of an Ember.Component is itself', function () {
-    strictEqual(component, component.get('context'), 'A component\'s context is itself');
-  });
-
-  QUnit.test('The controller (target of `action`) of an Ember.Component is itself', function () {
-    strictEqual(component, component.get('controller'), 'A component\'s controller is itself');
-  });
-
   QUnit.test('Specifying a defaultLayout to a component is deprecated', function () {
     expectDeprecation(function () {
       _emberHtmlbarsComponent.default.extend({
@@ -89177,138 +89164,6 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         })
       }).create();
     }, /Only arrays are allowed/i);
-  });
-
-  QUnit.module('Ember.Component - Actions', {
-    setup: function () {
-      actionCounts = {};
-      sendCount = 0;
-      actionArguments = null;
-
-      controller = _emberRuntimeSystemObject.default.create({
-        send: function (actionName) {
-          sendCount++;
-          actionCounts[actionName] = actionCounts[actionName] || 0;
-          actionCounts[actionName]++;
-          actionArguments = a_slice.call(arguments, 1);
-        }
-      });
-
-      component = _emberHtmlbarsComponent.default.create({
-        parentView: _emberViewsViewsView.default.create({
-          controller: controller
-        })
-      });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        component.destroy();
-        controller.destroy();
-      });
-    }
-  });
-
-  QUnit.test('Calling sendAction on a component without an action defined does nothing', function () {
-    component.sendAction();
-    equal(sendCount, 0, 'addItem action was not invoked');
-  });
-
-  QUnit.test('Calling sendAction on a component with an action defined calls send on the controller', function () {
-    _emberMetalProperty_set.set(component, 'action', 'addItem');
-
-    component.sendAction();
-
-    equal(sendCount, 1, 'send was called once');
-    equal(actionCounts['addItem'], 1, 'addItem event was sent once');
-  });
-
-  QUnit.test('Calling sendAction on a component with a function calls the function', function () {
-    expect(1);
-    _emberMetalProperty_set.set(component, 'action', function () {
-      ok(true, 'function is called');
-    });
-
-    component.sendAction();
-  });
-
-  QUnit.test('Calling sendAction on a component with a function calls the function with arguments', function () {
-    expect(1);
-    var argument = {};
-    _emberMetalProperty_set.set(component, 'action', function (actualArgument) {
-      equal(actualArgument, argument, 'argument is passed');
-    });
-
-    component.sendAction('action', argument);
-  });
-
-  QUnit.test('Calling sendAction on a component with a mut attr calls the function with arguments', function () {
-    var _mut;
-
-    var mut = (_mut = {
-      value: 'didStartPlaying'
-    }, _mut[_emberViewsCompatAttrsProxy.MUTABLE_CELL] = true, _mut);
-    _emberMetalProperty_set.set(component, 'playing', null);
-    _emberMetalProperty_set.set(component, 'attrs', { playing: mut });
-
-    component.sendAction('playing');
-
-    equal(sendCount, 1, 'send was called once');
-    equal(actionCounts['didStartPlaying'], 1, 'named action was sent');
-  });
-
-  QUnit.test('Calling sendAction with a named action uses the component\'s property as the action name', function () {
-    _emberMetalProperty_set.set(component, 'playing', 'didStartPlaying');
-    _emberMetalProperty_set.set(component, 'action', 'didDoSomeBusiness');
-
-    component.sendAction('playing');
-
-    equal(sendCount, 1, 'send was called once');
-    equal(actionCounts['didStartPlaying'], 1, 'named action was sent');
-
-    component.sendAction('playing');
-
-    equal(sendCount, 2, 'send was called twice');
-    equal(actionCounts['didStartPlaying'], 2, 'named action was sent');
-
-    component.sendAction();
-
-    equal(sendCount, 3, 'send was called three times');
-    equal(actionCounts['didDoSomeBusiness'], 1, 'default action was sent');
-  });
-
-  QUnit.test('Calling sendAction when the action name is not a string raises an exception', function () {
-    _emberMetalProperty_set.set(component, 'action', {});
-    _emberMetalProperty_set.set(component, 'playing', {});
-
-    expectAssertion(function () {
-      return component.sendAction();
-    });
-
-    expectAssertion(function () {
-      return component.sendAction('playing');
-    });
-  });
-
-  QUnit.test('Calling sendAction on a component with a context', function () {
-    _emberMetalProperty_set.set(component, 'playing', 'didStartPlaying');
-
-    var testContext = { song: 'She Broke My Ember' };
-
-    component.sendAction('playing', testContext);
-
-    deepEqual(actionArguments, [testContext], 'context was sent with the action');
-  });
-
-  QUnit.test('Calling sendAction on a component with multiple parameters', function () {
-    _emberMetalProperty_set.set(component, 'playing', 'didStartPlaying');
-
-    var firstContext = { song: 'She Broke My Ember' };
-    var secondContext = { song: 'My Achey Breaky Ember' };
-
-    component.sendAction('playing', firstContext, secondContext);
-
-    deepEqual(actionArguments, [firstContext, secondContext], 'arguments were sent to the action');
   });
 
   QUnit.module('Ember.Component - injected properties');
@@ -90435,125 +90290,6 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['exports', 'emb
     equal(_emberMetalWatching.isWatching(view, 'priority'), false);
   });
 });
-enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/events', 'ember-metal/mixin', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalEvents, _emberMetalMixin, _containerOwner) {
-  'use strict';
-
-  var view = undefined,
-      myViewClass = undefined,
-      newView = undefined,
-      owner = undefined;
-
-  QUnit.module('EmberView#createChildView', {
-    setup: function () {
-      var _EmberView$create;
-
-      owner = {};
-      view = _emberViewsViewsView.default.create((_EmberView$create = {}, _EmberView$create[_containerOwner.OWNER] = owner, _EmberView$create));
-
-      myViewClass = _emberViewsViewsView.default.extend({ isMyView: true, foo: 'bar' });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        view.destroy();
-        if (newView) {
-          newView.destroy();
-        }
-      });
-    }
-  });
-
-  QUnit.test('should create view from class with any passed attributes', function () {
-    var attrs = {
-      foo: 'baz'
-    };
-
-    newView = view.createChildView(myViewClass, attrs);
-
-    equal(_containerOwner.getOwner(newView), owner, 'expects to share container with parent');
-    ok(_emberMetalProperty_get.get(newView, 'isMyView'), 'newView is instance of myView');
-    equal(_emberMetalProperty_get.get(newView, 'foo'), 'baz', 'view did get custom attributes');
-  });
-
-  QUnit.test('creating a childView, (via createChildView) should make parentView initial state and not emit change events nore helper actions', function () {
-    expect(2);
-
-    newView = view.createChildView(_emberViewsViewsView.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        ok(true, 'did init');
-      },
-      parentViewDidReallyChange: _emberMetalEvents.on('parentViewDidChange', function () {
-        ok(false, 'expected to NOT emit parentViewDidChange');
-      }),
-      controllerDidChange: _emberMetalMixin.observer('controller', function () {
-        ok(false, 'expected to NOT expect controller to change');
-      }),
-      parentViewDidChange: _emberMetalMixin.observer('parentView', function () {
-        ok(false, 'expected to NOT expect  parentViewto change');
-      })
-    }));
-
-    equal(newView.get('parentView'), view, 'expected the correct parentView');
-  });
-
-  QUnit.test('should set newView.parentView to receiver', function () {
-    newView = view.createChildView(myViewClass);
-
-    equal(_containerOwner.getOwner(newView), owner, 'expects to share container with parent');
-    equal(_emberMetalProperty_get.get(newView, 'parentView'), view, 'newView.parentView == view');
-  });
-
-  QUnit.test('should create property on parentView to a childView instance if provided a viewName', function () {
-    var attrs = {
-      viewName: 'someChildView'
-    };
-
-    newView = view.createChildView(myViewClass, attrs);
-    equal(_containerOwner.getOwner(newView), owner, 'expects to share container with parent');
-
-    equal(_emberMetalProperty_get.get(view, 'someChildView'), newView);
-  });
-
-  QUnit.test('should update a view instances attributes, including the parentView and container properties', function () {
-    var attrs = {
-      foo: 'baz'
-    };
-
-    var myView = myViewClass.create();
-    newView = view.createChildView(myView, attrs);
-
-    equal(_containerOwner.getOwner(newView), owner, 'expects to share container with parent');
-    equal(newView.parentView, view, 'expects to have the correct parent');
-    equal(_emberMetalProperty_get.get(newView, 'foo'), 'baz', 'view did get custom attributes');
-
-    deepEqual(newView, myView);
-  });
-
-  QUnit.test('should create from string via container lookup', function () {
-    var ChildViewClass = _emberViewsViewsView.default.extend();
-    var fullName = 'view:bro';
-
-    owner._lookupFactory = function (viewName) {
-      equal(fullName, viewName);
-
-      return ChildViewClass.extend();
-    };
-
-    newView = view.createChildView('bro');
-
-    equal(_containerOwner.getOwner(newView), owner, 'expects to share container with parent');
-    equal(newView.parentView, view, 'expects to have the correct parent');
-  });
-
-  QUnit.test('should assert when trying to create childView from string, but no such view is registered', function () {
-    owner._lookupFactory = function () {};
-
-    expectAssertion(function () {
-      return view.createChildView('bro');
-    });
-  });
-});
 enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler) {
   'use strict';
 
@@ -90654,29 +90390,6 @@ enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-m
 
     equal(view.$(), undefined, 'view has no selector');
     ok(!parent.find('#' + view.get('elementId')).length, 'element no longer in parent node');
-  });
-});
-enifed('ember-views/tests/views/view/destroy_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView) {
-  'use strict';
-
-  QUnit.module('Ember.View#destroy');
-
-  QUnit.test('should teardown viewName on parentView when childView is destroyed', function () {
-    var viewName = 'someChildView';
-    var parentView = _emberViewsViewsView.default.create();
-    var childView = parentView.createChildView(_emberViewsViewsView.default, { viewName: viewName });
-
-    equal(_emberMetalProperty_get.get(parentView, viewName), childView, 'Precond - child view was registered on parent');
-
-    _emberMetalRun_loop.default(function () {
-      return childView.destroy();
-    });
-
-    equal(_emberMetalProperty_get.get(parentView, viewName), null, 'viewName reference was removed on parent');
-
-    _emberMetalRun_loop.default(function () {
-      return parentView.destroy();
-    });
   });
 });
 enifed('ember-views/tests/views/view/element_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsViewsView) {
@@ -91128,16 +90841,6 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }
   });
 
-  QUnit.test('should throw an exception if trying to append a child before rendering has begun', function () {
-    view = _emberMetalRun_loop.default(function () {
-      return _emberViewsViewsView.default.create();
-    });
-
-    throws(function () {
-      return view.appendChild(_emberViewsViewsView.default, {});
-    }, null, 'throws an error when calling appendChild()');
-  });
-
   _internalTestHelpersTestsSkipIfGlimmer.test('should not affect rendering if rerender is called before initial render happens', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.create({
@@ -91239,22 +90942,6 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
     }
   });
 
-  QUnit.test('should throw an exception when calling appendChild when DOM element exists', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('Wait for the kick')
-      });
-
-      view.append();
-    });
-
-    throws(function () {
-      view.appendChild(_emberViewsViewsView.default, {
-        template: _emberTemplateCompiler.compile('Ah ah ah! You didn\'t say the magic word!')
-      });
-    }, null, 'throws an exception when calling appendChild after element is created');
-  });
-
   _internalTestHelpersTestsSkipIfGlimmer.test('should replace DOM representation if rerender() is called after element is created', function () {
     _emberMetalRun_loop.default(function () {
       view = _emberViewsViewsView.default.extend({
@@ -91338,26 +91025,6 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-en
   });
 
   QUnit.module('views/view/view_lifecycle_test - destroyed');
-
-  QUnit.test('should throw an exception when calling appendChild after view is destroyed', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('Wait for the kick')
-      });
-
-      view.append();
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroy();
-    });
-
-    throws(function () {
-      view.appendChild(_emberViewsViewsView.default, {
-        template: _emberTemplateCompiler.compile('Ah ah ah! You didn\'t say the magic word!')
-      });
-    }, null, 'throws an exception when calling appendChild');
-  });
 
   QUnit.test('should throw an exception when rerender is called after view is destroyed', function () {
     _emberMetalRun_loop.default(function () {
