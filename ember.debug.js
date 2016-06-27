@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+41f378c4
+ * @version   2.7.0-canary+0e1fdbc1
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+41f378c4";
+  exports.default = "2.7.0-canary+0e1fdbc1";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10790,6 +10790,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var controller = _ref.controller;
       var outletState = _ref.outletState;
       var isTopLevel = _ref.isTopLevel;
+      var targetObject = _ref.targetObject;
 
       _classCallCheck(this, DynamicScope);
 
@@ -10797,6 +10798,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       this.controller = controller;
       this.outletState = outletState;
       this.isTopLevel = isTopLevel;
+      this.targetObject = targetObject;
     }
 
     DynamicScope.prototype.child = function child() {
@@ -10940,9 +10942,11 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
       var env = this._env;
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
+      var controller = view.outletState.render.controller;
       var dynamicScope = new DynamicScope({
         view: view,
-        controller: view.outletState.render.controller,
+        controller: controller,
+        targetObject: controller,
         outletState: view.toReference(),
         isTopLevel: true
       });
@@ -10959,7 +10963,13 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     Renderer.prototype.appendTo = function appendTo(view, target) {
       var env = this._env;
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
-      var dynamicScope = new DynamicScope({ view: view, controller: view.controller });
+      var dynamicScope = new DynamicScope({
+        view: view,
+        controller: undefined,
+        targetObject: undefined,
+        outletState: _glimmerReference.UNDEFINED_REFERENCE,
+        isTopLevel: true
+      });
 
       env.begin();
       var result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
@@ -11175,13 +11185,16 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       props.renderer = parentView.renderer;
       props[_emberGlimmerComponent.HAS_BLOCK] = hasBlock;
-      // parentView.controller represents any parent components
-      // dynamicScope.controller represents the outlet controller
-      props._targetObject = parentView.controller || dynamicScope.controller;
+
+      // dynamicScope here is inherited from the parent dynamicScope,
+      // but is set shortly below to the new target
+      props._targetObject = dynamicScope.targetObject;
 
       var component = klass.create(props);
 
       dynamicScope.view = component;
+      dynamicScope.targetObject = component;
+
       parentView.appendChild(component);
 
       component.trigger('didInitAttrs', { attrs: attrs });
@@ -11689,7 +11702,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
     OutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
       var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get(definition.outletName);
       var outletState = outletStateReference.value();
-      dynamicScope.controller = outletState.render.controller;
+      dynamicScope.targetObject = dynamicScope.controller = outletState.render.controller;
       return outletState;
     };
 
