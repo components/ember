@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c960e049
+ * @version   2.7.0-canary+471d28d5
  */
 
 var enifed, requireModule, require, Ember;
@@ -7385,7 +7385,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('#qunit-fixture > div').text(), 'App posts');
   });
 
-  QUnit.test('The template is not re-rendered when the route\'s context changes', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('The template is not re-rendered when the route\'s context changes', function () {
     Router.map(function () {
       this.route('page', { path: '/page/:name' });
     });
@@ -7425,7 +7425,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(insertionCount, 1, 'view should still have inserted only once');
   });
 
-  QUnit.test('The template is not re-rendered when two routes present the exact same template & controller', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('The template is not re-rendered when two routes present the exact same template & controller', function () {
     Router.map(function () {
       this.route('first');
       this.route('second');
@@ -7536,7 +7536,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(_emberViewsSystemJquery.default('p', '#qunit-fixture').text(), 'INDEX', 'The index route is display.');
   });
 
-  QUnit.test('Route should tear down multiple outlets', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('Route should tear down multiple outlets', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}'));
     _emberTemplatesTemplate_registry.set('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
     _emberTemplatesTemplate_registry.set('users', _emberTemplateCompilerTestsUtilsHelpers.compile('users'));
@@ -7596,7 +7596,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     }, 'You attempted to render into \'nonexistent\' but it was not found');
   });
 
-  QUnit.test('Route supports clearing outlet explicitly', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('Route supports clearing outlet explicitly', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet \'modal\'}}'));
     _emberTemplatesTemplate_registry.set('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
     _emberTemplatesTemplate_registry.set('users', _emberTemplateCompilerTestsUtilsHelpers.compile('users'));

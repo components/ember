@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c960e049
+ * @version   2.7.0-canary+471d28d5
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+c960e049";
+  exports.default = "2.7.0-canary+471d28d5";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10807,6 +10807,8 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
     return TopLevelOutletComponentReference;
   })(_glimmerReference.ConstReference);
 
+  var INVALIDATE = null;
+
   var OutletComponentReference = (function () {
     function OutletComponentReference(outletName, reference) {
       _classCallCheck(this, OutletComponentReference);
@@ -10824,7 +10826,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
       var definition = this.definition;
       var lastState = this.lastState;
 
-      var newState = this.lastState = reference.value();
+      var newState = reference.value();
 
       definition = revalidate(definition, lastState, newState);
 
@@ -10835,9 +10837,11 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
       } else if (hasTemplate) {
         return this.definition = new OutletComponentDefinition(outletName, newState.render.template);
       } else {
-        return null;
+        return this.definition = EMPTY_OUTLET_DEFINITION;
       }
     };
+
+    OutletComponentReference.prototype.destroy = function destroy() {};
 
     return OutletComponentReference;
   })();
@@ -10848,14 +10852,14 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
     }
 
     if (!lastState && newState || lastState && !newState) {
-      return null;
+      return INVALIDATE;
     }
 
-    if (newState.render.template === lastState.render.template && newState.render.controller === lastState.render.controller) {
+    if (newState.template === lastState.template && newState.controller === lastState.controller) {
       return definition;
     }
 
-    return null;
+    return INVALIDATE;
   }
 
   var AbstractOutletComponentManager = (function () {
@@ -10934,6 +10938,29 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
 
   var MANAGER = new OutletComponentManager();
 
+  var EmptyOutletComponentManager = (function (_AbstractOutletComponentManager3) {
+    _inherits(EmptyOutletComponentManager, _AbstractOutletComponentManager3);
+
+    function EmptyOutletComponentManager() {
+      _classCallCheck(this, EmptyOutletComponentManager);
+
+      _AbstractOutletComponentManager3.apply(this, arguments);
+    }
+
+    EmptyOutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
+      dynamicScope.outletState = null;
+      return null;
+    };
+
+    EmptyOutletComponentManager.prototype.getSelf = function getSelf(state) {
+      return _emberGlimmerUtilsReferences.NULL_REFERENCE;
+    };
+
+    return EmptyOutletComponentManager;
+  })(AbstractOutletComponentManager);
+
+  var EMPTY_MANAGER = new EmptyOutletComponentManager();
+
   var AbstractOutletComponentDefinition = (function (_ComponentDefinition) {
     _inherits(AbstractOutletComponentDefinition, _ComponentDefinition);
 
@@ -10987,6 +11014,24 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
 
     return OutletComponentDefinition;
   })(AbstractOutletComponentDefinition);
+
+  var EmptyOutletComponentDefinition = (function (_AbstractOutletComponentDefinition3) {
+    _inherits(EmptyOutletComponentDefinition, _AbstractOutletComponentDefinition3);
+
+    function EmptyOutletComponentDefinition() {
+      _classCallCheck(this, EmptyOutletComponentDefinition);
+
+      _AbstractOutletComponentDefinition3.call(this, EMPTY_MANAGER, null, null);
+    }
+
+    EmptyOutletComponentDefinition.prototype.compile = function compile(builder) {
+      builder.empty();
+    };
+
+    return EmptyOutletComponentDefinition;
+  })(AbstractOutletComponentDefinition);
+
+  var EMPTY_OUTLET_DEFINITION = new EmptyOutletComponentDefinition();
 });
 enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer-template-compiler"], function (exports, _emberGlimmerTemplateCompiler) {
   "use strict";
