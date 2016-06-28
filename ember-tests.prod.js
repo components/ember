@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c960e049
+ * @version   2.7.0-canary+d44c4f55
  */
 
 var enifed, requireModule, require, Ember;
@@ -35734,7 +35734,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{render}}', (function (_RenderingTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{render}}', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
     function _class() {
@@ -35777,19 +35777,17 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as a template.');
     };
 
-    _class.prototype['@test should render given template with a supplied model'] = function testShouldRenderGivenTemplateWithASuppliedModel() {
+    _class.prototype['@test should render given template with the singleton controller as its context'] = function testShouldRenderGivenTemplateWithTheSingletonControllerAsItsContext() {
       var _this2 = this;
 
-      this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
-      this.registerTemplate('post', '<p>{{model.title}}</p>');
+      this.owner.register('controller:post', _emberRuntimeControllersController.default.extend({
+        init: function () {
+          this.set('title', 'It\'s Simple Made Easy');
+        }
+      }));
+      this.registerTemplate('post', '<p>{{title}}</p>');
 
-      expectDeprecation(function () {
-        _this2.render('<h1>HI</h1>{{render \'post\' post}}', {
-          post: {
-            title: 'It\'s Simple Made Easy'
-          }
-        });
-      }, /Please refactor [\w\{\}"` ]+ to a component/);
+      this.render('<h1>HI</h1>{{render \'post\'}}');
 
       this.assertText('HIIt\'s Simple Made Easy');
 
@@ -35799,31 +35797,29 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
 
       this.assertText('HIIt\'s Simple Made Easy');
 
+      var controller = this.owner.lookup('controller:post');
+
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'post.title', 'Rails is omakase');
+        return _emberMetalProperty_set.set(controller, 'title', 'Rails is omakase');
       });
 
       this.assertText('HIRails is omakase');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'post', { title: 'It\'s Simple Made Easy' });
+        return _emberMetalProperty_set.set(controller, 'title', 'It\'s Simple Made Easy');
       });
 
       this.assertText('HIIt\'s Simple Made Easy');
     };
 
-    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function testWithASuppliedModelShouldNotFireObserversOnTheController() {
+    _class.prototype['@test should render given template with a supplied model'] = function testShouldRenderGivenTemplateWithASuppliedModel() {
       var _this3 = this;
 
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
       this.registerTemplate('post', '<p>{{model.title}}</p>');
 
-      var postDidChange = 0;
       expectDeprecation(function () {
         _this3.render('<h1>HI</h1>{{render \'post\' post}}', {
-          postDidChange: _emberMetalMixin.observer('post', function () {
-            postDidChange++;
-          }),
           post: {
             title: 'It\'s Simple Made Easy'
           }
@@ -35837,20 +35833,59 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       });
 
       this.assertText('HIIt\'s Simple Made Easy');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'post.title', 'Rails is omakase');
+      });
+
+      this.assertText('HIRails is omakase');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'post', { title: 'It\'s Simple Made Easy' });
+      });
+
+      this.assertText('HIIt\'s Simple Made Easy');
+    };
+
+    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function testWithASuppliedModelShouldNotFireObserversOnTheController() {
+      var _this4 = this;
+
+      this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
+      this.registerTemplate('post', '<p>{{model.title}}</p>');
+
+      var postDidChange = 0;
+      expectDeprecation(function () {
+        _this4.render('<h1>HI</h1>{{render \'post\' post}}', {
+          postDidChange: _emberMetalMixin.observer('post', function () {
+            postDidChange++;
+          }),
+          post: {
+            title: 'It\'s Simple Made Easy'
+          }
+        });
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+      this.assertText('HIIt\'s Simple Made Easy');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('HIIt\'s Simple Made Easy');
     };
 
     _class.prototype['@test should raise an error when a given controller name does not resolve to a controller'] = function testShouldRaiseAnErrorWhenAGivenControllerNameDoesNotResolveToAController() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.registerTemplate('home', '<p>BYE</p>');
       this.owner.register('controller:posts', _emberRuntimeControllersController.default.extend());
       expectAssertion(function () {
-        _this4.render('<h1>HI</h1>{{render "home" controller="postss"}}');
+        _this5.render('<h1>HI</h1>{{render "home" controller="postss"}}');
       }, /The controller name you supplied \'postss\' did not resolve to a controller./);
     };
 
     _class.prototype['@test should render with given controller'] = function testShouldRenderWithGivenController(assert) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.registerTemplate('home', '{{uniqueId}}');
 
@@ -35875,7 +35910,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       this.assertText('0');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       assert.equal(uniqueId, 0);
@@ -35884,13 +35919,13 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     };
 
     _class.prototype['@test should render templates with models multiple times'] = function testShouldRenderTemplatesWithModelsMultipleTimes(assert) {
-      var _this6 = this;
+      var _this7 = this;
 
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
 
       this.registerTemplate('post', '<p>{{model.title}}</p>');
       expectDeprecation(function () {
-        _this6.render('<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}', {
+        _this7.render('<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}', {
           post1: {
             title: 'Me First'
           },
@@ -35903,32 +35938,32 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       this.assertText('HI Me First Then me');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('HI Me First Then me');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'post1.title', 'I am new');
+        return _emberMetalProperty_set.set(_this7.context, 'post1.title', 'I am new');
       });
 
       this.assertText('HI I am new Then me');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'post1', { title: 'Me First' });
+        return _emberMetalProperty_set.set(_this7.context, 'post1', { title: 'Me First' });
       });
 
       this.assertText('HI Me First Then me');
     };
 
     _class.prototype['@test should not treat invocations with falsy contexts as context-less'] = function testShouldNotTreatInvocationsWithFalsyContextsAsContextLess(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerTemplate('post', '<p>{{#unless model.zero}}NOTHING{{/unless}}</p>');
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
 
       expectDeprecation(function () {
-        _this7.render('<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}', {
+        _this8.render('<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}', {
           model: {
             zero: false
           }
@@ -35939,7 +35974,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     };
 
     _class.prototype['@test should render templates both with and without models'] = function testShouldRenderTemplatesBothWithAndWithoutModels(assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       this.registerTemplate('post', '<p>Title:{{model.title}}</p>');
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
@@ -35948,7 +35983,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
         title: 'Rails is omakase'
       };
       expectDeprecation(function () {
-        _this8.render('<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}', {
+        _this9.render('<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}', {
           post: post
         });
       }, /Please refactor [\w\{\}"` ]+ to a component/);
@@ -35956,19 +35991,19 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'post.title', 'Simple Made Easy');
+        return _emberMetalProperty_set.set(_this9.context, 'post.title', 'Simple Made Easy');
       });
 
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Simple Made Easy$/));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'post', { title: 'Rails is omakase' });
+        return _emberMetalProperty_set.set(_this9.context, 'post', { title: 'Rails is omakase' });
       });
 
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
@@ -35991,21 +36026,21 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     };
 
     _class.prototype['@test throws an assertion if called with an unquoted template name'] = function testThrowsAnAssertionIfCalledWithAnUnquotedTemplateName() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.registerTemplate('home', '<p>BYE</p>');
 
       expectAssertion(function () {
-        _this9.render('<h1>HI</h1>{{render home}}');
+        _this10.render('<h1>HI</h1>{{render home}}');
       }, 'The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.');
     };
 
     _class.prototype['@test throws an assertion if called with a literal for a model'] = function testThrowsAnAssertionIfCalledWithALiteralForAModel() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerTemplate('home', '<p>BYE</p>');
       expectAssertion(function () {
-        _this10.render('<h1>HI</h1>{{render "home" "model"}}', {
+        _this11.render('<h1>HI</h1>{{render "home" "model"}}', {
           model: {
             title: 'Simple Made Easy'
           }
@@ -36013,20 +36048,20 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       }, 'The second argument of {{render}} must be a path, e.g. {{render "post" post}}.');
     };
 
-    _class.prototype['@test should render a template without a model only once'] = function testShouldRenderATemplateWithoutAModelOnlyOnce() {
-      var _this11 = this;
+    _class.prototype['@htmlbars should render a template without a model only once'] = function htmlbarsShouldRenderATemplateWithoutAModelOnlyOnce() {
+      var _this12 = this;
 
       this.owner.register('controller:home', _emberRuntimeControllersController.default.extend());
       this.owner.register('router:main', _emberRoutingSystemRouter.default.extend());
       this.registerTemplate('home', '<p>BYE</p>');
 
       expectAssertion(function () {
-        _this11.render('<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}');
+        _this12.render('<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}');
       }, /\{\{render\}\} helper once/i);
     };
 
     _class.prototype['@test should set router as target when action not found on parentController is not found'] = function testShouldSetRouterAsTargetWhenActionNotFoundOnParentControllerIsNotFound(assert) {
-      var _this12 = this;
+      var _this13 = this;
 
       var postController = undefined;
       this.registerTemplate('post', 'post template');
@@ -36047,7 +36082,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       this.owner.register('router:main', routerStub, { instantiate: false });
 
       expectDeprecation(function () {
-        _this12.render('{{render \'post\' post1}}');
+        _this13.render('{{render \'post\' post1}}');
       }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       postController.send('someAction');
@@ -57260,7 +57295,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Helpers test: {{render}}', (function (_RenderingTest) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{render}}', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
     function _class() {
@@ -57303,19 +57338,17 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as a template.');
     };
 
-    _class.prototype['@test should render given template with a supplied model'] = function testShouldRenderGivenTemplateWithASuppliedModel() {
+    _class.prototype['@test should render given template with the singleton controller as its context'] = function testShouldRenderGivenTemplateWithTheSingletonControllerAsItsContext() {
       var _this2 = this;
 
-      this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
-      this.registerTemplate('post', '<p>{{model.title}}</p>');
+      this.owner.register('controller:post', _emberRuntimeControllersController.default.extend({
+        init: function () {
+          this.set('title', 'It\'s Simple Made Easy');
+        }
+      }));
+      this.registerTemplate('post', '<p>{{title}}</p>');
 
-      expectDeprecation(function () {
-        _this2.render('<h1>HI</h1>{{render \'post\' post}}', {
-          post: {
-            title: 'It\'s Simple Made Easy'
-          }
-        });
-      }, /Please refactor [\w\{\}"` ]+ to a component/);
+      this.render('<h1>HI</h1>{{render \'post\'}}');
 
       this.assertText('HIIt\'s Simple Made Easy');
 
@@ -57325,31 +57358,29 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
 
       this.assertText('HIIt\'s Simple Made Easy');
 
+      var controller = this.owner.lookup('controller:post');
+
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'post.title', 'Rails is omakase');
+        return _emberMetalProperty_set.set(controller, 'title', 'Rails is omakase');
       });
 
       this.assertText('HIRails is omakase');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'post', { title: 'It\'s Simple Made Easy' });
+        return _emberMetalProperty_set.set(controller, 'title', 'It\'s Simple Made Easy');
       });
 
       this.assertText('HIIt\'s Simple Made Easy');
     };
 
-    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function testWithASuppliedModelShouldNotFireObserversOnTheController() {
+    _class.prototype['@test should render given template with a supplied model'] = function testShouldRenderGivenTemplateWithASuppliedModel() {
       var _this3 = this;
 
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
       this.registerTemplate('post', '<p>{{model.title}}</p>');
 
-      var postDidChange = 0;
       expectDeprecation(function () {
         _this3.render('<h1>HI</h1>{{render \'post\' post}}', {
-          postDidChange: _emberMetalMixin.observer('post', function () {
-            postDidChange++;
-          }),
           post: {
             title: 'It\'s Simple Made Easy'
           }
@@ -57363,20 +57394,59 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       });
 
       this.assertText('HIIt\'s Simple Made Easy');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'post.title', 'Rails is omakase');
+      });
+
+      this.assertText('HIRails is omakase');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'post', { title: 'It\'s Simple Made Easy' });
+      });
+
+      this.assertText('HIIt\'s Simple Made Easy');
+    };
+
+    _class.prototype['@test with a supplied model should not fire observers on the controller'] = function testWithASuppliedModelShouldNotFireObserversOnTheController() {
+      var _this4 = this;
+
+      this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
+      this.registerTemplate('post', '<p>{{model.title}}</p>');
+
+      var postDidChange = 0;
+      expectDeprecation(function () {
+        _this4.render('<h1>HI</h1>{{render \'post\' post}}', {
+          postDidChange: _emberMetalMixin.observer('post', function () {
+            postDidChange++;
+          }),
+          post: {
+            title: 'It\'s Simple Made Easy'
+          }
+        });
+      }, /Please refactor [\w\{\}"` ]+ to a component/);
+
+      this.assertText('HIIt\'s Simple Made Easy');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('HIIt\'s Simple Made Easy');
     };
 
     _class.prototype['@test should raise an error when a given controller name does not resolve to a controller'] = function testShouldRaiseAnErrorWhenAGivenControllerNameDoesNotResolveToAController() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.registerTemplate('home', '<p>BYE</p>');
       this.owner.register('controller:posts', _emberRuntimeControllersController.default.extend());
       expectAssertion(function () {
-        _this4.render('<h1>HI</h1>{{render "home" controller="postss"}}');
+        _this5.render('<h1>HI</h1>{{render "home" controller="postss"}}');
       }, /The controller name you supplied \'postss\' did not resolve to a controller./);
     };
 
     _class.prototype['@test should render with given controller'] = function testShouldRenderWithGivenController(assert) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.registerTemplate('home', '{{uniqueId}}');
 
@@ -57401,7 +57471,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       this.assertText('0');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       assert.equal(uniqueId, 0);
@@ -57410,13 +57480,13 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
     };
 
     _class.prototype['@test should render templates with models multiple times'] = function testShouldRenderTemplatesWithModelsMultipleTimes(assert) {
-      var _this6 = this;
+      var _this7 = this;
 
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
 
       this.registerTemplate('post', '<p>{{model.title}}</p>');
       expectDeprecation(function () {
-        _this6.render('<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}', {
+        _this7.render('<h1>HI</h1> {{render \'post\' post1}} {{render \'post\' post2}}', {
           post1: {
             title: 'Me First'
           },
@@ -57429,32 +57499,32 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       this.assertText('HI Me First Then me');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('HI Me First Then me');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'post1.title', 'I am new');
+        return _emberMetalProperty_set.set(_this7.context, 'post1.title', 'I am new');
       });
 
       this.assertText('HI I am new Then me');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'post1', { title: 'Me First' });
+        return _emberMetalProperty_set.set(_this7.context, 'post1', { title: 'Me First' });
       });
 
       this.assertText('HI Me First Then me');
     };
 
     _class.prototype['@test should not treat invocations with falsy contexts as context-less'] = function testShouldNotTreatInvocationsWithFalsyContextsAsContextLess(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerTemplate('post', '<p>{{#unless model.zero}}NOTHING{{/unless}}</p>');
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
 
       expectDeprecation(function () {
-        _this7.render('<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}', {
+        _this8.render('<h1>HI</h1> {{render \'post\' zero}} {{render \'post\' nonexistent}}', {
           model: {
             zero: false
           }
@@ -57465,7 +57535,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
     };
 
     _class.prototype['@test should render templates both with and without models'] = function testShouldRenderTemplatesBothWithAndWithoutModels(assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       this.registerTemplate('post', '<p>Title:{{model.title}}</p>');
       this.owner.register('controller:post', _emberRuntimeControllersController.default.extend());
@@ -57474,7 +57544,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
         title: 'Rails is omakase'
       };
       expectDeprecation(function () {
-        _this8.render('<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}', {
+        _this9.render('<h1>HI</h1> {{render \'post\'}} {{render \'post\' post}}', {
           post: post
         });
       }, /Please refactor [\w\{\}"` ]+ to a component/);
@@ -57482,19 +57552,19 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'post.title', 'Simple Made Easy');
+        return _emberMetalProperty_set.set(_this9.context, 'post.title', 'Simple Made Easy');
       });
 
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Simple Made Easy$/));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'post', { title: 'Rails is omakase' });
+        return _emberMetalProperty_set.set(_this9.context, 'post', { title: 'Rails is omakase' });
       });
 
       assert.ok(this.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
@@ -57517,21 +57587,21 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
     };
 
     _class.prototype['@test throws an assertion if called with an unquoted template name'] = function testThrowsAnAssertionIfCalledWithAnUnquotedTemplateName() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.registerTemplate('home', '<p>BYE</p>');
 
       expectAssertion(function () {
-        _this9.render('<h1>HI</h1>{{render home}}');
+        _this10.render('<h1>HI</h1>{{render home}}');
       }, 'The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.');
     };
 
     _class.prototype['@test throws an assertion if called with a literal for a model'] = function testThrowsAnAssertionIfCalledWithALiteralForAModel() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerTemplate('home', '<p>BYE</p>');
       expectAssertion(function () {
-        _this10.render('<h1>HI</h1>{{render "home" "model"}}', {
+        _this11.render('<h1>HI</h1>{{render "home" "model"}}', {
           model: {
             title: 'Simple Made Easy'
           }
@@ -57539,20 +57609,20 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       }, 'The second argument of {{render}} must be a path, e.g. {{render "post" post}}.');
     };
 
-    _class.prototype['@test should render a template without a model only once'] = function testShouldRenderATemplateWithoutAModelOnlyOnce() {
-      var _this11 = this;
+    _class.prototype['@htmlbars should render a template without a model only once'] = function htmlbarsShouldRenderATemplateWithoutAModelOnlyOnce() {
+      var _this12 = this;
 
       this.owner.register('controller:home', _emberRuntimeControllersController.default.extend());
       this.owner.register('router:main', _emberRoutingSystemRouter.default.extend());
       this.registerTemplate('home', '<p>BYE</p>');
 
       expectAssertion(function () {
-        _this11.render('<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}');
+        _this12.render('<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}');
       }, /\{\{render\}\} helper once/i);
     };
 
     _class.prototype['@test should set router as target when action not found on parentController is not found'] = function testShouldSetRouterAsTargetWhenActionNotFoundOnParentControllerIsNotFound(assert) {
-      var _this12 = this;
+      var _this13 = this;
 
       var postController = undefined;
       this.registerTemplate('post', 'post template');
@@ -57573,7 +57643,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
       this.owner.register('router:main', routerStub, { instantiate: false });
 
       expectDeprecation(function () {
-        _this12.render('{{render \'post\' post1}}');
+        _this13.render('{{render \'post\' post1}}');
       }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       postController.send('someAction');
