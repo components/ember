@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+62730a8c
+ * @version   2.7.0-canary+183f6461
  */
 
 var enifed, requireModule, require, Ember;
@@ -38225,7 +38225,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('123');
     };
 
-    _class2.prototype['@htmlbars it can render duplicate primitive items'] = function htmlbarsItCanRenderDuplicatePrimitiveItems() {
+    _class2.prototype['@test it can render duplicate primitive items'] = function testItCanRenderDuplicatePrimitiveItems() {
       var _this8 = this;
 
       this.render('{{#each list as |item|}}{{item}}{{/each}}', {
@@ -38255,7 +38255,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('aaa');
     };
 
-    _class2.prototype['@htmlbars it can render duplicate objects'] = function htmlbarsItCanRenderDuplicateObjects() {
+    _class2.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
       var _this9 = this;
 
       var duplicateItem = { text: 'foo' };
@@ -59849,7 +59849,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('123');
     };
 
-    _class2.prototype['@htmlbars it can render duplicate primitive items'] = function htmlbarsItCanRenderDuplicatePrimitiveItems() {
+    _class2.prototype['@test it can render duplicate primitive items'] = function testItCanRenderDuplicatePrimitiveItems() {
       var _this8 = this;
 
       this.render('{{#each list as |item|}}{{item}}{{/each}}', {
@@ -59879,7 +59879,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('aaa');
     };
 
-    _class2.prototype['@htmlbars it can render duplicate objects'] = function htmlbarsItCanRenderDuplicateObjects() {
+    _class2.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
       var _this9 = this;
 
       var duplicateItem = { text: 'foo' };

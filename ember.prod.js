@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+62730a8c
+ * @version   2.7.0-canary+183f6461
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+62730a8c";
+  exports.default = "2.7.0-canary+183f6461";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -11193,12 +11193,14 @@ enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer-temp
 
   exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
 });
-enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn) {
+enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberMetalEmpty_object, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn) {
   'use strict';
 
   exports.default = iterableFor;
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
 
   function iterableFor(ref, keyPath) {
     return new Iterable(ref, keyFor(keyPath));
@@ -11233,6 +11235,19 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
     }
   }
 
+  function ensureUniqueKey(seen, key) {
+    var seenCount = seen[key];
+
+    if (seenCount) {
+      seen[key]++;
+      return '' + key + ITERATOR_KEY_GUID + seenCount;
+    } else {
+      seen[key] = 1;
+    }
+
+    return key;
+  }
+
   var ArrayIterator = (function () {
     function ArrayIterator(array, keyFor) {
       _classCallCheck(this, ArrayIterator);
@@ -11241,6 +11256,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       this.length = array.length;
       this.keyFor = keyFor;
       this.position = 0;
+      this.seen = new _emberMetalEmpty_object.default();
     }
 
     ArrayIterator.prototype.isEmpty = function isEmpty() {
@@ -11252,13 +11268,14 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       var length = this.length;
       var keyFor = this.keyFor;
       var position = this.position;
+      var seen = this.seen;
 
       if (position >= length) {
         return null;
       }
 
       var value = array[position];
-      var key = keyFor(value, position);
+      var key = ensureUniqueKey(seen, keyFor(value, position));
       var memo = position;
 
       this.position++;
@@ -11277,6 +11294,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       this.length = _emberMetalProperty_get.get(array, 'length');
       this.keyFor = keyFor;
       this.position = 0;
+      this.seen = new _emberMetalEmpty_object.default();
     }
 
     EmberArrayIterator.prototype.isEmpty = function isEmpty() {
@@ -11288,13 +11306,14 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       var length = this.length;
       var keyFor = this.keyFor;
       var position = this.position;
+      var seen = this.seen;
 
       if (position >= length) {
         return null;
       }
 
       var value = _emberRuntimeMixinsArray.objectAt(array, position);
-      var key = keyFor(value, position);
+      var key = ensureUniqueKey(seen, keyFor(value, position));
       var memo = position;
 
       this.position++;
@@ -11375,10 +11394,10 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
       if (iterable === undefined || iterable === null) {
         return EMPTY_ITERATOR;
-      } else if (Array.isArray(iterable)) {
-        return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
       } else if (_emberRuntimeMixinsArray.isEmberArray(iterable)) {
         return new EmberArrayIterator(iterable, keyFor);
+      } else if (Array.isArray(iterable)) {
+        return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
       } else if (_emberGlimmerHelpersEachIn.isEachIn(ref)) {
         var keys = Object.keys(iterable);
         var values = keys.map(function (key) {
