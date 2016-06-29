@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8892fa26
+ * @version   2.7.0-canary+62730a8c
  */
 
 var enifed, requireModule, require, Ember;
@@ -21572,7 +21572,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
       this.assertText('first attr');
     };
 
-    _class.prototype['@htmlbars should be able to modify a provided attr into local state #11571 / #11559'] = function htmlbarsShouldBeAbleToModifyAProvidedAttrIntoLocalState1157111559(assert) {
+    _class.prototype['@test should be able to modify a provided attr into local state #11571 / #11559'] = function testShouldBeAbleToModifyAProvidedAttrIntoLocalState1157111559(assert) {
       var _this3 = this;
 
       var instance = undefined;
@@ -21661,6 +21661,8 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
       assert.equal(instance.get('woot'), 'yes', 'component found attr after reset');
     };
 
+    // HTMLBars runs `didReceiveAttrs` on `rerender`
+
     _class.prototype['@htmlbars getAttr() should return the same value as get()'] = function htmlbarsGetAttrShouldReturnTheSameValueAsGet(assert) {
       var _this5 = this;
 
@@ -21716,6 +21718,67 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
       this.runTask(function () {
         _emberMetalProperty_set.set(_this5.context, 'first', 'first');
         _emberMetalProperty_set.set(_this5.context, 'second', 'second');
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+    };
+
+    _class.prototype['@glimmer getAttr() should return the same value as get()'] = function glimmerGetAttrShouldReturnTheSameValueAsGet(assert) {
+      var _this6 = this;
+
+      assert.expect(18);
+      var instance = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          var rootFirst = this.get('first');
+          var rootSecond = this.get('second');
+          var attrFirst = this.getAttr('first');
+          var attrSecond = this.getAttr('second');
+
+          equal(rootFirst, attrFirst, 'root property matches attrs value');
+          equal(rootSecond, attrSecond, 'root property matches attrs value');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar first=first second=second}}', {
+        first: 'first',
+        second: 'second'
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'first', 'third');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'second', 'fourth');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'fourth', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'first', 'first');
+        _emberMetalProperty_set.set(_this6.context, 'second', 'second');
       });
 
       assert.equal(instance.get('first'), 'first', 'matches known value');
@@ -43133,7 +43196,7 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
       this.assertText('first attr');
     };
 
-    _class.prototype['@htmlbars should be able to modify a provided attr into local state #11571 / #11559'] = function htmlbarsShouldBeAbleToModifyAProvidedAttrIntoLocalState1157111559(assert) {
+    _class.prototype['@test should be able to modify a provided attr into local state #11571 / #11559'] = function testShouldBeAbleToModifyAProvidedAttrIntoLocalState1157111559(assert) {
       var _this3 = this;
 
       var instance = undefined;
@@ -43222,6 +43285,8 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
       assert.equal(instance.get('woot'), 'yes', 'component found attr after reset');
     };
 
+    // HTMLBars runs `didReceiveAttrs` on `rerender`
+
     _class.prototype['@htmlbars getAttr() should return the same value as get()'] = function htmlbarsGetAttrShouldReturnTheSameValueAsGet(assert) {
       var _this5 = this;
 
@@ -43277,6 +43342,67 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
       this.runTask(function () {
         _emberMetalProperty_set.set(_this5.context, 'first', 'first');
         _emberMetalProperty_set.set(_this5.context, 'second', 'second');
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+    };
+
+    _class.prototype['@glimmer getAttr() should return the same value as get()'] = function glimmerGetAttrShouldReturnTheSameValueAsGet(assert) {
+      var _this6 = this;
+
+      assert.expect(18);
+      var instance = undefined;
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          instance = this;
+        },
+
+        didReceiveAttrs: function () {
+          var rootFirst = this.get('first');
+          var rootSecond = this.get('second');
+          var attrFirst = this.getAttr('first');
+          var attrSecond = this.getAttr('second');
+
+          equal(rootFirst, attrFirst, 'root property matches attrs value');
+          equal(rootSecond, attrSecond, 'root property matches attrs value');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar first=first second=second}}', {
+        first: 'first',
+        second: 'second'
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      assert.equal(instance.get('first'), 'first', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'first', 'third');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'second', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'second', 'fourth');
+      });
+
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'fourth', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this6.context, 'first', 'first');
+        _emberMetalProperty_set.set(_this6.context, 'second', 'second');
       });
 
       assert.equal(instance.get('first'), 'first', 'matches known value');

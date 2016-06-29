@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8892fa26
+ * @version   2.7.0-canary+62730a8c
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+8892fa26";
+  exports.default = "2.7.0-canary+62730a8c";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7225,7 +7225,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
   var _CoreView$extend;
@@ -7299,6 +7299,13 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
         throw new Error(strip(_templateObject, key, _name, value, key, _name, key, _name, key));
       }
     }
+  }, _CoreView$extend.getAttr = function (key) {
+    // TODO Intimate API should be deprecated
+    var attrs = this.attrs;
+    if (!attrs) {
+      return;
+    }
+    return _emberViewsCompatAttrsProxy.getAttrFor(attrs, key);
   }, _CoreView$extend.readDOMAttr = function (name) {
     // TODO this is probably not correct
     return this.element.getAttribute(name);
@@ -45429,6 +45436,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
   'use strict';
 
   exports.deprecation = deprecation;
+  exports.getAttrFor = getAttrFor;
 
   function deprecation(key) {
     return 'You tried to look up an attribute directly on the component. This is deprecated. Use attrs.' + key + ' instead.';
@@ -45441,6 +45449,11 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
     return val && val[MUTABLE_CELL];
   }
 
+  function getAttrFor(attrs, key) {
+    var val = attrs[key];
+    return isCell(val) ? val.value : val;
+  }
+
   var AttrsProxyMixin = {
     attrs: null,
 
@@ -45449,12 +45462,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
       if (!attrs) {
         return;
       }
-      return this.getAttrFor(attrs, key);
-    },
-
-    getAttrFor: function (attrs, key) {
-      var val = attrs[key];
-      return isCell(val) ? val.value : val;
+      return getAttrFor(attrs, key);
     },
 
     setAttr: function (key, value) {
