@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+183f6461
+ * @version   2.7.0-canary+b83b1660
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+183f6461";
+  exports.default = "2.7.0-canary+b83b1660";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -19345,9 +19345,6 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   Renderer.prototype.willRemoveElement = function () /*view*/{};
 
   Renderer.prototype.willDestroyElement = function (view) {
-    if (view._willDestroyElement) {
-      view._willDestroyElement();
-    }
     if (view.trigger) {
       view.trigger('willDestroyElement');
       view.trigger('willClearRender');
@@ -19372,7 +19369,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     if (view.trigger) {
       view.trigger('didDestroyElement');
     }
-  }; // Element destroyed so view.destroy shouldn't try to remove it removedFromDOM
+  };
 
   var InertRenderer = {
     create: function (_ref2) {
@@ -45751,7 +45748,6 @@ enifed('ember-views/mixins/child_views_support', ['exports', 'ember-metal/mixin'
 
       /**
         Array of child views. You should never edit this array directly.
-        Instead, use `appendChild` and `removeFromParent`.
          @property childViews
         @type Array
         @default []
@@ -46359,7 +46355,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/mixin']
     }
   });
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _emberViewsSystemJquery) {
   'use strict';
 
   var _Mixin$create;
@@ -46384,10 +46380,11 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       @param {Class,Mixin} klass Subclass of Ember.View (or Ember.View itself),
              or an instance of Ember.Mixin.
       @return Ember.View
+      @deprecated use `yield` and contextual components for composition instead.
       @private
     */
     nearestOfType: function (klass) {
-      var view = _emberMetalProperty_get.get(this, 'parentView');
+      var view = this.parentView;
       var isOfType = klass instanceof _emberMetalMixin.Mixin ? function (view) {
         return klass.detect(view);
       } : function (view) {
@@ -46398,7 +46395,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
         if (isOfType(view)) {
           return view;
         }
-        view = _emberMetalProperty_get.get(view, 'parentView');
+        view = view.parentView;
       }
     },
 
@@ -46407,16 +46404,17 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
        @method nearestWithProperty
       @param {String} property A property name
       @return Ember.View
+      @deprecated use `yield` and contextual components for composition instead.
       @private
     */
     nearestWithProperty: function (property) {
-      var view = _emberMetalProperty_get.get(this, 'parentView');
+      var view = this.parentView;
 
       while (view) {
         if (property in view) {
           return view;
         }
-        view = _emberMetalProperty_get.get(view, 'parentView');
+        view = view.parentView;
       }
     },
 
@@ -46463,24 +46461,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     */
     $: function (sel) {
       return this._currentState.$(this, sel);
-    },
-
-    forEachChildView: function (callback) {
-      var childViews = this.childViews;
-
-      if (!childViews) {
-        return this;
-      }
-
-      var view = undefined,
-          idx = undefined;
-
-      for (idx = 0; idx < childViews.length; idx++) {
-        view = childViews[idx];
-        callback(view);
-      }
-
-      return this;
     },
 
     /**
@@ -46594,26 +46574,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     */
     append: function () {
       return this.appendTo(document.body);
-    },
-
-    /**
-      Removes the view's element from the element to which it is attached.
-       @method remove
-      @return {Ember.View} receiver
-      @private
-    */
-    remove: function () {
-      // What we should really do here is wait until the end of the run loop
-      // to determine if the element has been re-appended to a different
-      // element.
-      // In the interim, we will just re-render if that happens. It is more
-      // important than elements get garbage collected.
-      if (!this.removedFromDOM) {
-        this.destroyElement();
-      }
-
-      // Set flag to avoid future renders
-      this._willInsert = false;
     },
 
     /**
@@ -46813,16 +46773,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       this.scheduledRevalidation = true;
       _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
     }
-  }, _Mixin$create.removeFromParent = function () {
-    var parent = this.parentView;
-
-    // Remove DOM element from parent
-    this.remove();
-
-    if (parent) {
-      parent.removeChild(this);
-    }
-    return this;
   }, _Mixin$create.destroy = function () {
     if (!this._super.apply(this, arguments)) {
       return;
@@ -46850,14 +46800,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
   @method __postInitInitialization
  @private
  */
-
-/**
-  Removes the view from its `parentView`, if one is found. Otherwise
-  does nothing.
-   @method removeFromParent
-  @return {Ember.View} receiver
-  @private
-*/
 
 /**
   You must call `destroy` on a view to destroy the view (and all of its
@@ -47027,38 +46969,36 @@ enifed('ember-views/mixins/visibility_support', ['exports', 'ember-metal/mixin',
 
     _notifyBecameVisible: function () {
       this.trigger('becameVisible');
-
-      this.forEachChildView(function (view) {
+      var childViews = this.childViews;
+      for (var i = 0; i < childViews.length; i++) {
+        var view = childViews[i];
         var isVisible = _emberMetalProperty_get.get(view, 'isVisible');
-
         if (isVisible || isVisible === null) {
           view._notifyBecameVisible();
         }
-      });
+      }
     },
 
     _notifyBecameHidden: function () {
       this.trigger('becameHidden');
-      this.forEachChildView(function (view) {
+      var childViews = this.childViews;
+      for (var i = 0; i < childViews.length; i++) {
+        var view = childViews[i];
         var isVisible = _emberMetalProperty_get.get(view, 'isVisible');
-
         if (isVisible || isVisible === null) {
           view._notifyBecameHidden();
         }
-      });
+      }
     },
 
     _isAncestorHidden: function () {
-      var parent = _emberMetalProperty_get.get(this, 'parentView');
-
+      var parent = this.parentView;
       while (parent) {
         if (_emberMetalProperty_get.get(parent, 'isVisible') === false) {
           return true;
         }
-
-        parent = _emberMetalProperty_get.get(parent, 'parentView');
+        parent = parent.parentView;
       }
-
       return false;
     }
   });
