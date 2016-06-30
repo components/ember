@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b83b1660
+ * @version   2.7.0-canary+22892c68
  */
 
 var enifed, requireModule, require, Ember;
@@ -26706,6 +26706,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       this.components = {};
     }
 
+    LifeCycleHooksTest.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
+      this.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+    };
+
     /* abstract */
 
     /* abstract */
@@ -26779,6 +26784,10 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 
         didUpdate: function (options) {
           pushHook('didUpdate', options);
+        },
+
+        willDestroyElement: function () {
+          pushHook('willDestroyElement');
         }
       });
 
@@ -48330,6 +48339,11 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       this.components = {};
     }
 
+    LifeCycleHooksTest.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
+      this.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+    };
+
     /* abstract */
 
     /* abstract */
@@ -48403,6 +48417,10 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 
         didUpdate: function (options) {
           pushHook('didUpdate', options);
+        },
+
+        willDestroyElement: function () {
+          pushHook('willDestroyElement');
         }
       });
 
