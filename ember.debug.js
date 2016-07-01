@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2c63b753
+ * @version   2.7.0-canary+e81233a6
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2c63b753";
+  exports.default = "2.7.0-canary+e81233a6";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10933,7 +10933,9 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         _renderResult.destroy();
       }
 
-      view.destroy();
+      if (!view.isDestroying) {
+        view.destroy();
+      }
     };
 
     Renderer.prototype.componentInitAttrs = function componentInitAttrs() {
@@ -11117,6 +11119,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       aliasIdToElementId(args, props);
 
+      props.parentView = parentView;
       props.renderer = parentView.renderer;
       props[_emberGlimmerComponent.HAS_BLOCK] = hasBlock;
 
@@ -13781,7 +13784,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
         return null;
       }
       return attr.getContent();
-    }
+    },
 
     /**
       Returns true when the component was invoked with a block template.
@@ -13912,6 +13915,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
       @public
       @since 1.13.0
     */
+    didReceiveAttrs: function () {},
 
     /**
       Called when the attributes passed into the component have been updated.
@@ -13930,6 +13934,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
       @public
       @since 1.13.0
     */
+    didRender: function () {},
 
     /**
       Called after a component has been rendered, both on initial render and
@@ -13946,6 +13951,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
       @public
       @since 1.13.0
     */
+    willRender: function () {},
 
     /**
       Called before a component has been rendered, both on initial render and
@@ -13962,6 +13968,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
       @public
       @since 1.13.0
     */
+    didUpdateAttrs: function () {},
 
     /**
       Called when the attributes passed into the component have been changed.
@@ -13978,6 +13985,7 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
       @public
       @since 1.13.0
     */
+    willUpdate: function () {},
 
     /**
       Called when the component is about to update and rerender itself.
@@ -13990,10 +13998,11 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
     /**
       Called when the component has updated and rerendered itself.
       Called only during a rerender, not during an initial render.
-       @event didUpdate
+       @method didUpdate
       @public
       @since 1.13.0
     */
+    didUpdate: function () {}
 
     /**
       Called when the component has updated and rerendered itself.
@@ -14007,7 +14016,8 @@ enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal
   Component[_emberMetalMixin.NAME_KEY] = 'Ember.Component';
 
   Component.reopenClass({
-    isComponentFactory: true
+    isComponentFactory: true,
+    positionalParams: []
   });
 
   exports.default = Component;
@@ -16354,14 +16364,14 @@ enifed("ember-htmlbars/hooks/destroy-render-node", ["exports"], function (export
   @module ember
   @submodule ember-htmlbars
   */
-
   "use strict";
 
   exports.default = destroyRenderNode;
 
   function destroyRenderNode(renderNode) {
-    if (renderNode.emberView) {
-      renderNode.emberView.destroy();
+    var view = renderNode.emberView;
+    if (view) {
+      view.renderer.remove(view, true);
     }
 
     var streamUnsubscribers = renderNode.streamUnsubscribers;
@@ -19369,21 +19379,12 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
   proto.HTMLBarsMorph$clear = HTMLBarsMorph.prototype.clear;
 
   proto.addDestruction = function (toDestroy) {
+    // called from Router.prototype._connectActiveComponentNode for {{render}}
     this.emberToDestroy = this.emberToDestroy || [];
     this.emberToDestroy.push(toDestroy);
   };
 
   proto.cleanup = function () {
-    var view = this.emberView;
-
-    if (view) {
-      var parentView = view.parentView;
-
-      if (parentView && view.ownerView._destroyingSubtreeForView === parentView) {
-        parentView.removeChild(view);
-      }
-    }
-
     var toDestroy = this.emberToDestroy;
 
     if (toDestroy) {
@@ -20052,10 +20053,6 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     }
   }; // Will place into DOM.
 
-  Renderer.prototype.setAttrs = function (view, attrs) {
-    _emberMetalProperty_set.set(view, 'attrs', attrs);
-  }; // Set attrs the first time.
-
   Renderer.prototype.componentInitAttrs = function (component, attrs) {
     component.trigger('didInitAttrs', { attrs: attrs });
     component.trigger('didReceiveAttrs', { newAttrs: attrs });
@@ -20082,10 +20079,6 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
       view.trigger('didRender');
     }
   };
-
-  Renderer.prototype.updateAttrs = function (view, attrs) {
-    this.setAttrs(view, attrs);
-  }; // Setting new attrs.
 
   Renderer.prototype.componentUpdateAttrs = function (component, newAttrs) {
     var oldAttrs = null;
@@ -20136,49 +20129,45 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
 
   Renderer.prototype.remove = function (view, shouldDestroy) {
-    this.willDestroyElement(view);
+    var renderNode = view._renderNode;
+    view._renderNode = null;
+    if (renderNode) {
+      renderNode.emberView = null;
+      this.willDestroyElement(view);
+      view._transitionTo('destroying');
 
-    view._willRemoveElement = true;
-    _emberMetalRun_loop.default.schedule('render', this, this.renderElementRemoval, view);
-  };
-
-  Renderer.prototype.renderElementRemoval = function Renderer_renderElementRemoval(view) {
-    // Use the _willRemoveElement flag to avoid mulitple removal attempts in
-    // case many have been scheduled. This should be more performant than using
-    // `scheduleOnce`.
-    if (view._willRemoveElement) {
-      view._willRemoveElement = false;
-
-      if (view._renderNode && view.element && view.element.parentNode) {
-        view._renderNode.clear();
+      view._renderNode = null;
+      var _lastResult = renderNode.lastResult;
+      if (_lastResult) {
+        _htmlbarsRuntime.internal.clearMorph(renderNode, _lastResult.env, shouldDestroy !== false);
+      }
+      if (!shouldDestroy) {
+        view._transitionTo('preRender');
       }
       this.didDestroyElement(view);
     }
-  };
 
-  Renderer.prototype.willRemoveElement = function () /*view*/{};
+    // toplevel view removed, remove insertion point
+    var lastResult = view.lastResult;
+    if (lastResult) {
+      view.lastResult = null;
+      lastResult.destroy();
+    }
+
+    if (shouldDestroy && !view.isDestroying) {
+      view.destroy();
+    }
+  };
 
   Renderer.prototype.willDestroyElement = function (view) {
     if (view.trigger) {
       view.trigger('willDestroyElement');
       view.trigger('willClearRender');
     }
-
-    if (view._transitionTo) {
-      view._transitionTo('destroying');
-    }
   };
 
   Renderer.prototype.didDestroyElement = function (view) {
     view.element = null;
-
-    // Views that are being destroyed should never go back to the preRender state.
-    // However if we're just destroying an element on a view (as is the case when
-    // using View#remove) then the view should go to a preRender state so that
-    // it can be rendered again later.
-    if (view._state !== 'destroying' && view._transitionTo) {
-      view._transitionTo('preRender');
-    }
 
     if (view.trigger) {
       view.trigger('didDestroyElement');
@@ -49354,7 +49343,21 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       @private
     */
     destroyElement: function () {
-      return this._currentState.destroyElement(this);
+      this._currentState.destroyElement(this);
+      return this;
+    },
+
+    /**
+      You must call `destroy` on a view to destroy the view (and all of its
+      child views). This will remove the view from any parent node, then make
+      sure that the DOM element managed by the view can be released by the
+      memory manager.
+       @method destroy
+      @private
+    */
+    destroy: function () {
+      this._super.apply(this, arguments);
+      this._currentState.destroy(this);
     },
 
     /**
@@ -49463,17 +49466,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       this.scheduledRevalidation = true;
       _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
     }
-  }, _Mixin$create.destroy = function () {
-    if (!this._super.apply(this, arguments)) {
-      return;
-    }
-
-    // Destroy HTMLbars template
-    if (this.lastResult) {
-      this.lastResult.destroy();
-    }
-
-    return this;
   }, _Mixin$create.handleEvent = function (eventName, evt) {
     return this._currentState.handleEvent(this, eventName, evt);
   }, _Mixin$create._register = function () {
@@ -49491,15 +49483,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
   @method __postInitInitialization
  @private
  */
-
-/**
-  You must call `destroy` on a view to destroy the view (and all of its
-  child views). This will remove the view from any parent node, then make
-  sure that the DOM element managed by the view can be released by the
-  memory manager.
-   @method destroy
-  @private
-*/
 
 // .......................................................
 // EVENT HANDLING
@@ -50232,6 +50215,15 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
       this._super.apply(this, arguments);
       this._state = 'preRender';
       this._currentState = this._states.preRender;
+      this._willInsert = false;
+      this._renderNode = null;
+      this.lastResult = null;
+      this._dispatching = null;
+      this._destroyingSubtreeForView = null;
+      this._isDispatchingAttrs = false;
+      this._isVisible = false;
+      this.element = null;
+      this.env = null;
       this._isVisible = _emberMetalProperty_get.get(this, 'isVisible');
 
       // Fallback for legacy cases where the view was created directly
@@ -50241,9 +50233,6 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
         renderer = renderer || _emberHtmlbarsRenderer.InteractiveRenderer.create({ dom: new DOMHelper() });
         this.renderer = renderer;
       }
-
-      this._destroyingSubtreeForView = null;
-      this._dispatching = null;
     },
 
     /**
@@ -50286,16 +50275,6 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
 
     has: function (name) {
       return _emberRuntimeUtils.typeOf(this[name]) === 'function' || this._super(name);
-    },
-
-    destroy: function () {
-      if (!this._super.apply(this, arguments)) {
-        return;
-      }
-
-      this._currentState.cleanup(this);
-
-      return this;
     }
   });
 
@@ -50353,8 +50332,9 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'emb
       return true; // continue event propagation
     },
 
-    cleanup: function () {},
     destroyElement: function () {},
+
+    destroy: function () {},
 
     rerender: function (view) {
       view.renderer.ensureViewNotRendering(view);
@@ -50414,17 +50394,12 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
       view.renderer.rerender(view);
     },
 
-    cleanup: function (view) {
-      view._currentState.destroyElement(view);
-    },
-
-    // once the view is already in the DOM, destroying it removes it
-    // from the DOM, nukes its element, and puts it back into the
-    // preRender state if inDOM.
-
     destroyElement: function (view) {
       view.renderer.remove(view, false);
-      return view;
+    },
+
+    destroy: function (view) {
+      view.renderer.remove(view, true);
     },
 
     // Handle events from `Ember.EventDispatcher`
@@ -50474,7 +50449,9 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/debug', 'embe
     },
 
     exit: function (view) {
-      view._unregister();
+      if (view.tagName !== '') {
+        view._unregister();
+      }
     }
   });
 

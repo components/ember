@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2c63b753
+ * @version   2.7.0-canary+e81233a6
  */
 
 var enifed, requireModule, require, Ember;
@@ -26060,10 +26060,15 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
       var _this11 = this;
 
       var destroyed = { 'foo-bar': 0, 'foo-bar-baz': 0 };
+      var testContext = this;
 
       this.registerComponent('foo-bar', {
         template: 'hello from foo-bar',
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          willDestroyElement: function () {
+            assert.equal(testContext.$('#' + this.elementId).length, 1, 'element is still attached to the document');
+          },
+
           willDestroy: function () {
             this._super();
             destroyed['foo-bar']++;
@@ -26750,7 +26755,10 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
       _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
       _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']);
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -26769,11 +26777,15 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       _RenderingTest.call(this);
       this.hooks = [];
       this.components = {};
+      this.teardownAssertions = [];
     }
 
     LifeCycleHooksTest.prototype.teardown = function teardown() {
       _RenderingTest.prototype.teardown.call(this);
-      this.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+
+      for (var i = 0; i < this.teardownAssertions.length; i++) {
+        this.teardownAssertions[i]();
+      }
     };
 
     /* abstract */
@@ -26806,6 +26818,33 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
         _this.hooks.push(hook(name, hookName, args));
       };
 
+      var assertParentView = function (hookName, instance) {
+        if (!instance.parentView) {
+          _this.assert.ok(false, 'parentView should be present in ' + hookName);
+        }
+      };
+
+      var assertElement = function (hookName, instance) {
+        if (instance.tagName === '') {
+          return;
+        }
+
+        if (!instance.element) {
+          _this.assert.ok(false, 'element property should be present on ' + instance + ' during ' + hookName);
+        }
+
+        var inDOM = _this.$('#' + instance.elementId)[0];
+        if (!inDOM) {
+          _this.assert.ok(false, 'element for ' + instance + ' should be in the DOM during ' + hookName);
+        }
+      };
+
+      var assertNoElement = function (hookName, instance) {
+        if (instance.element) {
+          _this.assert.ok(false, 'element should not be present in ' + hookName);
+        }
+      };
+
       var ComponentClass = this.ComponentClass.extend({
         init: function () {
           var _this2 = this,
@@ -26817,42 +26856,58 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 
           pushHook('init');
           pushComponent(this);
+          assertParentView('init', this);
+          assertNoElement('init', this);
         },
 
         didInitAttrs: function (options) {
           pushHook('didInitAttrs', options);
+          assertParentView('didInitAttrs', this);
+          assertNoElement('didInitAttrs', this);
         },
 
         didUpdateAttrs: function (options) {
           pushHook('didUpdateAttrs', options);
+          assertParentView('didUpdateAttrs', this);
         },
 
         willUpdate: function (options) {
           pushHook('willUpdate', options);
+          assertParentView('willUpdate', this);
         },
 
         didReceiveAttrs: function (options) {
           pushHook('didReceiveAttrs', options);
+          assertParentView('didReceiveAttrs', this);
         },
 
         willRender: function () {
           pushHook('willRender');
+          assertParentView('willRender', this);
         },
 
         didRender: function () {
           pushHook('didRender');
+          assertParentView('didRender', this);
+          assertElement('didRender', this);
         },
 
         didInsertElement: function () {
           pushHook('didInsertElement');
+          assertParentView('didInsertElement', this);
+          assertElement('didInsertElement', this);
         },
 
         didUpdate: function (options) {
           pushHook('didUpdate', options);
+          assertParentView('didUpdate', this);
+          assertElement('didUpdate', this);
         },
 
         willDestroyElement: function () {
           pushHook('willDestroyElement');
+          assertParentView('willDestroyElement', this);
+          assertElement('willDestroyElement', this);
         }
       });
 
@@ -27016,6 +27071,10 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       // Async hooks
 
       ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+
+      this.teardownAssertions.push(function () {
+        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+      });
     };
 
     LifeCycleHooksTest.prototype['@test passing values through attrs causes lifecycle hooks to fire if the attribute values have changed'] = function testPassingValuesThroughAttrsCausesLifecycleHooksToFireIfTheAttributeValuesHaveChanged() {
@@ -27100,6 +27159,48 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       } else {
         this.assertHooks('after no-op rernder (root)');
       }
+
+      this.teardownAssertions.push(function () {
+        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+      });
+    };
+
+    LifeCycleHooksTest.prototype['@test components rendered from `{{each}}` have correct life-cycle hooks to be called'] = function testComponentsRenderedFromEachHaveCorrectLifeCycleHooksToBeCalled() {
+      var _this5 = this;
+
+      var invoke = this.boundHelpers.invoke;
+
+      this.registerComponent('an-item', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7) });
+
+      this.registerComponent('no-items', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8) });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9, invoke('an-item', { count: expr('item') }), invoke('no-items')), {
+        items: [1, 2, 3, 4, 5]
+      });
+
+      this.assertText('Item: 1Item: 2Item: 3Item: 4Item: 5');
+
+      var initialHooks = function (count) {
+        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
+      };
+
+      var initialAfterRenderHooks = function (count) {
+        return [['an-item', 'didInsertElement'], ['an-item', 'didRender']];
+      };
+
+      this.assertHooks.apply(this, ['after initial render'].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'items', []);
+      });
+
+      this.assertText('Nothing to see here');
+
+      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
+
+      this.teardownAssertions.push(function () {
+        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement']);
+      });
     };
 
     _createClass(LifeCycleHooksTest, [{
@@ -27130,12 +27231,12 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
     }
 
     _class.prototype.invocationFor = function invocationFor(name) {
-      var _this5 = this;
+      var _this6 = this;
 
       var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var attrs = Object.keys(namedArgs).map(function (k) {
-        return k + '=' + _this5.val(namedArgs[k]);
+        return k + '=' + _this6.val(namedArgs[k]);
       }).join(' ');
       return '{{' + name + ' ' + attrs + '}}';
     };
@@ -27192,6 +27293,10 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
     return JSON.parse(JSON.stringify(serializable));
   }
 });
+
+// Sync hooks
+
+// Async hooks
 enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalRun_loop, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
@@ -47693,10 +47798,15 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
       var _this11 = this;
 
       var destroyed = { 'foo-bar': 0, 'foo-bar-baz': 0 };
+      var testContext = this;
 
       this.registerComponent('foo-bar', {
         template: 'hello from foo-bar',
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          willDestroyElement: function () {
+            assert.equal(testContext.$('#' + this.elementId).length, 1, 'element is still attached to the document');
+          },
+
           willDestroy: function () {
             this._super();
             destroyed['foo-bar']++;
@@ -48383,7 +48493,10 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
       _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
       _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']);
+      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -48402,11 +48515,15 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       _RenderingTest.call(this);
       this.hooks = [];
       this.components = {};
+      this.teardownAssertions = [];
     }
 
     LifeCycleHooksTest.prototype.teardown = function teardown() {
       _RenderingTest.prototype.teardown.call(this);
-      this.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+
+      for (var i = 0; i < this.teardownAssertions.length; i++) {
+        this.teardownAssertions[i]();
+      }
     };
 
     /* abstract */
@@ -48439,6 +48556,33 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
         _this.hooks.push(hook(name, hookName, args));
       };
 
+      var assertParentView = function (hookName, instance) {
+        if (!instance.parentView) {
+          _this.assert.ok(false, 'parentView should be present in ' + hookName);
+        }
+      };
+
+      var assertElement = function (hookName, instance) {
+        if (instance.tagName === '') {
+          return;
+        }
+
+        if (!instance.element) {
+          _this.assert.ok(false, 'element property should be present on ' + instance + ' during ' + hookName);
+        }
+
+        var inDOM = _this.$('#' + instance.elementId)[0];
+        if (!inDOM) {
+          _this.assert.ok(false, 'element for ' + instance + ' should be in the DOM during ' + hookName);
+        }
+      };
+
+      var assertNoElement = function (hookName, instance) {
+        if (instance.element) {
+          _this.assert.ok(false, 'element should not be present in ' + hookName);
+        }
+      };
+
       var ComponentClass = this.ComponentClass.extend({
         init: function () {
           var _this2 = this,
@@ -48450,42 +48594,58 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 
           pushHook('init');
           pushComponent(this);
+          assertParentView('init', this);
+          assertNoElement('init', this);
         },
 
         didInitAttrs: function (options) {
           pushHook('didInitAttrs', options);
+          assertParentView('didInitAttrs', this);
+          assertNoElement('didInitAttrs', this);
         },
 
         didUpdateAttrs: function (options) {
           pushHook('didUpdateAttrs', options);
+          assertParentView('didUpdateAttrs', this);
         },
 
         willUpdate: function (options) {
           pushHook('willUpdate', options);
+          assertParentView('willUpdate', this);
         },
 
         didReceiveAttrs: function (options) {
           pushHook('didReceiveAttrs', options);
+          assertParentView('didReceiveAttrs', this);
         },
 
         willRender: function () {
           pushHook('willRender');
+          assertParentView('willRender', this);
         },
 
         didRender: function () {
           pushHook('didRender');
+          assertParentView('didRender', this);
+          assertElement('didRender', this);
         },
 
         didInsertElement: function () {
           pushHook('didInsertElement');
+          assertParentView('didInsertElement', this);
+          assertElement('didInsertElement', this);
         },
 
         didUpdate: function (options) {
           pushHook('didUpdate', options);
+          assertParentView('didUpdate', this);
+          assertElement('didUpdate', this);
         },
 
         willDestroyElement: function () {
           pushHook('willDestroyElement');
+          assertParentView('willDestroyElement', this);
+          assertElement('willDestroyElement', this);
         }
       });
 
@@ -48649,6 +48809,10 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       // Async hooks
 
       ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+
+      this.teardownAssertions.push(function () {
+        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+      });
     };
 
     LifeCycleHooksTest.prototype['@test passing values through attrs causes lifecycle hooks to fire if the attribute values have changed'] = function testPassingValuesThroughAttrsCausesLifecycleHooksToFireIfTheAttributeValuesHaveChanged() {
@@ -48733,6 +48897,48 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       } else {
         this.assertHooks('after no-op rernder (root)');
       }
+
+      this.teardownAssertions.push(function () {
+        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+      });
+    };
+
+    LifeCycleHooksTest.prototype['@test components rendered from `{{each}}` have correct life-cycle hooks to be called'] = function testComponentsRenderedFromEachHaveCorrectLifeCycleHooksToBeCalled() {
+      var _this5 = this;
+
+      var invoke = this.boundHelpers.invoke;
+
+      this.registerComponent('an-item', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7) });
+
+      this.registerComponent('no-items', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8) });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9, invoke('an-item', { count: expr('item') }), invoke('no-items')), {
+        items: [1, 2, 3, 4, 5]
+      });
+
+      this.assertText('Item: 1Item: 2Item: 3Item: 4Item: 5');
+
+      var initialHooks = function (count) {
+        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
+      };
+
+      var initialAfterRenderHooks = function (count) {
+        return [['an-item', 'didInsertElement'], ['an-item', 'didRender']];
+      };
+
+      this.assertHooks.apply(this, ['after initial render'].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'items', []);
+      });
+
+      this.assertText('Nothing to see here');
+
+      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
+
+      this.teardownAssertions.push(function () {
+        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement']);
+      });
     };
 
     _createClass(LifeCycleHooksTest, [{
@@ -48763,12 +48969,12 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
     }
 
     _class.prototype.invocationFor = function invocationFor(name) {
-      var _this5 = this;
+      var _this6 = this;
 
       var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var attrs = Object.keys(namedArgs).map(function (k) {
-        return k + '=' + _this5.val(namedArgs[k]);
+        return k + '=' + _this6.val(namedArgs[k]);
       }).join(' ');
       return '{{' + name + ' ' + attrs + '}}';
     };
@@ -48825,6 +49031,10 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
     return JSON.parse(JSON.stringify(serializable));
   }
 });
+
+// Sync hooks
+
+// Async hooks
 enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
@@ -88836,9 +89046,7 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     var $element = view.$();
 
     _emberMetalRun_loop.default(function () {
-      // TODO change this test not to use private API
-      // Force into preRender
-      view.renderer.remove(view, false, true);
+      view.destroyElement();
     });
 
     $element.trigger('mousedown');
