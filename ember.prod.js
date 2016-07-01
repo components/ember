@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+22892c68
+ * @version   2.7.0-canary+2c63b753
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+22892c68";
+  exports.default = "2.7.0-canary+2c63b753";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -36253,7 +36253,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
   
     You may pass in more than two properties and even use
     property brace expansion.  The computed property will
-    returns the first falsy value or last truthy value
+    return the first falsy value or last truthy value
     just like JavaScript's `||` operator.
   
     Example
@@ -36295,7 +36295,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
   
     You may pass in more than two properties and even use
     property brace expansion.  The computed property will
-    returns the first truthy value or last falsy value just
+    return the first truthy value or last falsy value just
     like JavaScript's `||` operator.
   
     Example
