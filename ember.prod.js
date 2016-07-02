@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6b40cd4f
+ * @version   2.7.0-canary+1b4971f1
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+6b40cd4f";
+  exports.default = "2.7.0-canary+1b4971f1";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -10763,7 +10763,7 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
     return DynamicComponentReference;
   })();
 });
-enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/utils', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalUtils, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-metal/utils', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _emberMetalUtils, _emberGlimmerUtilsReferences) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -10812,20 +10812,29 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
 
   exports.OutletSyntax = OutletSyntax;
 
-  var TopLevelOutletComponentReference = (function (_ConstReference) {
-    _inherits(TopLevelOutletComponentReference, _ConstReference);
-
+  var TopLevelOutletComponentReference = (function () {
     function TopLevelOutletComponentReference(reference) {
       _classCallCheck(this, TopLevelOutletComponentReference);
 
-      var outletState = reference.value();
-      var definition = new TopLevelOutletComponentDefinition(outletState.render.template);
-
-      _ConstReference.call(this, definition);
+      this.outletReference = reference;
+      this.lastState = reference.value();
+      this.definition = new TopLevelOutletComponentDefinition(this.lastState.render.template);
+      this.tag = reference.tag;
     }
 
+    TopLevelOutletComponentReference.prototype.value = function value() {
+      var lastState = this.lastState;
+      var newState = this.outletReference.value();
+
+      if (lastState.render.name !== newState.render.name) {
+        return new TopLevelOutletComponentDefinition(newState.outlets.main.render.template);
+      }
+
+      return this.definition;
+    };
+
     return TopLevelOutletComponentReference;
-  })(_glimmerReference.ConstReference);
+  })();
 
   var OutletComponentReference = (function () {
     function OutletComponentReference(outletName, reference) {
@@ -10845,7 +10854,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'glimmer-re
       var lastState = this.lastState;
 
       var newState = this.lastState = reference.value();
-
       definition = revalidate(definition, lastState, newState);
 
       var hasTemplate = newState && newState.render.template;

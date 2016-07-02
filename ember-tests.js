@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6b40cd4f
+ * @version   2.7.0-canary+1b4971f1
  */
 
 var enifed, requireModule, require, Ember;
@@ -13849,7 +13849,7 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop'
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-templates/template_registry'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberTemplatesTemplate_registry) {
   'use strict';
 
   var Router = undefined,
@@ -14589,7 +14589,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     equal(appController.get('currentPath'), 'grandma.index', 'Transition should be complete');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present', function () {
+  QUnit.test('Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present', function () {
     expect(2);
 
     var appDeferred = _emberRuntimeExtRsvp.default.defer();
@@ -14615,7 +14615,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Slow promises returned from ApplicationRoute#model enter application_loading if template present', function () {
+  QUnit.test('Slow promises returned from ApplicationRoute#model enter application_loading if template present', function () {
     expect(3);
 
     templates['application_loading'] = '<div id="toplevel-loading">TOPLEVEL LOADING</div>';
@@ -14848,7 +14848,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'FOO ERROR: did it broke?', 'foo.index_error was entered');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Rejected promises returned from ApplicationRoute transition into top-level application_error', function () {
+  QUnit.test('Rejected promises returned from ApplicationRoute transition into top-level application_error', function () {
     expect(3);
 
     templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>';
