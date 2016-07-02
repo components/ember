@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e81233a6
+ * @version   2.7.0-canary+6b40cd4f
  */
 
 var enifed, requireModule, require, Ember;
@@ -2488,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+e81233a6";
+  exports.default = "2.7.0-canary+6b40cd4f";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -14392,6 +14392,20 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
      */
     _lookupFactory: function (fullName, options) {
       return this.__container__.lookupFactory(fullName, options);
+    },
+
+    /**
+     Given a name and a source path, resolve the fullName
+      @private
+     @method _resolveLocalLookupName
+     @param {String} fullName
+     @param {String} source
+     @return {String}
+     */
+    _resolveLocalLookupName: function (name, source) {
+      return this.__container__.registry.expandLocalLookup('component:' + name, {
+        source: source
+      });
     },
 
     /**
