@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d28c1b19
+ * @version   2.7.0-canary+e81b9951
  */
 
 var enifed, requireModule, require, Ember;
@@ -2488,7 +2488,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d28c1b19";
+  exports.default = "2.7.0-canary+e81b9951";
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -11601,7 +11601,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal/debug'
     You may pass in more than two properties and even use
     property brace expansion.  The computed property will
     return the first falsy value or last truthy value
-    just like JavaScript's `||` operator.
+    just like JavaScript's `&&` operator.
   
     Example
   
