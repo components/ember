@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.7.0-beta.2"
+        "version": "v2.7.0-beta.3"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -8383,7 +8383,7 @@
         {
             "file": "packages/ember-htmlbars/lib/helper.js",
             "line": 94,
-            "description": "In many cases, the ceremony of a full `Ember.Helper` class is not required.\nThe `helper` method creates pure-function helpers without instances. For\nexample:\n\n```js\n// app/helpers/format-currency.js\nexport default Ember.Helper.helper(function(params, hash) {\n  let cents = params[0];\n  let currency = hash.currency;\n  return `${currency}${cents * 0.01}`;\n});\n```",
+            "description": "In many cases, the ceremony of a full `Ember.Helper` class is not required.\nThe `helper` method creates pure-function helpers without instances. For\nexample:\n\n```js\n// app/helpers/format-currency.js\nexport function formatCurrency([cents], hash) {\n  let currency = hash.currency;\n  return `${currency}${cents * 0.01}`;\n});\n\nexport default Ember.Helper.helper(formatCurrency);\n\n// tests/myhelper.js\nimport { formatCurrency } from ..../helpers/myhelper\n// add some tests\n```",
             "static": 1,
             "params": [
                 {
@@ -13678,7 +13678,7 @@
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
             "line": 423,
-            "description": "A computed property that performs a logical `and` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturns the first falsy value or last truthy value\njust like JavaScript's `||` operator.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  readyForCamp: Ember.computed.and('hasTent', 'hasBackpack'),\n  readyForHike: Ember.computed.and('hasWalkingStick', 'hasBackpack')\n});\n\nvar tomster = Hamster.create();\n\ntomster.get('readyForCamp'); // false\ntomster.set('hasTent', true);\ntomster.get('readyForCamp'); // false\ntomster.set('hasBackpack', true);\ntomster.get('readyForCamp'); // true\ntomster.set('hasBackpack', 'Yes');\ntomster.get('readyForCamp'); // 'Yes'\ntomster.set('hasWalkingStick', null);\ntomster.get('readyForHike'); // null\n```",
+            "description": "A computed property that performs a logical `and` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturn the first falsy value or last truthy value\njust like JavaScript's `||` operator.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  readyForCamp: Ember.computed.and('hasTent', 'hasBackpack'),\n  readyForHike: Ember.computed.and('hasWalkingStick', 'hasBackpack')\n});\n\nvar tomster = Hamster.create();\n\ntomster.get('readyForCamp'); // false\ntomster.set('hasTent', true);\ntomster.get('readyForCamp'); // false\ntomster.set('hasBackpack', true);\ntomster.get('readyForCamp'); // true\ntomster.set('hasBackpack', 'Yes');\ntomster.get('readyForCamp'); // 'Yes'\ntomster.set('hasWalkingStick', null);\ntomster.get('readyForHike'); // null\n```",
             "itemtype": "method",
             "name": "and",
             "params": [
@@ -13703,7 +13703,7 @@
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
             "line": 464,
-            "description": "A computed property which performs a logical `or` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturns the first truthy value or last falsy value just\nlike JavaScript's `||` operator.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella'),\n  readyForBeach: Ember.computed.or('{hasSunscreen,hasUmbrella}')\n});\n\nvar tomster = Hamster.create();\n\ntomster.get('readyForRain'); // undefined\ntomster.set('hasUmbrella', true);\ntomster.get('readyForRain'); // true\ntomster.set('hasJacket', 'Yes');\ntomster.get('readyForRain'); // 'Yes'\ntomster.set('hasSunscreen', 'Check');\ntomster.get('readyForBeach'); // 'Check'\n```",
+            "description": "A computed property which performs a logical `or` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturn the first truthy value or last falsy value just\nlike JavaScript's `||` operator.\n\nExample\n\n```javascript\nvar Hamster = Ember.Object.extend({\n  readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella'),\n  readyForBeach: Ember.computed.or('{hasSunscreen,hasUmbrella}')\n});\n\nvar tomster = Hamster.create();\n\ntomster.get('readyForRain'); // undefined\ntomster.set('hasUmbrella', true);\ntomster.get('readyForRain'); // true\ntomster.set('hasJacket', 'Yes');\ntomster.get('readyForRain'); // 'Yes'\ntomster.set('hasSunscreen', 'Check');\ntomster.get('readyForBeach'); // 'Check'\n```",
             "itemtype": "method",
             "name": "or",
             "params": [
