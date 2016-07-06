@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.6.1
+ * @version   2.6.1+7d52c53a
  */
 
 var enifed, requireModule, require, Ember;
@@ -9695,7 +9695,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.1+7d52c53a';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -14532,7 +14532,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.6.1
+    @version 2.6.1+7d52c53a
     @public
   */
 
@@ -14574,11 +14574,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.6.1'
+    @default '2.6.1+7d52c53a'
     @static
     @public
   */
-  Ember.VERSION = '2.6.1';
+  Ember.VERSION = '2.6.1+7d52c53a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23201,7 +23201,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       baseURL = baseURL.replace(/\/$/, '');
 
       // remove baseURL and rootURL from start of path
-      var url = path.replace(new RegExp('^' + baseURL), '').replace(new RegExp('^' + rootURL), '');
+      var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
 
       var search = location.search || '';
       url += search;
@@ -23407,7 +23407,7 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/debug', 
       rootURL = rootURL.replace(/\/$/, '');
 
       // remove rootURL from url
-      return path.replace(new RegExp('^' + rootURL), '');
+      return path.replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
     },
 
     /**
@@ -38129,7 +38129,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.6.1',
+        revision: 'Ember@2.6.1+7d52c53a',
         loc: program.loc,
         moduleName: options.moduleName
       };
