@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0ffcf820
+ * @version   2.7.0-canary+08dbada3
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+0ffcf820";
+  exports.default = "2.7.0-canary+08dbada3";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -31116,7 +31116,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       baseURL = baseURL.replace(/\/$/, '');
 
       // remove baseURL and rootURL from start of path
-      var url = path.replace(new RegExp('^' + baseURL), '').replace(new RegExp('^' + rootURL), '');
+      var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
 
       var search = location.search || '';
       url += search;
@@ -31322,7 +31322,7 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/debug', 
       rootURL = rootURL.replace(/\/$/, '');
 
       // remove rootURL from url
-      return path.replace(new RegExp('^' + rootURL), '');
+      return path.replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
     },
 
     /**

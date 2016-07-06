@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+0ffcf820
+ * @version   2.7.0-canary+08dbada3
  */
 
 var enifed, requireModule, require, Ember;
@@ -72796,6 +72796,22 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     equal(location.getURL(), '/foo/bar/baz');
   });
 
+  QUnit.test('HistoryLocation.getURL() will not remove the rootURL when only a partial match', function () {
+    expect(1);
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        _emberMetalProperty_set.set(this, 'location', mockBrowserLocation('/bars/baz'));
+        _emberMetalProperty_set.set(this, 'rootURL', '/bar/');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/bars/baz');
+  });
+
   QUnit.test('HistoryLocation.getURL() returns the current url, does not remove baseURL if its not at start of url', function () {
     expect(1);
 
@@ -72811,6 +72827,22 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     createLocation();
 
     equal(location.getURL(), '/foo/bar/baz');
+  });
+
+  QUnit.test('HistoryLocation.getURL() will not remove the baseURL when only a partial match', function () {
+    expect(1);
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        _emberMetalProperty_set.set(this, 'location', mockBrowserLocation('/bars/baz'));
+        _emberMetalProperty_set.set(this, 'baseURL', '/bar/');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/bars/baz');
   });
 
   QUnit.test('HistoryLocation.getURL() includes location.search', function () {
@@ -72916,7 +72948,7 @@ enifed('ember-routing/tests/location/none_location_test', ['exports', 'ember-met
     equal(location.getURL(), '/bar');
   });
 
-  QUnit.test('NonoLocation.getURL() will remove the rootURL only from the beginning of a url', function () {
+  QUnit.test('NoneLocation.getURL() will remove the rootURL only from the beginning of a url', function () {
     expect(1);
 
     NoneTestLocation.reopen({
@@ -72930,6 +72962,22 @@ enifed('ember-routing/tests/location/none_location_test', ['exports', 'ember-met
     createLocation();
 
     equal(location.getURL(), '/foo/bar/baz');
+  });
+
+  QUnit.test('NoneLocation.getURL() will not remove the rootURL when only a partial match', function () {
+    expect(1);
+
+    NoneTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        _emberMetalProperty_set.set(this, 'rootURL', '/bar/');
+        _emberMetalProperty_set.set(this, 'path', '/bars/baz');
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/bars/baz');
   });
 });
 enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal/assign', 'ember-routing/location/util'], function (exports, _emberMetalAssign, _emberRoutingLocationUtil) {
