@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+08dbada3
+ * @version   2.7.0-canary+f8d7dbc5
  */
 
 var enifed, requireModule, require, Ember;
@@ -28270,6 +28270,61 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
     return _class4;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/components/web-component-fallback-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: web component fallback', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test custom elements are rendered'] = function testCustomElementsAreRendered() {
+      var template = '<foo-bar some-attr="123">hello</foo-bar>';
+
+      this.render(template);
+
+      this.assertHTML(template);
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test custom elements can have bound attributes'] = function testCustomElementsCanHaveBoundAttributes() {
+      var _this = this;
+
+      var template = '<foo-bar some-attr="{{name}}">hello</foo-bar>';
+
+      this.render(template, { name: 'Robert' });
+
+      this.assertHTML('<foo-bar some-attr="Robert">hello</foo-bar>');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Kris');
+      });
+
+      this.assertHTML('<foo-bar some-attr="Kris">hello</foo-bar>');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Robert');
+      });
+
+      this.assertHTML('<foo-bar some-attr="Robert">hello</foo-bar>');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
@@ -50040,6 +50095,61 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
     };
 
     return _class4;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/web-component-fallback-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: web component fallback', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test custom elements are rendered'] = function testCustomElementsAreRendered() {
+      var template = '<foo-bar some-attr="123">hello</foo-bar>';
+
+      this.render(template);
+
+      this.assertHTML(template);
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test custom elements can have bound attributes'] = function testCustomElementsCanHaveBoundAttributes() {
+      var _this = this;
+
+      var template = '<foo-bar some-attr="{{name}}">hello</foo-bar>';
+
+      this.render(template, { name: 'Robert' });
+
+      this.assertHTML('<foo-bar some-attr="Robert">hello</foo-bar>');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Kris');
+      });
+
+      this.assertHTML('<foo-bar some-attr="Kris">hello</foo-bar>');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'name', 'Robert');
+      });
+
+      this.assertHTML('<foo-bar some-attr="Robert">hello</foo-bar>');
+    };
+
+    return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {

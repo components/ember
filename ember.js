@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+08dbada3
+ * @version   2.7.0-canary+f8d7dbc5
  */
 
 var enifed, requireModule, require, Ember;
@@ -3754,7 +3754,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+08dbada3";
+  exports.default = "2.7.0-canary+f8d7dbc5";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -16051,7 +16051,7 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/system/build-component-template'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsSystemBuildComponentTemplate) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/utils/lookup-component', 'ember-metal/assign', 'ember-metal/empty_object', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsUtilsLookupComponent, _emberMetalAssign, _emberMetalEmpty_object, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsKeywordsClosureComponent) {
   'use strict';
 
   exports.default = componentHook;
@@ -16061,12 +16061,6 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
 
     var tagName = _tagName;
     var attrs = _attrs;
-    if (isAngle(tagName)) {
-      tagName = tagName.slice(1, -1);
-      var block = _emberHtmlbarsSystemBuildComponentTemplate.buildHTMLTemplate(tagName, attrs, { templates: templates, scope: scope });
-      block.invoke(env, [], undefined, renderNode, scope, visitor);
-      return;
-    }
 
     if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DOT_CACHE.get(tagName)) {
       var stream = env.hooks.get(env, scope, tagName);
@@ -16135,10 +16129,6 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
 
     state.manager = manager;
     manager.render(env, visitor);
-  }
-
-  function isAngle(tagName) {
-    return tagName.charCodeAt(0) === 60;
   }
 });
 enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
