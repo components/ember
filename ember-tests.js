@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+f8d7dbc5
+ * @version   2.7.0-canary+2fefde66
  */
 
 var enifed, requireModule, require, Ember;
@@ -66731,7 +66731,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
 
     expectDeprecation(function () {
       _emberMetalEvents.addListener(obj, 'didInitAttrs');
-    }, /\[DEPRECATED\] didInitAttrs called in <\Ember.Component\:ember[\d+]+>\./);
+    }, /didInitAttrs called in <\Ember.Component\:ember[\d+]+>\./);
   });
 });
 enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expand_properties'], function (exports, _emberMetalExpand_properties) {
