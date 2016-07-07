@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2fefde66
+ * @version   2.7.0-canary+eeb236e7
  */
 
 var enifed, requireModule, require, Ember;
@@ -3731,7 +3731,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2fefde66";
+  exports.default = "2.7.0-canary+eeb236e7";
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -8787,7 +8787,7 @@ enifed('ember-glimmer/helper', ['exports', 'ember-metal/symbol', 'ember-runtime/
 
   'use strict';
 
-  var _Object$extend;
+  var _EmberObject$extend;
 
   exports.helper = helper;
   var RECOMPUTE_TAG = _emberMetalSymbol.default('RECOMPUTE_TAG');
@@ -8833,14 +8833,14 @@ enifed('ember-glimmer/helper', ['exports', 'ember-metal/symbol', 'ember-runtime/
     @public
     @since 1.13.0
   */
-  var Helper = _emberRuntimeSystemObject.default.extend((_Object$extend = {
+  var Helper = _emberRuntimeSystemObject.default.extend((_EmberObject$extend = {
     isHelperInstance: true
 
-  }, _Object$extend[_emberRuntimeSystemCore_object.POST_INIT] = function () {
+  }, _EmberObject$extend[_emberRuntimeSystemCore_object.POST_INIT] = function () {
     this[RECOMPUTE_TAG] = new _glimmerReference.DirtyableTag();
-  }, _Object$extend.recompute = function () {
+  }, _EmberObject$extend.recompute = function () {
     this[RECOMPUTE_TAG].dirty();
-  }, _Object$extend));
+  }, _EmberObject$extend));
 
   /**
     Override this function when writing a class-based helper.
