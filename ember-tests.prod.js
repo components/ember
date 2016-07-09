@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+eeb236e7
+ * @version   2.7.0-canary+84dc75a8
  */
 
 var enifed, requireModule, require, Ember;
@@ -4964,98 +4964,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
     bootApplication();
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
-  });
-
-  QUnit.test('{{link-to}} populates href with supplied query param values', function () {
-    if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = _emberRoutingSystemRoute.default.extend({
-        queryParams: {
-          foo: {
-            defaultValue: '123'
-          }
-        }
-      });
-    } else {
-      App.IndexController = _emberRuntimeControllersController.default.extend({
-        queryParams: ['foo'],
-        foo: '123'
-      });
-    }
-
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
-    bootApplication();
-    equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?foo=456', 'link has right href');
-  });
-
-  QUnit.test('{{link-to}} populates href with partially supplied query param values', function () {
-    if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = _emberRoutingSystemRoute.default.extend({
-        queryParams: {
-          foo: {
-            defaultValue: '123'
-          },
-          bar: {
-            defaultValue: 'yes'
-          }
-        }
-      });
-    } else {
-      App.IndexController = _emberRuntimeControllersController.default.extend({
-        queryParams: ['foo'],
-        foo: '123',
-        bar: 'yes'
-      });
-    }
-
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
-    bootApplication();
-    equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?foo=456', 'link has right href');
-  });
-
-  QUnit.test('{{link-to}} populates href with partially supplied query param values, but omits if value is default value', function () {
-    if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = _emberRoutingSystemRoute.default.extend({
-        queryParams: {
-          foo: {
-            defaultValue: '123'
-          }
-        }
-      });
-    } else {
-      App.IndexController = _emberRuntimeControllersController.default.extend({
-        queryParams: ['foo'],
-        foo: '123'
-      });
-    }
-
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='123') id='the-link'}}Index{{/link-to}}"));
-    bootApplication();
-    equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
-  });
-
-  QUnit.test('{{link-to}} populates href with fully supplied query param values', function () {
-    if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = _emberRoutingSystemRoute.default.extend({
-        queryParams: {
-          foo: {
-            defaultValue: '123'
-          },
-          bar: {
-            defaultValue: 'yes'
-          }
-        }
-      });
-    } else {
-      App.IndexController = _emberRuntimeControllersController.default.extend({
-        queryParams: ['foo', 'bar'],
-        foo: '123',
-        bar: 'yes'
-      });
-    }
-
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
-    equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
   });
 
   QUnit.test('{{link-to}} with only query-params and a block updates when route changes', function () {
@@ -27232,7 +27140,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 // Sync hooks
 
 // Async hooks
-enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalRun_loop, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalProperty_set, _emberMetalRun_loop, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalFeatures) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -27390,6 +27298,69 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
     };
 
     return _class;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Link-to component with query-params', (function (_ApplicationTest2) {
+    _inherits(_class2, _ApplicationTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _ApplicationTest2.apply(this, arguments);
+
+      if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
+        this.registerRoute('index', _emberRoutingSystemRoute.default.extend({
+          queryParams: {
+            foo: {
+              defaultValue: '123'
+            },
+            bar: {
+              defaultValue: 'yes'
+            }
+          }
+        }));
+      } else {
+        this.registerController('index', _emberRuntimeControllersController.default.extend({
+          queryParams: ['foo'],
+          foo: '123',
+          bar: 'yes'
+        }));
+      }
+    }
+
+    _class2.prototype.runTask = function runTask(fn) {
+      _emberMetalRun_loop.default(fn);
+    };
+
+    _class2.prototype['@test populates href with fully supplied query param values'] = function testPopulatesHrefWithFullySuppliedQueryParamValues(assert) {
+      var _this10 = this;
+
+      this.registerTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
+
+      return this.visit('/').then(function () {
+        _this10.assertComponentElement(_this10.firstChild.firstElementChild, {
+          tagName: 'a',
+          attrs: { href: '/?bar=NAW&foo=456' },
+          content: 'Index'
+        });
+      });
+    };
+
+    _class2.prototype['@test populates href with partially supplied query param values, but omits if value is default value'] = function testPopulatesHrefWithPartiallySuppliedQueryParamValuesButOmitsIfValueIsDefaultValue() {
+      var _this11 = this;
+
+      this.registerTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
+
+      return this.visit('/').then(function () {
+        _this11.assertComponentElement(_this11.firstChild.firstElementChild, {
+          tagName: 'a',
+          attrs: { href: '/', class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view active') },
+          content: 'Index'
+        });
+      });
+    };
+
+    return _class2;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
 enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
@@ -49059,7 +49030,7 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 // Sync hooks
 
 // Async hooks
-enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeControllersController, _emberMetalProperty_set, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers) {
+enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalProperty_set, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalFeatures) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -49217,6 +49188,69 @@ enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', '
     };
 
     return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Link-to component with query-params', (function (_ApplicationTest2) {
+    _inherits(_class2, _ApplicationTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _ApplicationTest2.apply(this, arguments);
+
+      if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
+        this.registerRoute('index', _emberRoutingSystemRoute.default.extend({
+          queryParams: {
+            foo: {
+              defaultValue: '123'
+            },
+            bar: {
+              defaultValue: 'yes'
+            }
+          }
+        }));
+      } else {
+        this.registerController('index', _emberRuntimeControllersController.default.extend({
+          queryParams: ['foo'],
+          foo: '123',
+          bar: 'yes'
+        }));
+      }
+    }
+
+    _class2.prototype.runTask = function runTask(fn) {
+      _emberMetalRun_loop.default(fn);
+    };
+
+    _class2.prototype['@test populates href with fully supplied query param values'] = function testPopulatesHrefWithFullySuppliedQueryParamValues(assert) {
+      var _this10 = this;
+
+      this.registerTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
+
+      return this.visit('/').then(function () {
+        _this10.assertComponentElement(_this10.firstChild.firstElementChild, {
+          tagName: 'a',
+          attrs: { href: '/?bar=NAW&foo=456' },
+          content: 'Index'
+        });
+      });
+    };
+
+    _class2.prototype['@test populates href with partially supplied query param values, but omits if value is default value'] = function testPopulatesHrefWithPartiallySuppliedQueryParamValuesButOmitsIfValueIsDefaultValue() {
+      var _this11 = this;
+
+      this.registerTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
+
+      return this.visit('/').then(function () {
+        _this11.assertComponentElement(_this11.firstChild.firstElementChild, {
+          tagName: 'a',
+          attrs: { href: '/', class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view active') },
+          content: 'Index'
+        });
+      });
+    };
+
+    return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
 });
 enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
