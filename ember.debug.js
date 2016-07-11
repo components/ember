@@ -112,389 +112,6 @@ var mainContext = this;
   }
 })();
 
-enifed("backburner/binary-search", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = binarySearch;
-
-  function binarySearch(time, timers) {
-    var start = 0;
-    var end = timers.length - 2;
-    var middle, l;
-
-    while (start < end) {
-      // since timers is an array of pairs 'l' will always
-      // be an integer
-      l = (end - start) / 2;
-
-      // compensate for the index in case even number
-      // of pairs inside timers
-      middle = start + l - l % 2;
-
-      if (time >= timers[middle]) {
-        start = middle + 2;
-      } else {
-        end = middle;
-      }
-    }
-
-    return time >= timers[start] ? start + 2 : start;
-  }
-});
-enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
-  'use strict';
-
-  exports.default = DeferredActionQueues;
-
-  function DeferredActionQueues(queueNames, options) {
-    var queues = this.queues = {};
-    this.queueNames = queueNames = queueNames || [];
-
-    this.options = options;
-
-    _backburnerUtils.each(queueNames, function (queueName) {
-      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
-    });
-  }
-
-  function noSuchQueue(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
-  }
-
-  function noSuchMethod(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
-  }
-
-  DeferredActionQueues.prototype = {
-    schedule: function (name, target, method, args, onceFlag, stack) {
-      var queues = this.queues;
-      var queue = queues[name];
-
-      if (!queue) {
-        noSuchQueue(name);
-      }
-
-      if (!method) {
-        noSuchMethod(name);
-      }
-
-      if (onceFlag) {
-        return queue.pushUnique(target, method, args, stack);
-      } else {
-        return queue.push(target, method, args, stack);
-      }
-    },
-
-    flush: function () {
-      var queues = this.queues;
-      var queueNames = this.queueNames;
-      var queueName, queue;
-      var queueNameIndex = 0;
-      var numberOfQueues = queueNames.length;
-
-      while (queueNameIndex < numberOfQueues) {
-        queueName = queueNames[queueNameIndex];
-        queue = queues[queueName];
-
-        var numberOfQueueItems = queue._queue.length;
-
-        if (numberOfQueueItems === 0) {
-          queueNameIndex++;
-        } else {
-          queue.flush(false /* async */);
-          queueNameIndex = 0;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/platform', ['exports'], function (exports) {
-  'use strict';
-
-  var GlobalContext;
-
-  /* global self */
-  if (typeof self === 'object') {
-    GlobalContext = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      GlobalContext = global;
-
-      /* global window */
-    } else if (typeof window === 'object') {
-        GlobalContext = window;
-      } else {
-        throw new Error('no global: `self`, `global` nor `window` was found');
-      }
-
-  exports.default = GlobalContext;
-});
-enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
-  'use strict';
-
-  exports.default = Queue;
-
-  function Queue(name, options, globalOptions) {
-    this.name = name;
-    this.globalOptions = globalOptions || {};
-    this.options = options;
-    this._queue = [];
-    this.targetQueues = {};
-    this._queueBeingFlushed = undefined;
-  }
-
-  Queue.prototype = {
-    push: function (target, method, args, stack) {
-      var queue = this._queue;
-      queue.push(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUniqueWithoutGuid: function (target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = queue.length; i < l; i += 4) {
-        var currentTarget = queue[i];
-        var currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue[i + 2] = args; // replace args
-          queue[i + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      queue.push(target, method, args, stack);
-    },
-
-    targetQueue: function (targetQueue, target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
-        var currentMethod = targetQueue[i];
-        var currentIndex = targetQueue[i + 1];
-
-        if (currentMethod === method) {
-          queue[currentIndex + 2] = args; // replace args
-          queue[currentIndex + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
-    },
-
-    pushUniqueWithGuid: function (guid, target, method, args, stack) {
-      var hasLocalQueue = this.targetQueues[guid];
-
-      if (hasLocalQueue) {
-        this.targetQueue(hasLocalQueue, target, method, args, stack);
-      } else {
-        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
-      }
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUnique: function (target, method, args, stack) {
-      var KEY = this.globalOptions.GUID_KEY;
-
-      if (target && KEY) {
-        var guid = target[KEY];
-        if (guid) {
-          return this.pushUniqueWithGuid(guid, target, method, args, stack);
-        }
-      }
-
-      this.pushUniqueWithoutGuid(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    invoke: function (target, method, args, _, _errorRecordedForStack) {
-      if (args && args.length > 0) {
-        method.apply(target, args);
-      } else {
-        method.call(target);
-      }
-    },
-
-    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
-      try {
-        if (args && args.length > 0) {
-          method.apply(target, args);
-        } else {
-          method.call(target);
-        }
-      } catch (error) {
-        onError(error, errorRecordedForStack);
-      }
-    },
-
-    flush: function (sync) {
-      var queue = this._queue;
-      var length = queue.length;
-
-      if (length === 0) {
-        return;
-      }
-
-      var globalOptions = this.globalOptions;
-      var options = this.options;
-      var before = options && options.before;
-      var after = options && options.after;
-      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
-      var target, method, args, errorRecordedForStack;
-      var invoke = onError ? this.invokeWithOnError : this.invoke;
-
-      this.targetQueues = Object.create(null);
-      var queueItems = this._queueBeingFlushed = this._queue.slice();
-      this._queue = [];
-
-      if (before) {
-        before();
-      }
-
-      for (var i = 0; i < length; i += 4) {
-        target = queueItems[i];
-        method = queueItems[i + 1];
-        args = queueItems[i + 2];
-        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
-
-        if (_backburnerUtils.isString(method)) {
-          method = target[method];
-        }
-
-        // method could have been nullified / canceled during flush
-        if (method) {
-          //
-          //    ** Attention intrepid developer **
-          //
-          //    To find out the stack of this task when it was scheduled onto
-          //    the run loop, add the following to your app.js:
-          //
-          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
-          //
-          //    Once that is in place, when you are at a breakpoint and navigate
-          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
-          //    which will be the captured stack when this job was scheduled.
-          //
-          invoke(target, method, args, onError, errorRecordedForStack);
-        }
-      }
-
-      if (after) {
-        after();
-      }
-
-      this._queueBeingFlushed = undefined;
-
-      if (sync !== false && this._queue.length > 0) {
-        // check if new items have been added
-        this.flush(true);
-      }
-    },
-
-    cancel: function (actionToCancel) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
-      var target = actionToCancel.target;
-      var method = actionToCancel.method;
-      var GUID_KEY = this.globalOptions.GUID_KEY;
-
-      if (GUID_KEY && this.targetQueues && target) {
-        var targetQueue = this.targetQueues[target[GUID_KEY]];
-
-        if (targetQueue) {
-          for (i = 0, l = targetQueue.length; i < l; i++) {
-            if (targetQueue[i] === method) {
-              targetQueue.splice(i, 1);
-            }
-          }
-        }
-      }
-
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue.splice(i, 4);
-          return true;
-        }
-      }
-
-      // if not found in current queue
-      // could be in the queue that is being flushed
-      queue = this._queueBeingFlushed;
-
-      if (!queue) {
-        return;
-      }
-
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          // don't mess with array during flush
-          // just nullify the method
-          queue[i + 1] = null;
-          return true;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/utils', ['exports'], function (exports) {
-  'use strict';
-
-  exports.each = each;
-  exports.isString = isString;
-  exports.isFunction = isFunction;
-  exports.isNumber = isNumber;
-  exports.isCoercableNumber = isCoercableNumber;
-  var NUMBER = /\d+/;
-
-  function each(collection, callback) {
-    for (var i = 0; i < collection.length; i++) {
-      callback(collection[i]);
-    }
-  }
-
-  function isString(suspect) {
-    return typeof suspect === 'string';
-  }
-
-  function isFunction(suspect) {
-    return typeof suspect === 'function';
-  }
-
-  function isNumber(suspect) {
-    return typeof suspect === 'number';
-  }
-
-  function isCoercableNumber(number) {
-    return isNumber(number) || NUMBER.test(number);
-  }
-});
 enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
   'use strict';
 
@@ -1151,6 +768,389 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
   function clearItems(item) {
     this._platform.clearTimeout(item[2]);
+  }
+});
+enifed("backburner/binary-search", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = binarySearch;
+
+  function binarySearch(time, timers) {
+    var start = 0;
+    var end = timers.length - 2;
+    var middle, l;
+
+    while (start < end) {
+      // since timers is an array of pairs 'l' will always
+      // be an integer
+      l = (end - start) / 2;
+
+      // compensate for the index in case even number
+      // of pairs inside timers
+      middle = start + l - l % 2;
+
+      if (time >= timers[middle]) {
+        start = middle + 2;
+      } else {
+        end = middle;
+      }
+    }
+
+    return time >= timers[start] ? start + 2 : start;
+  }
+});
+enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
+  'use strict';
+
+  exports.default = DeferredActionQueues;
+
+  function DeferredActionQueues(queueNames, options) {
+    var queues = this.queues = {};
+    this.queueNames = queueNames = queueNames || [];
+
+    this.options = options;
+
+    _backburnerUtils.each(queueNames, function (queueName) {
+      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
+    });
+  }
+
+  function noSuchQueue(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
+  }
+
+  function noSuchMethod(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
+  }
+
+  DeferredActionQueues.prototype = {
+    schedule: function (name, target, method, args, onceFlag, stack) {
+      var queues = this.queues;
+      var queue = queues[name];
+
+      if (!queue) {
+        noSuchQueue(name);
+      }
+
+      if (!method) {
+        noSuchMethod(name);
+      }
+
+      if (onceFlag) {
+        return queue.pushUnique(target, method, args, stack);
+      } else {
+        return queue.push(target, method, args, stack);
+      }
+    },
+
+    flush: function () {
+      var queues = this.queues;
+      var queueNames = this.queueNames;
+      var queueName, queue;
+      var queueNameIndex = 0;
+      var numberOfQueues = queueNames.length;
+
+      while (queueNameIndex < numberOfQueues) {
+        queueName = queueNames[queueNameIndex];
+        queue = queues[queueName];
+
+        var numberOfQueueItems = queue._queue.length;
+
+        if (numberOfQueueItems === 0) {
+          queueNameIndex++;
+        } else {
+          queue.flush(false /* async */);
+          queueNameIndex = 0;
+        }
+      }
+    }
+  };
+});
+enifed('backburner/platform', ['exports'], function (exports) {
+  'use strict';
+
+  var GlobalContext;
+
+  /* global self */
+  if (typeof self === 'object') {
+    GlobalContext = self;
+
+    /* global global */
+  } else if (typeof global === 'object') {
+      GlobalContext = global;
+
+      /* global window */
+    } else if (typeof window === 'object') {
+        GlobalContext = window;
+      } else {
+        throw new Error('no global: `self`, `global` nor `window` was found');
+      }
+
+  exports.default = GlobalContext;
+});
+enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
+  'use strict';
+
+  exports.default = Queue;
+
+  function Queue(name, options, globalOptions) {
+    this.name = name;
+    this.globalOptions = globalOptions || {};
+    this.options = options;
+    this._queue = [];
+    this.targetQueues = {};
+    this._queueBeingFlushed = undefined;
+  }
+
+  Queue.prototype = {
+    push: function (target, method, args, stack) {
+      var queue = this._queue;
+      queue.push(target, method, args, stack);
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    pushUniqueWithoutGuid: function (target, method, args, stack) {
+      var queue = this._queue;
+
+      for (var i = 0, l = queue.length; i < l; i += 4) {
+        var currentTarget = queue[i];
+        var currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          queue[i + 2] = args; // replace args
+          queue[i + 3] = stack; // replace stack
+          return;
+        }
+      }
+
+      queue.push(target, method, args, stack);
+    },
+
+    targetQueue: function (targetQueue, target, method, args, stack) {
+      var queue = this._queue;
+
+      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
+        var currentMethod = targetQueue[i];
+        var currentIndex = targetQueue[i + 1];
+
+        if (currentMethod === method) {
+          queue[currentIndex + 2] = args; // replace args
+          queue[currentIndex + 3] = stack; // replace stack
+          return;
+        }
+      }
+
+      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
+    },
+
+    pushUniqueWithGuid: function (guid, target, method, args, stack) {
+      var hasLocalQueue = this.targetQueues[guid];
+
+      if (hasLocalQueue) {
+        this.targetQueue(hasLocalQueue, target, method, args, stack);
+      } else {
+        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
+      }
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    pushUnique: function (target, method, args, stack) {
+      var KEY = this.globalOptions.GUID_KEY;
+
+      if (target && KEY) {
+        var guid = target[KEY];
+        if (guid) {
+          return this.pushUniqueWithGuid(guid, target, method, args, stack);
+        }
+      }
+
+      this.pushUniqueWithoutGuid(target, method, args, stack);
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    invoke: function (target, method, args, _, _errorRecordedForStack) {
+      if (args && args.length > 0) {
+        method.apply(target, args);
+      } else {
+        method.call(target);
+      }
+    },
+
+    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
+      try {
+        if (args && args.length > 0) {
+          method.apply(target, args);
+        } else {
+          method.call(target);
+        }
+      } catch (error) {
+        onError(error, errorRecordedForStack);
+      }
+    },
+
+    flush: function (sync) {
+      var queue = this._queue;
+      var length = queue.length;
+
+      if (length === 0) {
+        return;
+      }
+
+      var globalOptions = this.globalOptions;
+      var options = this.options;
+      var before = options && options.before;
+      var after = options && options.after;
+      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
+      var target, method, args, errorRecordedForStack;
+      var invoke = onError ? this.invokeWithOnError : this.invoke;
+
+      this.targetQueues = Object.create(null);
+      var queueItems = this._queueBeingFlushed = this._queue.slice();
+      this._queue = [];
+
+      if (before) {
+        before();
+      }
+
+      for (var i = 0; i < length; i += 4) {
+        target = queueItems[i];
+        method = queueItems[i + 1];
+        args = queueItems[i + 2];
+        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
+
+        if (_backburnerUtils.isString(method)) {
+          method = target[method];
+        }
+
+        // method could have been nullified / canceled during flush
+        if (method) {
+          //
+          //    ** Attention intrepid developer **
+          //
+          //    To find out the stack of this task when it was scheduled onto
+          //    the run loop, add the following to your app.js:
+          //
+          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+          //
+          //    Once that is in place, when you are at a breakpoint and navigate
+          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+          //    which will be the captured stack when this job was scheduled.
+          //
+          invoke(target, method, args, onError, errorRecordedForStack);
+        }
+      }
+
+      if (after) {
+        after();
+      }
+
+      this._queueBeingFlushed = undefined;
+
+      if (sync !== false && this._queue.length > 0) {
+        // check if new items have been added
+        this.flush(true);
+      }
+    },
+
+    cancel: function (actionToCancel) {
+      var queue = this._queue,
+          currentTarget,
+          currentMethod,
+          i,
+          l;
+      var target = actionToCancel.target;
+      var method = actionToCancel.method;
+      var GUID_KEY = this.globalOptions.GUID_KEY;
+
+      if (GUID_KEY && this.targetQueues && target) {
+        var targetQueue = this.targetQueues[target[GUID_KEY]];
+
+        if (targetQueue) {
+          for (i = 0, l = targetQueue.length; i < l; i++) {
+            if (targetQueue[i] === method) {
+              targetQueue.splice(i, 1);
+            }
+          }
+        }
+      }
+
+      for (i = 0, l = queue.length; i < l; i += 4) {
+        currentTarget = queue[i];
+        currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          queue.splice(i, 4);
+          return true;
+        }
+      }
+
+      // if not found in current queue
+      // could be in the queue that is being flushed
+      queue = this._queueBeingFlushed;
+
+      if (!queue) {
+        return;
+      }
+
+      for (i = 0, l = queue.length; i < l; i += 4) {
+        currentTarget = queue[i];
+        currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          // don't mess with array during flush
+          // just nullify the method
+          queue[i + 1] = null;
+          return true;
+        }
+      }
+    }
+  };
+});
+enifed('backburner/utils', ['exports'], function (exports) {
+  'use strict';
+
+  exports.each = each;
+  exports.isString = isString;
+  exports.isFunction = isFunction;
+  exports.isNumber = isNumber;
+  exports.isCoercableNumber = isCoercableNumber;
+  var NUMBER = /\d+/;
+
+  function each(collection, callback) {
+    for (var i = 0; i < collection.length; i++) {
+      callback(collection[i]);
+    }
+  }
+
+  function isString(suspect) {
+    return typeof suspect === 'string';
+  }
+
+  function isFunction(suspect) {
+    return typeof suspect === 'function';
+  }
+
+  function isNumber(suspect) {
+    return typeof suspect === 'number';
+  }
+
+  function isCoercableNumber(number) {
+    return isNumber(number) || NUMBER.test(number);
   }
 });
 enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
@@ -2480,24 +2480,6 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     return privateNames[fullName] = _emberMetalUtils.intern(type + ':' + rawName + '-' + privateSuffix);
   }
 });
-enifed('dag-map/platform', ['exports'], function (exports) {
-  'use strict';
-
-  var platform;
-
-  /* global self */
-  if (typeof self === 'object') {
-    platform = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
-    }
-
-  exports.default = platform;
-});
 enifed('dag-map', ['exports', 'vertex', 'visit'], function (exports, _vertex, _visit) {
   'use strict';
 
@@ -2655,464 +2637,23 @@ enifed('dag-map.umd', ['exports', 'dag-map/platform', 'dag-map'], function (expo
     _dagMapPlatform.default['DAG'] = _dagMap.default;
   }
 });
-enifed('dom-helper/build-html-dom', ['exports'], function (exports) {
-  /* global XMLSerializer:false */
+enifed('dag-map/platform', ['exports'], function (exports) {
   'use strict';
 
-  var svgHTMLIntegrationPoints = { foreignObject: 1, desc: 1, title: 1 };
-  exports.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;
-  var svgNamespace = 'http://www.w3.org/2000/svg';
+  var platform;
 
-  exports.svgNamespace = svgNamespace;
-  var doc = typeof document === 'undefined' ? false : document;
+  /* global self */
+  if (typeof self === 'object') {
+    platform = self;
 
-  // Safari does not like using innerHTML on SVG HTML integration
-  // points (desc/title/foreignObject).
-  var needsIntegrationPointFix = doc && (function (document) {
-    if (document.createElementNS === undefined) {
-      return;
-    }
-    // In FF title will not accept innerHTML.
-    var testEl = document.createElementNS(svgNamespace, 'title');
-    testEl.innerHTML = "<div></div>";
-    return testEl.childNodes.length === 0 || testEl.childNodes[0].nodeType !== 1;
-  })(doc);
-
-  // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
-  // is a "zero-scope" element. This problem can be worked around by making
-  // the first node an invisible text node. We, like Modernizr, use &shy;
-  var needsShy = doc && (function (document) {
-    var testEl = document.createElement('div');
-    testEl.innerHTML = "<div></div>";
-    testEl.firstChild.innerHTML = "<script><\/script>";
-    return testEl.firstChild.innerHTML === '';
-  })(doc);
-
-  // IE 8 (and likely earlier) likes to move whitespace preceeding
-  // a script tag to appear after it. This means that we can
-  // accidentally remove whitespace when updating a morph.
-  var movesWhitespace = doc && (function (document) {
-    var testEl = document.createElement('div');
-    testEl.innerHTML = "Test: <script type='text/x-placeholder'><\/script>Value";
-    return testEl.childNodes[0].nodeValue === 'Test:' && testEl.childNodes[2].nodeValue === ' Value';
-  })(doc);
-
-  var tagNamesRequiringInnerHTMLFix = doc && (function (document) {
-    var tagNamesRequiringInnerHTMLFix;
-    // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
-    // html, style, table, tbody, tfoot, thead, title, tr. Detect this and add
-    // them to an initial list of corrected tags.
-    //
-    // Here we are only dealing with the ones which can have child nodes.
-    //
-    var tableNeedsInnerHTMLFix;
-    var tableInnerHTMLTestElement = document.createElement('table');
-    try {
-      tableInnerHTMLTestElement.innerHTML = '<tbody></tbody>';
-    } catch (e) {} finally {
-      tableNeedsInnerHTMLFix = tableInnerHTMLTestElement.childNodes.length === 0;
-    }
-    if (tableNeedsInnerHTMLFix) {
-      tagNamesRequiringInnerHTMLFix = {
-        colgroup: ['table'],
-        table: [],
-        tbody: ['table'],
-        tfoot: ['table'],
-        thead: ['table'],
-        tr: ['table', 'tbody']
-      };
-    }
-
-    // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
-    // add it to the list of corrected tags.
-    //
-    var selectInnerHTMLTestElement = document.createElement('select');
-    selectInnerHTMLTestElement.innerHTML = '<option></option>';
-    if (!selectInnerHTMLTestElement.childNodes[0]) {
-      tagNamesRequiringInnerHTMLFix = tagNamesRequiringInnerHTMLFix || {};
-      tagNamesRequiringInnerHTMLFix.select = [];
-    }
-    return tagNamesRequiringInnerHTMLFix;
-  })(doc);
-
-  function scriptSafeInnerHTML(element, html) {
-    // without a leading text node, IE will drop a leading script tag.
-    html = '&shy;' + html;
-
-    element.innerHTML = html;
-
-    var nodes = element.childNodes;
-
-    // Look for &shy; to remove it.
-    var shyElement = nodes[0];
-    while (shyElement.nodeType === 1 && !shyElement.nodeName) {
-      shyElement = shyElement.firstChild;
-    }
-    // At this point it's the actual unicode character.
-    if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
-      var newValue = shyElement.nodeValue.slice(1);
-      if (newValue.length) {
-        shyElement.nodeValue = shyElement.nodeValue.slice(1);
-      } else {
-        shyElement.parentNode.removeChild(shyElement);
-      }
-    }
-
-    return nodes;
-  }
-
-  function buildDOMWithFix(html, contextualElement) {
-    var tagName = contextualElement.tagName;
-
-    // Firefox versions < 11 do not have support for element.outerHTML.
-    var outerHTML = contextualElement.outerHTML || new XMLSerializer().serializeToString(contextualElement);
-    if (!outerHTML) {
-      throw "Can't set innerHTML on " + tagName + " in this browser";
-    }
-
-    html = fixSelect(html, contextualElement);
-
-    var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
-
-    var startTag = outerHTML.match(new RegExp("<" + tagName + "([^>]*)>", 'i'))[0];
-    var endTag = '</' + tagName + '>';
-
-    var wrappedHTML = [startTag, html, endTag];
-
-    var i = wrappingTags.length;
-    var wrappedDepth = 1 + i;
-    while (i--) {
-      wrappedHTML.unshift('<' + wrappingTags[i] + '>');
-      wrappedHTML.push('</' + wrappingTags[i] + '>');
-    }
-
-    var wrapper = document.createElement('div');
-    scriptSafeInnerHTML(wrapper, wrappedHTML.join(''));
-    var element = wrapper;
-    while (wrappedDepth--) {
-      element = element.firstChild;
-      while (element && element.nodeType !== 1) {
-        element = element.nextSibling;
-      }
-    }
-    while (element && element.tagName !== tagName) {
-      element = element.nextSibling;
-    }
-    return element ? element.childNodes : [];
-  }
-
-  var buildDOM;
-  if (needsShy) {
-    buildDOM = function buildDOM(html, contextualElement, dom) {
-      html = fixSelect(html, contextualElement);
-
-      contextualElement = dom.cloneNode(contextualElement, false);
-      scriptSafeInnerHTML(contextualElement, html);
-      return contextualElement.childNodes;
-    };
-  } else {
-    buildDOM = function buildDOM(html, contextualElement, dom) {
-      html = fixSelect(html, contextualElement);
-
-      contextualElement = dom.cloneNode(contextualElement, false);
-      contextualElement.innerHTML = html;
-      return contextualElement.childNodes;
-    };
-  }
-
-  function fixSelect(html, contextualElement) {
-    if (contextualElement.tagName === 'SELECT') {
-      html = "<option></option>" + html;
-    }
-
-    return html;
-  }
-
-  var buildIESafeDOM;
-  if (tagNamesRequiringInnerHTMLFix || movesWhitespace) {
-    buildIESafeDOM = function buildIESafeDOM(html, contextualElement, dom) {
-      // Make a list of the leading text on script nodes. Include
-      // script tags without any whitespace for easier processing later.
-      var spacesBefore = [];
-      var spacesAfter = [];
-      if (typeof html === 'string') {
-        html = html.replace(/(\s*)(<script)/g, function (match, spaces, tag) {
-          spacesBefore.push(spaces);
-          return tag;
-        });
-
-        html = html.replace(/(<\/script>)(\s*)/g, function (match, tag, spaces) {
-          spacesAfter.push(spaces);
-          return tag;
-        });
-      }
-
-      // Fetch nodes
-      var nodes;
-      if (tagNamesRequiringInnerHTMLFix[contextualElement.tagName.toLowerCase()]) {
-        // buildDOMWithFix uses string wrappers for problematic innerHTML.
-        nodes = buildDOMWithFix(html, contextualElement);
-      } else {
-        nodes = buildDOM(html, contextualElement, dom);
-      }
-
-      // Build a list of script tags, the nodes themselves will be
-      // mutated as we add test nodes.
-      var i, j, node, nodeScriptNodes;
-      var scriptNodes = [];
-      for (i = 0; i < nodes.length; i++) {
-        node = nodes[i];
-        if (node.nodeType !== 1) {
-          continue;
-        }
-        if (node.tagName === 'SCRIPT') {
-          scriptNodes.push(node);
-        } else {
-          nodeScriptNodes = node.getElementsByTagName('script');
-          for (j = 0; j < nodeScriptNodes.length; j++) {
-            scriptNodes.push(nodeScriptNodes[j]);
-          }
-        }
-      }
-
-      // Walk the script tags and put back their leading text nodes.
-      var scriptNode, textNode, spaceBefore, spaceAfter;
-      for (i = 0; i < scriptNodes.length; i++) {
-        scriptNode = scriptNodes[i];
-        spaceBefore = spacesBefore[i];
-        if (spaceBefore && spaceBefore.length > 0) {
-          textNode = dom.document.createTextNode(spaceBefore);
-          scriptNode.parentNode.insertBefore(textNode, scriptNode);
-        }
-
-        spaceAfter = spacesAfter[i];
-        if (spaceAfter && spaceAfter.length > 0) {
-          textNode = dom.document.createTextNode(spaceAfter);
-          scriptNode.parentNode.insertBefore(textNode, scriptNode.nextSibling);
-        }
-      }
-
-      return nodes;
-    };
-  } else {
-    buildIESafeDOM = buildDOM;
-  }
-
-  var buildHTMLDOM;
-  if (needsIntegrationPointFix) {
-    exports.buildHTMLDOM = buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
-      if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
-        return buildIESafeDOM(html, document.createElement('div'), dom);
-      } else {
-        return buildIESafeDOM(html, contextualElement, dom);
-      }
-    };
-  } else {
-    exports.buildHTMLDOM = buildHTMLDOM = buildIESafeDOM;
-  }
-
-  exports.buildHTMLDOM = buildHTMLDOM;
-});
-enifed('dom-helper/classes', ['exports'], function (exports) {
-  'use strict';
-
-  var doc = typeof document === 'undefined' ? false : document;
-
-  // PhantomJS has a broken classList. See https://github.com/ariya/phantomjs/issues/12782
-  var canClassList = doc && (function () {
-    var d = document.createElement('div');
-    if (!d.classList) {
-      return false;
-    }
-    d.classList.add('boo');
-    d.classList.add('boo', 'baz');
-    return d.className === 'boo baz';
-  })();
-
-  function buildClassList(element) {
-    var classString = element.getAttribute('class') || '';
-    return classString !== '' && classString !== ' ' ? classString.split(' ') : [];
-  }
-
-  function intersect(containingArray, valuesArray) {
-    var containingIndex = 0;
-    var containingLength = containingArray.length;
-    var valuesIndex = 0;
-    var valuesLength = valuesArray.length;
-
-    var intersection = new Array(valuesLength);
-
-    // TODO: rewrite this loop in an optimal manner
-    for (; containingIndex < containingLength; containingIndex++) {
-      valuesIndex = 0;
-      for (; valuesIndex < valuesLength; valuesIndex++) {
-        if (valuesArray[valuesIndex] === containingArray[containingIndex]) {
-          intersection[valuesIndex] = containingIndex;
-          break;
-        }
-      }
-    }
-
-    return intersection;
-  }
-
-  function addClassesViaAttribute(element, classNames) {
-    var existingClasses = buildClassList(element);
-
-    var indexes = intersect(existingClasses, classNames);
-    var didChange = false;
-
-    for (var i = 0, l = classNames.length; i < l; i++) {
-      if (indexes[i] === undefined) {
-        didChange = true;
-        existingClasses.push(classNames[i]);
-      }
-    }
-
-    if (didChange) {
-      element.setAttribute('class', existingClasses.length > 0 ? existingClasses.join(' ') : '');
-    }
-  }
-
-  function removeClassesViaAttribute(element, classNames) {
-    var existingClasses = buildClassList(element);
-
-    var indexes = intersect(classNames, existingClasses);
-    var didChange = false;
-    var newClasses = [];
-
-    for (var i = 0, l = existingClasses.length; i < l; i++) {
-      if (indexes[i] === undefined) {
-        newClasses.push(existingClasses[i]);
-      } else {
-        didChange = true;
-      }
-    }
-
-    if (didChange) {
-      element.setAttribute('class', newClasses.length > 0 ? newClasses.join(' ') : '');
-    }
-  }
-
-  var addClasses, removeClasses;
-  if (canClassList) {
-    exports.addClasses = addClasses = function addClasses(element, classNames) {
-      if (element.classList) {
-        if (classNames.length === 1) {
-          element.classList.add(classNames[0]);
-        } else if (classNames.length === 2) {
-          element.classList.add(classNames[0], classNames[1]);
-        } else {
-          element.classList.add.apply(element.classList, classNames);
-        }
-      } else {
-        addClassesViaAttribute(element, classNames);
-      }
-    };
-    exports.removeClasses = removeClasses = function removeClasses(element, classNames) {
-      if (element.classList) {
-        if (classNames.length === 1) {
-          element.classList.remove(classNames[0]);
-        } else if (classNames.length === 2) {
-          element.classList.remove(classNames[0], classNames[1]);
-        } else {
-          element.classList.remove.apply(element.classList, classNames);
-        }
-      } else {
-        removeClassesViaAttribute(element, classNames);
-      }
-    };
-  } else {
-    exports.addClasses = addClasses = addClassesViaAttribute;
-    exports.removeClasses = removeClasses = removeClassesViaAttribute;
-  }
-
-  exports.addClasses = addClasses;
-  exports.removeClasses = removeClasses;
-});
-enifed('dom-helper/prop', ['exports'], function (exports) {
-  'use strict';
-
-  exports.isAttrRemovalValue = isAttrRemovalValue;
-  exports.normalizeProperty = normalizeProperty;
-
-  function isAttrRemovalValue(value) {
-    return value === null || value === undefined;
-  }
-
-  /*
-   *
-   * @method normalizeProperty
-   * @param element {HTMLElement}
-   * @param slotName {String}
-   * @returns {Object} { name, type }
-   */
-
-  function normalizeProperty(element, slotName) {
-    var type, normalized;
-
-    if (slotName in element) {
-      normalized = slotName;
-      type = 'prop';
+    /* global global */
+  } else if (typeof global === 'object') {
+      platform = global;
     } else {
-      var lower = slotName.toLowerCase();
-      if (lower in element) {
-        type = 'prop';
-        normalized = lower;
-      } else {
-        type = 'attr';
-        normalized = slotName;
-      }
+      throw new Error('no global: `self` or `global` found');
     }
 
-    if (type === 'prop' && (normalized.toLowerCase() === 'style' || preferAttr(element.tagName, normalized))) {
-      type = 'attr';
-    }
-
-    return { normalized: normalized, type: type };
-  }
-
-  // properties that MUST be set as attributes, due to:
-  // * browser bug
-  // * strange spec outlier
-  var ATTR_OVERRIDES = {
-
-    // phantomjs < 2.0 lets you set it as a prop but won't reflect it
-    // back to the attribute. button.getAttribute('type') === null
-    BUTTON: { type: true, form: true },
-
-    INPUT: {
-      // TODO: remove when IE8 is droped
-      // Some versions of IE (IE8) throw an exception when setting
-      // `input.list = 'somestring'`:
-      // https://github.com/emberjs/ember.js/issues/10908
-      // https://github.com/emberjs/ember.js/issues/11364
-      list: true,
-      // Some version of IE (like IE9) actually throw an exception
-      // if you set input.type = 'something-unknown'
-      type: true,
-      form: true,
-      // Chrome 46.0.2464.0: 'autocorrect' in document.createElement('input') === false
-      // Safari 8.0.7: 'autocorrect' in document.createElement('input') === false
-      // Mobile Safari (iOS 8.4 simulator): 'autocorrect' in document.createElement('input') === true
-      autocorrect: true
-    },
-
-    // element.form is actually a legitimate readOnly property, that is to be
-    // mutated, but must be mutated by setAttribute...
-    SELECT: { form: true },
-    OPTION: { form: true },
-    TEXTAREA: { form: true },
-    LABEL: { form: true },
-    FIELDSET: { form: true },
-    LEGEND: { form: true },
-    OBJECT: { form: true }
-  };
-
-  function preferAttr(tagName, propName) {
-    var tag = ATTR_OVERRIDES[tagName.toUpperCase()];
-    return tag && tag[propName.toLowerCase()] || false;
-  }
+  exports.default = platform;
 });
 enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
   /*globals module, URL*/
@@ -3725,36 +3266,464 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
 
   exports.default = DOMHelper;
 });
-enifed("ember/features", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null, "ember-string-ishtmlsafe": null, "ember-testing-check-waiters": null, "ember-metal-weakmap": null };
-});
-enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
-  // require the main entry points for each of these packages
-  // this is so that the global exports occur properly
+enifed('dom-helper/build-html-dom', ['exports'], function (exports) {
+  /* global XMLSerializer:false */
   'use strict';
 
-  if (_require.has('ember-template-compiler')) {
-    _require.default('ember-template-compiler');
+  var svgHTMLIntegrationPoints = { foreignObject: 1, desc: 1, title: 1 };
+  exports.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;
+  var svgNamespace = 'http://www.w3.org/2000/svg';
+
+  exports.svgNamespace = svgNamespace;
+  var doc = typeof document === 'undefined' ? false : document;
+
+  // Safari does not like using innerHTML on SVG HTML integration
+  // points (desc/title/foreignObject).
+  var needsIntegrationPointFix = doc && (function (document) {
+    if (document.createElementNS === undefined) {
+      return;
+    }
+    // In FF title will not accept innerHTML.
+    var testEl = document.createElementNS(svgNamespace, 'title');
+    testEl.innerHTML = "<div></div>";
+    return testEl.childNodes.length === 0 || testEl.childNodes[0].nodeType !== 1;
+  })(doc);
+
+  // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
+  // is a "zero-scope" element. This problem can be worked around by making
+  // the first node an invisible text node. We, like Modernizr, use &shy;
+  var needsShy = doc && (function (document) {
+    var testEl = document.createElement('div');
+    testEl.innerHTML = "<div></div>";
+    testEl.firstChild.innerHTML = "<script><\/script>";
+    return testEl.firstChild.innerHTML === '';
+  })(doc);
+
+  // IE 8 (and likely earlier) likes to move whitespace preceeding
+  // a script tag to appear after it. This means that we can
+  // accidentally remove whitespace when updating a morph.
+  var movesWhitespace = doc && (function (document) {
+    var testEl = document.createElement('div');
+    testEl.innerHTML = "Test: <script type='text/x-placeholder'><\/script>Value";
+    return testEl.childNodes[0].nodeValue === 'Test:' && testEl.childNodes[2].nodeValue === ' Value';
+  })(doc);
+
+  var tagNamesRequiringInnerHTMLFix = doc && (function (document) {
+    var tagNamesRequiringInnerHTMLFix;
+    // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
+    // html, style, table, tbody, tfoot, thead, title, tr. Detect this and add
+    // them to an initial list of corrected tags.
+    //
+    // Here we are only dealing with the ones which can have child nodes.
+    //
+    var tableNeedsInnerHTMLFix;
+    var tableInnerHTMLTestElement = document.createElement('table');
+    try {
+      tableInnerHTMLTestElement.innerHTML = '<tbody></tbody>';
+    } catch (e) {} finally {
+      tableNeedsInnerHTMLFix = tableInnerHTMLTestElement.childNodes.length === 0;
+    }
+    if (tableNeedsInnerHTMLFix) {
+      tagNamesRequiringInnerHTMLFix = {
+        colgroup: ['table'],
+        table: [],
+        tbody: ['table'],
+        tfoot: ['table'],
+        thead: ['table'],
+        tr: ['table', 'tbody']
+      };
+    }
+
+    // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
+    // add it to the list of corrected tags.
+    //
+    var selectInnerHTMLTestElement = document.createElement('select');
+    selectInnerHTMLTestElement.innerHTML = '<option></option>';
+    if (!selectInnerHTMLTestElement.childNodes[0]) {
+      tagNamesRequiringInnerHTMLFix = tagNamesRequiringInnerHTMLFix || {};
+      tagNamesRequiringInnerHTMLFix.select = [];
+    }
+    return tagNamesRequiringInnerHTMLFix;
+  })(doc);
+
+  function scriptSafeInnerHTML(element, html) {
+    // without a leading text node, IE will drop a leading script tag.
+    html = '&shy;' + html;
+
+    element.innerHTML = html;
+
+    var nodes = element.childNodes;
+
+    // Look for &shy; to remove it.
+    var shyElement = nodes[0];
+    while (shyElement.nodeType === 1 && !shyElement.nodeName) {
+      shyElement = shyElement.firstChild;
+    }
+    // At this point it's the actual unicode character.
+    if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
+      var newValue = shyElement.nodeValue.slice(1);
+      if (newValue.length) {
+        shyElement.nodeValue = shyElement.nodeValue.slice(1);
+      } else {
+        shyElement.parentNode.removeChild(shyElement);
+      }
+    }
+
+    return nodes;
   }
 
-  // do this to ensure that Ember.Test is defined properly on the global
-  // if it is present.
-  if (_require.has('ember-testing')) {
-    _require.default('ember-testing');
+  function buildDOMWithFix(html, contextualElement) {
+    var tagName = contextualElement.tagName;
+
+    // Firefox versions < 11 do not have support for element.outerHTML.
+    var outerHTML = contextualElement.outerHTML || new XMLSerializer().serializeToString(contextualElement);
+    if (!outerHTML) {
+      throw "Can't set innerHTML on " + tagName + " in this browser";
+    }
+
+    html = fixSelect(html, contextualElement);
+
+    var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
+
+    var startTag = outerHTML.match(new RegExp("<" + tagName + "([^>]*)>", 'i'))[0];
+    var endTag = '</' + tagName + '>';
+
+    var wrappedHTML = [startTag, html, endTag];
+
+    var i = wrappingTags.length;
+    var wrappedDepth = 1 + i;
+    while (i--) {
+      wrappedHTML.unshift('<' + wrappingTags[i] + '>');
+      wrappedHTML.push('</' + wrappingTags[i] + '>');
+    }
+
+    var wrapper = document.createElement('div');
+    scriptSafeInnerHTML(wrapper, wrappedHTML.join(''));
+    var element = wrapper;
+    while (wrappedDepth--) {
+      element = element.firstChild;
+      while (element && element.nodeType !== 1) {
+        element = element.nextSibling;
+      }
+    }
+    while (element && element.tagName !== tagName) {
+      element = element.nextSibling;
+    }
+    return element ? element.childNodes : [];
   }
 
-  _emberRuntimeSystemLazy_load.runLoadHooks('Ember');
+  var buildDOM;
+  if (needsShy) {
+    buildDOM = function buildDOM(html, contextualElement, dom) {
+      html = fixSelect(html, contextualElement);
 
-  /**
-  @module ember
-  */
+      contextualElement = dom.cloneNode(contextualElement, false);
+      scriptSafeInnerHTML(contextualElement, html);
+      return contextualElement.childNodes;
+    };
+  } else {
+    buildDOM = function buildDOM(html, contextualElement, dom) {
+      html = fixSelect(html, contextualElement);
+
+      contextualElement = dom.cloneNode(contextualElement, false);
+      contextualElement.innerHTML = html;
+      return contextualElement.childNodes;
+    };
+  }
+
+  function fixSelect(html, contextualElement) {
+    if (contextualElement.tagName === 'SELECT') {
+      html = "<option></option>" + html;
+    }
+
+    return html;
+  }
+
+  var buildIESafeDOM;
+  if (tagNamesRequiringInnerHTMLFix || movesWhitespace) {
+    buildIESafeDOM = function buildIESafeDOM(html, contextualElement, dom) {
+      // Make a list of the leading text on script nodes. Include
+      // script tags without any whitespace for easier processing later.
+      var spacesBefore = [];
+      var spacesAfter = [];
+      if (typeof html === 'string') {
+        html = html.replace(/(\s*)(<script)/g, function (match, spaces, tag) {
+          spacesBefore.push(spaces);
+          return tag;
+        });
+
+        html = html.replace(/(<\/script>)(\s*)/g, function (match, tag, spaces) {
+          spacesAfter.push(spaces);
+          return tag;
+        });
+      }
+
+      // Fetch nodes
+      var nodes;
+      if (tagNamesRequiringInnerHTMLFix[contextualElement.tagName.toLowerCase()]) {
+        // buildDOMWithFix uses string wrappers for problematic innerHTML.
+        nodes = buildDOMWithFix(html, contextualElement);
+      } else {
+        nodes = buildDOM(html, contextualElement, dom);
+      }
+
+      // Build a list of script tags, the nodes themselves will be
+      // mutated as we add test nodes.
+      var i, j, node, nodeScriptNodes;
+      var scriptNodes = [];
+      for (i = 0; i < nodes.length; i++) {
+        node = nodes[i];
+        if (node.nodeType !== 1) {
+          continue;
+        }
+        if (node.tagName === 'SCRIPT') {
+          scriptNodes.push(node);
+        } else {
+          nodeScriptNodes = node.getElementsByTagName('script');
+          for (j = 0; j < nodeScriptNodes.length; j++) {
+            scriptNodes.push(nodeScriptNodes[j]);
+          }
+        }
+      }
+
+      // Walk the script tags and put back their leading text nodes.
+      var scriptNode, textNode, spaceBefore, spaceAfter;
+      for (i = 0; i < scriptNodes.length; i++) {
+        scriptNode = scriptNodes[i];
+        spaceBefore = spacesBefore[i];
+        if (spaceBefore && spaceBefore.length > 0) {
+          textNode = dom.document.createTextNode(spaceBefore);
+          scriptNode.parentNode.insertBefore(textNode, scriptNode);
+        }
+
+        spaceAfter = spacesAfter[i];
+        if (spaceAfter && spaceAfter.length > 0) {
+          textNode = dom.document.createTextNode(spaceAfter);
+          scriptNode.parentNode.insertBefore(textNode, scriptNode.nextSibling);
+        }
+      }
+
+      return nodes;
+    };
+  } else {
+    buildIESafeDOM = buildDOM;
+  }
+
+  var buildHTMLDOM;
+  if (needsIntegrationPointFix) {
+    exports.buildHTMLDOM = buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
+      if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
+        return buildIESafeDOM(html, document.createElement('div'), dom);
+      } else {
+        return buildIESafeDOM(html, contextualElement, dom);
+      }
+    };
+  } else {
+    exports.buildHTMLDOM = buildHTMLDOM = buildIESafeDOM;
+  }
+
+  exports.buildHTMLDOM = buildHTMLDOM;
 });
-enifed("ember/version", ["exports"], function (exports) {
-  "use strict";
+enifed('dom-helper/classes', ['exports'], function (exports) {
+  'use strict';
 
-  exports.default = "2.7.0-canary+9b11002d";
+  var doc = typeof document === 'undefined' ? false : document;
+
+  // PhantomJS has a broken classList. See https://github.com/ariya/phantomjs/issues/12782
+  var canClassList = doc && (function () {
+    var d = document.createElement('div');
+    if (!d.classList) {
+      return false;
+    }
+    d.classList.add('boo');
+    d.classList.add('boo', 'baz');
+    return d.className === 'boo baz';
+  })();
+
+  function buildClassList(element) {
+    var classString = element.getAttribute('class') || '';
+    return classString !== '' && classString !== ' ' ? classString.split(' ') : [];
+  }
+
+  function intersect(containingArray, valuesArray) {
+    var containingIndex = 0;
+    var containingLength = containingArray.length;
+    var valuesIndex = 0;
+    var valuesLength = valuesArray.length;
+
+    var intersection = new Array(valuesLength);
+
+    // TODO: rewrite this loop in an optimal manner
+    for (; containingIndex < containingLength; containingIndex++) {
+      valuesIndex = 0;
+      for (; valuesIndex < valuesLength; valuesIndex++) {
+        if (valuesArray[valuesIndex] === containingArray[containingIndex]) {
+          intersection[valuesIndex] = containingIndex;
+          break;
+        }
+      }
+    }
+
+    return intersection;
+  }
+
+  function addClassesViaAttribute(element, classNames) {
+    var existingClasses = buildClassList(element);
+
+    var indexes = intersect(existingClasses, classNames);
+    var didChange = false;
+
+    for (var i = 0, l = classNames.length; i < l; i++) {
+      if (indexes[i] === undefined) {
+        didChange = true;
+        existingClasses.push(classNames[i]);
+      }
+    }
+
+    if (didChange) {
+      element.setAttribute('class', existingClasses.length > 0 ? existingClasses.join(' ') : '');
+    }
+  }
+
+  function removeClassesViaAttribute(element, classNames) {
+    var existingClasses = buildClassList(element);
+
+    var indexes = intersect(classNames, existingClasses);
+    var didChange = false;
+    var newClasses = [];
+
+    for (var i = 0, l = existingClasses.length; i < l; i++) {
+      if (indexes[i] === undefined) {
+        newClasses.push(existingClasses[i]);
+      } else {
+        didChange = true;
+      }
+    }
+
+    if (didChange) {
+      element.setAttribute('class', newClasses.length > 0 ? newClasses.join(' ') : '');
+    }
+  }
+
+  var addClasses, removeClasses;
+  if (canClassList) {
+    exports.addClasses = addClasses = function addClasses(element, classNames) {
+      if (element.classList) {
+        if (classNames.length === 1) {
+          element.classList.add(classNames[0]);
+        } else if (classNames.length === 2) {
+          element.classList.add(classNames[0], classNames[1]);
+        } else {
+          element.classList.add.apply(element.classList, classNames);
+        }
+      } else {
+        addClassesViaAttribute(element, classNames);
+      }
+    };
+    exports.removeClasses = removeClasses = function removeClasses(element, classNames) {
+      if (element.classList) {
+        if (classNames.length === 1) {
+          element.classList.remove(classNames[0]);
+        } else if (classNames.length === 2) {
+          element.classList.remove(classNames[0], classNames[1]);
+        } else {
+          element.classList.remove.apply(element.classList, classNames);
+        }
+      } else {
+        removeClassesViaAttribute(element, classNames);
+      }
+    };
+  } else {
+    exports.addClasses = addClasses = addClassesViaAttribute;
+    exports.removeClasses = removeClasses = removeClassesViaAttribute;
+  }
+
+  exports.addClasses = addClasses;
+  exports.removeClasses = removeClasses;
+});
+enifed('dom-helper/prop', ['exports'], function (exports) {
+  'use strict';
+
+  exports.isAttrRemovalValue = isAttrRemovalValue;
+  exports.normalizeProperty = normalizeProperty;
+
+  function isAttrRemovalValue(value) {
+    return value === null || value === undefined;
+  }
+
+  /*
+   *
+   * @method normalizeProperty
+   * @param element {HTMLElement}
+   * @param slotName {String}
+   * @returns {Object} { name, type }
+   */
+
+  function normalizeProperty(element, slotName) {
+    var type, normalized;
+
+    if (slotName in element) {
+      normalized = slotName;
+      type = 'prop';
+    } else {
+      var lower = slotName.toLowerCase();
+      if (lower in element) {
+        type = 'prop';
+        normalized = lower;
+      } else {
+        type = 'attr';
+        normalized = slotName;
+      }
+    }
+
+    if (type === 'prop' && (normalized.toLowerCase() === 'style' || preferAttr(element.tagName, normalized))) {
+      type = 'attr';
+    }
+
+    return { normalized: normalized, type: type };
+  }
+
+  // properties that MUST be set as attributes, due to:
+  // * browser bug
+  // * strange spec outlier
+  var ATTR_OVERRIDES = {
+
+    // phantomjs < 2.0 lets you set it as a prop but won't reflect it
+    // back to the attribute. button.getAttribute('type') === null
+    BUTTON: { type: true, form: true },
+
+    INPUT: {
+      // TODO: remove when IE8 is droped
+      // Some versions of IE (IE8) throw an exception when setting
+      // `input.list = 'somestring'`:
+      // https://github.com/emberjs/ember.js/issues/10908
+      // https://github.com/emberjs/ember.js/issues/11364
+      list: true,
+      // Some version of IE (like IE9) actually throw an exception
+      // if you set input.type = 'something-unknown'
+      type: true,
+      form: true,
+      // Chrome 46.0.2464.0: 'autocorrect' in document.createElement('input') === false
+      // Safari 8.0.7: 'autocorrect' in document.createElement('input') === false
+      // Mobile Safari (iOS 8.4 simulator): 'autocorrect' in document.createElement('input') === true
+      autocorrect: true
+    },
+
+    // element.form is actually a legitimate readOnly property, that is to be
+    // mutated, but must be mutated by setAttribute...
+    SELECT: { form: true },
+    OPTION: { form: true },
+    TEXTAREA: { form: true },
+    LABEL: { form: true },
+    FIELDSET: { form: true },
+    LEGEND: { form: true },
+    OBJECT: { form: true }
+  };
+
+  function preferAttr(tagName, propName) {
+    var tag = ATTR_OVERRIDES[tagName.toUpperCase()];
+    return tag && tag[propName.toLowerCase()] || false;
+  }
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7838,6 +7807,506 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
+enifed('ember-glimmer-template-compiler/index', ['exports', 'ember-glimmer-template-compiler/system/compile', 'ember-glimmer-template-compiler/system/precompile', 'ember-glimmer-template-compiler/system/template', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompilerSystemCompile, _emberGlimmerTemplateCompilerSystemPrecompile, _emberGlimmerTemplateCompilerSystemTemplate, _emberGlimmerTemplateCompilerSystemCompileOptions) {
+  'use strict';
+
+  exports.compile = _emberGlimmerTemplateCompilerSystemCompile.default;
+  exports.precompile = _emberGlimmerTemplateCompilerSystemPrecompile.default;
+  exports.template = _emberGlimmerTemplateCompilerSystemTemplate.default;
+  exports.defaultCompileOptions = _emberGlimmerTemplateCompilerSystemCompileOptions.default;
+  exports.registerPlugin = _emberGlimmerTemplateCompilerSystemCompileOptions.registerPlugin;
+});
+enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   <button {{action 'foo'}}>
+   <button onblur={{action 'foo'}}>
+   <button onblur={{action (action 'foo') 'bar'}}>
+    ```
+  
+    with
+  
+    ```handlebars
+   <button {{action this 'foo'}}>
+   <button onblur={{action this 'foo'}}>
+   <button onblur={{action this (action this 'foo') 'bar'}}>
+    ```
+  
+    @private
+    @class TransformActionSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformActionSyntax;
+
+  function TransformActionSyntax() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformActionSyntax.prototype.transform = function TransformActionSyntax_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      ElementModifierStatement: function (node) {
+        if (isAction(node)) {
+          insertThisAsFirstParam(node, b);
+        }
+      },
+      MustacheStatement: function (node) {
+        if (isAction(node)) {
+          insertThisAsFirstParam(node, b);
+        }
+      },
+      SubExpression: function (node) {
+        if (isAction(node)) {
+          insertThisAsFirstParam(node, b);
+        }
+      }
+    });
+
+    return ast;
+  };
+
+  function isAction(node) {
+    return node.path.original === 'action';
+  }
+
+  function insertThisAsFirstParam(node, builders) {
+    node.params.unshift(builders.path(''));
+  }
+});
+enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-props', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   {{attrs.foo.bar}}
+    ```
+  
+    to
+  
+    ```handlebars
+   {{foo.bar}}
+    ```
+  
+    as well as `{{#if attrs.foo}}`, `{{deeply (nested attrs.foobar.baz)}}` etc
+  
+    @private
+    @class TransformAttrsToProps
+  */
+
+  'use strict';
+
+  exports.default = TransformAttrsToProps;
+
+  function TransformAttrsToProps() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformAttrsToProps.prototype.transform = function TransformAttrsToProps_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      PathExpression: function (node) {
+        if (node.parts[0] === 'attrs') {
+          return b.path(node.original.substr(6));
+        }
+      }
+    });
+
+    return ast;
+  };
+});
+enifed('ember-glimmer-template-compiler/plugins/transform-each-in-into-each', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   {{#each-in iterableThing as |key value|}}
+    ```
+  
+    with
+  
+    ```handlebars
+   {{#each (-each-in iterableThing) as |key value|}}
+    ```
+  
+    @private
+    @class TransformHasBlockSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformEachInIntoEach;
+
+  function TransformEachInIntoEach() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformEachInIntoEach.prototype.transform = function TransformEachInIntoEach_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      BlockStatement: function (node) {
+        if (node.path.original === 'each-in') {
+          node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
+          return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
+        }
+      }
+    });
+
+    return ast;
+  };
+});
+enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   {{hasBlock}}
+    ```
+  
+    with
+  
+    ```handlebars
+   {{has-block}}
+    ```
+  
+    @private
+    @class TransformHasBlockSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformHasBlockSyntax;
+
+  function TransformHasBlockSyntax() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  var TRANSFORMATIONS = {
+    hasBlock: 'has-block',
+    hasBlockParams: 'has-block-params'
+  };
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformHasBlockSyntax.prototype.transform = function TransformHasBlockSyntax_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      PathExpression: function (node) {
+        if (TRANSFORMATIONS[node.original]) {
+          return b.sexpr(b.path(TRANSFORMATIONS[node.original]));
+        }
+      },
+      MustacheStatement: function (node) {
+        if (TRANSFORMATIONS[node.path.original]) {
+          return b.mustache(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash, null, node.loc);
+        }
+      },
+      SubExpression: function (node) {
+        if (TRANSFORMATIONS[node.path.original]) {
+          return b.sexpr(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash);
+        }
+      }
+    });
+
+    return ast;
+  };
+});
+enifed('ember-glimmer-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
+  /**
+   @module ember
+   @submodule ember-glimmer
+  */
+
+  /**
+    A Glimmer2 AST transformation that replaces all instances of
+  
+    ```handlebars
+   {{input type=boundType}}
+    ```
+  
+    with
+  
+    ```handlebars
+   {{input (-input-type boundType) type=boundType}}
+    ```
+  
+    Note that the type parameters is not removed as the -input-type helpers
+    is only used to select the component class. The component still needs
+    the type parameter to function.
+  
+    @private
+    @class TransformInputTypeSyntax
+  */
+
+  'use strict';
+
+  exports.default = TransformInputTypeSyntax;
+
+  function TransformInputTypeSyntax() {
+    // set later within Glimmer2 to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformInputTypeSyntax.prototype.transform = function TransformInputTypeSyntax_transform(ast) {
+    var _syntax = this.syntax;
+    var traverse = _syntax.traverse;
+    var b = _syntax.builders;
+
+    traverse(ast, {
+      MustacheStatement: function (node) {
+        if (isInput(node)) {
+          insertTypeHelperParameter(node, b);
+        }
+      }
+    });
+
+    return ast;
+  };
+
+  function isInput(node) {
+    return node.path.original === 'input';
+  }
+
+  function insertTypeHelperParameter(node, builders) {
+    var pairs = node.hash.pairs;
+    var pair = null;
+    for (var i = 0; i < pairs.length; i++) {
+      if (pairs[i].key === 'type') {
+        pair = pairs[i];
+        break;
+      }
+    }
+    if (pair && pair.value.type !== 'StringLiteral') {
+      node.params.unshift(builders.sexpr('-input-type', [builders.path(pair.value.original, pair.loc)], null, pair.loc));
+    }
+  }
+});
+enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-input-type-syntax', 'ember-glimmer-template-compiler/plugins/transform-attrs-into-props', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberMetalAssign) {
+  'use strict';
+
+  exports.default = compileOptions;
+  exports.registerPlugin = registerPlugin;
+  exports.removePlugin = removePlugin;
+  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
+  // the following are ember-glimmer specific
+  _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default]);
+
+  exports.PLUGINS = PLUGINS;
+  var USER_PLUGINS = [];
+
+  function compileOptions(options) {
+    options = options || {};
+    options = _emberMetalAssign.default({}, options);
+    if (!options.plugins) {
+      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
+    } else {
+      var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
+      var pluginsToAdd = potententialPugins.filter(function (plugin) {
+        return options.plugins.ast.indexOf(plugin) === -1;
+      });
+      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
+    }
+
+    return options;
+  }
+
+  function registerPlugin(type, PluginClass) {
+    if (type !== 'ast') {
+      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
+    }
+
+    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
+      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
+    }
+  }
+
+  function removePlugin(type, PluginClass) {
+    if (type !== 'ast') {
+      throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
+    }
+
+    USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
+      return plugin !== PluginClass;
+    });
+  }
+});
+enifed('ember-glimmer-template-compiler/system/compile', ['exports', 'ember-glimmer-template-compiler/system/template', 'require', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompilerSystemTemplate, _require, _emberGlimmerTemplateCompilerSystemCompileOptions) {
+  'use strict';
+
+  exports.default = compile;
+
+  var compileSpec = undefined;
+
+  function compile(string, options) {
+    if (!compileSpec && _require.has('glimmer-compiler')) {
+      compileSpec = _require.default('glimmer-compiler').compileSpec;
+    }
+
+    if (!compileSpec) {
+      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+    }
+
+    return _emberGlimmerTemplateCompilerSystemTemplate.default(compileSpec(string, _emberGlimmerTemplateCompilerSystemCompileOptions.default(options)));
+  }
+});
+enifed('ember-glimmer-template-compiler/system/precompile', ['exports', 'ember-glimmer-template-compiler/system/compile-options', 'require'], function (exports, _emberGlimmerTemplateCompilerSystemCompileOptions, _require) {
+  'use strict';
+
+  exports.default = precompile;
+
+  var compileSpec = undefined;
+
+  function precompile(templateString, options) {
+    if (!compileSpec && _require.has('glimmer-compiler')) {
+      compileSpec = _require.default('glimmer-compiler').compileSpec;
+    }
+
+    if (!compileSpec) {
+      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+    }
+
+    return JSON.stringify(compileSpec(templateString, _emberGlimmerTemplateCompilerSystemCompileOptions.default(options)));
+  }
+});
+enifed('ember-glimmer-template-compiler/system/template', ['exports', 'glimmer-runtime'], function (exports, _glimmerRuntime) {
+  'use strict';
+
+  exports.default = template;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var Wrapper = (function () {
+    Wrapper.create = function create(options) {
+      return new this(options);
+    };
+
+    function Wrapper(_ref, id) {
+      var env = _ref.env;
+
+      _classCallCheck(this, Wrapper);
+
+      this.id = id;
+      this._entryPoint = null;
+      this._layout = null;
+      this.env = env;
+    }
+
+    Wrapper.prototype.asEntryPoint = function asEntryPoint() {
+      if (!this._entryPoint) {
+        var spec = this.spec;
+        var env = this.env;
+
+        this._entryPoint = _glimmerRuntime.Template.fromSpec(spec, env);
+      }
+
+      return this._entryPoint;
+    };
+
+    Wrapper.prototype.asLayout = function asLayout() {
+      if (!this._layout) {
+        var spec = this.spec;
+        var env = this.env;
+
+        this._layout = _glimmerRuntime.Template.layoutFromSpec(spec, env);
+      }
+
+      return this._layout;
+    };
+
+    return Wrapper;
+  })();
+
+  var templateId = 0;
+
+  function template(json) {
+    var id = templateId++;
+    var Factory = (function (_Wrapper) {
+      _inherits(Factory, _Wrapper);
+
+      function Factory(options) {
+        _classCallCheck(this, Factory);
+
+        _Wrapper.call(this, options, id);
+        this.spec = JSON.parse(json);
+      }
+
+      return Factory;
+    })(Wrapper);
+    Factory.id = id;
+    return Factory;
+  }
+});
+enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
+  'use strict';
+
+  exports.Environment = _emberGlimmerEnvironment.default;
+});
 enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
@@ -13095,48 +13564,22 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
 
   exports.default = OutletView;
 });
-enifed('ember-glimmer-template-compiler/index', ['exports', 'ember-glimmer-template-compiler/system/compile', 'ember-glimmer-template-compiler/system/precompile', 'ember-glimmer-template-compiler/system/template', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompilerSystemCompile, _emberGlimmerTemplateCompilerSystemPrecompile, _emberGlimmerTemplateCompilerSystemTemplate, _emberGlimmerTemplateCompilerSystemCompileOptions) {
+enifed('ember-htmlbars-template-compiler/index', ['exports', 'ember-htmlbars-template-compiler/system/compile', 'ember-htmlbars-template-compiler/system/precompile', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompile, _emberHtmlbarsTemplateCompilerSystemPrecompile, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
   'use strict';
 
-  exports.compile = _emberGlimmerTemplateCompilerSystemCompile.default;
-  exports.precompile = _emberGlimmerTemplateCompilerSystemPrecompile.default;
-  exports.template = _emberGlimmerTemplateCompilerSystemTemplate.default;
-  exports.defaultCompileOptions = _emberGlimmerTemplateCompilerSystemCompileOptions.default;
-  exports.registerPlugin = _emberGlimmerTemplateCompilerSystemCompileOptions.registerPlugin;
+  exports.compile = _emberHtmlbarsTemplateCompilerSystemCompile.default;
+  exports.precompile = _emberHtmlbarsTemplateCompilerSystemPrecompile.default;
+  exports.template = _emberHtmlbarsTemplateCompilerSystemTemplate.default;
+  exports.defaultCompileOptions = _emberHtmlbarsTemplateCompilerSystemCompileOptions.default;
+  exports.registerPlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.registerPlugin;
 });
-enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   <button {{action 'foo'}}>
-   <button onblur={{action 'foo'}}>
-   <button onblur={{action (action 'foo') 'bar'}}>
-    ```
-  
-    with
-  
-    ```handlebars
-   <button {{action this 'foo'}}>
-   <button onblur={{action this 'foo'}}>
-   <button onblur={{action this (action this 'foo') 'bar'}}>
-    ```
-  
-    @private
-    @class TransformActionSyntax
-  */
-
+enifed('ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformActionSyntax;
+  exports.default = TransformClosureComponentAttrsIntoMut;
 
-  function TransformActionSyntax() {
-    // set later within Glimmer2 to the syntax package
+  function TransformClosureComponentAttrsIntoMut() {
+    // set later within HTMLBars to the syntax package
     this.syntax = null;
   }
 
@@ -13145,25 +13588,13 @@ enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['expo
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  TransformActionSyntax.prototype.transform = function TransformActionSyntax_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
+  TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
+    var b = this.syntax.builders;
 
-    traverse(ast, {
-      ElementModifierStatement: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      },
-      MustacheStatement: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      },
+    this.syntax.traverse(ast, {
       SubExpression: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
+        if (isComponentClosure(node)) {
+          mutParameters(b, node);
         }
       }
     });
@@ -13171,281 +13602,135 @@ enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['expo
     return ast;
   };
 
-  function isAction(node) {
-    return node.path.original === 'action';
+  function isComponentClosure(node) {
+    return node.type === 'SubExpression' && node.path.original === 'component';
   }
 
-  function insertThisAsFirstParam(node, builders) {
-    node.params.unshift(builders.path(''));
-  }
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-props', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{attrs.foo.bar}}
-    ```
-  
-    to
-  
-    ```handlebars
-   {{foo.bar}}
-    ```
-  
-    as well as `{{#if attrs.foo}}`, `{{deeply (nested attrs.foobar.baz)}}` etc
-  
-    @private
-    @class TransformAttrsToProps
-  */
-
-  'use strict';
-
-  exports.default = TransformAttrsToProps;
-
-  function TransformAttrsToProps() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformAttrsToProps.prototype.transform = function TransformAttrsToProps_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      PathExpression: function (node) {
-        if (node.parts[0] === 'attrs') {
-          return b.path(node.original.substr(6));
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-each-in-into-each', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{#each-in iterableThing as |key value|}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{#each (-each-in iterableThing) as |key value|}}
-    ```
-  
-    @private
-    @class TransformHasBlockSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformEachInIntoEach;
-
-  function TransformEachInIntoEach() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformEachInIntoEach.prototype.transform = function TransformEachInIntoEach_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      BlockStatement: function (node) {
-        if (node.path.original === 'each-in') {
-          node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
-          return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{hasBlock}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{has-block}}
-    ```
-  
-    @private
-    @class TransformHasBlockSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformHasBlockSyntax;
-
-  function TransformHasBlockSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  var TRANSFORMATIONS = {
-    hasBlock: 'has-block',
-    hasBlockParams: 'has-block-params'
-  };
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformHasBlockSyntax.prototype.transform = function TransformHasBlockSyntax_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      PathExpression: function (node) {
-        if (TRANSFORMATIONS[node.original]) {
-          return b.sexpr(b.path(TRANSFORMATIONS[node.original]));
-        }
-      },
-      MustacheStatement: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          return b.mustache(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash, null, node.loc);
-        }
-      },
-      SubExpression: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          return b.sexpr(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash);
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{input type=boundType}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{input (-input-type boundType) type=boundType}}
-    ```
-  
-    Note that the type parameters is not removed as the -input-type helpers
-    is only used to select the component class. The component still needs
-    the type parameter to function.
-  
-    @private
-    @class TransformInputTypeSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformInputTypeSyntax;
-
-  function TransformInputTypeSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformInputTypeSyntax.prototype.transform = function TransformInputTypeSyntax_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      MustacheStatement: function (node) {
-        if (isInput(node)) {
-          insertTypeHelperParameter(node, b);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function isInput(node) {
-    return node.path.original === 'input';
-  }
-
-  function insertTypeHelperParameter(node, builders) {
-    var pairs = node.hash.pairs;
-    var pair = null;
-    for (var i = 0; i < pairs.length; i++) {
-      if (pairs[i].key === 'type') {
-        pair = pairs[i];
-        break;
+  function mutParameters(builder, node) {
+    for (var i = 1; i < node.params.length; i++) {
+      if (node.params[i].type === 'PathExpression') {
+        node.params[i] = builder.sexpr(builder.path('@mut'), [node.params[i]]);
       }
     }
-    if (pair && pair.value.type !== 'StringLiteral') {
-      node.params.unshift(builders.sexpr('-input-type', [builders.path(pair.value.original, pair.loc)], null, pair.loc));
+
+    for (var i = 0; i < node.hash.pairs.length; i++) {
+      var pair = node.hash.pairs[i];
+      var value = pair.value;
+
+      if (value.type === 'PathExpression') {
+        pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
+      }
     }
   }
 });
-enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-input-type-syntax', 'ember-glimmer-template-compiler/plugins/transform-attrs-into-props', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberMetalAssign) {
+enifed('ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = compileOptions;
+  exports.default = TransformComponentAttrsIntoMut;
+
+  function TransformComponentAttrsIntoMut() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      for (var i = 0; i < node.hash.pairs.length; i++) {
+        var pair = node.hash.pairs[i];
+        var value = pair.value;
+
+        if (value.type === 'PathExpression') {
+          pair.value = b.sexpr(b.path('@mut'), [pair.value]);
+        }
+      }
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
+  }
+});
+enifed('ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = TransformComponentCurlyToReadonly;
+
+  function TransformComponentCurlyToReadonly() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      for (var i = 0; i < node.attributes.length; i++) {
+        var attr = node.attributes[i];
+
+        if (attr.value.type !== 'MustacheStatement') {
+          return;
+        }
+        if (attr.value.params.length || attr.value.hash.pairs.length) {
+          return;
+        }
+
+        attr.value = b.mustache(b.path('readonly'), [attr.value.path], null, !attr.value.escape);
+      }
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'ComponentNode';
+  }
+});
+enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly) {
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  'use strict';
+
   exports.registerPlugin = registerPlugin;
   exports.removePlugin = removePlugin;
+  exports.default = compileOptions;
   var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
-  // the following are ember-glimmer specific
-  _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default]);
+
+  // the following are ember-htmlbars specific
+  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];
 
-  function compileOptions(options) {
-    options = options || {};
+  function mergePlugins() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     options = _emberMetalAssign.default({}, options);
     if (!options.plugins) {
       options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
@@ -13454,6 +13739,7 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
       var pluginsToAdd = potententialPugins.filter(function (plugin) {
         return options.plugins.ast.indexOf(plugin) === -1;
       });
+
       options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
     }
 
@@ -13462,7 +13748,7 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
 
   function registerPlugin(type, PluginClass) {
     if (type !== 'ast') {
-      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
+      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid HTMLBars plugin type.');
     }
 
     if (USER_PLUGINS.indexOf(PluginClass) === -1) {
@@ -13479,27 +13765,61 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
       return plugin !== PluginClass;
     });
   }
-});
-enifed('ember-glimmer-template-compiler/system/compile', ['exports', 'ember-glimmer-template-compiler/system/template', 'require', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompilerSystemTemplate, _require, _emberGlimmerTemplateCompilerSystemCompileOptions) {
-  'use strict';
 
-  exports.default = compile;
+  /**
+    @private
+    @property compileOptions
+  */
 
-  var compileSpec = undefined;
-
-  function compile(string, options) {
-    if (!compileSpec && _require.has('glimmer-compiler')) {
-      compileSpec = _require.default('glimmer-compiler').compileSpec;
+  function compileOptions(_options) {
+    var disableComponentGeneration = true;
+    var options = undefined;
+    // When calling `Ember.Handlebars.compile()` a second argument of `true`
+    // had a special meaning (long since lost), this just gaurds against
+    // `options` being true, and causing an error during compilation.
+    if (_options === true) {
+      options = {};
+    } else {
+      options = _options || {};
     }
 
-    if (!compileSpec) {
+    options.disableComponentGeneration = disableComponentGeneration;
+
+    options = mergePlugins(options);
+
+    options.buildMeta = function buildMeta(program) {
+      return {
+        revision: 'Ember@' + _emberVersion.default,
+        loc: program.loc,
+        moduleName: options.moduleName
+      };
+    };
+
+    return options;
+  }
+});
+enifed('ember-htmlbars-template-compiler/system/compile', ['exports', 'require', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _require, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
+  'use strict';
+
+  exports.default = compiler;
+
+  var compile = undefined;
+
+  function compiler(string, options) {
+    if (!compile && _require.has('htmlbars-compiler/compiler')) {
+      compile = _require.default('htmlbars-compiler/compiler').compile;
+    }
+
+    if (!compile) {
       throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
     }
 
-    return _emberGlimmerTemplateCompilerSystemTemplate.default(compileSpec(string, _emberGlimmerTemplateCompilerSystemCompileOptions.default(options)));
+    var templateSpec = compile(string, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
+
+    return _emberHtmlbarsTemplateCompilerSystemTemplate.default(templateSpec);
   }
 });
-enifed('ember-glimmer-template-compiler/system/precompile', ['exports', 'ember-glimmer-template-compiler/system/compile-options', 'require'], function (exports, _emberGlimmerTemplateCompilerSystemCompileOptions, _require) {
+enifed('ember-htmlbars-template-compiler/system/precompile', ['exports', 'ember-htmlbars-template-compiler/system/compile-options', 'require'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompileOptions, _require) {
   'use strict';
 
   exports.default = precompile;
@@ -13507,93 +13827,36 @@ enifed('ember-glimmer-template-compiler/system/precompile', ['exports', 'ember-g
   var compileSpec = undefined;
 
   function precompile(templateString, options) {
-    if (!compileSpec && _require.has('glimmer-compiler')) {
-      compileSpec = _require.default('glimmer-compiler').compileSpec;
+    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
+      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
     }
 
     if (!compileSpec) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
     }
 
-    return JSON.stringify(compileSpec(templateString, _emberGlimmerTemplateCompilerSystemCompileOptions.default(options)));
+    return compileSpec(templateString, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
   }
 });
-enifed('ember-glimmer-template-compiler/system/template', ['exports', 'glimmer-runtime'], function (exports, _glimmerRuntime) {
+enifed('ember-htmlbars-template-compiler/system/template', ['exports', 'require'], function (exports, _require2) {
   'use strict';
 
   exports.default = template;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+  var _require = _require2.default('htmlbars-runtime/hooks');
 
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+  var wrap = _require.wrap;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  var Wrapper = (function () {
-    Wrapper.create = function create(options) {
-      return new this(options);
-    };
-
-    function Wrapper(_ref, id) {
-      var env = _ref.env;
-
-      _classCallCheck(this, Wrapper);
-
-      this.id = id;
-      this._entryPoint = null;
-      this._layout = null;
-      this.env = env;
+  function template(templateSpec) {
+    if (!templateSpec.render) {
+      templateSpec = wrap(templateSpec);
     }
 
-    Wrapper.prototype.asEntryPoint = function asEntryPoint() {
-      if (!this._entryPoint) {
-        var spec = this.spec;
-        var env = this.env;
+    templateSpec.isTop = true;
+    templateSpec.isMethod = false;
 
-        this._entryPoint = _glimmerRuntime.Template.fromSpec(spec, env);
-      }
-
-      return this._entryPoint;
-    };
-
-    Wrapper.prototype.asLayout = function asLayout() {
-      if (!this._layout) {
-        var spec = this.spec;
-        var env = this.env;
-
-        this._layout = _glimmerRuntime.Template.layoutFromSpec(spec, env);
-      }
-
-      return this._layout;
-    };
-
-    return Wrapper;
-  })();
-
-  var templateId = 0;
-
-  function template(json) {
-    var id = templateId++;
-    var Factory = (function (_Wrapper) {
-      _inherits(Factory, _Wrapper);
-
-      function Factory(options) {
-        _classCallCheck(this, Factory);
-
-        _Wrapper.call(this, options, id);
-        this.spec = JSON.parse(json);
-      }
-
-      return Factory;
-    })(Wrapper);
-    Factory.id = id;
-    return Factory;
+    return templateSpec;
   }
-});
-enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
-  'use strict';
-
-  exports.Environment = _emberGlimmerEnvironment.default;
 });
 enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-htmlbars/utils/string', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDebug, _emberHtmlbarsUtilsString, _emberMetalFeatures) {
   'use strict';
@@ -15292,6 +15555,41 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 
   exports.default = Helper;
 });
+enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+   @private
+   @property helpers
+  */
+  'use strict';
+
+  exports.registerHelper = registerHelper;
+
+  var helpers = new _emberMetalEmpty_object.default();
+
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+    @private
+    @method _registerHelper
+    @for Ember.HTMLBars
+    @param {String} name
+    @param {Object|Function} helperFunc The helper function to add.
+  */
+
+  function registerHelper(name, helperFunc) {
+    helpers[name] = helperFunc;
+  }
+
+  exports.default = helpers;
+});
 enifed('ember-htmlbars/helpers/-html-safe', ['exports', 'htmlbars-util/safe-string'], function (exports, _htmlbarsUtilSafeString) {
   'use strict';
 
@@ -15883,41 +16181,6 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/streams/should
       options.inverse.yield([]);
     }
   }
-});
-enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-   @private
-   @property helpers
-  */
-  'use strict';
-
-  exports.registerHelper = registerHelper;
-
-  var helpers = new _emberMetalEmpty_object.default();
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    @private
-    @method _registerHelper
-    @for Ember.HTMLBars
-    @param {String} name
-    @param {Object|Function} helperFunc The helper function to add.
-  */
-
-  function registerHelper(name, helperFunc) {
-    helpers[name] = helperFunc;
-  }
-
-  exports.default = helpers;
 });
 enifed('ember-htmlbars/hooks/bind-block', ['exports'], function (exports) {
   'use strict';
@@ -17009,6 +17272,41 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/s
 
 // Importing ember-htmlbars/compat updates the
 // Ember.Handlebars global if htmlbars is enabled.
+enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  'use strict';
+
+  exports.registerKeyword = registerKeyword;
+
+  /**
+   @private
+   @property helpers
+  */
+  var keywords = Object.create(_htmlbarsRuntime.hooks.keywords);
+
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+    @private
+    @method _registerHelper
+    @for Ember.HTMLBars
+    @param {String} name
+    @param {Object|Function} keyword The keyword to add.
+  */
+
+  function registerKeyword(name, keyword) {
+    keywords[name] = keyword;
+  }
+
+  exports.default = keywords;
+});
 enifed('ember-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/hooks', 'ember-htmlbars/keywords/closure-action'], function (exports, _htmlbarsRuntimeHooks, _emberHtmlbarsKeywordsClosureAction) {
   /**
   @module ember
@@ -19281,41 +19579,6 @@ enifed('ember-htmlbars/keywords/yield', ['exports'], function (exports) {
 
     return true;
   }
-});
-enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerKeyword = registerKeyword;
-
-  /**
-   @private
-   @property helpers
-  */
-  var keywords = Object.create(_htmlbarsRuntime.hooks.keywords);
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    @private
-    @method _registerHelper
-    @for Ember.HTMLBars
-    @param {String} name
-    @param {Object|Function} keyword The keyword to add.
-  */
-
-  function registerKeyword(name, keyword) {
-    keywords[name] = keyword;
-  }
-
-  exports.default = keywords;
 });
 enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/debug', 'dom-helper', 'ember-metal/is_none'], function (exports, _emberMetalDebug, _domHelper, _emberMetalIs_none) {
   'use strict';
@@ -22678,300 +22941,6 @@ enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'emb
   exports.CoreOutletView = CoreOutletView;
   var OutletView = CoreOutletView.extend({ tagName: '' });
   exports.OutletView = OutletView;
-});
-enifed('ember-htmlbars-template-compiler/index', ['exports', 'ember-htmlbars-template-compiler/system/compile', 'ember-htmlbars-template-compiler/system/precompile', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompile, _emberHtmlbarsTemplateCompilerSystemPrecompile, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.compile = _emberHtmlbarsTemplateCompilerSystemCompile.default;
-  exports.precompile = _emberHtmlbarsTemplateCompilerSystemPrecompile.default;
-  exports.template = _emberHtmlbarsTemplateCompilerSystemTemplate.default;
-  exports.defaultCompileOptions = _emberHtmlbarsTemplateCompilerSystemCompileOptions.default;
-  exports.registerPlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.registerPlugin;
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformClosureComponentAttrsIntoMut;
-
-  function TransformClosureComponentAttrsIntoMut() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
-    var b = this.syntax.builders;
-
-    this.syntax.traverse(ast, {
-      SubExpression: function (node) {
-        if (isComponentClosure(node)) {
-          mutParameters(b, node);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function isComponentClosure(node) {
-    return node.type === 'SubExpression' && node.path.original === 'component';
-  }
-
-  function mutParameters(builder, node) {
-    for (var i = 1; i < node.params.length; i++) {
-      if (node.params[i].type === 'PathExpression') {
-        node.params[i] = builder.sexpr(builder.path('@mut'), [node.params[i]]);
-      }
-    }
-
-    for (var i = 0; i < node.hash.pairs.length; i++) {
-      var pair = node.hash.pairs[i];
-      var value = pair.value;
-
-      if (value.type === 'PathExpression') {
-        pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
-      }
-    }
-  }
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformComponentAttrsIntoMut;
-
-  function TransformComponentAttrsIntoMut() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      for (var i = 0; i < node.hash.pairs.length; i++) {
-        var pair = node.hash.pairs[i];
-        var value = pair.value;
-
-        if (value.type === 'PathExpression') {
-          pair.value = b.sexpr(b.path('@mut'), [pair.value]);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformComponentCurlyToReadonly;
-
-  function TransformComponentCurlyToReadonly() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      for (var i = 0; i < node.attributes.length; i++) {
-        var attr = node.attributes[i];
-
-        if (attr.value.type !== 'MustacheStatement') {
-          return;
-        }
-        if (attr.value.params.length || attr.value.hash.pairs.length) {
-          return;
-        }
-
-        attr.value = b.mustache(b.path('readonly'), [attr.value.path], null, !attr.value.escape);
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'ComponentNode';
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerPlugin = registerPlugin;
-  exports.removePlugin = removePlugin;
-  exports.default = compileOptions;
-  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
-
-  // the following are ember-htmlbars specific
-  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default]);
-
-  exports.PLUGINS = PLUGINS;
-  var USER_PLUGINS = [];
-
-  function mergePlugins() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    options = _emberMetalAssign.default({}, options);
-    if (!options.plugins) {
-      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
-    } else {
-      var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
-      var pluginsToAdd = potententialPugins.filter(function (plugin) {
-        return options.plugins.ast.indexOf(plugin) === -1;
-      });
-
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
-    }
-
-    return options;
-  }
-
-  function registerPlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid HTMLBars plugin type.');
-    }
-
-    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
-      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
-    }
-  }
-
-  function removePlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
-    }
-
-    USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
-    });
-  }
-
-  /**
-    @private
-    @property compileOptions
-  */
-
-  function compileOptions(_options) {
-    var disableComponentGeneration = true;
-    var options = undefined;
-    // When calling `Ember.Handlebars.compile()` a second argument of `true`
-    // had a special meaning (long since lost), this just gaurds against
-    // `options` being true, and causing an error during compilation.
-    if (_options === true) {
-      options = {};
-    } else {
-      options = _options || {};
-    }
-
-    options.disableComponentGeneration = disableComponentGeneration;
-
-    options = mergePlugins(options);
-
-    options.buildMeta = function buildMeta(program) {
-      return {
-        revision: 'Ember@' + _emberVersion.default,
-        loc: program.loc,
-        moduleName: options.moduleName
-      };
-    };
-
-    return options;
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/compile', ['exports', 'require', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _require, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.default = compiler;
-
-  var compile = undefined;
-
-  function compiler(string, options) {
-    if (!compile && _require.has('htmlbars-compiler/compiler')) {
-      compile = _require.default('htmlbars-compiler/compiler').compile;
-    }
-
-    if (!compile) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    var templateSpec = compile(string, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
-
-    return _emberHtmlbarsTemplateCompilerSystemTemplate.default(templateSpec);
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/precompile', ['exports', 'ember-htmlbars-template-compiler/system/compile-options', 'require'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompileOptions, _require) {
-  'use strict';
-
-  exports.default = precompile;
-
-  var compileSpec = undefined;
-
-  function precompile(templateString, options) {
-    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
-      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
-    }
-
-    if (!compileSpec) {
-      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-    }
-
-    return compileSpec(templateString, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/template', ['exports', 'require'], function (exports, _require2) {
-  'use strict';
-
-  exports.default = template;
-
-  var _require = _require2.default('htmlbars-runtime/hooks');
-
-  var wrap = _require.wrap;
-
-  function template(templateSpec) {
-    if (!templateSpec.render) {
-      templateSpec = wrap(templateSpec);
-    }
-
-    templateSpec.isTop = true;
-    templateSpec.isMethod = false;
-
-    return templateSpec;
-  }
 });
 enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalUtils, _emberMetalMeta, _emberMetalDependent_keys) {
   'use strict';
@@ -45477,6 +45446,25 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
+enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compiler'], function (exports, _emberMetalCore, _emberTemplateCompilerCompiler) {
+  'use strict';
+
+  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
+  var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
+
+  var _compiler = _emberTemplateCompilerCompiler.default();
+
+  var precompile = _compiler.precompile;
+  var compile = _compiler.compile;
+  var template = _compiler.template;
+  var registerPlugin = _compiler.registerPlugin;
+
+  EmberHTMLBars.precompile = EmberHandlebars.precompile = precompile;
+  EmberHTMLBars.compile = EmberHandlebars.compile = compile;
+  EmberHTMLBars.template = EmberHandlebars.template = template;
+  EmberHTMLBars.registerPlugin = registerPlugin;
+});
+// reexports
 enifed('ember-template-compiler/compat/precompile', ['exports', 'require', 'ember-metal/features'], function (exports, _require, _emberMetalFeatures) {
   /**
   @module ember
@@ -45513,25 +45501,6 @@ enifed('ember-template-compiler/compat/precompile', ['exports', 'require', 'embe
     return compileFunc(string, compileOptions());
   };
 });
-enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compiler'], function (exports, _emberMetalCore, _emberTemplateCompilerCompiler) {
-  'use strict';
-
-  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-  var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
-
-  var _compiler = _emberTemplateCompilerCompiler.default();
-
-  var precompile = _compiler.precompile;
-  var compile = _compiler.compile;
-  var template = _compiler.template;
-  var registerPlugin = _compiler.registerPlugin;
-
-  EmberHTMLBars.precompile = EmberHandlebars.precompile = precompile;
-  EmberHTMLBars.compile = EmberHandlebars.compile = compile;
-  EmberHTMLBars.template = EmberHandlebars.template = template;
-  EmberHTMLBars.registerPlugin = registerPlugin;
-});
-// reexports
 enifed('ember-template-compiler/compiler', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
 
@@ -46905,258 +46874,6 @@ enifed('ember-testing/ext/rsvp', ['exports', 'ember-runtime/ext/rsvp', 'ember-me
 
   exports.default = _emberRuntimeExtRsvp.default;
 });
-enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = andThen;
-
-  function andThen(app, callback) {
-    return app.testHelpers.wait(callback(app));
-  }
-});
-enifed('ember-testing/helpers/click', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
-  'use strict';
-
-  exports.default = click;
-
-  function click(app, selector, context) {
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var el = $el[0];
-
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mousedown');
-
-    _emberTestingEvents.focus(el);
-
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mouseup');
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'click');
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = currentPath;
-
-  function currentPath(app) {
-    var routingService = app.__container__.lookup('service:-routing');
-    return _emberMetalProperty_get.get(routingService, 'currentPath');
-  }
-});
-enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = currentRouteName;
-
-  function currentRouteName(app) {
-    var routingService = app.__container__.lookup('service:-routing');
-    return _emberMetalProperty_get.get(routingService, 'currentRouteName');
-  }
-});
-enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = currentURL;
-
-  function currentURL(app) {
-    var router = app.__container__.lookup('router:main');
-    return _emberMetalProperty_get.get(router, 'location').getURL();
-  }
-});
-enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
-  'use strict';
-
-  exports.default = fillIn;
-
-  function fillIn(app, selector, contextOrText, text) {
-    var $el = undefined,
-        el = undefined,
-        context = undefined;
-    if (typeof text === 'undefined') {
-      text = contextOrText;
-    } else {
-      context = contextOrText;
-    }
-    $el = app.testHelpers.findWithAssert(selector, context);
-    el = $el[0];
-    _emberTestingEvents.focus(el);
-    _emberMetalRun_loop.default(function () {
-      $el.val(text);
-      _emberTestingEvents.fireEvent(el, 'input');
-      _emberTestingEvents.fireEvent(el, 'change');
-    });
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/find', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = find;
-
-  function find(app, selector, context) {
-    var $el = undefined;
-    context = context || _emberMetalProperty_get.get(app, 'rootElement');
-    $el = app.$(selector, context);
-    return $el;
-  }
-});
-enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = findWithAssert;
-
-  function findWithAssert(app, selector, context) {
-    var $el = app.testHelpers.find(selector, context);
-    if ($el.length === 0) {
-      throw new Error('Element ' + selector + ' not found.');
-    }
-    return $el;
-  }
-});
-enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = keyEvent;
-
-  function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
-    var context = undefined,
-        type = undefined;
-
-    if (typeof keyCode === 'undefined') {
-      context = null;
-      keyCode = typeOrKeyCode;
-      type = contextOrType;
-    } else {
-      context = contextOrType;
-      type = typeOrKeyCode;
-    }
-
-    return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
-  }
-});
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
-  'use strict';
-
-  exports.default = pauseTest;
-
-  function pauseTest() {
-    return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
-  }
-});
-enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
-  'use strict';
-
-  exports.default = triggerEvent;
-
-  function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
-    var arity = arguments.length;
-    var context = undefined,
-        type = undefined,
-        options = undefined;
-
-    if (arity === 3) {
-      // context and options are optional, so this is
-      // app, selector, type
-      context = null;
-      type = contextOrType;
-      options = {};
-    } else if (arity === 4) {
-      // context and options are optional, so this is
-      if (typeof typeOrOptions === 'object') {
-        // either
-        // app, selector, type, options
-        context = null;
-        type = contextOrType;
-        options = typeOrOptions;
-      } else {
-        // or
-        // app, selector, context, type
-        context = contextOrType;
-        type = typeOrOptions;
-        options = {};
-      }
-    } else {
-      context = contextOrType;
-      type = typeOrOptions;
-      options = possibleOptions;
-    }
-
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var el = $el[0];
-
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, type, options);
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/visit', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
-  'use strict';
-
-  exports.default = visit;
-
-  function visit(app, url) {
-    var router = app.__container__.lookup('router:main');
-    var shouldHandleURL = false;
-
-    app.boot().then(function () {
-      router.location.setURL(url);
-
-      if (shouldHandleURL) {
-        _emberMetalRun_loop.default(app.__deprecatedInstance__, 'handleURL', url);
-      }
-    });
-
-    if (app._readinessDeferrals > 0) {
-      router['initialURL'] = url;
-      _emberMetalRun_loop.default(app, 'advanceReadiness');
-      delete router['initialURL'];
-    } else {
-      shouldHandleURL = true;
-    }
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', 'ember-runtime/ext/rsvp', 'ember-metal/run_loop', 'ember-testing/test/pending_requests'], function (exports, _emberTestingTestWaiters, _emberRuntimeExtRsvp, _emberMetalRun_loop, _emberTestingTestPending_requests) {
-  'use strict';
-
-  exports.default = wait;
-
-  function wait(app, value) {
-    return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
-      var router = app.__container__.lookup('router:main');
-
-      // Every 10ms, poll for the async thing to have finished
-      var watcher = setInterval(function () {
-        // 1. If the router is loading, keep polling
-        var routerIsLoading = router.router && !!router.router.activeTransition;
-        if (routerIsLoading) {
-          return;
-        }
-
-        // 2. If there are pending Ajax requests, keep polling
-        if (_emberTestingTestPending_requests.pendingRequests()) {
-          return;
-        }
-
-        // 3. If there are scheduled timers or we are inside of a run loop, keep polling
-        if (_emberMetalRun_loop.default.hasScheduledTimers() || _emberMetalRun_loop.default.currentRunLoop) {
-          return;
-        }
-
-        if (_emberTestingTestWaiters.checkWaiters()) {
-          return;
-        }
-
-        // Stop polling
-        clearInterval(watcher);
-
-        // Synchronously resolve the promise
-        _emberMetalRun_loop.default(null, resolve, value);
-      }, 10);
-    });
-  }
-});
 enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait'], function (exports, _emberTestingTestHelpers, _emberTestingHelpersAnd_then, _emberTestingHelpersClick, _emberTestingHelpersCurrent_path, _emberTestingHelpersCurrent_route_name, _emberTestingHelpersCurrent_url, _emberTestingHelpersFill_in, _emberTestingHelpersFind, _emberTestingHelpersFind_with_assert, _emberTestingHelpersKey_event, _emberTestingHelpersPause_test, _emberTestingHelpersTrigger_event, _emberTestingHelpersVisit, _emberTestingHelpersWait) {
   'use strict';
 
@@ -47414,6 +47131,258 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
   */
   _emberTestingTestHelpers.registerAsyncHelper('triggerEvent', _emberTestingHelpersTrigger_event.default);
 });
+enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = andThen;
+
+  function andThen(app, callback) {
+    return app.testHelpers.wait(callback(app));
+  }
+});
+enifed('ember-testing/helpers/click', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = click;
+
+  function click(app, selector, context) {
+    var $el = app.testHelpers.findWithAssert(selector, context);
+    var el = $el[0];
+
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mousedown');
+
+    _emberTestingEvents.focus(el);
+
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mouseup');
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'click');
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentPath;
+
+  function currentPath(app) {
+    var routingService = app.__container__.lookup('service:-routing');
+    return _emberMetalProperty_get.get(routingService, 'currentPath');
+  }
+});
+enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentRouteName;
+
+  function currentRouteName(app) {
+    var routingService = app.__container__.lookup('service:-routing');
+    return _emberMetalProperty_get.get(routingService, 'currentRouteName');
+  }
+});
+enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentURL;
+
+  function currentURL(app) {
+    var router = app.__container__.lookup('router:main');
+    return _emberMetalProperty_get.get(router, 'location').getURL();
+  }
+});
+enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = fillIn;
+
+  function fillIn(app, selector, contextOrText, text) {
+    var $el = undefined,
+        el = undefined,
+        context = undefined;
+    if (typeof text === 'undefined') {
+      text = contextOrText;
+    } else {
+      context = contextOrText;
+    }
+    $el = app.testHelpers.findWithAssert(selector, context);
+    el = $el[0];
+    _emberTestingEvents.focus(el);
+    _emberMetalRun_loop.default(function () {
+      $el.val(text);
+      _emberTestingEvents.fireEvent(el, 'input');
+      _emberTestingEvents.fireEvent(el, 'change');
+    });
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/find', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = find;
+
+  function find(app, selector, context) {
+    var $el = undefined;
+    context = context || _emberMetalProperty_get.get(app, 'rootElement');
+    $el = app.$(selector, context);
+    return $el;
+  }
+});
+enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = findWithAssert;
+
+  function findWithAssert(app, selector, context) {
+    var $el = app.testHelpers.find(selector, context);
+    if ($el.length === 0) {
+      throw new Error('Element ' + selector + ' not found.');
+    }
+    return $el;
+  }
+});
+enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = keyEvent;
+
+  function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
+    var context = undefined,
+        type = undefined;
+
+    if (typeof keyCode === 'undefined') {
+      context = null;
+      keyCode = typeOrKeyCode;
+      type = contextOrType;
+    } else {
+      context = contextOrType;
+      type = typeOrKeyCode;
+    }
+
+    return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
+  }
+});
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
+  'use strict';
+
+  exports.default = pauseTest;
+
+  function pauseTest() {
+    return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
+  }
+});
+enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = triggerEvent;
+
+  function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
+    var arity = arguments.length;
+    var context = undefined,
+        type = undefined,
+        options = undefined;
+
+    if (arity === 3) {
+      // context and options are optional, so this is
+      // app, selector, type
+      context = null;
+      type = contextOrType;
+      options = {};
+    } else if (arity === 4) {
+      // context and options are optional, so this is
+      if (typeof typeOrOptions === 'object') {
+        // either
+        // app, selector, type, options
+        context = null;
+        type = contextOrType;
+        options = typeOrOptions;
+      } else {
+        // or
+        // app, selector, context, type
+        context = contextOrType;
+        type = typeOrOptions;
+        options = {};
+      }
+    } else {
+      context = contextOrType;
+      type = typeOrOptions;
+      options = possibleOptions;
+    }
+
+    var $el = app.testHelpers.findWithAssert(selector, context);
+    var el = $el[0];
+
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, type, options);
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/visit', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
+  'use strict';
+
+  exports.default = visit;
+
+  function visit(app, url) {
+    var router = app.__container__.lookup('router:main');
+    var shouldHandleURL = false;
+
+    app.boot().then(function () {
+      router.location.setURL(url);
+
+      if (shouldHandleURL) {
+        _emberMetalRun_loop.default(app.__deprecatedInstance__, 'handleURL', url);
+      }
+    });
+
+    if (app._readinessDeferrals > 0) {
+      router['initialURL'] = url;
+      _emberMetalRun_loop.default(app, 'advanceReadiness');
+      delete router['initialURL'];
+    } else {
+      shouldHandleURL = true;
+    }
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', 'ember-runtime/ext/rsvp', 'ember-metal/run_loop', 'ember-testing/test/pending_requests'], function (exports, _emberTestingTestWaiters, _emberRuntimeExtRsvp, _emberMetalRun_loop, _emberTestingTestPending_requests) {
+  'use strict';
+
+  exports.default = wait;
+
+  function wait(app, value) {
+    return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+      var router = app.__container__.lookup('router:main');
+
+      // Every 10ms, poll for the async thing to have finished
+      var watcher = setInterval(function () {
+        // 1. If the router is loading, keep polling
+        var routerIsLoading = router.router && !!router.router.activeTransition;
+        if (routerIsLoading) {
+          return;
+        }
+
+        // 2. If there are pending Ajax requests, keep polling
+        if (_emberTestingTestPending_requests.pendingRequests()) {
+          return;
+        }
+
+        // 3. If there are scheduled timers or we are inside of a run loop, keep polling
+        if (_emberMetalRun_loop.default.hasScheduledTimers() || _emberMetalRun_loop.default.currentRunLoop) {
+          return;
+        }
+
+        if (_emberTestingTestWaiters.checkWaiters()) {
+          return;
+        }
+
+        // Stop polling
+        clearInterval(watcher);
+
+        // Synchronously resolve the promise
+        _emberMetalRun_loop.default(null, resolve, value);
+      }, 10);
+    });
+  }
+});
 enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'require', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers'], function (exports, _emberMetalCore, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _require, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers) {
   'use strict';
 
@@ -47543,6 +47512,80 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
       });
     });
   }
+});
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
+  /**
+    @module ember
+    @submodule ember-testing
+  */
+  'use strict';
+
+  /**
+    This is a container for an assortment of testing related functionality:
+  
+    * Choose your default test adapter (for your framework of choice).
+    * Register/Unregister additional test helpers.
+    * Setup callbacks to be fired when the test helpers are injected into
+      your application.
+  
+    @class Test
+    @namespace Ember
+    @public
+  */
+  var Test = {
+    /**
+      Hash containing all known test helpers.
+       @property _helpers
+      @private
+      @since 1.7.0
+    */
+    _helpers: _emberTestingTestHelpers.helpers,
+
+    registerHelper: _emberTestingTestHelpers.registerHelper,
+    registerAsyncHelper: _emberTestingTestHelpers.registerAsyncHelper,
+    unregisterHelper: _emberTestingTestHelpers.unregisterHelper,
+    onInjectHelpers: _emberTestingTestOn_inject_helpers.onInjectHelpers,
+    Promise: _emberTestingTestPromise.default,
+    promise: _emberTestingTestPromise.promise,
+    resolve: _emberTestingTestPromise.resolve,
+    registerWaiter: _emberTestingTestWaiters.registerWaiter,
+    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
+  };
+
+  if (_emberMetalFeatures.default('ember-testing-check-waiters')) {
+    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
+  }
+
+  /**
+   Used to allow ember-testing to communicate with a specific testing
+   framework.
+  
+   You can manually set it before calling `App.setupForTesting()`.
+  
+   Example:
+  
+   ```javascript
+   Ember.Test.adapter = MyCustomAdapter.create()
+   ```
+  
+   If you do not set it, ember-testing will default to `Ember.Test.QUnitAdapter`.
+  
+   @public
+   @for Ember.Test
+   @property adapter
+   @type {Class} The adapter to be used.
+   @default Ember.Test.QUnitAdapter
+  */
+  Object.defineProperty(Test, 'adapter', {
+    get: _emberTestingTestAdapter.getAdapter,
+    set: _emberTestingTestAdapter.setAdapter
+  });
+
+  Object.defineProperty(Test, 'waiters', {
+    get: _emberTestingTestWaiters.generateDeprecatedWaitersArray
+  });
+
+  exports.default = Test;
 });
 enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal/error_handler'], function (exports, _emberConsole, _emberMetalError_handler) {
   'use strict';
@@ -48035,80 +48078,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-
 
     return array;
   }
-});
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
-  /**
-    @module ember
-    @submodule ember-testing
-  */
-  'use strict';
-
-  /**
-    This is a container for an assortment of testing related functionality:
-  
-    * Choose your default test adapter (for your framework of choice).
-    * Register/Unregister additional test helpers.
-    * Setup callbacks to be fired when the test helpers are injected into
-      your application.
-  
-    @class Test
-    @namespace Ember
-    @public
-  */
-  var Test = {
-    /**
-      Hash containing all known test helpers.
-       @property _helpers
-      @private
-      @since 1.7.0
-    */
-    _helpers: _emberTestingTestHelpers.helpers,
-
-    registerHelper: _emberTestingTestHelpers.registerHelper,
-    registerAsyncHelper: _emberTestingTestHelpers.registerAsyncHelper,
-    unregisterHelper: _emberTestingTestHelpers.unregisterHelper,
-    onInjectHelpers: _emberTestingTestOn_inject_helpers.onInjectHelpers,
-    Promise: _emberTestingTestPromise.default,
-    promise: _emberTestingTestPromise.promise,
-    resolve: _emberTestingTestPromise.resolve,
-    registerWaiter: _emberTestingTestWaiters.registerWaiter,
-    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
-  };
-
-  if (_emberMetalFeatures.default('ember-testing-check-waiters')) {
-    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
-  }
-
-  /**
-   Used to allow ember-testing to communicate with a specific testing
-   framework.
-  
-   You can manually set it before calling `App.setupForTesting()`.
-  
-   Example:
-  
-   ```javascript
-   Ember.Test.adapter = MyCustomAdapter.create()
-   ```
-  
-   If you do not set it, ember-testing will default to `Ember.Test.QUnitAdapter`.
-  
-   @public
-   @for Ember.Test
-   @property adapter
-   @type {Class} The adapter to be used.
-   @default Ember.Test.QUnitAdapter
-  */
-  Object.defineProperty(Test, 'adapter', {
-    get: _emberTestingTestAdapter.getAdapter,
-    set: _emberTestingTestAdapter.setAdapter
-  });
-
-  Object.defineProperty(Test, 'waiters', {
-    get: _emberTestingTestWaiters.generateDeprecatedWaitersArray
-  });
-
-  exports.default = Test;
 });
 enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember-metal/symbol', 'ember-metal/property_events'], function (exports, _emberMetalMixin, _emberMetalSymbol, _emberMetalProperty_events) {
   'use strict';
@@ -50311,6 +50280,39 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
 
   exports.default = CoreView;
 });
+enifed('ember-views/views/states', ['exports', 'ember-metal/assign', 'ember-views/views/states/default', 'ember-views/views/states/pre_render', 'ember-views/views/states/has_element', 'ember-views/views/states/in_dom', 'ember-views/views/states/destroying'], function (exports, _emberMetalAssign, _emberViewsViewsStatesDefault, _emberViewsViewsStatesPre_render, _emberViewsViewsStatesHas_element, _emberViewsViewsStatesIn_dom, _emberViewsViewsStatesDestroying) {
+  'use strict';
+
+  exports.cloneStates = cloneStates;
+
+  function cloneStates(from) {
+    var into = {};
+
+    into._default = {};
+    into.preRender = Object.create(into._default);
+    into.destroying = Object.create(into._default);
+    into.hasElement = Object.create(into._default);
+    into.inDOM = Object.create(into.hasElement);
+
+    for (var stateName in from) {
+      if (!from.hasOwnProperty(stateName)) {
+        continue;
+      }
+      _emberMetalAssign.default(into[stateName], from[stateName]);
+    }
+
+    return into;
+  }
+
+  var states = {
+    _default: _emberViewsViewsStatesDefault.default,
+    preRender: _emberViewsViewsStatesPre_render.default,
+    inDOM: _emberViewsViewsStatesIn_dom.default,
+    hasElement: _emberViewsViewsStatesHas_element.default,
+    destroying: _emberViewsViewsStatesDestroying.default
+  };
+  exports.states = states;
+});
 enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'ember-metal/property_get', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalError, _emberMetalProperty_get, _emberViewsCompatAttrsProxy) {
   'use strict';
 
@@ -50492,39 +50494,6 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
   });
 
   exports.default = preRender;
-});
-enifed('ember-views/views/states', ['exports', 'ember-metal/assign', 'ember-views/views/states/default', 'ember-views/views/states/pre_render', 'ember-views/views/states/has_element', 'ember-views/views/states/in_dom', 'ember-views/views/states/destroying'], function (exports, _emberMetalAssign, _emberViewsViewsStatesDefault, _emberViewsViewsStatesPre_render, _emberViewsViewsStatesHas_element, _emberViewsViewsStatesIn_dom, _emberViewsViewsStatesDestroying) {
-  'use strict';
-
-  exports.cloneStates = cloneStates;
-
-  function cloneStates(from) {
-    var into = {};
-
-    into._default = {};
-    into.preRender = Object.create(into._default);
-    into.destroying = Object.create(into._default);
-    into.hasElement = Object.create(into._default);
-    into.inDOM = Object.create(into.hasElement);
-
-    for (var stateName in from) {
-      if (!from.hasOwnProperty(stateName)) {
-        continue;
-      }
-      _emberMetalAssign.default(into[stateName], from[stateName]);
-    }
-
-    return into;
-  }
-
-  var states = {
-    _default: _emberViewsViewsStatesDefault.default,
-    preRender: _emberViewsViewsStatesPre_render.default,
-    inDOM: _emberViewsViewsStatesIn_dom.default,
-    hasElement: _emberViewsViewsStatesHas_element.default,
-    destroying: _emberViewsViewsStatesDestroying.default
-  };
-  exports.states = states;
 });
 enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
   'use strict';
@@ -51095,6 +51064,55 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
   exports.ClassNamesSupport = _emberViewsMixinsClass_names_support.default;
 });
 // for the side effect of extending Ember.run.queues
+enifed("ember/features", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-route-serializers": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null, "ember-string-ishtmlsafe": null, "ember-testing-check-waiters": null, "ember-metal-weakmap": null };
+});
+enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
+  // require the main entry points for each of these packages
+  // this is so that the global exports occur properly
+  'use strict';
+
+  if (_require.has('ember-template-compiler')) {
+    _require.default('ember-template-compiler');
+  }
+
+  // do this to ensure that Ember.Test is defined properly on the global
+  // if it is present.
+  if (_require.has('ember-testing')) {
+    _require.default('ember-testing');
+  }
+
+  _emberRuntimeSystemLazy_load.runLoadHooks('Ember');
+
+  /**
+  @module ember
+  */
+});
+enifed("ember/version", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = "2.7.0-canary+9b11002d";
+});
+enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
+  'use strict';
+
+  var internal = {
+    blockFor: _htmlbarsUtilTemplateUtils.blockFor,
+    manualElement: _htmlbarsRuntimeRender.manualElement,
+    hostBlock: _htmlbarsRuntimeHooks.hostBlock,
+    continueBlock: _htmlbarsRuntimeHooks.continueBlock,
+    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks.hostYieldWithShadowTemplate,
+    visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
+    validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
+    clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
+  };
+
+  exports.hooks = _htmlbarsRuntimeHooks.default;
+  exports.render = _htmlbarsRuntimeRender.default;
+  exports.internal = internal;
+});
 enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
   /**
     # Expression Nodes:
@@ -52963,23 +52981,15 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "html
     return fragment;
   }
 });
-enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
+enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/handlebars/utils', 'htmlbars-util/namespaces', 'htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
   'use strict';
 
-  var internal = {
-    blockFor: _htmlbarsUtilTemplateUtils.blockFor,
-    manualElement: _htmlbarsRuntimeRender.manualElement,
-    hostBlock: _htmlbarsRuntimeHooks.hostBlock,
-    continueBlock: _htmlbarsRuntimeHooks.continueBlock,
-    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks.hostYieldWithShadowTemplate,
-    visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
-    validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
-    clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
-  };
-
-  exports.hooks = _htmlbarsRuntimeHooks.default;
-  exports.render = _htmlbarsRuntimeRender.default;
-  exports.internal = internal;
+  exports.SafeString = _htmlbarsUtilSafeString.default;
+  exports.escapeExpression = _htmlbarsUtilHandlebarsUtils.escapeExpression;
+  exports.getAttrNamespace = _htmlbarsUtilNamespaces.getAttrNamespace;
+  exports.validateChildMorphs = _htmlbarsUtilMorphUtils.validateChildMorphs;
+  exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
+  exports.dump = _htmlbarsUtilMorphUtils.dump;
 });
 enifed('htmlbars-util/array-utils', ['exports'], function (exports) {
   'use strict';
@@ -53615,80 +53625,6 @@ enifed("htmlbars-util/void-tag-names", ["exports", "htmlbars-util/array-utils"],
 
   exports.default = voidMap;
 });
-enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/handlebars/utils', 'htmlbars-util/namespaces', 'htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
-  'use strict';
-
-  exports.SafeString = _htmlbarsUtilSafeString.default;
-  exports.escapeExpression = _htmlbarsUtilHandlebarsUtils.escapeExpression;
-  exports.getAttrNamespace = _htmlbarsUtilNamespaces.getAttrNamespace;
-  exports.validateChildMorphs = _htmlbarsUtilMorphUtils.validateChildMorphs;
-  exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
-  exports.dump = _htmlbarsUtilMorphUtils.dump;
-});
-enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
-  /* jshint scripturl:true */
-
-  'use strict';
-
-  exports.sanitizeAttributeValue = sanitizeAttributeValue;
-  var badProtocols = {
-    'javascript:': true,
-    'vbscript:': true
-  };
-
-  var badTags = {
-    'A': true,
-    'BODY': true,
-    'LINK': true,
-    'IMG': true,
-    'IFRAME': true,
-    'BASE': true,
-    'FORM': true
-  };
-
-  var badTagsForDataURI = {
-    'EMBED': true
-  };
-
-  var badAttributes = {
-    'href': true,
-    'src': true,
-    'background': true,
-    'action': true
-  };
-
-  exports.badAttributes = badAttributes;
-  var badAttributesForDataURI = {
-    'src': true
-  };
-
-  function sanitizeAttributeValue(dom, element, attribute, value) {
-    var tagName;
-
-    if (!element) {
-      tagName = null;
-    } else {
-      tagName = element.tagName.toUpperCase();
-    }
-
-    if (value && value.toHTML) {
-      return value.toHTML();
-    }
-
-    if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
-      var protocol = dom.protocolForURL(value);
-      if (badProtocols[protocol] === true) {
-        return 'unsafe:' + value;
-      }
-    }
-
-    if (badTagsForDataURI[tagName] && badAttributesForDataURI[attribute]) {
-      return 'unsafe:' + value;
-    }
-
-    return value;
-  }
-});
 enifed("morph-attr", ["exports", "morph-attr/sanitize-attribute-value", "dom-helper/prop", "dom-helper/build-html-dom", "htmlbars-util"], function (exports, _morphAttrSanitizeAttributeValue, _domHelperProp, _domHelperBuildHtmlDom, _htmlbarsUtil) {
   "use strict";
 
@@ -53884,143 +53820,68 @@ enifed("morph-attr", ["exports", "morph-attr/sanitize-attribute-value", "dom-hel
   exports.default = AttrMorph;
   exports.sanitizeAttributeValue = _morphAttrSanitizeAttributeValue.sanitizeAttributeValue;
 });
-enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
+enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
+  /* jshint scripturl:true */
+
   'use strict';
 
-  function MorphList() {
-    // morph graph
-    this.firstChildMorph = null;
-    this.lastChildMorph = null;
-
-    this.mountedMorph = null;
-  }
-
-  var prototype = MorphList.prototype;
-
-  prototype.clear = function MorphList$clear() {
-    var current = this.firstChildMorph;
-
-    while (current) {
-      var next = current.nextMorph;
-      current.previousMorph = null;
-      current.nextMorph = null;
-      current.parentMorphList = null;
-      current = next;
-    }
-
-    this.firstChildMorph = this.lastChildMorph = null;
+  exports.sanitizeAttributeValue = sanitizeAttributeValue;
+  var badProtocols = {
+    'javascript:': true,
+    'vbscript:': true
   };
 
-  prototype.destroy = function MorphList$destroy() {};
-
-  prototype.appendMorph = function MorphList$appendMorph(morph) {
-    this.insertBeforeMorph(morph, null);
+  var badTags = {
+    'A': true,
+    'BODY': true,
+    'LINK': true,
+    'IMG': true,
+    'IFRAME': true,
+    'BASE': true,
+    'FORM': true
   };
 
-  prototype.insertBeforeMorph = function MorphList$insertBeforeMorph(morph, referenceMorph) {
-    if (morph.parentMorphList !== null) {
-      morph.unlink();
+  var badTagsForDataURI = {
+    'EMBED': true
+  };
+
+  var badAttributes = {
+    'href': true,
+    'src': true,
+    'background': true,
+    'action': true
+  };
+
+  exports.badAttributes = badAttributes;
+  var badAttributesForDataURI = {
+    'src': true
+  };
+
+  function sanitizeAttributeValue(dom, element, attribute, value) {
+    var tagName;
+
+    if (!element) {
+      tagName = null;
+    } else {
+      tagName = element.tagName.toUpperCase();
     }
-    if (referenceMorph && referenceMorph.parentMorphList !== this) {
-      throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
+
+    if (value && value.toHTML) {
+      return value.toHTML();
     }
 
-    var mountedMorph = this.mountedMorph;
-
-    if (mountedMorph) {
-
-      var parentNode = mountedMorph.firstNode.parentNode;
-      var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
-
-      _morphRangeUtils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
-
-      // was not in list mode replace current content
-      if (!this.firstChildMorph) {
-        _morphRangeUtils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+    if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
+      var protocol = dom.protocolForURL(value);
+      if (badProtocols[protocol] === true) {
+        return 'unsafe:' + value;
       }
     }
 
-    morph.parentMorphList = this;
-
-    var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
-    if (previousMorph) {
-      previousMorph.nextMorph = morph;
-      morph.previousMorph = previousMorph;
-    } else {
-      this.firstChildMorph = morph;
+    if (badTagsForDataURI[tagName] && badAttributesForDataURI[attribute]) {
+      return 'unsafe:' + value;
     }
 
-    if (referenceMorph) {
-      referenceMorph.previousMorph = morph;
-      morph.nextMorph = referenceMorph;
-    } else {
-      this.lastChildMorph = morph;
-    }
-
-    this.firstChildMorph._syncFirstNode();
-    this.lastChildMorph._syncLastNode();
-  };
-
-  prototype.removeChildMorph = function MorphList$removeChildMorph(morph) {
-    if (morph.parentMorphList !== this) {
-      throw new Error("Cannot remove a morph from a parent it is not inside of");
-    }
-
-    morph.destroy();
-  };
-
-  exports.default = MorphList;
-});
-enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], function (exports, _morphRangeMorphList) {
-  'use strict';
-
-  (function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-      define([], factory);
-    } else if (typeof exports === 'object') {
-      module.exports = factory();
-    } else {
-      root.MorphList = factory();
-    }
-  })(undefined, function () {
-    return _morphRangeMorphList.default;
-  });
-});
-enifed("morph-range/utils", ["exports"], function (exports) {
-  // inclusive of both nodes
-  "use strict";
-
-  exports.clear = clear;
-  exports.insertBefore = insertBefore;
-
-  function clear(parentNode, firstNode, lastNode) {
-    if (!parentNode) {
-      return;
-    }
-
-    var node = firstNode;
-    var nextNode;
-    do {
-      nextNode = node.nextSibling;
-      parentNode.removeChild(node);
-      if (node === lastNode) {
-        break;
-      }
-      node = nextNode;
-    } while (node);
-  }
-
-  function insertBefore(parentNode, firstNode, lastNode, refNode) {
-    var node = firstNode;
-    var nextNode;
-    do {
-      nextNode = node.nextSibling;
-      parentNode.insertBefore(node, refNode);
-      if (node === lastNode) {
-        break;
-      }
-      node = nextNode;
-    } while (node);
+    return value;
   }
 });
 enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
@@ -54302,17 +54163,145 @@ enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morp
 
   exports.default = Morph;
 });
-enifed("glimmer/index", ["exports"], function (exports) {
-  "use strict";
+enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
+  'use strict';
+
+  function MorphList() {
+    // morph graph
+    this.firstChildMorph = null;
+    this.lastChildMorph = null;
+
+    this.mountedMorph = null;
+  }
+
+  var prototype = MorphList.prototype;
+
+  prototype.clear = function MorphList$clear() {
+    var current = this.firstChildMorph;
+
+    while (current) {
+      var next = current.nextMorph;
+      current.previousMorph = null;
+      current.nextMorph = null;
+      current.parentMorphList = null;
+      current = next;
+    }
+
+    this.firstChildMorph = this.lastChildMorph = null;
+  };
+
+  prototype.destroy = function MorphList$destroy() {};
+
+  prototype.appendMorph = function MorphList$appendMorph(morph) {
+    this.insertBeforeMorph(morph, null);
+  };
+
+  prototype.insertBeforeMorph = function MorphList$insertBeforeMorph(morph, referenceMorph) {
+    if (morph.parentMorphList !== null) {
+      morph.unlink();
+    }
+    if (referenceMorph && referenceMorph.parentMorphList !== this) {
+      throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
+    }
+
+    var mountedMorph = this.mountedMorph;
+
+    if (mountedMorph) {
+
+      var parentNode = mountedMorph.firstNode.parentNode;
+      var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
+
+      _morphRangeUtils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
+
+      // was not in list mode replace current content
+      if (!this.firstChildMorph) {
+        _morphRangeUtils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+      }
+    }
+
+    morph.parentMorphList = this;
+
+    var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
+    if (previousMorph) {
+      previousMorph.nextMorph = morph;
+      morph.previousMorph = previousMorph;
+    } else {
+      this.firstChildMorph = morph;
+    }
+
+    if (referenceMorph) {
+      referenceMorph.previousMorph = morph;
+      morph.nextMorph = referenceMorph;
+    } else {
+      this.lastChildMorph = morph;
+    }
+
+    this.firstChildMorph._syncFirstNode();
+    this.lastChildMorph._syncLastNode();
+  };
+
+  prototype.removeChildMorph = function MorphList$removeChildMorph(morph) {
+    if (morph.parentMorphList !== this) {
+      throw new Error("Cannot remove a morph from a parent it is not inside of");
+    }
+
+    morph.destroy();
+  };
+
+  exports.default = MorphList;
 });
-/*
- * @overview  Glimmer
- * @copyright Copyright 2011-2015 Tilde Inc. and contributors
- * @license   Licensed under MIT license
- *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   VERSION_STRING_PLACEHOLDER
- */
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
+enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], function (exports, _morphRangeMorphList) {
+  'use strict';
+
+  (function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+      define([], factory);
+    } else if (typeof exports === 'object') {
+      module.exports = factory();
+    } else {
+      root.MorphList = factory();
+    }
+  })(undefined, function () {
+    return _morphRangeMorphList.default;
+  });
+});
+enifed("morph-range/utils", ["exports"], function (exports) {
+  // inclusive of both nodes
+  "use strict";
+
+  exports.clear = clear;
+  exports.insertBefore = insertBefore;
+
+  function clear(parentNode, firstNode, lastNode) {
+    if (!parentNode) {
+      return;
+    }
+
+    var node = firstNode;
+    var nextNode;
+    do {
+      nextNode = node.nextSibling;
+      parentNode.removeChild(node);
+      if (node === lastNode) {
+        break;
+      }
+      node = nextNode;
+    } while (node);
+  }
+
+  function insertBefore(parentNode, firstNode, lastNode, refNode) {
+    var node = firstNode;
+    var nextNode;
+    do {
+      nextNode = node.nextSibling;
+      parentNode.insertBefore(node, refNode);
+      if (node === lastNode) {
+        break;
+      }
+      node = nextNode;
+    } while (node);
+  }
+});
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
   'use strict';
 
@@ -56069,6 +56058,26 @@ enifed('glimmer-runtime/lib/compiled/blocks', ['exports', 'glimmer-runtime/lib/s
     exports.Layout = Layout;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvY29tcGlsZWQvYmxvY2tzLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7OztRQXFCQSxhQUFBLEdBSUUsU0FKRixhQUFBLENBSWMsR0FBVSxFQUFFLE9BQWUsRUFBQTs4QkFKekMsYUFBQTs7QUFLSSxZQUFJLENBQUMsR0FBRyxHQUFHLEdBQUcsQ0FBQztBQUNmLFlBQUksQ0FBQyxPQUFPLEdBQUcsT0FBTyxDQUFDO0tBQ3hCOzs7O1FBR0gsS0FBQSxHQU9FLFNBUEYsS0FBQSxDQU9jLE9BQXFCLEVBQUE7OEJBUG5DLEtBQUE7O0FBS1ksWUFBQSxDQUFBLFFBQVEsR0FBa0IsSUFBSSxDQUFDO0FBR3ZDLFlBQUksQ0FBQyxXQUFXLEdBQUcsT0FBTyxDQUFDLFdBQVcsSUFBSSxJQUFJLENBQUM7QUFDL0MsWUFBSSxDQUFDLFFBQVEsR0FBRyxPQUFPLENBQUMsUUFBUSxDQUFDO0FBQ2pDLFlBQUksQ0FBQyxPQUFPLEdBQUcsT0FBTyxDQUFDLE9BQU8sQ0FBQztBQUMvQixZQUFJLENBQUMsSUFBSSxHQUFHLE9BQU8sQ0FBQyxJQUFJLENBQUM7S0FDMUI7Ozs7UUFPSCxXQUFBO2tCQUFBLFdBQUE7O0FBR0UsaUJBSEYsV0FBQSxDQUdjLE9BQTJCLEVBQUE7a0NBSHpDLFdBQUE7O0FBSUksOEJBQU0sT0FBTyxDQUFDLENBQUM7QUFDZixnQkFBSSxDQUFDLE1BQU0sR0FBRyxPQUFPLENBQUMsTUFBTSxDQUFDO1NBQzlCOztBQU5ILG1CQUFBLFdBUUUsdUJBQXVCLEdBQUEsbUNBQUE7QUFDckIsbUJBQU8sQ0FBQyxDQUFDLElBQUksQ0FBQyxNQUFNLENBQUMsTUFBTSxDQUFDO1NBQzdCOztBQVZILG1CQUFBLFdBWUUsT0FBTyxHQUFBLGlCQUFDLEdBQWdCLEVBQUE7QUFDdEIsZ0JBQUksUUFBUSxHQUFHLElBQUksQ0FBQyxRQUFRLENBQUM7QUFDN0IsZ0JBQUksUUFBUSxFQUFFLE9BQU8sUUFBUSxDQUFDO0FBRTlC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QixnQkFBSSxDQUFDLE1BQU0sR0FBRyxNQUFNLENBQUM7U0FDdEI7O0FBbkJILGNBQUEsQ0FDUyxNQUFNLEdBQUEsZ0JBQUMsT0FBc0IsRUFBQTtBQUNsQyxnQkFBSSxNQUFNLEdBQUcsSUFBSSxNQUFNLENBQUMsT0FBTyxDQUFDLENBQUM7QUFDakMsa0RBQVksYUFBYSxDQUFDLE1BQU0sQ0FBQyxDQUFDO0FBQ2xDLG1CQUFPLE1BQU0sQ0FBQztTQUNmOztBQUxILGNBQUEsV0FxQkUsa0JBQWtCLEdBQUEsOEJBQUE7QUFDaEIsbUJBQU8sQ0FBQyxDQUFDLElBQUksQ0FBQyxLQUFLLENBQUMsTUFBTSxDQUFDO1NBQzVCOztBQXZCSCxjQUFBLFdBeUJFLFNBQVMsR0FBQSxxQkFBQTtBQUNQLG1CQUFPLENBQUMsQ0FBQyxJQUFJLENBQUMsTUFBTSxDQUFDLE1BQU0sQ0FBQztTQUM3Qjs7ZUEzQkgsTUFBQTtPQUE0QixnQkFBZ0IiLCJmaWxlIjoiYmxvY2tzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgSW50ZXJuZWRTdHJpbmcgfSBmcm9tICdnbGltbWVyLXV0aWwnO1xuaW1wb3J0IHsgT3BTZXEgfSBmcm9tICcuLi9vcGNvZGVzJztcbmltcG9ydCB7IFByb2dyYW0gfSBmcm9tICcuLi9zeW50YXgnO1xuaW1wb3J0IHsgRW52aXJvbm1lbnQgfSBmcm9tICcuLi9lbnZpcm9ubWVudCc7XG5pbXBvcnQgU3ltYm9sVGFibGUgZnJvbSAnLi4vc3ltYm9sLXRhYmxlJztcbmltcG9ydCB7XG4gIEJsb2NrTWV0YVxufSBmcm9tICdnbGltbWVyLXdpcmUtZm9ybWF0JztcblxuaW1wb3J0IHtcbiAgRW50cnlQb2ludENvbXBpbGVyLFxuICBJbmxpbmVCbG9ja0NvbXBpbGVyXG59IGZyb20gJy4uL2NvbXBpbGVyJztcblxuZXhwb3J0IGludGVyZmFjZSBCbG9ja09wdGlvbnMge1xuICBjaGlsZHJlbjogSW5saW5lQmxvY2tbXTtcbiAgcHJvZ3JhbTogUHJvZ3JhbTtcbiAgc3ltYm9sVGFibGU6IFN5bWJvbFRhYmxlO1xuICBtZXRhOiBCbG9ja01ldGE7XG59XG5cbmV4cG9ydCBjbGFzcyBDb21waWxlZEJsb2NrIHtcbiAgcHVibGljIG9wczogT3BTZXE7XG4gIHB1YmxpYyBzeW1ib2xzOiBudW1iZXI7XG5cbiAgY29uc3RydWN0b3Iob3BzOiBPcFNlcSwgc3ltYm9sczogbnVtYmVyKSB7XG4gICAgdGhpcy5vcHMgPSBvcHM7XG4gICAgdGhpcy5zeW1ib2xzID0gc3ltYm9scztcbiAgfVxufVxuXG5leHBvcnQgYWJzdHJhY3QgY2xhc3MgQmxvY2sge1xuICBwdWJsaWMgbWV0YTogQmxvY2tNZXRhO1xuICBwdWJsaWMgY2hpbGRyZW46IElubGluZUJsb2NrW107XG4gIHB1YmxpYyBwcm9ncmFtOiBQcm9ncmFtO1xuICBwdWJsaWMgc3ltYm9sVGFibGU6IFN5bWJvbFRhYmxlO1xuICBwcm90ZWN0ZWQgY29tcGlsZWQ6IENvbXBpbGVkQmxvY2sgPSBudWxsO1xuXG4gIGNvbnN0cnVjdG9yKG9wdGlvbnM6IEJsb2NrT3B0aW9ucykge1xuICAgIHRoaXMuc3ltYm9sVGFibGUgPSBvcHRpb25zLnN5bWJvbFRhYmxlIHx8IG51bGw7XG4gICAgdGhpcy5jaGlsZHJlbiA9IG9wdGlvbnMuY2hpbGRyZW47XG4gICAgdGhpcy5wcm9ncmFtID0gb3B0aW9ucy5wcm9ncmFtO1xuICAgIHRoaXMubWV0YSA9IG9wdGlvbnMubWV0YTtcbiAgfVxufVxuXG5leHBvcnQgaW50ZXJmYWNlIElubGluZUJsb2NrT3B0aW9ucyBleHRlbmRzIEJsb2NrT3B0aW9ucyB7XG4gIGxvY2FsczogSW50ZXJuZWRTdHJpbmdbXTtcbn1cblxuZXhwb3J0IGNsYXNzIElubGluZUJsb2NrIGV4dGVuZHMgQmxvY2sge1xuICBwdWJsaWMgbG9jYWxzOiBJbnRlcm5lZFN0cmluZ1tdO1xuXG4gIGNvbnN0cnVjdG9yKG9wdGlvbnM6IElubGluZUJsb2NrT3B0aW9ucykge1xuICAgIHN1cGVyKG9wdGlvbnMpO1xuICAgIHRoaXMubG9jYWxzID0gb3B0aW9ucy5sb2NhbHM7XG4gIH1cblxuICBoYXNQb3NpdGlvbmFsUGFyYW1ldGVycygpOiBib29sZWFuIHtcbiAgICByZXR1cm4gISF0aGlzLmxvY2Fscy5sZW5ndGg7XG4gIH1cblxuICBjb21waWxlKGVudjogRW52aXJvbm1lbnQpOiBDb21waWxlZEJsb2NrIHtcbiAgICBsZXQgY29tcGlsZWQgPSB0aGlzLmNvbXBpbGVkO1xuICAgIGlmIChjb21waWxlZCkgcmV0dXJuIGNvbXBpbGVkO1xuXG4gICAgbGV0IG9wcyA9IG5ldyBJbmxpbmVCbG9ja0NvbXBpbGVyKHRoaXMsIGVudikuY29tcGlsZSgpO1xuICAgIHJldHVybiB0aGlzLmNvbXBpbGVkID0gbmV3IENvbXBpbGVkQmxvY2sob3BzLCB0aGlzLnN5bWJvbFRhYmxlLnNpemUpO1xuICB9XG59XG5cbmV4cG9ydCBjbGFzcyBQYXJ0aWFsQmxvY2sgZXh0ZW5kcyBJbmxpbmVCbG9jayB7XG4gIGluaXRCbG9ja3MoYmxvY2tzID0gdGhpc1snY2hpbGRyZW4nXSwgcGFyZW50VGFibGUgPSB0aGlzWydzeW1ib2xUYWJsZSddKTogdGhpcyB7XG4gICAgYmxvY2tzLmZvckVhY2goYmxvY2sgPT4ge1xuICAgICAgbGV0IHRhYmxlID0gU3ltYm9sVGFibGUuaW5pdEZvckJsb2NrKHsgcGFyZW50OiBwYXJlbnRUYWJsZSwgYmxvY2sgfSk7XG4gICAgICB0aGlzLmluaXRCbG9ja3MoYmxvY2tbJ2NoaWxkcmVuJ10sIHRhYmxlKTtcbiAgICB9KTtcbiAgICByZXR1cm4gdGhpcztcbiAgfVxufVxuXG5leHBvcnQgYWJzdHJhY3QgY2xhc3MgVG9wTGV2ZWxUZW1wbGF0ZSBleHRlbmRzIEJsb2NrIHtcbiAgaW5pdEJsb2NrcyhibG9ja3MgPSB0aGlzWydjaGlsZHJlbiddLCBwYXJlbnRUYWJsZSA9IHRoaXNbJ3N5bWJvbFRhYmxlJ10pOiB0aGlzIHtcbiAgICBibG9ja3MuZm9yRWFjaChibG9jayA9PiB7XG4gICAgICBsZXQgdGFibGUgPSBTeW1ib2xUYWJsZS5pbml0Rm9yQmxvY2soeyBwYXJlbnQ6IHBhcmVudFRhYmxlLCBibG9jayB9KTtcbiAgICAgIHRoaXMuaW5pdEJsb2NrcyhibG9ja1snY2hpbGRyZW4nXSwgdGFibGUpO1xuICAgIH0pO1xuICAgIHJldHVybiB0aGlzO1xuICB9XG59XG5cbmV4cG9ydCBjbGFzcyBFbnRyeVBvaW50IGV4dGVuZHMgVG9wTGV2ZWxUZW1wbGF0ZSB7XG4gIHN0YXRpYyBjcmVhdGUob3B0aW9uczogQmxvY2tPcHRpb25zKTogRW50cnlQb2ludCB7XG4gICAgbGV0IHRvcCA9IG5ldyBFbnRyeVBvaW50KG9wdGlvbnMpO1xuICAgIFN5bWJvbFRhYmxlLmluaXRGb3JFbnRyeVBvaW50KHRvcCk7XG4gICAgcmV0dXJuIHRvcDtcbiAgfVxuXG4gIGNvbXBpbGUoZW52OiBFbnZpcm9ubWVudCkge1xuICAgIGxldCBjb21waWxlZCA9IHRoaXMuY29tcGlsZWQ7XG4gICAgaWYgKGNvbXBpbGVkKSByZXR1cm4gY29tcGlsZWQ7XG5cbiAgICBsZXQgb3BzID0gbmV3IEVudHJ5UG9pbnRDb21waWxlcih0aGlzLCBlbnYpLmNvbXBpbGUoKTtcbiAgICByZXR1cm4gdGhpcy5jb21waWxlZCA9IG5ldyBDb21waWxlZEJsb2NrKG9wcywgdGhpcy5zeW1ib2xUYWJsZS5zaXplKTtcbiAgfVxufVxuXG5leHBvcnQgaW50ZXJmYWNlIExheW91dE9wdGlvbnMgZXh0ZW5kcyBCbG9ja09wdGlvbnMge1xuICBuYW1lZDogSW50ZXJuZWRTdHJpbmdbXTtcbiAgeWllbGRzOiBJbnRlcm5lZFN0cmluZ1tdO1xuICBwcm9ncmFtOiBQcm9ncmFtO1xufVxuXG5leHBvcnQgY2xhc3MgTGF5b3V0IGV4dGVuZHMgVG9wTGV2ZWxUZW1wbGF0ZSB7XG4gIHN0YXRpYyBjcmVhdGUob3B0aW9uczogTGF5b3V0T3B0aW9ucyk6IExheW91dCB7XG4gICAgbGV0IGxheW91dCA9IG5ldyBMYXlvdXQob3B0aW9ucyk7XG4gICAgU3ltYm9sVGFibGUuaW5pdEZvckxheW91dChsYXlvdXQpO1xuICAgIHJldHVybiBsYXlvdXQ7XG4gIH1cblxuICBwdWJsaWMgbmFtZWQ6IEludGVybmVkU3RyaW5nW107XG4gIHB1YmxpYyB5aWVsZHM6IEludGVybmVkU3RyaW5nW107XG5cbiAgY29uc3RydWN0b3Iob3B0aW9uczogTGF5b3V0T3B0aW9ucykge1xuICAgIHN1cGVyKG9wdGlvbnMpO1xuXG4gICAgbGV0IHsgbmFtZWQsIHlpZWxkcyB9ID0gb3B0aW9ucztcblxuICAgIC8vIHBvc2l0aW9uYWwgcGFyYW1zIGluIEVtYmVyIG1heSB3YW50IHRoaXNcbiAgICAvLyB0aGlzLmxvY2FscyA9IGxvY2FscztcbiAgICB0aGlzLm5hbWVkID0gbmFtZWQ7XG4gICAgdGhpcy55aWVsZHMgPSB5aWVsZHM7XG4gIH1cblxuICBoYXNOYW1lZFBhcmFtZXRlcnMoKTogYm9vbGVhbiB7XG4gICAgcmV0dXJuICEhdGhpcy5uYW1lZC5sZW5ndGg7XG4gIH1cblxuICBoYXNZaWVsZHMoKTogYm9vbGVhbiB7XG4gICAgcmV0dXJuICEhdGhpcy55aWVsZHMubGVuZ3RoO1xuICB9XG59XG4iXX0=
+enifed("glimmer-runtime/lib/compiled/expressions", ["exports"], function (exports) {
+    "use strict";
+
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+    var CompiledExpression = (function () {
+        function CompiledExpression() {
+            _classCallCheck(this, CompiledExpression);
+        }
+
+        CompiledExpression.prototype.toJSON = function toJSON() {
+            return "UNIMPL: " + this.type.toUpperCase();
+        };
+
+        return CompiledExpression;
+    })();
+
+    exports.CompiledExpression = CompiledExpression;
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvY29tcGlsZWQvZXhwcmVzc2lvbnMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7UUFHQSxrQkFBQTtpQkFBQSxrQkFBQTtrQ0FBQSxrQkFBQTs7O0FBQUEsMEJBQUEsV0FJRSxNQUFNLEdBQUEsa0JBQUE7QUFDSixnQ0FBa0IsSUFBSSxDQUFDLElBQUksQ0FBQyxXQUFXLEVBQUUsQ0FBRztTQUM3Qzs7ZUFOSCxrQkFBQSIsImZpbGUiOiJleHByZXNzaW9ucy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBWTSBmcm9tICcuLi92bS9hcHBlbmQnO1xuaW1wb3J0IHsgUGF0aFJlZmVyZW5jZSB9IGZyb20gJ2dsaW1tZXItcmVmZXJlbmNlJztcblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIENvbXBpbGVkRXhwcmVzc2lvbjxUPiB7XG4gIHR5cGU6IHN0cmluZztcbiAgYWJzdHJhY3QgZXZhbHVhdGUodm06IFZNKTogUGF0aFJlZmVyZW5jZTxUPjtcblxuICB0b0pTT04oKTogc3RyaW5nIHtcbiAgICByZXR1cm4gYFVOSU1QTDogJHt0aGlzLnR5cGUudG9VcHBlckNhc2UoKX1gO1xuICB9XG59XG4iXX0=
 enifed('glimmer-runtime/lib/compiled/expressions/args', ['exports', 'glimmer-runtime/lib/compiled/expressions/positional-args', 'glimmer-runtime/lib/compiled/expressions/named-args', 'glimmer-reference', 'glimmer-util'], function (exports, _glimmerRuntimeLibCompiledExpressionsPositionalArgs, _glimmerRuntimeLibCompiledExpressionsNamedArgs, _glimmerReference, _glimmerUtil) {
     'use strict';
 
@@ -57047,26 +57056,6 @@ enifed('glimmer-runtime/lib/compiled/expressions/value', ['exports', 'glimmer-ru
     exports.ValueReference = ValueReference;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvY29tcGlsZWQvZXhwcmVzc2lvbnMvdmFsdWUudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7O1FBS0EsYUFBQTtrQkFBQSxhQUFBOztBQUlFLGlCQUpGLGFBQUEsQ0FJYyxJQUF5QixFQUFBO2dCQUF2QixLQUFLLEdBQVAsSUFBeUIsQ0FBdkIsS0FBSzs7a0NBSnJCLGFBQUE7O0FBS0ksMENBQU8sQ0FBQztBQUpILGdCQUFBLENBQUEsSUFBSSxHQUFHLE9BQU8sQ0FBQztBQUtwQixnQkFBSSxDQUFDLFNBQVMsR0FBRyxJQUFJLGNBQWMsQ0FBQyxLQUFLLENBQUMsQ0FBQztTQUM1Qzs7QUFQSCxxQkFBQSxXQVNFLFFBQVEsR0FBQSxrQkFBQyxFQUFNLEVBQUE7QUFDYixtQkFBTyxJQUFJLENBQUMsU0FBUyxDQUFDO1NBQ3ZCOztBQVhILHFCQUFBLFdBYUUsTUFBTSxHQUFBLGtCQUFBO0FBQ0osbUJBQU8sSUFBSSxDQUFDLFNBQVMsQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDLEtBQUssRUFBRSxDQUFDLENBQUM7U0FDL0M7O2VBZkgsYUFBQTs2Q0FKUyxrQkFBa0I7O3NCQUkzQixhQUFBOztRQWtCQSxjQUFBO2tCQUFBLGNBQUE7O0FBQUEsaUJBQUEsY0FBQSxHQUFBO2tDQUFBLGNBQUE7OzhDQUFBLElBQUE7QUFBQSxvQkFBQTs7O0FBQXVDLHNFQUFBLElBQUEsRUFBQSxDQUFpQjtBQUU1QyxnQkFBQSxDQUFBLFFBQVEsR0FBRyxhQXRCRSxJQUFJLEVBc0JxQixDQUFDO1NBY2xEOztBQWhCRCxzQkFBQSxXQUlFLEdBQUcsR0FBQSxhQUFDLEdBQW1CLEVBQUE7Z0JBQ2YsUUFBUSxHQUFLLElBQUksQ0FBakIsUUFBUTs7QUFDZCxnQkFBSSxLQUFLLEdBQUcsUUFBUSxDQUFTLEdBQUcsQ0FBQyxDQUFDO0FBRWxDLGdCQUFJLENBQUMsS0FBSyxFQUFFO0FBQ1YscUJBQUssR0FBRyxRQUFRLENBQVMsR0FBRyxDQUFDLEdBQUcsSUFBSSxjQUFjLENBQUMsSUFBSSxDQUFDLEtBQUssQ0FBUyxHQUFHLENBQUMsQ0FBQyxDQUFDO2FBQzdFO0FBRUQsbUJBQU8sS0FBSyxDQUFDO1NBQ2Q7O0FBYkgsc0JBQUEsV0FlRSxLQUFLLEdBQUEsaUJBQUE7QUFBVSxtQkFBTyxJQUFJLENBQUMsS0FBSyxDQUFDO1NBQUU7O2VBZnJDLGNBQUE7eUJBckJTLGNBQWMiLCJmaWxlIjoidmFsdWUuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBWTSB9IGZyb20gJy4uLy4uL3ZtJztcbmltcG9ydCB7IENvbXBpbGVkRXhwcmVzc2lvbiB9IGZyb20gJy4uL2V4cHJlc3Npb25zJztcbmltcG9ydCB7IENvbnN0UmVmZXJlbmNlLCBQYXRoUmVmZXJlbmNlIH0gZnJvbSAnZ2xpbW1lci1yZWZlcmVuY2UnO1xuaW1wb3J0IHsgSW50ZXJuZWRTdHJpbmcsIGRpY3QgfSBmcm9tICdnbGltbWVyLXV0aWwnO1xuXG5leHBvcnQgZGVmYXVsdCBjbGFzcyBDb21waWxlZFZhbHVlPFQ+IGV4dGVuZHMgQ29tcGlsZWRFeHByZXNzaW9uPFQ+IHtcbiAgcHVibGljIHR5cGUgPSBcInZhbHVlXCI7XG4gIHByaXZhdGUgcmVmZXJlbmNlOiBWYWx1ZVJlZmVyZW5jZTxUPjtcblxuICBjb25zdHJ1Y3Rvcih7IHZhbHVlIH06IHsgdmFsdWU6IGFueSB9KSB7XG4gICAgc3VwZXIoKTtcbiAgICB0aGlzLnJlZmVyZW5jZSA9IG5ldyBWYWx1ZVJlZmVyZW5jZSh2YWx1ZSk7XG4gIH1cblxuICBldmFsdWF0ZSh2bTogVk0pOiBQYXRoUmVmZXJlbmNlPFQ+IHtcbiAgICByZXR1cm4gdGhpcy5yZWZlcmVuY2U7XG4gIH1cblxuICB0b0pTT04oKTogc3RyaW5nIHtcbiAgICByZXR1cm4gSlNPTi5zdHJpbmdpZnkodGhpcy5yZWZlcmVuY2UudmFsdWUoKSk7XG4gIH1cbn1cblxuZXhwb3J0IGNsYXNzIFZhbHVlUmVmZXJlbmNlPFQ+IGV4dGVuZHMgQ29uc3RSZWZlcmVuY2U8VD4gaW1wbGVtZW50cyBQYXRoUmVmZXJlbmNlPFQ+IHtcbiAgcHJvdGVjdGVkIGlubmVyOiBUO1xuICBwcm90ZWN0ZWQgY2hpbGRyZW4gPSBkaWN0PFZhbHVlUmVmZXJlbmNlPGFueT4+KCk7XG5cbiAgZ2V0KGtleTogSW50ZXJuZWRTdHJpbmcpIHtcbiAgICBsZXQgeyBjaGlsZHJlbiB9ID0gdGhpcztcbiAgICBsZXQgY2hpbGQgPSBjaGlsZHJlbls8c3RyaW5nPmtleV07XG5cbiAgICBpZiAoIWNoaWxkKSB7XG4gICAgICBjaGlsZCA9IGNoaWxkcmVuWzxzdHJpbmc+a2V5XSA9IG5ldyBWYWx1ZVJlZmVyZW5jZSh0aGlzLmlubmVyWzxzdHJpbmc+a2V5XSk7XG4gICAgfVxuXG4gICAgcmV0dXJuIGNoaWxkO1xuICB9XG5cbiAgdmFsdWUoKTogYW55IHsgcmV0dXJuIHRoaXMuaW5uZXI7IH1cbn1cbiJdfQ==
-enifed("glimmer-runtime/lib/compiled/expressions", ["exports"], function (exports) {
-    "use strict";
-
-    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-    var CompiledExpression = (function () {
-        function CompiledExpression() {
-            _classCallCheck(this, CompiledExpression);
-        }
-
-        CompiledExpression.prototype.toJSON = function toJSON() {
-            return "UNIMPL: " + this.type.toUpperCase();
-        };
-
-        return CompiledExpression;
-    })();
-
-    exports.CompiledExpression = CompiledExpression;
-});
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvY29tcGlsZWQvZXhwcmVzc2lvbnMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7UUFHQSxrQkFBQTtpQkFBQSxrQkFBQTtrQ0FBQSxrQkFBQTs7O0FBQUEsMEJBQUEsV0FJRSxNQUFNLEdBQUEsa0JBQUE7QUFDSixnQ0FBa0IsSUFBSSxDQUFDLElBQUksQ0FBQyxXQUFXLEVBQUUsQ0FBRztTQUM3Qzs7ZUFOSCxrQkFBQSIsImZpbGUiOiJleHByZXNzaW9ucy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBWTSBmcm9tICcuLi92bS9hcHBlbmQnO1xuaW1wb3J0IHsgUGF0aFJlZmVyZW5jZSB9IGZyb20gJ2dsaW1tZXItcmVmZXJlbmNlJztcblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIENvbXBpbGVkRXhwcmVzc2lvbjxUPiB7XG4gIHR5cGU6IHN0cmluZztcbiAgYWJzdHJhY3QgZXZhbHVhdGUodm06IFZNKTogUGF0aFJlZmVyZW5jZTxUPjtcblxuICB0b0pTT04oKTogc3RyaW5nIHtcbiAgICByZXR1cm4gYFVOSU1QTDogJHt0aGlzLnR5cGUudG9VcHBlckNhc2UoKX1gO1xuICB9XG59XG4iXX0=
 enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiler', 'glimmer-reference'], function (exports, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiler, _glimmerReference) {
     'use strict';
 
@@ -60695,6 +60684,108 @@ enifed('glimmer-runtime/lib/symbol-table', ['exports', 'glimmer-util'], function
     exports.default = SymbolTable;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvc3ltYm9sLXRhYmxlLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7O1FBR0EsV0FBQTtBQXFCRSxpQkFyQkYsV0FBQSxDQXFCYyxNQUFtQixFQUFFLFFBQWUsRUFBQTtrQ0FyQmxELFdBQUE7O0FBZ0JVLGdCQUFBLENBQUEsTUFBTSxHQUFLLGFBbkJJLElBQUksRUFtQk0sQ0FBQztBQUMxQixnQkFBQSxDQUFBLEtBQUssR0FBTSxhQXBCSSxJQUFJLEVBb0JNLENBQUM7QUFDMUIsZ0JBQUEsQ0FBQSxNQUFNLEdBQUssYUFyQkksSUFBSSxFQXFCTSxDQUFDO0FBQzNCLGdCQUFBLENBQUEsSUFBSSxHQUFHLENBQUMsQ0FBQztBQUdkLGdCQUFJLENBQUMsTUFBTSxHQUFHLE1BQU0sQ0FBQztBQUNyQixnQkFBSSxDQUFDLEdBQUcsR0FBRyxNQUFNLEdBQUcsTUFBTSxDQUFDLEdBQUcsR0FBRyxJQUFJLENBQUM7QUFDdEMsZ0JBQUksQ0FBQyxRQUFRLEdBQUcsUUFBUSxDQUFDO1NBQzFCOztBQXpCSCxtQkFBQSxDQUNTLGlCQUFpQixHQUFBLDJCQUFDLEdBQWUsRUFBQTtBQUN0QyxtQkFBTyxHQUFHLENBQUMsV0FBVyxHQUFHLElBQUksV0FBVyxDQUFDLElBQUksRUFBRSxHQUFHLENBQUMsQ0FBQyxjQUFjLENBQUMsR0FBRyxDQUFDLENBQUM7U0FDekU7O0FBSEgsbUJBQUEsQ0FLUyxhQUFhLEdBQUEsdUJBQUMsTUFBYyxFQUFBO0FBQ2pDLG1CQUFPLE1BQU0sQ0FBQyxXQUFXLEdBQUcsSUFBSSxXQUFXLENBQUMsSUFBSSxFQUFFLE1BQU0sQ0FBQyxDQUFDLFVBQVUsQ0FBQyxNQUFNLENBQUMsQ0FBQztTQUM5RTs7QUFQSCxtQkFBQSxDQVNTLFlBQVksR0FBQSxzQkFBQyxJQUE4RCxFQUFBO2dCQUE1RCxNQUFNLEdBQVIsSUFBOEQsQ0FBNUQsTUFBTTtnQkFBRSxLQUFLLEdBQWYsSUFBOEQsQ0FBcEQsS0FBSzs7QUFD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QU0sR0FBSyxJQUFJLENBQWYsTUFBTTs7QUFFcEIsZ0JBQUksTUFBTSxHQUFHLE1BQU0sQ0FBUyxJQUFJLENBQUMsQ0FBQztBQUVsQyxnQkFBSSxDQUFDLE1BQU0sSUFBSSxNQUFNLEVBQUU7QUFDckIsc0JBQU0sR0FBRyxNQUFNLENBQUMsUUFBUSxDQUFDLElBQUksQ0FBQyxDQUFDO2FBQ2hDO0FBRUQsbUJBQU8sTUFBTSxDQUFDO1NBQ2Y7O0FBM0ZILG1CQUFBLFdBNkZFLEtBQUssR0FBQSxpQkFBQTtBQUNILG1CQUFPLElBQUksQ0FBQyxHQUFHLEtBQUssSUFBSSxDQUFDO1NBQzFCOztlQS9GSCxXQUFBOzs7c0JBQUEsV0FBQSIsImZpbGUiOiJzeW1ib2wtdGFibGUuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBJbnRlcm5lZFN0cmluZywgZGljdCB9IGZyb20gJ2dsaW1tZXItdXRpbCc7XG5pbXBvcnQgeyBCbG9jaywgSW5saW5lQmxvY2ssIExheW91dCwgRW50cnlQb2ludCB9IGZyb20gJy4vY29tcGlsZWQvYmxvY2tzJztcblxuZXhwb3J0IGRlZmF1bHQgY2xhc3MgU3ltYm9sVGFibGUge1xuICBzdGF0aWMgaW5pdEZvckVudHJ5UG9pbnQodG9wOiBFbnRyeVBvaW50KTogU3ltYm9sVGFibGUge1xuICAgIHJldHVybiB0b3Auc3ltYm9sVGFibGUgPSBuZXcgU3ltYm9sVGFibGUobnVsbCwgdG9wKS5pbml0RW50cnlQb2ludCh0b3ApO1xuICB9XG5cbiAgc3RhdGljIGluaXRGb3JMYXlvdXQobGF5b3V0OiBMYXlvdXQpOiBTeW1ib2xUYWJsZSB7XG4gICAgcmV0dXJuIGxheW91dC5zeW1ib2xUYWJsZSA9IG5ldyBTeW1ib2xUYWJsZShudWxsLCBsYXlvdXQpLmluaXRMYXlvdXQobGF5b3V0KTtcbiAgfVxuXG4gIHN0YXRpYyBpbml0Rm9yQmxvY2soeyBwYXJlbnQsIGJsb2NrIH06IHsgcGFyZW50OiBTeW1ib2xUYWJsZSwgYmxvY2s6IElubGluZUJsb2NrIH0pOiBTeW1ib2xUYWJsZSB7XG4gICAgcmV0dXJuIGJsb2NrLnN5bWJvbFRhYmxlID0gbmV3IFN5bWJvbFRhYmxlKHBhcmVudCwgYmxvY2spLmluaXRCbG9jayhibG9jayk7XG4gIH1cblxuICBwcml2YXRlIHBhcmVudDogU3ltYm9sVGFibGU7XG4gIHByaXZhdGUgdG9wOiBTeW1ib2xUYWJsZTtcbiAgcHJpdmF0ZSB0ZW1wbGF0ZTogQmxvY2s7XG4gIHByaXZhdGUgbG9jYWxzICAgPSBkaWN0PG51bWJlcj4oKTtcbiAgcHJpdmF0ZSBuYW1lZCAgICA9IGRpY3Q8bnVtYmVyPigpO1xuICBwcml2YXRlIHlpZWxkcyAgID0gZGljdDxudW1iZXI+KCk7XG4gIHB1YmxpYyBzaXplID0gMTtcblxuICBjb25zdHJ1Y3RvcihwYXJlbnQ6IFN5bWJvbFRhYmxlLCB0ZW1wbGF0ZTogQmxvY2spIHtcbiAgICB0aGlzLnBhcmVudCA9IHBhcmVudDtcbiAgICB0aGlzLnRvcCA9IHBhcmVudCA/IHBhcmVudC50b3AgOiB0aGlzO1xuICAgIHRoaXMudGVtcGxhdGUgPSB0ZW1wbGF0ZTtcbiAgfVxuXG4gIGluaXRFbnRyeVBvaW50KF86IGFueSk6IHRoaXMge1xuICAgIHJldHVybiB0aGlzO1xuICB9XG5cbiAgaW5pdEJsb2NrKHsgbG9jYWxzIH06IHsgbG9jYWxzOiBJbnRlcm5lZFN0cmluZ1tdIH0pOiB0aGlzIHtcbiAgICB0aGlzLmluaXRQb3NpdGlvbmFscyhsb2NhbHMpO1xuICAgIHJldHVybiB0aGlzO1xuICB9XG5cbiAgaW5pdExheW91dCh7IG5hbWVkLCB5aWVsZHMgfTogeyBuYW1lZDogSW50ZXJuZWRTdHJpbmdbXSwgeWllbGRzOiBJbnRlcm5lZFN0cmluZ1tdIH0pOiB0aGlzIHtcbiAgICB0aGlzLmluaXROYW1lZChuYW1lZCk7XG4gICAgdGhpcy5pbml0WWllbGRzKHlpZWxkcyk7XG4gICAgcmV0dXJuIHRoaXM7XG4gIH1cblxuICBpbml0UG9zaXRpb25hbHMocG9zaXRpb25hbHM6IEludGVybmVkU3RyaW5nW10pOiB0aGlzIHtcbiAgICBpZiAocG9zaXRpb25hbHMpIHBvc2l0aW9uYWxzLmZvckVhY2gocyA9PiB0aGlzLmxvY2Fsc1s8c3RyaW5nPnNdID0gdGhpcy50b3Auc2l6ZSsrKTtcbiAgICByZXR1cm4gdGhpcztcbiAgfVxuXG4gIGluaXROYW1lZChuYW1lZDogSW50ZXJuZWRTdHJpbmdbXSk6IHRoaXMge1xuICAgIGlmIChuYW1lZCkgbmFtZWQuZm9yRWFjaChzID0+IHRoaXMubmFtZWRbPHN0cmluZz5zXSA9IHRoaXMudG9wLnNpemUrKyk7XG4gICAgcmV0dXJuIHRoaXM7XG4gIH1cblxuICBpbml0WWllbGRzKHlpZWxkczogSW50ZXJuZWRTdHJpbmdbXSk6IHRoaXMge1xuICAgIGlmICh5aWVsZHMpIHlpZWxkcy5mb3JFYWNoKGIgPT4gdGhpcy55aWVsZHNbPHN0cmluZz5iXSA9IHRoaXMudG9wLnNpemUrKyk7XG4gICAgcmV0dXJuIHRoaXM7XG4gIH1cblxuICBnZXRZaWVsZChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IG51bWJlciB7XG4gICAgbGV0IHsgeWllbGRzLCBwYXJlbnQgfSA9IHRoaXM7XG5cbiAgICBsZXQgc3ltYm9sID0geWllbGRzWzxzdHJpbmc+bmFtZV07XG5cbiAgICBpZiAoIXN5bWJvbCAmJiBwYXJlbnQpIHtcbiAgICAgIHN5bWJvbCA9IHBhcmVudC5nZXRZaWVsZChuYW1lKTtcbiAgICB9XG5cbiAgICByZXR1cm4gc3ltYm9sO1xuICB9XG5cbiAgZ2V0TmFtZWQobmFtZTogSW50ZXJuZWRTdHJpbmcpOiBudW1iZXIge1xuICAgIGxldCB7IG5hbWVkLCBwYXJlbnQgfSA9IHRoaXM7XG5cbiAgICBsZXQgc3ltYm9sID0gbmFtZWRbPHN0cmluZz5uYW1lXTtcblxuICAgIGlmICghc3ltYm9sICYmIHBhcmVudCkge1xuICAgICAgc3ltYm9sID0gcGFyZW50LmdldE5hbWVkKG5hbWUpO1xuICAgIH1cblxuICAgIHJldHVybiBzeW1ib2w7XG4gIH1cblxuICBnZXRMb2NhbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IG51bWJlciB7XG4gICAgbGV0IHsgbG9jYWxzLCBwYXJlbnQgfSA9IHRoaXM7XG5cbiAgICBsZXQgc3ltYm9sID0gbG9jYWxzWzxzdHJpbmc+bmFtZV07XG5cbiAgICBpZiAoIXN5bWJvbCAmJiBwYXJlbnQpIHtcbiAgICAgIHN5bWJvbCA9IHBhcmVudC5nZXRMb2NhbChuYW1lKTtcbiAgICB9XG5cbiAgICByZXR1cm4gc3ltYm9sO1xuICB9XG5cbiAgaXNUb3AoKTogYm9vbGVhbiB7XG4gICAgcmV0dXJuIHRoaXMudG9wID09PSB0aGlzO1xuICB9XG59XG4iXX0=
+enifed("glimmer-runtime/lib/syntax", ["exports"], function (exports) {
+    "use strict";
+
+    exports.isAttribute = isAttribute;
+
+    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+    function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+    var PrettyPrint = function PrettyPrint(type, operation) {
+        var params = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+        var hash = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+        var templates = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+
+        _classCallCheck(this, PrettyPrint);
+
+        this.type = type;
+        this.operation = operation;
+        this.params = params;
+        this.hash = hash;
+        this.templates = templates;
+    };
+
+    exports.PrettyPrint = PrettyPrint;
+
+    var Statement = (function () {
+        function Statement() {
+            _classCallCheck(this, Statement);
+
+            this.next = null;
+            this.prev = null;
+        }
+
+        Statement.fromSpec = function fromSpec(spec, blocks) {
+            throw new Error("You need to implement fromSpec on " + this);
+        };
+
+        Statement.prototype.prettyPrint = function prettyPrint() {
+            return new PrettyPrint(this.type, this.type);
+        };
+
+        Statement.prototype.clone = function clone() {
+            // not type safe but the alternative is extreme boilerplate per
+            // syntax subclass.
+            return new this.constructor(this);
+        };
+
+        Statement.prototype.scan = function scan(scanner) {
+            return this;
+        };
+
+        return Statement;
+    })();
+
+    exports.Statement = Statement;
+
+    var Expression = (function () {
+        function Expression() {
+            _classCallCheck(this, Expression);
+        }
+
+        Expression.fromSpec = function fromSpec(spec, blocks) {
+            throw new Error("You need to implement fromSpec on " + this);
+        };
+
+        Expression.prototype.prettyPrint = function prettyPrint() {
+            return "" + this.type;
+        };
+
+        return Expression;
+    })();
+
+    exports.Expression = Expression;
+    var ATTRIBUTE = "e1185d30-7cac-4b12-b26a-35327d905d92";
+    exports.ATTRIBUTE = ATTRIBUTE;
+
+    var Attribute = (function (_Statement) {
+        _inherits(Attribute, _Statement);
+
+        function Attribute() {
+            _classCallCheck(this, Attribute);
+
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+
+            _Statement.call.apply(_Statement, [this].concat(args));
+            this["e1185d30-7cac-4b12-b26a-35327d905d92"] = true;
+        }
+
+        return Attribute;
+    })(Statement);
+
+    exports.Attribute = Attribute;
+
+    function isAttribute(value) {
+        return value && value[ATTRIBUTE] === true;
+    }
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvc3ludGF4LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7O1FBeUJBLFdBQUEsR0FPRSxTQVBGLFdBQUEsQ0FPYyxJQUFZLEVBQUUsU0FBaUIsRUFBa0c7WUFBaEcsTUFBTSx5REFBcUIsSUFBSTtZQUFFLElBQUkseURBQXlCLElBQUk7WUFBRSxTQUFTLHlEQUFlLElBQUk7OzhCQVAvSSxXQUFBOztBQVFJLFlBQUksQ0FBQyxJQUFJLEdBQUcsSUFBSSxDQUFDO0FBQ2pCLFlBQUksQ0FBQyxTQUFTLEdBQUcsU0FBUyxDQUFDO0FBQzNCLFlBQUksQ0FBQyxNQUFNLEdBQUcsTUFBTSxDQUFDO0FBQ3JCLFlBQUksQ0FBQyxJQUFJLEdBQUcsSUFBSSxDQUFDO0FBQ2pCLFlBQUksQ0FBQyxTQUFTLEdBQUcsU0FBUyxDQUFDO0tBQzVCOzs7O1FBV0gsU0FBQTtBQUFBLGlCQUFBLFNBQUEsR0FBQTtrQ0FBQSxTQUFBOztBQU1TLGdCQUFBLENBQUEsSUFBSSxHQUFjLElBQUksQ0FBQztBQUN2QixnQkFBQSxDQUFBLElBQUksR0FBYyxJQUFJLENBQUM7U0FpQi9COztBQXhCRCxpQkFBQSxDQUNTLFFBQVEsR0FBQSxrQkFBZ0MsSUFBTyxFQUFFLE1BQXNCLEVBQUE7QUFDNUUsa0JBQU0sSUFBSSxLQUFLLHdDQUFzQyxJQUFJLENBQUcsQ0FBQztTQUM5RDs7QUFISCxpQkFBQSxXQVNFLFdBQVcsR0FBQSx1QkFBQTtBQUNULG1CQUFPLElBQUksV0FBVyxDQUFDLElBQUksQ0FBQyxJQUFJLEVBQUUsSUFBSSxDQUFDLElBQUksQ0FBQyxDQUFDO1NBQzlDOztBQVhILGlCQUFBLFdBYUUsS0FBSyxHQUFBLGlCQUFBOzs7QUFHSCxtQkFBTyxJQUF1QixJQUFJLENBQUMsV0FBWSxDQUFDLElBQUksQ0FBQyxDQUFDO1NBQ3ZEOztBQWpCSCxpQkFBQSxXQXFCRSxJQUFJLEdBQUEsY0FBQyxPQUFxQixFQUFBO0FBQ3hCLG1CQUFPLElBQUksQ0FBQztTQUNiOztlQXZCSCxTQUFBOzs7OztRQThCQSxVQUFBO2lCQUFBLFVBQUE7a0NBQUEsVUFBQTs7O0FBQUEsa0JBQUEsQ0FDUyxRQUFRLEdBQUEsa0JBQTBELElBQU8sRUFBRSxNQUFzQixFQUFBO0FBQ3RHLGtCQUFNLElBQUksS0FBSyx3Q0FBc0MsSUFBSSxDQUFHLENBQUM7U0FDOUQ7O0FBSEgsa0JBQUEsV0FPRSxXQUFXLEdBQUEsdUJBQUE7QUFDVCx3QkFBVSxJQUFJLENBQUMsSUFBSSxDQUFHO1NBQ3ZCOztlQVRILFVBQUE7Ozs7QUFvQ08sUUFBTSxTQUFTLEdBQUcsc0NBQXNDLENBQUM7OztRQUVoRSxTQUFBO2tCQUFBLFNBQUE7O0FBQUEsaUJBQUEsU0FBQSxHQUFBO2tDQUFBLFNBQUE7OzhDQUFBLElBQUE7QUFBQSxvQkFBQTs7O0FBQTJDLDREQUFBLElBQUEsRUFBQSxDQUFTO0FBQ2xELGdCQUFBLENBQUEsc0NBQUEsQ0FBc0MsR0FBRyxJQUFJLENBQUM7U0FNL0M7O2VBUEQsU0FBQTtPQUEyQyxTQUFTOzs7O0FBU3BELGFBQUEsV0FBQSxDQUE0QixLQUFnQixFQUFBO0FBQzFDLGVBQU8sS0FBSyxJQUFJLEtBQUssQ0FBQyxTQUFTLENBQUMsS0FBSyxJQUFJLENBQUM7S0FDM0MiLCJmaWxlIjoic3ludGF4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgRGljdCwgTGlua2VkTGlzdE5vZGUsIFNsaWNlLCBJbnRlcm5lZFN0cmluZyB9IGZyb20gJ2dsaW1tZXItdXRpbCc7XG5pbXBvcnQgeyBCbG9ja1NjYW5uZXIgfSBmcm9tICcuL3NjYW5uZXInO1xuaW1wb3J0IHsgRW52aXJvbm1lbnQgfSBmcm9tICcuL2Vudmlyb25tZW50JztcbmltcG9ydCB7IENvbXBpbGVkRXhwcmVzc2lvbiB9IGZyb20gJy4vY29tcGlsZWQvZXhwcmVzc2lvbnMnO1xuaW1wb3J0IHsgT3Bjb2RlLCBPcFNlcSB9IGZyb20gJy4vb3Bjb2Rlcyc7XG5pbXBvcnQgeyBJbmxpbmVCbG9jaywgQmxvY2sgfSBmcm9tICcuL2NvbXBpbGVkL2Jsb2Nrcyc7XG5cbmltcG9ydCBPcGNvZGVCdWlsZGVyIGZyb20gJy4vb3Bjb2RlLWJ1aWxkZXInO1xuXG5pbXBvcnQge1xuICBTdGF0ZW1lbnQgYXMgU2VyaWFsaXplZFN0YXRlbWVudCxcbiAgRXhwcmVzc2lvbiBhcyBTZXJpYWxpemVkRXhwcmVzc2lvbixcbiAgQmxvY2tNZXRhXG59IGZyb20gJ2dsaW1tZXItd2lyZS1mb3JtYXQnO1xuXG5leHBvcnQgdHlwZSBQcmV0dHlQcmludFZhbHVlID0gUHJldHR5UHJpbnQgfCBzdHJpbmcgfCBzdHJpbmdbXSB8IFByZXR0eVByaW50VmFsdWVBcnJheSB8IFByZXR0eVByaW50VmFsdWVEaWN0O1xuXG5pbnRlcmZhY2UgUHJldHR5UHJpbnRWYWx1ZUFycmF5IGV4dGVuZHMgQXJyYXk8UHJldHR5UHJpbnRWYWx1ZT4ge1xuXG59XG5cbmludGVyZmFjZSBQcmV0dHlQcmludFZhbHVlRGljdCBleHRlbmRzIERpY3Q8UHJldHR5UHJpbnRWYWx1ZT4ge1xuXG59XG5cbmV4cG9ydCBjbGFzcyBQcmV0dHlQcmludCB7XG4gIHR5cGU6IHN0cmluZztcbiAgb3BlcmF0aW9uOiBzdHJpbmc7XG4gIHBhcmFtczogUHJldHR5UHJpbnRWYWx1ZVtdO1xuICBoYXNoOiBEaWN0PFByZXR0eVByaW50VmFsdWU+O1xuICB0ZW1wbGF0ZXM6IERpY3Q8bnVtYmVyPjtcblxuICBjb25zdHJ1Y3Rvcih0eXBlOiBzdHJpbmcsIG9wZXJhdGlvbjogc3RyaW5nLCBwYXJhbXM6IFByZXR0eVByaW50VmFsdWVbXT1udWxsLCBoYXNoOiBEaWN0PFByZXR0eVByaW50VmFsdWU+PW51bGwsIHRlbXBsYXRlczogRGljdDxudW1iZXI+PW51bGwpIHtcbiAgICB0aGlzLnR5cGUgPSB0eXBlO1xuICAgIHRoaXMub3BlcmF0aW9uID0gb3BlcmF0aW9uO1xuICAgIHRoaXMucGFyYW1zID0gcGFyYW1zO1xuICAgIHRoaXMuaGFzaCA9IGhhc2g7XG4gICAgdGhpcy50ZW1wbGF0ZXMgPSB0ZW1wbGF0ZXM7XG4gIH1cbn1cblxuZXhwb3J0IGludGVyZmFjZSBQcmV0dHlQcmludGFibGUge1xuICBwcmV0dHlQcmludCgpOiBQcmV0dHlQcmludDtcbn1cblxuaW50ZXJmYWNlIFN0YXRlbWVudENsYXNzPFQgZXh0ZW5kcyBTZXJpYWxpemVkU3RhdGVtZW50LCBVIGV4dGVuZHMgU3RhdGVtZW50PiB7XG4gIGZyb21TcGVjKHNwZWM6IFQsIGJsb2Nrcz86IElubGluZUJsb2NrW10pOiBVO1xufVxuXG5leHBvcnQgYWJzdHJhY3QgY2xhc3MgU3RhdGVtZW50IGltcGxlbWVudHMgTGlua2VkTGlzdE5vZGUge1xuICBzdGF0aWMgZnJvbVNwZWM8VCBleHRlbmRzIFNlcmlhbGl6ZWRTdGF0ZW1lbnQ+KHNwZWM6IFQsIGJsb2Nrcz86IElubGluZUJsb2NrW10pOiBTdGF0ZW1lbnQge1xuICAgIHRocm93IG5ldyBFcnJvcihgWW91IG5lZWQgdG8gaW1wbGVtZW50IGZyb21TcGVjIG9uICR7dGhpc31gKTtcbiAgfVxuXG4gIHB1YmxpYyB0eXBlOiBzdHJpbmc7XG4gIHB1YmxpYyBuZXh0OiBTdGF0ZW1lbnQgPSBudWxsO1xuICBwdWJsaWMgcHJldjogU3RhdGVtZW50ID0gbnVsbDtcblxuICBwcmV0dHlQcmludCgpOiBQcmV0dHlQcmludFZhbHVlIHtcbiAgICByZXR1cm4gbmV3IFByZXR0eVByaW50KHRoaXMudHlwZSwgdGhpcy50eXBlKTtcbiAgfVxuXG4gIGNsb25lKCk6IHRoaXMge1xuICAgIC8vIG5vdCB0eXBlIHNhZmUgYnV0IHRoZSBhbHRlcm5hdGl2ZSBpcyBleHRyZW1lIGJvaWxlcnBsYXRlIHBlclxuICAgIC8vIHN5bnRheCBzdWJjbGFzcy5cbiAgICByZXR1cm4gbmV3ICg8bmV3IChhbnkpID0+IGFueT50aGlzLmNvbnN0cnVjdG9yKSh0aGlzKTtcbiAgfVxuXG4gIGFic3RyYWN0IGNvbXBpbGUob3Bjb2RlczogU3RhdGVtZW50Q29tcGlsYXRpb25CdWZmZXIsIGVudjogRW52aXJvbm1lbnQsIGJsb2NrOiBCbG9jayk7XG5cbiAgc2NhbihzY2FubmVyOiBCbG9ja1NjYW5uZXIpOiBTdGF0ZW1lbnQge1xuICAgIHJldHVybiB0aGlzO1xuICB9XG59XG5cbmludGVyZmFjZSBFeHByZXNzaW9uQ2xhc3M8VCBleHRlbmRzIFNlcmlhbGl6ZWRFeHByZXNzaW9uLCBVIGV4dGVuZHMgRXhwcmVzc2lvbjxUPj4ge1xuICBmcm9tU3BlYyhzcGVjOiBULCBibG9ja3M/OiBJbmxpbmVCbG9ja1tdKTogVTtcbn1cblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIEV4cHJlc3Npb248VD4ge1xuICBzdGF0aWMgZnJvbVNwZWM8VCBleHRlbmRzIFNlcmlhbGl6ZWRFeHByZXNzaW9uLCBVIGV4dGVuZHMgRXhwcmVzc2lvbjxUPj4oc3BlYzogVCwgYmxvY2tzPzogSW5saW5lQmxvY2tbXSk6IFUge1xuICAgIHRocm93IG5ldyBFcnJvcihgWW91IG5lZWQgdG8gaW1wbGVtZW50IGZyb21TcGVjIG9uICR7dGhpc31gKTtcbiAgfVxuXG4gIHB1YmxpYyB0eXBlOiBzdHJpbmc7XG5cbiAgcHJldHR5UHJpbnQoKTogUHJldHR5UHJpbnRWYWx1ZSB7XG4gICAgcmV0dXJuIGAke3RoaXMudHlwZX1gO1xuICB9XG5cbiAgYWJzdHJhY3QgY29tcGlsZShjb21waWxlcjogU3ltYm9sTG9va3VwLCBlbnY6IEVudmlyb25tZW50LCBwYXJlbnRNZXRhPzogQmxvY2tNZXRhKTogQ29tcGlsZWRFeHByZXNzaW9uPFQ+O1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIFN5bWJvbExvb2t1cCB7XG4gIGdldExvY2FsU3ltYm9sKG5hbWU6IEludGVybmVkU3RyaW5nKTogbnVtYmVyO1xuICBoYXNMb2NhbFN5bWJvbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IGJvb2xlYW47XG4gIGdldE5hbWVkU3ltYm9sKG5hbWU6IEludGVybmVkU3RyaW5nKTogbnVtYmVyO1xuICBoYXNOYW1lZFN5bWJvbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IGJvb2xlYW47XG4gIGdldEJsb2NrU3ltYm9sKG5hbWU6IEludGVybmVkU3RyaW5nKTogbnVtYmVyO1xuICBoYXNCbG9ja1N5bWJvbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IGJvb2xlYW47XG5cbiAgLy8gb25seSB1c2VkIGZvciB7e3ZpZXcubmFtZX19XG4gIGhhc0tleXdvcmQobmFtZTogSW50ZXJuZWRTdHJpbmcpOiBib29sZWFuO1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIENvbXBpbGVJbnRvIHtcbiAgYXBwZW5kKG9wOiBPcGNvZGUpO1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIFN0YXRlbWVudENvbXBpbGF0aW9uQnVmZmVyIGV4dGVuZHMgQ29tcGlsZUludG8sIFN5bWJvbExvb2t1cCwgT3Bjb2RlQnVpbGRlciB7XG4gIHRvT3BTZXEoKTogT3BTZXE7XG59XG5cbmV4cG9ydCB0eXBlIFByb2dyYW0gPSBTbGljZTxTdGF0ZW1lbnQ+O1xuXG5leHBvcnQgY29uc3QgQVRUUklCVVRFID0gXCJlMTE4NWQzMC03Y2FjLTRiMTItYjI2YS0zNTMyN2Q5MDVkOTJcIjtcblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIEF0dHJpYnV0ZTxUPiBleHRlbmRzIFN0YXRlbWVudCB7XG4gIFwiZTExODVkMzAtN2NhYy00YjEyLWIyNmEtMzUzMjdkOTA1ZDkyXCIgPSB0cnVlO1xuICBuYW1lOiBJbnRlcm5lZFN0cmluZztcbiAgbmFtZXNwYWNlOiBJbnRlcm5lZFN0cmluZztcblxuICBhYnN0cmFjdCB2YWx1ZVN5bnRheCgpOiBFeHByZXNzaW9uPFQ+O1xuICBhYnN0cmFjdCBpc0F0dHJpYnV0ZSgpOiBib29sZWFuO1xufVxuXG5leHBvcnQgZnVuY3Rpb24gaXNBdHRyaWJ1dGUodmFsdWU6IFN0YXRlbWVudCk6IHZhbHVlIGlzIEF0dHJpYnV0ZTxhbnk+IHtcbiAgcmV0dXJuIHZhbHVlICYmIHZhbHVlW0FUVFJJQlVURV0gPT09IHRydWU7XG59XG4iXX0=
 enifed('glimmer-runtime/lib/syntax/builtins/each', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiled/opcodes/lists'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiledOpcodesLists) {
     'use strict';
 
@@ -62414,108 +62505,6 @@ enifed('glimmer-runtime/lib/syntax/statements', ['exports', 'glimmer-runtime/lib
     ;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvc3ludGF4L3N0YXRlbWVudHMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O1FBc0JFLE9BQU8sc0JBTFAsVUFBVSxDQUtWLE9BQU87UUFDUCxPQUFPLHNCQU5QLFVBQVUsQ0FNVixPQUFPO1FBQ1AsUUFBUSxzQkFQUixVQUFVLENBT1YsUUFBUTtRQUNSLGFBQWEsc0JBUmIsVUFBVSxDQVFWLGFBQWE7UUFDYixhQUFhLHNCQVRiLFVBQVUsQ0FTVixhQUFhO1FBQ2IsTUFBTSxzQkFWTixVQUFVLENBVVYsTUFBTTtRQUNOLFNBQVMsc0JBWFQsVUFBVSxDQVdWLFNBQVM7UUFDVCxhQUFhLHNCQVpiLFVBQVUsQ0FZVixhQUFhO1FBQ2IsY0FBYyxzQkFiZCxVQUFVLENBYVYsY0FBYztRQUNkLFlBQVksc0JBZFosVUFBVSxDQWNWLFlBQVk7UUFDWixVQUFVLHNCQWZWLFVBQVUsQ0FlVixVQUFVOztzQkFHWixVQUF3QixJQUF5QixFQUFFLE1BQXFCLEVBQUE7QUFDdEUsWUFBSSxPQUFPLENBQUMsSUFBSSxDQUFDLEVBQUUsT0FBTyw2QkFuQzFCLEtBQUssQ0FtQzJCLFFBQVEsQ0FBQyxJQUFJLENBQUMsQ0FBQztBQUMvQyxZQUFJLE9BQU8sQ0FBQyxJQUFJLENBQUMsRUFBRSxPQUFPLDZCQW5DMUIsS0FBSyxDQW1DMkIsUUFBUSxDQUFDLElBQUksRUFBRSxNQUFNLENBQUMsQ0FBQztBQUN2RCxZQUFJLFFBQVEsQ0FBQyxJQUFJLENBQUMsRUFBRSxPQUFPLDZCQW5DM0IsTUFBTSxDQW1DNEIsUUFBUSxDQUFDLElBQUksQ0FBQyxDQUFDO0FBQ2pELFlBQUksYUFBYSxDQUFDLElBQUksQ0FBQyxFQUFFLE9BQU8sNkJBbkNoQyxXQUFXLENBbUNpQyxRQUFRLENBQUMsSUFBSSxDQUFDLENBQUM7QUFDM0QsWUFBSSxhQUFhLENBQUMsSUFBSSxDQUFDLEVBQUUsT0FBTyw2QkFuQ2hDLFdBQVcsQ0FtQ2lDLFFBQVEsQ0FBQyxJQUFJLENBQUMsQ0FBQztBQUMzRCxZQUFJLE1BQU0sQ0FBQyxJQUFJLENBQUMsRUFBRSxPQUFPLDZCQW5DekIsSUFBSSxDQW1DMEIsUUFBUSxDQUFDLElBQUksQ0FBQyxDQUFDO0FBQzdDLFlBQUksU0FBUyxDQUFDLElBQUksQ0FBQyxFQUFFLE9BQU8sNkJBbkM1QixPQUFPLENBbUM2QixRQUFRLENBQUMsSUFBSSxDQUFDLENBQUM7QUFDbkQsWUFBSSxhQUFhLENBQUMsSUFBSSxDQUFDLEVBQUUsT0FBTyw2QkFuQ2hDLFdBQVcsQ0FtQ2lDLFFBQVEsQ0FBQyxJQUFJLENBQUMsQ0FBQztBQUMzRCxZQUFJLGNBQWMsQ0FBQyxJQUFJLENBQUMsRUFBRSxPQUFPLDZCQW5DakMsWUFBWSxDQW1Da0MsUUFBUSxFQUFFLENBQUM7QUFDekQsWUFBSSxZQUFZLENBQUMsSUFBSSxDQUFDLEVBQUUsT0FBTyw2QkFuQy9CLFVBQVUsQ0FtQ2dDLFFBQVEsQ0FBQyxJQUFJLENBQUMsQ0FBQztBQUN6RCxZQUFJLFVBQVUsQ0FBQyxJQUFJLENBQUMsRUFBRSxPQUFPLDZCQW5DN0IsUUFBUSxDQW1DOEIsUUFBUSxDQUFDLElBQUksQ0FBQyxDQUFDO0tBQ3REOztBQUFBLEtBQUMiLCJmaWxlIjoic3RhdGVtZW50cy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7XG4gIFlpZWxkLFxuICBCbG9jayxcbiAgQXBwZW5kLFxuICBEeW5hbWljQXR0cixcbiAgRHluYW1pY1Byb3AsXG4gIFRleHQsXG4gIENvbW1lbnQsXG4gIE9wZW5FbGVtZW50LFxuICBDbG9zZUVsZW1lbnQsXG4gIFN0YXRpY0F0dHIsXG4gIE1vZGlmaWVyXG59IGZyb20gJy4vY29yZSc7XG5cbmltcG9ydCB7IElubGluZUJsb2NrIH0gZnJvbSAnLi4vY29tcGlsZWQvYmxvY2tzJztcbmltcG9ydCB7IFN0YXRlbWVudCBhcyBTdGF0ZW1lbnRTeW50YXggfSBmcm9tICcuLi9zeW50YXgnO1xuaW1wb3J0IHtcbiAgU3RhdGVtZW50cyBhcyBTZXJpYWxpemVkU3RhdGVtZW50cyxcbiAgU3RhdGVtZW50IGFzIFNlcmlhbGl6ZWRTdGF0ZW1lbnRcbn0gZnJvbSAnZ2xpbW1lci13aXJlLWZvcm1hdCc7XG5cbmNvbnN0IHtcbiAgaXNZaWVsZCxcbiAgaXNCbG9jayxcbiAgaXNBcHBlbmQsXG4gIGlzRHluYW1pY0F0dHIsXG4gIGlzRHluYW1pY1Byb3AsXG4gIGlzVGV4dCxcbiAgaXNDb21tZW50LFxuICBpc09wZW5FbGVtZW50LFxuICBpc0Nsb3NlRWxlbWVudCxcbiAgaXNTdGF0aWNBdHRyLFxuICBpc01vZGlmaWVyXG59ID0gU2VyaWFsaXplZFN0YXRlbWVudHM7XG5cbmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uKHNleHA6IFNlcmlhbGl6ZWRTdGF0ZW1lbnQsIGJsb2NrczogSW5saW5lQmxvY2tbXSk6IFN0YXRlbWVudFN5bnRheCB7XG4gIGlmIChpc1lpZWxkKHNleHApKSByZXR1cm4gWWllbGQuZnJvbVNwZWMoc2V4cCk7XG4gIGlmIChpc0Jsb2NrKHNleHApKSByZXR1cm4gQmxvY2suZnJvbVNwZWMoc2V4cCwgYmxvY2tzKTtcbiAgaWYgKGlzQXBwZW5kKHNleHApKSByZXR1cm4gQXBwZW5kLmZyb21TcGVjKHNleHApO1xuICBpZiAoaXNEeW5hbWljQXR0cihzZXhwKSkgcmV0dXJuIER5bmFtaWNBdHRyLmZyb21TcGVjKHNleHApO1xuICBpZiAoaXNEeW5hbWljUHJvcChzZXhwKSkgcmV0dXJuIER5bmFtaWNQcm9wLmZyb21TcGVjKHNleHApO1xuICBpZiAoaXNUZXh0KHNleHApKSByZXR1cm4gVGV4dC5mcm9tU3BlYyhzZXhwKTtcbiAgaWYgKGlzQ29tbWVudChzZXhwKSkgcmV0dXJuIENvbW1lbnQuZnJvbVNwZWMoc2V4cCk7XG4gIGlmIChpc09wZW5FbGVtZW50KHNleHApKSByZXR1cm4gT3BlbkVsZW1lbnQuZnJvbVNwZWMoc2V4cCk7XG4gIGlmIChpc0Nsb3NlRWxlbWVudChzZXhwKSkgcmV0dXJuIENsb3NlRWxlbWVudC5mcm9tU3BlYygpO1xuICBpZiAoaXNTdGF0aWNBdHRyKHNleHApKSByZXR1cm4gU3RhdGljQXR0ci5mcm9tU3BlYyhzZXhwKTtcbiAgaWYgKGlzTW9kaWZpZXIoc2V4cCkpIHJldHVybiBNb2RpZmllci5mcm9tU3BlYyhzZXhwKTtcbn07Il19
-enifed("glimmer-runtime/lib/syntax", ["exports"], function (exports) {
-    "use strict";
-
-    exports.isAttribute = isAttribute;
-
-    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-    function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-    var PrettyPrint = function PrettyPrint(type, operation) {
-        var params = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-        var hash = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
-        var templates = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
-
-        _classCallCheck(this, PrettyPrint);
-
-        this.type = type;
-        this.operation = operation;
-        this.params = params;
-        this.hash = hash;
-        this.templates = templates;
-    };
-
-    exports.PrettyPrint = PrettyPrint;
-
-    var Statement = (function () {
-        function Statement() {
-            _classCallCheck(this, Statement);
-
-            this.next = null;
-            this.prev = null;
-        }
-
-        Statement.fromSpec = function fromSpec(spec, blocks) {
-            throw new Error("You need to implement fromSpec on " + this);
-        };
-
-        Statement.prototype.prettyPrint = function prettyPrint() {
-            return new PrettyPrint(this.type, this.type);
-        };
-
-        Statement.prototype.clone = function clone() {
-            // not type safe but the alternative is extreme boilerplate per
-            // syntax subclass.
-            return new this.constructor(this);
-        };
-
-        Statement.prototype.scan = function scan(scanner) {
-            return this;
-        };
-
-        return Statement;
-    })();
-
-    exports.Statement = Statement;
-
-    var Expression = (function () {
-        function Expression() {
-            _classCallCheck(this, Expression);
-        }
-
-        Expression.fromSpec = function fromSpec(spec, blocks) {
-            throw new Error("You need to implement fromSpec on " + this);
-        };
-
-        Expression.prototype.prettyPrint = function prettyPrint() {
-            return "" + this.type;
-        };
-
-        return Expression;
-    })();
-
-    exports.Expression = Expression;
-    var ATTRIBUTE = "e1185d30-7cac-4b12-b26a-35327d905d92";
-    exports.ATTRIBUTE = ATTRIBUTE;
-
-    var Attribute = (function (_Statement) {
-        _inherits(Attribute, _Statement);
-
-        function Attribute() {
-            _classCallCheck(this, Attribute);
-
-            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                args[_key] = arguments[_key];
-            }
-
-            _Statement.call.apply(_Statement, [this].concat(args));
-            this["e1185d30-7cac-4b12-b26a-35327d905d92"] = true;
-        }
-
-        return Attribute;
-    })(Statement);
-
-    exports.Attribute = Attribute;
-
-    function isAttribute(value) {
-        return value && value[ATTRIBUTE] === true;
-    }
-});
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvc3ludGF4LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7O1FBeUJBLFdBQUEsR0FPRSxTQVBGLFdBQUEsQ0FPYyxJQUFZLEVBQUUsU0FBaUIsRUFBa0c7WUFBaEcsTUFBTSx5REFBcUIsSUFBSTtZQUFFLElBQUkseURBQXlCLElBQUk7WUFBRSxTQUFTLHlEQUFlLElBQUk7OzhCQVAvSSxXQUFBOztBQVFJLFlBQUksQ0FBQyxJQUFJLEdBQUcsSUFBSSxDQUFDO0FBQ2pCLFlBQUksQ0FBQyxTQUFTLEdBQUcsU0FBUyxDQUFDO0FBQzNCLFlBQUksQ0FBQyxNQUFNLEdBQUcsTUFBTSxDQUFDO0FBQ3JCLFlBQUksQ0FBQyxJQUFJLEdBQUcsSUFBSSxDQUFDO0FBQ2pCLFlBQUksQ0FBQyxTQUFTLEdBQUcsU0FBUyxDQUFDO0tBQzVCOzs7O1FBV0gsU0FBQTtBQUFBLGlCQUFBLFNBQUEsR0FBQTtrQ0FBQSxTQUFBOztBQU1TLGdCQUFBLENBQUEsSUFBSSxHQUFjLElBQUksQ0FBQztBQUN2QixnQkFBQSxDQUFBLElBQUksR0FBYyxJQUFJLENBQUM7U0FpQi9COztBQXhCRCxpQkFBQSxDQUNTLFFBQVEsR0FBQSxrQkFBZ0MsSUFBTyxFQUFFLE1BQXNCLEVBQUE7QUFDNUUsa0JBQU0sSUFBSSxLQUFLLHdDQUFzQyxJQUFJLENBQUcsQ0FBQztTQUM5RDs7QUFISCxpQkFBQSxXQVNFLFdBQVcsR0FBQSx1QkFBQTtBQUNULG1CQUFPLElBQUksV0FBVyxDQUFDLElBQUksQ0FBQyxJQUFJLEVBQUUsSUFBSSxDQUFDLElBQUksQ0FBQyxDQUFDO1NBQzlDOztBQVhILGlCQUFBLFdBYUUsS0FBSyxHQUFBLGlCQUFBOzs7QUFHSCxtQkFBTyxJQUF1QixJQUFJLENBQUMsV0FBWSxDQUFDLElBQUksQ0FBQyxDQUFDO1NBQ3ZEOztBQWpCSCxpQkFBQSxXQXFCRSxJQUFJLEdBQUEsY0FBQyxPQUFxQixFQUFBO0FBQ3hCLG1CQUFPLElBQUksQ0FBQztTQUNiOztlQXZCSCxTQUFBOzs7OztRQThCQSxVQUFBO2lCQUFBLFVBQUE7a0NBQUEsVUFBQTs7O0FBQUEsa0JBQUEsQ0FDUyxRQUFRLEdBQUEsa0JBQTBELElBQU8sRUFBRSxNQUFzQixFQUFBO0FBQ3RHLGtCQUFNLElBQUksS0FBSyx3Q0FBc0MsSUFBSSxDQUFHLENBQUM7U0FDOUQ7O0FBSEgsa0JBQUEsV0FPRSxXQUFXLEdBQUEsdUJBQUE7QUFDVCx3QkFBVSxJQUFJLENBQUMsSUFBSSxDQUFHO1NBQ3ZCOztlQVRILFVBQUE7Ozs7QUFvQ08sUUFBTSxTQUFTLEdBQUcsc0NBQXNDLENBQUM7OztRQUVoRSxTQUFBO2tCQUFBLFNBQUE7O0FBQUEsaUJBQUEsU0FBQSxHQUFBO2tDQUFBLFNBQUE7OzhDQUFBLElBQUE7QUFBQSxvQkFBQTs7O0FBQTJDLDREQUFBLElBQUEsRUFBQSxDQUFTO0FBQ2xELGdCQUFBLENBQUEsc0NBQUEsQ0FBc0MsR0FBRyxJQUFJLENBQUM7U0FNL0M7O2VBUEQsU0FBQTtPQUEyQyxTQUFTOzs7O0FBU3BELGFBQUEsV0FBQSxDQUE0QixLQUFnQixFQUFBO0FBQzFDLGVBQU8sS0FBSyxJQUFJLEtBQUssQ0FBQyxTQUFTLENBQUMsS0FBSyxJQUFJLENBQUM7S0FDM0MiLCJmaWxlIjoic3ludGF4LmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgRGljdCwgTGlua2VkTGlzdE5vZGUsIFNsaWNlLCBJbnRlcm5lZFN0cmluZyB9IGZyb20gJ2dsaW1tZXItdXRpbCc7XG5pbXBvcnQgeyBCbG9ja1NjYW5uZXIgfSBmcm9tICcuL3NjYW5uZXInO1xuaW1wb3J0IHsgRW52aXJvbm1lbnQgfSBmcm9tICcuL2Vudmlyb25tZW50JztcbmltcG9ydCB7IENvbXBpbGVkRXhwcmVzc2lvbiB9IGZyb20gJy4vY29tcGlsZWQvZXhwcmVzc2lvbnMnO1xuaW1wb3J0IHsgT3Bjb2RlLCBPcFNlcSB9IGZyb20gJy4vb3Bjb2Rlcyc7XG5pbXBvcnQgeyBJbmxpbmVCbG9jaywgQmxvY2sgfSBmcm9tICcuL2NvbXBpbGVkL2Jsb2Nrcyc7XG5cbmltcG9ydCBPcGNvZGVCdWlsZGVyIGZyb20gJy4vb3Bjb2RlLWJ1aWxkZXInO1xuXG5pbXBvcnQge1xuICBTdGF0ZW1lbnQgYXMgU2VyaWFsaXplZFN0YXRlbWVudCxcbiAgRXhwcmVzc2lvbiBhcyBTZXJpYWxpemVkRXhwcmVzc2lvbixcbiAgQmxvY2tNZXRhXG59IGZyb20gJ2dsaW1tZXItd2lyZS1mb3JtYXQnO1xuXG5leHBvcnQgdHlwZSBQcmV0dHlQcmludFZhbHVlID0gUHJldHR5UHJpbnQgfCBzdHJpbmcgfCBzdHJpbmdbXSB8IFByZXR0eVByaW50VmFsdWVBcnJheSB8IFByZXR0eVByaW50VmFsdWVEaWN0O1xuXG5pbnRlcmZhY2UgUHJldHR5UHJpbnRWYWx1ZUFycmF5IGV4dGVuZHMgQXJyYXk8UHJldHR5UHJpbnRWYWx1ZT4ge1xuXG59XG5cbmludGVyZmFjZSBQcmV0dHlQcmludFZhbHVlRGljdCBleHRlbmRzIERpY3Q8UHJldHR5UHJpbnRWYWx1ZT4ge1xuXG59XG5cbmV4cG9ydCBjbGFzcyBQcmV0dHlQcmludCB7XG4gIHR5cGU6IHN0cmluZztcbiAgb3BlcmF0aW9uOiBzdHJpbmc7XG4gIHBhcmFtczogUHJldHR5UHJpbnRWYWx1ZVtdO1xuICBoYXNoOiBEaWN0PFByZXR0eVByaW50VmFsdWU+O1xuICB0ZW1wbGF0ZXM6IERpY3Q8bnVtYmVyPjtcblxuICBjb25zdHJ1Y3Rvcih0eXBlOiBzdHJpbmcsIG9wZXJhdGlvbjogc3RyaW5nLCBwYXJhbXM6IFByZXR0eVByaW50VmFsdWVbXT1udWxsLCBoYXNoOiBEaWN0PFByZXR0eVByaW50VmFsdWU+PW51bGwsIHRlbXBsYXRlczogRGljdDxudW1iZXI+PW51bGwpIHtcbiAgICB0aGlzLnR5cGUgPSB0eXBlO1xuICAgIHRoaXMub3BlcmF0aW9uID0gb3BlcmF0aW9uO1xuICAgIHRoaXMucGFyYW1zID0gcGFyYW1zO1xuICAgIHRoaXMuaGFzaCA9IGhhc2g7XG4gICAgdGhpcy50ZW1wbGF0ZXMgPSB0ZW1wbGF0ZXM7XG4gIH1cbn1cblxuZXhwb3J0IGludGVyZmFjZSBQcmV0dHlQcmludGFibGUge1xuICBwcmV0dHlQcmludCgpOiBQcmV0dHlQcmludDtcbn1cblxuaW50ZXJmYWNlIFN0YXRlbWVudENsYXNzPFQgZXh0ZW5kcyBTZXJpYWxpemVkU3RhdGVtZW50LCBVIGV4dGVuZHMgU3RhdGVtZW50PiB7XG4gIGZyb21TcGVjKHNwZWM6IFQsIGJsb2Nrcz86IElubGluZUJsb2NrW10pOiBVO1xufVxuXG5leHBvcnQgYWJzdHJhY3QgY2xhc3MgU3RhdGVtZW50IGltcGxlbWVudHMgTGlua2VkTGlzdE5vZGUge1xuICBzdGF0aWMgZnJvbVNwZWM8VCBleHRlbmRzIFNlcmlhbGl6ZWRTdGF0ZW1lbnQ+KHNwZWM6IFQsIGJsb2Nrcz86IElubGluZUJsb2NrW10pOiBTdGF0ZW1lbnQge1xuICAgIHRocm93IG5ldyBFcnJvcihgWW91IG5lZWQgdG8gaW1wbGVtZW50IGZyb21TcGVjIG9uICR7dGhpc31gKTtcbiAgfVxuXG4gIHB1YmxpYyB0eXBlOiBzdHJpbmc7XG4gIHB1YmxpYyBuZXh0OiBTdGF0ZW1lbnQgPSBudWxsO1xuICBwdWJsaWMgcHJldjogU3RhdGVtZW50ID0gbnVsbDtcblxuICBwcmV0dHlQcmludCgpOiBQcmV0dHlQcmludFZhbHVlIHtcbiAgICByZXR1cm4gbmV3IFByZXR0eVByaW50KHRoaXMudHlwZSwgdGhpcy50eXBlKTtcbiAgfVxuXG4gIGNsb25lKCk6IHRoaXMge1xuICAgIC8vIG5vdCB0eXBlIHNhZmUgYnV0IHRoZSBhbHRlcm5hdGl2ZSBpcyBleHRyZW1lIGJvaWxlcnBsYXRlIHBlclxuICAgIC8vIHN5bnRheCBzdWJjbGFzcy5cbiAgICByZXR1cm4gbmV3ICg8bmV3IChhbnkpID0+IGFueT50aGlzLmNvbnN0cnVjdG9yKSh0aGlzKTtcbiAgfVxuXG4gIGFic3RyYWN0IGNvbXBpbGUob3Bjb2RlczogU3RhdGVtZW50Q29tcGlsYXRpb25CdWZmZXIsIGVudjogRW52aXJvbm1lbnQsIGJsb2NrOiBCbG9jayk7XG5cbiAgc2NhbihzY2FubmVyOiBCbG9ja1NjYW5uZXIpOiBTdGF0ZW1lbnQge1xuICAgIHJldHVybiB0aGlzO1xuICB9XG59XG5cbmludGVyZmFjZSBFeHByZXNzaW9uQ2xhc3M8VCBleHRlbmRzIFNlcmlhbGl6ZWRFeHByZXNzaW9uLCBVIGV4dGVuZHMgRXhwcmVzc2lvbjxUPj4ge1xuICBmcm9tU3BlYyhzcGVjOiBULCBibG9ja3M/OiBJbmxpbmVCbG9ja1tdKTogVTtcbn1cblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIEV4cHJlc3Npb248VD4ge1xuICBzdGF0aWMgZnJvbVNwZWM8VCBleHRlbmRzIFNlcmlhbGl6ZWRFeHByZXNzaW9uLCBVIGV4dGVuZHMgRXhwcmVzc2lvbjxUPj4oc3BlYzogVCwgYmxvY2tzPzogSW5saW5lQmxvY2tbXSk6IFUge1xuICAgIHRocm93IG5ldyBFcnJvcihgWW91IG5lZWQgdG8gaW1wbGVtZW50IGZyb21TcGVjIG9uICR7dGhpc31gKTtcbiAgfVxuXG4gIHB1YmxpYyB0eXBlOiBzdHJpbmc7XG5cbiAgcHJldHR5UHJpbnQoKTogUHJldHR5UHJpbnRWYWx1ZSB7XG4gICAgcmV0dXJuIGAke3RoaXMudHlwZX1gO1xuICB9XG5cbiAgYWJzdHJhY3QgY29tcGlsZShjb21waWxlcjogU3ltYm9sTG9va3VwLCBlbnY6IEVudmlyb25tZW50LCBwYXJlbnRNZXRhPzogQmxvY2tNZXRhKTogQ29tcGlsZWRFeHByZXNzaW9uPFQ+O1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIFN5bWJvbExvb2t1cCB7XG4gIGdldExvY2FsU3ltYm9sKG5hbWU6IEludGVybmVkU3RyaW5nKTogbnVtYmVyO1xuICBoYXNMb2NhbFN5bWJvbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IGJvb2xlYW47XG4gIGdldE5hbWVkU3ltYm9sKG5hbWU6IEludGVybmVkU3RyaW5nKTogbnVtYmVyO1xuICBoYXNOYW1lZFN5bWJvbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IGJvb2xlYW47XG4gIGdldEJsb2NrU3ltYm9sKG5hbWU6IEludGVybmVkU3RyaW5nKTogbnVtYmVyO1xuICBoYXNCbG9ja1N5bWJvbChuYW1lOiBJbnRlcm5lZFN0cmluZyk6IGJvb2xlYW47XG5cbiAgLy8gb25seSB1c2VkIGZvciB7e3ZpZXcubmFtZX19XG4gIGhhc0tleXdvcmQobmFtZTogSW50ZXJuZWRTdHJpbmcpOiBib29sZWFuO1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIENvbXBpbGVJbnRvIHtcbiAgYXBwZW5kKG9wOiBPcGNvZGUpO1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIFN0YXRlbWVudENvbXBpbGF0aW9uQnVmZmVyIGV4dGVuZHMgQ29tcGlsZUludG8sIFN5bWJvbExvb2t1cCwgT3Bjb2RlQnVpbGRlciB7XG4gIHRvT3BTZXEoKTogT3BTZXE7XG59XG5cbmV4cG9ydCB0eXBlIFByb2dyYW0gPSBTbGljZTxTdGF0ZW1lbnQ+O1xuXG5leHBvcnQgY29uc3QgQVRUUklCVVRFID0gXCJlMTE4NWQzMC03Y2FjLTRiMTItYjI2YS0zNTMyN2Q5MDVkOTJcIjtcblxuZXhwb3J0IGFic3RyYWN0IGNsYXNzIEF0dHJpYnV0ZTxUPiBleHRlbmRzIFN0YXRlbWVudCB7XG4gIFwiZTExODVkMzAtN2NhYy00YjEyLWIyNmEtMzUzMjdkOTA1ZDkyXCIgPSB0cnVlO1xuICBuYW1lOiBJbnRlcm5lZFN0cmluZztcbiAgbmFtZXNwYWNlOiBJbnRlcm5lZFN0cmluZztcblxuICBhYnN0cmFjdCB2YWx1ZVN5bnRheCgpOiBFeHByZXNzaW9uPFQ+O1xuICBhYnN0cmFjdCBpc0F0dHJpYnV0ZSgpOiBib29sZWFuO1xufVxuXG5leHBvcnQgZnVuY3Rpb24gaXNBdHRyaWJ1dGUodmFsdWU6IFN0YXRlbWVudCk6IHZhbHVlIGlzIEF0dHJpYnV0ZTxhbnk+IHtcbiAgcmV0dXJuIHZhbHVlICYmIHZhbHVlW0FUVFJJQlVURV0gPT09IHRydWU7XG59XG4iXX0=
 enifed('glimmer-runtime/lib/template', ['exports', 'glimmer-runtime/lib/builder', 'glimmer-runtime/lib/vm', 'glimmer-runtime/lib/scanner'], function (exports, _glimmerRuntimeLibBuilder, _glimmerRuntimeLibVm, _glimmerRuntimeLibScanner) {
     'use strict';
 
@@ -62795,6 +62784,16 @@ enifed('glimmer-runtime/lib/utils', ['exports', 'glimmer-util'], function (expor
     exports.ListRange = ListRange;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvdXRpbHMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFFTyxRQUFNLFdBQVcsR0FBRyxFQUFFLENBQUM7O0FBQ3ZCLFFBQU0sWUFBWSxHQUFHLEVBQUUsQ0FBQzs7QUFFL0IsUUFBTSxHQUFHLEdBQUcsYUFMSCxNQUFNLGVBS2dCLENBQUUsSUFBSSxJQUFJLEVBQUUsQ0FBRyxDQUFDOztBQUUvQyxhQUFBLE1BQUEsQ0FBdUIsU0FBUyxFQUFBO0FBQzlCLFlBQUksR0FBRyxHQUFHLElBQUksQ0FBQyxLQUFLLENBQUMsSUFBSSxDQUFDLE1BQU0sRUFBRSxHQUFJLENBQUMsSUFBSSxJQUFJLEVBQUUsQUFBQyxDQUFDLENBQUM7QUFDcEQsZUFBTyxhQVRBLE1BQU0sQ0FTSSxTQUFTLGFBQVEsR0FBRyxHQUFHLEdBQUcsT0FBSSxDQUFDO0tBQ2pEOztBQUVELGFBQUEsV0FBQSxDQUE0QixNQUFjLEVBQUE7OztBQUd4QyxlQUFPLE1BQU0sQ0FBQztLQUNmOztRQW9CRCxTQUFBO0FBT0UsaUJBUEYsU0FBQSxDQU9jLElBQVMsRUFBRSxLQUFhLEVBQUUsR0FBVyxFQUFBO2tDQVBuRCxTQUFBOztBQVFJLGdCQUFJLENBQUMsSUFBSSxHQUFHLElBQUksQ0FBQztBQUNqQixnQkFBSSxDQUFDLEtBQUssR0FBRyxLQUFLLENBQUM7QUFDbkIsZ0JBQUksQ0FBQyxHQUFHLEdBQUcsR0FBRyxDQUFDO1NBQ2hCOztBQVhILGlCQUFBLFdBYUUsRUFBRSxHQUFBLFlBQUMsS0FBYSxFQUFBO0FBQ2QsZ0JBQUksS0FBSyxJQUFJLElBQUksQ0FBQyxJQUFJLENBQUMsTUFBTSxFQUFFLE9BQU8sSUFBSSxDQUFDO0FBQzNDLG1CQUFPLElBQUksQ0FBQyxJQUFJLENBQUMsS0FBSyxDQUFDLENBQUM7U0FDekI7O0FBaEJILGlCQUFBLFdBa0JFLEdBQUcsR0FBQSxlQUFBO0FBQ0QsbUJBQU8sSUFBSSxDQUFDLEtBQUssQ0FBQztTQUNuQjs7QUFwQkgsaUJBQUEsV0FzQkUsR0FBRyxHQUFBLGVBQUE7QUFDRCxtQkFBTyxJQUFJLENBQUMsR0FBRyxDQUFDO1NBQ2pCOztlQXhCSCxTQUFBIiwiZmlsZSI6InV0aWxzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgaW50ZXJuIH0gZnJvbSAnZ2xpbW1lci11dGlsJztcblxuZXhwb3J0IGNvbnN0IEVNUFRZX0FSUkFZID0gW107XG5leHBvcnQgY29uc3QgRU1QVFlfT0JKRUNUID0ge307XG5cbmNvbnN0IEtFWSA9IGludGVybihgX19nbGltbWVyJHsrIG5ldyBEYXRlKCl9YCk7XG5cbmV4cG9ydCBmdW5jdGlvbiBzeW1ib2woZGVidWdOYW1lKTogc3RyaW5nIHtcbiAgbGV0IG51bSA9IE1hdGguZmxvb3IoTWF0aC5yYW5kb20oKSAqICgrbmV3IERhdGUoKSkpO1xuICByZXR1cm4gaW50ZXJuKGAke2RlYnVnTmFtZX0gW2lkPSR7S0VZfSR7bnVtfV1gKTtcbn1cblxuZXhwb3J0IGZ1bmN0aW9uIHR1cmJvY2hhcmdlKG9iamVjdDogT2JqZWN0KTogT2JqZWN0IHtcbiAgLy8gZnVuY3Rpb24gQ29uc3RydWN0b3IoKSB7fVxuICAvLyBDb25zdHJ1Y3Rvci5wcm90b3R5cGUgPSBvYmplY3Q7XG4gIHJldHVybiBvYmplY3Q7XG59XG5cbmludGVyZmFjZSBFbnVtZXJhYmxlQ2FsbGJhY2s8VD4ge1xuICAoaXRlbTogVCk6IHZvaWQ7XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgRW51bWVyYWJsZTxUPiB7XG4gIGZvckVhY2goY2FsbGJhY2s6IEVudW1lcmFibGVDYWxsYmFjazxUPik7XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgRGVzdHJveWFibGUge1xuICBkZXN0cm95KCk7XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgUmFuZ2U8VD4ge1xuICBtaW4oKTogbnVtYmVyO1xuICBtYXgoKTogbnVtYmVyO1xuICBhdChpbmRleDogbnVtYmVyKTogVDtcbn1cblxuZXhwb3J0IGNsYXNzIExpc3RSYW5nZTxUPiBpbXBsZW1lbnRzIFJhbmdlPFQ+IHtcbiAgcHJpdmF0ZSBsaXN0OiBUW107XG5cbiAgLy8gW3N0YXJ0LCBlbmRdXG4gIHByaXZhdGUgc3RhcnQ6IG51bWJlcjtcbiAgcHJpdmF0ZSBlbmQ6IG51bWJlcjtcblxuICBjb25zdHJ1Y3RvcihsaXN0OiBUW10sIHN0YXJ0OiBudW1iZXIsIGVuZDogbnVtYmVyKSB7XG4gICAgdGhpcy5saXN0ID0gbGlzdDtcbiAgICB0aGlzLnN0YXJ0ID0gc3RhcnQ7XG4gICAgdGhpcy5lbmQgPSBlbmQ7XG4gIH1cblxuICBhdChpbmRleDogbnVtYmVyKTogVCB7XG4gICAgaWYgKGluZGV4ID49IHRoaXMubGlzdC5sZW5ndGgpIHJldHVybiBudWxsO1xuICAgIHJldHVybiB0aGlzLmxpc3RbaW5kZXhdO1xuICB9XG5cbiAgbWluKCk6IG51bWJlciB7XG4gICAgcmV0dXJuIHRoaXMuc3RhcnQ7XG4gIH1cblxuICBtYXgoKTogbnVtYmVyIHtcbiAgICByZXR1cm4gdGhpcy5lbmQ7XG4gIH1cbn0iXX0=
+enifed('glimmer-runtime/lib/vm', ['exports', 'glimmer-runtime/lib/vm/append', 'glimmer-runtime/lib/vm/update', 'glimmer-runtime/lib/vm/render-result'], function (exports, _glimmerRuntimeLibVmAppend, _glimmerRuntimeLibVmUpdate, _glimmerRuntimeLibVmRenderResult) {
+  'use strict';
+
+  exports.VM = _glimmerRuntimeLibVmAppend.default;
+  exports.PublicVM = _glimmerRuntimeLibVmAppend.PublicVM;
+  exports.BindDynamicScopeCallback = _glimmerRuntimeLibVmAppend.BindDynamicScopeCallback;
+  exports.UpdatingVM = _glimmerRuntimeLibVmUpdate.default;
+  exports.RenderResult = _glimmerRuntimeLibVmRenderResult.default;
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvdm0udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O1VBQW9CLEVBQUUsOEJBQWIsT0FBTztVQUFRLFFBQVEsOEJBQVIsUUFBUTtVQUFFLHdCQUF3Qiw4QkFBeEIsd0JBQXdCO1VBQ3RDLFVBQVUsOEJBQXJCLE9BQU87VUFDSSxZQUFZLG9DQUF2QixPQUFPIiwiZmlsZSI6InZtLmpzIiwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IHsgZGVmYXVsdCBhcyBWTSwgUHVibGljVk0sIEJpbmREeW5hbWljU2NvcGVDYWxsYmFjayB9IGZyb20gJy4vdm0vYXBwZW5kJztcbmV4cG9ydCB7IGRlZmF1bHQgYXMgVXBkYXRpbmdWTSB9IGZyb20gJy4vdm0vdXBkYXRlJztcbmV4cG9ydCB7IGRlZmF1bHQgYXMgUmVuZGVyUmVzdWx0IH0gZnJvbSAnLi92bS9yZW5kZXItcmVzdWx0JztcbiJdfQ==
 enifed('glimmer-runtime/lib/vm/append', ['exports', 'glimmer-runtime/lib/environment', 'glimmer-util', 'glimmer-reference', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/vm/update', 'glimmer-runtime/lib/vm/render-result', 'glimmer-runtime/lib/vm/frame'], function (exports, _glimmerRuntimeLibEnvironment, _glimmerUtil, _glimmerReference, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibVmUpdate, _glimmerRuntimeLibVmRenderResult, _glimmerRuntimeLibVmFrame) {
     'use strict';
 
@@ -63644,16 +63643,6 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
     exports.UpdatingVMFrame = UpdatingVMFrame;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvdm0vdXBkYXRlLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7OztRQXVCQSxVQUFBO0FBS0UsaUJBTEYsVUFBQSxDQUtjLEdBQWdCLEVBQUE7a0NBTDlCLFVBQUE7O0FBR1UsZ0JBQUEsQ0FBQSxVQUFVLEdBQTJCLGlCQXZCVCxLQUFLLEVBdUJnQyxDQUFDO0FBR3hFLGdCQUFJLENBQUMsR0FBRyxHQUFHLEdBQUcsQ0FBQztBQUNmLGdCQUFJLENBQUMsR0FBRyxHQUFHLEdBQUcsQ0FBQyxNQUFNLEVBQUUsQ0FBQztTQUN6Qjs7QUFSSCxrQkFBQSxXQVVFLE9BQU8sR0FBQSxpQkFBQyxPQUFzQixFQUFFLE9BQXlCLEVBQUE7Z0JBQ2pELFVBQVUsR0FBSyxJQUFJLENBQW5CLFVBQVU7O0FBRWhCLGdCQUFJLENBQUMsR0FBRyxDQUFDLE9BQU8sRUFBRSxPQUFPLENBQUMsQ0FBQztBQUUzQixtQkFBTyxJQUFJLEVBQUU7QUFDWCxvQkFBSSxVQUFVLENBQUMsT0FBTyxFQUFFLEVBQUUsTUFBTTtBQUVoQyxvQkFBSSxNQUFNLEdBQUcsSUFBSSxDQUFDLFVBQVUsQ0FBQyxPQUFPLENBQUMsYUFBYSxFQUFFLENBQUM7QUFFckQsb0JBQUksTUFBTSxLQUFLLElBQUksRUFBRTtBQUNuQix3QkFBSSxDQUFDLFVBQVUsQ0FBQyxHQUFHLEVBQUUsQ0FBQztBQUN0Qiw2QkFBUztpQkFDVjtBQUVELDZCQTdDRyxNQUFNLENBNkNGLEtBQUssY0FBWSxNQUFNLENBQUMsSUFBSSxDQUFHLENBQUM7QUFDdkMsNkJBOUNHLE1BQU0sQ0E4Q0YsS0FBSyxDQUFDLE1BQU0sQ0FBQyxDQUFDO0FBRXJCLHNCQUFNLENBQUMsUUFBUSxDQUFDLElBQUksQ0FBQyxDQUFDO2FBQ3ZCO1NBQ0Y7O0FBOUJILGtCQUFBLFdBZ0NFLElBQUksR0FBQSxjQUFDLEVBQWtCLEVBQUE7QUFDckIsZ0JBQUksQ0FBQyxVQUFVLENBQUMsT0FBTyxDQUFDLElB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QUFHLENBQUMsR0FBRyxDQUFDLENBQUMsS0FBSyxDQUFHO2FBQ3BELENBQUMsQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLENBQUM7QUFFZCxnQkFBSSxDQUFDLFNBQVMsQ0FBQyxDQUFDLEtBQUssQ0FBQyxTQUFPLEtBQUssTUFBRyxDQUFDO0FBRXRDLG1CQUFPLElBQUksQ0FBQztTQUNiOztlQTFESCxlQUFBO09BQXFDLFdBQVc7Ozs7UUE2RGhELGVBQUE7QUFNRSxpQkFORixlQUFBLENBTWMsRUFBYyxFQUFFLEdBQWtCLEVBQUUsT0FBeUIsRUFBQTtrQ0FOM0UsZUFBQTs7QUFPSSxnQkFBSSxDQUFDLEVBQUUsR0FBRyxFQUFFLENBQUM7QUFDYixnQkFBSSxDQUFDLEdBQUcsR0FBRyxHQUFHLENBQUM7QUFDZixnQkFBSSxDQUFDLE9BQU8sR0FBRyxHQUFHLENBQUMsSUFBSSxFQUFFLENBQUM7QUFDMUIsZ0JBQUksQ0FBQyxnQkFBZ0IsR0FBRyxPQUFPLENBQUM7U0FDakM7O0FBWEgsdUJBQUEsV0FhRSxJQUFJLEdBQUEsY0FBQyxFQUFrQixFQUFBO0FBQ3JCLGdCQUFJLENBQUMsT0FBTyxHQUFHLEVBQUUsQ0FBQztTQUNuQjs7QUFmSCx1QkFBQSxXQWlCRSxhQUFhLEdBQUEseUJBQUE7Z0JBQ0wsT0FBTyxHQUFVLElBQUksQ0FBckIsT0FBTztnQkFBRSxHQUFHLEdBQUssSUFBSSxDQUFaLEdBQUc7O0FBQ2xCLGdCQUFJLE9BQU8sRUFBRSxJQUFJLENBQUMsT0FBTyxHQUFHLEdBQUcsQ0FBQyxRQUFRLENBQUMsT0FBTyxDQUFDLENBQUM7QUFDbEQsbUJBQU8sT0FBTyxDQUFDO1NBQ2hCOztBQXJCSCx1QkFBQSxXQXVCRSxlQUFlLEdBQUEsMkJBQUE7QUFDYixnQkFBSSxDQUFDLGdCQUFnQixDQUFDLGVBQWUsRUFBRSxDQUFDO1NBQ3pDOztlQXpCSCxlQUFBIiwiZmlsZSI6InVwZGF0ZS5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IFNjb3BlLCBEeW5hbWljU2NvcGUsIEVudmlyb25tZW50IH0gZnJvbSAnLi4vZW52aXJvbm1lbnQnO1xuaW1wb3J0IHsgQm91bmRzLCBjbGVhciwgbW92ZSBhcyBtb3ZlQm91bmRzIH0gZnJvbSAnLi4vYm91bmRzJztcbmltcG9ydCB7IEVsZW1lbnRTdGFjaywgVHJhY2tlciB9IGZyb20gJy4uL2J1aWxkZXInO1xuaW1wb3J0IHsgTE9HR0VSLCBEZXN0cm95YWJsZSwgT3BhcXVlLCBTdGFjaywgTGlua2VkTGlzdCwgSW50ZXJuZWRTdHJpbmcsIERpY3QsIGRpY3QgfSBmcm9tICdnbGltbWVyLXV0aWwnO1xuaW1wb3J0IHtcbiAgQ29uc3RSZWZlcmVuY2UsXG4gIFBhdGhSZWZlcmVuY2UsXG4gIEl0ZXJhdGlvbkFydGlmYWN0cyxcbiAgSXRlcmF0b3JTeW5jaHJvbml6ZXIsXG4gIEl0ZXJhdG9yU3luY2hyb25pemVyRGVsZWdhdGUsXG5cbiAgLy8gVGFnc1xuICBVcGRhdGFibGVUYWcsXG4gIGNvbWJpbmVTbGljZSxcbiAgQ09OU1RBTlRfVEFHXG59IGZyb20gJ2dsaW1tZXItcmVmZXJlbmNlJztcbmltcG9ydCB7IEV2YWx1YXRlZEFyZ3MgfSBmcm9tICcuLi9jb21waWxlZC9leHByZXNzaW9ucy9hcmdzJztcbmltcG9ydCB7IE9wY29kZUpTT04sIE9wU2VxLCBVcGRhdGluZ09wY29kZSwgVXBkYXRpbmdPcFNlcSB9IGZyb20gJy4uL29wY29kZXMnO1xuaW1wb3J0IHsgTGFiZWxPcGNvZGUgfSBmcm9tICcuLi9jb21waWxlZC9vcGNvZGVzL3ZtJztcbmltcG9ydCB7IERPTUhlbHBlciB9IGZyb20gJy4uL2RvbSc7XG5cbmltcG9ydCBWTSBmcm9tICcuL2FwcGVuZCc7XG5cbmV4cG9ydCBkZWZhdWx0IGNsYXNzIFVwZGF0aW5nVk0ge1xuICBwdWJsaWMgZW52OiBFbnZpcm9ubWVudDtcbiAgcHVibGljIGRvbTogRE9NSGVscGVyO1xuICBwcml2YXRlIGZyYW1lU3RhY2s6IFN0YWNrPFVwZGF0aW5nVk1GcmFtZT4gPSBuZXcgU3RhY2s8VXBkYXRpbmdWTUZyYW1lPigpO1xuXG4gIGNvbnN0cnVjdG9yKGVudjogRW52aXJvbm1lbnQpIHtcbiAgICB0aGlzLmVudiA9IGVudjtcbiAgICB0aGlzLmRvbSA9IGVudi5nZXRET00oKTtcbiAgfVxuXG4gIGV4ZWN1dGUob3Bjb2RlczogVXBkYXRpbmdPcFNlcSwgaGFuZGxlcjogRXhjZXB0aW9uSGFuZGxlcikge1xuICAgIGxldCB7IGZyYW1lU3RhY2sgfSA9IHRoaXM7XG5cbiAgICB0aGlzLnRyeShvcGNvZGVzLCBoYW5kbGVyKTtcblxuICAgIHdoaWxlICh0cnVlKSB7XG4gICAgICBpZiAoZnJhbWVTdGFjay5pc0VtcHR5KCkpIGJyZWFrO1xuXG4gICAgICBsZXQgb3Bjb2RlID0gdGhpcy5mcmFtZVN0YWNrLmN1cnJlbnQubmV4dFN0YXRlbWVudCgpO1xuXG4gICAgICBpZiAob3Bjb2RlID09PSBudWxsKSB7XG4gICAgICAgIHRoaXMuZnJhbWVTdGFjay5wb3AoKTtcbiAgICAgICAgY29udGludWU7XG4gICAgICB9XG5cbiAgICAgIExPR0dFUi5kZWJ1ZyhgW1ZNXSBPUCAke29wY29kZS50eXBlfWApO1xuICAgICAgTE9HR0VSLnRyYWNlKG9wY29kZSk7XG5cbiAgICAgIG9wY29kZS5ldmFsdWF0ZSh0aGlzKTtcbiAgICB9XG4gIH1cblxuICBnb3RvKG9wOiBVcGRhdGluZ09wY29kZSkge1xuICAgIHRoaXMuZnJhbWVTdGFjay5jdXJyZW50LmdvdG8ob3ApO1xuICB9XG5cbiAgdHJ5KG9wczogVXBkYXRpbmdPcFNlcSwgaGFuZGxlcjogRXhjZXB0aW9uSGFuZGxlcikge1xuICAgIHRoaXMuZnJhbWVTdGFjay5wdXNoKG5ldyBVcGRhdGluZ1ZNRnJhbWUodGhpcywgb3BzLCBoYW5kbGVyKSk7XG4gIH1cblxuICB0aHJvdygpIHtcbiAgICB0aGlzLmZyYW1lU3RhY2suY3VycmVudC5oYW5kbGVFeGNlcHRpb24oKTtcbiAgICB0aGlzLmZyYW1lU3RhY2sucG9wKCk7XG4gIH1cblxuICBldmFsdWF0ZU9wY29kZShvcGNvZGU6IFVwZGF0aW5nT3Bjb2RlKSB7XG4gICAgb3Bjb2RlLmV2YWx1YXRlKHRoaXMpO1xuICB9XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgRXhjZXB0aW9uSGFuZGxlciB7XG4gIGhhbmRsZUV4Y2VwdGlvbigpO1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIFZNU3RhdGUge1xuICBlbnY6IEVudmlyb25tZW50O1xuICBzY29wZTogU2NvcGU7XG4gIGR5bmFtaWNTY29wZTogRHluYW1pY1Njb3BlO1xuICBibG9jazogVHJhY2tlcjtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBCbG9ja09wY29kZU9wdGlvbnMge1xuICBvcHM6IE9wU2VxO1xuICBzdGF0ZTogVk1TdGF0ZTtcbiAgY2hpbGRyZW46IExpbmtlZExpc3Q8VXBkYXRpbmdPcGNvZGU+O1xufVxuXG5leHBvcnQgYWJzdHJhY3QgY2xhc3MgQmxvY2tPcGNvZGUgZXh0ZW5kcyBVcGRhdGluZ09wY29kZSBpbXBsZW1lbnRzIEJvdW5kcywgRGVzdHJveWFibGUge1xuICBwdWJsaWMgdHlwZSA9IFwiYmxvY2tcIjtcbiAgcHVibGljIG5leHQgPSBudWxsO1xuICBwdWJsaWMgcHJldiA9IG51bGw7XG5cbiAgcHJvdGVjdGVkIGVudjogRW52aXJvbm1lbnQ7XG4gIHByb3RlY3RlZCBzY29wZTogU2NvcGU7XG4gIHByb3RlY3RlZCBkeW5hbWljU2NvcGU6IER5bmFtaWNTY29wZTtcbiAgcHJvdGVjdGVkIGNoaWxkcmVuOiBMaW5rZWRMaXN0PFVwZGF0aW5nT3Bjb2RlPjtcbiAgcHJvdGVjdGVkIGJvdW5kczogVHJhY2tlcjtcbiAgcHVibGljIG9wczogT3BTZXE7XG5cbiAgY29uc3RydWN0b3IoeyBvcHMsIGNoaWxkcmVuLCBzdGF0ZSB9OiBCbG9ja09wY29kZU9wdGlvbnMpIHtcbiAgICBzdXBlcigpO1xuICAgIGxldCB7IGVudiwgc2NvcGUsIGR5bmFtaWNTY29wZSwgYmxvY2sgfSA9IHN0YXRlO1xuICAgIHRoaXMub3BzID0gb3BzO1xuICAgIHRoaXMuY2hpbGRyZW4gPSBjaGlsZHJlbjtcbiAgICB0aGlzLmVudiA9IGVudjtcbiAgICB0aGlzLnNjb3BlID0gc2NvcGU7XG4gICAgdGhpcy5keW5hbWljU2NvcGUgPSBkeW5hbWljU2NvcGU7XG4gICAgdGhpcy5ib3VuZHMgPSBibG9jaztcbiAgfVxuXG4gIGFic3RyYWN0IGRpZEluaXRpYWxpemVDaGlsZHJlbigpO1xuXG4gIHBhcmVudEVsZW1lbnQoKSB7XG4gICAgcmV0dXJuIHRoaXMuYm91bmRzLnBhcmVudEVsZW1lbnQoKTtcbiAgfVxuXG4gIGZpcnN0Tm9kZSgpIHtcbiAgICByZXR1cm4gdGhpcy5ib3VuZHMuZmlyc3ROb2RlKCk7XG4gIH1cblxuICBsYXN0Tm9kZSgpIHtcbiAgICByZXR1cm4gdGhpcy5ib3VuZHMubGFzdE5vZGUoKTtcbiAgfVxuXG4gIGV2YWx1YXRlKHZtOiBVcGRhdGluZ1ZNKSB7XG4gICAgdm0udHJ5KHRoaXMuY2hpbGRyZW4sIG51bGwpO1xuICB9XG5cbiAgZGVzdHJveSgpIHtcbiAgICB0aGlzLmJvdW5kcy5kZXN0cm95KCk7XG4gIH1cblxuICBkaWREZXN0cm95KCkge1xuICAgIHRoaXMuZW52LmRpZERlc3Ryb3kodGhpcy5ib3VuZHMpO1xuICB9XG5cbiAgdG9KU09OKCkgOiBPcGNvZGVKU09OIHtcbiAgICBsZXQgYmVnaW4gPSB0aGlzLm9wcy5oZWFkKCkgYXMgTGFiZWxPcGNvZGU7XG4gICAgbGV0IGVuZCA9IHRoaXMub3BzLnRhaWwoKSBhcyBMYWJlbE9wY29kZTtcbiAgICBsZXQgZGV0YWlscyA9IGRpY3Q8c3RyaW5nPigpO1xuXG4gICAgZGV0YWlsc1tcImd1aWRcIl0gPSBgJHt0aGlzLl9ndWlkfWA7XG4gICAgZGV0YWlsc1tcImJlZ2luXCJdID0gYmVnaW4uaW5zcGVjdCgpO1xuICAgIGRldGFpbHNbXCJlbmRcIl0gPSBlbmQuaW5zcGVjdCgpO1xuXG4gICAgcmV0dXJuIHtcbiAgICAgIGd1aWQ6IHRoaXMuX2d1aWQsXG4gICAgICB0eXBlOiB0aGlzLnR5cGUsXG4gICAgICBkZXRhaWxzLFxuICAgICAgY2hpbGRyZW46IHRoaXMuY2hpbGRyZW4udG9BcnJheSgpLm1hcChvcCA9PiBvcC50b0pTT04oKSlcbiAgICB9O1xuICB9XG59XG5cbmV4cG9ydCBjbGFzcyBUcnlPcGNvZGUgZXh0ZW5kcyBCbG9ja09wY29kZSBpbXBsZW1lbnRzIEV4Y2VwdGlvbkhhbmRsZXIge1xuICBwdWJsaWMgdHlwZSA9IFwidHJ5XCI7XG5cbiAgcHJpdmF0ZSBfdGFnOiBVcGRhdGFibGVUYWc7XG5cbiAgY29uc3RydWN0b3Iob3B0aW9uczogQmxvY2tPcGNvZGVPcHRpb25zKSB7XG4gICAgc3VwZXIob3B0aW9ucyk7XG4gICAgdGhpcy50YWcgPSB0aGlzLl90YWcgPSBuZXcgVXBkYXRhYmxlVGFnKENPTlNUQU5UX1RBRyk7XG4gIH1cblxuICBkaWRJbml0aWFsaXplQ2hpbGRyZW4oKSB7XG4gICAgdGhpcy5fdGFnLnVwZGF0ZShjb21iaW5lU2xpY2UodGhpcy5jaGlsZHJlbikpO1xuICB9XG5cbiAgZXZhbHVhdGUodm06IFVwZGF0aW5nVk0pIHtcbiAgICB2bS50cnkodGhpcy5jaGlsZHJlbiwgdGhpcyk7XG4gIH1cblxuICBoYW5kbGVFeGNlcHRpb24oKSB7XG4gICAgbGV0IHsgZW52LCBzY29wZSwgZHluYW1pY1Njb3BlIH0gPSB0aGlzO1xuXG4gICAgbGV0IGVsZW1lbnRTdGFjayA9IEVsZW1lbnRTdGFjay5yZXN1bWUoe1xuICAgICAgZG9tOiB0aGlzLmVudi5nZXRET00oKSxcbiAgICAgIHRyYWNrZXI6IHRoaXMuYm91bmRzLFxuICAgICAgbmV4dFNpYmxpbmc6IHRoaXMuYm91bmRzLnJlc2V0KGVudilcbiAgICB9KTtcblxuICAgIGxldCB2bSA9IG5ldyBWTSh7IGVudiwgc2NvcGUsIGR5bmFtaWNTY29wZSwgZWxlbWVudFN0YWNrIH0pO1xuICAgIGxldCByZXN1bHQgPSB2bS5leGVjdXRlKHRoaXMub3BzKTtcblxuICAgIHRoaXMuY2hpbGRyZW4gPSByZXN1bHQub3Bjb2RlcygpO1xuICAgIHRoaXMuZGlkSW5pdGlhbGl6ZUNoaWxkcmVuKCk7XG4gIH1cblxuICB0b0pTT04oKSA6IE9wY29kZUpTT04ge1xuICAgIGxldCBqc29uID0gc3VwZXIudG9KU09OKCk7XG4gICAgbGV0IGJlZ2luID0gdGhpcy5vcHMuaGVhZCgpIGFzIExhYmVsT3Bjb2RlO1xuICAgIGxldCBlbmQgPSB0aGlzLm9wcy50YWlsKCkgYXMgTGFiZWxPcGNvZGU7XG5cbiAgICBqc29uW1wiZGV0YWlsc1wiXVtcImJlZ2luXCJdID0gSlNPTi5zdHJpbmdpZnkoYmVnaW4uaW5zcGVjdCgpKTtcbiAgICBqc29uW1wiZGV0YWlsc1wiXVtcImVuZFwiXSA9IEpTT04uc3RyaW5naWZ5KGVuZC5pbnNwZWN0KCkpO1xuXG4gICAgcmV0dXJuIHN1cGVyLnRvSlNPTigpO1xuICB9XG59XG5cbmV4cG9ydCBjbGFzcyBMaXN0UmV2YWxpZGF0aW9uRGVsZWdhdGUgaW1wbGVtZW50cyBJdGVyYXRvclN5bmNocm9uaXplckRlbGVnYXRlIHtcbiAgcHJpdmF0ZSBvcGNvZGU6IExpc3RCbG9ja09wY29kZTtcbiAgcHJpdmF0ZSBtYXA6IERpY3Q8QmxvY2tPcGNvZGU+O1xuICBwcml2YXRlIHVwZGF0aW5nOiBMaW5rZWRMaXN0PFVwZGF0aW5nT3Bjb2RlPjtcbiAgcHJpdmF0ZSBtYXJrZXI6IENvbW1lbnQ7XG5cbiAgcHJpdmF0ZSBkaWRJbnNlcnQgPSBmYWxzZTtcbiAgcHJpdmF0ZSBkaWREZWxldGUgPSBmYWxzZTtcblxuICBjb25zdHJ1Y3RvcihvcGNvZGU6IExpc3RCbG9ja09wY29kZSwgbWFya2VyOiBDb21tZW50KSB7XG4gICAgdGhpcy5vcGNvZGUgPSBvcGNvZGU7XG4gICAgdGhpcy5tYXAgPSBvcGNvZGUubWFwO1xuICAgIHRoaXMudXBkYXRpbmcgPSBvcGNvZGVbJ2NoaWxkcmVuJ107XG4gICAgdGhpcy5tYXJrZXIgPSBtYXJrZXI7XG4gIH1cblxuICBpbnNlcnQoa2V5OiBJbnRlcm5lZFN0cmluZywgaXRlbTogUGF0aFJlZmVyZW5jZTxPcGFxdWU+LCBtZW1vOiBQYXRoUmVmZXJlbmNlPE9wYXF1ZT4sIGJlZm9yZTogSW50ZXJuZWRTdHJpbmcpIHtcbiAgICBsZXQgeyBtYXAsIG9wY29kZSwgdXBkYXRpbmcgfSA9IHRoaXM7XG4gICAgbGV0IG5leHRTaWJsaW5nOiBOb2RlID0gbnVsbDtcbiAgICBsZXQgcmVmZXJlbmNlID0gbnVsbDtcblxuICAgIGlmIChiZWZvcmUpIHtcbiAgICAgIHJlZmVyZW5jZSA9IG1hcFs8c3RyaW5nPmJlZm9yZV07XG4gICAgICBuZXh0U2libGluZyA9IHJlZmVyZW5jZS5ib3VuZHMuZmlyc3ROb2RlKCk7XG4gICAgfSBlbHNlIHtcbiAgICAgIG5leHRTaWJsaW5nID0gdGhpcy5tYXJrZXI7XG4gICAgfVxuXG4gICAgbGV0IHZtID0gb3Bjb2RlLnZtRm9ySW5zZXJ0aW9uKG5leHRTaWJsaW5nKTtcbiAgICBsZXQgdHJ5T3Bjb2RlO1xuXG4gICAgdm0uZXhlY3V0ZShvcGNvZGUub3BzLCB2bSA9PiB7XG4gICAgICB2bS5mcmFtZS5zZXRBcmdzKEV2YWx1YXRlZEFyZ3MucG9zaXRpb25hbChbaXRlbSwgbWVtb10pKTtcbiAgICAgIHZtLmZyYW1lLnNldE9wZXJhbmQoaXRlbSk7XG4gICAgICB2bS5mcmFtZS5zZXRDb25kaXRpb24obmV3IENvbnN0UmVmZXJlbmNlKHRydWUpKTtcbiAgICAgIHZtLmZyYW1lLnNldEtleShrZXkpO1xuXG4gICAgICBsZXQgc3RhdGUgPSB2bS5jYXB0dXJlKCk7XG5cbiAgICAgIHRyeU9wY29kZSA9IG5ldyBUcnlPcGNvZGUoe1xuICAgICAgICBzdGF0ZSxcbiAgICAgICAgb3BzOiBvcGNvZGUub3BzLFxuICAgICAgICBjaGlsZHJlbjogdm0udXBkYXRpbmdPcGNvZGVTdGFjay5jdXJyZW50XG4gICAgICB9KTtcbiAgICB9KTtcblxuICAgIHVwZGF0aW5nLmluc2VydEJlZm9yZSh0cnlPcGNvZGUsIHJlZmVyZW5jZSk7XG5cbiAgICBtYXBbPHN0cmluZz5rZXldID0gdHJ5T3Bjb2RlO1xuXG4gICAgdGhpcy5kaWRJbnNlcnQgPSB0cnVlO1xuICB9XG5cbiAgcmV0YWluKGtleTogSW50ZXJuZWRTdHJpbmcsIGl0ZW06IFBhdGhSZWZlcmVuY2U8T3BhcXVlPiwgbWVtbzogUGF0aFJlZmVyZW5jZTxPcGFxdWU+KSB7XG4gIH1cblxuICBtb3ZlKGtleTogSW50ZXJuZWRTdHJpbmcsIGl0ZW06IFBhdGhSZWZlcmVuY2U8T3BhcXVlPiwgbWVtbzogUGF0aFJlZmVyZW5jZTxPcGFxdWU+LCBiZWZvcmU6IEludGVybmVkU3RyaW5nKSB7XG4gICAgbGV0IHsgbWFwLCB1cGRhdGluZyB9ID0gdGhpcztcblxuICAgIGxldCBlbnRyeSA9IG1hcFs8c3RyaW5nPmtleV07XG4gICAgbGV0IHJlZmVyZW5jZSA9IG1hcFs8c3RyaW5nPmJlZm9yZV0gfHwgbnVsbDtcblxuICAgIGlmIChiZWZvcmUpIHtcbiAgICAgIG1vdmVCb3VuZHMoZW50cnksIHJlZmVyZW5jZS5maXJzdE5vZGUoKSk7XG4gICAgfSBlbHNlIHtcbiAgICAgIG1vdmVCb3VuZHMoZW50cnksIHRoaXMubWFya2VyKTtcbiAgICB9XG5cbiAgICB1cGRhdGluZy5yZW1vdmUoZW50cnkpO1xuICAgIHVwZGF0aW5nLmluc2VydEJlZm9yZShlbnRyeSwgcmVmZXJlbmNlKTtcbiAgfVxuXG4gIGRlbGV0ZShrZXk6IEludGVybmVkU3RyaW5nKSB7XG4gICAgbGV0IHsgbWFwIH0gPSB0aGlzO1xuICAgIGxldCBvcGNvZGUgPSBtYXBbPHN0cmluZz5rZXldO1xuICAgIGNsZWFyKG9wY29kZSk7XG4gICAgb3Bjb2RlLmRpZERlc3Ryb3koKTtcbiAgICB0aGlzLnVwZGF0aW5nLnJlbW92ZShvcGNvZGUpO1xuICAgIGRlbGV0ZSBtYXBbPHN0cmluZz5rZXldO1xuXG4gICAgdGhpcy5kaWREZWxldGUgPSB0cnVlO1xuICB9XG5cbiAgZG9uZSgpIHtcbiAgICBpZiAodGhpcy5kaWRJbnNlcnQgfHwgdGhpcy5kaWREZWxldGUpIHtcbiAgICAgIHRoaXMub3Bjb2RlLmRpZEluaXRpYWxpemVDaGlsZHJlbigpO1xuICAgIH1cbiAgfVxufVxuXG5leHBvcnQgaW50ZXJmYWNlIExpc3RCbG9ja09wY29kZU9wdGlvbnMgZXh0ZW5kcyBCbG9ja09wY29kZU9wdGlvbnMge1xuICBhcnRpZmFjdHM6IEl0ZXJhdGlvbkFydGlmYWN0cztcbn1cblxuZXhwb3J0IGNsYXNzIExpc3RCbG9ja09wY29kZSBleHRlbmRzIEJsb2NrT3Bjb2RlIHtcbiAgcHVibGljIHR5cGUgPSBcImxpc3QtYmxvY2tcIjtcbiAgcHVibGljIG1hcCA9IGRpY3Q8QmxvY2tPcGNvZGU+KCk7XG4gIHB1YmxpYyBhcnRpZmFjdHM6IEl0ZXJhdGlvbkFydGlmYWN0cztcblxuICBwcml2YXRlIF90YWc6IFVwZGF0YWJsZVRhZztcblxuICBjb25zdHJ1Y3RvcihvcHRpb25zOiBMaXN0QmxvY2tPcGNvZGVPcHRpb25zKSB7XG4gICAgc3VwZXIob3B0aW9ucyk7XG4gICAgdGhpcy5hcnRpZmFjdHMgPSBvcHRpb25zLmFydGlmYWN0cztcbiAgICB0aGlzLnRhZyA9IHRoaXMuX3RhZyA9IG5ldyBVcGRhdGFibGVUYWcoQ09OU1RBTlRfVEFHKTtcbiAgfVxuXG4gIGRpZEluaXRpYWxpemVDaGlsZHJlbigpIHtcbiAgICB0aGlzLl90YWcudXBkYXRlKGNvbWJpbmVTbGljZSh0aGlzLmNoaWxkcmVuKSk7XG4gIH1cblxuICBldmFsdWF0ZSh2bTogVXBkYXRpbmdWTSkge1xuICAgIGxldCB7IGFydGlmYWN0cywgYm91bmRzIH0gPSB0aGlzO1xuICAgIGxldCB7IGRvbSB9ID0gdm07XG5cbiAgICBsZXQgbWFya2VyID0gZG9tLmNyZWF0ZUNvbW1lbnQoJycpO1xuICAgIGRvbS5pbnNlcnRBZnRlcihib3VuZHMucGFyZW50RWxlbWVudCgpLCBtYXJrZXIsIGJvdW5kcy5sYXN0Tm9kZSgpKTtcblxuICAgIGxldCB0YXJnZXQgPSBuZXcgTGlzdFJldmFsaWRhdGlvbkRlbGVnYXRlKHRoaXMsIG1hcmtlcik7XG4gICAgbGV0IHN5bmNocm9uaXplciA9IG5ldyBJdGVyYXRvclN5bmNocm9uaXplcih7IHRhcmdldCwgYXJ0aWZhY3RzIH0pO1xuXG4gICAgc3luY2hyb25pemVyLnN5bmMoKTtcblxuICAgIHRoaXMucGFyZW50RWxlbWVudCgpLnJlbW92ZUNoaWxkKG1hcmtlcik7XG5cbiAgICAvLyBSdW4gbm93LXVwZGF0ZWQgdXBkYXRpbmcgb3Bjb2Rlc1xuICAgIHN1cGVyLmV2YWx1YXRlKHZtKTtcbiAgfVxuXG4gIHZtRm9ySW5zZXJ0aW9uKG5leHRTaWJsaW5nOiBOb2RlKSB7XG4gICAgbGV0IHsgZW52LCBzY29wZSwgZHluYW1pY1Njb3BlIH0gPSB0aGlzO1xuXG4gICAgbGV0IGVsZW1lbnRTdGFjayA9IEVsZW1lbnRTdGFjay5mb3JJbml0aWFsUmVuZGVyKHtcbiAgICAgIGRvbTogdGhpcy5lbnYuZ2V0RE9NKCksXG4gICAgICBwYXJlbnROb2RlOiB0aGlzLmJvdW5kcy5wYXJlbnRFbGVtZW50KCksXG4gICAgICBuZXh0U2libGluZ1xuICAgIH0pO1xuXG4gICAgcmV0dXJuIG5ldyBWTSh7IGVudiwgc2NvcGUsIGR5bmFtaWNTY29wZSwgZWxlbWVudFN0YWNrIH0pO1xuICB9XG5cbiAgdG9KU09OKCkgOiBPcGNvZGVKU09OIHtcbiAgICBsZXQganNvbiA9IHN1cGVyLnRvSlNPTigpO1xuICAgIGxldCBtYXAgPSB0aGlzLm1hcDtcblxuICAgIGxldCBpbm5lciA9IE9iamVjdC5rZXlzKG1hcCkubWFwKGtleSA9PiB7XG4gICAgICByZXR1cm4gYCR7SlNPTi5zdHJpbmdpZnkoa2V5KX06ICR7bWFwW2tleV0uX2d1aWR9YDtcbiAgICB9KS5qb2luKFwiLCBcIik7XG5cbiAgICBqc29uW1wiZGV0YWlsc1wiXVtcIm1hcFwiXSA9IGB7JHtpbm5lcn19YDtcblxuICAgIHJldHVybiBqc29uO1xuICB9XG59XG5cbmV4cG9ydCBjbGFzcyBVcGRhdGluZ1ZNRnJhbWUge1xuICBwcml2YXRlIHZtOiBVcGRhdGluZ1ZNO1xuICBwcml2YXRlIG9wczogVXBkYXRpbmdPcFNlcTtcbiAgcHJpdmF0ZSBjdXJyZW50OiBVcGRhdGluZ09wY29kZTtcbiAgcHJpdmF0ZSBleGNlcHRpb25IYW5kbGVyOiBFeGNlcHRpb25IYW5kbGVyO1xuXG4gIGNvbnN0cnVjdG9yKHZtOiBVcGRhdGluZ1ZNLCBvcHM6IFVwZGF0aW5nT3BTZXEsIGhhbmRsZXI6IEV4Y2VwdGlvbkhhbmRsZXIpIHtcbiAgICB0aGlzLnZtID0gdm07XG4gICAgdGhpcy5vcHMgPSBvcHM7XG4gICAgdGhpcy5jdXJyZW50ID0gb3BzLmhlYWQoKTtcbiAgICB0aGlzLmV4Y2VwdGlvbkhhbmRsZXIgPSBoYW5kbGVyO1xuICB9XG5cbiAgZ290byhvcDogVXBkYXRpbmdPcGNvZGUpIHtcbiAgICB0aGlzLmN1cnJlbnQgPSBvcDtcbiAgfVxuXG4gIG5leHRTdGF0ZW1lbnQoKTogVXBkYXRpbmdPcGNvZGUge1xuICAgIGxldCB7IGN1cnJlbnQsIG9wcyB9ID0gdGhpcztcbiAgICBpZiAoY3VycmVudCkgdGhpcy5jdXJyZW50ID0gb3BzLm5leHROb2RlKGN1cnJlbnQpO1xuICAgIHJldHVybiBjdXJyZW50O1xuICB9XG5cbiAgaGFuZGxlRXhjZXB0aW9uKCkge1xuICAgIHRoaXMuZXhjZXB0aW9uSGFuZGxlci5oYW5kbGVFeGNlcHRpb24oKTtcbiAgfVxufVxuIl19
-enifed('glimmer-runtime/lib/vm', ['exports', 'glimmer-runtime/lib/vm/append', 'glimmer-runtime/lib/vm/update', 'glimmer-runtime/lib/vm/render-result'], function (exports, _glimmerRuntimeLibVmAppend, _glimmerRuntimeLibVmUpdate, _glimmerRuntimeLibVmRenderResult) {
-  'use strict';
-
-  exports.VM = _glimmerRuntimeLibVmAppend.default;
-  exports.PublicVM = _glimmerRuntimeLibVmAppend.PublicVM;
-  exports.BindDynamicScopeCallback = _glimmerRuntimeLibVmAppend.BindDynamicScopeCallback;
-  exports.UpdatingVM = _glimmerRuntimeLibVmUpdate.default;
-  exports.RenderResult = _glimmerRuntimeLibVmRenderResult.default;
-});
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvdm0udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O1VBQW9CLEVBQUUsOEJBQWIsT0FBTztVQUFRLFFBQVEsOEJBQVIsUUFBUTtVQUFFLHdCQUF3Qiw4QkFBeEIsd0JBQXdCO1VBQ3RDLFVBQVUsOEJBQXJCLE9BQU87VUFDSSxZQUFZLG9DQUF2QixPQUFPIiwiZmlsZSI6InZtLmpzIiwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IHsgZGVmYXVsdCBhcyBWTSwgUHVibGljVk0sIEJpbmREeW5hbWljU2NvcGVDYWxsYmFjayB9IGZyb20gJy4vdm0vYXBwZW5kJztcbmV4cG9ydCB7IGRlZmF1bHQgYXMgVXBkYXRpbmdWTSB9IGZyb20gJy4vdm0vdXBkYXRlJztcbmV4cG9ydCB7IGRlZmF1bHQgYXMgUmVuZGVyUmVzdWx0IH0gZnJvbSAnLi92bS9yZW5kZXItcmVzdWx0JztcbiJdfQ==
 enifed('glimmer-util/index', ['exports', 'glimmer-util/lib/object-utils', 'glimmer-util/lib/namespaces', 'glimmer-util/lib/platform-utils', 'glimmer-util/lib/assert', 'glimmer-util/lib/array-utils', 'glimmer-util/lib/void-tag-names', 'glimmer-util/lib/logger', 'glimmer-util/lib/guid', 'glimmer-util/lib/collections', 'glimmer-util/lib/list-utils'], function (exports, _glimmerUtilLibObjectUtils, _glimmerUtilLibNamespaces, _glimmerUtilLibPlatformUtils, _glimmerUtilLibAssert, _glimmerUtilLibArrayUtils, _glimmerUtilLibVoidTagNames, _glimmerUtilLibLogger, _glimmerUtilLibGuid, _glimmerUtilLibCollections, _glimmerUtilLibListUtils) {
   /*globals console*/
   'use strict';
@@ -64442,202 +64431,17 @@ enifed('glimmer-wire-format/index', ['exports'], function (exports) {
     })(Statements || (exports.Statements = Statements = {}));
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItd2lyZS1mb3JtYXQvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O0FBbUJBLGFBQUEsRUFBQSxDQUE2QixPQUFlLEVBQUE7QUFDMUMsZUFBTyxVQUFTLEtBQVksRUFBQTtBQUMxQixtQkFBTyxLQUFLLENBQUMsQ0FBQyxDQUFDLEtBQUssT0FBTyxDQUFDO1NBQzdCLENBQUM7S0FDSDtBQVVELFFBQWlCLFdBQVcsQ0E4QzNCOztBQTlDRCxLQUFBLFVBQWlCLFdBQVcsRUFBQztBQW1DZCxtQkFBQSxDQUFBLFNBQVMsR0FBVSxFQUFFLENBQVUsU0FBUyxDQUFDLENBQUM7QUFDMUMsbUJBQUEsQ0FBQSxNQUFNLEdBQWEsRUFBRSxDQUFPLE1BQU0sQ0FBQyxDQUFDO0FBQ3BDLG1CQUFBLENBQUEsS0FBSyxHQUFjLEVBQUUsQ0FBTSxLQUFLLENBQUMsQ0FBQztBQUNsQyxtQkFBQSxDQUFBLFFBQVEsR0FBVyxFQUFFLENBQVMsUUFBUSxDQUFDLENBQUM7QUFDeEMsbUJBQUEsQ0FBQSxRQUFRLEdBQVcsRUFBRSxDQUFTLFFBQVEsQ0FBQyxDQUFDO0FBQ3hDLG1CQUFBLENBQUEsVUFBVSxHQUFTLEVBQUUsQ0FBVyxVQUFVLENBQUMsQ0FBQztBQUM1QyxtQkFBQSxDQUFBLGdCQUFnQixHQUFHLEVBQUUsQ0FBaUIsZ0JBQWdCLENBQUMsQ0FBQztBQUVyRSxpQkFBQSxPQUFBLENBQXdCLEtBQVUsRUFBQTtBQUNoQyxtQkFBTyxLQUFLLEtBQUssSUFBSSxJQUFJLE9BQU8sS0FBSyxLQUFLLFFBQVEsQ0FBQztTQUNwRDtBQUZlLG1CQUFBLENBQUEsT0FBTyxHQUFBLE9BRXRCLENBQUE7S0FDRixDQUFBLENBOUNnQixXQUFXLGFBQVgsV0FBVyxHQUFYLFdBQVcsR0FBQSxFQUFBLENBQUEsQ0FBQSxDQThDM0I7QUFJRCxRQUFpQixVQUFVLENBMkMxQjs7QUEzQ0QsS0FBQSxVQUFpQixVQUFVLEVBQUM7QUFrQmIsa0JBQUEsQ0FBQSxNQUFNLEdBQVcsRUFBRSxDQUFPLE1BQU0sQ0FBQyxDQUFDO0FBQ2xDLGtCQUFBLENBQUEsUUFBUSxHQUFTLEVBQUUsQ0FBUyxRQUFRLENBQUMsQ0FBQztBQUN0QyxrQkFBQSxDQUFBLFNBQVMsR0FBUSxFQUFFLENBQVUsU0FBUyxDQUFDLENBQUM7QUFDeEMsa0JBQUEsQ0FBQSxVQUFVLEdBQU8sRUFBRSxDQUFXLFVBQVUsQ0FBQyxDQUFDO0FBQzFDLGtCQUFBLENBQUEsT0FBTyxHQUFVLEVBQUUsQ0FBUSxPQUFPLENBQUMsQ0FBQztBQUNwQyxrQkFBQSxDQUFBLGFBQWEsR0FBSSxFQUFFLENBQWMsYUFBYSxDQUFDLENBQUM7QUFDaEQsa0JBQUEsQ0FBQSxjQUFjLEdBQUcsRUFBRSxDQUFlLGNBQWMsQ0FBQyxDQUFDO0FBQ2xELGtCQUFBLENBQUEsWUFBWSxHQUFLLEVBQUUsQ0FBYSxZQUFZLENBQUMsQ0FBQztBQUM5QyxrQkFBQSxDQUFBLGFBQWEsR0FBSSxFQUFFLENBQWMsYUFBYSxDQUFDLENBQUM7QUFDaEQsa0JBQUEsQ0FBQSxhQUFhLEdBQUksRUFBRSxDQUFjLGFBQWEsQ0FBQyxDQUFDO0FBQ2hELGtCQUFBLENBQUEsT0FBTyxHQUFVLEVBQUUsQ0FBUSxPQUFPLENBQUMsQ0FBQztLQWVsRCxDQUFBLENBM0NnQixVQUFVLGFBQVYsVUFBVSxHQUFWLFVBQVUsR0FBQSxFQUFBLENBQUEsQ0FBQSxDQTJDMUIiLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBEaWN0LCBJbnRlcm5lZFN0cmluZyB9IGZyb20gJ2dsaW1tZXItdXRpbCc7XG5cbnR5cGUgSnNvblZhbHVlID1cbiAgICBzdHJpbmdcbiAgfCBudW1iZXJcbiAgfCBib29sZWFuXG4gIHwgSnNvbk9iamVjdFxuICB8IEpzb25BcnJheVxuICA7XG5cbmludGVyZmFjZSBKc29uT2JqZWN0IGV4dGVuZHMgRGljdDxKc29uVmFsdWU+IHt9XG5pbnRlcmZhY2UgSnNvbkFycmF5IGV4dGVuZHMgQXJyYXk8SnNvblZhbHVlPiB7fVxuXG4vLyBUaGlzIGVudGlyZSBmaWxlIGlzIHNlcmlhbGl6ZWQgdG8gZGlzaywgc28gYWxsIHN0cmluZ3Ncbi8vIGVuZCB1cCBiZWluZyBpbnRlcm5lZC5cbmV4cG9ydCB0eXBlIHN0ciA9IHN0cmluZztcbmV4cG9ydCB0eXBlIFRlbXBsYXRlUmVmZXJlbmNlID0gbnVtYmVyO1xuZXhwb3J0IHR5cGUgWWllbGRUbyA9IHN0cjtcblxuZnVuY3Rpb24gaXM8VCBleHRlbmRzIGFueVtdPih2YXJpYW50OiBzdHJpbmcpOiAodmFsdWU6IGFueVtdKSA9PiB2YWx1ZSBpcyBUIHtcbiAgcmV0dXJuIGZ1bmN0aW9uKHZhbHVlOiBhbnlbXSk6IHZhbHVlIGlzIFQge1xuICAgIHJldHVybiB2YWx1ZVswXSA9PT0gdmFyaWFudDtcbiAgfTtcbn1cblxuZXhwb3J0IG5hbWVzcGFjZSBDb3JlIHtcbiAgdHlwZSBFeHByZXNzaW9uID0gRXhwcmVzc2lvbnMuRXhwcmVzc2lvbjtcblxuICBleHBvcnQgdHlwZSBQYXRoICAgICAgICAgID0gc3RyW107XG4gIGV4cG9ydCB0eXBlIFBhcmFtcyAgICAgICAgPSBFeHByZXNzaW9uW107XG4gIGV4cG9ydCB0eXBlIEhhc2ggICAgICAgICAgPSBEaWN0PEV4cHJlc3Npb24+O1xufVxuXG5leHBvcnQgbmFtZXNwYWNlIEV4cHJlc3Npb25zIHtcbiAgdHlwZSBQYXRoID0gQ29yZS5QYXRoO1xuICB0eXBlIFBhcmFtcyA9IENvcmUuUGFyYW1zO1xuICB0eXBlIEhhc2ggPSBDb3JlLkhhc2g7XG5cbiAgZXhwb3J0IHR5cGUgVW5rbm93biAgICAgICAgPSBbJ3Vua25vd24nLCBQYXRoXTtcbiAgZXhwb3J0IHR5cGUgQXR0ciAgICAgICAgICAgPSBbJ2F0dHInLCBQYXRoXTtcbiAgZXhwb3J0IHR5cGUgR2V0ICAgICAgICAgICAgPSBbJ2dldCcsIFBhdGhdO1xuICBleHBvcnQgdHlwZSBWYWx1ZSAgICAgICAgICA9IHN0ciB8IG51bWJlciB8IGJvb2xlYW47XG4gIGV4cG9ydCB0eXBlIEhhc0Jsb2NrICAgICAgID0gWydoYXNCbG9jaycsIHN0cl07XG4gIGV4cG9ydCB0eXBlIEhhc0Jsb2NrUGFyYW1zID0gWydoYXNCbG9ja1BhcmFtcycsIHN0cl07XG5cbiAgZXhwb3J0IHR5cGUgRXhwcmVzc2lvbiA9XG4gICAgICBVbmtub3duXG4gICAgfCBBdHRyXG4gICAgfCBHZXRcbiAgICB8IENvbmNhdFxuICAgIHwgSGFzQmxvY2tcbiAgICB8IEhhc0Jsb2NrUGFyYW1zXG4gICAgfCBIZWxwZXJcbiAgICB8IFZhbHVlXG4gICAgO1xuXG4gIGV4cG9ydCBpbnRlcmZhY2UgQ29uY2F0IGV4dGVuZHMgQXJyYXk8YW55PiB7XG4gICAgWzBdOiAnY29uY2F0JztcbiAgICBbMV06IFBhcmFtcztcbiAgfVxuXG4gIGV4cG9ydCBpbnRlcmZhY2UgSGVscGVyIGV4dGVuZHMgQXJyYXk8YW55PiB7XG4gICAgWzBdOiAnaGVscGVyJztcbiAgICBbMV06IFBhdGg7XG4gICAgWzJdOiBQYXJhbXM7XG4gICAgWzNdOiBIYXNoO1xuICB9XG5cbiAgZXhwb3J0IGNvbnN0IGlzVW5rbm93biAgICAgICAgPSBpczxVbmtub3duPigndW5rbm93bicpO1xuICBleHBvcnQgY29uc3QgaXNBdHRyICAgICAgICAgICA9IGlzPEF0dHI+KCdhdHRyJyk7XG4gIGV4cG9ydCBjb25zdCBpc0dldCAgICAgICAgICAgID0gaXM8R2V0PignZ2V0Jyk7XG4gIGV4cG9ydCBjb25zdCBpc0NvbmNhdCAgICAgICAgID0gaXM8Q29uY2F0PignY29uY2F0Jyk7XG4gIGV4cG9ydCBjb25zdCBpc0hlbHBlciAgICAgICAgID0gaXM8SGVscGVyPignaGVscGVyJyk7XG4gIGV4cG9ydCBjb25zdCBpc0hhc0Jsb2NrICAgICAgID0gaXM8SGFzQmxvY2s+KCdoYXNCbG9jaycpO1xuICBleHBvcnQgY29uc3QgaXNIYXNCbG9ja1BhcmFtcyA9IGlzPEhhc0Jsb2NrUGFyYW1zPignaGFzQmxvY2tQYXJhbXMnKTtcblxuICBleHBvcnQgZnVuY3Rpb24gaXNWYWx1ZSh2YWx1ZTogYW55KTogdmFsdWUgaXMgVmFsdWUge1xuICAgIHJldHVybiB2YWx1ZSAhPT0gbnVsbCAmJiB0eXBlb2YgdmFsdWUgIT09ICdvYmplY3QnO1xuICB9XG59XG5cbmV4cG9ydCB0eXBlIEV4cHJlc3Npb24gPSBFeHByZXNzaW9ucy5FeHByZXNzaW9uO1xuXG5leHBvcnQgbmFtZXNwYWNlIFN0YXRlbWVudHMge1xuICB0eXBlIEV4cHJlc3Npb24gPSBFeHByZXNzaW9ucy5FeHByZXNzaW9uO1xuICB0eXBlIFBhcmFtcyA9IENvcmUuUGFyYW1zO1xuICB0eXBlIEhhc2ggPSBDb3JlLkhhc2g7XG4gIHR5cGUgUGF0aCA9IENvcmUuUGF0aDtcblxuICBleHBvcnQgdHlwZSBUZXh0ICAgICAgICAgID0gWyd0ZXh0Jywgc3RyXTtcbiAgZXhwb3J0IHR5cGUgQXBwZW5kICAgICAgICA9IFsnYXBwZW5kJywgRXhwcmVzc2lvbiwgYm9vbGVhbl07XG4gIGV4cG9ydCB0eXBlIENvbW1lbnQgICAgICAgPSBbJ2NvbW1lbnQnLCBzdHJdO1xuICBleHBvcnQgdHlwZSBNb2RpZmllciAgICAgID0gWydtb2RpZmllcicsIFBhdGgsIFBhcmFtcywgSGFzaF07XG4gIGV4cG9ydCB0eXBlIEJsb2NrICAgICAgICAgPSBbJ2Jsb2NrJywgUGF0aCwgUGFyYW1zLCBIYXNoLCBUZW1wbGF0ZVJlZmVyZW5jZSwgVGVtcGxhdGVSZWZlcmVuY2VdO1xuICBleHBvcnQgdHlwZSBPcGVuRWxlbWVudCAgID0gWydvcGVuRWxlbWVudCcsIHN0ciwgc3RyW11dO1xuICBleHBvcnQgdHlwZSBDbG9zZUVsZW1lbnQgID0gWydjbG9zZUVsZW1lbnQnXTtcbiAgZXhwb3J0IHR5cGUgU3RhdGljQXR0ciAgICA9IFsnc3RhdGljQXR0cicsIHN0ciwgRXhwcmVzc2lvbiwgc3RyXTtcbiAgZXhwb3J0IHR5cGUgRHluYW1pY0F0dHIgICA9IFsnZHluYW1pY0F0dHInLCBzdHIsIEV4cHJlc3Npb24sIHN0cl07XG4gIGV4cG9ydCB0eXBlIER5bmFtaWNQcm9wICAgPSBbJ2R5bmFtaWNQcm9wJywgc3RyLCBFeHByZXNzaW9uXTtcbiAgZXhwb3J0IHR5cGUgWWllbGQgICAgICAgICA9IFsneWllbGQnLCBZaWVsZFRvLCBQYXJhbXNdO1xuXG4gIGV4cG9ydCBjb25zdCBpc1RleHQgICAgICAgICA9IGlzPFRleHQ+KCd0ZXh0Jyk7XG4gIGV4cG9ydCBjb25zdCBpc0FwcGVuZCAgICAgICA9IGlzPEFwcGVuZD4oJ2FwcGVuZCcpO1xuICBleHBvcnQgY29uc3QgaXNDb21tZW50ICAgICAgPSBpczxDb21tZW50PignY29tbWVudCcpO1xuICBleHBvcnQgY29uc3QgaXNNb2RpZmllciAgICAgPSBpczxNb2RpZmllcj4oJ21vZGlmaWVyJyk7XG4gIGV4cG9ydCBjb25zdCBpc0Jsb2NrICAgICAgICA9IGlzPEJsb2NrPignYmxvY2snKTtcbiAgZXhwb3J0IGNvbnN0IGlzT3BlbkVsZW1lbnQgID0gaXM8T3BlbkVsZW1lbnQ+KCdvcGVuRWxlbWVudCcpO1xuICBleHBvcnQgY29uc3QgaXNDbG9zZUVsZW1lbnQgPSBpczxDbG9zZUVsZW1lbnQ+KCdjbG9zZUVsZW1lbnQnKTtcbiAgZXhwb3J0IGNvbnN0IGlzU3RhdGljQXR0ciAgID0gaXM8U3RhdGljQXR0cj4oJ3N0YXRpY0F0dHInKTtcbiAgZXhwb3J0IGNvbnN0IGlzRHluYW1pY0F0dHIgID0gaXM8RHluYW1pY0F0dHI+KCdkeW5hbWljQXR0cicpO1xuICBleHBvcnQgY29uc3QgaXNEeW5hbWljUHJvcCAgPSBpczxEeW5hbWljUHJvcD4oJ2R5bmFtaWNQcm9wJyk7XG4gIGV4cG9ydCBjb25zdCBpc1lpZWxkICAgICAgICA9IGlzPFlpZWxkPigneWllbGQnKTtcblxuICBleHBvcnQgdHlwZSBTdGF0ZW1lbnQgPVxuICAgICAgVGV4dFxuICAgIHwgQXBwZW5kXG4gICAgfCBDb21tZW50XG4gICAgfCBNb2RpZmllclxuICAgIHwgQmxvY2tcbiAgICB8IE9wZW5FbGVtZW50XG4gICAgfCBDbG9zZUVsZW1lbnRcbiAgICB8IFN0YXRpY0F0dHJcbiAgICB8IER5bmFtaWNBdHRyXG4gICAgfCBEeW5hbWljUHJvcFxuICAgIHwgWWllbGRcbiAgICA7XG59XG5cbmV4cG9ydCB0eXBlIFN0YXRlbWVudCA9IFN0YXRlbWVudHMuU3RhdGVtZW50O1xuXG5leHBvcnQgaW50ZXJmYWNlIEJsb2NrTWV0YSB7XG4gIG1vZHVsZU5hbWU/OiBzdHJpbmc7XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgU2VyaWFsaXplZFRlbXBsYXRlIHtcbiAgc3RhdGVtZW50czogU3RhdGVtZW50cy5TdGF0ZW1lbnRbXTtcbiAgbG9jYWxzOiBJbnRlcm5lZFN0cmluZ1tdO1xuICBuYW1lZDogSW50ZXJuZWRTdHJpbmdbXTtcbiAgeWllbGRzOiBJbnRlcm5lZFN0cmluZ1tdO1xuICBibG9ja3M6IFNlcmlhbGl6ZWRCbG9ja1tdO1xuICBtZXRhOiBCbG9ja01ldGE7XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgU2VyaWFsaXplZEJsb2NrIHtcbiAgc3RhdGVtZW50czogU3RhdGVtZW50cy5TdGF0ZW1lbnRbXTtcbiAgbG9jYWxzOiBJbnRlcm5lZFN0cmluZ1tdO1xufVxuIl19
-enifed("route-recognizer/dsl", ["exports"], function (exports) {
+enifed("glimmer/index", ["exports"], function (exports) {
   "use strict";
-
-  function Target(path, matcher, delegate) {
-    this.path = path;
-    this.matcher = matcher;
-    this.delegate = delegate;
-  }
-
-  Target.prototype = {
-    to: function (target, callback) {
-      var delegate = this.delegate;
-
-      if (delegate && delegate.willAddRoute) {
-        target = delegate.willAddRoute(this.matcher.target, target);
-      }
-
-      this.matcher.add(this.path, target);
-
-      if (callback) {
-        if (callback.length === 0) {
-          throw new Error("You must have an argument in the function passed to `to`");
-        }
-        this.matcher.addChild(this.path, target, callback, this.delegate);
-      }
-      return this;
-    }
-  };
-
-  function Matcher(target) {
-    this.routes = {};
-    this.children = {};
-    this.target = target;
-  }
-
-  Matcher.prototype = {
-    add: function (path, handler) {
-      this.routes[path] = handler;
-    },
-
-    addChild: function (path, target, callback, delegate) {
-      var matcher = new Matcher(target);
-      this.children[path] = matcher;
-
-      var match = generateMatch(path, matcher, delegate);
-
-      if (delegate && delegate.contextEntered) {
-        delegate.contextEntered(target, match);
-      }
-
-      callback(match);
-    }
-  };
-
-  function generateMatch(startingPath, matcher, delegate) {
-    return function (path, nestedCallback) {
-      var fullPath = startingPath + path;
-
-      if (nestedCallback) {
-        nestedCallback(generateMatch(fullPath, matcher, delegate));
-      } else {
-        return new Target(startingPath + path, matcher, delegate);
-      }
-    };
-  }
-
-  function addRoute(routeArray, path, handler) {
-    var len = 0;
-    for (var i = 0; i < routeArray.length; i++) {
-      len += routeArray[i].path.length;
-    }
-
-    path = path.substr(len);
-    var route = { path: path, handler: handler };
-    routeArray.push(route);
-  }
-
-  function eachRoute(baseRoute, matcher, callback, binding) {
-    var routes = matcher.routes;
-
-    for (var path in routes) {
-      if (routes.hasOwnProperty(path)) {
-        var routeArray = baseRoute.slice();
-        addRoute(routeArray, path, routes[path]);
-
-        if (matcher.children[path]) {
-          eachRoute(routeArray, matcher.children[path], callback, binding);
-        } else {
-          callback.call(binding, routeArray);
-        }
-      }
-    }
-  }
-
-  exports.default = function (callback, addRouteCallback) {
-    var matcher = new Matcher();
-
-    callback(generateMatch("", matcher, this.delegate));
-
-    eachRoute([], matcher, function (route) {
-      if (addRouteCallback) {
-        addRouteCallback(this, route);
-      } else {
-        this.add(route);
-      }
-    }, this);
-  };
 });
-enifed('route-recognizer/normalizer', ['exports'], function (exports) {
-  // Match percent-encoded values (e.g. %3a, %3A, %25)
-  'use strict';
-
-  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
-
-  function toUpper(str) {
-    return str.toUpperCase();
-  }
-
-  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
-  function percentEncodedValuesToUpper(string) {
-    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
-  }
-
-  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
-  // values that are not reserved (like unicode characters).
-  // Safe to call multiple times on the same path.
-  function normalizePath(path) {
-    return path.split('/').map(normalizeSegment).join('/');
-  }
-
-  function percentEncode(char) {
-    return '%' + charToHex(char);
-  }
-
-  function charToHex(char) {
-    return char.charCodeAt(0).toString(16).toUpperCase();
-  }
-
-  // Decodes percent-encoded values in the string except those
-  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
-  // percent-encodings
-  function decodeURIComponentExcept(string, reservedHex) {
-    if (string.indexOf('%') === -1) {
-      // If there is no percent char, there is no decoding that needs to
-      // be done and we exit early
-      return string;
-    }
-    string = percentEncodedValuesToUpper(string);
-
-    var result = '';
-    var buffer = '';
-    var idx = 0;
-    while (idx < string.length) {
-      var pIdx = string.indexOf('%', idx);
-
-      if (pIdx === -1) {
-        // no percent char
-        buffer += string.slice(idx);
-        break;
-      } else {
-        // found percent char
-        buffer += string.slice(idx, pIdx);
-        idx = pIdx + 3;
-
-        var hex = string.slice(pIdx + 1, pIdx + 3);
-        var encoded = '%' + hex;
-
-        if (reservedHex.indexOf(hex) === -1) {
-          // encoded is not in reserved set, add to buffer
-          buffer += encoded;
-        } else {
-          result += decodeURIComponent(buffer);
-          buffer = '';
-          result += encoded;
-        }
-      }
-    }
-    result += decodeURIComponent(buffer);
-    return result;
-  }
-
-  // Leave these characters in encoded state in segments
-  var reservedSegmentChars = ['%', '/'];
-  var reservedHex = reservedSegmentChars.map(charToHex);
-
-  function normalizeSegment(segment) {
-    return decodeURIComponentExcept(segment, reservedHex);
-  }
-
-  var Normalizer = {
-    normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath
-  };
-
-  exports.default = Normalizer;
-});
+/*
+ * @overview  Glimmer
+ * @copyright Copyright 2011-2015 Tilde Inc. and contributors
+ * @license   Licensed under MIT license
+ *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
+ * @version   VERSION_STRING_PLACEHOLDER
+ */
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbXX0=
 enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer/normalizer'], function (exports, _routeRecognizerDsl, _routeRecognizerNormalizer) {
   'use strict';
 
@@ -65258,129 +65062,206 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   exports.default = RouteRecognizer;
 });
-enifed('router/handler-info/factory', ['exports', 'router/handler-info/resolved-handler-info', 'router/handler-info/unresolved-handler-info-by-object', 'router/handler-info/unresolved-handler-info-by-param'], function (exports, _routerHandlerInfoResolvedHandlerInfo, _routerHandlerInfoUnresolvedHandlerInfoByObject, _routerHandlerInfoUnresolvedHandlerInfoByParam) {
-  'use strict';
+enifed("route-recognizer/dsl", ["exports"], function (exports) {
+  "use strict";
 
-  handlerInfoFactory.klasses = {
-    resolved: _routerHandlerInfoResolvedHandlerInfo.default,
-    param: _routerHandlerInfoUnresolvedHandlerInfoByParam.default,
-    object: _routerHandlerInfoUnresolvedHandlerInfoByObject.default
-  };
-
-  function handlerInfoFactory(name, props) {
-    var Ctor = handlerInfoFactory.klasses[name],
-        handlerInfo = new Ctor(props || {});
-    handlerInfo.factory = handlerInfoFactory;
-    return handlerInfo;
+  function Target(path, matcher, delegate) {
+    this.path = path;
+    this.matcher = matcher;
+    this.delegate = delegate;
   }
 
-  exports.default = handlerInfoFactory;
-});
-enifed('router/handler-info/resolved-handler-info', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
-  'use strict';
+  Target.prototype = {
+    to: function (target, callback) {
+      var delegate = this.delegate;
 
-  var ResolvedHandlerInfo = _routerUtils.subclass(_routerHandlerInfo.default, {
-    resolve: function (shouldContinue, payload) {
-      // A ResolvedHandlerInfo just resolved with itself.
-      if (payload && payload.resolvedModels) {
-        payload.resolvedModels[this.name] = this.context;
-      }
-      return _rsvpPromise.default.resolve(this, this.promiseLabel("Resolve"));
-    },
-
-    getUnresolved: function () {
-      return this.factory('param', {
-        name: this.name,
-        handler: this.handler,
-        params: this.params
-      });
-    },
-
-    isResolved: true
-  });
-
-  exports.default = ResolvedHandlerInfo;
-});
-enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
-  'use strict';
-
-  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_routerHandlerInfo.default, {
-    getModel: function (payload) {
-      this.log(payload, this.name + ": resolving provided model");
-      return _rsvpPromise.default.resolve(this.context);
-    },
-
-    initialize: function (props) {
-      this.names = props.names || [];
-      this.context = props.context;
-    },
-
-    /**
-      @private
-       Serializes a handler using its custom `serialize` method or
-      by a default that looks up the expected property name from
-      the dynamic segment.
-       @param {Object} model the model to be serialized for this handler
-    */
-    serialize: function (_model) {
-      var model = _model || this.context,
-          names = this.names,
-          handler = this.handler,
-          serializer = this.serializer || handler && handler.serialize;
-
-      var object = {};
-      if (_routerUtils.isParam(model)) {
-        object[names[0]] = model;
-        return object;
+      if (delegate && delegate.willAddRoute) {
+        target = delegate.willAddRoute(this.matcher.target, target);
       }
 
-      // Use custom serialize if it exists.
-      if (serializer) {
-        return serializer(model, names);
+      this.matcher.add(this.path, target);
+
+      if (callback) {
+        if (callback.length === 0) {
+          throw new Error("You must have an argument in the function passed to `to`");
+        }
+        this.matcher.addChild(this.path, target, callback, this.delegate);
+      }
+      return this;
+    }
+  };
+
+  function Matcher(target) {
+    this.routes = {};
+    this.children = {};
+    this.target = target;
+  }
+
+  Matcher.prototype = {
+    add: function (path, handler) {
+      this.routes[path] = handler;
+    },
+
+    addChild: function (path, target, callback, delegate) {
+      var matcher = new Matcher(target);
+      this.children[path] = matcher;
+
+      var match = generateMatch(path, matcher, delegate);
+
+      if (delegate && delegate.contextEntered) {
+        delegate.contextEntered(target, match);
       }
 
-      if (names.length !== 1) {
-        return;
-      }
+      callback(match);
+    }
+  };
 
-      var name = names[0];
+  function generateMatch(startingPath, matcher, delegate) {
+    return function (path, nestedCallback) {
+      var fullPath = startingPath + path;
 
-      if (/_id$/.test(name)) {
-        object[name] = model.id;
+      if (nestedCallback) {
+        nestedCallback(generateMatch(fullPath, matcher, delegate));
       } else {
-        object[name] = model;
+        return new Target(startingPath + path, matcher, delegate);
       }
-      return object;
-    }
-  });
+    };
+  }
 
-  exports.default = UnresolvedHandlerInfoByObject;
+  function addRoute(routeArray, path, handler) {
+    var len = 0;
+    for (var i = 0; i < routeArray.length; i++) {
+      len += routeArray[i].path.length;
+    }
+
+    path = path.substr(len);
+    var route = { path: path, handler: handler };
+    routeArray.push(route);
+  }
+
+  function eachRoute(baseRoute, matcher, callback, binding) {
+    var routes = matcher.routes;
+
+    for (var path in routes) {
+      if (routes.hasOwnProperty(path)) {
+        var routeArray = baseRoute.slice();
+        addRoute(routeArray, path, routes[path]);
+
+        if (matcher.children[path]) {
+          eachRoute(routeArray, matcher.children[path], callback, binding);
+        } else {
+          callback.call(binding, routeArray);
+        }
+      }
+    }
+  }
+
+  exports.default = function (callback, addRouteCallback) {
+    var matcher = new Matcher();
+
+    callback(generateMatch("", matcher, this.delegate));
+
+    eachRoute([], matcher, function (route) {
+      if (addRouteCallback) {
+        addRouteCallback(this, route);
+      } else {
+        this.add(route);
+      }
+    }, this);
+  };
 });
-enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'router/handler-info', 'router/utils'], function (exports, _routerHandlerInfo, _routerUtils) {
+enifed('route-recognizer/normalizer', ['exports'], function (exports) {
+  // Match percent-encoded values (e.g. %3a, %3A, %25)
   'use strict';
 
-  // Generated by URL transitions and non-dynamic route segments in named Transitions.
-  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_routerHandlerInfo.default, {
-    initialize: function (props) {
-      this.params = props.params || {};
-    },
+  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
 
-    getModel: function (payload) {
-      var fullParams = this.params;
-      if (payload && payload.queryParams) {
-        fullParams = {};
-        _routerUtils.merge(fullParams, this.params);
-        fullParams.queryParams = payload.queryParams;
-      }
+  function toUpper(str) {
+    return str.toUpperCase();
+  }
 
-      var handler = this.handler;
-      var hookName = _routerUtils.resolveHook(handler, 'deserialize') || _routerUtils.resolveHook(handler, 'model');
+  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
+  function percentEncodedValuesToUpper(string) {
+    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
+  }
 
-      return this.runSharedModelHook(payload, hookName, [fullParams]);
+  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
+  // values that are not reserved (like unicode characters).
+  // Safe to call multiple times on the same path.
+  function normalizePath(path) {
+    return path.split('/').map(normalizeSegment).join('/');
+  }
+
+  function percentEncode(char) {
+    return '%' + charToHex(char);
+  }
+
+  function charToHex(char) {
+    return char.charCodeAt(0).toString(16).toUpperCase();
+  }
+
+  // Decodes percent-encoded values in the string except those
+  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
+  // percent-encodings
+  function decodeURIComponentExcept(string, reservedHex) {
+    if (string.indexOf('%') === -1) {
+      // If there is no percent char, there is no decoding that needs to
+      // be done and we exit early
+      return string;
     }
-  });
+    string = percentEncodedValuesToUpper(string);
 
-  exports.default = UnresolvedHandlerInfoByParam;
+    var result = '';
+    var buffer = '';
+    var idx = 0;
+    while (idx < string.length) {
+      var pIdx = string.indexOf('%', idx);
+
+      if (pIdx === -1) {
+        // no percent char
+        buffer += string.slice(idx);
+        break;
+      } else {
+        // found percent char
+        buffer += string.slice(idx, pIdx);
+        idx = pIdx + 3;
+
+        var hex = string.slice(pIdx + 1, pIdx + 3);
+        var encoded = '%' + hex;
+
+        if (reservedHex.indexOf(hex) === -1) {
+          // encoded is not in reserved set, add to buffer
+          buffer += encoded;
+        } else {
+          result += decodeURIComponent(buffer);
+          buffer = '';
+          result += encoded;
+        }
+      }
+    }
+    result += decodeURIComponent(buffer);
+    return result;
+  }
+
+  // Leave these characters in encoded state in segments
+  var reservedSegmentChars = ['%', '/'];
+  var reservedHex = reservedSegmentChars.map(charToHex);
+
+  function normalizeSegment(segment) {
+    return decodeURIComponentExcept(segment, reservedHex);
+  }
+
+  var Normalizer = {
+    normalizeSegment: normalizeSegment,
+    normalizePath: normalizePath
+  };
+
+  exports.default = Normalizer;
+});
+enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
+  'use strict';
+
+  exports.default = _routerRouter.default;
 });
 enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
   'use strict';
@@ -65541,6 +65422,130 @@ enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], funct
   }
 
   exports.default = HandlerInfo;
+});
+enifed('router/handler-info/factory', ['exports', 'router/handler-info/resolved-handler-info', 'router/handler-info/unresolved-handler-info-by-object', 'router/handler-info/unresolved-handler-info-by-param'], function (exports, _routerHandlerInfoResolvedHandlerInfo, _routerHandlerInfoUnresolvedHandlerInfoByObject, _routerHandlerInfoUnresolvedHandlerInfoByParam) {
+  'use strict';
+
+  handlerInfoFactory.klasses = {
+    resolved: _routerHandlerInfoResolvedHandlerInfo.default,
+    param: _routerHandlerInfoUnresolvedHandlerInfoByParam.default,
+    object: _routerHandlerInfoUnresolvedHandlerInfoByObject.default
+  };
+
+  function handlerInfoFactory(name, props) {
+    var Ctor = handlerInfoFactory.klasses[name],
+        handlerInfo = new Ctor(props || {});
+    handlerInfo.factory = handlerInfoFactory;
+    return handlerInfo;
+  }
+
+  exports.default = handlerInfoFactory;
+});
+enifed('router/handler-info/resolved-handler-info', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
+  'use strict';
+
+  var ResolvedHandlerInfo = _routerUtils.subclass(_routerHandlerInfo.default, {
+    resolve: function (shouldContinue, payload) {
+      // A ResolvedHandlerInfo just resolved with itself.
+      if (payload && payload.resolvedModels) {
+        payload.resolvedModels[this.name] = this.context;
+      }
+      return _rsvpPromise.default.resolve(this, this.promiseLabel("Resolve"));
+    },
+
+    getUnresolved: function () {
+      return this.factory('param', {
+        name: this.name,
+        handler: this.handler,
+        params: this.params
+      });
+    },
+
+    isResolved: true
+  });
+
+  exports.default = ResolvedHandlerInfo;
+});
+enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
+  'use strict';
+
+  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_routerHandlerInfo.default, {
+    getModel: function (payload) {
+      this.log(payload, this.name + ": resolving provided model");
+      return _rsvpPromise.default.resolve(this.context);
+    },
+
+    initialize: function (props) {
+      this.names = props.names || [];
+      this.context = props.context;
+    },
+
+    /**
+      @private
+       Serializes a handler using its custom `serialize` method or
+      by a default that looks up the expected property name from
+      the dynamic segment.
+       @param {Object} model the model to be serialized for this handler
+    */
+    serialize: function (_model) {
+      var model = _model || this.context,
+          names = this.names,
+          handler = this.handler,
+          serializer = this.serializer || handler && handler.serialize;
+
+      var object = {};
+      if (_routerUtils.isParam(model)) {
+        object[names[0]] = model;
+        return object;
+      }
+
+      // Use custom serialize if it exists.
+      if (serializer) {
+        return serializer(model, names);
+      }
+
+      if (names.length !== 1) {
+        return;
+      }
+
+      var name = names[0];
+
+      if (/_id$/.test(name)) {
+        object[name] = model.id;
+      } else {
+        object[name] = model;
+      }
+      return object;
+    }
+  });
+
+  exports.default = UnresolvedHandlerInfoByObject;
+});
+enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'router/handler-info', 'router/utils'], function (exports, _routerHandlerInfo, _routerUtils) {
+  'use strict';
+
+  // Generated by URL transitions and non-dynamic route segments in named Transitions.
+  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_routerHandlerInfo.default, {
+    initialize: function (props) {
+      this.params = props.params || {};
+    },
+
+    getModel: function (payload) {
+      var fullParams = this.params;
+      if (payload && payload.queryParams) {
+        fullParams = {};
+        _routerUtils.merge(fullParams, this.params);
+        fullParams.queryParams = payload.queryParams;
+      }
+
+      var handler = this.handler;
+      var hookName = _routerUtils.resolveHook(handler, 'deserialize') || _routerUtils.resolveHook(handler, 'model');
+
+      return this.runSharedModelHook(payload, hookName, [fullParams]);
+    }
+  });
+
+  exports.default = UnresolvedHandlerInfoByParam;
 });
 enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/utils', 'router/transition-state', 'router/transition', 'router/transition-intent/named-transition-intent', 'router/transition-intent/url-transition-intent', 'router/handler-info'], function (exports, _routeRecognizer, _rsvpPromise, _routerUtils, _routerTransitionState, _routerTransition, _routerTransitionIntentNamedTransitionIntent, _routerTransitionIntentUrlTransitionIntent, _routerHandlerInfo) {
   'use strict';
@@ -66351,6 +66356,23 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
 
   exports.default = Router;
 });
+enifed('router/transition-intent', ['exports', 'router/utils'], function (exports, _routerUtils) {
+  'use strict';
+
+  function TransitionIntent(props) {
+    this.initialize(props);
+
+    // TODO: wat
+    this.data = this.data || {};
+  }
+
+  TransitionIntent.prototype = {
+    initialize: null,
+    applyToState: null
+  };
+
+  exports.default = TransitionIntent;
+});
 enifed('router/transition-intent/named-transition-intent', ['exports', 'router/transition-intent', 'router/transition-state', 'router/handler-info/factory', 'router/utils'], function (exports, _routerTransitionIntent, _routerTransitionState, _routerHandlerInfoFactory, _routerUtils) {
   'use strict';
 
@@ -66598,23 +66620,6 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
       return newState;
     }
   });
-});
-enifed('router/transition-intent', ['exports', 'router/utils'], function (exports, _routerUtils) {
-  'use strict';
-
-  function TransitionIntent(props) {
-    this.initialize(props);
-
-    // TODO: wat
-    this.data = this.data || {};
-  }
-
-  TransitionIntent.prototype = {
-    initialize: null,
-    applyToState: null
-  };
-
-  exports.default = TransitionIntent;
 });
 enifed('router/transition-state', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
   'use strict';
@@ -67292,10 +67297,92 @@ enifed('router/utils', ['exports'], function (exports) {
   exports.resolveHook = resolveHook;
   exports.applyHook = applyHook;
 });
-enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
+enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
 
-  exports.default = _routerRouter.default;
+  // defaults
+  _rsvpConfig.config.async = _rsvpAsap.default;
+  _rsvpConfig.config.after = function (cb) {
+    setTimeout(cb, 0);
+  };
+  var cast = _rsvpResolve.default;
+  function async(callback, arg) {
+    _rsvpConfig.config.async(callback, arg);
+  }
+
+  function on() {
+    _rsvpConfig.config['on'].apply(_rsvpConfig.config, arguments);
+  }
+
+  function off() {
+    _rsvpConfig.config['off'].apply(_rsvpConfig.config, arguments);
+  }
+
+  // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
+  if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
+    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
+    _rsvpConfig.configure('instrument', true);
+    for (var eventName in callbacks) {
+      if (callbacks.hasOwnProperty(eventName)) {
+        on(eventName, callbacks[eventName]);
+      }
+    }
+  }
+
+  exports.cast = cast;
+  exports.Promise = _rsvpPromise.default;
+  exports.EventTarget = _rsvpEvents.default;
+  exports.all = _rsvpAll.default;
+  exports.allSettled = _rsvpAllSettled.default;
+  exports.race = _rsvpRace.default;
+  exports.hash = _rsvpHash.default;
+  exports.hashSettled = _rsvpHashSettled.default;
+  exports.rethrow = _rsvpRethrow.default;
+  exports.defer = _rsvpDefer.default;
+  exports.denodeify = _rsvpNode.default;
+  exports.configure = _rsvpConfig.configure;
+  exports.on = on;
+  exports.off = off;
+  exports.resolve = _rsvpResolve.default;
+  exports.reject = _rsvpReject.default;
+  exports.async = async;
+  exports.map = _rsvpMap.default;
+  exports.filter = _rsvpFilter.default;
+});
+enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsvpPlatform, _rsvp) {
+  'use strict';
+
+  var RSVP = {
+    'race': _rsvp.race,
+    'Promise': _rsvp.Promise,
+    'allSettled': _rsvp.allSettled,
+    'hash': _rsvp.hash,
+    'hashSettled': _rsvp.hashSettled,
+    'denodeify': _rsvp.denodeify,
+    'on': _rsvp.on,
+    'off': _rsvp.off,
+    'map': _rsvp.map,
+    'filter': _rsvp.filter,
+    'resolve': _rsvp.resolve,
+    'reject': _rsvp.reject,
+    'all': _rsvp.all,
+    'rethrow': _rsvp.rethrow,
+    'defer': _rsvp.defer,
+    'EventTarget': _rsvp.EventTarget,
+    'configure': _rsvp.configure,
+    'async': _rsvp.async
+  };
+
+  /* global define:true module:true window: true */
+  if (typeof define === 'function' && define['amd']) {
+    define(function () {
+      return RSVP;
+    });
+  } else if (typeof module !== 'undefined' && module['exports']) {
+    module['exports'] = RSVP;
+  } else if (typeof _rsvpPlatform.default !== 'undefined') {
+    _rsvpPlatform.default['RSVP'] = RSVP;
+  }
 });
 enifed('rsvp/-internal', ['exports', 'rsvp/utils', 'rsvp/instrument', 'rsvp/config'], function (exports, _rsvpUtils, _rsvpInstrument, _rsvpConfig) {
   'use strict';
@@ -68946,263 +69033,6 @@ enifed('rsvp/platform', ['exports'], function (exports) {
 
   exports.default = platform;
 });
-enifed('rsvp/promise/all', ['exports', 'rsvp/enumerator'], function (exports, _rsvpEnumerator) {
-  'use strict';
-
-  exports.default = all;
-
-  /**
-    `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
-    is fulfilled with an array of fulfillment values for the passed promises, or
-    rejected with the reason of the first passed promise to be rejected. It casts all
-    elements of the passed iterable to promises as it runs this algorithm.
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.resolve(2);
-    var promise3 = RSVP.resolve(3);
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.Promise.all(promises).then(function(array){
-      // The array here would be [ 1, 2, 3 ];
-    });
-    ```
-  
-    If any of the `promises` given to `RSVP.all` are rejected, the first promise
-    that is rejected will be given as an argument to the returned promises's
-    rejection handler. For example:
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.reject(new Error("2"));
-    var promise3 = RSVP.reject(new Error("3"));
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.Promise.all(promises).then(function(array){
-      // Code here never runs because there are rejected promises!
-    }, function(error) {
-      // error.message === "2"
-    });
-    ```
-  
-    @method all
-    @static
-    @param {Array} entries array of promises
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise} promise that is fulfilled when all `promises` have been
-    fulfilled, or rejected if any of them become rejected.
-    @static
-  */
-
-  function all(entries, label) {
-    return new _rsvpEnumerator.default(this, entries, true, /* abort on reject */label).promise;
-  }
-});
-enifed('rsvp/promise/race', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
-  'use strict';
-
-  exports.default = race;
-
-  /**
-    `RSVP.Promise.race` returns a new promise which is settled in the same way as the
-    first passed promise to settle.
-  
-    Example:
-  
-    ```javascript
-    var promise1 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 1');
-      }, 200);
-    });
-  
-    var promise2 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 2');
-      }, 100);
-    });
-  
-    RSVP.Promise.race([promise1, promise2]).then(function(result){
-      // result === 'promise 2' because it was resolved before promise1
-      // was resolved.
-    });
-    ```
-  
-    `RSVP.Promise.race` is deterministic in that only the state of the first
-    settled promise matters. For example, even if other promises given to the
-    `promises` array argument are resolved, but the first settled promise has
-    become rejected before the other promises became fulfilled, the returned
-    promise will become rejected:
-  
-    ```javascript
-    var promise1 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 1');
-      }, 200);
-    });
-  
-    var promise2 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        reject(new Error('promise 2'));
-      }, 100);
-    });
-  
-    RSVP.Promise.race([promise1, promise2]).then(function(result){
-      // Code here never runs
-    }, function(reason){
-      // reason.message === 'promise 2' because promise 2 became rejected before
-      // promise 1 became fulfilled
-    });
-    ```
-  
-    An example real-world use case is implementing timeouts:
-  
-    ```javascript
-    RSVP.Promise.race([ajax('foo.json'), timeout(5000)])
-    ```
-  
-    @method race
-    @static
-    @param {Array} entries array of promises to observe
-    @param {String} label optional string for describing the promise returned.
-    Useful for tooling.
-    @return {Promise} a promise which settles in the same way as the first passed
-    promise to settle.
-  */
-
-  function race(entries, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-
-    var promise = new Constructor(_rsvpInternal.noop, label);
-
-    if (!_rsvpUtils.isArray(entries)) {
-      _rsvpInternal.reject(promise, new TypeError('You must pass an array to race.'));
-      return promise;
-    }
-
-    var length = entries.length;
-
-    function onFulfillment(value) {
-      _rsvpInternal.resolve(promise, value);
-    }
-
-    function onRejection(reason) {
-      _rsvpInternal.reject(promise, reason);
-    }
-
-    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
-      _rsvpInternal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
-    }
-
-    return promise;
-  }
-});
-enifed('rsvp/promise/reject', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
-  'use strict';
-
-  exports.default = reject;
-
-  /**
-    `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
-    It is shorthand for the following:
-  
-    ```javascript
-    var promise = new RSVP.Promise(function(resolve, reject){
-      reject(new Error('WHOOPS'));
-    });
-  
-    promise.then(function(value){
-      // Code here doesn't run because the promise is rejected!
-    }, function(reason){
-      // reason.message === 'WHOOPS'
-    });
-    ```
-  
-    Instead of writing the above, your code now simply becomes the following:
-  
-    ```javascript
-    var promise = RSVP.Promise.reject(new Error('WHOOPS'));
-  
-    promise.then(function(value){
-      // Code here doesn't run because the promise is rejected!
-    }, function(reason){
-      // reason.message === 'WHOOPS'
-    });
-    ```
-  
-    @method reject
-    @static
-    @param {*} reason value that the returned promise will be rejected with.
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise rejected with the given `reason`.
-  */
-
-  function reject(reason, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-    var promise = new Constructor(_rsvpInternal.noop, label);
-    _rsvpInternal.reject(promise, reason);
-    return promise;
-  }
-});
-enifed('rsvp/promise/resolve', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
-  'use strict';
-
-  exports.default = resolve;
-
-  /**
-    `RSVP.Promise.resolve` returns a promise that will become resolved with the
-    passed `value`. It is shorthand for the following:
-  
-    ```javascript
-    var promise = new RSVP.Promise(function(resolve, reject){
-      resolve(1);
-    });
-  
-    promise.then(function(value){
-      // value === 1
-    });
-    ```
-  
-    Instead of writing the above, your code now simply becomes the following:
-  
-    ```javascript
-    var promise = RSVP.Promise.resolve(1);
-  
-    promise.then(function(value){
-      // value === 1
-    });
-    ```
-  
-    @method resolve
-    @static
-    @param {*} object value that the returned promise will be resolved with
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise that will become fulfilled with the given
-    `value`
-  */
-
-  function resolve(object, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-
-    if (object && typeof object === 'object' && object.constructor === Constructor) {
-      return object;
-    }
-
-    var promise = new Constructor(_rsvpInternal.noop, label);
-    _rsvpInternal.resolve(promise, object);
-    return promise;
-  }
-});
 enifed('rsvp/promise-hash', ['exports', 'rsvp/enumerator', 'rsvp/-internal', 'rsvp/utils'], function (exports, _rsvpEnumerator, _rsvpInternal, _rsvpUtils) {
   'use strict';
 
@@ -69732,6 +69562,263 @@ enifed('rsvp/promise', ['exports', 'rsvp/config', 'rsvp/instrument', 'rsvp/utils
     }
   };
 });
+enifed('rsvp/promise/all', ['exports', 'rsvp/enumerator'], function (exports, _rsvpEnumerator) {
+  'use strict';
+
+  exports.default = all;
+
+  /**
+    `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
+    is fulfilled with an array of fulfillment values for the passed promises, or
+    rejected with the reason of the first passed promise to be rejected. It casts all
+    elements of the passed iterable to promises as it runs this algorithm.
+  
+    Example:
+  
+    ```javascript
+    var promise1 = RSVP.resolve(1);
+    var promise2 = RSVP.resolve(2);
+    var promise3 = RSVP.resolve(3);
+    var promises = [ promise1, promise2, promise3 ];
+  
+    RSVP.Promise.all(promises).then(function(array){
+      // The array here would be [ 1, 2, 3 ];
+    });
+    ```
+  
+    If any of the `promises` given to `RSVP.all` are rejected, the first promise
+    that is rejected will be given as an argument to the returned promises's
+    rejection handler. For example:
+  
+    Example:
+  
+    ```javascript
+    var promise1 = RSVP.resolve(1);
+    var promise2 = RSVP.reject(new Error("2"));
+    var promise3 = RSVP.reject(new Error("3"));
+    var promises = [ promise1, promise2, promise3 ];
+  
+    RSVP.Promise.all(promises).then(function(array){
+      // Code here never runs because there are rejected promises!
+    }, function(error) {
+      // error.message === "2"
+    });
+    ```
+  
+    @method all
+    @static
+    @param {Array} entries array of promises
+    @param {String} label optional string for labeling the promise.
+    Useful for tooling.
+    @return {Promise} promise that is fulfilled when all `promises` have been
+    fulfilled, or rejected if any of them become rejected.
+    @static
+  */
+
+  function all(entries, label) {
+    return new _rsvpEnumerator.default(this, entries, true, /* abort on reject */label).promise;
+  }
+});
+enifed('rsvp/promise/race', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
+  'use strict';
+
+  exports.default = race;
+
+  /**
+    `RSVP.Promise.race` returns a new promise which is settled in the same way as the
+    first passed promise to settle.
+  
+    Example:
+  
+    ```javascript
+    var promise1 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 1');
+      }, 200);
+    });
+  
+    var promise2 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 2');
+      }, 100);
+    });
+  
+    RSVP.Promise.race([promise1, promise2]).then(function(result){
+      // result === 'promise 2' because it was resolved before promise1
+      // was resolved.
+    });
+    ```
+  
+    `RSVP.Promise.race` is deterministic in that only the state of the first
+    settled promise matters. For example, even if other promises given to the
+    `promises` array argument are resolved, but the first settled promise has
+    become rejected before the other promises became fulfilled, the returned
+    promise will become rejected:
+  
+    ```javascript
+    var promise1 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 1');
+      }, 200);
+    });
+  
+    var promise2 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        reject(new Error('promise 2'));
+      }, 100);
+    });
+  
+    RSVP.Promise.race([promise1, promise2]).then(function(result){
+      // Code here never runs
+    }, function(reason){
+      // reason.message === 'promise 2' because promise 2 became rejected before
+      // promise 1 became fulfilled
+    });
+    ```
+  
+    An example real-world use case is implementing timeouts:
+  
+    ```javascript
+    RSVP.Promise.race([ajax('foo.json'), timeout(5000)])
+    ```
+  
+    @method race
+    @static
+    @param {Array} entries array of promises to observe
+    @param {String} label optional string for describing the promise returned.
+    Useful for tooling.
+    @return {Promise} a promise which settles in the same way as the first passed
+    promise to settle.
+  */
+
+  function race(entries, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+
+    var promise = new Constructor(_rsvpInternal.noop, label);
+
+    if (!_rsvpUtils.isArray(entries)) {
+      _rsvpInternal.reject(promise, new TypeError('You must pass an array to race.'));
+      return promise;
+    }
+
+    var length = entries.length;
+
+    function onFulfillment(value) {
+      _rsvpInternal.resolve(promise, value);
+    }
+
+    function onRejection(reason) {
+      _rsvpInternal.reject(promise, reason);
+    }
+
+    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
+      _rsvpInternal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+    }
+
+    return promise;
+  }
+});
+enifed('rsvp/promise/reject', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
+  'use strict';
+
+  exports.default = reject;
+
+  /**
+    `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
+    It is shorthand for the following:
+  
+    ```javascript
+    var promise = new RSVP.Promise(function(resolve, reject){
+      reject(new Error('WHOOPS'));
+    });
+  
+    promise.then(function(value){
+      // Code here doesn't run because the promise is rejected!
+    }, function(reason){
+      // reason.message === 'WHOOPS'
+    });
+    ```
+  
+    Instead of writing the above, your code now simply becomes the following:
+  
+    ```javascript
+    var promise = RSVP.Promise.reject(new Error('WHOOPS'));
+  
+    promise.then(function(value){
+      // Code here doesn't run because the promise is rejected!
+    }, function(reason){
+      // reason.message === 'WHOOPS'
+    });
+    ```
+  
+    @method reject
+    @static
+    @param {*} reason value that the returned promise will be rejected with.
+    @param {String} label optional string for identifying the returned promise.
+    Useful for tooling.
+    @return {Promise} a promise rejected with the given `reason`.
+  */
+
+  function reject(reason, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+    var promise = new Constructor(_rsvpInternal.noop, label);
+    _rsvpInternal.reject(promise, reason);
+    return promise;
+  }
+});
+enifed('rsvp/promise/resolve', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
+  'use strict';
+
+  exports.default = resolve;
+
+  /**
+    `RSVP.Promise.resolve` returns a promise that will become resolved with the
+    passed `value`. It is shorthand for the following:
+  
+    ```javascript
+    var promise = new RSVP.Promise(function(resolve, reject){
+      resolve(1);
+    });
+  
+    promise.then(function(value){
+      // value === 1
+    });
+    ```
+  
+    Instead of writing the above, your code now simply becomes the following:
+  
+    ```javascript
+    var promise = RSVP.Promise.resolve(1);
+  
+    promise.then(function(value){
+      // value === 1
+    });
+    ```
+  
+    @method resolve
+    @static
+    @param {*} object value that the returned promise will be resolved with
+    @param {String} label optional string for identifying the returned promise.
+    Useful for tooling.
+    @return {Promise} a promise that will become fulfilled with the given
+    `value`
+  */
+
+  function resolve(object, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+
+    if (object && typeof object === 'object' && object.constructor === Constructor) {
+      return object;
+    }
+
+    var promise = new Constructor(_rsvpInternal.noop, label);
+    _rsvpInternal.resolve(promise, object);
+    return promise;
+  }
+});
 enifed('rsvp/race', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
   'use strict';
 
@@ -69898,93 +69985,6 @@ enifed('rsvp/utils', ['exports'], function (exports) {
     return new F();
   };
   exports.o_create = o_create;
-});
-enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
-  'use strict';
-
-  // defaults
-  _rsvpConfig.config.async = _rsvpAsap.default;
-  _rsvpConfig.config.after = function (cb) {
-    setTimeout(cb, 0);
-  };
-  var cast = _rsvpResolve.default;
-  function async(callback, arg) {
-    _rsvpConfig.config.async(callback, arg);
-  }
-
-  function on() {
-    _rsvpConfig.config['on'].apply(_rsvpConfig.config, arguments);
-  }
-
-  function off() {
-    _rsvpConfig.config['off'].apply(_rsvpConfig.config, arguments);
-  }
-
-  // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
-  if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
-    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
-    _rsvpConfig.configure('instrument', true);
-    for (var eventName in callbacks) {
-      if (callbacks.hasOwnProperty(eventName)) {
-        on(eventName, callbacks[eventName]);
-      }
-    }
-  }
-
-  exports.cast = cast;
-  exports.Promise = _rsvpPromise.default;
-  exports.EventTarget = _rsvpEvents.default;
-  exports.all = _rsvpAll.default;
-  exports.allSettled = _rsvpAllSettled.default;
-  exports.race = _rsvpRace.default;
-  exports.hash = _rsvpHash.default;
-  exports.hashSettled = _rsvpHashSettled.default;
-  exports.rethrow = _rsvpRethrow.default;
-  exports.defer = _rsvpDefer.default;
-  exports.denodeify = _rsvpNode.default;
-  exports.configure = _rsvpConfig.configure;
-  exports.on = on;
-  exports.off = off;
-  exports.resolve = _rsvpResolve.default;
-  exports.reject = _rsvpReject.default;
-  exports.async = async;
-  exports.map = _rsvpMap.default;
-  exports.filter = _rsvpFilter.default;
-});
-enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsvpPlatform, _rsvp) {
-  'use strict';
-
-  var RSVP = {
-    'race': _rsvp.race,
-    'Promise': _rsvp.Promise,
-    'allSettled': _rsvp.allSettled,
-    'hash': _rsvp.hash,
-    'hashSettled': _rsvp.hashSettled,
-    'denodeify': _rsvp.denodeify,
-    'on': _rsvp.on,
-    'off': _rsvp.off,
-    'map': _rsvp.map,
-    'filter': _rsvp.filter,
-    'resolve': _rsvp.resolve,
-    'reject': _rsvp.reject,
-    'all': _rsvp.all,
-    'rethrow': _rsvp.rethrow,
-    'defer': _rsvp.defer,
-    'EventTarget': _rsvp.EventTarget,
-    'configure': _rsvp.configure,
-    'async': _rsvp.async
-  };
-
-  /* global define:true module:true window: true */
-  if (typeof define === 'function' && define['amd']) {
-    define(function () {
-      return RSVP;
-    });
-  } else if (typeof module !== 'undefined' && module['exports']) {
-    module['exports'] = RSVP;
-  } else if (typeof _rsvpPlatform.default !== 'undefined') {
-    _rsvpPlatform.default['RSVP'] = RSVP;
-  }
 });
 enifed("vertex", ["exports"], function (exports) {
   /**
