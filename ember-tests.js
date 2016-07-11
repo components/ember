@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+84dc75a8
+ * @version   2.7.0-canary+9b11002d
  */
 
 var enifed, requireModule, require, Ember;
@@ -27574,7 +27574,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
       this.assertText('yall finished or yall done?');
     };
 
-    _class.prototype['@htmlbars it can lookup a local helper'] = function htmlbarsItCanLookupALocalHelper() {
+    _class.prototype['@test it can lookup a local helper'] = function testItCanLookupALocalHelper() {
       var _this6 = this;
 
       this.registerHelper('x-outer/x-helper', function () {
@@ -49464,7 +49464,7 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('yall finished or yall done?');
     };
 
-    _class.prototype['@htmlbars it can lookup a local helper'] = function htmlbarsItCanLookupALocalHelper() {
+    _class.prototype['@test it can lookup a local helper'] = function testItCanLookupALocalHelper() {
       var _this6 = this;
 
       this.registerHelper('x-outer/x-helper', function () {
