@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-beta.3+6f8ef18c
+ * @version   2.7.0-beta.4
  */
 
 var enifed, requireModule, require, Ember;
@@ -112,389 +112,6 @@ var mainContext = this;
   }
 })();
 
-enifed("backburner/binary-search", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = binarySearch;
-
-  function binarySearch(time, timers) {
-    var start = 0;
-    var end = timers.length - 2;
-    var middle, l;
-
-    while (start < end) {
-      // since timers is an array of pairs 'l' will always
-      // be an integer
-      l = (end - start) / 2;
-
-      // compensate for the index in case even number
-      // of pairs inside timers
-      middle = start + l - l % 2;
-
-      if (time >= timers[middle]) {
-        start = middle + 2;
-      } else {
-        end = middle;
-      }
-    }
-
-    return time >= timers[start] ? start + 2 : start;
-  }
-});
-enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
-  'use strict';
-
-  exports.default = DeferredActionQueues;
-
-  function DeferredActionQueues(queueNames, options) {
-    var queues = this.queues = {};
-    this.queueNames = queueNames = queueNames || [];
-
-    this.options = options;
-
-    _backburnerUtils.each(queueNames, function (queueName) {
-      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
-    });
-  }
-
-  function noSuchQueue(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
-  }
-
-  function noSuchMethod(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
-  }
-
-  DeferredActionQueues.prototype = {
-    schedule: function (name, target, method, args, onceFlag, stack) {
-      var queues = this.queues;
-      var queue = queues[name];
-
-      if (!queue) {
-        noSuchQueue(name);
-      }
-
-      if (!method) {
-        noSuchMethod(name);
-      }
-
-      if (onceFlag) {
-        return queue.pushUnique(target, method, args, stack);
-      } else {
-        return queue.push(target, method, args, stack);
-      }
-    },
-
-    flush: function () {
-      var queues = this.queues;
-      var queueNames = this.queueNames;
-      var queueName, queue;
-      var queueNameIndex = 0;
-      var numberOfQueues = queueNames.length;
-
-      while (queueNameIndex < numberOfQueues) {
-        queueName = queueNames[queueNameIndex];
-        queue = queues[queueName];
-
-        var numberOfQueueItems = queue._queue.length;
-
-        if (numberOfQueueItems === 0) {
-          queueNameIndex++;
-        } else {
-          queue.flush(false /* async */);
-          queueNameIndex = 0;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/platform', ['exports'], function (exports) {
-  'use strict';
-
-  var GlobalContext;
-
-  /* global self */
-  if (typeof self === 'object') {
-    GlobalContext = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      GlobalContext = global;
-
-      /* global window */
-    } else if (typeof window === 'object') {
-        GlobalContext = window;
-      } else {
-        throw new Error('no global: `self`, `global` nor `window` was found');
-      }
-
-  exports.default = GlobalContext;
-});
-enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
-  'use strict';
-
-  exports.default = Queue;
-
-  function Queue(name, options, globalOptions) {
-    this.name = name;
-    this.globalOptions = globalOptions || {};
-    this.options = options;
-    this._queue = [];
-    this.targetQueues = {};
-    this._queueBeingFlushed = undefined;
-  }
-
-  Queue.prototype = {
-    push: function (target, method, args, stack) {
-      var queue = this._queue;
-      queue.push(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUniqueWithoutGuid: function (target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = queue.length; i < l; i += 4) {
-        var currentTarget = queue[i];
-        var currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue[i + 2] = args; // replace args
-          queue[i + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      queue.push(target, method, args, stack);
-    },
-
-    targetQueue: function (targetQueue, target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
-        var currentMethod = targetQueue[i];
-        var currentIndex = targetQueue[i + 1];
-
-        if (currentMethod === method) {
-          queue[currentIndex + 2] = args; // replace args
-          queue[currentIndex + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
-    },
-
-    pushUniqueWithGuid: function (guid, target, method, args, stack) {
-      var hasLocalQueue = this.targetQueues[guid];
-
-      if (hasLocalQueue) {
-        this.targetQueue(hasLocalQueue, target, method, args, stack);
-      } else {
-        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
-      }
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUnique: function (target, method, args, stack) {
-      var KEY = this.globalOptions.GUID_KEY;
-
-      if (target && KEY) {
-        var guid = target[KEY];
-        if (guid) {
-          return this.pushUniqueWithGuid(guid, target, method, args, stack);
-        }
-      }
-
-      this.pushUniqueWithoutGuid(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    invoke: function (target, method, args, _, _errorRecordedForStack) {
-      if (args && args.length > 0) {
-        method.apply(target, args);
-      } else {
-        method.call(target);
-      }
-    },
-
-    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
-      try {
-        if (args && args.length > 0) {
-          method.apply(target, args);
-        } else {
-          method.call(target);
-        }
-      } catch (error) {
-        onError(error, errorRecordedForStack);
-      }
-    },
-
-    flush: function (sync) {
-      var queue = this._queue;
-      var length = queue.length;
-
-      if (length === 0) {
-        return;
-      }
-
-      var globalOptions = this.globalOptions;
-      var options = this.options;
-      var before = options && options.before;
-      var after = options && options.after;
-      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
-      var target, method, args, errorRecordedForStack;
-      var invoke = onError ? this.invokeWithOnError : this.invoke;
-
-      this.targetQueues = Object.create(null);
-      var queueItems = this._queueBeingFlushed = this._queue.slice();
-      this._queue = [];
-
-      if (before) {
-        before();
-      }
-
-      for (var i = 0; i < length; i += 4) {
-        target = queueItems[i];
-        method = queueItems[i + 1];
-        args = queueItems[i + 2];
-        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
-
-        if (_backburnerUtils.isString(method)) {
-          method = target[method];
-        }
-
-        // method could have been nullified / canceled during flush
-        if (method) {
-          //
-          //    ** Attention intrepid developer **
-          //
-          //    To find out the stack of this task when it was scheduled onto
-          //    the run loop, add the following to your app.js:
-          //
-          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
-          //
-          //    Once that is in place, when you are at a breakpoint and navigate
-          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
-          //    which will be the captured stack when this job was scheduled.
-          //
-          invoke(target, method, args, onError, errorRecordedForStack);
-        }
-      }
-
-      if (after) {
-        after();
-      }
-
-      this._queueBeingFlushed = undefined;
-
-      if (sync !== false && this._queue.length > 0) {
-        // check if new items have been added
-        this.flush(true);
-      }
-    },
-
-    cancel: function (actionToCancel) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
-      var target = actionToCancel.target;
-      var method = actionToCancel.method;
-      var GUID_KEY = this.globalOptions.GUID_KEY;
-
-      if (GUID_KEY && this.targetQueues && target) {
-        var targetQueue = this.targetQueues[target[GUID_KEY]];
-
-        if (targetQueue) {
-          for (i = 0, l = targetQueue.length; i < l; i++) {
-            if (targetQueue[i] === method) {
-              targetQueue.splice(i, 1);
-            }
-          }
-        }
-      }
-
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue.splice(i, 4);
-          return true;
-        }
-      }
-
-      // if not found in current queue
-      // could be in the queue that is being flushed
-      queue = this._queueBeingFlushed;
-
-      if (!queue) {
-        return;
-      }
-
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          // don't mess with array during flush
-          // just nullify the method
-          queue[i + 1] = null;
-          return true;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/utils', ['exports'], function (exports) {
-  'use strict';
-
-  exports.each = each;
-  exports.isString = isString;
-  exports.isFunction = isFunction;
-  exports.isNumber = isNumber;
-  exports.isCoercableNumber = isCoercableNumber;
-  var NUMBER = /\d+/;
-
-  function each(collection, callback) {
-    for (var i = 0; i < collection.length; i++) {
-      callback(collection[i]);
-    }
-  }
-
-  function isString(suspect) {
-    return typeof suspect === 'string';
-  }
-
-  function isFunction(suspect) {
-    return typeof suspect === 'function';
-  }
-
-  function isNumber(suspect) {
-    return typeof suspect === 'number';
-  }
-
-  function isCoercableNumber(number) {
-    return isNumber(number) || NUMBER.test(number);
-  }
-});
 enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
   'use strict';
 
@@ -1151,6 +768,389 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
 
   function clearItems(item) {
     this._platform.clearTimeout(item[2]);
+  }
+});
+enifed("backburner/binary-search", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = binarySearch;
+
+  function binarySearch(time, timers) {
+    var start = 0;
+    var end = timers.length - 2;
+    var middle, l;
+
+    while (start < end) {
+      // since timers is an array of pairs 'l' will always
+      // be an integer
+      l = (end - start) / 2;
+
+      // compensate for the index in case even number
+      // of pairs inside timers
+      middle = start + l - l % 2;
+
+      if (time >= timers[middle]) {
+        start = middle + 2;
+      } else {
+        end = middle;
+      }
+    }
+
+    return time >= timers[start] ? start + 2 : start;
+  }
+});
+enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
+  'use strict';
+
+  exports.default = DeferredActionQueues;
+
+  function DeferredActionQueues(queueNames, options) {
+    var queues = this.queues = {};
+    this.queueNames = queueNames = queueNames || [];
+
+    this.options = options;
+
+    _backburnerUtils.each(queueNames, function (queueName) {
+      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
+    });
+  }
+
+  function noSuchQueue(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
+  }
+
+  function noSuchMethod(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
+  }
+
+  DeferredActionQueues.prototype = {
+    schedule: function (name, target, method, args, onceFlag, stack) {
+      var queues = this.queues;
+      var queue = queues[name];
+
+      if (!queue) {
+        noSuchQueue(name);
+      }
+
+      if (!method) {
+        noSuchMethod(name);
+      }
+
+      if (onceFlag) {
+        return queue.pushUnique(target, method, args, stack);
+      } else {
+        return queue.push(target, method, args, stack);
+      }
+    },
+
+    flush: function () {
+      var queues = this.queues;
+      var queueNames = this.queueNames;
+      var queueName, queue;
+      var queueNameIndex = 0;
+      var numberOfQueues = queueNames.length;
+
+      while (queueNameIndex < numberOfQueues) {
+        queueName = queueNames[queueNameIndex];
+        queue = queues[queueName];
+
+        var numberOfQueueItems = queue._queue.length;
+
+        if (numberOfQueueItems === 0) {
+          queueNameIndex++;
+        } else {
+          queue.flush(false /* async */);
+          queueNameIndex = 0;
+        }
+      }
+    }
+  };
+});
+enifed('backburner/platform', ['exports'], function (exports) {
+  'use strict';
+
+  var GlobalContext;
+
+  /* global self */
+  if (typeof self === 'object') {
+    GlobalContext = self;
+
+    /* global global */
+  } else if (typeof global === 'object') {
+      GlobalContext = global;
+
+      /* global window */
+    } else if (typeof window === 'object') {
+        GlobalContext = window;
+      } else {
+        throw new Error('no global: `self`, `global` nor `window` was found');
+      }
+
+  exports.default = GlobalContext;
+});
+enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
+  'use strict';
+
+  exports.default = Queue;
+
+  function Queue(name, options, globalOptions) {
+    this.name = name;
+    this.globalOptions = globalOptions || {};
+    this.options = options;
+    this._queue = [];
+    this.targetQueues = {};
+    this._queueBeingFlushed = undefined;
+  }
+
+  Queue.prototype = {
+    push: function (target, method, args, stack) {
+      var queue = this._queue;
+      queue.push(target, method, args, stack);
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    pushUniqueWithoutGuid: function (target, method, args, stack) {
+      var queue = this._queue;
+
+      for (var i = 0, l = queue.length; i < l; i += 4) {
+        var currentTarget = queue[i];
+        var currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          queue[i + 2] = args; // replace args
+          queue[i + 3] = stack; // replace stack
+          return;
+        }
+      }
+
+      queue.push(target, method, args, stack);
+    },
+
+    targetQueue: function (targetQueue, target, method, args, stack) {
+      var queue = this._queue;
+
+      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
+        var currentMethod = targetQueue[i];
+        var currentIndex = targetQueue[i + 1];
+
+        if (currentMethod === method) {
+          queue[currentIndex + 2] = args; // replace args
+          queue[currentIndex + 3] = stack; // replace stack
+          return;
+        }
+      }
+
+      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
+    },
+
+    pushUniqueWithGuid: function (guid, target, method, args, stack) {
+      var hasLocalQueue = this.targetQueues[guid];
+
+      if (hasLocalQueue) {
+        this.targetQueue(hasLocalQueue, target, method, args, stack);
+      } else {
+        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
+      }
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    pushUnique: function (target, method, args, stack) {
+      var KEY = this.globalOptions.GUID_KEY;
+
+      if (target && KEY) {
+        var guid = target[KEY];
+        if (guid) {
+          return this.pushUniqueWithGuid(guid, target, method, args, stack);
+        }
+      }
+
+      this.pushUniqueWithoutGuid(target, method, args, stack);
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    invoke: function (target, method, args, _, _errorRecordedForStack) {
+      if (args && args.length > 0) {
+        method.apply(target, args);
+      } else {
+        method.call(target);
+      }
+    },
+
+    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
+      try {
+        if (args && args.length > 0) {
+          method.apply(target, args);
+        } else {
+          method.call(target);
+        }
+      } catch (error) {
+        onError(error, errorRecordedForStack);
+      }
+    },
+
+    flush: function (sync) {
+      var queue = this._queue;
+      var length = queue.length;
+
+      if (length === 0) {
+        return;
+      }
+
+      var globalOptions = this.globalOptions;
+      var options = this.options;
+      var before = options && options.before;
+      var after = options && options.after;
+      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
+      var target, method, args, errorRecordedForStack;
+      var invoke = onError ? this.invokeWithOnError : this.invoke;
+
+      this.targetQueues = Object.create(null);
+      var queueItems = this._queueBeingFlushed = this._queue.slice();
+      this._queue = [];
+
+      if (before) {
+        before();
+      }
+
+      for (var i = 0; i < length; i += 4) {
+        target = queueItems[i];
+        method = queueItems[i + 1];
+        args = queueItems[i + 2];
+        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
+
+        if (_backburnerUtils.isString(method)) {
+          method = target[method];
+        }
+
+        // method could have been nullified / canceled during flush
+        if (method) {
+          //
+          //    ** Attention intrepid developer **
+          //
+          //    To find out the stack of this task when it was scheduled onto
+          //    the run loop, add the following to your app.js:
+          //
+          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+          //
+          //    Once that is in place, when you are at a breakpoint and navigate
+          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+          //    which will be the captured stack when this job was scheduled.
+          //
+          invoke(target, method, args, onError, errorRecordedForStack);
+        }
+      }
+
+      if (after) {
+        after();
+      }
+
+      this._queueBeingFlushed = undefined;
+
+      if (sync !== false && this._queue.length > 0) {
+        // check if new items have been added
+        this.flush(true);
+      }
+    },
+
+    cancel: function (actionToCancel) {
+      var queue = this._queue,
+          currentTarget,
+          currentMethod,
+          i,
+          l;
+      var target = actionToCancel.target;
+      var method = actionToCancel.method;
+      var GUID_KEY = this.globalOptions.GUID_KEY;
+
+      if (GUID_KEY && this.targetQueues && target) {
+        var targetQueue = this.targetQueues[target[GUID_KEY]];
+
+        if (targetQueue) {
+          for (i = 0, l = targetQueue.length; i < l; i++) {
+            if (targetQueue[i] === method) {
+              targetQueue.splice(i, 1);
+            }
+          }
+        }
+      }
+
+      for (i = 0, l = queue.length; i < l; i += 4) {
+        currentTarget = queue[i];
+        currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          queue.splice(i, 4);
+          return true;
+        }
+      }
+
+      // if not found in current queue
+      // could be in the queue that is being flushed
+      queue = this._queueBeingFlushed;
+
+      if (!queue) {
+        return;
+      }
+
+      for (i = 0, l = queue.length; i < l; i += 4) {
+        currentTarget = queue[i];
+        currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          // don't mess with array during flush
+          // just nullify the method
+          queue[i + 1] = null;
+          return true;
+        }
+      }
+    }
+  };
+});
+enifed('backburner/utils', ['exports'], function (exports) {
+  'use strict';
+
+  exports.each = each;
+  exports.isString = isString;
+  exports.isFunction = isFunction;
+  exports.isNumber = isNumber;
+  exports.isCoercableNumber = isCoercableNumber;
+  var NUMBER = /\d+/;
+
+  function each(collection, callback) {
+    for (var i = 0; i < collection.length; i++) {
+      callback(collection[i]);
+    }
+  }
+
+  function isString(suspect) {
+    return typeof suspect === 'string';
+  }
+
+  function isFunction(suspect) {
+    return typeof suspect === 'function';
+  }
+
+  function isNumber(suspect) {
+    return typeof suspect === 'number';
+  }
+
+  function isCoercableNumber(number) {
+    return isNumber(number) || NUMBER.test(number);
   }
 });
 enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
@@ -2477,24 +2477,6 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
 
   exports.default = Registry;
 });
-enifed('dag-map/platform', ['exports'], function (exports) {
-  'use strict';
-
-  var platform;
-
-  /* global self */
-  if (typeof self === 'object') {
-    platform = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
-    }
-
-  exports.default = platform;
-});
 enifed('dag-map', ['exports', 'vertex', 'visit'], function (exports, _vertex, _visit) {
   'use strict';
 
@@ -2652,464 +2634,23 @@ enifed('dag-map.umd', ['exports', 'dag-map/platform', 'dag-map'], function (expo
     _dagMapPlatform.default['DAG'] = _dagMap.default;
   }
 });
-enifed('dom-helper/build-html-dom', ['exports'], function (exports) {
-  /* global XMLSerializer:false */
+enifed('dag-map/platform', ['exports'], function (exports) {
   'use strict';
 
-  var svgHTMLIntegrationPoints = { foreignObject: 1, desc: 1, title: 1 };
-  exports.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;
-  var svgNamespace = 'http://www.w3.org/2000/svg';
+  var platform;
 
-  exports.svgNamespace = svgNamespace;
-  var doc = typeof document === 'undefined' ? false : document;
+  /* global self */
+  if (typeof self === 'object') {
+    platform = self;
 
-  // Safari does not like using innerHTML on SVG HTML integration
-  // points (desc/title/foreignObject).
-  var needsIntegrationPointFix = doc && (function (document) {
-    if (document.createElementNS === undefined) {
-      return;
-    }
-    // In FF title will not accept innerHTML.
-    var testEl = document.createElementNS(svgNamespace, 'title');
-    testEl.innerHTML = "<div></div>";
-    return testEl.childNodes.length === 0 || testEl.childNodes[0].nodeType !== 1;
-  })(doc);
-
-  // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
-  // is a "zero-scope" element. This problem can be worked around by making
-  // the first node an invisible text node. We, like Modernizr, use &shy;
-  var needsShy = doc && (function (document) {
-    var testEl = document.createElement('div');
-    testEl.innerHTML = "<div></div>";
-    testEl.firstChild.innerHTML = "<script><\/script>";
-    return testEl.firstChild.innerHTML === '';
-  })(doc);
-
-  // IE 8 (and likely earlier) likes to move whitespace preceeding
-  // a script tag to appear after it. This means that we can
-  // accidentally remove whitespace when updating a morph.
-  var movesWhitespace = doc && (function (document) {
-    var testEl = document.createElement('div');
-    testEl.innerHTML = "Test: <script type='text/x-placeholder'><\/script>Value";
-    return testEl.childNodes[0].nodeValue === 'Test:' && testEl.childNodes[2].nodeValue === ' Value';
-  })(doc);
-
-  var tagNamesRequiringInnerHTMLFix = doc && (function (document) {
-    var tagNamesRequiringInnerHTMLFix;
-    // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
-    // html, style, table, tbody, tfoot, thead, title, tr. Detect this and add
-    // them to an initial list of corrected tags.
-    //
-    // Here we are only dealing with the ones which can have child nodes.
-    //
-    var tableNeedsInnerHTMLFix;
-    var tableInnerHTMLTestElement = document.createElement('table');
-    try {
-      tableInnerHTMLTestElement.innerHTML = '<tbody></tbody>';
-    } catch (e) {} finally {
-      tableNeedsInnerHTMLFix = tableInnerHTMLTestElement.childNodes.length === 0;
-    }
-    if (tableNeedsInnerHTMLFix) {
-      tagNamesRequiringInnerHTMLFix = {
-        colgroup: ['table'],
-        table: [],
-        tbody: ['table'],
-        tfoot: ['table'],
-        thead: ['table'],
-        tr: ['table', 'tbody']
-      };
-    }
-
-    // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
-    // add it to the list of corrected tags.
-    //
-    var selectInnerHTMLTestElement = document.createElement('select');
-    selectInnerHTMLTestElement.innerHTML = '<option></option>';
-    if (!selectInnerHTMLTestElement.childNodes[0]) {
-      tagNamesRequiringInnerHTMLFix = tagNamesRequiringInnerHTMLFix || {};
-      tagNamesRequiringInnerHTMLFix.select = [];
-    }
-    return tagNamesRequiringInnerHTMLFix;
-  })(doc);
-
-  function scriptSafeInnerHTML(element, html) {
-    // without a leading text node, IE will drop a leading script tag.
-    html = '&shy;' + html;
-
-    element.innerHTML = html;
-
-    var nodes = element.childNodes;
-
-    // Look for &shy; to remove it.
-    var shyElement = nodes[0];
-    while (shyElement.nodeType === 1 && !shyElement.nodeName) {
-      shyElement = shyElement.firstChild;
-    }
-    // At this point it's the actual unicode character.
-    if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
-      var newValue = shyElement.nodeValue.slice(1);
-      if (newValue.length) {
-        shyElement.nodeValue = shyElement.nodeValue.slice(1);
-      } else {
-        shyElement.parentNode.removeChild(shyElement);
-      }
-    }
-
-    return nodes;
-  }
-
-  function buildDOMWithFix(html, contextualElement) {
-    var tagName = contextualElement.tagName;
-
-    // Firefox versions < 11 do not have support for element.outerHTML.
-    var outerHTML = contextualElement.outerHTML || new XMLSerializer().serializeToString(contextualElement);
-    if (!outerHTML) {
-      throw "Can't set innerHTML on " + tagName + " in this browser";
-    }
-
-    html = fixSelect(html, contextualElement);
-
-    var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
-
-    var startTag = outerHTML.match(new RegExp("<" + tagName + "([^>]*)>", 'i'))[0];
-    var endTag = '</' + tagName + '>';
-
-    var wrappedHTML = [startTag, html, endTag];
-
-    var i = wrappingTags.length;
-    var wrappedDepth = 1 + i;
-    while (i--) {
-      wrappedHTML.unshift('<' + wrappingTags[i] + '>');
-      wrappedHTML.push('</' + wrappingTags[i] + '>');
-    }
-
-    var wrapper = document.createElement('div');
-    scriptSafeInnerHTML(wrapper, wrappedHTML.join(''));
-    var element = wrapper;
-    while (wrappedDepth--) {
-      element = element.firstChild;
-      while (element && element.nodeType !== 1) {
-        element = element.nextSibling;
-      }
-    }
-    while (element && element.tagName !== tagName) {
-      element = element.nextSibling;
-    }
-    return element ? element.childNodes : [];
-  }
-
-  var buildDOM;
-  if (needsShy) {
-    buildDOM = function buildDOM(html, contextualElement, dom) {
-      html = fixSelect(html, contextualElement);
-
-      contextualElement = dom.cloneNode(contextualElement, false);
-      scriptSafeInnerHTML(contextualElement, html);
-      return contextualElement.childNodes;
-    };
-  } else {
-    buildDOM = function buildDOM(html, contextualElement, dom) {
-      html = fixSelect(html, contextualElement);
-
-      contextualElement = dom.cloneNode(contextualElement, false);
-      contextualElement.innerHTML = html;
-      return contextualElement.childNodes;
-    };
-  }
-
-  function fixSelect(html, contextualElement) {
-    if (contextualElement.tagName === 'SELECT') {
-      html = "<option></option>" + html;
-    }
-
-    return html;
-  }
-
-  var buildIESafeDOM;
-  if (tagNamesRequiringInnerHTMLFix || movesWhitespace) {
-    buildIESafeDOM = function buildIESafeDOM(html, contextualElement, dom) {
-      // Make a list of the leading text on script nodes. Include
-      // script tags without any whitespace for easier processing later.
-      var spacesBefore = [];
-      var spacesAfter = [];
-      if (typeof html === 'string') {
-        html = html.replace(/(\s*)(<script)/g, function (match, spaces, tag) {
-          spacesBefore.push(spaces);
-          return tag;
-        });
-
-        html = html.replace(/(<\/script>)(\s*)/g, function (match, tag, spaces) {
-          spacesAfter.push(spaces);
-          return tag;
-        });
-      }
-
-      // Fetch nodes
-      var nodes;
-      if (tagNamesRequiringInnerHTMLFix[contextualElement.tagName.toLowerCase()]) {
-        // buildDOMWithFix uses string wrappers for problematic innerHTML.
-        nodes = buildDOMWithFix(html, contextualElement);
-      } else {
-        nodes = buildDOM(html, contextualElement, dom);
-      }
-
-      // Build a list of script tags, the nodes themselves will be
-      // mutated as we add test nodes.
-      var i, j, node, nodeScriptNodes;
-      var scriptNodes = [];
-      for (i = 0; i < nodes.length; i++) {
-        node = nodes[i];
-        if (node.nodeType !== 1) {
-          continue;
-        }
-        if (node.tagName === 'SCRIPT') {
-          scriptNodes.push(node);
-        } else {
-          nodeScriptNodes = node.getElementsByTagName('script');
-          for (j = 0; j < nodeScriptNodes.length; j++) {
-            scriptNodes.push(nodeScriptNodes[j]);
-          }
-        }
-      }
-
-      // Walk the script tags and put back their leading text nodes.
-      var scriptNode, textNode, spaceBefore, spaceAfter;
-      for (i = 0; i < scriptNodes.length; i++) {
-        scriptNode = scriptNodes[i];
-        spaceBefore = spacesBefore[i];
-        if (spaceBefore && spaceBefore.length > 0) {
-          textNode = dom.document.createTextNode(spaceBefore);
-          scriptNode.parentNode.insertBefore(textNode, scriptNode);
-        }
-
-        spaceAfter = spacesAfter[i];
-        if (spaceAfter && spaceAfter.length > 0) {
-          textNode = dom.document.createTextNode(spaceAfter);
-          scriptNode.parentNode.insertBefore(textNode, scriptNode.nextSibling);
-        }
-      }
-
-      return nodes;
-    };
-  } else {
-    buildIESafeDOM = buildDOM;
-  }
-
-  var buildHTMLDOM;
-  if (needsIntegrationPointFix) {
-    exports.buildHTMLDOM = buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
-      if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
-        return buildIESafeDOM(html, document.createElement('div'), dom);
-      } else {
-        return buildIESafeDOM(html, contextualElement, dom);
-      }
-    };
-  } else {
-    exports.buildHTMLDOM = buildHTMLDOM = buildIESafeDOM;
-  }
-
-  exports.buildHTMLDOM = buildHTMLDOM;
-});
-enifed('dom-helper/classes', ['exports'], function (exports) {
-  'use strict';
-
-  var doc = typeof document === 'undefined' ? false : document;
-
-  // PhantomJS has a broken classList. See https://github.com/ariya/phantomjs/issues/12782
-  var canClassList = doc && (function () {
-    var d = document.createElement('div');
-    if (!d.classList) {
-      return false;
-    }
-    d.classList.add('boo');
-    d.classList.add('boo', 'baz');
-    return d.className === 'boo baz';
-  })();
-
-  function buildClassList(element) {
-    var classString = element.getAttribute('class') || '';
-    return classString !== '' && classString !== ' ' ? classString.split(' ') : [];
-  }
-
-  function intersect(containingArray, valuesArray) {
-    var containingIndex = 0;
-    var containingLength = containingArray.length;
-    var valuesIndex = 0;
-    var valuesLength = valuesArray.length;
-
-    var intersection = new Array(valuesLength);
-
-    // TODO: rewrite this loop in an optimal manner
-    for (; containingIndex < containingLength; containingIndex++) {
-      valuesIndex = 0;
-      for (; valuesIndex < valuesLength; valuesIndex++) {
-        if (valuesArray[valuesIndex] === containingArray[containingIndex]) {
-          intersection[valuesIndex] = containingIndex;
-          break;
-        }
-      }
-    }
-
-    return intersection;
-  }
-
-  function addClassesViaAttribute(element, classNames) {
-    var existingClasses = buildClassList(element);
-
-    var indexes = intersect(existingClasses, classNames);
-    var didChange = false;
-
-    for (var i = 0, l = classNames.length; i < l; i++) {
-      if (indexes[i] === undefined) {
-        didChange = true;
-        existingClasses.push(classNames[i]);
-      }
-    }
-
-    if (didChange) {
-      element.setAttribute('class', existingClasses.length > 0 ? existingClasses.join(' ') : '');
-    }
-  }
-
-  function removeClassesViaAttribute(element, classNames) {
-    var existingClasses = buildClassList(element);
-
-    var indexes = intersect(classNames, existingClasses);
-    var didChange = false;
-    var newClasses = [];
-
-    for (var i = 0, l = existingClasses.length; i < l; i++) {
-      if (indexes[i] === undefined) {
-        newClasses.push(existingClasses[i]);
-      } else {
-        didChange = true;
-      }
-    }
-
-    if (didChange) {
-      element.setAttribute('class', newClasses.length > 0 ? newClasses.join(' ') : '');
-    }
-  }
-
-  var addClasses, removeClasses;
-  if (canClassList) {
-    exports.addClasses = addClasses = function addClasses(element, classNames) {
-      if (element.classList) {
-        if (classNames.length === 1) {
-          element.classList.add(classNames[0]);
-        } else if (classNames.length === 2) {
-          element.classList.add(classNames[0], classNames[1]);
-        } else {
-          element.classList.add.apply(element.classList, classNames);
-        }
-      } else {
-        addClassesViaAttribute(element, classNames);
-      }
-    };
-    exports.removeClasses = removeClasses = function removeClasses(element, classNames) {
-      if (element.classList) {
-        if (classNames.length === 1) {
-          element.classList.remove(classNames[0]);
-        } else if (classNames.length === 2) {
-          element.classList.remove(classNames[0], classNames[1]);
-        } else {
-          element.classList.remove.apply(element.classList, classNames);
-        }
-      } else {
-        removeClassesViaAttribute(element, classNames);
-      }
-    };
-  } else {
-    exports.addClasses = addClasses = addClassesViaAttribute;
-    exports.removeClasses = removeClasses = removeClassesViaAttribute;
-  }
-
-  exports.addClasses = addClasses;
-  exports.removeClasses = removeClasses;
-});
-enifed('dom-helper/prop', ['exports'], function (exports) {
-  'use strict';
-
-  exports.isAttrRemovalValue = isAttrRemovalValue;
-  exports.normalizeProperty = normalizeProperty;
-
-  function isAttrRemovalValue(value) {
-    return value === null || value === undefined;
-  }
-
-  /*
-   *
-   * @method normalizeProperty
-   * @param element {HTMLElement}
-   * @param slotName {String}
-   * @returns {Object} { name, type }
-   */
-
-  function normalizeProperty(element, slotName) {
-    var type, normalized;
-
-    if (slotName in element) {
-      normalized = slotName;
-      type = 'prop';
+    /* global global */
+  } else if (typeof global === 'object') {
+      platform = global;
     } else {
-      var lower = slotName.toLowerCase();
-      if (lower in element) {
-        type = 'prop';
-        normalized = lower;
-      } else {
-        type = 'attr';
-        normalized = slotName;
-      }
+      throw new Error('no global: `self` or `global` found');
     }
 
-    if (type === 'prop' && (normalized.toLowerCase() === 'style' || preferAttr(element.tagName, normalized))) {
-      type = 'attr';
-    }
-
-    return { normalized: normalized, type: type };
-  }
-
-  // properties that MUST be set as attributes, due to:
-  // * browser bug
-  // * strange spec outlier
-  var ATTR_OVERRIDES = {
-
-    // phantomjs < 2.0 lets you set it as a prop but won't reflect it
-    // back to the attribute. button.getAttribute('type') === null
-    BUTTON: { type: true, form: true },
-
-    INPUT: {
-      // TODO: remove when IE8 is droped
-      // Some versions of IE (IE8) throw an exception when setting
-      // `input.list = 'somestring'`:
-      // https://github.com/emberjs/ember.js/issues/10908
-      // https://github.com/emberjs/ember.js/issues/11364
-      list: true,
-      // Some version of IE (like IE9) actually throw an exception
-      // if you set input.type = 'something-unknown'
-      type: true,
-      form: true,
-      // Chrome 46.0.2464.0: 'autocorrect' in document.createElement('input') === false
-      // Safari 8.0.7: 'autocorrect' in document.createElement('input') === false
-      // Mobile Safari (iOS 8.4 simulator): 'autocorrect' in document.createElement('input') === true
-      autocorrect: true
-    },
-
-    // element.form is actually a legitimate readOnly property, that is to be
-    // mutated, but must be mutated by setAttribute...
-    SELECT: { form: true },
-    OPTION: { form: true },
-    TEXTAREA: { form: true },
-    LABEL: { form: true },
-    FIELDSET: { form: true },
-    LEGEND: { form: true },
-    OBJECT: { form: true }
-  };
-
-  function preferAttr(tagName, propName) {
-    var tag = ATTR_OVERRIDES[tagName.toUpperCase()];
-    return tag && tag[propName.toLowerCase()] || false;
-  }
+  exports.default = platform;
 });
 enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
   /*globals module, URL*/
@@ -3722,36 +3263,464 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
 
   exports.default = DOMHelper;
 });
-enifed("ember/features", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = {};
-});
-enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
-  // require the main entry points for each of these packages
-  // this is so that the global exports occur properly
+enifed('dom-helper/build-html-dom', ['exports'], function (exports) {
+  /* global XMLSerializer:false */
   'use strict';
 
-  if (_require.has('ember-template-compiler')) {
-    _require.default('ember-template-compiler');
+  var svgHTMLIntegrationPoints = { foreignObject: 1, desc: 1, title: 1 };
+  exports.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;
+  var svgNamespace = 'http://www.w3.org/2000/svg';
+
+  exports.svgNamespace = svgNamespace;
+  var doc = typeof document === 'undefined' ? false : document;
+
+  // Safari does not like using innerHTML on SVG HTML integration
+  // points (desc/title/foreignObject).
+  var needsIntegrationPointFix = doc && (function (document) {
+    if (document.createElementNS === undefined) {
+      return;
+    }
+    // In FF title will not accept innerHTML.
+    var testEl = document.createElementNS(svgNamespace, 'title');
+    testEl.innerHTML = "<div></div>";
+    return testEl.childNodes.length === 0 || testEl.childNodes[0].nodeType !== 1;
+  })(doc);
+
+  // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
+  // is a "zero-scope" element. This problem can be worked around by making
+  // the first node an invisible text node. We, like Modernizr, use &shy;
+  var needsShy = doc && (function (document) {
+    var testEl = document.createElement('div');
+    testEl.innerHTML = "<div></div>";
+    testEl.firstChild.innerHTML = "<script><\/script>";
+    return testEl.firstChild.innerHTML === '';
+  })(doc);
+
+  // IE 8 (and likely earlier) likes to move whitespace preceeding
+  // a script tag to appear after it. This means that we can
+  // accidentally remove whitespace when updating a morph.
+  var movesWhitespace = doc && (function (document) {
+    var testEl = document.createElement('div');
+    testEl.innerHTML = "Test: <script type='text/x-placeholder'><\/script>Value";
+    return testEl.childNodes[0].nodeValue === 'Test:' && testEl.childNodes[2].nodeValue === ' Value';
+  })(doc);
+
+  var tagNamesRequiringInnerHTMLFix = doc && (function (document) {
+    var tagNamesRequiringInnerHTMLFix;
+    // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
+    // html, style, table, tbody, tfoot, thead, title, tr. Detect this and add
+    // them to an initial list of corrected tags.
+    //
+    // Here we are only dealing with the ones which can have child nodes.
+    //
+    var tableNeedsInnerHTMLFix;
+    var tableInnerHTMLTestElement = document.createElement('table');
+    try {
+      tableInnerHTMLTestElement.innerHTML = '<tbody></tbody>';
+    } catch (e) {} finally {
+      tableNeedsInnerHTMLFix = tableInnerHTMLTestElement.childNodes.length === 0;
+    }
+    if (tableNeedsInnerHTMLFix) {
+      tagNamesRequiringInnerHTMLFix = {
+        colgroup: ['table'],
+        table: [],
+        tbody: ['table'],
+        tfoot: ['table'],
+        thead: ['table'],
+        tr: ['table', 'tbody']
+      };
+    }
+
+    // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
+    // add it to the list of corrected tags.
+    //
+    var selectInnerHTMLTestElement = document.createElement('select');
+    selectInnerHTMLTestElement.innerHTML = '<option></option>';
+    if (!selectInnerHTMLTestElement.childNodes[0]) {
+      tagNamesRequiringInnerHTMLFix = tagNamesRequiringInnerHTMLFix || {};
+      tagNamesRequiringInnerHTMLFix.select = [];
+    }
+    return tagNamesRequiringInnerHTMLFix;
+  })(doc);
+
+  function scriptSafeInnerHTML(element, html) {
+    // without a leading text node, IE will drop a leading script tag.
+    html = '&shy;' + html;
+
+    element.innerHTML = html;
+
+    var nodes = element.childNodes;
+
+    // Look for &shy; to remove it.
+    var shyElement = nodes[0];
+    while (shyElement.nodeType === 1 && !shyElement.nodeName) {
+      shyElement = shyElement.firstChild;
+    }
+    // At this point it's the actual unicode character.
+    if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
+      var newValue = shyElement.nodeValue.slice(1);
+      if (newValue.length) {
+        shyElement.nodeValue = shyElement.nodeValue.slice(1);
+      } else {
+        shyElement.parentNode.removeChild(shyElement);
+      }
+    }
+
+    return nodes;
   }
 
-  // do this to ensure that Ember.Test is defined properly on the global
-  // if it is present.
-  if (_require.has('ember-testing')) {
-    _require.default('ember-testing');
+  function buildDOMWithFix(html, contextualElement) {
+    var tagName = contextualElement.tagName;
+
+    // Firefox versions < 11 do not have support for element.outerHTML.
+    var outerHTML = contextualElement.outerHTML || new XMLSerializer().serializeToString(contextualElement);
+    if (!outerHTML) {
+      throw "Can't set innerHTML on " + tagName + " in this browser";
+    }
+
+    html = fixSelect(html, contextualElement);
+
+    var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
+
+    var startTag = outerHTML.match(new RegExp("<" + tagName + "([^>]*)>", 'i'))[0];
+    var endTag = '</' + tagName + '>';
+
+    var wrappedHTML = [startTag, html, endTag];
+
+    var i = wrappingTags.length;
+    var wrappedDepth = 1 + i;
+    while (i--) {
+      wrappedHTML.unshift('<' + wrappingTags[i] + '>');
+      wrappedHTML.push('</' + wrappingTags[i] + '>');
+    }
+
+    var wrapper = document.createElement('div');
+    scriptSafeInnerHTML(wrapper, wrappedHTML.join(''));
+    var element = wrapper;
+    while (wrappedDepth--) {
+      element = element.firstChild;
+      while (element && element.nodeType !== 1) {
+        element = element.nextSibling;
+      }
+    }
+    while (element && element.tagName !== tagName) {
+      element = element.nextSibling;
+    }
+    return element ? element.childNodes : [];
   }
 
-  _emberRuntimeSystemLazy_load.runLoadHooks('Ember');
+  var buildDOM;
+  if (needsShy) {
+    buildDOM = function buildDOM(html, contextualElement, dom) {
+      html = fixSelect(html, contextualElement);
 
-  /**
-  @module ember
-  */
+      contextualElement = dom.cloneNode(contextualElement, false);
+      scriptSafeInnerHTML(contextualElement, html);
+      return contextualElement.childNodes;
+    };
+  } else {
+    buildDOM = function buildDOM(html, contextualElement, dom) {
+      html = fixSelect(html, contextualElement);
+
+      contextualElement = dom.cloneNode(contextualElement, false);
+      contextualElement.innerHTML = html;
+      return contextualElement.childNodes;
+    };
+  }
+
+  function fixSelect(html, contextualElement) {
+    if (contextualElement.tagName === 'SELECT') {
+      html = "<option></option>" + html;
+    }
+
+    return html;
+  }
+
+  var buildIESafeDOM;
+  if (tagNamesRequiringInnerHTMLFix || movesWhitespace) {
+    buildIESafeDOM = function buildIESafeDOM(html, contextualElement, dom) {
+      // Make a list of the leading text on script nodes. Include
+      // script tags without any whitespace for easier processing later.
+      var spacesBefore = [];
+      var spacesAfter = [];
+      if (typeof html === 'string') {
+        html = html.replace(/(\s*)(<script)/g, function (match, spaces, tag) {
+          spacesBefore.push(spaces);
+          return tag;
+        });
+
+        html = html.replace(/(<\/script>)(\s*)/g, function (match, tag, spaces) {
+          spacesAfter.push(spaces);
+          return tag;
+        });
+      }
+
+      // Fetch nodes
+      var nodes;
+      if (tagNamesRequiringInnerHTMLFix[contextualElement.tagName.toLowerCase()]) {
+        // buildDOMWithFix uses string wrappers for problematic innerHTML.
+        nodes = buildDOMWithFix(html, contextualElement);
+      } else {
+        nodes = buildDOM(html, contextualElement, dom);
+      }
+
+      // Build a list of script tags, the nodes themselves will be
+      // mutated as we add test nodes.
+      var i, j, node, nodeScriptNodes;
+      var scriptNodes = [];
+      for (i = 0; i < nodes.length; i++) {
+        node = nodes[i];
+        if (node.nodeType !== 1) {
+          continue;
+        }
+        if (node.tagName === 'SCRIPT') {
+          scriptNodes.push(node);
+        } else {
+          nodeScriptNodes = node.getElementsByTagName('script');
+          for (j = 0; j < nodeScriptNodes.length; j++) {
+            scriptNodes.push(nodeScriptNodes[j]);
+          }
+        }
+      }
+
+      // Walk the script tags and put back their leading text nodes.
+      var scriptNode, textNode, spaceBefore, spaceAfter;
+      for (i = 0; i < scriptNodes.length; i++) {
+        scriptNode = scriptNodes[i];
+        spaceBefore = spacesBefore[i];
+        if (spaceBefore && spaceBefore.length > 0) {
+          textNode = dom.document.createTextNode(spaceBefore);
+          scriptNode.parentNode.insertBefore(textNode, scriptNode);
+        }
+
+        spaceAfter = spacesAfter[i];
+        if (spaceAfter && spaceAfter.length > 0) {
+          textNode = dom.document.createTextNode(spaceAfter);
+          scriptNode.parentNode.insertBefore(textNode, scriptNode.nextSibling);
+        }
+      }
+
+      return nodes;
+    };
+  } else {
+    buildIESafeDOM = buildDOM;
+  }
+
+  var buildHTMLDOM;
+  if (needsIntegrationPointFix) {
+    exports.buildHTMLDOM = buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
+      if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
+        return buildIESafeDOM(html, document.createElement('div'), dom);
+      } else {
+        return buildIESafeDOM(html, contextualElement, dom);
+      }
+    };
+  } else {
+    exports.buildHTMLDOM = buildHTMLDOM = buildIESafeDOM;
+  }
+
+  exports.buildHTMLDOM = buildHTMLDOM;
 });
-enifed("ember/version", ["exports"], function (exports) {
-  "use strict";
+enifed('dom-helper/classes', ['exports'], function (exports) {
+  'use strict';
 
-  exports.default = "2.7.0-beta.3+6f8ef18c";
+  var doc = typeof document === 'undefined' ? false : document;
+
+  // PhantomJS has a broken classList. See https://github.com/ariya/phantomjs/issues/12782
+  var canClassList = doc && (function () {
+    var d = document.createElement('div');
+    if (!d.classList) {
+      return false;
+    }
+    d.classList.add('boo');
+    d.classList.add('boo', 'baz');
+    return d.className === 'boo baz';
+  })();
+
+  function buildClassList(element) {
+    var classString = element.getAttribute('class') || '';
+    return classString !== '' && classString !== ' ' ? classString.split(' ') : [];
+  }
+
+  function intersect(containingArray, valuesArray) {
+    var containingIndex = 0;
+    var containingLength = containingArray.length;
+    var valuesIndex = 0;
+    var valuesLength = valuesArray.length;
+
+    var intersection = new Array(valuesLength);
+
+    // TODO: rewrite this loop in an optimal manner
+    for (; containingIndex < containingLength; containingIndex++) {
+      valuesIndex = 0;
+      for (; valuesIndex < valuesLength; valuesIndex++) {
+        if (valuesArray[valuesIndex] === containingArray[containingIndex]) {
+          intersection[valuesIndex] = containingIndex;
+          break;
+        }
+      }
+    }
+
+    return intersection;
+  }
+
+  function addClassesViaAttribute(element, classNames) {
+    var existingClasses = buildClassList(element);
+
+    var indexes = intersect(existingClasses, classNames);
+    var didChange = false;
+
+    for (var i = 0, l = classNames.length; i < l; i++) {
+      if (indexes[i] === undefined) {
+        didChange = true;
+        existingClasses.push(classNames[i]);
+      }
+    }
+
+    if (didChange) {
+      element.setAttribute('class', existingClasses.length > 0 ? existingClasses.join(' ') : '');
+    }
+  }
+
+  function removeClassesViaAttribute(element, classNames) {
+    var existingClasses = buildClassList(element);
+
+    var indexes = intersect(classNames, existingClasses);
+    var didChange = false;
+    var newClasses = [];
+
+    for (var i = 0, l = existingClasses.length; i < l; i++) {
+      if (indexes[i] === undefined) {
+        newClasses.push(existingClasses[i]);
+      } else {
+        didChange = true;
+      }
+    }
+
+    if (didChange) {
+      element.setAttribute('class', newClasses.length > 0 ? newClasses.join(' ') : '');
+    }
+  }
+
+  var addClasses, removeClasses;
+  if (canClassList) {
+    exports.addClasses = addClasses = function addClasses(element, classNames) {
+      if (element.classList) {
+        if (classNames.length === 1) {
+          element.classList.add(classNames[0]);
+        } else if (classNames.length === 2) {
+          element.classList.add(classNames[0], classNames[1]);
+        } else {
+          element.classList.add.apply(element.classList, classNames);
+        }
+      } else {
+        addClassesViaAttribute(element, classNames);
+      }
+    };
+    exports.removeClasses = removeClasses = function removeClasses(element, classNames) {
+      if (element.classList) {
+        if (classNames.length === 1) {
+          element.classList.remove(classNames[0]);
+        } else if (classNames.length === 2) {
+          element.classList.remove(classNames[0], classNames[1]);
+        } else {
+          element.classList.remove.apply(element.classList, classNames);
+        }
+      } else {
+        removeClassesViaAttribute(element, classNames);
+      }
+    };
+  } else {
+    exports.addClasses = addClasses = addClassesViaAttribute;
+    exports.removeClasses = removeClasses = removeClassesViaAttribute;
+  }
+
+  exports.addClasses = addClasses;
+  exports.removeClasses = removeClasses;
+});
+enifed('dom-helper/prop', ['exports'], function (exports) {
+  'use strict';
+
+  exports.isAttrRemovalValue = isAttrRemovalValue;
+  exports.normalizeProperty = normalizeProperty;
+
+  function isAttrRemovalValue(value) {
+    return value === null || value === undefined;
+  }
+
+  /*
+   *
+   * @method normalizeProperty
+   * @param element {HTMLElement}
+   * @param slotName {String}
+   * @returns {Object} { name, type }
+   */
+
+  function normalizeProperty(element, slotName) {
+    var type, normalized;
+
+    if (slotName in element) {
+      normalized = slotName;
+      type = 'prop';
+    } else {
+      var lower = slotName.toLowerCase();
+      if (lower in element) {
+        type = 'prop';
+        normalized = lower;
+      } else {
+        type = 'attr';
+        normalized = slotName;
+      }
+    }
+
+    if (type === 'prop' && (normalized.toLowerCase() === 'style' || preferAttr(element.tagName, normalized))) {
+      type = 'attr';
+    }
+
+    return { normalized: normalized, type: type };
+  }
+
+  // properties that MUST be set as attributes, due to:
+  // * browser bug
+  // * strange spec outlier
+  var ATTR_OVERRIDES = {
+
+    // phantomjs < 2.0 lets you set it as a prop but won't reflect it
+    // back to the attribute. button.getAttribute('type') === null
+    BUTTON: { type: true, form: true },
+
+    INPUT: {
+      // TODO: remove when IE8 is droped
+      // Some versions of IE (IE8) throw an exception when setting
+      // `input.list = 'somestring'`:
+      // https://github.com/emberjs/ember.js/issues/10908
+      // https://github.com/emberjs/ember.js/issues/11364
+      list: true,
+      // Some version of IE (like IE9) actually throw an exception
+      // if you set input.type = 'something-unknown'
+      type: true,
+      form: true,
+      // Chrome 46.0.2464.0: 'autocorrect' in document.createElement('input') === false
+      // Safari 8.0.7: 'autocorrect' in document.createElement('input') === false
+      // Mobile Safari (iOS 8.4 simulator): 'autocorrect' in document.createElement('input') === true
+      autocorrect: true
+    },
+
+    // element.form is actually a legitimate readOnly property, that is to be
+    // mutated, but must be mutated by setAttribute...
+    SELECT: { form: true },
+    OPTION: { form: true },
+    TEXTAREA: { form: true },
+    LABEL: { form: true },
+    FIELDSET: { form: true },
+    LEGEND: { form: true },
+    OBJECT: { form: true }
+  };
+
+  function preferAttr(tagName, propName) {
+    var tag = ATTR_OVERRIDES[tagName.toUpperCase()];
+    return tag && tag[propName.toLowerCase()] || false;
+  }
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
@@ -7847,6 +7816,457 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
+enifed('ember-htmlbars-template-compiler/index', ['exports', 'ember-htmlbars-template-compiler/system/compile', 'ember-htmlbars-template-compiler/system/precompile', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompile, _emberHtmlbarsTemplateCompilerSystemPrecompile, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
+  'use strict';
+
+  exports.compile = _emberHtmlbarsTemplateCompilerSystemCompile.default;
+  exports.precompile = _emberHtmlbarsTemplateCompilerSystemPrecompile.default;
+  exports.template = _emberHtmlbarsTemplateCompilerSystemTemplate.default;
+  exports.defaultCompileOptions = _emberHtmlbarsTemplateCompilerSystemCompileOptions.default;
+  exports.registerPlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.registerPlugin;
+});
+enifed('ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
+  'use strict';
+
+  function TransformClosureComponentAttrsIntoMut() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
+    var b = this.syntax.builders;
+
+    this.syntax.traverse(ast, {
+      SubExpression: function (node) {
+        if (isComponentClosure(node)) {
+          mutParameters(b, node);
+        }
+      }
+    });
+
+    return ast;
+  };
+
+  function isComponentClosure(node) {
+    return node.type === 'SubExpression' && node.path.original === 'component';
+  }
+
+  function mutParameters(builder, node) {
+    for (var i = 1; i < node.params.length; i++) {
+      if (node.params[i].type === 'PathExpression') {
+        node.params[i] = builder.sexpr(builder.path('@mut'), [node.params[i]]);
+      }
+    }
+
+    each(node.hash.pairs, function (pair) {
+      var value = pair.value;
+
+      if (value.type === 'PathExpression') {
+        pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
+      }
+    });
+  }
+
+  function each(list, callback) {
+    for (var i = 0, l = list.length; i < l; i++) {
+      callback(list[i]);
+    }
+  }
+
+  exports.default = TransformClosureComponentAttrsIntoMut;
+});
+enifed('ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
+  'use strict';
+
+  function TransformComponentAttrsIntoMut() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      each(node.hash.pairs, function (pair) {
+        var value = pair.value;
+
+        if (value.type === 'PathExpression') {
+          pair.value = b.sexpr(b.path('@mut'), [pair.value]);
+        }
+      });
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
+  }
+
+  function each(list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i]);
+    }
+  }
+
+  exports.default = TransformComponentAttrsIntoMut;
+});
+enifed('ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', ['exports'], function (exports) {
+  'use strict';
+
+  function TransformComponentCurlyToReadonly() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      each(node.attributes, function (attr) {
+        if (attr.value.type !== 'MustacheStatement') {
+          return;
+        }
+        if (attr.value.params.length || attr.value.hash.pairs.length) {
+          return;
+        }
+
+        attr.value = b.mustache(b.path('readonly'), [attr.value.path], null, !attr.value.escape);
+      });
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'ComponentNode';
+  }
+
+  function each(list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i]);
+    }
+  }
+
+  exports.default = TransformComponentCurlyToReadonly;
+});
+enifed('ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = TransformOldClassBindingSyntax;
+
+  function TransformOldClassBindingSyntax(options) {
+    this.syntax = null;
+    this.options = options;
+  }
+
+  TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      var allOfTheMicrosyntaxes = [];
+      var allOfTheMicrosyntaxIndexes = [];
+      var classPair = undefined;
+
+      each(node.hash.pairs, function (pair, index) {
+        var key = pair.key;
+
+        if (key === 'classBinding' || key === 'classNameBindings') {
+          allOfTheMicrosyntaxIndexes.push(index);
+          allOfTheMicrosyntaxes.push(pair);
+        } else if (key === 'class') {
+          classPair = pair;
+        }
+      });
+
+      if (allOfTheMicrosyntaxes.length === 0) {
+        return;
+      }
+
+      var classValue = [];
+
+      if (classPair) {
+        classValue.push(classPair.value);
+        classValue.push(b.string(' '));
+      } else {
+        classPair = b.pair('class', null);
+        node.hash.pairs.push(classPair);
+      }
+
+      each(allOfTheMicrosyntaxIndexes, function (index) {
+        node.hash.pairs.splice(index, 1);
+      });
+
+      each(allOfTheMicrosyntaxes, function (_ref) {
+        var value = _ref.value;
+        var loc = _ref.loc;
+
+        var sexprs = [];
+        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
+        // be removed.
+
+        if (value.type === 'StringLiteral') {
+          var microsyntax = parseMicrosyntax(value.original);
+
+          buildSexprs(microsyntax, sexprs, b);
+
+          classValue.push.apply(classValue, sexprs);
+        }
+      });
+
+      var hash = b.hash();
+      classPair.value = b.sexpr(b.string('concat'), classValue, hash);
+    });
+
+    return ast;
+  };
+
+  function buildSexprs(microsyntax, sexprs, b) {
+    for (var i = 0; i < microsyntax.length; i++) {
+      var _microsyntax$i = microsyntax[i];
+      var propName = _microsyntax$i[0];
+      var activeClass = _microsyntax$i[1];
+      var inactiveClass = _microsyntax$i[2];
+
+      var sexpr = undefined;
+
+      // :my-class-name microsyntax for static values
+      if (propName === '') {
+        sexpr = b.string(activeClass);
+      } else {
+        var params = [b.path(propName)];
+
+        if (activeClass) {
+          params.push(b.string(activeClass));
+        } else {
+          var sexprParams = [b.string(propName), b.path(propName)];
+
+          var hash = b.hash();
+          if (activeClass !== undefined) {
+            hash.pairs.push(b.pair('activeClass', b.string(activeClass)));
+          }
+
+          if (inactiveClass !== undefined) {
+            hash.pairs.push(b.pair('inactiveClass', b.string(inactiveClass)));
+          }
+
+          params.push(b.sexpr(b.string('-normalize-class'), sexprParams, hash));
+        }
+
+        if (inactiveClass) {
+          params.push(b.string(inactiveClass));
+        }
+
+        sexpr = b.sexpr(b.string('if'), params);
+      }
+
+      sexprs.push(sexpr);
+      sexprs.push(b.string(' '));
+    }
+  }
+
+  function validate(node) {
+    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
+  }
+
+  function each(list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  }
+
+  function parseMicrosyntax(string) {
+    var segments = string.split(' ');
+
+    for (var i = 0; i < segments.length; i++) {
+      segments[i] = segments[i].split(':');
+    }
+
+    return segments;
+  }
+});
+enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax) {
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  'use strict';
+
+  exports.registerPlugin = registerPlugin;
+  exports.removePlugin = removePlugin;
+
+  var compileOptions = undefined;
+
+  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
+
+  // the following are ember-htmlbars specific
+  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax.default]);
+
+  exports.PLUGINS = PLUGINS;
+  var USER_PLUGINS = [];
+
+  function mergePlugins(options) {
+    options = options || {};
+    options = _emberMetalAssign.default({}, options);
+    if (!options.plugins) {
+      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
+    } else {
+      var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
+      var pluginsToAdd = potententialPugins.filter(function (plugin) {
+        return options.plugins.ast.indexOf(plugin) === -1;
+      });
+
+      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
+    }
+
+    return options;
+  }
+
+  function registerPlugin(type, PluginClass) {
+    if (type !== 'ast') {
+      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid HTMLBars plugin type.');
+    }
+
+    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
+      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
+    }
+  }
+
+  function removePlugin(type, PluginClass) {
+    if (type !== 'ast') {
+      throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
+    }
+
+    USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
+      return plugin !== PluginClass;
+    });
+  }
+
+  /**
+    @private
+    @property compileOptions
+  */
+  compileOptions = function (_options) {
+    var disableComponentGeneration = true;
+
+    var options = undefined;
+    // When calling `Ember.Handlebars.compile()` a second argument of `true`
+    // had a special meaning (long since lost), this just gaurds against
+    // `options` being true, and causing an error during compilation.
+    if (_options === true) {
+      options = {};
+    } else {
+      options = _options || {};
+    }
+
+    options.disableComponentGeneration = disableComponentGeneration;
+
+    options = mergePlugins(options);
+
+    options.buildMeta = function buildMeta(program) {
+      return {
+        revision: 'Ember@' + _emberVersion.default,
+        loc: program.loc,
+        moduleName: options.moduleName
+      };
+    };
+
+    return options;
+  };
+
+  exports.default = compileOptions;
+});
+enifed('ember-htmlbars-template-compiler/system/compile', ['exports', 'require', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _require, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
+  'use strict';
+
+  exports.default = compiler;
+
+  var compile = undefined;
+
+  function compiler(string, options) {
+    if (!compile && _require.has('htmlbars-compiler/compiler')) {
+      compile = _require.default('htmlbars-compiler/compiler').compile;
+    }
+
+    if (!compile) {
+      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+    }
+
+    var templateSpec = compile(string, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
+
+    return _emberHtmlbarsTemplateCompilerSystemTemplate.default(templateSpec);
+  }
+});
+enifed('ember-htmlbars-template-compiler/system/precompile', ['exports', 'ember-htmlbars-template-compiler/system/compile-options', 'require'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompileOptions, _require) {
+  'use strict';
+
+  exports.default = precompile;
+
+  var compileSpec = undefined;
+
+  function precompile(templateString, options) {
+    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
+      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
+    }
+
+    if (!compileSpec) {
+      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
+    }
+
+    return compileSpec(templateString, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
+  }
+});
+enifed('ember-htmlbars-template-compiler/system/template', ['exports', 'require'], function (exports, _require2) {
+  'use strict';
+
+  var _require = _require2.default('htmlbars-runtime/hooks');
+
+  var wrap = _require.wrap;
+
+  var template = function (templateSpec) {
+    if (!templateSpec.render) {
+      templateSpec = wrap(templateSpec);
+    }
+
+    templateSpec.isTop = true;
+    templateSpec.isMethod = false;
+
+    return templateSpec;
+  };
+
+  exports.default = template;
+});
 enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString) {
   'use strict';
 
@@ -9637,6 +10057,41 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 
   exports.default = Helper;
 });
+enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+   @private
+   @property helpers
+  */
+  'use strict';
+
+  exports.registerHelper = registerHelper;
+
+  var helpers = new _emberMetalEmpty_object.default();
+
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+    @private
+    @method _registerHelper
+    @for Ember.HTMLBars
+    @param {String} name
+    @param {Object|Function} helperFunc The helper function to add.
+  */
+
+  function registerHelper(name, helperFunc) {
+    helpers[name] = helperFunc;
+  }
+
+  exports.default = helpers;
+});
 enifed('ember-htmlbars/helpers/-html-safe', ['exports', 'htmlbars-util/safe-string'], function (exports, _htmlbarsUtilSafeString) {
   'use strict';
 
@@ -10226,41 +10681,6 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/streams/should
       options.inverse.yield([]);
     }
   }
-});
-enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-   @private
-   @property helpers
-  */
-  'use strict';
-
-  exports.registerHelper = registerHelper;
-
-  var helpers = new _emberMetalEmpty_object.default();
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    @private
-    @method _registerHelper
-    @for Ember.HTMLBars
-    @param {String} name
-    @param {Object|Function} helperFunc The helper function to add.
-  */
-
-  function registerHelper(name, helperFunc) {
-    helpers[name] = helperFunc;
-  }
-
-  exports.default = helpers;
 });
 enifed('ember-htmlbars/hooks/bind-block', ['exports'], function (exports) {
   'use strict';
@@ -11360,6 +11780,41 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/s
 
 // Importing ember-htmlbars/compat updates the
 // Ember.Handlebars global if htmlbars is enabled.
+enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  'use strict';
+
+  exports.registerKeyword = registerKeyword;
+
+  /**
+   @private
+   @property helpers
+  */
+  var keywords = Object.create(_htmlbarsRuntime.hooks.keywords);
+
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+    @private
+    @method _registerHelper
+    @for Ember.HTMLBars
+    @param {String} name
+    @param {Object|Function} keyword The keyword to add.
+  */
+
+  function registerKeyword(name, keyword) {
+    keywords[name] = keyword;
+  }
+
+  exports.default = keywords;
+});
 enifed('ember-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/hooks', 'ember-htmlbars/keywords/closure-action'], function (exports, _htmlbarsRuntimeHooks, _emberHtmlbarsKeywordsClosureAction) {
   /**
   @module ember
@@ -13916,41 +14371,6 @@ enifed('ember-htmlbars/keywords/yield', ['exports'], function (exports) {
 
     return true;
   }
-});
-enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerKeyword = registerKeyword;
-
-  /**
-   @private
-   @property helpers
-  */
-  var keywords = Object.create(_htmlbarsRuntime.hooks.keywords);
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    @private
-    @method _registerHelper
-    @for Ember.HTMLBars
-    @param {String} name
-    @param {Object|Function} keyword The keyword to add.
-  */
-
-  function registerKeyword(name, keyword) {
-    keywords[name] = keyword;
-  }
-
-  exports.default = keywords;
 });
 enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/debug', 'dom-helper', 'ember-metal/is_none'], function (exports, _emberMetalDebug, _domHelper, _emberMetalIs_none) {
   'use strict';
@@ -17354,457 +17774,6 @@ enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'emb
   exports.CoreOutletView = CoreOutletView;
   var OutletView = CoreOutletView.extend({ tagName: '' });
   exports.OutletView = OutletView;
-});
-enifed('ember-htmlbars-template-compiler/index', ['exports', 'ember-htmlbars-template-compiler/system/compile', 'ember-htmlbars-template-compiler/system/precompile', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompile, _emberHtmlbarsTemplateCompilerSystemPrecompile, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.compile = _emberHtmlbarsTemplateCompilerSystemCompile.default;
-  exports.precompile = _emberHtmlbarsTemplateCompilerSystemPrecompile.default;
-  exports.template = _emberHtmlbarsTemplateCompilerSystemTemplate.default;
-  exports.defaultCompileOptions = _emberHtmlbarsTemplateCompilerSystemCompileOptions.default;
-  exports.registerPlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.registerPlugin;
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
-  'use strict';
-
-  function TransformClosureComponentAttrsIntoMut() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
-    var b = this.syntax.builders;
-
-    this.syntax.traverse(ast, {
-      SubExpression: function (node) {
-        if (isComponentClosure(node)) {
-          mutParameters(b, node);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function isComponentClosure(node) {
-    return node.type === 'SubExpression' && node.path.original === 'component';
-  }
-
-  function mutParameters(builder, node) {
-    for (var i = 1; i < node.params.length; i++) {
-      if (node.params[i].type === 'PathExpression') {
-        node.params[i] = builder.sexpr(builder.path('@mut'), [node.params[i]]);
-      }
-    }
-
-    each(node.hash.pairs, function (pair) {
-      var value = pair.value;
-
-      if (value.type === 'PathExpression') {
-        pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
-      }
-    });
-  }
-
-  function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
-      callback(list[i]);
-    }
-  }
-
-  exports.default = TransformClosureComponentAttrsIntoMut;
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
-  'use strict';
-
-  function TransformComponentAttrsIntoMut() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      each(node.hash.pairs, function (pair) {
-        var value = pair.value;
-
-        if (value.type === 'PathExpression') {
-          pair.value = b.sexpr(b.path('@mut'), [pair.value]);
-        }
-      });
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-
-  function each(list, callback) {
-    for (var i = 0; i < list.length; i++) {
-      callback(list[i]);
-    }
-  }
-
-  exports.default = TransformComponentAttrsIntoMut;
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', ['exports'], function (exports) {
-  'use strict';
-
-  function TransformComponentCurlyToReadonly() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      each(node.attributes, function (attr) {
-        if (attr.value.type !== 'MustacheStatement') {
-          return;
-        }
-        if (attr.value.params.length || attr.value.hash.pairs.length) {
-          return;
-        }
-
-        attr.value = b.mustache(b.path('readonly'), [attr.value.path], null, !attr.value.escape);
-      });
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'ComponentNode';
-  }
-
-  function each(list, callback) {
-    for (var i = 0; i < list.length; i++) {
-      callback(list[i]);
-    }
-  }
-
-  exports.default = TransformComponentCurlyToReadonly;
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformOldClassBindingSyntax;
-
-  function TransformOldClassBindingSyntax(options) {
-    this.syntax = null;
-    this.options = options;
-  }
-
-  TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      var allOfTheMicrosyntaxes = [];
-      var allOfTheMicrosyntaxIndexes = [];
-      var classPair = undefined;
-
-      each(node.hash.pairs, function (pair, index) {
-        var key = pair.key;
-
-        if (key === 'classBinding' || key === 'classNameBindings') {
-          allOfTheMicrosyntaxIndexes.push(index);
-          allOfTheMicrosyntaxes.push(pair);
-        } else if (key === 'class') {
-          classPair = pair;
-        }
-      });
-
-      if (allOfTheMicrosyntaxes.length === 0) {
-        return;
-      }
-
-      var classValue = [];
-
-      if (classPair) {
-        classValue.push(classPair.value);
-        classValue.push(b.string(' '));
-      } else {
-        classPair = b.pair('class', null);
-        node.hash.pairs.push(classPair);
-      }
-
-      each(allOfTheMicrosyntaxIndexes, function (index) {
-        node.hash.pairs.splice(index, 1);
-      });
-
-      each(allOfTheMicrosyntaxes, function (_ref) {
-        var value = _ref.value;
-        var loc = _ref.loc;
-
-        var sexprs = [];
-        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
-        // be removed.
-
-        if (value.type === 'StringLiteral') {
-          var microsyntax = parseMicrosyntax(value.original);
-
-          buildSexprs(microsyntax, sexprs, b);
-
-          classValue.push.apply(classValue, sexprs);
-        }
-      });
-
-      var hash = b.hash();
-      classPair.value = b.sexpr(b.string('concat'), classValue, hash);
-    });
-
-    return ast;
-  };
-
-  function buildSexprs(microsyntax, sexprs, b) {
-    for (var i = 0; i < microsyntax.length; i++) {
-      var _microsyntax$i = microsyntax[i];
-      var propName = _microsyntax$i[0];
-      var activeClass = _microsyntax$i[1];
-      var inactiveClass = _microsyntax$i[2];
-
-      var sexpr = undefined;
-
-      // :my-class-name microsyntax for static values
-      if (propName === '') {
-        sexpr = b.string(activeClass);
-      } else {
-        var params = [b.path(propName)];
-
-        if (activeClass) {
-          params.push(b.string(activeClass));
-        } else {
-          var sexprParams = [b.string(propName), b.path(propName)];
-
-          var hash = b.hash();
-          if (activeClass !== undefined) {
-            hash.pairs.push(b.pair('activeClass', b.string(activeClass)));
-          }
-
-          if (inactiveClass !== undefined) {
-            hash.pairs.push(b.pair('inactiveClass', b.string(inactiveClass)));
-          }
-
-          params.push(b.sexpr(b.string('-normalize-class'), sexprParams, hash));
-        }
-
-        if (inactiveClass) {
-          params.push(b.string(inactiveClass));
-        }
-
-        sexpr = b.sexpr(b.string('if'), params);
-      }
-
-      sexprs.push(sexpr);
-      sexprs.push(b.string(' '));
-    }
-  }
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-
-  function each(list, callback) {
-    for (var i = 0; i < list.length; i++) {
-      callback(list[i], i);
-    }
-  }
-
-  function parseMicrosyntax(string) {
-    var segments = string.split(' ');
-
-    for (var i = 0; i < segments.length; i++) {
-      segments[i] = segments[i].split(':');
-    }
-
-    return segments;
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-htmlbars-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerPlugin = registerPlugin;
-  exports.removePlugin = removePlugin;
-
-  var compileOptions = undefined;
-
-  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
-
-  // the following are ember-htmlbars specific
-  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default, _emberHtmlbarsTemplateCompilerPluginsTransformOldClassBindingSyntax.default]);
-
-  exports.PLUGINS = PLUGINS;
-  var USER_PLUGINS = [];
-
-  function mergePlugins(options) {
-    options = options || {};
-    options = _emberMetalAssign.default({}, options);
-    if (!options.plugins) {
-      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
-    } else {
-      var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
-      var pluginsToAdd = potententialPugins.filter(function (plugin) {
-        return options.plugins.ast.indexOf(plugin) === -1;
-      });
-
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
-    }
-
-    return options;
-  }
-
-  function registerPlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid HTMLBars plugin type.');
-    }
-
-    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
-      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
-    }
-  }
-
-  function removePlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
-    }
-
-    USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
-    });
-  }
-
-  /**
-    @private
-    @property compileOptions
-  */
-  compileOptions = function (_options) {
-    var disableComponentGeneration = true;
-
-    var options = undefined;
-    // When calling `Ember.Handlebars.compile()` a second argument of `true`
-    // had a special meaning (long since lost), this just gaurds against
-    // `options` being true, and causing an error during compilation.
-    if (_options === true) {
-      options = {};
-    } else {
-      options = _options || {};
-    }
-
-    options.disableComponentGeneration = disableComponentGeneration;
-
-    options = mergePlugins(options);
-
-    options.buildMeta = function buildMeta(program) {
-      return {
-        revision: 'Ember@' + _emberVersion.default,
-        loc: program.loc,
-        moduleName: options.moduleName
-      };
-    };
-
-    return options;
-  };
-
-  exports.default = compileOptions;
-});
-enifed('ember-htmlbars-template-compiler/system/compile', ['exports', 'require', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _require, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.default = compiler;
-
-  var compile = undefined;
-
-  function compiler(string, options) {
-    if (!compile && _require.has('htmlbars-compiler/compiler')) {
-      compile = _require.default('htmlbars-compiler/compiler').compile;
-    }
-
-    if (!compile) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    var templateSpec = compile(string, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
-
-    return _emberHtmlbarsTemplateCompilerSystemTemplate.default(templateSpec);
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/precompile', ['exports', 'ember-htmlbars-template-compiler/system/compile-options', 'require'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompileOptions, _require) {
-  'use strict';
-
-  exports.default = precompile;
-
-  var compileSpec = undefined;
-
-  function precompile(templateString, options) {
-    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
-      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
-    }
-
-    if (!compileSpec) {
-      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-    }
-
-    return compileSpec(templateString, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/template', ['exports', 'require'], function (exports, _require2) {
-  'use strict';
-
-  var _require = _require2.default('htmlbars-runtime/hooks');
-
-  var wrap = _require.wrap;
-
-  var template = function (templateSpec) {
-    if (!templateSpec.render) {
-      templateSpec = wrap(templateSpec);
-    }
-
-    templateSpec.isTop = true;
-    templateSpec.isMethod = false;
-
-    return templateSpec;
-  };
-
-  exports.default = template;
 });
 enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalUtils, _emberMetalMeta, _emberMetalDependent_keys) {
   'use strict';
@@ -39942,6 +39911,25 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
+enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compiler'], function (exports, _emberMetalCore, _emberTemplateCompilerCompiler) {
+  'use strict';
+
+  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
+  var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
+
+  var _compiler = _emberTemplateCompilerCompiler.default();
+
+  var precompile = _compiler.precompile;
+  var compile = _compiler.compile;
+  var template = _compiler.template;
+  var registerPlugin = _compiler.registerPlugin;
+
+  EmberHTMLBars.precompile = EmberHandlebars.precompile = precompile;
+  EmberHTMLBars.compile = EmberHandlebars.compile = compile;
+  EmberHTMLBars.template = EmberHandlebars.template = template;
+  EmberHTMLBars.registerPlugin = registerPlugin;
+});
+// reexports
 enifed('ember-template-compiler/compat/precompile', ['exports', 'require', 'ember-metal/features'], function (exports, _require, _emberMetalFeatures) {
   /**
   @module ember
@@ -39976,25 +39964,6 @@ enifed('ember-template-compiler/compat/precompile', ['exports', 'require', 'embe
     return compileFunc(string, compileOptions());
   };
 });
-enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compiler'], function (exports, _emberMetalCore, _emberTemplateCompilerCompiler) {
-  'use strict';
-
-  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-  var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
-
-  var _compiler = _emberTemplateCompilerCompiler.default();
-
-  var precompile = _compiler.precompile;
-  var compile = _compiler.compile;
-  var template = _compiler.template;
-  var registerPlugin = _compiler.registerPlugin;
-
-  EmberHTMLBars.precompile = EmberHandlebars.precompile = precompile;
-  EmberHTMLBars.compile = EmberHandlebars.compile = compile;
-  EmberHTMLBars.template = EmberHandlebars.template = template;
-  EmberHTMLBars.registerPlugin = registerPlugin;
-});
-// reexports
 enifed('ember-template-compiler/compiler', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
 
@@ -41239,253 +41208,6 @@ enifed('ember-testing/ext/rsvp', ['exports', 'ember-runtime/ext/rsvp', 'ember-me
 
   exports.default = _emberRuntimeExtRsvp.default;
 });
-enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = andThen;
-
-  function andThen(app, callback) {
-    return app.testHelpers.wait(callback(app));
-  }
-});
-enifed('ember-testing/helpers/click', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
-  'use strict';
-
-  exports.default = click;
-
-  function click(app, selector, context) {
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var el = $el[0];
-
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mousedown');
-
-    _emberTestingEvents.focus(el);
-
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mouseup');
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'click');
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = currentPath;
-
-  function currentPath(app) {
-    var routingService = app.__container__.lookup('service:-routing');
-    return _emberMetalProperty_get.get(routingService, 'currentPath');
-  }
-});
-enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = currentRouteName;
-
-  function currentRouteName(app) {
-    var routingService = app.__container__.lookup('service:-routing');
-    return _emberMetalProperty_get.get(routingService, 'currentRouteName');
-  }
-});
-enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = currentURL;
-
-  function currentURL(app) {
-    var router = app.__container__.lookup('router:main');
-    return _emberMetalProperty_get.get(router, 'location').getURL();
-  }
-});
-enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
-  'use strict';
-
-  exports.default = fillIn;
-
-  function fillIn(app, selector, contextOrText, text) {
-    var $el, el, context;
-    if (typeof text === 'undefined') {
-      text = contextOrText;
-    } else {
-      context = contextOrText;
-    }
-    $el = app.testHelpers.findWithAssert(selector, context);
-    el = $el[0];
-    _emberTestingEvents.focus(el);
-    _emberMetalRun_loop.default(function () {
-      $el.val(text);
-      _emberTestingEvents.fireEvent(el, 'input');
-      _emberTestingEvents.fireEvent(el, 'change');
-    });
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/find', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  exports.default = find;
-
-  function find(app, selector, context) {
-    var $el = undefined;
-    context = context || _emberMetalProperty_get.get(app, 'rootElement');
-    $el = app.$(selector, context);
-    return $el;
-  }
-});
-enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = findWithAssert;
-
-  function findWithAssert(app, selector, context) {
-    var $el = app.testHelpers.find(selector, context);
-    if ($el.length === 0) {
-      throw new Error('Element ' + selector + ' not found.');
-    }
-    return $el;
-  }
-});
-enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = keyEvent;
-
-  function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
-    var context, type;
-
-    if (typeof keyCode === 'undefined') {
-      context = null;
-      keyCode = typeOrKeyCode;
-      type = contextOrType;
-    } else {
-      context = contextOrType;
-      type = typeOrKeyCode;
-    }
-
-    return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
-  }
-});
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
-  'use strict';
-
-  exports.default = pauseTest;
-
-  function pauseTest() {
-    return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
-  }
-});
-enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
-  'use strict';
-
-  exports.default = triggerEvent;
-
-  function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
-    var arity = arguments.length;
-    var context, type, options;
-
-    if (arity === 3) {
-      // context and options are optional, so this is
-      // app, selector, type
-      context = null;
-      type = contextOrType;
-      options = {};
-    } else if (arity === 4) {
-      // context and options are optional, so this is
-      if (typeof typeOrOptions === 'object') {
-        // either
-        // app, selector, type, options
-        context = null;
-        type = contextOrType;
-        options = typeOrOptions;
-      } else {
-        // or
-        // app, selector, context, type
-        context = contextOrType;
-        type = typeOrOptions;
-        options = {};
-      }
-    } else {
-      context = contextOrType;
-      type = typeOrOptions;
-      options = possibleOptions;
-    }
-
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var el = $el[0];
-
-    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, type, options);
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/visit', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
-  'use strict';
-
-  exports.default = visit;
-
-  function visit(app, url) {
-    var router = app.__container__.lookup('router:main');
-    var shouldHandleURL = false;
-
-    app.boot().then(function () {
-      router.location.setURL(url);
-
-      if (shouldHandleURL) {
-        _emberMetalRun_loop.default(app.__deprecatedInstance__, 'handleURL', url);
-      }
-    });
-
-    if (app._readinessDeferrals > 0) {
-      router['initialURL'] = url;
-      _emberMetalRun_loop.default(app, 'advanceReadiness');
-      delete router['initialURL'];
-    } else {
-      shouldHandleURL = true;
-    }
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', 'ember-runtime/ext/rsvp', 'ember-metal/run_loop', 'ember-testing/test/pending_requests'], function (exports, _emberTestingTestWaiters, _emberRuntimeExtRsvp, _emberMetalRun_loop, _emberTestingTestPending_requests) {
-  'use strict';
-
-  exports.default = wait;
-
-  function wait(app, value) {
-    return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
-      var router = app.__container__.lookup('router:main');
-
-      // Every 10ms, poll for the async thing to have finished
-      var watcher = setInterval(function () {
-        // 1. If the router is loading, keep polling
-        var routerIsLoading = router.router && !!router.router.activeTransition;
-        if (routerIsLoading) {
-          return;
-        }
-
-        // 2. If there are pending Ajax requests, keep polling
-        if (_emberTestingTestPending_requests.pendingRequests()) {
-          return;
-        }
-
-        // 3. If there are scheduled timers or we are inside of a run loop, keep polling
-        if (_emberMetalRun_loop.default.hasScheduledTimers() || _emberMetalRun_loop.default.currentRunLoop) {
-          return;
-        }
-
-        if (_emberTestingTestWaiters.checkWaiters()) {
-          return;
-        }
-
-        // Stop polling
-        clearInterval(watcher);
-
-        // Synchronously resolve the promise
-        _emberMetalRun_loop.default(null, resolve, value);
-      }, 10);
-    });
-  }
-});
 enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait'], function (exports, _emberTestingTestHelpers, _emberTestingHelpersAnd_then, _emberTestingHelpersClick, _emberTestingHelpersCurrent_path, _emberTestingHelpersCurrent_route_name, _emberTestingHelpersCurrent_url, _emberTestingHelpersFill_in, _emberTestingHelpersFind, _emberTestingHelpersFind_with_assert, _emberTestingHelpersKey_event, _emberTestingHelpersPause_test, _emberTestingHelpersTrigger_event, _emberTestingHelpersVisit, _emberTestingHelpersWait) {
   'use strict';
 
@@ -41743,6 +41465,253 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
   */
   _emberTestingTestHelpers.registerAsyncHelper('triggerEvent', _emberTestingHelpersTrigger_event.default);
 });
+enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = andThen;
+
+  function andThen(app, callback) {
+    return app.testHelpers.wait(callback(app));
+  }
+});
+enifed('ember-testing/helpers/click', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = click;
+
+  function click(app, selector, context) {
+    var $el = app.testHelpers.findWithAssert(selector, context);
+    var el = $el[0];
+
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mousedown');
+
+    _emberTestingEvents.focus(el);
+
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mouseup');
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'click');
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentPath;
+
+  function currentPath(app) {
+    var routingService = app.__container__.lookup('service:-routing');
+    return _emberMetalProperty_get.get(routingService, 'currentPath');
+  }
+});
+enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentRouteName;
+
+  function currentRouteName(app) {
+    var routingService = app.__container__.lookup('service:-routing');
+    return _emberMetalProperty_get.get(routingService, 'currentRouteName');
+  }
+});
+enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentURL;
+
+  function currentURL(app) {
+    var router = app.__container__.lookup('router:main');
+    return _emberMetalProperty_get.get(router, 'location').getURL();
+  }
+});
+enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = fillIn;
+
+  function fillIn(app, selector, contextOrText, text) {
+    var $el, el, context;
+    if (typeof text === 'undefined') {
+      text = contextOrText;
+    } else {
+      context = contextOrText;
+    }
+    $el = app.testHelpers.findWithAssert(selector, context);
+    el = $el[0];
+    _emberTestingEvents.focus(el);
+    _emberMetalRun_loop.default(function () {
+      $el.val(text);
+      _emberTestingEvents.fireEvent(el, 'input');
+      _emberTestingEvents.fireEvent(el, 'change');
+    });
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/find', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = find;
+
+  function find(app, selector, context) {
+    var $el = undefined;
+    context = context || _emberMetalProperty_get.get(app, 'rootElement');
+    $el = app.$(selector, context);
+    return $el;
+  }
+});
+enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = findWithAssert;
+
+  function findWithAssert(app, selector, context) {
+    var $el = app.testHelpers.find(selector, context);
+    if ($el.length === 0) {
+      throw new Error('Element ' + selector + ' not found.');
+    }
+    return $el;
+  }
+});
+enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = keyEvent;
+
+  function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
+    var context, type;
+
+    if (typeof keyCode === 'undefined') {
+      context = null;
+      keyCode = typeOrKeyCode;
+      type = contextOrType;
+    } else {
+      context = contextOrType;
+      type = typeOrKeyCode;
+    }
+
+    return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
+  }
+});
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
+  'use strict';
+
+  exports.default = pauseTest;
+
+  function pauseTest() {
+    return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
+  }
+});
+enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = triggerEvent;
+
+  function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
+    var arity = arguments.length;
+    var context, type, options;
+
+    if (arity === 3) {
+      // context and options are optional, so this is
+      // app, selector, type
+      context = null;
+      type = contextOrType;
+      options = {};
+    } else if (arity === 4) {
+      // context and options are optional, so this is
+      if (typeof typeOrOptions === 'object') {
+        // either
+        // app, selector, type, options
+        context = null;
+        type = contextOrType;
+        options = typeOrOptions;
+      } else {
+        // or
+        // app, selector, context, type
+        context = contextOrType;
+        type = typeOrOptions;
+        options = {};
+      }
+    } else {
+      context = contextOrType;
+      type = typeOrOptions;
+      options = possibleOptions;
+    }
+
+    var $el = app.testHelpers.findWithAssert(selector, context);
+    var el = $el[0];
+
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, type, options);
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/visit', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
+  'use strict';
+
+  exports.default = visit;
+
+  function visit(app, url) {
+    var router = app.__container__.lookup('router:main');
+    var shouldHandleURL = false;
+
+    app.boot().then(function () {
+      router.location.setURL(url);
+
+      if (shouldHandleURL) {
+        _emberMetalRun_loop.default(app.__deprecatedInstance__, 'handleURL', url);
+      }
+    });
+
+    if (app._readinessDeferrals > 0) {
+      router['initialURL'] = url;
+      _emberMetalRun_loop.default(app, 'advanceReadiness');
+      delete router['initialURL'];
+    } else {
+      shouldHandleURL = true;
+    }
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', 'ember-runtime/ext/rsvp', 'ember-metal/run_loop', 'ember-testing/test/pending_requests'], function (exports, _emberTestingTestWaiters, _emberRuntimeExtRsvp, _emberMetalRun_loop, _emberTestingTestPending_requests) {
+  'use strict';
+
+  exports.default = wait;
+
+  function wait(app, value) {
+    return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+      var router = app.__container__.lookup('router:main');
+
+      // Every 10ms, poll for the async thing to have finished
+      var watcher = setInterval(function () {
+        // 1. If the router is loading, keep polling
+        var routerIsLoading = router.router && !!router.router.activeTransition;
+        if (routerIsLoading) {
+          return;
+        }
+
+        // 2. If there are pending Ajax requests, keep polling
+        if (_emberTestingTestPending_requests.pendingRequests()) {
+          return;
+        }
+
+        // 3. If there are scheduled timers or we are inside of a run loop, keep polling
+        if (_emberMetalRun_loop.default.hasScheduledTimers() || _emberMetalRun_loop.default.currentRunLoop) {
+          return;
+        }
+
+        if (_emberTestingTestWaiters.checkWaiters()) {
+          return;
+        }
+
+        // Stop polling
+        clearInterval(watcher);
+
+        // Synchronously resolve the promise
+        _emberMetalRun_loop.default(null, resolve, value);
+      }, 10);
+    });
+  }
+});
 enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'require', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers'], function (exports, _emberMetalCore, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _require, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers) {
   'use strict';
 
@@ -41872,6 +41841,80 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
       });
     });
   }
+});
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
+  /**
+    @module ember
+    @submodule ember-testing
+  */
+  'use strict';
+
+  /**
+    This is a container for an assortment of testing related functionality:
+  
+    * Choose your default test adapter (for your framework of choice).
+    * Register/Unregister additional test helpers.
+    * Setup callbacks to be fired when the test helpers are injected into
+      your application.
+  
+    @class Test
+    @namespace Ember
+    @public
+  */
+  var Test = {
+    /**
+      Hash containing all known test helpers.
+       @property _helpers
+      @private
+      @since 1.7.0
+    */
+    _helpers: _emberTestingTestHelpers.helpers,
+
+    registerHelper: _emberTestingTestHelpers.registerHelper,
+    registerAsyncHelper: _emberTestingTestHelpers.registerAsyncHelper,
+    unregisterHelper: _emberTestingTestHelpers.unregisterHelper,
+    onInjectHelpers: _emberTestingTestOn_inject_helpers.onInjectHelpers,
+    Promise: _emberTestingTestPromise.default,
+    promise: _emberTestingTestPromise.promise,
+    resolve: _emberTestingTestPromise.resolve,
+    registerWaiter: _emberTestingTestWaiters.registerWaiter,
+    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
+  };
+
+  if (false) {
+    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
+  }
+
+  /**
+   Used to allow ember-testing to communicate with a specific testing
+   framework.
+  
+   You can manually set it before calling `App.setupForTesting()`.
+  
+   Example:
+  
+   ```javascript
+   Ember.Test.adapter = MyCustomAdapter.create()
+   ```
+  
+   If you do not set it, ember-testing will default to `Ember.Test.QUnitAdapter`.
+  
+   @public
+   @for Ember.Test
+   @property adapter
+   @type {Class} The adapter to be used.
+   @default Ember.Test.QUnitAdapter
+  */
+  Object.defineProperty(Test, 'adapter', {
+    get: _emberTestingTestAdapter.getAdapter,
+    set: _emberTestingTestAdapter.setAdapter
+  });
+
+  Object.defineProperty(Test, 'waiters', {
+    get: _emberTestingTestWaiters.generateDeprecatedWaitersArray
+  });
+
+  exports.default = Test;
 });
 enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal/error_handler'], function (exports, _emberConsole, _emberMetalError_handler) {
   'use strict';
@@ -42364,80 +42407,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-
 
     return array;
   }
-});
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
-  /**
-    @module ember
-    @submodule ember-testing
-  */
-  'use strict';
-
-  /**
-    This is a container for an assortment of testing related functionality:
-  
-    * Choose your default test adapter (for your framework of choice).
-    * Register/Unregister additional test helpers.
-    * Setup callbacks to be fired when the test helpers are injected into
-      your application.
-  
-    @class Test
-    @namespace Ember
-    @public
-  */
-  var Test = {
-    /**
-      Hash containing all known test helpers.
-       @property _helpers
-      @private
-      @since 1.7.0
-    */
-    _helpers: _emberTestingTestHelpers.helpers,
-
-    registerHelper: _emberTestingTestHelpers.registerHelper,
-    registerAsyncHelper: _emberTestingTestHelpers.registerAsyncHelper,
-    unregisterHelper: _emberTestingTestHelpers.unregisterHelper,
-    onInjectHelpers: _emberTestingTestOn_inject_helpers.onInjectHelpers,
-    Promise: _emberTestingTestPromise.default,
-    promise: _emberTestingTestPromise.promise,
-    resolve: _emberTestingTestPromise.resolve,
-    registerWaiter: _emberTestingTestWaiters.registerWaiter,
-    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
-  };
-
-  if (false) {
-    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
-  }
-
-  /**
-   Used to allow ember-testing to communicate with a specific testing
-   framework.
-  
-   You can manually set it before calling `App.setupForTesting()`.
-  
-   Example:
-  
-   ```javascript
-   Ember.Test.adapter = MyCustomAdapter.create()
-   ```
-  
-   If you do not set it, ember-testing will default to `Ember.Test.QUnitAdapter`.
-  
-   @public
-   @for Ember.Test
-   @property adapter
-   @type {Class} The adapter to be used.
-   @default Ember.Test.QUnitAdapter
-  */
-  Object.defineProperty(Test, 'adapter', {
-    get: _emberTestingTestAdapter.getAdapter,
-    set: _emberTestingTestAdapter.setAdapter
-  });
-
-  Object.defineProperty(Test, 'waiters', {
-    get: _emberTestingTestWaiters.generateDeprecatedWaitersArray
-  });
-
-  exports.default = Test;
 });
 enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember-metal/symbol', 'ember-metal/property_events'], function (exports, _emberMetalMixin, _emberMetalSymbol, _emberMetalProperty_events) {
   'use strict';
@@ -44836,6 +44805,39 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/debug', 'ember-me
 
   exports.default = CoreView;
 });
+enifed('ember-views/views/states', ['exports', 'ember-metal/assign', 'ember-views/views/states/default', 'ember-views/views/states/pre_render', 'ember-views/views/states/has_element', 'ember-views/views/states/in_dom', 'ember-views/views/states/destroying'], function (exports, _emberMetalAssign, _emberViewsViewsStatesDefault, _emberViewsViewsStatesPre_render, _emberViewsViewsStatesHas_element, _emberViewsViewsStatesIn_dom, _emberViewsViewsStatesDestroying) {
+  'use strict';
+
+  exports.cloneStates = cloneStates;
+
+  function cloneStates(from) {
+    var into = {};
+
+    into._default = {};
+    into.preRender = Object.create(into._default);
+    into.destroying = Object.create(into._default);
+    into.hasElement = Object.create(into._default);
+    into.inDOM = Object.create(into.hasElement);
+
+    for (var stateName in from) {
+      if (!from.hasOwnProperty(stateName)) {
+        continue;
+      }
+      _emberMetalAssign.default(into[stateName], from[stateName]);
+    }
+
+    return into;
+  }
+
+  var states = {
+    _default: _emberViewsViewsStatesDefault.default,
+    preRender: _emberViewsViewsStatesPre_render.default,
+    inDOM: _emberViewsViewsStatesIn_dom.default,
+    hasElement: _emberViewsViewsStatesHas_element.default,
+    destroying: _emberViewsViewsStatesDestroying.default
+  };
+  exports.states = states;
+});
 enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'ember-metal/property_get', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalError, _emberMetalProperty_get, _emberViewsCompatAttrsProxy) {
   'use strict';
 
@@ -45019,39 +45021,6 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
   });
 
   exports.default = preRender;
-});
-enifed('ember-views/views/states', ['exports', 'ember-metal/assign', 'ember-views/views/states/default', 'ember-views/views/states/pre_render', 'ember-views/views/states/has_element', 'ember-views/views/states/in_dom', 'ember-views/views/states/destroying'], function (exports, _emberMetalAssign, _emberViewsViewsStatesDefault, _emberViewsViewsStatesPre_render, _emberViewsViewsStatesHas_element, _emberViewsViewsStatesIn_dom, _emberViewsViewsStatesDestroying) {
-  'use strict';
-
-  exports.cloneStates = cloneStates;
-
-  function cloneStates(from) {
-    var into = {};
-
-    into._default = {};
-    into.preRender = Object.create(into._default);
-    into.destroying = Object.create(into._default);
-    into.hasElement = Object.create(into._default);
-    into.inDOM = Object.create(into.hasElement);
-
-    for (var stateName in from) {
-      if (!from.hasOwnProperty(stateName)) {
-        continue;
-      }
-      _emberMetalAssign.default(into[stateName], from[stateName]);
-    }
-
-    return into;
-  }
-
-  var states = {
-    _default: _emberViewsViewsStatesDefault.default,
-    preRender: _emberViewsViewsStatesPre_render.default,
-    inDOM: _emberViewsViewsStatesIn_dom.default,
-    hasElement: _emberViewsViewsStatesHas_element.default,
-    destroying: _emberViewsViewsStatesDestroying.default
-  };
-  exports.states = states;
 });
 enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/legacy_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsLegacy_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
   'use strict';
@@ -45755,6 +45724,55 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
   exports.ClassNamesSupport = _emberViewsMixinsClass_names_support.default;
 });
 // for the side effect of extending Ember.run.queues
+enifed("ember/features", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = {};
+});
+enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
+  // require the main entry points for each of these packages
+  // this is so that the global exports occur properly
+  'use strict';
+
+  if (_require.has('ember-template-compiler')) {
+    _require.default('ember-template-compiler');
+  }
+
+  // do this to ensure that Ember.Test is defined properly on the global
+  // if it is present.
+  if (_require.has('ember-testing')) {
+    _require.default('ember-testing');
+  }
+
+  _emberRuntimeSystemLazy_load.runLoadHooks('Ember');
+
+  /**
+  @module ember
+  */
+});
+enifed("ember/version", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = "2.7.0-beta.4";
+});
+enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
+  'use strict';
+
+  var internal = {
+    blockFor: _htmlbarsUtilTemplateUtils.blockFor,
+    manualElement: _htmlbarsRuntimeRender.manualElement,
+    hostBlock: _htmlbarsRuntimeHooks.hostBlock,
+    continueBlock: _htmlbarsRuntimeHooks.continueBlock,
+    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks.hostYieldWithShadowTemplate,
+    visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
+    validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
+    clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
+  };
+
+  exports.hooks = _htmlbarsRuntimeHooks.default;
+  exports.render = _htmlbarsRuntimeRender.default;
+  exports.internal = internal;
+});
 enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
   /**
     # Expression Nodes:
@@ -47623,23 +47641,15 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "html
     return fragment;
   }
 });
-enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
+enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/handlebars/utils', 'htmlbars-util/namespaces', 'htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
   'use strict';
 
-  var internal = {
-    blockFor: _htmlbarsUtilTemplateUtils.blockFor,
-    manualElement: _htmlbarsRuntimeRender.manualElement,
-    hostBlock: _htmlbarsRuntimeHooks.hostBlock,
-    continueBlock: _htmlbarsRuntimeHooks.continueBlock,
-    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks.hostYieldWithShadowTemplate,
-    visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
-    validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
-    clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
-  };
-
-  exports.hooks = _htmlbarsRuntimeHooks.default;
-  exports.render = _htmlbarsRuntimeRender.default;
-  exports.internal = internal;
+  exports.SafeString = _htmlbarsUtilSafeString.default;
+  exports.escapeExpression = _htmlbarsUtilHandlebarsUtils.escapeExpression;
+  exports.getAttrNamespace = _htmlbarsUtilNamespaces.getAttrNamespace;
+  exports.validateChildMorphs = _htmlbarsUtilMorphUtils.validateChildMorphs;
+  exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
+  exports.dump = _htmlbarsUtilMorphUtils.dump;
 });
 enifed('htmlbars-util/array-utils', ['exports'], function (exports) {
   'use strict';
@@ -48275,80 +48285,6 @@ enifed("htmlbars-util/void-tag-names", ["exports", "htmlbars-util/array-utils"],
 
   exports.default = voidMap;
 });
-enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/handlebars/utils', 'htmlbars-util/namespaces', 'htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
-  'use strict';
-
-  exports.SafeString = _htmlbarsUtilSafeString.default;
-  exports.escapeExpression = _htmlbarsUtilHandlebarsUtils.escapeExpression;
-  exports.getAttrNamespace = _htmlbarsUtilNamespaces.getAttrNamespace;
-  exports.validateChildMorphs = _htmlbarsUtilMorphUtils.validateChildMorphs;
-  exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
-  exports.dump = _htmlbarsUtilMorphUtils.dump;
-});
-enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
-  /* jshint scripturl:true */
-
-  'use strict';
-
-  exports.sanitizeAttributeValue = sanitizeAttributeValue;
-  var badProtocols = {
-    'javascript:': true,
-    'vbscript:': true
-  };
-
-  var badTags = {
-    'A': true,
-    'BODY': true,
-    'LINK': true,
-    'IMG': true,
-    'IFRAME': true,
-    'BASE': true,
-    'FORM': true
-  };
-
-  var badTagsForDataURI = {
-    'EMBED': true
-  };
-
-  var badAttributes = {
-    'href': true,
-    'src': true,
-    'background': true,
-    'action': true
-  };
-
-  exports.badAttributes = badAttributes;
-  var badAttributesForDataURI = {
-    'src': true
-  };
-
-  function sanitizeAttributeValue(dom, element, attribute, value) {
-    var tagName;
-
-    if (!element) {
-      tagName = null;
-    } else {
-      tagName = element.tagName.toUpperCase();
-    }
-
-    if (value && value.toHTML) {
-      return value.toHTML();
-    }
-
-    if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
-      var protocol = dom.protocolForURL(value);
-      if (badProtocols[protocol] === true) {
-        return 'unsafe:' + value;
-      }
-    }
-
-    if (badTagsForDataURI[tagName] && badAttributesForDataURI[attribute]) {
-      return 'unsafe:' + value;
-    }
-
-    return value;
-  }
-});
 enifed("morph-attr", ["exports", "morph-attr/sanitize-attribute-value", "dom-helper/prop", "dom-helper/build-html-dom", "htmlbars-util"], function (exports, _morphAttrSanitizeAttributeValue, _domHelperProp, _domHelperBuildHtmlDom, _htmlbarsUtil) {
   "use strict";
 
@@ -48544,143 +48480,68 @@ enifed("morph-attr", ["exports", "morph-attr/sanitize-attribute-value", "dom-hel
   exports.default = AttrMorph;
   exports.sanitizeAttributeValue = _morphAttrSanitizeAttributeValue.sanitizeAttributeValue;
 });
-enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
+enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
+  /* jshint scripturl:true */
+
   'use strict';
 
-  function MorphList() {
-    // morph graph
-    this.firstChildMorph = null;
-    this.lastChildMorph = null;
-
-    this.mountedMorph = null;
-  }
-
-  var prototype = MorphList.prototype;
-
-  prototype.clear = function MorphList$clear() {
-    var current = this.firstChildMorph;
-
-    while (current) {
-      var next = current.nextMorph;
-      current.previousMorph = null;
-      current.nextMorph = null;
-      current.parentMorphList = null;
-      current = next;
-    }
-
-    this.firstChildMorph = this.lastChildMorph = null;
+  exports.sanitizeAttributeValue = sanitizeAttributeValue;
+  var badProtocols = {
+    'javascript:': true,
+    'vbscript:': true
   };
 
-  prototype.destroy = function MorphList$destroy() {};
-
-  prototype.appendMorph = function MorphList$appendMorph(morph) {
-    this.insertBeforeMorph(morph, null);
+  var badTags = {
+    'A': true,
+    'BODY': true,
+    'LINK': true,
+    'IMG': true,
+    'IFRAME': true,
+    'BASE': true,
+    'FORM': true
   };
 
-  prototype.insertBeforeMorph = function MorphList$insertBeforeMorph(morph, referenceMorph) {
-    if (morph.parentMorphList !== null) {
-      morph.unlink();
+  var badTagsForDataURI = {
+    'EMBED': true
+  };
+
+  var badAttributes = {
+    'href': true,
+    'src': true,
+    'background': true,
+    'action': true
+  };
+
+  exports.badAttributes = badAttributes;
+  var badAttributesForDataURI = {
+    'src': true
+  };
+
+  function sanitizeAttributeValue(dom, element, attribute, value) {
+    var tagName;
+
+    if (!element) {
+      tagName = null;
+    } else {
+      tagName = element.tagName.toUpperCase();
     }
-    if (referenceMorph && referenceMorph.parentMorphList !== this) {
-      throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
+
+    if (value && value.toHTML) {
+      return value.toHTML();
     }
 
-    var mountedMorph = this.mountedMorph;
-
-    if (mountedMorph) {
-
-      var parentNode = mountedMorph.firstNode.parentNode;
-      var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
-
-      _morphRangeUtils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
-
-      // was not in list mode replace current content
-      if (!this.firstChildMorph) {
-        _morphRangeUtils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+    if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
+      var protocol = dom.protocolForURL(value);
+      if (badProtocols[protocol] === true) {
+        return 'unsafe:' + value;
       }
     }
 
-    morph.parentMorphList = this;
-
-    var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
-    if (previousMorph) {
-      previousMorph.nextMorph = morph;
-      morph.previousMorph = previousMorph;
-    } else {
-      this.firstChildMorph = morph;
+    if (badTagsForDataURI[tagName] && badAttributesForDataURI[attribute]) {
+      return 'unsafe:' + value;
     }
 
-    if (referenceMorph) {
-      referenceMorph.previousMorph = morph;
-      morph.nextMorph = referenceMorph;
-    } else {
-      this.lastChildMorph = morph;
-    }
-
-    this.firstChildMorph._syncFirstNode();
-    this.lastChildMorph._syncLastNode();
-  };
-
-  prototype.removeChildMorph = function MorphList$removeChildMorph(morph) {
-    if (morph.parentMorphList !== this) {
-      throw new Error("Cannot remove a morph from a parent it is not inside of");
-    }
-
-    morph.destroy();
-  };
-
-  exports.default = MorphList;
-});
-enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], function (exports, _morphRangeMorphList) {
-  'use strict';
-
-  (function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-      define([], factory);
-    } else if (typeof exports === 'object') {
-      module.exports = factory();
-    } else {
-      root.MorphList = factory();
-    }
-  })(undefined, function () {
-    return _morphRangeMorphList.default;
-  });
-});
-enifed("morph-range/utils", ["exports"], function (exports) {
-  // inclusive of both nodes
-  "use strict";
-
-  exports.clear = clear;
-  exports.insertBefore = insertBefore;
-
-  function clear(parentNode, firstNode, lastNode) {
-    if (!parentNode) {
-      return;
-    }
-
-    var node = firstNode;
-    var nextNode;
-    do {
-      nextNode = node.nextSibling;
-      parentNode.removeChild(node);
-      if (node === lastNode) {
-        break;
-      }
-      node = nextNode;
-    } while (node);
-  }
-
-  function insertBefore(parentNode, firstNode, lastNode, refNode) {
-    var node = firstNode;
-    var nextNode;
-    do {
-      nextNode = node.nextSibling;
-      parentNode.insertBefore(node, refNode);
-      if (node === lastNode) {
-        break;
-      }
-      node = nextNode;
-    } while (node);
+    return value;
   }
 });
 enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
@@ -48962,201 +48823,144 @@ enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morp
 
   exports.default = Morph;
 });
-enifed("route-recognizer/dsl", ["exports"], function (exports) {
-  "use strict";
-
-  function Target(path, matcher, delegate) {
-    this.path = path;
-    this.matcher = matcher;
-    this.delegate = delegate;
-  }
-
-  Target.prototype = {
-    to: function (target, callback) {
-      var delegate = this.delegate;
-
-      if (delegate && delegate.willAddRoute) {
-        target = delegate.willAddRoute(this.matcher.target, target);
-      }
-
-      this.matcher.add(this.path, target);
-
-      if (callback) {
-        if (callback.length === 0) {
-          throw new Error("You must have an argument in the function passed to `to`");
-        }
-        this.matcher.addChild(this.path, target, callback, this.delegate);
-      }
-      return this;
-    }
-  };
-
-  function Matcher(target) {
-    this.routes = {};
-    this.children = {};
-    this.target = target;
-  }
-
-  Matcher.prototype = {
-    add: function (path, handler) {
-      this.routes[path] = handler;
-    },
-
-    addChild: function (path, target, callback, delegate) {
-      var matcher = new Matcher(target);
-      this.children[path] = matcher;
-
-      var match = generateMatch(path, matcher, delegate);
-
-      if (delegate && delegate.contextEntered) {
-        delegate.contextEntered(target, match);
-      }
-
-      callback(match);
-    }
-  };
-
-  function generateMatch(startingPath, matcher, delegate) {
-    return function (path, nestedCallback) {
-      var fullPath = startingPath + path;
-
-      if (nestedCallback) {
-        nestedCallback(generateMatch(fullPath, matcher, delegate));
-      } else {
-        return new Target(startingPath + path, matcher, delegate);
-      }
-    };
-  }
-
-  function addRoute(routeArray, path, handler) {
-    var len = 0;
-    for (var i = 0; i < routeArray.length; i++) {
-      len += routeArray[i].path.length;
-    }
-
-    path = path.substr(len);
-    var route = { path: path, handler: handler };
-    routeArray.push(route);
-  }
-
-  function eachRoute(baseRoute, matcher, callback, binding) {
-    var routes = matcher.routes;
-
-    for (var path in routes) {
-      if (routes.hasOwnProperty(path)) {
-        var routeArray = baseRoute.slice();
-        addRoute(routeArray, path, routes[path]);
-
-        if (matcher.children[path]) {
-          eachRoute(routeArray, matcher.children[path], callback, binding);
-        } else {
-          callback.call(binding, routeArray);
-        }
-      }
-    }
-  }
-
-  exports.default = function (callback, addRouteCallback) {
-    var matcher = new Matcher();
-
-    callback(generateMatch("", matcher, this.delegate));
-
-    eachRoute([], matcher, function (route) {
-      if (addRouteCallback) {
-        addRouteCallback(this, route);
-      } else {
-        this.add(route);
-      }
-    }, this);
-  };
-});
-enifed('route-recognizer/normalizer', ['exports'], function (exports) {
-  // Match percent-encoded values (e.g. %3a, %3A, %25)
+enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
-  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
+  function MorphList() {
+    // morph graph
+    this.firstChildMorph = null;
+    this.lastChildMorph = null;
 
-  function toUpper(str) {
-    return str.toUpperCase();
+    this.mountedMorph = null;
   }
 
-  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
-  function percentEncodedValuesToUpper(string) {
-    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
-  }
+  var prototype = MorphList.prototype;
 
-  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
-  // values that are not reserved (like unicode characters).
-  // Safe to call multiple times on the same path.
-  function normalizePath(path) {
-    return path.split('/').map(normalizeSegment).join('/');
-  }
+  prototype.clear = function MorphList$clear() {
+    var current = this.firstChildMorph;
 
-  function percentEncode(char) {
-    return '%' + charToHex(char);
-  }
-
-  function charToHex(char) {
-    return char.charCodeAt(0).toString(16).toUpperCase();
-  }
-
-  // Decodes percent-encoded values in the string except those
-  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
-  // percent-encodings
-  function decodeURIComponentExcept(string, reservedHex) {
-    if (string.indexOf('%') === -1) {
-      // If there is no percent char, there is no decoding that needs to
-      // be done and we exit early
-      return string;
+    while (current) {
+      var next = current.nextMorph;
+      current.previousMorph = null;
+      current.nextMorph = null;
+      current.parentMorphList = null;
+      current = next;
     }
-    string = percentEncodedValuesToUpper(string);
 
-    var result = '';
-    var buffer = '';
-    var idx = 0;
-    while (idx < string.length) {
-      var pIdx = string.indexOf('%', idx);
-
-      if (pIdx === -1) {
-        // no percent char
-        buffer += string.slice(idx);
-        break;
-      } else {
-        // found percent char
-        buffer += string.slice(idx, pIdx);
-        idx = pIdx + 3;
-
-        var hex = string.slice(pIdx + 1, pIdx + 3);
-        var encoded = '%' + hex;
-
-        if (reservedHex.indexOf(hex) === -1) {
-          // encoded is not in reserved set, add to buffer
-          buffer += encoded;
-        } else {
-          result += decodeURIComponent(buffer);
-          buffer = '';
-          result += encoded;
-        }
-      }
-    }
-    result += decodeURIComponent(buffer);
-    return result;
-  }
-
-  // Leave these characters in encoded state in segments
-  var reservedSegmentChars = ['%', '/'];
-  var reservedHex = reservedSegmentChars.map(charToHex);
-
-  function normalizeSegment(segment) {
-    return decodeURIComponentExcept(segment, reservedHex);
-  }
-
-  var Normalizer = {
-    normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath
+    this.firstChildMorph = this.lastChildMorph = null;
   };
 
-  exports.default = Normalizer;
+  prototype.destroy = function MorphList$destroy() {};
+
+  prototype.appendMorph = function MorphList$appendMorph(morph) {
+    this.insertBeforeMorph(morph, null);
+  };
+
+  prototype.insertBeforeMorph = function MorphList$insertBeforeMorph(morph, referenceMorph) {
+    if (morph.parentMorphList !== null) {
+      morph.unlink();
+    }
+    if (referenceMorph && referenceMorph.parentMorphList !== this) {
+      throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
+    }
+
+    var mountedMorph = this.mountedMorph;
+
+    if (mountedMorph) {
+
+      var parentNode = mountedMorph.firstNode.parentNode;
+      var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
+
+      _morphRangeUtils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
+
+      // was not in list mode replace current content
+      if (!this.firstChildMorph) {
+        _morphRangeUtils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+      }
+    }
+
+    morph.parentMorphList = this;
+
+    var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
+    if (previousMorph) {
+      previousMorph.nextMorph = morph;
+      morph.previousMorph = previousMorph;
+    } else {
+      this.firstChildMorph = morph;
+    }
+
+    if (referenceMorph) {
+      referenceMorph.previousMorph = morph;
+      morph.nextMorph = referenceMorph;
+    } else {
+      this.lastChildMorph = morph;
+    }
+
+    this.firstChildMorph._syncFirstNode();
+    this.lastChildMorph._syncLastNode();
+  };
+
+  prototype.removeChildMorph = function MorphList$removeChildMorph(morph) {
+    if (morph.parentMorphList !== this) {
+      throw new Error("Cannot remove a morph from a parent it is not inside of");
+    }
+
+    morph.destroy();
+  };
+
+  exports.default = MorphList;
+});
+enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], function (exports, _morphRangeMorphList) {
+  'use strict';
+
+  (function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+      define([], factory);
+    } else if (typeof exports === 'object') {
+      module.exports = factory();
+    } else {
+      root.MorphList = factory();
+    }
+  })(undefined, function () {
+    return _morphRangeMorphList.default;
+  });
+});
+enifed("morph-range/utils", ["exports"], function (exports) {
+  // inclusive of both nodes
+  "use strict";
+
+  exports.clear = clear;
+  exports.insertBefore = insertBefore;
+
+  function clear(parentNode, firstNode, lastNode) {
+    if (!parentNode) {
+      return;
+    }
+
+    var node = firstNode;
+    var nextNode;
+    do {
+      nextNode = node.nextSibling;
+      parentNode.removeChild(node);
+      if (node === lastNode) {
+        break;
+      }
+      node = nextNode;
+    } while (node);
+  }
+
+  function insertBefore(parentNode, firstNode, lastNode, refNode) {
+    var node = firstNode;
+    var nextNode;
+    do {
+      nextNode = node.nextSibling;
+      parentNode.insertBefore(node, refNode);
+      if (node === lastNode) {
+        break;
+      }
+      node = nextNode;
+    } while (node);
+  }
 });
 enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer/normalizer'], function (exports, _routeRecognizerDsl, _routeRecognizerNormalizer) {
   'use strict';
@@ -49778,129 +49582,206 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   exports.default = RouteRecognizer;
 });
-enifed('router/handler-info/factory', ['exports', 'router/handler-info/resolved-handler-info', 'router/handler-info/unresolved-handler-info-by-object', 'router/handler-info/unresolved-handler-info-by-param'], function (exports, _routerHandlerInfoResolvedHandlerInfo, _routerHandlerInfoUnresolvedHandlerInfoByObject, _routerHandlerInfoUnresolvedHandlerInfoByParam) {
-  'use strict';
+enifed("route-recognizer/dsl", ["exports"], function (exports) {
+  "use strict";
 
-  handlerInfoFactory.klasses = {
-    resolved: _routerHandlerInfoResolvedHandlerInfo.default,
-    param: _routerHandlerInfoUnresolvedHandlerInfoByParam.default,
-    object: _routerHandlerInfoUnresolvedHandlerInfoByObject.default
-  };
-
-  function handlerInfoFactory(name, props) {
-    var Ctor = handlerInfoFactory.klasses[name],
-        handlerInfo = new Ctor(props || {});
-    handlerInfo.factory = handlerInfoFactory;
-    return handlerInfo;
+  function Target(path, matcher, delegate) {
+    this.path = path;
+    this.matcher = matcher;
+    this.delegate = delegate;
   }
 
-  exports.default = handlerInfoFactory;
-});
-enifed('router/handler-info/resolved-handler-info', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
-  'use strict';
+  Target.prototype = {
+    to: function (target, callback) {
+      var delegate = this.delegate;
 
-  var ResolvedHandlerInfo = _routerUtils.subclass(_routerHandlerInfo.default, {
-    resolve: function (shouldContinue, payload) {
-      // A ResolvedHandlerInfo just resolved with itself.
-      if (payload && payload.resolvedModels) {
-        payload.resolvedModels[this.name] = this.context;
-      }
-      return _rsvpPromise.default.resolve(this, this.promiseLabel("Resolve"));
-    },
-
-    getUnresolved: function () {
-      return this.factory('param', {
-        name: this.name,
-        handler: this.handler,
-        params: this.params
-      });
-    },
-
-    isResolved: true
-  });
-
-  exports.default = ResolvedHandlerInfo;
-});
-enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
-  'use strict';
-
-  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_routerHandlerInfo.default, {
-    getModel: function (payload) {
-      this.log(payload, this.name + ": resolving provided model");
-      return _rsvpPromise.default.resolve(this.context);
-    },
-
-    initialize: function (props) {
-      this.names = props.names || [];
-      this.context = props.context;
-    },
-
-    /**
-      @private
-       Serializes a handler using its custom `serialize` method or
-      by a default that looks up the expected property name from
-      the dynamic segment.
-       @param {Object} model the model to be serialized for this handler
-    */
-    serialize: function (_model) {
-      var model = _model || this.context,
-          names = this.names,
-          handler = this.handler,
-          serializer = this.serializer || handler && handler.serialize;
-
-      var object = {};
-      if (_routerUtils.isParam(model)) {
-        object[names[0]] = model;
-        return object;
+      if (delegate && delegate.willAddRoute) {
+        target = delegate.willAddRoute(this.matcher.target, target);
       }
 
-      // Use custom serialize if it exists.
-      if (serializer) {
-        return serializer(model, names);
+      this.matcher.add(this.path, target);
+
+      if (callback) {
+        if (callback.length === 0) {
+          throw new Error("You must have an argument in the function passed to `to`");
+        }
+        this.matcher.addChild(this.path, target, callback, this.delegate);
+      }
+      return this;
+    }
+  };
+
+  function Matcher(target) {
+    this.routes = {};
+    this.children = {};
+    this.target = target;
+  }
+
+  Matcher.prototype = {
+    add: function (path, handler) {
+      this.routes[path] = handler;
+    },
+
+    addChild: function (path, target, callback, delegate) {
+      var matcher = new Matcher(target);
+      this.children[path] = matcher;
+
+      var match = generateMatch(path, matcher, delegate);
+
+      if (delegate && delegate.contextEntered) {
+        delegate.contextEntered(target, match);
       }
 
-      if (names.length !== 1) {
-        return;
-      }
+      callback(match);
+    }
+  };
 
-      var name = names[0];
+  function generateMatch(startingPath, matcher, delegate) {
+    return function (path, nestedCallback) {
+      var fullPath = startingPath + path;
 
-      if (/_id$/.test(name)) {
-        object[name] = model.id;
+      if (nestedCallback) {
+        nestedCallback(generateMatch(fullPath, matcher, delegate));
       } else {
-        object[name] = model;
+        return new Target(startingPath + path, matcher, delegate);
       }
-      return object;
-    }
-  });
+    };
+  }
 
-  exports.default = UnresolvedHandlerInfoByObject;
+  function addRoute(routeArray, path, handler) {
+    var len = 0;
+    for (var i = 0; i < routeArray.length; i++) {
+      len += routeArray[i].path.length;
+    }
+
+    path = path.substr(len);
+    var route = { path: path, handler: handler };
+    routeArray.push(route);
+  }
+
+  function eachRoute(baseRoute, matcher, callback, binding) {
+    var routes = matcher.routes;
+
+    for (var path in routes) {
+      if (routes.hasOwnProperty(path)) {
+        var routeArray = baseRoute.slice();
+        addRoute(routeArray, path, routes[path]);
+
+        if (matcher.children[path]) {
+          eachRoute(routeArray, matcher.children[path], callback, binding);
+        } else {
+          callback.call(binding, routeArray);
+        }
+      }
+    }
+  }
+
+  exports.default = function (callback, addRouteCallback) {
+    var matcher = new Matcher();
+
+    callback(generateMatch("", matcher, this.delegate));
+
+    eachRoute([], matcher, function (route) {
+      if (addRouteCallback) {
+        addRouteCallback(this, route);
+      } else {
+        this.add(route);
+      }
+    }, this);
+  };
 });
-enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'router/handler-info', 'router/utils'], function (exports, _routerHandlerInfo, _routerUtils) {
+enifed('route-recognizer/normalizer', ['exports'], function (exports) {
+  // Match percent-encoded values (e.g. %3a, %3A, %25)
   'use strict';
 
-  // Generated by URL transitions and non-dynamic route segments in named Transitions.
-  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_routerHandlerInfo.default, {
-    initialize: function (props) {
-      this.params = props.params || {};
-    },
+  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
 
-    getModel: function (payload) {
-      var fullParams = this.params;
-      if (payload && payload.queryParams) {
-        fullParams = {};
-        _routerUtils.merge(fullParams, this.params);
-        fullParams.queryParams = payload.queryParams;
-      }
+  function toUpper(str) {
+    return str.toUpperCase();
+  }
 
-      var handler = this.handler;
-      var hookName = _routerUtils.resolveHook(handler, 'deserialize') || _routerUtils.resolveHook(handler, 'model');
+  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
+  function percentEncodedValuesToUpper(string) {
+    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
+  }
 
-      return this.runSharedModelHook(payload, hookName, [fullParams]);
+  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
+  // values that are not reserved (like unicode characters).
+  // Safe to call multiple times on the same path.
+  function normalizePath(path) {
+    return path.split('/').map(normalizeSegment).join('/');
+  }
+
+  function percentEncode(char) {
+    return '%' + charToHex(char);
+  }
+
+  function charToHex(char) {
+    return char.charCodeAt(0).toString(16).toUpperCase();
+  }
+
+  // Decodes percent-encoded values in the string except those
+  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
+  // percent-encodings
+  function decodeURIComponentExcept(string, reservedHex) {
+    if (string.indexOf('%') === -1) {
+      // If there is no percent char, there is no decoding that needs to
+      // be done and we exit early
+      return string;
     }
-  });
+    string = percentEncodedValuesToUpper(string);
 
-  exports.default = UnresolvedHandlerInfoByParam;
+    var result = '';
+    var buffer = '';
+    var idx = 0;
+    while (idx < string.length) {
+      var pIdx = string.indexOf('%', idx);
+
+      if (pIdx === -1) {
+        // no percent char
+        buffer += string.slice(idx);
+        break;
+      } else {
+        // found percent char
+        buffer += string.slice(idx, pIdx);
+        idx = pIdx + 3;
+
+        var hex = string.slice(pIdx + 1, pIdx + 3);
+        var encoded = '%' + hex;
+
+        if (reservedHex.indexOf(hex) === -1) {
+          // encoded is not in reserved set, add to buffer
+          buffer += encoded;
+        } else {
+          result += decodeURIComponent(buffer);
+          buffer = '';
+          result += encoded;
+        }
+      }
+    }
+    result += decodeURIComponent(buffer);
+    return result;
+  }
+
+  // Leave these characters in encoded state in segments
+  var reservedSegmentChars = ['%', '/'];
+  var reservedHex = reservedSegmentChars.map(charToHex);
+
+  function normalizeSegment(segment) {
+    return decodeURIComponentExcept(segment, reservedHex);
+  }
+
+  var Normalizer = {
+    normalizeSegment: normalizeSegment,
+    normalizePath: normalizePath
+  };
+
+  exports.default = Normalizer;
+});
+enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
+  'use strict';
+
+  exports.default = _routerRouter.default;
 });
 enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
   'use strict';
@@ -50061,6 +49942,130 @@ enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], funct
   }
 
   exports.default = HandlerInfo;
+});
+enifed('router/handler-info/factory', ['exports', 'router/handler-info/resolved-handler-info', 'router/handler-info/unresolved-handler-info-by-object', 'router/handler-info/unresolved-handler-info-by-param'], function (exports, _routerHandlerInfoResolvedHandlerInfo, _routerHandlerInfoUnresolvedHandlerInfoByObject, _routerHandlerInfoUnresolvedHandlerInfoByParam) {
+  'use strict';
+
+  handlerInfoFactory.klasses = {
+    resolved: _routerHandlerInfoResolvedHandlerInfo.default,
+    param: _routerHandlerInfoUnresolvedHandlerInfoByParam.default,
+    object: _routerHandlerInfoUnresolvedHandlerInfoByObject.default
+  };
+
+  function handlerInfoFactory(name, props) {
+    var Ctor = handlerInfoFactory.klasses[name],
+        handlerInfo = new Ctor(props || {});
+    handlerInfo.factory = handlerInfoFactory;
+    return handlerInfo;
+  }
+
+  exports.default = handlerInfoFactory;
+});
+enifed('router/handler-info/resolved-handler-info', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
+  'use strict';
+
+  var ResolvedHandlerInfo = _routerUtils.subclass(_routerHandlerInfo.default, {
+    resolve: function (shouldContinue, payload) {
+      // A ResolvedHandlerInfo just resolved with itself.
+      if (payload && payload.resolvedModels) {
+        payload.resolvedModels[this.name] = this.context;
+      }
+      return _rsvpPromise.default.resolve(this, this.promiseLabel("Resolve"));
+    },
+
+    getUnresolved: function () {
+      return this.factory('param', {
+        name: this.name,
+        handler: this.handler,
+        params: this.params
+      });
+    },
+
+    isResolved: true
+  });
+
+  exports.default = ResolvedHandlerInfo;
+});
+enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
+  'use strict';
+
+  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_routerHandlerInfo.default, {
+    getModel: function (payload) {
+      this.log(payload, this.name + ": resolving provided model");
+      return _rsvpPromise.default.resolve(this.context);
+    },
+
+    initialize: function (props) {
+      this.names = props.names || [];
+      this.context = props.context;
+    },
+
+    /**
+      @private
+       Serializes a handler using its custom `serialize` method or
+      by a default that looks up the expected property name from
+      the dynamic segment.
+       @param {Object} model the model to be serialized for this handler
+    */
+    serialize: function (_model) {
+      var model = _model || this.context,
+          names = this.names,
+          handler = this.handler,
+          serializer = this.serializer || handler && handler.serialize;
+
+      var object = {};
+      if (_routerUtils.isParam(model)) {
+        object[names[0]] = model;
+        return object;
+      }
+
+      // Use custom serialize if it exists.
+      if (serializer) {
+        return serializer(model, names);
+      }
+
+      if (names.length !== 1) {
+        return;
+      }
+
+      var name = names[0];
+
+      if (/_id$/.test(name)) {
+        object[name] = model.id;
+      } else {
+        object[name] = model;
+      }
+      return object;
+    }
+  });
+
+  exports.default = UnresolvedHandlerInfoByObject;
+});
+enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'router/handler-info', 'router/utils'], function (exports, _routerHandlerInfo, _routerUtils) {
+  'use strict';
+
+  // Generated by URL transitions and non-dynamic route segments in named Transitions.
+  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_routerHandlerInfo.default, {
+    initialize: function (props) {
+      this.params = props.params || {};
+    },
+
+    getModel: function (payload) {
+      var fullParams = this.params;
+      if (payload && payload.queryParams) {
+        fullParams = {};
+        _routerUtils.merge(fullParams, this.params);
+        fullParams.queryParams = payload.queryParams;
+      }
+
+      var handler = this.handler;
+      var hookName = _routerUtils.resolveHook(handler, 'deserialize') || _routerUtils.resolveHook(handler, 'model');
+
+      return this.runSharedModelHook(payload, hookName, [fullParams]);
+    }
+  });
+
+  exports.default = UnresolvedHandlerInfoByParam;
 });
 enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/utils', 'router/transition-state', 'router/transition', 'router/transition-intent/named-transition-intent', 'router/transition-intent/url-transition-intent', 'router/handler-info'], function (exports, _routeRecognizer, _rsvpPromise, _routerUtils, _routerTransitionState, _routerTransition, _routerTransitionIntentNamedTransitionIntent, _routerTransitionIntentUrlTransitionIntent, _routerHandlerInfo) {
   'use strict';
@@ -50871,6 +50876,23 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
 
   exports.default = Router;
 });
+enifed('router/transition-intent', ['exports', 'router/utils'], function (exports, _routerUtils) {
+  'use strict';
+
+  function TransitionIntent(props) {
+    this.initialize(props);
+
+    // TODO: wat
+    this.data = this.data || {};
+  }
+
+  TransitionIntent.prototype = {
+    initialize: null,
+    applyToState: null
+  };
+
+  exports.default = TransitionIntent;
+});
 enifed('router/transition-intent/named-transition-intent', ['exports', 'router/transition-intent', 'router/transition-state', 'router/handler-info/factory', 'router/utils'], function (exports, _routerTransitionIntent, _routerTransitionState, _routerHandlerInfoFactory, _routerUtils) {
   'use strict';
 
@@ -51118,23 +51140,6 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
       return newState;
     }
   });
-});
-enifed('router/transition-intent', ['exports', 'router/utils'], function (exports, _routerUtils) {
-  'use strict';
-
-  function TransitionIntent(props) {
-    this.initialize(props);
-
-    // TODO: wat
-    this.data = this.data || {};
-  }
-
-  TransitionIntent.prototype = {
-    initialize: null,
-    applyToState: null
-  };
-
-  exports.default = TransitionIntent;
 });
 enifed('router/transition-state', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
   'use strict';
@@ -51812,10 +51817,92 @@ enifed('router/utils', ['exports'], function (exports) {
   exports.resolveHook = resolveHook;
   exports.applyHook = applyHook;
 });
-enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
+enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
 
-  exports.default = _routerRouter.default;
+  // defaults
+  _rsvpConfig.config.async = _rsvpAsap.default;
+  _rsvpConfig.config.after = function (cb) {
+    setTimeout(cb, 0);
+  };
+  var cast = _rsvpResolve.default;
+  function async(callback, arg) {
+    _rsvpConfig.config.async(callback, arg);
+  }
+
+  function on() {
+    _rsvpConfig.config['on'].apply(_rsvpConfig.config, arguments);
+  }
+
+  function off() {
+    _rsvpConfig.config['off'].apply(_rsvpConfig.config, arguments);
+  }
+
+  // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
+  if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
+    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
+    _rsvpConfig.configure('instrument', true);
+    for (var eventName in callbacks) {
+      if (callbacks.hasOwnProperty(eventName)) {
+        on(eventName, callbacks[eventName]);
+      }
+    }
+  }
+
+  exports.cast = cast;
+  exports.Promise = _rsvpPromise.default;
+  exports.EventTarget = _rsvpEvents.default;
+  exports.all = _rsvpAll.default;
+  exports.allSettled = _rsvpAllSettled.default;
+  exports.race = _rsvpRace.default;
+  exports.hash = _rsvpHash.default;
+  exports.hashSettled = _rsvpHashSettled.default;
+  exports.rethrow = _rsvpRethrow.default;
+  exports.defer = _rsvpDefer.default;
+  exports.denodeify = _rsvpNode.default;
+  exports.configure = _rsvpConfig.configure;
+  exports.on = on;
+  exports.off = off;
+  exports.resolve = _rsvpResolve.default;
+  exports.reject = _rsvpReject.default;
+  exports.async = async;
+  exports.map = _rsvpMap.default;
+  exports.filter = _rsvpFilter.default;
+});
+enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsvpPlatform, _rsvp) {
+  'use strict';
+
+  var RSVP = {
+    'race': _rsvp.race,
+    'Promise': _rsvp.Promise,
+    'allSettled': _rsvp.allSettled,
+    'hash': _rsvp.hash,
+    'hashSettled': _rsvp.hashSettled,
+    'denodeify': _rsvp.denodeify,
+    'on': _rsvp.on,
+    'off': _rsvp.off,
+    'map': _rsvp.map,
+    'filter': _rsvp.filter,
+    'resolve': _rsvp.resolve,
+    'reject': _rsvp.reject,
+    'all': _rsvp.all,
+    'rethrow': _rsvp.rethrow,
+    'defer': _rsvp.defer,
+    'EventTarget': _rsvp.EventTarget,
+    'configure': _rsvp.configure,
+    'async': _rsvp.async
+  };
+
+  /* global define:true module:true window: true */
+  if (typeof define === 'function' && define['amd']) {
+    define(function () {
+      return RSVP;
+    });
+  } else if (typeof module !== 'undefined' && module['exports']) {
+    module['exports'] = RSVP;
+  } else if (typeof _rsvpPlatform.default !== 'undefined') {
+    _rsvpPlatform.default['RSVP'] = RSVP;
+  }
 });
 enifed('rsvp/-internal', ['exports', 'rsvp/utils', 'rsvp/instrument', 'rsvp/config'], function (exports, _rsvpUtils, _rsvpInstrument, _rsvpConfig) {
   'use strict';
@@ -53466,263 +53553,6 @@ enifed('rsvp/platform', ['exports'], function (exports) {
 
   exports.default = platform;
 });
-enifed('rsvp/promise/all', ['exports', 'rsvp/enumerator'], function (exports, _rsvpEnumerator) {
-  'use strict';
-
-  exports.default = all;
-
-  /**
-    `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
-    is fulfilled with an array of fulfillment values for the passed promises, or
-    rejected with the reason of the first passed promise to be rejected. It casts all
-    elements of the passed iterable to promises as it runs this algorithm.
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.resolve(2);
-    var promise3 = RSVP.resolve(3);
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.Promise.all(promises).then(function(array){
-      // The array here would be [ 1, 2, 3 ];
-    });
-    ```
-  
-    If any of the `promises` given to `RSVP.all` are rejected, the first promise
-    that is rejected will be given as an argument to the returned promises's
-    rejection handler. For example:
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.reject(new Error("2"));
-    var promise3 = RSVP.reject(new Error("3"));
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.Promise.all(promises).then(function(array){
-      // Code here never runs because there are rejected promises!
-    }, function(error) {
-      // error.message === "2"
-    });
-    ```
-  
-    @method all
-    @static
-    @param {Array} entries array of promises
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise} promise that is fulfilled when all `promises` have been
-    fulfilled, or rejected if any of them become rejected.
-    @static
-  */
-
-  function all(entries, label) {
-    return new _rsvpEnumerator.default(this, entries, true, /* abort on reject */label).promise;
-  }
-});
-enifed('rsvp/promise/race', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
-  'use strict';
-
-  exports.default = race;
-
-  /**
-    `RSVP.Promise.race` returns a new promise which is settled in the same way as the
-    first passed promise to settle.
-  
-    Example:
-  
-    ```javascript
-    var promise1 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 1');
-      }, 200);
-    });
-  
-    var promise2 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 2');
-      }, 100);
-    });
-  
-    RSVP.Promise.race([promise1, promise2]).then(function(result){
-      // result === 'promise 2' because it was resolved before promise1
-      // was resolved.
-    });
-    ```
-  
-    `RSVP.Promise.race` is deterministic in that only the state of the first
-    settled promise matters. For example, even if other promises given to the
-    `promises` array argument are resolved, but the first settled promise has
-    become rejected before the other promises became fulfilled, the returned
-    promise will become rejected:
-  
-    ```javascript
-    var promise1 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 1');
-      }, 200);
-    });
-  
-    var promise2 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        reject(new Error('promise 2'));
-      }, 100);
-    });
-  
-    RSVP.Promise.race([promise1, promise2]).then(function(result){
-      // Code here never runs
-    }, function(reason){
-      // reason.message === 'promise 2' because promise 2 became rejected before
-      // promise 1 became fulfilled
-    });
-    ```
-  
-    An example real-world use case is implementing timeouts:
-  
-    ```javascript
-    RSVP.Promise.race([ajax('foo.json'), timeout(5000)])
-    ```
-  
-    @method race
-    @static
-    @param {Array} entries array of promises to observe
-    @param {String} label optional string for describing the promise returned.
-    Useful for tooling.
-    @return {Promise} a promise which settles in the same way as the first passed
-    promise to settle.
-  */
-
-  function race(entries, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-
-    var promise = new Constructor(_rsvpInternal.noop, label);
-
-    if (!_rsvpUtils.isArray(entries)) {
-      _rsvpInternal.reject(promise, new TypeError('You must pass an array to race.'));
-      return promise;
-    }
-
-    var length = entries.length;
-
-    function onFulfillment(value) {
-      _rsvpInternal.resolve(promise, value);
-    }
-
-    function onRejection(reason) {
-      _rsvpInternal.reject(promise, reason);
-    }
-
-    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
-      _rsvpInternal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
-    }
-
-    return promise;
-  }
-});
-enifed('rsvp/promise/reject', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
-  'use strict';
-
-  exports.default = reject;
-
-  /**
-    `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
-    It is shorthand for the following:
-  
-    ```javascript
-    var promise = new RSVP.Promise(function(resolve, reject){
-      reject(new Error('WHOOPS'));
-    });
-  
-    promise.then(function(value){
-      // Code here doesn't run because the promise is rejected!
-    }, function(reason){
-      // reason.message === 'WHOOPS'
-    });
-    ```
-  
-    Instead of writing the above, your code now simply becomes the following:
-  
-    ```javascript
-    var promise = RSVP.Promise.reject(new Error('WHOOPS'));
-  
-    promise.then(function(value){
-      // Code here doesn't run because the promise is rejected!
-    }, function(reason){
-      // reason.message === 'WHOOPS'
-    });
-    ```
-  
-    @method reject
-    @static
-    @param {*} reason value that the returned promise will be rejected with.
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise rejected with the given `reason`.
-  */
-
-  function reject(reason, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-    var promise = new Constructor(_rsvpInternal.noop, label);
-    _rsvpInternal.reject(promise, reason);
-    return promise;
-  }
-});
-enifed('rsvp/promise/resolve', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
-  'use strict';
-
-  exports.default = resolve;
-
-  /**
-    `RSVP.Promise.resolve` returns a promise that will become resolved with the
-    passed `value`. It is shorthand for the following:
-  
-    ```javascript
-    var promise = new RSVP.Promise(function(resolve, reject){
-      resolve(1);
-    });
-  
-    promise.then(function(value){
-      // value === 1
-    });
-    ```
-  
-    Instead of writing the above, your code now simply becomes the following:
-  
-    ```javascript
-    var promise = RSVP.Promise.resolve(1);
-  
-    promise.then(function(value){
-      // value === 1
-    });
-    ```
-  
-    @method resolve
-    @static
-    @param {*} object value that the returned promise will be resolved with
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise that will become fulfilled with the given
-    `value`
-  */
-
-  function resolve(object, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-
-    if (object && typeof object === 'object' && object.constructor === Constructor) {
-      return object;
-    }
-
-    var promise = new Constructor(_rsvpInternal.noop, label);
-    _rsvpInternal.resolve(promise, object);
-    return promise;
-  }
-});
 enifed('rsvp/promise-hash', ['exports', 'rsvp/enumerator', 'rsvp/-internal', 'rsvp/utils'], function (exports, _rsvpEnumerator, _rsvpInternal, _rsvpUtils) {
   'use strict';
 
@@ -54252,6 +54082,263 @@ enifed('rsvp/promise', ['exports', 'rsvp/config', 'rsvp/instrument', 'rsvp/utils
     }
   };
 });
+enifed('rsvp/promise/all', ['exports', 'rsvp/enumerator'], function (exports, _rsvpEnumerator) {
+  'use strict';
+
+  exports.default = all;
+
+  /**
+    `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
+    is fulfilled with an array of fulfillment values for the passed promises, or
+    rejected with the reason of the first passed promise to be rejected. It casts all
+    elements of the passed iterable to promises as it runs this algorithm.
+  
+    Example:
+  
+    ```javascript
+    var promise1 = RSVP.resolve(1);
+    var promise2 = RSVP.resolve(2);
+    var promise3 = RSVP.resolve(3);
+    var promises = [ promise1, promise2, promise3 ];
+  
+    RSVP.Promise.all(promises).then(function(array){
+      // The array here would be [ 1, 2, 3 ];
+    });
+    ```
+  
+    If any of the `promises` given to `RSVP.all` are rejected, the first promise
+    that is rejected will be given as an argument to the returned promises's
+    rejection handler. For example:
+  
+    Example:
+  
+    ```javascript
+    var promise1 = RSVP.resolve(1);
+    var promise2 = RSVP.reject(new Error("2"));
+    var promise3 = RSVP.reject(new Error("3"));
+    var promises = [ promise1, promise2, promise3 ];
+  
+    RSVP.Promise.all(promises).then(function(array){
+      // Code here never runs because there are rejected promises!
+    }, function(error) {
+      // error.message === "2"
+    });
+    ```
+  
+    @method all
+    @static
+    @param {Array} entries array of promises
+    @param {String} label optional string for labeling the promise.
+    Useful for tooling.
+    @return {Promise} promise that is fulfilled when all `promises` have been
+    fulfilled, or rejected if any of them become rejected.
+    @static
+  */
+
+  function all(entries, label) {
+    return new _rsvpEnumerator.default(this, entries, true, /* abort on reject */label).promise;
+  }
+});
+enifed('rsvp/promise/race', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
+  'use strict';
+
+  exports.default = race;
+
+  /**
+    `RSVP.Promise.race` returns a new promise which is settled in the same way as the
+    first passed promise to settle.
+  
+    Example:
+  
+    ```javascript
+    var promise1 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 1');
+      }, 200);
+    });
+  
+    var promise2 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 2');
+      }, 100);
+    });
+  
+    RSVP.Promise.race([promise1, promise2]).then(function(result){
+      // result === 'promise 2' because it was resolved before promise1
+      // was resolved.
+    });
+    ```
+  
+    `RSVP.Promise.race` is deterministic in that only the state of the first
+    settled promise matters. For example, even if other promises given to the
+    `promises` array argument are resolved, but the first settled promise has
+    become rejected before the other promises became fulfilled, the returned
+    promise will become rejected:
+  
+    ```javascript
+    var promise1 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        resolve('promise 1');
+      }, 200);
+    });
+  
+    var promise2 = new RSVP.Promise(function(resolve, reject){
+      setTimeout(function(){
+        reject(new Error('promise 2'));
+      }, 100);
+    });
+  
+    RSVP.Promise.race([promise1, promise2]).then(function(result){
+      // Code here never runs
+    }, function(reason){
+      // reason.message === 'promise 2' because promise 2 became rejected before
+      // promise 1 became fulfilled
+    });
+    ```
+  
+    An example real-world use case is implementing timeouts:
+  
+    ```javascript
+    RSVP.Promise.race([ajax('foo.json'), timeout(5000)])
+    ```
+  
+    @method race
+    @static
+    @param {Array} entries array of promises to observe
+    @param {String} label optional string for describing the promise returned.
+    Useful for tooling.
+    @return {Promise} a promise which settles in the same way as the first passed
+    promise to settle.
+  */
+
+  function race(entries, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+
+    var promise = new Constructor(_rsvpInternal.noop, label);
+
+    if (!_rsvpUtils.isArray(entries)) {
+      _rsvpInternal.reject(promise, new TypeError('You must pass an array to race.'));
+      return promise;
+    }
+
+    var length = entries.length;
+
+    function onFulfillment(value) {
+      _rsvpInternal.resolve(promise, value);
+    }
+
+    function onRejection(reason) {
+      _rsvpInternal.reject(promise, reason);
+    }
+
+    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
+      _rsvpInternal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+    }
+
+    return promise;
+  }
+});
+enifed('rsvp/promise/reject', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
+  'use strict';
+
+  exports.default = reject;
+
+  /**
+    `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
+    It is shorthand for the following:
+  
+    ```javascript
+    var promise = new RSVP.Promise(function(resolve, reject){
+      reject(new Error('WHOOPS'));
+    });
+  
+    promise.then(function(value){
+      // Code here doesn't run because the promise is rejected!
+    }, function(reason){
+      // reason.message === 'WHOOPS'
+    });
+    ```
+  
+    Instead of writing the above, your code now simply becomes the following:
+  
+    ```javascript
+    var promise = RSVP.Promise.reject(new Error('WHOOPS'));
+  
+    promise.then(function(value){
+      // Code here doesn't run because the promise is rejected!
+    }, function(reason){
+      // reason.message === 'WHOOPS'
+    });
+    ```
+  
+    @method reject
+    @static
+    @param {*} reason value that the returned promise will be rejected with.
+    @param {String} label optional string for identifying the returned promise.
+    Useful for tooling.
+    @return {Promise} a promise rejected with the given `reason`.
+  */
+
+  function reject(reason, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+    var promise = new Constructor(_rsvpInternal.noop, label);
+    _rsvpInternal.reject(promise, reason);
+    return promise;
+  }
+});
+enifed('rsvp/promise/resolve', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
+  'use strict';
+
+  exports.default = resolve;
+
+  /**
+    `RSVP.Promise.resolve` returns a promise that will become resolved with the
+    passed `value`. It is shorthand for the following:
+  
+    ```javascript
+    var promise = new RSVP.Promise(function(resolve, reject){
+      resolve(1);
+    });
+  
+    promise.then(function(value){
+      // value === 1
+    });
+    ```
+  
+    Instead of writing the above, your code now simply becomes the following:
+  
+    ```javascript
+    var promise = RSVP.Promise.resolve(1);
+  
+    promise.then(function(value){
+      // value === 1
+    });
+    ```
+  
+    @method resolve
+    @static
+    @param {*} object value that the returned promise will be resolved with
+    @param {String} label optional string for identifying the returned promise.
+    Useful for tooling.
+    @return {Promise} a promise that will become fulfilled with the given
+    `value`
+  */
+
+  function resolve(object, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+
+    if (object && typeof object === 'object' && object.constructor === Constructor) {
+      return object;
+    }
+
+    var promise = new Constructor(_rsvpInternal.noop, label);
+    _rsvpInternal.resolve(promise, object);
+    return promise;
+  }
+});
 enifed('rsvp/race', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
   'use strict';
 
@@ -54418,93 +54505,6 @@ enifed('rsvp/utils', ['exports'], function (exports) {
     return new F();
   };
   exports.o_create = o_create;
-});
-enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
-  'use strict';
-
-  // defaults
-  _rsvpConfig.config.async = _rsvpAsap.default;
-  _rsvpConfig.config.after = function (cb) {
-    setTimeout(cb, 0);
-  };
-  var cast = _rsvpResolve.default;
-  function async(callback, arg) {
-    _rsvpConfig.config.async(callback, arg);
-  }
-
-  function on() {
-    _rsvpConfig.config['on'].apply(_rsvpConfig.config, arguments);
-  }
-
-  function off() {
-    _rsvpConfig.config['off'].apply(_rsvpConfig.config, arguments);
-  }
-
-  // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
-  if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
-    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
-    _rsvpConfig.configure('instrument', true);
-    for (var eventName in callbacks) {
-      if (callbacks.hasOwnProperty(eventName)) {
-        on(eventName, callbacks[eventName]);
-      }
-    }
-  }
-
-  exports.cast = cast;
-  exports.Promise = _rsvpPromise.default;
-  exports.EventTarget = _rsvpEvents.default;
-  exports.all = _rsvpAll.default;
-  exports.allSettled = _rsvpAllSettled.default;
-  exports.race = _rsvpRace.default;
-  exports.hash = _rsvpHash.default;
-  exports.hashSettled = _rsvpHashSettled.default;
-  exports.rethrow = _rsvpRethrow.default;
-  exports.defer = _rsvpDefer.default;
-  exports.denodeify = _rsvpNode.default;
-  exports.configure = _rsvpConfig.configure;
-  exports.on = on;
-  exports.off = off;
-  exports.resolve = _rsvpResolve.default;
-  exports.reject = _rsvpReject.default;
-  exports.async = async;
-  exports.map = _rsvpMap.default;
-  exports.filter = _rsvpFilter.default;
-});
-enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsvpPlatform, _rsvp) {
-  'use strict';
-
-  var RSVP = {
-    'race': _rsvp.race,
-    'Promise': _rsvp.Promise,
-    'allSettled': _rsvp.allSettled,
-    'hash': _rsvp.hash,
-    'hashSettled': _rsvp.hashSettled,
-    'denodeify': _rsvp.denodeify,
-    'on': _rsvp.on,
-    'off': _rsvp.off,
-    'map': _rsvp.map,
-    'filter': _rsvp.filter,
-    'resolve': _rsvp.resolve,
-    'reject': _rsvp.reject,
-    'all': _rsvp.all,
-    'rethrow': _rsvp.rethrow,
-    'defer': _rsvp.defer,
-    'EventTarget': _rsvp.EventTarget,
-    'configure': _rsvp.configure,
-    'async': _rsvp.async
-  };
-
-  /* global define:true module:true window: true */
-  if (typeof define === 'function' && define['amd']) {
-    define(function () {
-      return RSVP;
-    });
-  } else if (typeof module !== 'undefined' && module['exports']) {
-    module['exports'] = RSVP;
-  } else if (typeof _rsvpPlatform.default !== 'undefined') {
-    _rsvpPlatform.default['RSVP'] = RSVP;
-  }
 });
 enifed("vertex", ["exports"], function (exports) {
   /**
