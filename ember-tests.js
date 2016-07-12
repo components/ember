@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2981ecfd
+ * @version   2.7.0-canary+57bd9ba0
  */
 
 var enifed, requireModule, require, Ember;
@@ -24488,7 +24488,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
       this.runPropertyTest('value', ['foo', 'bar']);
     };
 
-    _class.prototype['@htmlbars input placeholder attribute'] = function htmlbarsInputPlaceholderAttribute() {
+    _class.prototype['@test input placeholder attribute'] = function testInputPlaceholderAttribute() {
       this.runAttributeTest('placeholder', ['foo', 'bar']);
     };
 
@@ -24496,7 +24496,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
       this.runAttributeTest('name', ['nam', 'name']);
     };
 
-    _class.prototype['@htmlbars input maxlength attribute'] = function htmlbarsInputMaxlengthAttribute() {
+    _class.prototype['@test input maxlength attribute'] = function testInputMaxlengthAttribute() {
       this.runAttributeTest('maxlength', [2, 3]);
     };
 
@@ -24504,7 +24504,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
       this.runAttributeTest('size', [2, 3]);
     };
 
-    _class.prototype['@htmlbars input tabindex attribute'] = function htmlbarsInputTabindexAttribute() {
+    _class.prototype['@test input tabindex attribute'] = function testInputTabindexAttribute() {
       this.runAttributeTest('tabindex', [2, 3]);
     };
 
@@ -46363,7 +46363,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
       this.runPropertyTest('value', ['foo', 'bar']);
     };
 
-    _class.prototype['@htmlbars input placeholder attribute'] = function htmlbarsInputPlaceholderAttribute() {
+    _class.prototype['@test input placeholder attribute'] = function testInputPlaceholderAttribute() {
       this.runAttributeTest('placeholder', ['foo', 'bar']);
     };
 
@@ -46371,7 +46371,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
       this.runAttributeTest('name', ['nam', 'name']);
     };
 
-    _class.prototype['@htmlbars input maxlength attribute'] = function htmlbarsInputMaxlengthAttribute() {
+    _class.prototype['@test input maxlength attribute'] = function testInputMaxlengthAttribute() {
       this.runAttributeTest('maxlength', [2, 3]);
     };
 
@@ -46379,7 +46379,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
       this.runAttributeTest('size', [2, 3]);
     };
 
-    _class.prototype['@htmlbars input tabindex attribute'] = function htmlbarsInputTabindexAttribute() {
+    _class.prototype['@test input tabindex attribute'] = function testInputTabindexAttribute() {
       this.runAttributeTest('tabindex', [2, 3]);
     };
 
