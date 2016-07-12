@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.6.1"
+        "version": "v2.6.2"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -8595,7 +8595,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 114,
+            "line": 112,
             "description": "Remove an event listener\n\nArguments should match those passed to `Ember.addListener`.",
             "itemtype": "method",
             "name": "removeListener",
@@ -8628,7 +8628,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 142,
+            "line": 140,
             "description": "Suspend listener during callback.\n\nThis should only be used by the target of the event listener\nwhen it is taking an action that would cause the event, e.g.\nan object might suspend its property change listener while it is\nsetting that property.",
             "itemtype": "method",
             "name": "suspendListener",
@@ -8666,7 +8666,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 164,
+            "line": 162,
             "description": "Suspends multiple listeners during a callback.",
             "itemtype": "method",
             "name": "suspendListeners",
@@ -8704,7 +8704,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 185,
+            "line": 183,
             "description": "Return a list of currently watched events",
             "access": "private",
             "tagname": "",
@@ -8722,7 +8722,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 197,
+            "line": 195,
             "description": "Send an event. The execution of suspended listeners\nis skipped, and once listeners are removed. A listener without\na target is executed on the passed object. If an array of actions\nis not passed, the actions stored on the passed object are invoked.",
             "itemtype": "method",
             "name": "sendEvent",
@@ -8758,7 +8758,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 246,
+            "line": 244,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -8780,7 +8780,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 259,
+            "line": 257,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -8802,7 +8802,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 282,
+            "line": 280,
             "description": "Define a property as a function that should be executed when\na specified event or events are triggered.\n\n\n``` javascript\nvar Job = Ember.Object.extend({\n  logCompleted: Ember.on('completed', function() {\n    console.log('Job completed!');\n  })\n});\n\nvar job = Job.create();\n\nEmber.sendEvent(job, 'completed'); // Logs 'Job completed!'\n ```",
             "itemtype": "method",
             "name": "on",
