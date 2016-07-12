@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9b11002d
+ * @version   2.7.0-canary+2981ecfd
  */
 
 var enifed, requireModule, require, Ember;
@@ -14470,7 +14470,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
       this.assertText('Who dat? Who dis?', 'Re-render works');
     };
 
-    _class.prototype['@htmlbars it overrides global helper lookup'] = function htmlbarsItOverridesGlobalHelperLookup() {
+    _class.prototype['@test it overrides global helper lookup'] = function testItOverridesGlobalHelperLookup() {
       var _this7 = this;
 
       this.registerHelper('x-outer/x-helper', function () {
@@ -14494,7 +14494,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
       this.assertText('Who dat? Who dis? I dunno', 'Re-render works');
     };
 
-    _class.prototype['@htmlbars lookup without match issues standard assertion (with local helper name)'] = function htmlbarsLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
+    _class.prototype['@test lookup without match issues standard assertion (with local helper name)'] = function testLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
       var _this8 = this;
 
       this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
@@ -14504,7 +14504,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
       }, /A helper named "x-inner" could not be found/);
     };
 
-    _class.prototype['@htmlbars overrides global lookup'] = function htmlbarsOverridesGlobalLookup() {
+    _class.prototype['@test overrides global lookup'] = function testOverridesGlobalLookup() {
       var _this9 = this;
 
       this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
@@ -36345,7 +36345,7 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Who dat? Who dis?', 'Re-render works');
     };
 
-    _class.prototype['@htmlbars it overrides global helper lookup'] = function htmlbarsItOverridesGlobalHelperLookup() {
+    _class.prototype['@test it overrides global helper lookup'] = function testItOverridesGlobalHelperLookup() {
       var _this7 = this;
 
       this.registerHelper('x-outer/x-helper', function () {
@@ -36369,7 +36369,7 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Who dat? Who dis? I dunno', 'Re-render works');
     };
 
-    _class.prototype['@htmlbars lookup without match issues standard assertion (with local helper name)'] = function htmlbarsLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
+    _class.prototype['@test lookup without match issues standard assertion (with local helper name)'] = function testLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
       var _this8 = this;
 
       this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
@@ -36379,7 +36379,7 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       }, /A helper named "x-inner" could not be found/);
     };
 
-    _class.prototype['@htmlbars overrides global lookup'] = function htmlbarsOverridesGlobalLookup() {
+    _class.prototype['@test overrides global lookup'] = function testOverridesGlobalLookup() {
       var _this9 = this;
 
       this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
