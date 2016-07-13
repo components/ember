@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+77e63305
+ * @version   2.7.0-canary+72193d3f
  */
 
 var enifed, requireModule, require, Ember;
@@ -49837,7 +49837,9 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', '
 
       rootElement.addClass(ROOT_ELEMENT_CLASS);
 
-      _emberMetalDebug.assert('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to rootElement. Make sure you set rootElement to the body or an element in the body.', rootElement.is(ROOT_ELEMENT_SELECTOR));
+      if (!rootElement.is(ROOT_ELEMENT_SELECTOR)) {
+        throw new TypeError('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + (rootElement.selector || rootElement[0].tagName) + '). Make sure you set rootElement to the body or an element in the body.');
+      }
 
       for (event in events) {
         if (events.hasOwnProperty(event)) {
@@ -51093,7 +51095,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+77e63305";
+  exports.default = "2.7.0-canary+72193d3f";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+77e63305
+ * @version   2.7.0-canary+72193d3f
  */
 
 var enifed, requireModule, require, Ember;
@@ -76320,6 +76320,16 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
 
     _emberViewsSystemJquery.default('#leView').trigger('click');
     _emberViewsSystemJquery.default('#leView').trigger('dblclick');
+  });
+
+  QUnit.test('throws an error if rootElement was not found', function () {
+    expect(1);
+
+    _emberMetalRun_loop.default(function () {
+      throws(function () {
+        return dispatcher.setup({ myevent: 'myEvent' }, '.unexisting-custom-root');
+      });
+    });
   });
 });
 enifed('ember-views/tests/system/jquery_ext_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-views/views/view'], function (exports, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberViewsViewsView) {
