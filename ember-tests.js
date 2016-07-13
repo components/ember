@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+57bd9ba0
+ * @version   2.7.0-canary+77e63305
  */
 
 var enifed, requireModule, require, Ember;
@@ -24633,7 +24633,7 @@ enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/te
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars unquoted viewBox property is output'] = function htmlbarsUnquotedViewBoxPropertyIsOutput(assert) {
+    _class.prototype['@test unquoted viewBox property is output'] = function testUnquotedViewBoxPropertyIsOutput(assert) {
       var _this = this;
 
       var viewBoxString = '0 0 100 100';
@@ -24665,7 +24665,7 @@ enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/te
       this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
     };
 
-    _class.prototype['@htmlbars quoted viewBox property is output'] = function htmlbarsQuotedViewBoxPropertyIsOutput(assert) {
+    _class.prototype['@test quoted viewBox property is output'] = function testQuotedViewBoxPropertyIsOutput(assert) {
       var _this2 = this;
 
       var viewBoxString = '0 0 100 100';
@@ -24697,7 +24697,7 @@ enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/te
       this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
     };
 
-    _class.prototype['@htmlbars quoted viewBox property is concat'] = function htmlbarsQuotedViewBoxPropertyIsConcat() {
+    _class.prototype['@test quoted viewBox property is concat'] = function testQuotedViewBoxPropertyIsConcat() {
       var _this3 = this;
 
       var viewBoxString = '100 100';
@@ -24729,7 +24729,7 @@ enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/te
       this.assertInnerHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
     };
 
-    _class.prototype['@htmlbars class is output'] = function htmlbarsClassIsOutput() {
+    _class.prototype['@test class is output'] = function testClassIsOutput() {
       var _this4 = this;
 
       this.render('<div><svg class=\'{{model.color}} tall\'></svg></div>', {
@@ -46508,7 +46508,7 @@ enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars unquoted viewBox property is output'] = function htmlbarsUnquotedViewBoxPropertyIsOutput(assert) {
+    _class.prototype['@test unquoted viewBox property is output'] = function testUnquotedViewBoxPropertyIsOutput(assert) {
       var _this = this;
 
       var viewBoxString = '0 0 100 100';
@@ -46540,7 +46540,7 @@ enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/
       this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
     };
 
-    _class.prototype['@htmlbars quoted viewBox property is output'] = function htmlbarsQuotedViewBoxPropertyIsOutput(assert) {
+    _class.prototype['@test quoted viewBox property is output'] = function testQuotedViewBoxPropertyIsOutput(assert) {
       var _this2 = this;
 
       var viewBoxString = '0 0 100 100';
@@ -46572,7 +46572,7 @@ enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/
       this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject, viewBoxString));
     };
 
-    _class.prototype['@htmlbars quoted viewBox property is concat'] = function htmlbarsQuotedViewBoxPropertyIsConcat() {
+    _class.prototype['@test quoted viewBox property is concat'] = function testQuotedViewBoxPropertyIsConcat() {
       var _this3 = this;
 
       var viewBoxString = '100 100';
@@ -46604,7 +46604,7 @@ enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/
       this.assertInnerHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2, viewBoxString));
     };
 
-    _class.prototype['@htmlbars class is output'] = function htmlbarsClassIsOutput() {
+    _class.prototype['@test class is output'] = function testClassIsOutput() {
       var _this4 = this;
 
       this.render('<div><svg class=\'{{model.color}} tall\'></svg></div>', {
