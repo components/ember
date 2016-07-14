@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+72193d3f
+ * @version   2.7.0-canary+b19353f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -51095,7 +51095,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+72193d3f";
+  exports.default = "2.7.0-canary+b19353f6";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -65371,6 +65371,21 @@ enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], funct
 
   function HandlerInfo(_props) {
     var props = _props || {};
+    var name = props.name;
+
+    // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
+    this.handlerPromise = _rsvpPromise.default.resolve(props.handler);
+
+    // Wait until the 'handler' property has been updated when chaining to a handler
+    // that is a promise
+    if (_routerUtils.isPromise(props.handler)) {
+      this.handlerPromise = this.handlerPromise.then(_routerUtils.bind(this, this.updateHandler));
+      props.handler = undefined;
+    } else if (props.handler) {
+      // Store the name of the handler on the handler for easy checks later
+      props.handler._handlerName = name;
+    }
+
     _routerUtils.merge(this, props);
     this.initialize(props);
   }
@@ -65404,14 +65419,27 @@ enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], funct
       return this.params || {};
     },
 
+    updateHandler: function (handler) {
+      // Store the name of the handler on the handler for easy checks later
+      handler._handlerName = this.name;
+      return this.handler = handler;
+    },
+
     resolve: function (shouldContinue, payload) {
       var checkForAbort = _routerUtils.bind(this, this.checkForAbort, shouldContinue),
           beforeModel = _routerUtils.bind(this, this.runBeforeModelHook, payload),
           model = _routerUtils.bind(this, this.getModel, payload),
           afterModel = _routerUtils.bind(this, this.runAfterModelHook, payload),
-          becomeResolved = _routerUtils.bind(this, this.becomeResolved, payload);
+          becomeResolved = _routerUtils.bind(this, this.becomeResolved, payload),
+          self = this;
 
-      return _rsvpPromise.default.resolve(undefined, this.promiseLabel("Start handler")).then(checkForAbort, null, this.promiseLabel("Check for abort")).then(beforeModel, null, this.promiseLabel("Before model")).then(checkForAbort, null, this.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, this.promiseLabel("Model")).then(checkForAbort, null, this.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, this.promiseLabel("After model")).then(checkForAbort, null, this.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, this.promiseLabel("Become resolved"));
+      return _rsvpPromise.default.resolve(this.handlerPromise, this.promiseLabel("Start handler")).then(function (handler) {
+        // We nest this chain in case the handlerPromise has an error so that
+        // we don't have to bubble it through every step
+        return _rsvpPromise.default.resolve(handler).then(checkForAbort, null, self.promiseLabel("Check for abort")).then(beforeModel, null, self.promiseLabel("Before model")).then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, self.promiseLabel("Model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, self.promiseLabel("After model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, self.promiseLabel("Become resolved"));
+      }, function (error) {
+        throw error;
+      });
     },
 
     runBeforeModelHook: function (payload) {
@@ -65650,7 +65678,7 @@ enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'rout
 
   exports.default = UnresolvedHandlerInfoByParam;
 });
-enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/utils', 'router/transition-state', 'router/transition', 'router/transition-intent/named-transition-intent', 'router/transition-intent/url-transition-intent', 'router/handler-info'], function (exports, _routeRecognizer, _rsvpPromise, _routerUtils, _routerTransitionState, _routerTransition, _routerTransitionIntentNamedTransitionIntent, _routerTransitionIntentUrlTransitionIntent, _routerHandlerInfo) {
+enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/utils', 'router/transition-state', 'router/transition', 'router/transition-intent/named-transition-intent', 'router/transition-intent/url-transition-intent'], function (exports, _routeRecognizer, _rsvpPromise, _routerUtils, _routerTransitionState, _routerTransition, _routerTransitionIntentNamedTransitionIntent, _routerTransitionIntentUrlTransitionIntent) {
   'use strict';
 
   var pop = Array.prototype.pop;
@@ -66119,26 +66147,35 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
     that may happen in enter/setup.
   */
   function handlerEnteredOrUpdated(currentHandlerInfos, handlerInfo, enter, transition) {
-
     var handler = handlerInfo.handler,
         context = handlerInfo.context;
 
-    if (enter) {
-      _routerUtils.callHook(handler, 'enter', transition);
-    }
-    if (transition && transition.isAborted) {
-      throw new _routerTransition.TransitionAborted();
+    function _handlerEnteredOrUpdated(handler) {
+      if (enter) {
+        _routerUtils.callHook(handler, 'enter', transition);
+      }
+
+      if (transition && transition.isAborted) {
+        throw new _routerTransition.TransitionAborted();
+      }
+
+      handler.context = context;
+      _routerUtils.callHook(handler, 'contextDidChange');
+
+      _routerUtils.callHook(handler, 'setup', context, transition);
+      if (transition && transition.isAborted) {
+        throw new _routerTransition.TransitionAborted();
+      }
+
+      currentHandlerInfos.push(handlerInfo);
     }
 
-    handler.context = context;
-    _routerUtils.callHook(handler, 'contextDidChange');
-
-    _routerUtils.callHook(handler, 'setup', context, transition);
-    if (transition && transition.isAborted) {
-      throw new _routerTransition.TransitionAborted();
+    // If the handler doesn't exist, it means we haven't resolved the handler promise yet
+    if (!handler) {
+      handlerInfo.handlerPromise = handlerInfo.handlerPromise.then(_handlerEnteredOrUpdated);
+    } else {
+      _handlerEnteredOrUpdated(handler);
     }
-
-    currentHandlerInfos.push(handlerInfo);
 
     return true;
   }
@@ -66515,7 +66552,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
       // Pivot handlers are provided for refresh transitions
       if (this.pivotHandler) {
         for (i = 0, len = handlers.length; i < len; ++i) {
-          if (getHandler(handlers[i].handler) === this.pivotHandler) {
+          if (handlers[i].handler === this.pivotHandler._handlerName) {
             invalidateIndex = i;
             break;
           }
@@ -66693,21 +66730,37 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
       }
 
       var statesDiffer = false;
+      var url = this.url;
+
+      // Checks if a handler is accessible by URL. If it is not, an error is thrown.
+      // For the case where the handler is loaded asynchronously, the error will be
+      // thrown once it is loaded.
+      function checkHandlerAccessibility(handler) {
+        if (handler.inaccessibleByURL) {
+          throw new _routerUnrecognizedUrlError.default(url);
+        }
+
+        return handler;
+      }
 
       for (i = 0, len = results.length; i < len; ++i) {
         var result = results[i];
         var name = result.handler;
         var handler = getHandler(name);
 
-        if (handler.inaccessibleByURL) {
-          throw new _routerUnrecognizedUrlError.default(this.url);
-        }
+        checkHandlerAccessibility(handler);
 
         var newHandlerInfo = _routerHandlerInfoFactory.default('param', {
           name: name,
           handler: handler,
           params: result.params
         });
+
+        // If the hanlder is being loaded asynchronously, check again if we can
+        // access it after it has resolved
+        if (_routerUtils.isPromise(handler)) {
+          newHandlerInfo.handlerPromise = newHandlerInfo.handlerPromise.then(checkHandlerAccessibility);
+        }
 
         var oldHandlerInfo = oldState.handlerInfos[i];
         if (statesDiffer || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
@@ -66952,8 +67005,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
       hook and shared with a later hook. Properties set on `data` will
       be copied to new transitions generated by calling `retry` on this
       transition.
-     
-      @property data
+       @property data
       @type {Object}
       @public
      */
@@ -67158,6 +67210,7 @@ enifed("router/unrecognized-url-error", ["exports", "router/utils"], function (e
 enifed('router/utils', ['exports'], function (exports) {
   'use strict';
 
+  exports.isPromise = isPromise;
   exports.extractQueryParams = extractQueryParams;
   exports.log = log;
   exports.bind = bind;
@@ -67180,6 +67233,14 @@ enifed('router/utils', ['exports'], function (exports) {
   var isArray = _isArray;
 
   exports.isArray = isArray;
+  /**
+    Determines if an object is Promise by checking if it is "thenable".
+  **/
+
+  function isPromise(obj) {
+    return (typeof obj === 'object' && obj !== null || typeof obj === 'function') && typeof obj.then === 'function';
+  }
+
   function merge(hash, other) {
     for (var prop in other) {
       if (other.hasOwnProperty(prop)) {
@@ -67282,9 +67343,20 @@ enifed('router/utils', ['exports'], function (exports) {
 
     var eventWasHandled = false;
 
+    function delayedEvent(name, args, handler) {
+      handler.events[name].apply(handler, args);
+    }
+
     for (var i = handlerInfos.length - 1; i >= 0; i--) {
       var handlerInfo = handlerInfos[i],
           handler = handlerInfo.handler;
+
+      // If there is no handler, it means the handler hasn't resolved yet which
+      // means that we should trigger the event later when the handler is available
+      if (!handler) {
+        handlerInfo.handlerPromise.then(bind(null, delayedEvent, name, args));
+        continue;
+      }
 
       if (handler.events && handler.events[name]) {
         if (handler.events[name].apply(handler, args) === true) {
@@ -67295,7 +67367,11 @@ enifed('router/utils', ['exports'], function (exports) {
       }
     }
 
-    if (!eventWasHandled && !ignoreFailure) {
+    // In the case that we got an UnrecognizedURLError as an event with no handler,
+    // let it bubble up
+    if (name === 'error' && args[0].name === 'UnrecognizedURLError') {
+      throw args[0];
+    } else if (!eventWasHandled && !ignoreFailure) {
       throw new Error("Nothing handled the event '" + name + "'.");
     }
   }
