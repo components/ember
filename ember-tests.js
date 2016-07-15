@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b19353f6
+ * @version   2.7.0-canary+422adfb6
  */
 
 var enifed, requireModule, require, Ember;
@@ -60208,6 +60208,18 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
   });
 
   if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
+      Router.map(function () {
+        var _this = this;
+
+        throws(function () {
+          _this.route('posts', { serialize: function () {} });
+        }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
+      });
+
+      Router.create()._initRouterJs();
+    });
+
     QUnit.module('Ember Router DSL with engines', {
       setup: setup,
       teardown: teardown
@@ -82174,7 +82186,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
     assert.deepEqual(actions, ['#app-2', '#app-1']);
   });
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -83007,56 +83019,31 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.asyncTest('Nested callbacks are not exited when moving to siblings', function () {
-    function serializeRootRoute() {
-      rootSerialize++;
-      return this._super.apply(this, arguments);
-    }
-
-    if (_emberMetalFeatures.default('ember-route-serializers')) {
-      Router.map(function () {
-        this.route('root', { path: '/', serialize: serializeRootRoute }, function () {
-          this.route('special', { path: '/specials/:menu_item_id', resetNamespace: true });
-        });
+    Router.map(function () {
+      this.route('root', { path: '/' }, function () {
+        this.route('special', { path: '/specials/:menu_item_id', resetNamespace: true });
       });
+    });
 
-      App.RootRoute = _emberRoutingSystemRoute.default.extend({
-        model: function () {
-          rootModel++;
-          return this._super.apply(this, arguments);
-        },
+    App.RootRoute = _emberRoutingSystemRoute.default.extend({
+      model: function () {
+        rootModel++;
+        return this._super.apply(this, arguments);
+      },
 
-        setupController: function () {
-          rootSetup++;
-        },
+      setupController: function () {
+        rootSetup++;
+      },
 
-        renderTemplate: function () {
-          rootRender++;
-        }
-      });
-    } else {
-      Router.map(function () {
-        this.route('root', { path: '/' }, function () {
-          this.route('special', { path: '/specials/:menu_item_id', resetNamespace: true });
-        });
-      });
+      renderTemplate: function () {
+        rootRender++;
+      },
 
-      App.RootRoute = _emberRoutingSystemRoute.default.extend({
-        model: function () {
-          rootModel++;
-          return this._super.apply(this, arguments);
-        },
-
-        setupController: function () {
-          rootSetup++;
-        },
-
-        renderTemplate: function () {
-          rootRender++;
-        },
-
-        serialize: serializeRootRoute
-      });
-    }
+      serialize: function () {
+        rootSerialize++;
+        return this._super.apply(this, arguments);
+      }
+    });
 
     var currentPath = undefined;
 
@@ -84158,34 +84145,6 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     deepEqual(router.location.path, '/posts/emberjs');
   });
 
-  if (_emberMetalFeatures.default('ember-route-serializers')) {
-    QUnit.test('Custom Route#serialize method still works [DEPRECATED]', function () {
-      Router.map(function () {
-        this.route('posts', function () {
-          this.route('index', {
-            path: ':category'
-          });
-        });
-      });
-
-      App.PostsIndexRoute = _emberRoutingSystemRoute.default.extend({
-        serialize: function (model) {
-          return { category: model.category };
-        }
-      });
-
-      bootApplication();
-
-      _emberMetalRun_loop.default(function () {
-        expectDeprecation(function () {
-          return router.transitionTo('posts', { category: 'emberjs' });
-        }, 'Defining a serialize function on route \'posts.index\' is deprecated. Instead, define it in the router\'s map as an option.');
-      });
-
-      deepEqual(router.location.path, '/posts/emberjs');
-    });
-  }
-
   QUnit.test('Application template does not duplicate when re-rendered', function () {
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>I Render Once</h3>{{outlet}}'));
 
@@ -85036,27 +84995,18 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Redirecting with null model doesn\'t error out', function () {
-    function serializeAboutRoute(model) {
-      if (model === null) {
-        return { hurhurhur: 'TreeklesMcGeekles' };
+    Router.map(function () {
+      this.route('home', { path: '/' });
+      this.route('about', { path: '/about/:hurhurhur' });
+    });
+
+    App.AboutRoute = _emberRoutingSystemRoute.default.extend({
+      serialize: function (model) {
+        if (model === null) {
+          return { hurhurhur: 'TreeklesMcGeekles' };
+        }
       }
-    }
-
-    if (_emberMetalFeatures.default('ember-route-serializers')) {
-      Router.map(function () {
-        this.route('home', { path: '/' });
-        this.route('about', { path: '/about/:hurhurhur', serialize: serializeAboutRoute });
-      });
-    } else {
-      Router.map(function () {
-        this.route('home', { path: '/' });
-        this.route('about', { path: '/about/:hurhurhur' });
-      });
-
-      App.AboutRoute = _emberRoutingSystemRoute.default.extend({
-        serialize: serializeAboutRoute
-      });
-    }
+    });
 
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
       beforeModel: function () {
@@ -85888,6 +85838,63 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       });
     }, /You passed undefined as the outlet name/);
   });
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.test('Route serializers work for Engines', function () {
+      expect(2);
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      registry.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var postSerialize = function (params) {
+        ok(true, 'serialize hook runs');
+        return {
+          post_id: params.id
+        };
+      };
+      var BlogMap = function () {
+        this.route('post', { path: '/post/:post_id', serialize: postSerialize });
+      };
+      registry.register('route-map:blog', BlogMap);
+
+      Router.map(function () {
+        this.mount('blog');
+      });
+
+      bootApplication();
+
+      equal(router.router.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
+    });
+
+    QUnit.test('Defining a Route#serialize method in an Engine throws an error', function () {
+      expect(1);
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      registry.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {
+        this.route('post');
+      };
+      registry.register('route-map:blog', BlogMap);
+
+      Router.map(function () {
+        this.mount('blog');
+      });
+
+      bootApplication();
+
+      var PostRoute = _emberRoutingSystemRoute.default.extend({ serialize: function () {} });
+      container.lookup('engine:blog').register('route:post', PostRoute);
+
+      throws(function () {
+        return router.transitionTo('blog.post');
+      }, /Defining a custom serialize method on an Engine route is not supported/);
+    });
+  }
 });
 enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-templates/template_registry', 'ember-runtime/system/string', 'ember-metal/mixin', 'ember-metal/meta'], function (exports, _emberRuntimeControllersController, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry, _emberRuntimeSystemString, _emberMetalMixin, _emberMetalMeta) {
   'use strict';
