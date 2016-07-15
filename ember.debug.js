@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b117af32
+ * @version   2.7.0-canary+2b4a919b
  */
 
 var enifed, requireModule, require, Ember;
@@ -32905,6 +32905,12 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
           }
         }
 
+        if (this.enableLoadingSubstates) {
+          var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
+          createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
+          createRoute(this, name + '_error', { path: dummyErrorRoute });
+        }
+
         var localFullName = 'application';
         var routeInfo = _emberMetalAssign.default({ localFullName: localFullName }, engineInfo);
 
@@ -36142,7 +36148,17 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
   function findChildRouteName(parentRoute, originatingChildRoute, name) {
     var router = parentRoute.router;
     var childName = undefined;
-    var targetChildRouteName = originatingChildRoute.routeName.split('.').pop();
+    var originatingChildRouteName = originatingChildRoute.routeName;
+
+    if (_emberMetalFeatures.default('ember-application-engines')) {
+      // The only time the originatingChildRoute's name should be 'application'
+      // is if we're entering an engine
+      if (originatingChildRouteName === 'application') {
+        originatingChildRouteName = _containerOwner.getOwner(originatingChildRoute).mountPoint;
+      }
+    }
+
+    var targetChildRouteName = originatingChildRouteName.split('.').pop();
     var namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
 
     // First, try a named loading state, e.g. 'foo_loading'
@@ -51236,7 +51252,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+b117af32";
+  exports.default = "2.7.0-canary+2b4a919b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+b117af32
+ * @version   2.7.0-canary+2b4a919b
  */
 
 var enifed, requireModule, require, Ember;
@@ -60346,6 +60346,68 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
         return s.string;
       }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
     });
+
+    QUnit.test('should add loading and error routes to a mount if _isRouterMapResult is true', function () {
+      Router.map(function () {
+        this.mount('chat');
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs();
+
+      ok(router.router.recognizer.names['chat'], 'main route was created');
+      ok(router.router.recognizer.names['chat_loading'], 'loading route was added');
+      ok(router.router.recognizer.names['chat_error'], 'error route was added');
+    });
+
+    QUnit.test('should add loading and error routes to a mount alias if _isRouterMapResult is true', function () {
+      Router.map(function () {
+        this.mount('chat', { as: 'shoutbox' });
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs();
+
+      ok(router.router.recognizer.names['shoutbox'], 'main route was created');
+      ok(router.router.recognizer.names['shoutbox_loading'], 'loading route was added');
+      ok(router.router.recognizer.names['shoutbox_error'], 'error route was added');
+    });
+
+    QUnit.test('should not add loading and error routes to a mount if _isRouterMapResult is false', function () {
+      Router.map(function () {
+        this.mount('chat');
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create();
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs(false);
+
+      ok(router.router.recognizer.names['chat'], 'main route was created');
+      ok(!router.router.recognizer.names['chat_loading'], 'loading route was not added');
+      ok(!router.router.recognizer.names['chat_error'], 'error route was not added');
+    });
   }
 });
 enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
@@ -90748,7 +90810,7 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop'
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-templates/template_registry'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberTemplatesTemplate_registry) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-templates/template_registry', 'ember-metal/features'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberTemplatesTemplate_registry, _emberMetalFeatures) {
   'use strict';
 
   var Router = undefined,
@@ -90756,6 +90818,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
       templates = undefined,
       router = undefined,
       container = undefined,
+      registry = undefined,
       counter = undefined;
 
   function step(expectedValue, description) {
@@ -90800,6 +90863,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
         Router = App.Router;
 
         container = App.__container__;
+        registry = App.__registry__;
 
         templates = {
           application: '<div id="app">{{outlet}}</div>',
@@ -91776,6 +91840,77 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
 
     equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'INDEX');
   });
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    QUnit.test('Slow Promise from an Engine application route enters the mounts loading state', function () {
+      expect(1);
+
+      templates['news/blog_loading'] = 'BLOG LOADING';
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      registry.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      registry.register('route-map:blog', BlogMap);
+
+      Router.map(function () {
+        this.route('news', function () {
+          this.mount('blog');
+        });
+      });
+
+      var deferred = _emberRuntimeExtRsvp.default.defer();
+      var BlogRoute = _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      });
+
+      var blog = container.lookup('engine:blog');
+      blog.register('route:application', BlogRoute);
+
+      bootApplication('/news/blog');
+
+      equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
+
+      _emberMetalRun_loop.default(deferred, 'resolve');
+    });
+
+    QUnit.test('Rejected Promise from an Engine application route enters the mounts error state', function () {
+      expect(1);
+
+      templates['news/blog_error'] = 'BLOG ERROR';
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      registry.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      registry.register('route-map:blog', BlogMap);
+
+      Router.map(function () {
+        this.route('news', function () {
+          this.mount('blog');
+        });
+      });
+
+      var BlogRoute = _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return _emberRuntimeExtRsvp.default.Promise.reject();
+        }
+      });
+
+      var blog = container.lookup('engine:blog');
+      blog.register('route:application', BlogRoute);
+
+      bootApplication('/news/blog');
+
+      equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG ERROR', 'news/blog_loading was entered');
+    });
+  }
 });
 enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry) {
   'use strict';
