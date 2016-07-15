@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+422adfb6
+ * @version   2.7.0-canary+b117af32
  */
 
 var enifed, requireModule, require, Ember;
@@ -46416,6 +46416,121 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/object', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'container/owner', 'ember-metal/features', 'ember-application/system/engine-parent', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberMetalRun_loop, _containerOwner, _emberMetalFeatures, _emberApplicationSystemEngineParent, _internalTestHelpersTestsSkipIfGlimmer) {
+  'use strict';
+
+  var App = undefined,
+      app = undefined,
+      appInstance = undefined,
+      ChatEngine = undefined,
+      chatEngineResolutions = undefined;
+
+  function commonSetup() {
+    App = _emberApplicationSystemApplication.default.extend({ router: null });
+
+    var ChatEngineResolver = _emberRuntimeSystemObject.default.extend({
+      resolve: function (fullName) {
+        return chatEngineResolutions[fullName];
+      }
+    });
+
+    ChatEngine = _emberApplicationSystemEngine.default.extend({
+      router: null,
+      Resolver: ChatEngineResolver
+    });
+
+    _emberMetalRun_loop.default(function () {
+      app = App.create();
+      app.register('engine:chat', ChatEngine);
+      app.registerOptionsForType('template', { instantiate: false });
+      app.registerOptionsForType('component', { singleton: false });
+      app.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+      appInstance = app.buildInstance();
+    });
+  }
+
+  function commonTeardown() {
+    _emberRuntimeTestsUtils.runDestroy(appInstance);
+    _emberRuntimeTestsUtils.runDestroy(app);
+    app = appInstance = null;
+  }
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    _internalTestHelpersTestsSkipIfGlimmer.testModule('mount keyword', {
+      setup: function () {
+        commonSetup();
+      },
+
+      teardown: function () {
+        commonTeardown();
+      }
+    });
+
+    _internalTestHelpersTestsSkipIfGlimmer.test('asserts that only a single param is passed', function (assert) {
+      var _Component$extend;
+
+      assert.expect(1);
+
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "chat" "extra"}}'), _Component$extend)).create();
+
+      expectAssertion(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      }, /The first argument of {{mount}} must be an engine name, e.g. {{mount "chat-engine"}}./i);
+    });
+
+    _internalTestHelpersTestsSkipIfGlimmer.test('asserts that the engine name argument is quoted', function (assert) {
+      var _Component$extend2;
+
+      assert.expect(1);
+
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount chat}}'), _Component$extend2)).create();
+
+      expectAssertion(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      }, /The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}./i);
+    });
+
+    _internalTestHelpersTestsSkipIfGlimmer.test('asserts that the specified engine is registered', function (assert) {
+      var _Component$extend3;
+
+      assert.expect(1);
+
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_containerOwner.OWNER] = appInstance, _Component$extend3.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "does-not-exist"}}'), _Component$extend3)).create();
+
+      expectAssertion(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      }, /You used `{{mount 'does-not-exist'}}`, but the engine 'does-not-exist' can not be found./i);
+    });
+
+    _internalTestHelpersTestsSkipIfGlimmer.test('boots an engine, instantiates its application controller, and renders its application template', function (assert) {
+      var _Component$extend4;
+
+      assert.expect(3);
+
+      chatEngineResolutions = {
+        'template:application': _emberHtmlbarsTemplateCompiler.compile('<h2>Chat here</h2>')
+      };
+
+      chatEngineResolutions['controller:application'] = _emberRuntimeControllersController.default.extend({
+        init: function () {
+          this._super();
+
+          assert.ok(true, 'engine\'s application controller has been instantiated');
+
+          var engineInstance = _containerOwner.getOwner(this);
+          assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engineInstance), appInstance, 'engine instance has appInstance as its parent');
+        }
+      });
+
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_containerOwner.OWNER] = appInstance, _Component$extend4.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "chat"}}'), _Component$extend4.didInsertElement = function () {
+        assert.equal(this.$().text(), 'Chat here', 'engine\'s application template has rendered properly');
+      }, _Component$extend4)).create();
+
+      _emberRuntimeTestsUtils.runAppend(component);
+    });
+  }
 });
 enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';

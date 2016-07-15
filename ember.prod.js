@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+422adfb6
+ * @version   2.7.0-canary+b117af32
  */
 
 var enifed, requireModule, require, Ember;
@@ -14601,7 +14601,7 @@ enifed('ember-htmlbars/components/text_field', ['exports', 'ember-metal/computed
     max: null
   });
 });
-enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get', 'ember-htmlbars/keywords/action', 'ember-htmlbars/keywords/render', 'ember-htmlbars/keywords/element-action'], function (exports, _emberEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet, _emberHtmlbarsKeywordsAction, _emberHtmlbarsKeywordsRender, _emberHtmlbarsKeywordsElementAction) {
+enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-metal/features', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/mount', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get', 'ember-htmlbars/keywords/action', 'ember-htmlbars/keywords/render', 'ember-htmlbars/keywords/element-action'], function (exports, _emberEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberMetalFeatures, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsMount, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet, _emberHtmlbarsKeywordsAction, _emberHtmlbarsKeywordsRender, _emberHtmlbarsKeywordsElementAction) {
   'use strict';
 
   var emberHooks = _emberMetalAssign.default({}, _htmlbarsRuntime.hooks);
@@ -14643,6 +14643,9 @@ enifed('ember-htmlbars/env', ['exports', 'ember-environment', 'htmlbars-runtime'
   _emberHtmlbarsKeywords.registerKeyword('unbound', _emberHtmlbarsKeywordsUnbound.default);
   _emberHtmlbarsKeywords.registerKeyword('component', _emberHtmlbarsKeywordsComponent.default);
   _emberHtmlbarsKeywords.registerKeyword('@element_component', _emberHtmlbarsKeywordsElementComponent.default);
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    _emberHtmlbarsKeywords.registerKeyword('mount', _emberHtmlbarsKeywordsMount.default);
+  }
   _emberHtmlbarsKeywords.registerKeyword('partial', _emberHtmlbarsKeywordsPartial.default);
   _emberHtmlbarsKeywords.registerKeyword('input', _emberHtmlbarsKeywordsInput.default);
   _emberHtmlbarsKeywords.registerKeyword('textarea', _emberHtmlbarsKeywordsTextarea.default);
@@ -17798,6 +17801,140 @@ enifed('ember-htmlbars/keywords/input', ['exports', 'ember-metal/debug', 'ember-
     'checkbox': '-checkbox'
   };
 });
+enifed('ember-htmlbars/keywords/mount', ['exports', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/system/render-env', 'ember-metal/debug', 'container/owner', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/render'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsSystemRenderEnv, _emberMetalDebug, _containerOwner, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsRender) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  'use strict';
+
+  /**
+    The `{{mount}}` helper lets you embed a routeless engine in a template.
+  
+    Mounting an engine will cause an instance to be booted and its `application`
+    template to be rendered.
+  
+    For example, the following template mounts the `ember-chat` engine:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{mount "ember-chat"}}
+    ```
+  
+    Currently, the engine name is the only argument that can be passed to
+    `{{mount}}`.
+  
+    @method mount
+    @for Ember.Templates.helpers
+    @category ember-application-engines
+    @public
+  */
+  exports.default = {
+    setupState: function (prevState, env, scope, params /*, hash */) {
+      var name = params[0];
+
+      var engineInstance = env.owner.buildChildEngineInstance(name);
+
+      engineInstance.boot();
+
+      var state = {
+        parentView: env.view,
+        manager: prevState.manager,
+        controller: lookupEngineController(engineInstance),
+        childOutletState: _emberHtmlbarsKeywordsRender.childOutletState(name, env)
+      };
+
+      _containerOwner.setOwner(state, engineInstance);
+
+      return state;
+    },
+
+    childEnv: function (state, env) {
+      return buildEnvForEngine(_containerOwner.getOwner(state), env);
+    },
+
+    isStable: function (lastState, nextState) {
+      return isStable(lastState.childOutletState, nextState.childOutletState);
+    },
+
+    isEmpty: function () /* state */{
+      return false;
+    },
+
+    render: function (node, env, scope, params, hash, template, inverse, visitor) {
+      var state = node.getState();
+
+      var engineInstance = _containerOwner.getOwner(state);
+
+      var engineController = lookupEngineController(engineInstance);
+
+      var engineTemplate = lookupEngineTemplate(engineInstance);
+
+      var options = {
+        layout: null,
+        self: engineController
+      };
+
+      var engineEnv = buildEnvForEngine(engineInstance, env);
+
+      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(node, engineEnv, hash, options, state.parentView, null, null, engineTemplate);
+
+      state.manager = nodeManager;
+
+      nodeManager.render(engineEnv, hash, visitor);
+    }
+  };
+
+  function isStable(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    for (var outletName in a) {
+      if (!_emberHtmlbarsKeywordsOutlet.isOutletStable(a[outletName], b[outletName])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function lookupEngineController(engineInstance) {
+    return engineInstance.lookup('controller:application');
+  }
+
+  function lookupEngineView(engineInstance, ownerView) {
+    var engineView = engineInstance.lookup('view:toplevel');
+
+    if (engineView.ownerView !== ownerView) {
+      engineView.ownerView = ownerView;
+    }
+
+    return engineView;
+  }
+
+  function lookupEngineTemplate(engineInstance) {
+    var engineTemplate = engineInstance.lookup('template:application');
+
+    if (engineTemplate && engineTemplate.raw) {
+      engineTemplate = engineTemplate.raw;
+    }
+
+    return engineTemplate;
+  }
+
+  function buildEnvForEngine(engineInstance, parentEnv) {
+    var engineView = lookupEngineView(engineInstance, parentEnv.view.ownerView);
+
+    var engineTemplate = lookupEngineTemplate(engineInstance);
+
+    var engineEnv = _emberHtmlbarsSystemRenderEnv.default.build(engineView, engineTemplate.meta);
+
+    return engineEnv;
+  }
+});
 enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-metal/symbol', 'ember-htmlbars/streams/proxy-stream', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/keywords/closure-action'], function (exports, _emberMetalDebug, _emberMetalSymbol, _emberHtmlbarsStreamsProxyStream, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils, _emberViewsCompatAttrsProxy, _emberHtmlbarsKeywordsClosureAction) {
   /**
   @module ember
@@ -17955,6 +18092,8 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
+  exports.isOutletStable = isOutletStable;
+
   if (!_emberMetalFeatures.default('ember-glimmer')) {
     _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@' + _emberVersion.default;
   }
@@ -18051,11 +18190,11 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
     },
 
     isStable: function (lastState, nextState) {
-      return isStable(lastState.outletState, nextState.outletState);
+      return isOutletStable(lastState.outletState, nextState.outletState);
     },
 
     isEmpty: function (state) {
-      return isEmpty(state.outletState);
+      return isOutletEmpty(state.outletState);
     },
 
     render: function (renderNode, env, scope, params, hash, _template, inverse, visitor) {
@@ -18112,11 +18251,11 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
     }
   };
 
-  function isEmpty(outletState) {
+  function isOutletEmpty(outletState) {
     return !outletState || !outletState.render.ViewClass && !outletState.render.template;
   }
 
-  function isStable(a, b) {
+  function isOutletStable(a, b) {
     if (!a && !b) {
       return true;
     }
@@ -18238,6 +18377,8 @@ enifed('ember-htmlbars/keywords/render', ['exports', 'ember-metal/debug', 'ember
   */
 
   'use strict';
+
+  exports.childOutletState = childOutletState;
 
   /**
     Calling ``{{render}}`` from within a template will insert another
@@ -48386,7 +48527,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+422adfb6";
+  exports.default = "2.7.0-canary+b117af32";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
