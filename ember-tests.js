@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2b4a919b
+ * @version   2.7.0-canary+4d0cebf3
  */
 
 var enifed, requireModule, require, Ember;
@@ -7322,7 +7322,7 @@ enifed('ember-glimmer/tests/compat/safe-string-test', ['exports', 'ember-htmlbar
       }
     };
 
-    _class.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
+    _class.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
       var safeString = undefined;
 
       if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
@@ -7333,7 +7333,7 @@ enifed('ember-glimmer/tests/compat/safe-string-test', ['exports', 'ember-htmlbar
         safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
       }
 
-      this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
+      this.assert.ok(_emberHtmlbarsUtilsString.isHTMLSafe(safeString));
     };
 
     return _class;
@@ -28081,7 +28081,7 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'htmlbars-util/safe-
   })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
 
   if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHtmlSafe', (function (_TestCase2) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
       _inherits(_class2, _TestCase2);
 
       function _class2() {
@@ -28090,18 +28090,18 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'htmlbars-util/safe-
         _TestCase2.apply(this, arguments);
       }
 
-      _class2.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
+      _class2.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
         var safeString = _emberHtmlbarsUtilsString.htmlSafe('<em>Emphasize</em> the important things.');
 
-        this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
+        this.assert.ok(_emberHtmlbarsUtilsString.isHTMLSafe(safeString));
       };
 
-      _class2.prototype['@test isHtmlSafe should not detect SafeString on primatives'] = function testIsHtmlSafeShouldNotDetectSafeStringOnPrimatives() {
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe('Hello World'));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe({}));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe([]));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(10));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(null));
+      _class2.prototype['@test isHTMLSafe should not detect SafeString on primatives'] = function testIsHTMLSafeShouldNotDetectSafeStringOnPrimatives() {
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe('Hello World'));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe({}));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe([]));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe(10));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe(null));
       };
 
       return _class2;
@@ -28491,7 +28491,7 @@ enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlba
       }
     };
 
-    _class.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
+    _class.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
       var safeString = undefined;
 
       if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
@@ -28502,7 +28502,7 @@ enifed('ember-htmlbars/tests/compat/safe-string-test', ['exports', 'ember-htmlba
         safeString = new _emberHtmlbarsCompat.default.SafeString('<b>test</b>');
       }
 
-      this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
+      this.assert.ok(_emberHtmlbarsUtilsString.isHTMLSafe(safeString));
     };
 
     return _class;
@@ -50746,7 +50746,7 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'htmlbars-util/safe
   })(_emberHtmlbarsTestsUtilsAbstractTestCase.TestCase));
 
   if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString isHtmlSafe', (function (_TestCase2) {
+    _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
       _inherits(_class2, _TestCase2);
 
       function _class2() {
@@ -50755,18 +50755,18 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'htmlbars-util/safe
         _TestCase2.apply(this, arguments);
       }
 
-      _class2.prototype['@test isHtmlSafe should detect SafeString'] = function testIsHtmlSafeShouldDetectSafeString() {
+      _class2.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
         var safeString = _emberHtmlbarsUtilsString.htmlSafe('<em>Emphasize</em> the important things.');
 
-        this.assert.ok(_emberHtmlbarsUtilsString.isHtmlSafe(safeString));
+        this.assert.ok(_emberHtmlbarsUtilsString.isHTMLSafe(safeString));
       };
 
-      _class2.prototype['@test isHtmlSafe should not detect SafeString on primatives'] = function testIsHtmlSafeShouldNotDetectSafeStringOnPrimatives() {
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe('Hello World'));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe({}));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe([]));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(10));
-        this.assert.notOk(_emberHtmlbarsUtilsString.isHtmlSafe(null));
+      _class2.prototype['@test isHTMLSafe should not detect SafeString on primatives'] = function testIsHTMLSafeShouldNotDetectSafeStringOnPrimatives() {
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe('Hello World'));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe({}));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe([]));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe(10));
+        this.assert.notOk(_emberHtmlbarsUtilsString.isHTMLSafe(null));
       };
 
       return _class2;

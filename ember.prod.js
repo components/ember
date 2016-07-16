@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2b4a919b
+ * @version   2.7.0-canary+4d0cebf3
  */
 
 var enifed, requireModule, require, Ember;
@@ -22119,27 +22119,27 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-ru
     var plainString = 'plain string',
         safeString = Ember.String.htmlSafe('<div>someValue</div>');
   
-    Ember.String.isHtmlSafe(plainString); // false
-    Ember.String.isHtmlSafe(safeString);  // true
+    Ember.String.isHTMLSafe(plainString); // false
+    Ember.String.isHTMLSafe(safeString);  // true
     ```
   
-    @method isHtmlSafe
+    @method isHTMLSafe
     @for Ember.String
     @static
     @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
     @public
   */
-  function isHtmlSafe(str) {
+  function isHTMLSafe(str) {
     return str && typeof str.toHTML === 'function';
   }
 
   if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberRuntimeSystemString.default.isHtmlSafe = isHtmlSafe;
+    _emberRuntimeSystemString.default.isHTMLSafe = isHTMLSafe;
   }
 
   exports.SafeString = _htmlbarsUtil.SafeString;
   exports.htmlSafe = htmlSafe;
-  exports.isHtmlSafe = isHtmlSafe;
+  exports.isHTMLSafe = isHTMLSafe;
   exports.escapeExpression = _htmlbarsUtil.escapeExpression;
 });
 enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
@@ -48543,7 +48543,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2b4a919b";
+  exports.default = "2.7.0-canary+4d0cebf3";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
