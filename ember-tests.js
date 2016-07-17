@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+4d0cebf3
+ * @version   2.7.0-canary+62d0a35b
  */
 
 var enifed, requireModule, require, Ember;
@@ -74321,7 +74321,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Multiple nested async helpers', function () {
+  QUnit.test('Multiple nested async helpers', function () {
     expect(3);
 
     visit('/posts');
@@ -75151,7 +75151,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`click` triggers appropriate events in order', function () {
+  QUnit.test('`click` triggers appropriate events in order', function () {
     expect(5);
 
     var click, wait, events;
@@ -75344,7 +75344,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`triggerEvent accepts an optional options hash without context', function () {
+  QUnit.test('`triggerEvent accepts an optional options hash without context', function () {
     expect(3);
 
     var triggerEvent, wait, event;
@@ -75374,7 +75374,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`triggerEvent can limit searching for a selector to a scope', function () {
+  QUnit.test('`triggerEvent can limit searching for a selector to a scope', function () {
     expect(2);
 
     var triggerEvent, wait, event;
@@ -75404,7 +75404,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`triggerEvent` can be used to trigger arbitrary events', function () {
+  QUnit.test('`triggerEvent` can be used to trigger arbitrary events', function () {
     expect(2);
 
     var triggerEvent, wait, event;
@@ -75522,7 +75522,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     return wait();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`triggerEvent accepts an optional options hash and context', function () {
+  QUnit.test('`triggerEvent accepts an optional options hash and context', function () {
     expect(3);
 
     var triggerEvent, wait, event;
