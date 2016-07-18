@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+3ab8ba2a
+ * @version   2.7.0-canary+64724530
  */
 
 var enifed, requireModule, require, Ember;
@@ -47521,16 +47521,13 @@ enifed('ember-views/system/ext', ['exports', 'ember-metal/run_loop'], function (
   _emberMetalRun_loop.default._addQueue('render', 'actions');
   _emberMetalRun_loop.default._addQueue('afterRender', 'render');
 });
-enifed('ember-views/system/jquery', ['exports', 'ember-environment', 'require'], function (exports, _emberEnvironment, _require) {
+enifed('ember-views/system/jquery', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
   var jQuery = undefined;
 
   if (_emberEnvironment.environment.hasDOM) {
     jQuery = _emberEnvironment.context.imports.jQuery;
-    if (!jQuery && typeof _require.default === 'function') {
-      jQuery = _require.default('jquery');
-    }
 
     if (jQuery) {
       if (jQuery.event.addProp) {
@@ -48625,7 +48622,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+3ab8ba2a";
+  exports.default = "2.7.0-canary+64724530";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
