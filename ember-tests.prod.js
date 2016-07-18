@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a13fbbe3
+ * @version   2.7.0-canary+3ab8ba2a
  */
 
 var enifed, requireModule, require, Ember;
@@ -8251,7 +8251,7 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
       }, /You cannot use class as an attributeBinding, use classNameBindings instead./i);
     };
 
-    _class.prototype['@htmlbars blacklists href bindings based on protocol'] = function htmlbarsBlacklistsHrefBindingsBasedOnProtocol() {
+    _class.prototype['@test blacklists href bindings based on protocol'] = function testBlacklistsHrefBindingsBasedOnProtocol() {
       /* jshint scripturl:true */
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -15227,7 +15227,7 @@ enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-tes
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/debug', 'ember-htmlbars/morphs/attr-morph', 'ember-glimmer/tests/utils/helpers', 'ember-htmlbars/utils/string'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberGlimmerTestsUtilsTestHelpers, _emberMetalDebug, _emberHtmlbarsMorphsAttrMorph, _emberGlimmerTestsUtilsHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/debug', 'ember-views/system/utils', 'ember-glimmer/tests/utils/helpers', 'ember-htmlbars/utils/string'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberGlimmerTestsUtilsTestHelpers, _emberMetalDebug, _emberViewsSystemUtils, _emberGlimmerTestsUtilsHelpers, _emberHtmlbarsUtilsString) {
   /* globals EmberDev */
   'use strict';
 
@@ -16391,7 +16391,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       var warnings = undefined,
           originalWarn = undefined;
 
-      _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Inline style tests', (function (_RenderingTest4) {
+      _emberGlimmerTestsUtilsTestCase.moduleFor('Inline style tests', (function (_RenderingTest4) {
         _inherits(_class8, _RenderingTest4);
 
         function _class8() {
@@ -16419,7 +16419,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
             userValue: 'width: 42px'
           });
 
-          assert.deepEqual(warnings, [_emberHtmlbarsMorphsAttrMorph.styleWarning]);
+          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
         };
 
         _class8.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
@@ -16433,7 +16433,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
             userValue: 'width: 42px'
           });
 
-          assert.deepEqual(warnings, [_emberHtmlbarsMorphsAttrMorph.styleWarning]);
+          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
         };
 
         _class8.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
@@ -23443,7 +23443,7 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
       this.assertHTML('<a href="BORK"></a>');
     };
 
-    _class.prototype['@htmlbars should property escape unsafe hrefs'] = function htmlbarsShouldPropertyEscapeUnsafeHrefs() {
+    _class.prototype['@test should property escape unsafe hrefs'] = function testShouldPropertyEscapeUnsafeHrefs() {
       var _this6 = this;
 
       var unsafeUrls = _emberRuntimeSystemNative_array.A([{
@@ -30126,7 +30126,7 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
       }, /You cannot use class as an attributeBinding, use classNameBindings instead./i);
     };
 
-    _class.prototype['@htmlbars blacklists href bindings based on protocol'] = function htmlbarsBlacklistsHrefBindingsBasedOnProtocol() {
+    _class.prototype['@test blacklists href bindings based on protocol'] = function testBlacklistsHrefBindingsBasedOnProtocol() {
       /* jshint scripturl:true */
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -37102,7 +37102,7 @@ enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-te
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/debug', 'ember-htmlbars/morphs/attr-morph', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/utils/string'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalDebug, _emberHtmlbarsMorphsAttrMorph, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/debug', 'ember-views/system/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/utils/string'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalDebug, _emberViewsSystemUtils, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsUtilsString) {
   /* globals EmberDev */
   'use strict';
 
@@ -38266,7 +38266,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       var warnings = undefined,
           originalWarn = undefined;
 
-      _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Inline style tests', (function (_RenderingTest4) {
+      _emberHtmlbarsTestsUtilsTestCase.moduleFor('Inline style tests', (function (_RenderingTest4) {
         _inherits(_class8, _RenderingTest4);
 
         function _class8() {
@@ -38294,7 +38294,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
             userValue: 'width: 42px'
           });
 
-          assert.deepEqual(warnings, [_emberHtmlbarsMorphsAttrMorph.styleWarning]);
+          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
         };
 
         _class8.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
@@ -38308,7 +38308,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
             userValue: 'width: 42px'
           });
 
-          assert.deepEqual(warnings, [_emberHtmlbarsMorphsAttrMorph.styleWarning]);
+          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
         };
 
         _class8.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
@@ -45318,7 +45318,7 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
       this.assertHTML('<a href="BORK"></a>');
     };
 
-    _class.prototype['@htmlbars should property escape unsafe hrefs'] = function htmlbarsShouldPropertyEscapeUnsafeHrefs() {
+    _class.prototype['@test should property escape unsafe hrefs'] = function testShouldPropertyEscapeUnsafeHrefs() {
       var _this6 = this;
 
       var unsafeUrls = _emberRuntimeSystemNative_array.A([{
@@ -75190,7 +75190,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`triggerEvent` with mouseenter triggers native events with simulated X/Y coordinates', function () {
+  QUnit.test('`triggerEvent` with mouseenter triggers native events with simulated X/Y coordinates', function () {
     expect(5);
 
     var triggerEvent, wait, evt;
@@ -79349,7 +79349,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     assert.notStrictEqual(component, ownerView, 'owner view is not itself');
   });
 });
-enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-templates/component', 'ember-views/system/jquery', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-templates/component', 'ember-views/system/jquery', 'ember-templates/template_registry'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplatesTemplate_registry) {
   'use strict';
 
   /*
@@ -79393,7 +79393,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/con
     }
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Actions inside an outlet go to the associated controller', function () {
+  QUnit.test('Actions inside an outlet go to the associated controller', function () {
     expect(1);
 
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{component-with-action action=\'componentAction\'}}'));
