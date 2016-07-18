@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+64865a82
+ * @version   2.7.0-canary+86d68628
  */
 
 var enifed, requireModule, require, Ember;
@@ -24508,7 +24508,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
       this.runAttributeTest('tabindex', [2, 3]);
     };
 
-    _class.prototype['@htmlbars cursor position is not lost when updating content'] = function htmlbarsCursorPositionIsNotLostWhenUpdatingContent() {
+    _class.prototype['@test cursor position is not lost when updating content'] = function testCursorPositionIsNotLostWhenUpdatingContent() {
       var template = '<input value={{value}}>';
       this.render(template, { value: 'hola' });
 
@@ -46383,7 +46383,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
       this.runAttributeTest('tabindex', [2, 3]);
     };
 
-    _class.prototype['@htmlbars cursor position is not lost when updating content'] = function htmlbarsCursorPositionIsNotLostWhenUpdatingContent() {
+    _class.prototype['@test cursor position is not lost when updating content'] = function testCursorPositionIsNotLostWhenUpdatingContent() {
       var template = '<input value={{value}}>';
       this.render(template, { value: 'hola' });
 
@@ -74830,7 +74830,7 @@ enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/
     ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
   });
 });
-enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-templates/component', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberTemplatesComponent, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-templates/component', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberTemplatesComponent, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters) {
   'use strict';
 
   var App;
@@ -75433,7 +75433,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`fillIn` takes context into consideration', function () {
+  QUnit.test('`fillIn` takes context into consideration', function () {
     expect(2);
     var fillIn, find, visit, andThen, wait;
 
@@ -75449,15 +75449,14 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
 
     visit('/');
     fillIn('.current', '#parent', 'current value');
-    andThen(function () {
+
+    return andThen(function () {
       equal(find('#first').val(), 'current value');
       equal(find('#second').val(), '');
     });
-
-    return wait();
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('`fillIn` focuses on the element', function () {
+  QUnit.test('`fillIn` focuses on the element', function () {
     expect(2);
     var fillIn, find, visit, andThen, wait;
 

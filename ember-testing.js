@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+64865a82
+ * @version   2.7.0-canary+86d68628
  */
 
 var enifed, requireModule, require, Ember;
@@ -1368,7 +1368,7 @@ enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal/property_ge
     return _emberMetalProperty_get.get(router, 'location').getURL();
   }
 });
-enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
+enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
   'use strict';
 
   exports.default = fillIn;
@@ -1385,11 +1385,11 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-metal/run_loop', 'emb
     $el = app.testHelpers.findWithAssert(selector, context);
     el = $el[0];
     _emberTestingEvents.focus(el);
-    _emberMetalRun_loop.default(function () {
-      $el.val(text);
-      _emberTestingEvents.fireEvent(el, 'input');
-      _emberTestingEvents.fireEvent(el, 'change');
-    });
+
+    $el.val(text);
+    _emberTestingEvents.fireEvent(el, 'input');
+    _emberTestingEvents.fireEvent(el, 'change');
+
     return app.testHelpers.wait();
   }
 });
