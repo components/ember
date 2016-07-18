@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+9ebda970
+ * @version   2.7.0-canary+64865a82
  */
 
 var enifed, requireModule, require, Ember;
@@ -3386,39 +3386,40 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
   'use strict';
 
-  exports.default = Cache;
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  function Cache(limit, func) {
-    this.store = new _emberMetalEmpty_object.default();
-    this.size = 0;
-    this.misses = 0;
-    this.hits = 0;
-    this.limit = limit;
-    this.func = func;
-  }
+  var Cache = (function () {
+    function Cache(limit, func, key, store) {
+      _classCallCheck(this, Cache);
 
-  function UNDEFINED() {}
+      this.size = 0;
+      this.misses = 0;
+      this.hits = 0;
+      this.limit = limit;
+      this.func = func;
+      this.key = key;
+      this.store = store || new DefaultStore();
+    }
 
-  Cache.prototype = {
-    set: function (key, value) {
+    Cache.prototype.set = function set(obj, value) {
       if (this.limit > this.size) {
+        var key = this.key === undefined ? obj : this.key(obj);
         this.size++;
         if (value === undefined) {
-          this.store[key] = UNDEFINED;
+          this.store.set(key, UNDEFINED);
         } else {
-          this.store[key] = value;
+          this.store.set(key, value);
         }
       }
-
       return value;
-    },
+    };
 
-    get: function (key) {
-      var value = this.store[key];
-
+    Cache.prototype.get = function get(obj) {
+      var key = this.key === undefined ? obj : this.key(obj);
+      var value = this.store.get(key);
       if (value === undefined) {
         this.misses++;
-        value = this.set(key, this.func(key));
+        value = this.set(key, this.func(obj));
       } else if (value === UNDEFINED) {
         this.hits++;
         value = undefined;
@@ -3428,15 +3429,43 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
       }
 
       return value;
-    },
+    };
 
-    purge: function () {
-      this.store = new _emberMetalEmpty_object.default();
+    Cache.prototype.purge = function purge() {
+      this.store.clear();
       this.size = 0;
       this.hits = 0;
       this.misses = 0;
+    };
+
+    return Cache;
+  })();
+
+  exports.default = Cache;
+
+  function UNDEFINED() {}
+
+  var DefaultStore = (function () {
+    function DefaultStore() {
+      _classCallCheck(this, DefaultStore);
+
+      this.data = new _emberMetalEmpty_object.default();
     }
-  };
+
+    DefaultStore.prototype.get = function get(key) {
+      return this.data[key];
+    };
+
+    DefaultStore.prototype.set = function set(key, value) {
+      this.data[key] = value;
+    };
+
+    DefaultStore.prototype.clear = function clear() {
+      this.data = new _emberMetalEmpty_object.default();
+    };
+
+    return DefaultStore;
+  })();
 });
 enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/empty_object', 'ember-metal/watch_path'], function (exports, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalEmpty_object, _emberMetalWatch_path) {
   'use strict';
@@ -19850,7 +19879,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+9ebda970";
+  exports.default = "2.7.0-canary+64865a82";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
