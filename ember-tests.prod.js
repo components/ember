@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8cfd2571
+ * @version   2.7.0-canary+a06493ec
  */
 
 var enifed, requireModule, require, Ember;
@@ -74187,7 +74187,7 @@ enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'r
     link.get('currentWhen');
   });
 });
-enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/ext/rsvp', 'ember-templates/template_registry'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeExtRsvp, _emberTemplatesTemplate_registry) {
+enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/ext/rsvp', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeExtRsvp, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
@@ -74282,7 +74282,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     }
   });
 
-  QUnit.test('helpers can be chained with then', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('helpers can be chained with then', function () {
     expect(6);
 
     currentRoute = 'index';
@@ -74307,7 +74307,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
 
   // Keep this for backwards compatibility
 
-  QUnit.test('helpers can be chained to each other', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('helpers can be chained to each other', function () {
     expect(7);
 
     currentRoute = 'index';
@@ -74326,7 +74326,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  QUnit.test('helpers don\'t need to be chained', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('helpers don\'t need to be chained', function () {
     expect(5);
 
     currentRoute = 'index';
@@ -74351,7 +74351,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  QUnit.test('Nested async helpers', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('Nested async helpers', function () {
     expect(5);
 
     currentRoute = 'index';
@@ -74397,7 +74397,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     });
   });
 
-  QUnit.test('Helpers nested in thens', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('Helpers nested in thens', function () {
     expect(5);
 
     currentRoute = 'index';
