@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+64724530
+ * @version   2.7.0-canary+9ebda970
  */
 
 var enifed, requireModule, require, Ember;
@@ -15881,7 +15881,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-htmlbars/streams/should
     item in an array passing the item as the first block parameter.
   
     ```javascript
-    var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
+    var developers = [{ name: 'Yehuda' },{ name: 'Tom' }, { name: 'Paul' }];
     ```
   
     ```handlebars
@@ -23252,10 +23252,10 @@ enifed("ember-metal/assign", ["exports"], function (exports) {
     Copy properties from a source object to a target object.
   
     ```javascript
-    var a = {first: 'Yehuda'};
-    var b = {last: 'Katz'};
-    var c = {company: 'Tilde Inc.'};
-    Ember.assign(a, b, c); // a === {first: 'Yehuda', last: 'Katz', company: 'Tilde Inc.'}, b === {last: 'Katz'}, c === {company: 'Tilde Inc.'}
+    var a = { first: 'Yehuda' };
+    var b = { last: 'Katz' };
+    var c = { company: 'Tilde Inc.' };
+    Ember.assign(a, b, c); // a === { first: 'Yehuda', last: 'Katz', company: 'Tilde Inc.' }, b === { last: 'Katz' }, c === { company: 'Tilde Inc.' }
     ```
   
     @method assign
@@ -26989,10 +26989,10 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     Merge the contents of two objects together into the first object.
   
     ```javascript
-    Ember.merge({first: 'Tom'}, {last: 'Dale'}); // {first: 'Tom', last: 'Dale'}
-    let a = {first: 'Yehuda'};
-    let b = {last: 'Katz'};
-    Ember.merge(a, b); // a == {first: 'Yehuda', last: 'Katz'}, b == {last: 'Katz'}
+    Ember.merge({ first: 'Tom' }, { last: 'Dale' }); // { first: 'Tom', last: 'Dale' }
+    var a = { first: 'Yehuda' };
+    var b = { last: 'Katz' };
+    Ember.merge(a, b); // a == { first: 'Yehuda', last: 'Katz' }, b == { last: 'Katz' }
     ```
   
     @method merge
@@ -31454,10 +31454,10 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/property_get', '
       the final argument to add query parameters to the destination URL.
        ```javascript
       aController.transitionToRoute('blogPost', 1, {
-        queryParams: {showComments: 'true'}
+        queryParams: { showComments: 'true' }
       });
        // if you just want to transition the query parameters without changing the route
-      aController.transitionToRoute({queryParams: {sort: 'date'}});
+      aController.transitionToRoute({ queryParams: { sort: 'date' } });
       ```
        See also [replaceRoute](/api/classes/Ember.ControllerMixin.html#method_replaceRoute).
        @param {String} name the name of the route or a URL
@@ -33934,10 +33934,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
       the final argument to add query parameters to the destination URL.
        ```javascript
       this.transitionTo('blogPost', 1, {
-        queryParams: {showComments: 'true'}
+        queryParams: { showComments: 'true' }
       });
        // if you just want to transition the query parameters without changing the route
-      this.transitionTo({queryParams: {sort: 'date'}});
+      this.transitionTo({ queryParams: { sort: 'date' } });
       ```
        See also [replaceWith](#method_replaceWith).
        Simple Transition Example
@@ -34002,7 +34002,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
        App.IndexRoute = Ember.Route.extend({
         actions: {
           transitionToApples: function() {
-            this.transitionTo('fruits.apples', {queryParams: {color: 'red'}});
+            this.transitionTo('fruits.apples', { queryParams: { color: 'red' } });
           }
         }
       });
@@ -35710,9 +35710,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
        e.g.
        if these methods are called in succession:
       this._activeQPChanged('foo', '10');
-        // results in _queuedQPChanges = {foo: '10'}
+        // results in _queuedQPChanges = { foo: '10' }
       this._activeQPChanged('bar', false);
-        // results in _queuedQPChanges = {foo: '10', bar: false}
+        // results in _queuedQPChanges = { foo: '10', bar: false }
         _queuedQPChanges will represent both of these changes
       and the transition using `transitionTo` will be triggered
       once.
@@ -51337,7 +51337,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+64724530";
+  exports.default = "2.7.0-canary+9ebda970";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
