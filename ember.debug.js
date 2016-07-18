@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+62d0a35b
+ * @version   2.7.0-canary+a13fbbe3
  */
 
 var enifed, requireModule, require, Ember;
@@ -11192,6 +11192,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var view = _ref.view;
       var controller = _ref.controller;
       var outletState = _ref.outletState;
+      var rootOutletState = _ref.rootOutletState;
       var isTopLevel = _ref.isTopLevel;
       var targetObject = _ref.targetObject;
 
@@ -11200,6 +11201,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       this.view = view;
       this.controller = controller;
       this.outletState = outletState;
+      this.rootOutletState = rootOutletState;
       this.isTopLevel = isTopLevel;
       this.targetObject = targetObject;
     }
@@ -11346,11 +11348,13 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var env = this._env;
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
       var controller = view.outletState.render.controller;
+      var ref = view.toReference();
       var dynamicScope = new DynamicScope({
         view: view,
         controller: controller,
         targetObject: controller,
-        outletState: view.toReference(),
+        outletState: ref,
+        rootOutletState: ref,
         isTopLevel: true
       });
 
@@ -11375,6 +11379,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         // instance
         targetObject: view,
         outletState: _glimmerReference.UNDEFINED_REFERENCE,
+        rootOutletState: _glimmerReference.UNDEFINED_REFERENCE,
         isTopLevel: true
       });
 
@@ -12186,7 +12191,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
     return OutletComponentDefinition;
   })(AbstractOutletComponentDefinition);
 });
-enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug', 'ember-glimmer/utils/references', 'ember-routing/system/generate_controller'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug, _emberGlimmerUtilsReferences, _emberRoutingSystemGenerate_controller) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -12217,11 +12222,11 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
       _emberMetalDebug.assert('The controller argument for {{render}} must be quoted, e.g. {{render "sidebar" controller="foo"}}.', _glimmerReference.isConst(controllerNameRef));
 
       controllerName = controllerNameRef.value();
+
+      _emberMetalDebug.assert('The controller name you supplied \'' + controllerName + '\' did not resolve to a controller.', env.owner.hasRegistration('controller:' + controllerName));
     } else {
       controllerName = templateName;
     }
-
-    _emberMetalDebug.assert('The controller name you supplied \'' + controllerName + '\' did not resolve to a controller.', env.owner.hasRegistration('controller:' + controllerName));
 
     if (args.positional.length === 1) {
       return new _glimmerReference.ConstReference(new RenderDefinition(controllerName, template, env, SINGLETON_RENDER_MANAGER));
@@ -12277,7 +12282,7 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
     };
 
     AbstractRenderManager.prototype.getDestructor = function getDestructor(state) {
-      return null;
+      return state.controller;
     };
 
     AbstractRenderManager.prototype.didCreateElement = function didCreateElement() {};
@@ -12306,6 +12311,10 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
 
       var controller = env.owner.lookup('controller:' + name);
 
+      if (dynamicScope.rootOutletState) {
+        dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
+      }
+
       return { controller: controller };
     };
 
@@ -12329,8 +12338,12 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
 
       var modelRef = args.positional.at(0);
 
-      var factory = env.owner._lookupFactory('controller:' + name);
+      var factory = env.owner._lookupFactory('controller:' + name) || _emberRoutingSystemGenerate_controller.generateControllerFactory(env.owner, name);
       var controller = factory.create({ model: modelRef.value() });
+
+      if (dynamicScope.rootOutletState) {
+        dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
+      }
 
       return { controller: controller };
     };
@@ -13409,7 +13422,7 @@ enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime/utils', 'ember-
     return true;
   }
 });
-enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-reference'], function (exports, _emberMetalAssign, _glimmerReference) {
+enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-reference', 'ember-metal/empty_object'], function (exports, _emberMetalAssign, _glimmerReference, _emberMetalEmpty_object) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -13433,12 +13446,24 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
       this.tag = outletView._tag;
     }
 
+    // So this is a relic of the past that SHOULD go away
+    // in 3.0. Preferably it is deprecated in the release that
+    // follows the Glimmer release.
+
     OutletStateReference.prototype.get = function get(key) {
       return new ChildOutletStateReference(this, key);
     };
 
     OutletStateReference.prototype.value = function value() {
       return this.outletView.outletState;
+    };
+
+    OutletStateReference.prototype.getOrphan = function getOrphan(name) {
+      return new OrphanedOutletStateReference(this, name);
+    };
+
+    OutletStateReference.prototype.update = function update(state) {
+      this.outletView.setOutletState(state);
     };
 
     _createClass(OutletStateReference, [{
@@ -13450,6 +13475,41 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
 
     return OutletStateReference;
   })();
+
+  var OrphanedOutletStateReference = (function (_OutletStateReference) {
+    _inherits(OrphanedOutletStateReference, _OutletStateReference);
+
+    function OrphanedOutletStateReference(root, name) {
+      _classCallCheck(this, OrphanedOutletStateReference);
+
+      _OutletStateReference.call(this, root.outletView);
+      this.root = root;
+      this.name = name;
+    }
+
+    OrphanedOutletStateReference.prototype.value = function value() {
+      var rootState = this.root.value();
+
+      var orphans = rootState.outlets.__ember_orphans__;
+
+      if (!orphans) {
+        return null;
+      }
+
+      var matched = orphans.outlets[this.name];
+
+      if (!matched) {
+        return null;
+      }
+
+      var state = new _emberMetalEmpty_object.default();
+      state[matched.render.outlet] = matched;
+      matched.wasUsed = true;
+      return { outlets: state };
+    };
+
+    return OrphanedOutletStateReference;
+  })(OutletStateReference);
 
   var ChildOutletStateReference = (function () {
     function ChildOutletStateReference(parent, key) {
@@ -36421,7 +36481,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     var target = undefined;
     var myState = {
       render: renderOptions,
-      outlets: new _emberMetalEmpty_object.default()
+      outlets: new _emberMetalEmpty_object.default(),
+      wasUsed: false
     };
     if (renderOptions.into) {
       target = findLiveRoute(liveRoutes, renderOptions.into);
@@ -36432,7 +36493,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       _emberMetalProperty_set.set(target.outlets, renderOptions.outlet, myState);
     } else {
       if (renderOptions.into) {
-        // Megahax time. Post-2.0-breaking-changes, we will just assert
+        // Megahax time. Post-3.0-breaking-changes, we will just assert
         // right here that the user tried to target a nonexistent
         // thing. But for now we still need to support the `render`
         // helper, and people are allowed to target templates rendered
@@ -36460,8 +36521,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     }
     liveRoutes.outlets.__ember_orphans__.outlets[into] = myState;
     _emberMetalRun_loop.default.schedule('afterRender', function () {
-      // `wasUsed` gets set by the render helper. See the function
-      // `impersonateAnOutlet`.
+      // `wasUsed` gets set by the render helper.
       _emberMetalDebug.assert('You attempted to render into \'' + into + '\' but it was not found', liveRoutes.outlets.__ember_orphans__.outlets[into].wasUsed);
     });
   }
@@ -51252,7 +51312,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+62d0a35b";
+  exports.default = "2.7.0-canary+a13fbbe3";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+62d0a35b
+ * @version   2.7.0-canary+a13fbbe3
  */
 
 var enifed, requireModule, require, Ember;
@@ -82363,7 +82363,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
     assert.deepEqual(actions, ['#app-2', '#app-1']);
   });
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -85752,46 +85752,46 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(trim(_emberViewsSystemJquery.default('#qunit-fixture').text()), 'hi');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can this.render({into:...}) the render helper', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo"}}'));
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="foo">{{outlet}}</div>'));
+  QUnit.test('Can this.render({into:...}) the render helper', function () {
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
+    _emberTemplatesTemplate_registry.set('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
     _emberTemplatesTemplate_registry.set('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('bar'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
-        this.render({ into: 'foo' });
+        this.render({ into: 'sidebar' });
       },
       actions: {
         changeToBar: function () {
           this.disconnectOutlet({
-            parentView: 'foo',
+            parentView: 'sidebar',
             outlet: 'main'
           });
-          this.render('bar', { into: 'foo' });
+          this.render('bar', { into: 'sidebar' });
         }
       }
     });
 
     bootApplication();
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(), 'other');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar').text(), 'other');
     _emberMetalRun_loop.default(router, 'send', 'changeToBar');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(), 'bar');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar').text(), 'bar');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can disconnect from the render helper', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo"}}'));
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="foo">{{outlet}}</div>'));
+  QUnit.test('Can disconnect from the render helper', function () {
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
+    _emberTemplatesTemplate_registry.set('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
-        this.render({ into: 'foo' });
+        this.render({ into: 'sidebar' });
       },
       actions: {
         disconnect: function () {
           this.disconnectOutlet({
-            parentView: 'foo',
+            parentView: 'sidebar',
             outlet: 'main'
           });
         }
@@ -85799,21 +85799,21 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
 
     bootApplication();
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(), 'other');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar').text(), 'other');
     _emberMetalRun_loop.default(router, 'send', 'disconnect');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo').text(), '');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar').text(), '');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can this.render({into:...}) the render helper\'s children', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo"}}'));
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="foo">{{outlet}}</div>'));
+  QUnit.test('Can this.render({into:...}) the render helper\'s children', function () {
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
+    _emberTemplatesTemplate_registry.set('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="index">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('other', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
     _emberTemplatesTemplate_registry.set('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('bar'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
-        this.render({ into: 'foo' });
+        this.render({ into: 'sidebar' });
         this.render('other', { into: 'index' });
       },
       actions: {
@@ -85828,20 +85828,20 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
 
     bootApplication();
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(), 'other');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar .index').text(), 'other');
     _emberMetalRun_loop.default(router, 'send', 'changeToBar');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(), 'bar');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar .index').text(), 'bar');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can disconnect from the render helper\'s children', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo"}}'));
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="foo">{{outlet}}</div>'));
+  QUnit.test('Can disconnect from the render helper\'s children', function () {
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
+    _emberTemplatesTemplate_registry.set('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="index">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('other', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
-        this.render({ into: 'foo' });
+        this.render({ into: 'sidebar' });
         this.render('other', { into: 'index' });
       },
       actions: {
@@ -85855,53 +85855,53 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
 
     bootApplication();
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(), 'other');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar .index').text(), 'other');
     _emberMetalRun_loop.default(router, 'send', 'disconnect');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .foo .index').text(), '');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .sidebar .index').text(), '');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can this.render({into:...}) nested render helpers', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo"}}'));
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="foo">{{render "bar"}}</div>'));
-    _emberTemplatesTemplate_registry.set('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="bar">{{outlet}}</div>'));
+  QUnit.test('Can this.render({into:...}) nested render helpers', function () {
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
+    _emberTemplatesTemplate_registry.set('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{render "cart"}}</div>'));
+    _emberTemplatesTemplate_registry.set('cart', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="cart">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
     _emberTemplatesTemplate_registry.set('baz', _emberTemplateCompilerTestsUtilsHelpers.compile('baz'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
-        this.render({ into: 'bar' });
+        this.render({ into: 'cart' });
       },
       actions: {
         changeToBaz: function () {
           this.disconnectOutlet({
-            parentView: 'bar',
+            parentView: 'cart',
             outlet: 'main'
           });
-          this.render('baz', { into: 'bar' });
+          this.render('baz', { into: 'cart' });
         }
       }
     });
 
     bootApplication();
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(), 'other');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .cart').text(), 'other');
     _emberMetalRun_loop.default(router, 'send', 'changeToBaz');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(), 'baz');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .cart').text(), 'baz');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Can disconnect from nested render helpers', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo"}}'));
-    _emberTemplatesTemplate_registry.set('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="foo">{{render "bar"}}</div>'));
-    _emberTemplatesTemplate_registry.set('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="bar">{{outlet}}</div>'));
+  QUnit.test('Can disconnect from nested render helpers', function () {
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
+    _emberTemplatesTemplate_registry.set('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{render "cart"}}</div>'));
+    _emberTemplatesTemplate_registry.set('cart', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="cart">{{outlet}}</div>'));
     _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
-        this.render({ into: 'bar' });
+        this.render({ into: 'cart' });
       },
       actions: {
         disconnect: function () {
           this.disconnectOutlet({
-            parentView: 'bar',
+            parentView: 'cart',
             outlet: 'main'
           });
         }
@@ -85909,9 +85909,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
 
     bootApplication();
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(), 'other');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .cart').text(), 'other');
     _emberMetalRun_loop.default(router, 'send', 'disconnect');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture .bar').text(), '');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture .cart').text(), '');
   });
 
   QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed', function (assert) {
