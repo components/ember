@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a06493ec
+ * @version   2.7.0-canary+65d7734b
  */
 
 var enifed, requireModule, require, Ember;
@@ -47463,7 +47463,7 @@ enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
     return app.testHelpers.wait(callback(app));
   }
 });
-enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
+enifed('ember-testing/helpers/click', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
   'use strict';
 
   exports.default = click;
@@ -47472,12 +47472,12 @@ enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], funct
     var $el = app.testHelpers.findWithAssert(selector, context);
     var el = $el[0];
 
-    _emberTestingEvents.fireEvent(el, 'mousedown');
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mousedown');
 
     _emberTestingEvents.focus(el);
 
-    _emberTestingEvents.fireEvent(el, 'mouseup');
-    _emberTestingEvents.fireEvent(el, 'click');
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'mouseup');
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, 'click');
 
     return app.testHelpers.wait();
   }
@@ -47592,7 +47592,7 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp']
     return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
   }
 });
-enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
+enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-metal/run_loop', 'ember-testing/events'], function (exports, _emberMetalRun_loop, _emberTestingEvents) {
   'use strict';
 
   exports.default = triggerEvent;
@@ -47633,7 +47633,7 @@ enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'
     var $el = app.testHelpers.findWithAssert(selector, context);
     var el = $el[0];
 
-    _emberTestingEvents.fireEvent(el, type, options);
+    _emberMetalRun_loop.default(null, _emberTestingEvents.fireEvent, el, type, options);
 
     return app.testHelpers.wait();
   }
@@ -51416,7 +51416,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a06493ec";
+  exports.default = "2.7.0-canary+65d7734b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
