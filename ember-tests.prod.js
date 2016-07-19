@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+8cfd2571
+ * @version   2.7.0-canary+46a8721b
  */
 
 var enifed, requireModule, require, Ember;
@@ -14674,7 +14674,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
       this.assertNamedSendCount('didStartPlaying', 1);
     };
 
-    _class.prototype['@htmlbars Calling sendAction on a component with a {{mut}} attr calls the function with arguments'] = function htmlbarsCallingSendActionOnAComponentWithAMutAttrCallsTheFunctionWithArguments() {
+    _class.prototype['@test Calling sendAction on a component with a {{mut}} attr calls the function with arguments'] = function testCallingSendActionOnAComponentWithAMutAttrCallsTheFunctionWithArguments() {
       var _this6 = this;
 
       this.renderDelegate('{{action-delegate playing=(mut playing)}}', {
@@ -25463,7 +25463,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertInvariants(oldSnapshot, this.takeSnapshot());
     };
 
-    _class2.prototype['@htmlbars it renders all items with duplicate key values'] = function htmlbarsItRendersAllItemsWithDuplicateKeyValues() {
+    _class2.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
       this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
         list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }])
       });
@@ -36610,7 +36610,7 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
       this.assertNamedSendCount('didStartPlaying', 1);
     };
 
-    _class.prototype['@htmlbars Calling sendAction on a component with a {{mut}} attr calls the function with arguments'] = function htmlbarsCallingSendActionOnAComponentWithAMutAttrCallsTheFunctionWithArguments() {
+    _class.prototype['@test Calling sendAction on a component with a {{mut}} attr calls the function with arguments'] = function testCallingSendActionOnAComponentWithAMutAttrCallsTheFunctionWithArguments() {
       var _this6 = this;
 
       this.renderDelegate('{{action-delegate playing=(mut playing)}}', {
@@ -47514,7 +47514,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertInvariants(oldSnapshot, this.takeSnapshot());
     };
 
-    _class2.prototype['@htmlbars it renders all items with duplicate key values'] = function htmlbarsItRendersAllItemsWithDuplicateKeyValues() {
+    _class2.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
       this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
         list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }])
       });
@@ -78598,269 +78598,6 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     equal(element.firstChild.tagName, 'DIV', 'renders the view div');
     equal(element.firstChild.firstChild.tagName, 'H1', 'renders the view div');
     equal(element.firstChild.firstChild.nextSibling.nodeValue, ' goodbye world', 'renders the text node');
-  });
-});
-enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-environment', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberEnvironment, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsHelpers, _internalTestHelpersTestsSkipIfGlimmer) {
-  'use strict';
-
-  var originalLookup = _emberEnvironment.context.lookup;
-  var lookup = undefined,
-      view = undefined;
-
-  QUnit.module('views/view/view_lifecycle_test - pre-render', {
-    setup: function () {
-      _emberEnvironment.context.lookup = lookup = {};
-    },
-
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(function () {
-          return view.destroy();
-        });
-      }
-      _emberEnvironment.context.lookup = originalLookup;
-    }
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should not affect rendering if rerender is called before initial render happens', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('Rerender me!')
-      });
-
-      view.rerender();
-      view.append();
-    });
-
-    equal(view.$().text(), 'Rerender me!', 'renders correctly if rerender is called first');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should not affect rendering if destroyElement is called before initial render happens', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('Don\'t destroy me!')
-      });
-
-      view.destroyElement();
-      view.append();
-    });
-
-    equal(view.$().text(), 'Don\'t destroy me!', 'renders correctly if destroyElement is called first');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('views/view/view_lifecycle_test - in render', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(function () {
-          return view.destroy();
-        });
-      }
-    }
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('rerender of top level view during rendering should throw', function () {
-    _emberHtmlbarsHelpers.registerHelper('throw', function () {
-      view.rerender();
-    });
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompiler.compile('{{throw}}')
-    });
-    throws(function () {
-      return _emberMetalRun_loop.default(view, view.appendTo, '#qunit-fixture');
-    }, /Something you did caused a view to re-render after it rendered but before it was inserted into the DOM./, 'expected error was not raised');
-  });
-
-  QUnit.module('views/view/view_lifecycle_test - hasElement', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(function () {
-          return view.destroy();
-        });
-      }
-    }
-  });
-
-  QUnit.test('createElement puts the view into the hasElement state', function () {
-    var hasCalledInsertElement = false;
-    view = _emberViewsViewsView.default.create({
-      didInsertElement: function () {
-        hasCalledInsertElement = true;
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.createElement();
-    });
-
-    ok(!hasCalledInsertElement, 'didInsertElement is not called');
-    equal(view.element.tagName, 'DIV', 'content is rendered');
-  });
-
-  QUnit.test('trigger rerender on a view in the hasElement state doesn\'t change its state to inDOM', function () {
-    var hasCalledInsertElement = false;
-    view = _emberViewsViewsView.default.create({
-      didInsertElement: function () {
-        hasCalledInsertElement = true;
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-      view.rerender();
-    });
-
-    ok(!hasCalledInsertElement, 'didInsertElement is not called');
-    equal(view.element.tagName, 'DIV', 'content is rendered');
-  });
-
-  QUnit.module('views/view/view_lifecycle_test - in DOM', {
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(function () {
-          return view.destroy();
-        });
-      }
-    }
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should replace DOM representation if rerender() is called after element is created', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.extend({
-        rerender: function () {
-          this._super.apply(this, arguments);
-        }
-      }).create({
-        template: _emberTemplateCompiler.compile('Do not taunt happy fun {{unbound view.shape}}'),
-        shape: 'sphere'
-      });
-
-      view.volatileProp = view.get('context.shape');
-      view.append();
-    });
-
-    equal(view.$().text(), 'Do not taunt happy fun sphere', 'precond - creates DOM element');
-
-    view.shape = 'ball';
-
-    equal(view.$().text(), 'Do not taunt happy fun sphere', 'precond - keeps DOM element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.rerender();
-    });
-
-    equal(view.$().text(), 'Do not taunt happy fun ball', 'rerenders DOM element when rerender() is called');
-  });
-
-  QUnit.test('should destroy DOM representation when destroyElement is called', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('Don\'t fear the reaper')
-      });
-
-      view.append();
-    });
-
-    ok(view.get('element'), 'precond - generates a DOM element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroyElement();
-    });
-
-    ok(!view.get('element'), 'destroys view when destroyElement() is called');
-  });
-
-  QUnit.test('should destroy DOM representation when destroy is called', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('<div id=\'warning\'>Don\'t fear the reaper</div>')
-      });
-
-      view.append();
-    });
-
-    ok(view.get('element'), 'precond - generates a DOM element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroy();
-    });
-
-    ok(_emberViewsSystemJquery.default('#warning').length === 0, 'destroys element when destroy() is called');
-  });
-
-  QUnit.test('should throw an exception if trying to append an element that is already in DOM', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('Broseidon, King of the Brocean')
-      });
-
-      view.append();
-    });
-
-    ok(view.get('element'), 'precond - creates DOM element');
-
-    throws(function () {
-      _emberMetalRun_loop.default(function () {
-        return view.append();
-      });
-    }, null, 'raises an exception on second append');
-  });
-
-  QUnit.module('views/view/view_lifecycle_test - destroyed');
-
-  QUnit.test('should throw an exception when rerender is called after view is destroyed', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('foo')
-      });
-
-      view.append();
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroy();
-    });
-
-    throws(function () {
-      return view.rerender();
-    }, null, 'throws an exception when calling rerender');
-  });
-
-  QUnit.test('should throw an exception when destroyElement is called after view is destroyed', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('foo')
-      });
-
-      view.append();
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroy();
-    });
-
-    throws(function () {
-      return view.destroyElement();
-    }, null, 'throws an exception when calling destroyElement');
-  });
-
-  QUnit.test('trigger rerender on a view in the inDOM state keeps its state as inDOM', function () {
-    _emberMetalRun_loop.default(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('foo')
-      });
-
-      view.append();
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.rerender();
-    });
-
-    equal(view._currentState, view._states.inDOM, 'the view is still in the inDOM state');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroy();
-    });
   });
 });
 enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'ember-routing/system/controller_for'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _emberRoutingSystemController_for) {
