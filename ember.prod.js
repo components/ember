@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+46a8721b
+ * @version   2.7.0-canary+477ebf13
  */
 
 var enifed, requireModule, require, Ember;
@@ -4195,7 +4195,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require', 'ember-views/component_lookup'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require, _emberViewsComponent_lookup) {
   /**
   @module ember
   @submodule ember-application
@@ -5119,6 +5119,8 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     registry.register('location:none', _emberRoutingLocationNone_location.default);
 
     registry.register(_containerRegistry.privatize(_templateObject), _emberRoutingSystemCache.default);
+
+    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
   }
 
   function registerLibraries() {
@@ -45468,9 +45470,7 @@ enifed('ember-template-compiler/system/template', ['exports', 'ember-template-co
   var template = _compiler.template;
   exports.default = template;
 });
-enifed('ember-templates/bootstrap', ['exports', 'ember-views/component_lookup', 'ember-views/system/jquery', 'ember-metal/error', 'ember-runtime/system/lazy_load', 'ember-template-compiler', 'ember-environment', 'ember-templates/template_registry'], function (exports, _emberViewsComponent_lookup, _emberViewsSystemJquery, _emberMetalError, _emberRuntimeSystemLazy_load, _emberTemplateCompiler, _emberEnvironment, _emberTemplatesTemplate_registry) {
-  /*globals Handlebars */
-
+enifed('ember-templates/bootstrap', ['exports', 'ember-views/system/jquery', 'ember-metal/error', 'ember-runtime/system/lazy_load', 'ember-template-compiler', 'ember-environment', 'ember-templates/template_registry'], function (exports, _emberViewsSystemJquery, _emberMetalError, _emberRuntimeSystemLazy_load, _emberTemplateCompiler, _emberEnvironment, _emberTemplatesTemplate_registry) {
   /**
   @module ember
   @submodule ember-templates
@@ -45490,8 +45490,6 @@ enifed('ember-templates/bootstrap', ['exports', 'ember-views/component_lookup', 
   
     Script tags with `text/x-handlebars` will be compiled
     with Ember's template compiler and are suitable for use as a view's template.
-    Those with type `text/x-raw-handlebars` will be compiled with regular
-    Handlebars and are suitable for use in views' computed properties.
   
     @private
     @method bootstrap
@@ -45500,7 +45498,7 @@ enifed('ember-templates/bootstrap', ['exports', 'ember-views/component_lookup', 
     @param ctx
   */
   function bootstrap(ctx) {
-    var selectors = 'script[type="text/x-handlebars"], script[type="text/x-raw-handlebars"]';
+    var selectors = 'script[type="text/x-handlebars"]';
 
     _emberViewsSystemJquery.default(selectors, ctx).each(function () {
       // Get a reference to the script tag.
@@ -45512,14 +45510,9 @@ enifed('ember-templates/bootstrap', ['exports', 'ember-views/component_lookup', 
       var templateName = script.attr('data-template-name') || script.attr('id') || 'application';
       var template = undefined;
 
-      if (script.attr('type') === 'text/x-raw-handlebars') {
-        var _compile = _emberViewsSystemJquery.default.proxy(Handlebars.compile, Handlebars);
-        template = _compile(script.html());
-      } else {
-        template = _emberTemplateCompiler.compile(script.html(), {
-          moduleName: templateName
-        });
-      }
+      template = _emberTemplateCompiler.compile(script.html(), {
+        moduleName: templateName
+      });
 
       // Check if template of same name already exists.
       if (_emberTemplatesTemplate_registry.has(templateName)) {
@@ -45538,10 +45531,6 @@ enifed('ember-templates/bootstrap', ['exports', 'ember-views/component_lookup', 
     bootstrap(_emberViewsSystemJquery.default(document));
   }
 
-  function registerComponentLookup(app) {
-    app.register('component-lookup:main', _emberViewsComponent_lookup.default);
-  }
-
   /*
     We tie this to application.load to ensure that we've at least
     attempted to bootstrap at the point that the application is loaded.
@@ -45557,11 +45546,6 @@ enifed('ember-templates/bootstrap', ['exports', 'ember-views/component_lookup', 
     Application.initializer({
       name: 'domTemplates',
       initialize: _emberEnvironment.environment.hasDOM ? _bootstrap : function () {}
-    });
-
-    Application.instanceInitializer({
-      name: 'registerComponentLookup',
-      initialize: registerComponentLookup
     });
   });
 
@@ -48701,7 +48685,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+46a8721b";
+  exports.default = "2.7.0-canary+477ebf13";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
