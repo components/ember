@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+477ebf13
+ * @version   2.7.0-canary+a20e1f18
  */
 
 var enifed, requireModule, require, Ember;
@@ -2020,6 +2020,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'container-debug-adapter:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'component-lookup:main');
 
     if (_emberMetalFeatures.default('ember-glimmer')) {
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-glimmer-environment');
@@ -3754,6 +3755,7 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'container-debug-adapter:main');
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'component-lookup:main');
 
     if (_emberMetalFeatures.default('ember-glimmer')) {
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:-outlet');

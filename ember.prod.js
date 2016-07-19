@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+477ebf13
+ * @version   2.7.0-canary+a20e1f18
  */
 
 var enifed, requireModule, require, Ember;
@@ -4195,7 +4195,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require', 'ember-views/component_lookup'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require, _emberViewsComponent_lookup) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require) {
   /**
   @module ember
   @submodule ember-application
@@ -5119,8 +5119,6 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     registry.register('location:none', _emberRoutingLocationNone_location.default);
 
     registry.register(_containerRegistry.privatize(_templateObject), _emberRoutingSystemCache.default);
-
-    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
   }
 
   function registerLibraries() {
@@ -5375,7 +5373,7 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-metal/symbol
     engine[ENGINE_PARENT] = parent;
   }
 });
-enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol', 'ember-runtime/controllers/controller', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'require'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol, _emberRuntimeControllersController, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _require) {
+enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-metal/features', 'ember-metal/symbol', 'ember-runtime/controllers/controller', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-views/component_lookup', 'require'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberMetalFeatures, _emberMetalSymbol, _emberRuntimeControllersController, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberViewsComponent_lookup, _require) {
   /**
   @module ember
   @submodule ember-application
@@ -5827,6 +5825,8 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
 
     registry.register('container-debug-adapter:main', _emberExtensionSupportContainer_debug_adapter.default);
+
+    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
   }
 
   exports.default = Engine;
@@ -48685,7 +48685,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+477ebf13";
+  exports.default = "2.7.0-canary+a20e1f18";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
