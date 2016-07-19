@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a20e1f18
+ * @version   2.7.0-canary+2e18421c
  */
 
 var enifed, requireModule, require, Ember;
@@ -11033,7 +11033,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal/debug', 'ember-
     }
   };
 });
-enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
+enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -11168,16 +11168,27 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
       }
 
       _emberMetalRun_loop.default(function () {
+        var args = _this.getActionArgs();
+        var payload = {
+          args: args,
+          target: target
+        };
         if (typeof actionName === 'function') {
-          actionName.apply(target, _this.getActionArgs());
+          _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+            actionName.apply(target, args);
+          });
           return;
         }
+        payload.name = actionName;
         if (target.send) {
-          target.send.apply(target, [actionName].concat(_this.getActionArgs()));
+          _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+            target.send.apply(target, [actionName].concat(args));
+          });
         } else {
           _emberMetalDebug.assert('The action \'' + actionName + '\' did not exist on ' + target, typeof target[actionName] === 'function');
-
-          target[actionName].apply(target, _this.getActionArgs());
+          _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+            target[actionName].apply(target, args);
+          });
         }
       });
     };
@@ -18144,7 +18155,7 @@ enifed('ember-htmlbars/keywords/debugger', ['exports', 'ember-metal/debug'], fun
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-htmlbars/streams/utils', 'ember-metal/run_loop', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberHtmlbarsStreamsUtils, _emberMetalRun_loop, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
+enifed('ember-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-htmlbars/streams/utils', 'ember-metal/run_loop', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberHtmlbarsStreamsUtils, _emberMetalRun_loop, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation) {
   'use strict';
 
   exports.default = {
@@ -18242,16 +18253,26 @@ enifed('ember-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug'
         var actionArgs = _node$getState.actionArgs;
 
         _emberMetalRun_loop.default(function runRegisteredAction() {
+          var payload = {
+            target: target,
+            args: actionArgs
+          };
           if (typeof actionName === 'function') {
-            actionName.apply(target, actionArgs);
+            _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+              actionName.apply(target, actionArgs);
+            });
             return;
           }
+          payload.name = actionName;
           if (target.send) {
-            target.send.apply(target, [actionName].concat(actionArgs));
+            _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+              target.send.apply(target, [actionName].concat(actionArgs));
+            });
           } else {
             _emberMetalDebug.assert('The action \'' + actionName + '\' did not exist on ' + target, typeof target[actionName] === 'function');
-
-            target[actionName].apply(target, actionArgs);
+            _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+              target[actionName].apply(target, actionArgs);
+            });
           }
         });
       }
@@ -51400,7 +51421,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a20e1f18";
+  exports.default = "2.7.0-canary+2e18421c";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
