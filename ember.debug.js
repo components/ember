@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2e18421c
+ * @version   2.7.0-canary+5757ea5f
  */
 
 var enifed, requireModule, require, Ember;
@@ -3725,7 +3725,7 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
     return tag && tag[propName.toLowerCase()] || false;
   }
 });
-enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
+enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/initializers/dom-templates'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationInitializersDomTemplates) {
   'use strict';
 
   _emberMetalCore.default.Application = _emberApplicationSystemApplication.default;
@@ -3741,6 +3741,9 @@ enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/f
     _emberMetalCore.default.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
   }
 
+  // add domTemplates initializer (only does something if `ember-template-compiler`
+  // is loaded already)
+
   _emberRuntimeSystemLazy_load.runLoadHooks('Ember.Application', _emberApplicationSystemApplication.default);
 });
 // reexports
@@ -3749,6 +3752,21 @@ enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/f
 @module ember
 @submodule ember-application
 */
+enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'ember-environment', 'ember-application/system/application'], function (exports, _require, _emberEnvironment, _emberApplicationSystemApplication) {
+  'use strict';
+
+  var bootstrap = function () {};
+
+  var bootstrapModuleId = 'ember-template-compiler/system/bootstrap';
+  if (_emberEnvironment.environment.hasDOM && _require.has(bootstrapModuleId)) {
+    bootstrap = _require.default(bootstrapModuleId);
+  }
+
+  _emberApplicationSystemApplication.default.initializer({
+    name: 'domTemplates',
+    initialize: bootstrap
+  });
+});
 enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/mixins/registry_proxy', 'ember-metal/assign', 'ember-environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-application/system/engine-instance'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeMixinsRegistry_proxy, _emberMetalAssign, _emberEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
@@ -7809,506 +7827,6 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer-template-compiler/index', ['exports', 'ember-glimmer-template-compiler/system/compile', 'ember-glimmer-template-compiler/system/precompile', 'ember-glimmer-template-compiler/system/template', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompilerSystemCompile, _emberGlimmerTemplateCompilerSystemPrecompile, _emberGlimmerTemplateCompilerSystemTemplate, _emberGlimmerTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.compile = _emberGlimmerTemplateCompilerSystemCompile.default;
-  exports.precompile = _emberGlimmerTemplateCompilerSystemPrecompile.default;
-  exports.template = _emberGlimmerTemplateCompilerSystemTemplate.default;
-  exports.defaultCompileOptions = _emberGlimmerTemplateCompilerSystemCompileOptions.default;
-  exports.registerPlugin = _emberGlimmerTemplateCompilerSystemCompileOptions.registerPlugin;
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   <button {{action 'foo'}}>
-   <button onblur={{action 'foo'}}>
-   <button onblur={{action (action 'foo') 'bar'}}>
-    ```
-  
-    with
-  
-    ```handlebars
-   <button {{action this 'foo'}}>
-   <button onblur={{action this 'foo'}}>
-   <button onblur={{action this (action this 'foo') 'bar'}}>
-    ```
-  
-    @private
-    @class TransformActionSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformActionSyntax;
-
-  function TransformActionSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformActionSyntax.prototype.transform = function TransformActionSyntax_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      ElementModifierStatement: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      },
-      MustacheStatement: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      },
-      SubExpression: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function isAction(node) {
-    return node.path.original === 'action';
-  }
-
-  function insertThisAsFirstParam(node, builders) {
-    node.params.unshift(builders.path(''));
-  }
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-props', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{attrs.foo.bar}}
-    ```
-  
-    to
-  
-    ```handlebars
-   {{foo.bar}}
-    ```
-  
-    as well as `{{#if attrs.foo}}`, `{{deeply (nested attrs.foobar.baz)}}` etc
-  
-    @private
-    @class TransformAttrsToProps
-  */
-
-  'use strict';
-
-  exports.default = TransformAttrsToProps;
-
-  function TransformAttrsToProps() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformAttrsToProps.prototype.transform = function TransformAttrsToProps_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      PathExpression: function (node) {
-        if (node.parts[0] === 'attrs') {
-          return b.path(node.original.substr(6));
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-each-in-into-each', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{#each-in iterableThing as |key value|}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{#each (-each-in iterableThing) as |key value|}}
-    ```
-  
-    @private
-    @class TransformHasBlockSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformEachInIntoEach;
-
-  function TransformEachInIntoEach() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformEachInIntoEach.prototype.transform = function TransformEachInIntoEach_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      BlockStatement: function (node) {
-        if (node.path.original === 'each-in') {
-          node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
-          return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{hasBlock}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{has-block}}
-    ```
-  
-    @private
-    @class TransformHasBlockSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformHasBlockSyntax;
-
-  function TransformHasBlockSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  var TRANSFORMATIONS = {
-    hasBlock: 'has-block',
-    hasBlockParams: 'has-block-params'
-  };
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformHasBlockSyntax.prototype.transform = function TransformHasBlockSyntax_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      PathExpression: function (node) {
-        if (TRANSFORMATIONS[node.original]) {
-          return b.sexpr(b.path(TRANSFORMATIONS[node.original]));
-        }
-      },
-      MustacheStatement: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          return b.mustache(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash, null, node.loc);
-        }
-      },
-      SubExpression: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          return b.sexpr(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash);
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-glimmer-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
-  /**
-   @module ember
-   @submodule ember-glimmer
-  */
-
-  /**
-    A Glimmer2 AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{input type=boundType}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{input (-input-type boundType) type=boundType}}
-    ```
-  
-    Note that the type parameters is not removed as the -input-type helpers
-    is only used to select the component class. The component still needs
-    the type parameter to function.
-  
-    @private
-    @class TransformInputTypeSyntax
-  */
-
-  'use strict';
-
-  exports.default = TransformInputTypeSyntax;
-
-  function TransformInputTypeSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformInputTypeSyntax.prototype.transform = function TransformInputTypeSyntax_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    traverse(ast, {
-      MustacheStatement: function (node) {
-        if (isInput(node)) {
-          insertTypeHelperParameter(node, b);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function isInput(node) {
-    return node.path.original === 'input';
-  }
-
-  function insertTypeHelperParameter(node, builders) {
-    var pairs = node.hash.pairs;
-    var pair = null;
-    for (var i = 0; i < pairs.length; i++) {
-      if (pairs[i].key === 'type') {
-        pair = pairs[i];
-        break;
-      }
-    }
-    if (pair && pair.value.type !== 'StringLiteral') {
-      node.params.unshift(builders.sexpr('-input-type', [builders.path(pair.value.original, pair.loc)], null, pair.loc));
-    }
-  }
-});
-enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-input-type-syntax', 'ember-glimmer-template-compiler/plugins/transform-attrs-into-props', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberMetalAssign) {
-  'use strict';
-
-  exports.default = compileOptions;
-  exports.registerPlugin = registerPlugin;
-  exports.removePlugin = removePlugin;
-  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
-  // the following are ember-glimmer specific
-  _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default]);
-
-  exports.PLUGINS = PLUGINS;
-  var USER_PLUGINS = [];
-
-  function compileOptions(options) {
-    options = options || {};
-    options = _emberMetalAssign.default({}, options);
-    if (!options.plugins) {
-      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
-    } else {
-      var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
-      var pluginsToAdd = potententialPugins.filter(function (plugin) {
-        return options.plugins.ast.indexOf(plugin) === -1;
-      });
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
-    }
-
-    return options;
-  }
-
-  function registerPlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
-    }
-
-    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
-      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
-    }
-  }
-
-  function removePlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
-    }
-
-    USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
-    });
-  }
-});
-enifed('ember-glimmer-template-compiler/system/compile', ['exports', 'ember-glimmer-template-compiler/system/template', 'require', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompilerSystemTemplate, _require, _emberGlimmerTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.default = compile;
-
-  var compileSpec = undefined;
-
-  function compile(string, options) {
-    if (!compileSpec && _require.has('glimmer-compiler')) {
-      compileSpec = _require.default('glimmer-compiler').compileSpec;
-    }
-
-    if (!compileSpec) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    return _emberGlimmerTemplateCompilerSystemTemplate.default(compileSpec(string, _emberGlimmerTemplateCompilerSystemCompileOptions.default(options)));
-  }
-});
-enifed('ember-glimmer-template-compiler/system/precompile', ['exports', 'ember-glimmer-template-compiler/system/compile-options', 'require'], function (exports, _emberGlimmerTemplateCompilerSystemCompileOptions, _require) {
-  'use strict';
-
-  exports.default = precompile;
-
-  var compileSpec = undefined;
-
-  function precompile(templateString, options) {
-    if (!compileSpec && _require.has('glimmer-compiler')) {
-      compileSpec = _require.default('glimmer-compiler').compileSpec;
-    }
-
-    if (!compileSpec) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    return JSON.stringify(compileSpec(templateString, _emberGlimmerTemplateCompilerSystemCompileOptions.default(options)));
-  }
-});
-enifed('ember-glimmer-template-compiler/system/template', ['exports', 'glimmer-runtime'], function (exports, _glimmerRuntime) {
-  'use strict';
-
-  exports.default = template;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  var Wrapper = (function () {
-    Wrapper.create = function create(options) {
-      return new this(options);
-    };
-
-    function Wrapper(_ref, id) {
-      var env = _ref.env;
-
-      _classCallCheck(this, Wrapper);
-
-      this.id = id;
-      this._entryPoint = null;
-      this._layout = null;
-      this.env = env;
-    }
-
-    Wrapper.prototype.asEntryPoint = function asEntryPoint() {
-      if (!this._entryPoint) {
-        var spec = this.spec;
-        var env = this.env;
-
-        this._entryPoint = _glimmerRuntime.Template.fromSpec(spec, env);
-      }
-
-      return this._entryPoint;
-    };
-
-    Wrapper.prototype.asLayout = function asLayout() {
-      if (!this._layout) {
-        var spec = this.spec;
-        var env = this.env;
-
-        this._layout = _glimmerRuntime.Template.layoutFromSpec(spec, env);
-      }
-
-      return this._layout;
-    };
-
-    return Wrapper;
-  })();
-
-  var templateId = 0;
-
-  function template(json) {
-    var id = templateId++;
-    var Factory = (function (_Wrapper) {
-      _inherits(Factory, _Wrapper);
-
-      function Factory(options) {
-        _classCallCheck(this, Factory);
-
-        _Wrapper.call(this, options, id);
-        this.spec = JSON.parse(json);
-      }
-
-      return Factory;
-    })(Wrapper);
-    Factory.id = id;
-    return Factory;
-  }
-});
-enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
-  'use strict';
-
-  exports.Environment = _emberGlimmerEnvironment.default;
-});
 enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
@@ -11033,6 +10551,12 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal/debug', 'ember-
     }
   };
 });
+enifed('ember-glimmer/index', ['exports', 'ember-glimmer/environment', 'ember-glimmer/template'], function (exports, _emberGlimmerEnvironment, _emberGlimmerTemplate) {
+  'use strict';
+
+  exports.Environment = _emberGlimmerEnvironment.default;
+  exports.template = _emberGlimmerTemplate.default;
+});
 enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation) {
   'use strict';
 
@@ -12472,30 +11996,104 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
     return RenderDefinition;
   })(_glimmerRuntime.ComponentDefinition);
 });
-enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer-template-compiler"], function (exports, _emberGlimmerTemplateCompiler) {
-  "use strict";
+enifed('ember-glimmer/template', ['exports', 'glimmer-runtime'], function (exports, _glimmerRuntime) {
+  'use strict';
 
-  exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[[\"yield\",\"default\"]],\"locals\":[],\"named\":[],\"yields\":[\"default\"],\"blocks\":[],\"meta\":null}");
+  exports.default = template;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var templateId = 0;
+
+  var Wrapper = (function () {
+    Wrapper.create = function create(options) {
+      return new this(options);
+    };
+
+    function Wrapper(_ref, id) {
+      var env = _ref.env;
+
+      _classCallCheck(this, Wrapper);
+
+      this.id = id;
+      this._entryPoint = null;
+      this._layout = null;
+      this.env = env;
+    }
+
+    Wrapper.prototype.asEntryPoint = function asEntryPoint() {
+      if (!this._entryPoint) {
+        var spec = this.spec;
+        var env = this.env;
+
+        this._entryPoint = _glimmerRuntime.Template.fromSpec(spec, env);
+      }
+
+      return this._entryPoint;
+    };
+
+    Wrapper.prototype.asLayout = function asLayout() {
+      if (!this._layout) {
+        var spec = this.spec;
+        var env = this.env;
+
+        this._layout = _glimmerRuntime.Template.layoutFromSpec(spec, env);
+      }
+
+      return this._layout;
+    };
+
+    return Wrapper;
+  })();
+
+  function template(json) {
+    var id = templateId++;
+
+    var Factory = (function (_Wrapper) {
+      _inherits(Factory, _Wrapper);
+
+      function Factory(options) {
+        _classCallCheck(this, Factory);
+
+        _Wrapper.call(this, options, id);
+        this.spec = JSON.parse(json);
+      }
+
+      return Factory;
+    })(Wrapper);
+    Factory.id = id;
+
+    return Factory;
+  }
 });
-enifed("ember-glimmer/templates/empty", ["exports", "ember-glimmer-template-compiler"], function (exports, _emberGlimmerTemplateCompiler) {
+enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer"], function (exports, _emberGlimmer) {
   "use strict";
 
-  exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
+  exports.default = _emberGlimmer.template("{\"statements\":[[\"yield\",\"default\"]],\"locals\":[],\"named\":[],\"yields\":[\"default\"],\"blocks\":[],\"meta\":null}");
 });
-enifed("ember-glimmer/templates/link-to", ["exports", "ember-glimmer-template-compiler"], function (exports, _emberGlimmerTemplateCompiler) {
+enifed("ember-glimmer/templates/empty", ["exports", "ember-glimmer"], function (exports, _emberGlimmer) {
   "use strict";
 
-  exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[[\"block\",[\"if\"],[[\"get\",[\"linkTitle\"]]],null,1,0]],\"locals\":[],\"named\":[],\"yields\":[\"default\"],\"blocks\":[{\"statements\":[[\"yield\",\"default\"]],\"locals\":[]},{\"statements\":[[\"append\",[\"unknown\",[\"linkTitle\"]],false]],\"locals\":[]}],\"meta\":null}");
+  exports.default = _emberGlimmer.template("{\"statements\":[],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
 });
-enifed("ember-glimmer/templates/outlet", ["exports", "ember-glimmer-template-compiler"], function (exports, _emberGlimmerTemplateCompiler) {
+enifed("ember-glimmer/templates/link-to", ["exports", "ember-glimmer"], function (exports, _emberGlimmer) {
   "use strict";
 
-  exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
+  exports.default = _emberGlimmer.template("{\"statements\":[[\"block\",[\"if\"],[[\"get\",[\"linkTitle\"]]],null,1,0]],\"locals\":[],\"named\":[],\"yields\":[\"default\"],\"blocks\":[{\"statements\":[[\"yield\",\"default\"]],\"locals\":[]},{\"statements\":[[\"append\",[\"unknown\",[\"linkTitle\"]],false]],\"locals\":[]}],\"meta\":null}");
 });
-enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer-template-compiler"], function (exports, _emberGlimmerTemplateCompiler) {
+enifed("ember-glimmer/templates/outlet", ["exports", "ember-glimmer"], function (exports, _emberGlimmer) {
   "use strict";
 
-  exports.default = _emberGlimmerTemplateCompiler.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
+  exports.default = _emberGlimmer.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
+});
+enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer"], function (exports, _emberGlimmer) {
+  "use strict";
+
+  exports.default = _emberGlimmer.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
 });
 enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-runtime/mixins/array', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberMetalEmpty_object, _emberRuntimeMixinsArray, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn) {
   'use strict';
@@ -13717,300 +13315,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
   })();
 
   exports.default = OutletView;
-});
-enifed('ember-htmlbars-template-compiler/index', ['exports', 'ember-htmlbars-template-compiler/system/compile', 'ember-htmlbars-template-compiler/system/precompile', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompile, _emberHtmlbarsTemplateCompilerSystemPrecompile, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.compile = _emberHtmlbarsTemplateCompilerSystemCompile.default;
-  exports.precompile = _emberHtmlbarsTemplateCompilerSystemPrecompile.default;
-  exports.template = _emberHtmlbarsTemplateCompilerSystemTemplate.default;
-  exports.defaultCompileOptions = _emberHtmlbarsTemplateCompilerSystemCompileOptions.default;
-  exports.registerPlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.registerPlugin;
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformClosureComponentAttrsIntoMut;
-
-  function TransformClosureComponentAttrsIntoMut() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformClosureComponentAttrsIntoMut.prototype.transform = function TransformClosureComponentAttrsIntoMut_transform(ast) {
-    var b = this.syntax.builders;
-
-    this.syntax.traverse(ast, {
-      SubExpression: function (node) {
-        if (isComponentClosure(node)) {
-          mutParameters(b, node);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function isComponentClosure(node) {
-    return node.type === 'SubExpression' && node.path.original === 'component';
-  }
-
-  function mutParameters(builder, node) {
-    for (var i = 1; i < node.params.length; i++) {
-      if (node.params[i].type === 'PathExpression') {
-        node.params[i] = builder.sexpr(builder.path('@mut'), [node.params[i]]);
-      }
-    }
-
-    for (var i = 0; i < node.hash.pairs.length; i++) {
-      var pair = node.hash.pairs[i];
-      var value = pair.value;
-
-      if (value.type === 'PathExpression') {
-        pair.value = builder.sexpr(builder.path('@mut'), [pair.value]);
-      }
-    }
-  }
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformComponentAttrsIntoMut;
-
-  function TransformComponentAttrsIntoMut() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      for (var i = 0; i < node.hash.pairs.length; i++) {
-        var pair = node.hash.pairs[i];
-        var value = pair.value;
-
-        if (value.type === 'PathExpression') {
-          pair.value = b.sexpr(b.path('@mut'), [pair.value]);
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-});
-enifed('ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformComponentCurlyToReadonly;
-
-  function TransformComponentCurlyToReadonly() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      for (var i = 0; i < node.attributes.length; i++) {
-        var attr = node.attributes[i];
-
-        if (attr.value.type !== 'MustacheStatement') {
-          return;
-        }
-        if (attr.value.params.length || attr.value.hash.pairs.length) {
-          return;
-        }
-
-        attr.value = b.mustache(b.path('readonly'), [attr.value.path], null, !attr.value.escape);
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'ComponentNode';
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/compile-options', ['exports', 'ember/version', 'ember-metal/assign', 'ember-template-compiler/plugins', 'ember-htmlbars-template-compiler/plugins/transform-closure-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-htmlbars-template-compiler/plugins/transform-component-curly-to-readonly'], function (exports, _emberVersion, _emberMetalAssign, _emberTemplateCompilerPlugins, _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerPlugin = registerPlugin;
-  exports.removePlugin = removePlugin;
-  exports.default = compileOptions;
-  var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
-
-  // the following are ember-htmlbars specific
-  _emberHtmlbarsTemplateCompilerPluginsTransformClosureComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentAttrsIntoMut.default, _emberHtmlbarsTemplateCompilerPluginsTransformComponentCurlyToReadonly.default]);
-
-  exports.PLUGINS = PLUGINS;
-  var USER_PLUGINS = [];
-
-  function mergePlugins() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    options = _emberMetalAssign.default({}, options);
-    if (!options.plugins) {
-      options.plugins = { ast: [].concat(USER_PLUGINS, PLUGINS) };
-    } else {
-      var potententialPugins = [].concat(USER_PLUGINS, PLUGINS);
-      var pluginsToAdd = potententialPugins.filter(function (plugin) {
-        return options.plugins.ast.indexOf(plugin) === -1;
-      });
-
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
-    }
-
-    return options;
-  }
-
-  function registerPlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid HTMLBars plugin type.');
-    }
-
-    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
-      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
-    }
-  }
-
-  function removePlugin(type, PluginClass) {
-    if (type !== 'ast') {
-      throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
-    }
-
-    USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
-    });
-  }
-
-  /**
-    @private
-    @property compileOptions
-  */
-
-  function compileOptions(_options) {
-    var disableComponentGeneration = true;
-    var options = undefined;
-    // When calling `Ember.Handlebars.compile()` a second argument of `true`
-    // had a special meaning (long since lost), this just gaurds against
-    // `options` being true, and causing an error during compilation.
-    if (_options === true) {
-      options = {};
-    } else {
-      options = _options || {};
-    }
-
-    options.disableComponentGeneration = disableComponentGeneration;
-
-    options = mergePlugins(options);
-
-    options.buildMeta = function buildMeta(program) {
-      return {
-        revision: 'Ember@' + _emberVersion.default,
-        loc: program.loc,
-        moduleName: options.moduleName
-      };
-    };
-
-    return options;
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/compile', ['exports', 'require', 'ember-htmlbars-template-compiler/system/template', 'ember-htmlbars-template-compiler/system/compile-options'], function (exports, _require, _emberHtmlbarsTemplateCompilerSystemTemplate, _emberHtmlbarsTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.default = compiler;
-
-  var compile = undefined;
-
-  function compiler(string, options) {
-    if (!compile && _require.has('htmlbars-compiler/compiler')) {
-      compile = _require.default('htmlbars-compiler/compiler').compile;
-    }
-
-    if (!compile) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    var templateSpec = compile(string, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
-
-    return _emberHtmlbarsTemplateCompilerSystemTemplate.default(templateSpec);
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/precompile', ['exports', 'ember-htmlbars-template-compiler/system/compile-options', 'require'], function (exports, _emberHtmlbarsTemplateCompilerSystemCompileOptions, _require) {
-  'use strict';
-
-  exports.default = precompile;
-
-  var compileSpec = undefined;
-
-  function precompile(templateString, options) {
-    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
-      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
-    }
-
-    if (!compileSpec) {
-      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-    }
-
-    return compileSpec(templateString, _emberHtmlbarsTemplateCompilerSystemCompileOptions.default(options));
-  }
-});
-enifed('ember-htmlbars-template-compiler/system/template', ['exports', 'require'], function (exports, _require2) {
-  'use strict';
-
-  exports.default = template;
-
-  var _require = _require2.default('htmlbars-runtime/hooks');
-
-  var wrap = _require.wrap;
-
-  function template(templateSpec) {
-    if (!templateSpec.render) {
-      templateSpec = wrap(templateSpec);
-    }
-
-    templateSpec.isTop = true;
-    templateSpec.isMethod = false;
-
-    return templateSpec;
-  }
 });
 enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-htmlbars/utils/string', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDebug, _emberHtmlbarsUtilsString, _emberMetalFeatures) {
   'use strict';
@@ -17307,7 +16611,7 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
     view.ownerView._destroyingSubtreeForView = view;
   }
 });
-enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsCompat) {
+enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/compat', 'ember-htmlbars/system/template'], function (exports, _emberMetalCore, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsCompat, _emberHtmlbarsSystemTemplate) {
   /**
     Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
     an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
@@ -17406,6 +16710,11 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/s
   */
   'use strict';
 
+  exports.template = _emberHtmlbarsSystemTemplate.default;
+
+  // Importing ember-htmlbars/compat updates the
+  // Ember.Handlebars global if htmlbars is enabled.
+
   _emberHtmlbarsHelpers.registerHelper('if', _emberHtmlbarsHelpersIf_unless.ifHelper);
   _emberHtmlbarsHelpers.registerHelper('unless', _emberHtmlbarsHelpersIf_unless.unlessHelper);
   _emberHtmlbarsHelpers.registerHelper('with', _emberHtmlbarsHelpersWith.default);
@@ -17426,9 +16735,6 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/s
   };
 });
 // reexports
-
-// Importing ember-htmlbars/compat updates the
-// Ember.Handlebars global if htmlbars is enabled.
 enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
   /**
   @module ember
@@ -22740,10 +22046,26 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/node-man
     nodeManager.render(env, {});
   }
 });
-enifed("ember-htmlbars/templates/component", ["exports", "ember-htmlbars-template-compiler"], function (exports, _emberHtmlbarsTemplateCompiler) {
+enifed('ember-htmlbars/system/template', ['exports', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks) {
+  'use strict';
+
+  exports.default = template;
+
+  function template(templateSpec) {
+    if (!templateSpec.render) {
+      templateSpec = _htmlbarsRuntimeHooks.wrap(templateSpec);
+    }
+
+    templateSpec.isTop = true;
+    templateSpec.isMethod = false;
+
+    return templateSpec;
+  }
+});
+enifed("ember-htmlbars/templates/component", ["exports", "ember-htmlbars"], function (exports, _emberHtmlbars) {
   "use strict";
 
-  exports.default = _emberHtmlbarsTemplateCompiler.template((function () {
+  exports.default = _emberHtmlbars.template((function () {
     return {
       meta: {},
       isEmpty: false,
@@ -22769,10 +22091,10 @@ enifed("ember-htmlbars/templates/component", ["exports", "ember-htmlbars-templat
     };
   })());
 });
-enifed("ember-htmlbars/templates/empty", ["exports", "ember-htmlbars-template-compiler"], function (exports, _emberHtmlbarsTemplateCompiler) {
+enifed("ember-htmlbars/templates/empty", ["exports", "ember-htmlbars"], function (exports, _emberHtmlbars) {
   "use strict";
 
-  exports.default = _emberHtmlbarsTemplateCompiler.template((function () {
+  exports.default = _emberHtmlbars.template((function () {
     return {
       meta: {},
       isEmpty: true,
@@ -22792,10 +22114,10 @@ enifed("ember-htmlbars/templates/empty", ["exports", "ember-htmlbars-template-co
     };
   })());
 });
-enifed("ember-htmlbars/templates/link-to", ["exports", "ember-htmlbars-template-compiler"], function (exports, _emberHtmlbarsTemplateCompiler) {
+enifed("ember-htmlbars/templates/link-to", ["exports", "ember-htmlbars"], function (exports, _emberHtmlbars) {
   "use strict";
 
-  exports.default = _emberHtmlbarsTemplateCompiler.template((function () {
+  exports.default = _emberHtmlbars.template((function () {
     var child0 = (function () {
       return {
         meta: {},
@@ -22871,10 +22193,10 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-htmlbars-template-
     };
   })());
 });
-enifed("ember-htmlbars/templates/top-level-view", ["exports", "ember-htmlbars-template-compiler"], function (exports, _emberHtmlbarsTemplateCompiler) {
+enifed("ember-htmlbars/templates/top-level-view", ["exports", "ember-htmlbars"], function (exports, _emberHtmlbars) {
   "use strict";
 
-  exports.default = _emberHtmlbarsTemplateCompiler.template((function () {
+  exports.default = _emberHtmlbars.template((function () {
     return {
       meta: {},
       isEmpty: false,
@@ -45792,858 +45114,15 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compiler'], function (exports, _emberMetalCore, _emberTemplateCompilerCompiler) {
+enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template'], function (exports, _emberMetalCore, _emberTemplatesTemplate) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
   var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
 
-  var _compiler = _emberTemplateCompilerCompiler.default();
-
-  var precompile = _compiler.precompile;
-  var compile = _compiler.compile;
-  var template = _compiler.template;
-  var registerPlugin = _compiler.registerPlugin;
-
-  EmberHTMLBars.precompile = EmberHandlebars.precompile = precompile;
-  EmberHTMLBars.compile = EmberHandlebars.compile = compile;
-  EmberHTMLBars.template = EmberHandlebars.template = template;
-  EmberHTMLBars.registerPlugin = registerPlugin;
+  EmberHTMLBars.template = EmberHandlebars.template = _emberTemplatesTemplate.default;
 });
 // reexports
-enifed('ember-template-compiler/compat/precompile', ['exports', 'require', 'ember-metal/features'], function (exports, _require, _emberMetalFeatures) {
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-  'use strict';
-
-  var compile = undefined,
-      compileSpec = undefined,
-      compileOptions = undefined;
-
-  // Note we don't really want to expose this from main file
-  if (_emberMetalFeatures.default('ember-glimmer')) {
-    compileOptions = _require.default('ember-glimmer-template-compiler/system/compile-options').default;
-  } else {
-    compileOptions = _require.default('ember-htmlbars-template-compiler/system/compile-options').default;
-  }
-
-  exports.default = function (string) {
-    if ((!compile || !compileSpec) && _require.has('htmlbars-compiler/compiler')) {
-      var Compiler = _require.default('htmlbars-compiler/compiler');
-
-      compile = Compiler.compile;
-      compileSpec = Compiler.compileSpec;
-    }
-
-    if (!compile || !compileSpec) {
-      throw new Error('Cannot call `precompile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `precompile`.');
-    }
-
-    var asObject = arguments[1] === undefined ? true : arguments[1];
-    var compileFunc = asObject ? compile : compileSpec;
-
-    return compileFunc(string, compileOptions());
-  };
-});
-enifed('ember-template-compiler/compiler', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
-  'use strict';
-
-  exports.default = pickCompiler;
-
-  function pickCompiler() {
-    var compiler = undefined;
-    if (_emberMetalFeatures.default('ember-glimmer')) {
-      compiler = _require.default('ember-glimmer-template-compiler');
-    } else {
-      compiler = _require.default('ember-htmlbars-template-compiler');
-    }
-
-    return compiler;
-  }
-});
-enifed('ember-template-compiler/index', ['exports', 'ember-template-compiler/compat', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/register-plugin', 'ember-template-compiler/system/compile-options', 'ember-template-compiler/system/template'], function (exports, _emberTemplateCompilerCompat, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemRegisterPlugin, _emberTemplateCompilerSystemCompileOptions, _emberTemplateCompilerSystemTemplate) {
-  'use strict';
-
-  exports._Ember = _emberMetal.default;
-  // Is this still needed
-  exports.precompile = _emberTemplateCompilerSystemPrecompile.default;
-  exports.compile = _emberTemplateCompilerSystemCompile.default;
-  exports.registerPlugin = _emberTemplateCompilerSystemRegisterPlugin.default;
-  exports.defaultCompileOptions = _emberTemplateCompilerSystemCompileOptions.default;
-  exports.template = _emberTemplateCompilerSystemTemplate.default;
-
-  // used for adding Ember.Handlebars.compile for backwards compat
-});
-enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
-  'use strict';
-
-  exports.default = DeprecateRenderModel;
-
-  function DeprecateRenderModel(options) {
-    this.syntax = null;
-    this.options = options;
-  }
-
-  DeprecateRenderModel.prototype.transform = function DeprecateRenderModel_transform(ast) {
-    var moduleName = this.options.moduleName;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      each(node.params, function (param) {
-        if (param.type !== 'PathExpression') {
-          return;
-        }
-
-        _emberMetalDebug.deprecate(deprecationMessage(moduleName, node, param), false, {
-          id: 'ember-template-compiler.deprecate-render-model',
-          until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x#toc_model-param-in-code-render-code-helper'
-        });
-      });
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'render' && node.params.length > 1;
-  }
-
-  function each(list, callback) {
-    for (var i = 0, l = list.length; i < l; i++) {
-      callback(list[i]);
-    }
-  }
-
-  function deprecationMessage(moduleName, node, param) {
-    var sourceInformation = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc);
-    var componentName = node.params[0].original;
-    var modelName = param.original;
-    var original = '{{render "' + componentName + '" ' + modelName + '}}';
-    var preferred = '{{' + componentName + ' model=' + modelName + '}}';
-
-    return 'Please refactor `' + original + '` to a component and invoke via' + (' `' + preferred + '`. ' + sourceInformation);
-  }
-});
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax'], function (exports, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateRenderModel, _emberTemplateCompilerPluginsTransformInlineLinkTo, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax) {
-  'use strict';
-
-  exports.default = Object.freeze([_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberTemplateCompilerPluginsTransformItemClass.default, _emberTemplateCompilerPluginsTransformAngleBracketComponents.default, _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default, _emberTemplateCompilerPluginsTransformTopLevelComponents.default, _emberTemplateCompilerPluginsDeprecateRenderModel.default, _emberTemplateCompilerPluginsTransformInlineLinkTo.default, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default]);
-});
-enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformAngleBracketComponents;
-
-  function TransformAngleBracketComponents() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformAngleBracketComponents.prototype.transform = function TransformAngleBracketComponents_transform(ast) {
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      node.tag = '<' + node.tag + '>';
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'ComponentNode';
-  }
-});
-enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformInlineLinkTo;
-
-  function TransformInlineLinkTo(options) {
-    this.options = options;
-    this.syntax = null;
-  }
-
-  TransformInlineLinkTo.prototype.transform = function TransformInlineLinkTo_transform(ast) {
-    var _syntax = this.syntax;
-    var traverse = _syntax.traverse;
-    var b = _syntax.builders;
-
-    function buildProgram(content, loc) {
-      return b.program([buildStatement(content, loc)], null, loc);
-    }
-
-    function buildStatement(content, loc) {
-      switch (content.type) {
-        case 'PathExpression':
-          return b.mustache(content, null, null, null, loc);
-
-        case 'SubExpression':
-          return b.mustache(content.path, content.params, content.hash, null, loc);
-
-        // The default case handles literals.
-        default:
-          return b.text('' + content.value, loc);
-      }
-    }
-
-    function unsafeHtml(expr) {
-      return b.sexpr('-html-safe', [expr]);
-    }
-
-    traverse(ast, {
-      MustacheStatement: function (node) {
-        if (node.path.original === 'link-to') {
-          var content = node.escaped ? node.params[0] : unsafeHtml(node.params[0]);
-          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content, node.loc), null, node.loc);
-        }
-      }
-    });
-
-    return ast;
-  };
-});
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
-  'use strict';
-
-  exports.default = TransformInputOnToOnEvent;
-
-  /**
-   @module ember
-   @submodule ember-htmlbars
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{input on="enter" action="doStuff"}}
-   {{input on="key-press" action="doStuff"}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{input enter="doStuff"}}
-   {{input key-press="doStuff"}}
-    ```
-  
-    @private
-    @class TransformInputOnToOnEvent
-  */
-
-  function TransformInputOnToOnEvent() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-    this.options = options;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformInputOnToOnEvent.prototype.transform = function TransformInputOnToOnEvent_transform(ast) {
-    var pluginContext = this;
-    var b = pluginContext.syntax.builders;
-    var walker = new pluginContext.syntax.Walker();
-    var moduleName = pluginContext.options.moduleName;
-
-    walker.visit(ast, function (node) {
-      if (pluginContext.validate(node)) {
-        var action = hashPairForKey(node.hash, 'action');
-        var on = hashPairForKey(node.hash, 'on');
-        var onEvent = hashPairForKey(node.hash, 'onEvent');
-        var normalizedOn = on || onEvent;
-        var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc);
-
-        if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-          _emberMetalDebug.deprecate('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' });
-
-          normalizedOn.key = 'onEvent';
-          return; // exit early, as we cannot transform further
-        }
-
-        removeFromHash(node.hash, normalizedOn);
-        removeFromHash(node.hash, action);
-
-        if (!action) {
-          _emberMetalDebug.deprecate('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' });
-
-          return; // exit early, if no action was available there is nothing to do
-        }
-
-        var specifiedOn = normalizedOn ? normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-        if (normalizedOn && normalizedOn.value.value === 'keyPress') {
-          // using `keyPress` in the root of the component will
-          // clobber the keyPress event handler
-          normalizedOn.value.value = 'key-press';
-        }
-
-        var expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
-
-        _emberMetalDebug.deprecate('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' });
-        if (!normalizedOn) {
-          normalizedOn = b.pair('onEvent', b.string('enter'));
-        }
-
-        node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
-      }
-    });
-
-    return ast;
-  };
-
-  TransformInputOnToOnEvent.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'input' && (hashPairForKey(node.hash, 'action') || hashPairForKey(node.hash, 'on') || hashPairForKey(node.hash, 'onEvent'));
-  };
-
-  function hashPairForKey(hash, key) {
-    for (var i = 0; i < hash.pairs.length; i++) {
-      var pair = hash.pairs[i];
-      if (pair.key === key) {
-        return pair;
-      }
-    }
-
-    return false;
-  }
-
-  function removeFromHash(hash, pairToRemove) {
-    var newPairs = [];
-    for (var i = 0; i < hash.pairs.length; i++) {
-      var pair = hash.pairs[i];
-
-      if (pair !== pairToRemove) {
-        newPairs.push(pair);
-      }
-    }
-
-    hash.pairs = newPairs;
-  }
-});
-enifed('ember-template-compiler/plugins/transform-item-class', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformItemClass;
-
-  function TransformItemClass() {
-    this.syntax = null;
-  }
-
-  TransformItemClass.prototype.transform = function TransformItemClass_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      for (var i = 0; i < node.hash.pairs.length; i++) {
-        var pair = node.hash.pairs[i];
-        var key = pair.key;
-        var value = pair.value;
-
-        if (key !== 'itemClass') {
-          return;
-        }
-        if (value.type === 'StringLiteral') {
-          return;
-        }
-
-        var propName = value.original;
-        var params = [value];
-        var sexprParams = [b.string(propName), b.path(propName)];
-
-        params.push(b.sexpr(b.string('-normalize-class'), sexprParams));
-        var sexpr = b.sexpr(b.string('if'), params);
-
-        pair.value = sexpr;
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'collection';
-  }
-});
-enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
-  'use strict';
-
-  exports.default = TransformOldBindingSyntax;
-
-  function TransformOldBindingSyntax(options) {
-    this.syntax = null;
-    this.options = options;
-  }
-
-  TransformOldBindingSyntax.prototype.transform = function TransformOldBindingSyntax_transform(ast) {
-    var moduleName = this.options.moduleName;
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      for (var i = 0; i < node.hash.pairs.length; i++) {
-        var pair = node.hash.pairs[i];
-        var key = pair.key;
-        var value = pair.value;
-
-        var sourceInformation = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, pair.loc);
-
-        if (key === 'classBinding') {
-          return;
-        }
-
-        _emberMetalDebug.assert('Setting \'attributeBindings\' via template helpers is not allowed ' + sourceInformation, key !== 'attributeBindings');
-
-        if (key.substr(-7) === 'Binding') {
-          var newKey = key.slice(0, -7);
-
-          _emberMetalDebug.deprecate('You\'re using legacy binding syntax: ' + key + '=' + exprToString(value) + ' ' + sourceInformation + '. Please replace with ' + newKey + '=' + value.original, false, { id: 'ember-template-compiler.transform-old-binding-syntax', until: '3.0.0' });
-
-          pair.key = newKey;
-          if (value.type === 'StringLiteral') {
-            pair.value = b.path(value.original);
-          }
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-
-  function exprToString(expr) {
-    switch (expr.type) {
-      case 'StringLiteral':
-        return '"' + expr.original + '"';
-      case 'PathExpression':
-        return expr.original;
-    }
-  }
-});
-enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformOldClassBindingSyntax;
-
-  function TransformOldClassBindingSyntax(options) {
-    this.syntax = null;
-    this.options = options;
-  }
-
-  TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      var allOfTheMicrosyntaxes = [];
-      var allOfTheMicrosyntaxIndexes = [];
-      var classPair = undefined;
-
-      each(node.hash.pairs, function (pair, index) {
-        var key = pair.key;
-
-        if (key === 'classBinding' || key === 'classNameBindings') {
-          allOfTheMicrosyntaxIndexes.push(index);
-          allOfTheMicrosyntaxes.push(pair);
-        } else if (key === 'class') {
-          classPair = pair;
-        }
-      });
-
-      if (allOfTheMicrosyntaxes.length === 0) {
-        return;
-      }
-
-      var classValue = [];
-
-      if (classPair) {
-        classValue.push(classPair.value);
-        classValue.push(b.string(' '));
-      } else {
-        classPair = b.pair('class', null);
-        node.hash.pairs.push(classPair);
-      }
-
-      each(allOfTheMicrosyntaxIndexes, function (index) {
-        node.hash.pairs.splice(index, 1);
-      });
-
-      each(allOfTheMicrosyntaxes, function (_ref) {
-        var value = _ref.value;
-        var loc = _ref.loc;
-
-        var sexprs = [];
-        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
-        // be removed.
-
-        if (value.type === 'StringLiteral') {
-          var microsyntax = parseMicrosyntax(value.original);
-
-          buildSexprs(microsyntax, sexprs, b);
-
-          classValue.push.apply(classValue, sexprs);
-        }
-      });
-
-      var hash = b.hash();
-      classPair.value = b.sexpr(b.path('concat'), classValue, hash);
-    });
-
-    return ast;
-  };
-
-  function buildSexprs(microsyntax, sexprs, b) {
-    for (var i = 0; i < microsyntax.length; i++) {
-      var _microsyntax$i = microsyntax[i];
-      var propName = _microsyntax$i[0];
-      var activeClass = _microsyntax$i[1];
-      var inactiveClass = _microsyntax$i[2];
-
-      var sexpr = undefined;
-
-      // :my-class-name microsyntax for static values
-      if (propName === '') {
-        sexpr = b.string(activeClass);
-      } else {
-        var params = [b.path(propName)];
-
-        if (activeClass || activeClass === '') {
-          params.push(b.string(activeClass));
-        } else {
-          var sexprParams = [b.string(propName), b.path(propName)];
-
-          var hash = b.hash();
-          if (activeClass !== undefined) {
-            hash.pairs.push(b.pair('activeClass', b.string(activeClass)));
-          }
-
-          if (inactiveClass !== undefined) {
-            hash.pairs.push(b.pair('inactiveClass', b.string(inactiveClass)));
-          }
-
-          params.push(b.sexpr(b.string('-normalize-class'), sexprParams, hash));
-        }
-
-        if (inactiveClass || inactiveClass === '') {
-          params.push(b.string(inactiveClass));
-        }
-
-        sexpr = b.sexpr(b.path('if'), params);
-      }
-
-      sexprs.push(sexpr);
-      sexprs.push(b.string(' '));
-    }
-  }
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-
-  function each(list, callback) {
-    for (var i = 0; i < list.length; i++) {
-      callback(list[i], i);
-    }
-  }
-
-  function parseMicrosyntax(string) {
-    var segments = string.split(' ');
-
-    for (var i = 0; i < segments.length; i++) {
-      segments[i] = segments[i].split(':');
-    }
-
-    return segments;
-  }
-});
-enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformTopLevelComponents;
-
-  function TransformTopLevelComponents() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} The AST to be transformed.
-  */
-  TransformTopLevelComponents.prototype.transform = function TransformTopLevelComponents_transform(ast) {
-    hasSingleComponentNode(ast, function (component) {
-      component.tag = '@' + component.tag;
-      component.isStatic = true;
-    });
-
-    return ast;
-  };
-
-  function hasSingleComponentNode(program, componentCallback) {
-    var loc = program.loc;
-    var body = program.body;
-
-    if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
-      return;
-    }
-
-    var lastComponentNode = undefined;
-    var lastIndex = undefined;
-    var nodeCount = 0;
-
-    for (var i = 0; i < body.length; i++) {
-      var curr = body[i];
-
-      // text node with whitespace only
-      if (curr.type === 'TextNode' && /^[\s]*$/.test(curr.chars)) {
-        continue;
-      }
-
-      // has multiple root elements if we've been here before
-      if (nodeCount++ > 0) {
-        return false;
-      }
-
-      if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
-        lastComponentNode = curr;
-        lastIndex = i;
-      }
-    }
-
-    if (!lastComponentNode) {
-      return;
-    }
-
-    if (lastComponentNode.type === 'ComponentNode') {
-      componentCallback(lastComponentNode);
-    }
-  }
-});
-enifed('ember-template-compiler/system/calculate-location-display', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = calculateLocationDisplay;
-
-  function calculateLocationDisplay(moduleName, _loc) {
-    var loc = _loc || {};
-
-    var _ref = loc.start || {};
-
-    var column = _ref.column;
-    var line = _ref.line;
-
-    var moduleInfo = '';
-    if (moduleName) {
-      moduleInfo += '\'' + moduleName + '\' ';
-    }
-
-    if (line !== undefined && column !== undefined) {
-      if (moduleName) {
-        // only prepend @ if the moduleName was present
-        moduleInfo += '@ ';
-      }
-      moduleInfo += 'L' + line + ':C' + column;
-    }
-
-    if (moduleInfo) {
-      moduleInfo = '(' + moduleInfo + ') ';
-    }
-
-    return moduleInfo;
-  }
-});
-enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/compiler'], function (exports, _emberTemplateCompilerCompiler) {
-  'use strict';
-
-  var _compiler = _emberTemplateCompilerCompiler.default();
-
-  var defaultCompileOptions = _compiler.defaultCompileOptions;
-  exports.default = defaultCompileOptions;
-});
-enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/compiler', 'ember-template-compiler/system/compile-options', 'ember-metal/assign'], function (exports, _emberTemplateCompilerCompiler, _emberTemplateCompilerSystemCompileOptions, _emberMetalAssign) {
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-  'use strict';
-
-  /**
-    Uses HTMLBars `compile` function to process a string into a compiled template.
-  
-    This is not present in production builds.
-  
-    @private
-    @method compile
-    @param {String} templateString This is the string to be compiled by HTMLBars.
-    @param {Object} options This is an options hash to augment the compiler options.
-  */
-
-  exports.default = function (templateString, options) {
-    var _compiler = _emberTemplateCompilerCompiler.default();
-
-    var compile = _compiler.compile;
-
-    return compile(templateString, _emberMetalAssign.default({}, _emberTemplateCompilerSystemCompileOptions.default(), options));
-  };
-});
-enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/assign', 'ember-template-compiler/compiler', 'ember-template-compiler/system/compile-options'], function (exports, _emberMetalAssign, _emberTemplateCompilerCompiler, _emberTemplateCompilerSystemCompileOptions) {
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-
-  'use strict';
-
-  /**
-    Uses HTMLBars `compile` function to process a string into a compiled template string.
-    The returned string must be passed through `Ember.HTMLBars.template`.
-  
-    This is not present in production builds.
-  
-    @private
-    @method precompile
-    @param {String} templateString This is the string to be compiled by HTMLBars.
-  */
-
-  exports.default = function (templateString, options) {
-    var _compiler = _emberTemplateCompilerCompiler.default();
-
-    var precompile = _compiler.precompile;
-
-    return precompile(templateString, _emberMetalAssign.default({}, _emberTemplateCompilerSystemCompileOptions.default(), options));
-  };
-});
-enifed('ember-template-compiler/system/register-plugin', ['exports', 'ember-template-compiler/compiler'], function (exports, _emberTemplateCompilerCompiler) {
-  'use strict';
-
-  var _compiler = _emberTemplateCompilerCompiler.default();
-
-  var registerPlugin = _compiler.registerPlugin;
-  exports.default = registerPlugin;
-});
-enifed('ember-template-compiler/system/template', ['exports', 'ember-template-compiler/compiler'], function (exports, _emberTemplateCompilerCompiler) {
-  'use strict';
-
-  var _compiler = _emberTemplateCompilerCompiler.default();
-
-  var template = _compiler.template;
-  exports.default = template;
-});
-enifed('ember-templates/bootstrap', ['exports', 'ember-views/system/jquery', 'ember-metal/error', 'ember-runtime/system/lazy_load', 'ember-template-compiler', 'ember-environment', 'ember-templates/template_registry'], function (exports, _emberViewsSystemJquery, _emberMetalError, _emberRuntimeSystemLazy_load, _emberTemplateCompiler, _emberEnvironment, _emberTemplatesTemplate_registry) {
-  /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  'use strict';
-
-  /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  /**
-    Find templates stored in the head tag as script tags and make them available
-    to `Ember.CoreView` in the global `Ember.TEMPLATES` object. This will be run
-    as a jQuery DOM-ready callback.
-  
-    Script tags with `text/x-handlebars` will be compiled
-    with Ember's template compiler and are suitable for use as a view's template.
-  
-    @private
-    @method bootstrap
-    @for Ember.HTMLBars
-    @static
-    @param ctx
-  */
-  function bootstrap(ctx) {
-    var selectors = 'script[type="text/x-handlebars"]';
-
-    _emberViewsSystemJquery.default(selectors, ctx).each(function () {
-      // Get a reference to the script tag.
-      var script = _emberViewsSystemJquery.default(this);
-
-      // Get the name of the script, used by Ember.View's templateName property.
-      // First look for data-template-name attribute, then fall back to its
-      // id if no name is found.
-      var templateName = script.attr('data-template-name') || script.attr('id') || 'application';
-      var template = undefined;
-
-      template = _emberTemplateCompiler.compile(script.html(), {
-        moduleName: templateName
-      });
-
-      // Check if template of same name already exists.
-      if (_emberTemplatesTemplate_registry.has(templateName)) {
-        throw new _emberMetalError.default('Template named "' + templateName + '" already exists.');
-      }
-
-      // For templates which have a name, we save them and then remove them from the DOM.
-      _emberTemplatesTemplate_registry.set(templateName, template);
-
-      // Remove script tag from DOM.
-      script.remove();
-    });
-  }
-
-  function _bootstrap() {
-    bootstrap(_emberViewsSystemJquery.default(document));
-  }
-
-  /*
-    We tie this to application.load to ensure that we've at least
-    attempted to bootstrap at the point that the application is loaded.
-  
-    We also tie this to document ready since we're guaranteed that all
-    the inline templates are present at this point.
-  
-    There's no harm to running this twice, since we remove the templates
-    from the DOM after processing.
-  */
-
-  _emberRuntimeSystemLazy_load.onLoad('Ember.Application', function (Application) {
-    Application.initializer({
-      name: 'domTemplates',
-      initialize: _emberEnvironment.environment.hasDOM ? _bootstrap : function () {}
-    });
-  });
-
-  exports.default = bootstrap;
-});
 enifed('ember-templates/component', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
 
@@ -46719,7 +45198,7 @@ enifed('ember-templates/helper', ['exports', 'ember-metal/features', 'require'],
   })();
   exports.helper = helper;
 });
-enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/bootstrap', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesBootstrap, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo) {
+enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to', 'ember-templates/compat'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo, _emberTemplatesCompat) {
   'use strict';
 
   _emberMetalCore.default._Renderer = _emberTemplatesRenderer.Renderer;
@@ -46780,6 +45259,23 @@ enifed('ember-templates/renderer', ['exports', 'ember-metal/features', 'require'
     }
   })();
   exports.Renderer = Renderer;
+});
+enifed('ember-templates/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
+  'use strict';
+
+  var htmlbarsTemplate = undefined,
+      glimmerTemplate = undefined;
+  if (_require.has('ember-htmlbars')) {
+    htmlbarsTemplate = _require.default('ember-htmlbars').template;
+  }
+
+  if (_require.has('ember-glimmer')) {
+    glimmerTemplate = _require.default('ember-glimmer').template;
+  }
+
+  var template = _emberMetalFeatures.default('ember-glimmer') ? glimmerTemplate : htmlbarsTemplate;
+
+  exports.default = template;
 });
 enifed("ember-templates/template_registry", ["exports"], function (exports) {
   // STATE within a module is frowned apon, this exists
@@ -51421,7 +49917,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+2e18421c";
+  exports.default = "2.7.0-canary+5757ea5f";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

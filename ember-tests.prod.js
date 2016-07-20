@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+2e18421c
+ * @version   2.7.0-canary+5757ea5f
  */
 
 var enifed, requireModule, require, Ember;
@@ -7160,7 +7160,7 @@ enifed('ember-glimmer-template-compiler/tests/plugins-test', ['exports', 'ember-
     _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile('some random template', { plugins: { ast: [TestPlugin] } });
   });
 });
-enifed('ember-glimmer-template-compiler/tests/precompile-test', ['exports', 'ember-glimmer-template-compiler'], function (exports, _emberGlimmerTemplateCompiler) {
+enifed('ember-glimmer-template-compiler/tests/precompile-test', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmer) {
   'use strict';
 
   QUnit.module('Glimmer Precompile:');
@@ -7177,7 +7177,7 @@ enifed('ember-glimmer-template-compiler/tests/precompile-test', ['exports', 'emb
     // processString(content) {
     //   return `template(${precompile(content)})`;
     // }
-    var Precompiled = _emberGlimmerTemplateCompiler.template(JSON.parse(_emberGlimmerTemplateCompiler.precompile('Hello')));
+    var Precompiled = _emberGlimmer.template(JSON.parse(_emberGlimmerTemplateCompiler.precompile('Hello')));
     var Compiled = _emberGlimmerTemplateCompiler.compile('Hello');
 
     assert.equal(Precompiled.toString(), Compiled.toString(), 'Both return factories');
@@ -49225,17 +49225,8 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry', 'ember-template-compiler/plugins'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry, _emberTemplateCompilerPlugins) {
+enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry) {
   'use strict';
-
-  function registerAstPlugin(plugin) {
-    _emberTemplateCompilerPlugins.registerPlugin('ast', plugin);
-  }
-
-  function removeAstPlugin(plugin) {
-    var index = _emberTemplateCompilerPlugins.default['ast'].indexOf(plugin);
-    _emberTemplateCompilerPlugins.default['ast'].splice(index, 1);
-  }
 
   function buildAppInstance() {
     var registry = undefined;
@@ -49293,8 +49284,6 @@ enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'em
     };
   }
 
-  exports.registerAstPlugin = registerAstPlugin;
-  exports.removeAstPlugin = removeAstPlugin;
   exports.resolverFor = resolverFor;
   exports.buildAppInstance = buildAppInstance;
 });
@@ -74117,6 +74106,131 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
   });
 });
+enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-templates/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/bootstrap', 'ember-templates/template_registry', 'ember-metal/features', 'require'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTemplatesComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemBootstrap, _emberTemplatesTemplate_registry, _emberMetalFeatures, _require) {
+  'use strict';
+
+  var buildOwner = undefined;
+  if (_emberMetalFeatures.default('ember-glimmer')) {
+    buildOwner = _require.default('ember-glimmer/tests/utils/helpers').buildOwner;
+  } else {
+    buildOwner = _require.default('ember-htmlbars/tests/utils/helpers').buildOwner;
+  }
+
+  var trim = _emberViewsSystemJquery.default.trim;
+
+  var component = undefined,
+      fixture = undefined;
+
+  function checkTemplate(templateName) {
+    _emberMetalRun_loop.default(function () {
+      return _emberTemplateCompilerSystemBootstrap.default(fixture);
+    });
+
+    var template = _emberTemplatesTemplate_registry.get(templateName);
+
+    ok(template, 'template is available on Ember.TEMPLATES');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture script').length, 0, 'script removed');
+
+    var owner = buildOwner();
+    owner.register('template:-top-level', template);
+    owner.register('component:-top-level', _emberTemplatesComponent.default.extend({
+      template: owner.lookup('template:-top-level'),
+      firstName: 'Tobias',
+      drug: 'teamocil'
+    }));
+
+    component = owner.lookup('component:-top-level');
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    equal(_emberViewsSystemJquery.default('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
+    _emberRuntimeTestsUtils.runDestroy(component);
+  }
+
+  QUnit.module('ember-htmlbars: bootstrap', {
+    setup: function () {
+      fixture = document.getElementById('qunit-fixture');
+    },
+    teardown: function () {
+      _emberTemplatesTemplate_registry.setTemplates({});
+      _emberRuntimeTestsUtils.runDestroy(component);
+    }
+  });
+
+  QUnit.test('template with data-template-name should add a new template to Ember.TEMPLATES', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
+
+    checkTemplate('funkyTemplate');
+  });
+
+  QUnit.test('template with id instead of data-template-name should add a new template to Ember.TEMPLATES', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
+
+    checkTemplate('funkyTemplate');
+  });
+
+  QUnit.test('template without data-template-name or id should default to application', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
+
+    checkTemplate('application');
+  });
+
+  if (typeof Handlebars === 'object') {
+    QUnit.test('template with type text/x-raw-handlebars should be parsed', function () {
+      _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
+
+      _emberMetalRun_loop.default(function () {
+        return _emberTemplateCompilerSystemBootstrap.default(fixture);
+      });
+
+      var template = _emberTemplatesTemplate_registry.get('funkyTemplate');
+
+      ok(template, 'template with name funkyTemplate available');
+
+      // This won't even work with Ember templates
+      equal(trim(template({ name: 'Tobias' })), 'Tobias');
+    });
+  }
+
+  QUnit.test('duplicated default application templates should throw exception', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
+
+    throws(function () {
+      return _emberTemplateCompilerSystemBootstrap.default(fixture);
+    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+  });
+
+  QUnit.test('default application template and id application template present should throw exception', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
+
+    throws(function () {
+      return _emberTemplateCompilerSystemBootstrap.default(fixture);
+    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+  });
+
+  QUnit.test('default application template and data-template-name application template present should throw exception', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
+
+    throws(function () {
+      return _emberTemplateCompilerSystemBootstrap.default(fixture);
+    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+  });
+
+  QUnit.test('duplicated template id should throw exception', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
+
+    throws(function () {
+      return _emberTemplateCompilerSystemBootstrap.default(fixture);
+    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+  });
+
+  QUnit.test('duplicated template data-template-name should throw exception', function () {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
+
+    throws(function () {
+      return _emberTemplateCompilerSystemBootstrap.default(fixture);
+    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
+  });
+});
 enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler', 'ember-template-compiler/plugins'], function (exports, _emberTemplateCompiler, _emberTemplateCompilerPlugins) {
   'use strict';
 
@@ -74152,127 +74266,6 @@ enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/f
 
     return compiler(string, options);
   }
-});
-enifed('ember-templates/tests/bootstrap_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-templates/component', 'ember-runtime/tests/utils', 'ember-templates/bootstrap', 'ember-templates/template_registry', 'ember-metal/features', 'require'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTemplatesComponent, _emberRuntimeTestsUtils, _emberTemplatesBootstrap, _emberTemplatesTemplate_registry, _emberMetalFeatures, _require) {
-  'use strict';
-
-  var buildOwner = undefined;
-  if (_emberMetalFeatures.default('ember-glimmer')) {
-    buildOwner = _require.default('ember-glimmer/tests/utils/helpers').buildOwner;
-  } else {
-    buildOwner = _require.default('ember-htmlbars/tests/utils/helpers').buildOwner;
-  }
-
-  var trim = _emberViewsSystemJquery.default.trim;
-
-  var component = undefined;
-
-  function checkTemplate(templateName) {
-    _emberMetalRun_loop.default(function () {
-      return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-    });
-
-    var template = _emberTemplatesTemplate_registry.get(templateName);
-
-    ok(template, 'template is available on Ember.TEMPLATES');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture script').length, 0, 'script removed');
-
-    var owner = buildOwner();
-    owner.register('template:-top-level', template);
-    owner.register('component:-top-level', _emberTemplatesComponent.default.extend({
-      template: owner.lookup('template:-top-level'),
-      firstName: 'Tobias',
-      drug: 'teamocil'
-    }));
-
-    component = owner.lookup('component:-top-level');
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text().trim(), 'Tobias takes teamocil', 'template works');
-    _emberRuntimeTestsUtils.runDestroy(component);
-  }
-
-  QUnit.module('ember-htmlbars: bootstrap', {
-    teardown: function () {
-      _emberTemplatesTemplate_registry.setTemplates({});
-      _emberRuntimeTestsUtils.runDestroy(component);
-    }
-  });
-
-  QUnit.test('template with data-template-name should add a new template to Ember.TEMPLATES', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">{{firstName}} takes {{drug}}</script>');
-
-    checkTemplate('funkyTemplate');
-  });
-
-  QUnit.test('template with id instead of data-template-name should add a new template to Ember.TEMPLATES', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate" >{{firstName}} takes {{drug}}</script>');
-
-    checkTemplate('funkyTemplate');
-  });
-
-  QUnit.test('template without data-template-name or id should default to application', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">{{firstName}} takes {{drug}}</script>');
-
-    checkTemplate('application');
-  });
-
-  if (typeof Handlebars === 'object') {
-    QUnit.test('template with type text/x-raw-handlebars should be parsed', function () {
-      _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
-
-      _emberMetalRun_loop.default(function () {
-        return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-      });
-
-      var template = _emberTemplatesTemplate_registry.get('funkyTemplate');
-
-      ok(template, 'template with name funkyTemplate available');
-
-      // This won't even work with Ember templates
-      equal(trim(template({ name: 'Tobias' })), 'Tobias');
-    });
-  }
-
-  QUnit.test('duplicated default application templates should throw exception', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
-
-    throws(function () {
-      return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
-
-  QUnit.test('default application template and id application template present should throw exception', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
-
-    throws(function () {
-      return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
-
-  QUnit.test('default application template and data-template-name application template present should throw exception', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
-
-    throws(function () {
-      return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
-
-  QUnit.test('duplicated template id should throw exception', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
-
-    throws(function () {
-      return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
-
-  QUnit.test('duplicated template data-template-name should throw exception', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
-
-    throws(function () {
-      return _emberTemplatesBootstrap.default(_emberViewsSystemJquery.default('#qunit-fixture'));
-    }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
-  });
 });
 enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'require'], function (exports, _emberTemplates, _require) {
   'use strict';
