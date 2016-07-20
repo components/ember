@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5757ea5f
+ * @version   2.7.0-canary+cbe74ddd
  */
 
 var enifed, requireModule, require, Ember;
@@ -44503,7 +44503,9 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'em
         }
       }
 
-      if (target = _emberMetalProperty_get.get(this, 'target')) {
+      target = _emberMetalProperty_get.get(this, 'target') || _emberMetalProperty_get.get(this, '_targetObject');
+
+      if (target) {
         var _target;
 
         (_target = target).send.apply(_target, arguments);
@@ -47215,7 +47217,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5757ea5f";
+  exports.default = "2.7.0-canary+cbe74ddd";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

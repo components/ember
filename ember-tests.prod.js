@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5757ea5f
+ * @version   2.7.0-canary+cbe74ddd
  */
 
 var enifed, requireModule, require, Ember;
@@ -20069,7 +20069,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
     };
 
-    _class2.prototype['@htmlbars it should target the proper component when `action` is in yielded block [GH #12409]'] = function htmlbarsItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
+    _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
       var _this32 = this;
 
       var outerActionCalled = false;
@@ -42069,7 +42069,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
     };
 
-    _class2.prototype['@htmlbars it should target the proper component when `action` is in yielded block [GH #12409]'] = function htmlbarsItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
+    _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
       var _this32 = this;
 
       var outerActionCalled = false;
