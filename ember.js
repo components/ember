@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+cbe74ddd
+ * @version   2.7.0-canary+52ba7d03
  */
 
 var enifed, requireModule, require, Ember;
@@ -9114,7 +9114,7 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
     classNameBindings: EMPTY_ARRAY
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/cache', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-views/system/utils', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalCache, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxRender, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberViewsSystemUtils, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersConcat, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _containerOwner, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/cache', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-views/system/utils', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalCache, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxRender, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberViewsSystemUtils, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersConcat, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
   var _slice = Array.prototype.slice;
@@ -9200,7 +9200,8 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
     '-class': _emberGlimmerHelpersClass.default,
     '-each-in': _emberGlimmerHelpersEachIn.default,
     '-input-type': _emberGlimmerHelpersInputType.default,
-    '-normalize-class': _emberGlimmerHelpersNormalizeClass.default
+    '-normalize-class': _emberGlimmerHelpersNormalizeClass.default,
+    '-html-safe': _emberGlimmerHelpersHtmlSafe.default
   };
 
   // TODO we should probably do this transform at build time
@@ -9646,6 +9647,23 @@ enifed('ember-glimmer/helpers/-class', ['exports', 'ember-glimmer/utils/referenc
     isInternalHelper: true,
     toReference: function (args) {
       return new _emberGlimmerUtilsReferences.InternalHelperReference(classHelper, args);
+    }
+  };
+});
+enifed('ember-glimmer/helpers/-html-safe', ['exports', 'ember-glimmer/utils/references', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerUtilsReferences, _emberGlimmerUtilsString) {
+  'use strict';
+
+  function htmlSafe(_ref) {
+    var positional = _ref.positional;
+
+    var path = positional.at(0);
+    return new _emberGlimmerUtilsString.SafeString(path.value());
+  }
+
+  exports.default = {
+    isInternalHelper: true,
+    toReference: function (args) {
+      return new _emberGlimmerUtilsReferences.InternalHelperReference(htmlSafe, args);
     }
   };
 });
@@ -13092,6 +13110,129 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
   exports.UnboundReference = UnboundReference;
 });
+enifed('ember-glimmer/utils/string', ['exports'], function (exports) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
+
+  'use strict';
+
+  exports.escapeExpression = escapeExpression;
+  exports.htmlSafe = htmlSafe;
+  exports.isHTMLSafe = isHTMLSafe;
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var SafeString = (function () {
+    function SafeString(string) {
+      _classCallCheck(this, SafeString);
+
+      this.string = string;
+    }
+
+    SafeString.prototype.toString = function toString() {
+      return '' + this.string;
+    };
+
+    SafeString.prototype.toHTML = function toHTML() {
+      return this.toString();
+    };
+
+    return SafeString;
+  })();
+
+  exports.SafeString = SafeString;
+
+  var escape = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    // jscs:disable
+    "'": '&#x27;',
+    // jscs:enable
+    '`': '&#x60;',
+    '=': '&#x3D;'
+  };
+
+  var possible = /[&<>"'`=]/;
+  var badChars = /[&<>"'`=]/g;
+
+  function escapeChar(chr) {
+    return escape[chr];
+  }
+
+  function escapeExpression(string) {
+    if (typeof string !== 'string') {
+      // don't escape SafeStrings, since they're already safe
+      if (string && string.toHTML) {
+        return string.toHTML();
+      } else if (string == null) {
+        return '';
+      } else if (!string) {
+        return string + '';
+      }
+
+      // Force a string conversion as this will be done by the append regardless and
+      // the regex test will do this transparently behind the scenes, causing issues if
+      // an object's to string has escaped characters in it.
+      string = '' + string;
+    }
+
+    if (!possible.test(string)) {
+      return string;
+    }
+    return string.replace(badChars, escapeChar);
+  }
+
+  /**
+    Mark a string as safe for unescaped output with Ember templates. If you
+    return HTML from a helper, use this function to
+    ensure Ember's rendering layer does not escape the HTML.
+  
+    ```javascript
+    Ember.String.htmlSafe('<div>someString</div>')
+    ```
+  
+    @method htmlSafe
+    @for Ember.String
+    @static
+    @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
+    @public
+  */
+
+  function htmlSafe(str) {
+    if (str === null || str === undefined) {
+      str = '';
+    } else if (typeof str !== 'string') {
+      str = '' + str;
+    }
+    return new SafeString(str);
+  }
+
+  /**
+    Detects if a string was decorated using `Ember.String.htmlSafe`.
+  
+    ```javascript
+    var plainString = 'plain string',
+        safeString = Ember.String.htmlSafe('<div>someValue</div>');
+  
+    Ember.String.isHTMLSafe(plainString); // false
+    Ember.String.isHTMLSafe(safeString);  // true
+    ```
+  
+    @method isHTMLSafe
+    @for Ember.String
+    @static
+    @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
+    @public
+  */
+
+  function isHTMLSafe(str) {
+    return str && typeof str.toHTML === 'function';
+  }
+});
 enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime/utils', 'ember-metal/property_get'], function (exports, _emberRuntimeUtils, _emberMetalProperty_get) {
   'use strict';
 
@@ -13316,34 +13457,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
 
   exports.default = OutletView;
 });
-enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-htmlbars/utils/string', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDebug, _emberHtmlbarsUtilsString, _emberMetalFeatures) {
-  'use strict';
-
-  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    Object.defineProperty(EmberHandlebars, 'SafeString', {
-      get: function () {
-        _emberMetalDebug.deprecate('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
-          id: 'ember-htmlbars.ember-handlebars-safestring',
-          until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
-        });
-
-        return _emberHtmlbarsUtilsString.SafeString;
-      }
-    });
-  } else {
-    EmberHandlebars.SafeString = _emberHtmlbarsUtilsString.SafeString;
-  }
-
-  EmberHandlebars.Utils = {
-    escapeExpression: _emberHtmlbarsUtilsString.escapeExpression
-  };
-
-  exports.default = EmberHandlebars;
-});
-// for Handlebars export
 enifed('ember-htmlbars/component', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-environment', 'ember-runtime/mixins/target_action_support', 'ember-views/mixins/action_support', 'ember-views/views/view', 'ember-metal/computed', 'container/owner', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberEnvironment, _emberRuntimeMixinsTarget_action_support, _emberViewsMixinsAction_support, _emberViewsViewsView, _emberMetalComputed, _containerOwner, _emberMetalSymbol) {
   'use strict';
 
@@ -16611,7 +16724,7 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
     view.ownerView._destroyingSubtreeForView = view;
   }
 });
-enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/compat', 'ember-htmlbars/system/template'], function (exports, _emberMetalCore, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsCompat, _emberHtmlbarsSystemTemplate) {
+enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/system/template'], function (exports, _emberMetalCore, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsSystemTemplate) {
   /**
     Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
     an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
@@ -16711,9 +16824,6 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/s
   'use strict';
 
   exports.template = _emberHtmlbarsSystemTemplate.default;
-
-  // Importing ember-htmlbars/compat updates the
-  // Ember.Handlebars global if htmlbars is enabled.
 
   _emberHtmlbarsHelpers.registerHelper('if', _emberHtmlbarsHelpersIf_unless.ifHelper);
   _emberHtmlbarsHelpers.registerHelper('unless', _emberHtmlbarsHelpersIf_unless.unlessHelper);
@@ -22409,13 +22519,81 @@ enifed("ember-htmlbars/utils/normalize-self", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-runtime/system/string', 'htmlbars-util', 'ember-metal/features'], function (exports, _emberEnvironment, _emberRuntimeSystemString, _htmlbarsUtil, _emberMetalFeatures) {
+enifed('ember-htmlbars/utils/string', ['exports'], function (exports) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-glimmer
   */
 
   'use strict';
+
+  exports.escapeExpression = escapeExpression;
+  exports.htmlSafe = htmlSafe;
+  exports.isHTMLSafe = isHTMLSafe;
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var SafeString = (function () {
+    function SafeString(string) {
+      _classCallCheck(this, SafeString);
+
+      this.string = string;
+    }
+
+    SafeString.prototype.toString = function toString() {
+      return '' + this.string;
+    };
+
+    SafeString.prototype.toHTML = function toHTML() {
+      return this.toString();
+    };
+
+    return SafeString;
+  })();
+
+  exports.SafeString = SafeString;
+
+  var escape = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    // jscs:disable
+    "'": '&#x27;',
+    // jscs:enable
+    '`': '&#x60;',
+    '=': '&#x3D;'
+  };
+
+  var possible = /[&<>"'`=]/;
+  var badChars = /[&<>"'`=]/g;
+
+  function escapeChar(chr) {
+    return escape[chr];
+  }
+
+  function escapeExpression(string) {
+    if (typeof string !== 'string') {
+      // don't escape SafeStrings, since they're already safe
+      if (string && string.toHTML) {
+        return string.toHTML();
+      } else if (string == null) {
+        return '';
+      } else if (!string) {
+        return string + '';
+      }
+
+      // Force a string conversion as this will be done by the append regardless and
+      // the regex test will do this transparently behind the scenes, causing issues if
+      // an object's to string has escaped characters in it.
+      string = '' + string;
+    }
+
+    if (!possible.test(string)) {
+      return string;
+    }
+    return string.replace(badChars, escapeChar);
+  }
 
   /**
     Mark a string as safe for unescaped output with Ember templates. If you
@@ -22432,20 +22610,14 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-ru
     @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
     @public
   */
+
   function htmlSafe(str) {
     if (str === null || str === undefined) {
       str = '';
     } else if (typeof str !== 'string') {
       str = '' + str;
     }
-    return new _htmlbarsUtil.SafeString(str);
-  }
-
-  _emberRuntimeSystemString.default.htmlSafe = htmlSafe;
-  if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    String.prototype.htmlSafe = function () {
-      return htmlSafe(this);
-    };
+    return new SafeString(str);
   }
 
   /**
@@ -22465,18 +22637,10 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-environment', 'ember-ru
     @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
     @public
   */
+
   function isHTMLSafe(str) {
     return str && typeof str.toHTML === 'function';
   }
-
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
-    _emberRuntimeSystemString.default.isHTMLSafe = isHTMLSafe;
-  }
-
-  exports.SafeString = _htmlbarsUtil.SafeString;
-  exports.htmlSafe = htmlSafe;
-  exports.isHTMLSafe = isHTMLSafe;
-  exports.escapeExpression = _htmlbarsUtil.escapeExpression;
 });
 enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
   'use strict';
@@ -45114,13 +45278,39 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template'], function (exports, _emberMetalCore, _emberTemplatesTemplate) {
+enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures, _emberMetalDebug) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
+  exports.EmberHandlebars = EmberHandlebars;
   var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
+  exports.EmberHTMLBars = EmberHTMLBars;
+  var EmberHandleBarsUtils = EmberHandlebars.Utils || {};
 
+  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    Object.defineProperty(EmberHandlebars, 'SafeString', {
+      get: function () {
+        _emberMetalDebug.deprecate('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
+          id: 'ember-htmlbars.ember-handlebars-safestring',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+        });
+
+        return _emberTemplatesString.SafeString;
+      }
+    });
+  } else {
+    EmberHandlebars.SafeString = _emberTemplatesString.SafeString;
+  }
+
+  EmberHTMLBars.SafeString = _emberTemplatesString.SafeString;
   EmberHTMLBars.template = EmberHandlebars.template = _emberTemplatesTemplate.default;
+  EmberHandleBarsUtils.escapeExpression = _emberTemplatesString.escapeExpression;
+  _emberRuntimeSystemString.default.htmlSafe = _emberTemplatesString.htmlSafe;
+
+  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    _emberRuntimeSystemString.default.isHTMLSafe = _emberTemplatesString.isHTMLSafe;
+  }
 });
 // reexports
 enifed('ember-templates/component', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
@@ -45198,7 +45388,7 @@ enifed('ember-templates/helper', ['exports', 'ember-metal/features', 'require'],
   })();
   exports.helper = helper;
 });
-enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to', 'ember-templates/compat'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo, _emberTemplatesCompat) {
+enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to', 'ember-templates/string', 'ember-environment', 'ember-templates/compat'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo, _emberTemplatesString, _emberEnvironment, _emberTemplatesCompat) {
   'use strict';
 
   _emberMetalCore.default._Renderer = _emberTemplatesRenderer.Renderer;
@@ -45209,6 +45399,12 @@ enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates
   _emberMetalCore.default.TextField = _emberTemplatesComponentsText_field.default;
   _emberMetalCore.default.TextArea = _emberTemplatesComponentsText_area.default;
   _emberMetalCore.default.LinkComponent = _emberTemplatesComponentsLinkTo.default;
+
+  if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+    String.prototype.htmlSafe = function () {
+      return _emberTemplatesString.htmlSafe(this);
+    };
+  }
 
   /**
     Global hash of shared templates. This will automatically be populated
@@ -45259,6 +45455,26 @@ enifed('ember-templates/renderer', ['exports', 'ember-metal/features', 'require'
     }
   })();
   exports.Renderer = Renderer;
+});
+enifed('ember-templates/string', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
+  'use strict';
+
+  var strings = (function () {
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      return _require.default('ember-glimmer/utils/string');
+    } else {
+      return _require.default('ember-htmlbars/utils/string');
+    }
+  })();
+
+  var SafeString = strings.SafeString;
+  exports.SafeString = SafeString;
+  var escapeExpression = strings.escapeExpression;
+  exports.escapeExpression = escapeExpression;
+  var htmlSafe = strings.htmlSafe;
+  exports.htmlSafe = htmlSafe;
+  var isHTMLSafe = strings.isHTMLSafe;
+  exports.isHTMLSafe = isHTMLSafe;
 });
 enifed('ember-templates/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
@@ -49919,7 +50135,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+cbe74ddd";
+  exports.default = "2.7.0-canary+52ba7d03";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

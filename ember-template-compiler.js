@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+cbe74ddd
+ * @version   2.7.0-canary+52ba7d03
  */
 
 var enifed, requireModule, require, Ember;
@@ -11783,13 +11783,39 @@ enifed('ember-template-compiler/system/register-plugin', ['exports', 'ember-temp
   var registerPlugin = _compiler.registerPlugin;
   exports.default = registerPlugin;
 });
-enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template'], function (exports, _emberMetalCore, _emberTemplatesTemplate) {
+enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures, _emberMetalDebug) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
+  exports.EmberHandlebars = EmberHandlebars;
   var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
+  exports.EmberHTMLBars = EmberHTMLBars;
+  var EmberHandleBarsUtils = EmberHandlebars.Utils || {};
 
+  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    Object.defineProperty(EmberHandlebars, 'SafeString', {
+      get: function () {
+        _emberMetalDebug.deprecate('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
+          id: 'ember-htmlbars.ember-handlebars-safestring',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+        });
+
+        return _emberTemplatesString.SafeString;
+      }
+    });
+  } else {
+    EmberHandlebars.SafeString = _emberTemplatesString.SafeString;
+  }
+
+  EmberHTMLBars.SafeString = _emberTemplatesString.SafeString;
   EmberHTMLBars.template = EmberHandlebars.template = _emberTemplatesTemplate.default;
+  EmberHandleBarsUtils.escapeExpression = _emberTemplatesString.escapeExpression;
+  _emberRuntimeSystemString.default.htmlSafe = _emberTemplatesString.htmlSafe;
+
+  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    _emberRuntimeSystemString.default.isHTMLSafe = _emberTemplatesString.isHTMLSafe;
+  }
 });
 // reexports
 enifed('ember-templates/component', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
@@ -11867,7 +11893,7 @@ enifed('ember-templates/helper', ['exports', 'ember-metal/features', 'require'],
   })();
   exports.helper = helper;
 });
-enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to', 'ember-templates/compat'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo, _emberTemplatesCompat) {
+enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to', 'ember-templates/string', 'ember-environment', 'ember-templates/compat'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo, _emberTemplatesString, _emberEnvironment, _emberTemplatesCompat) {
   'use strict';
 
   _emberMetalCore.default._Renderer = _emberTemplatesRenderer.Renderer;
@@ -11878,6 +11904,12 @@ enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates
   _emberMetalCore.default.TextField = _emberTemplatesComponentsText_field.default;
   _emberMetalCore.default.TextArea = _emberTemplatesComponentsText_area.default;
   _emberMetalCore.default.LinkComponent = _emberTemplatesComponentsLinkTo.default;
+
+  if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+    String.prototype.htmlSafe = function () {
+      return _emberTemplatesString.htmlSafe(this);
+    };
+  }
 
   /**
     Global hash of shared templates. This will automatically be populated
@@ -11928,6 +11960,26 @@ enifed('ember-templates/renderer', ['exports', 'ember-metal/features', 'require'
     }
   })();
   exports.Renderer = Renderer;
+});
+enifed('ember-templates/string', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
+  'use strict';
+
+  var strings = (function () {
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      return _require.default('ember-glimmer/utils/string');
+    } else {
+      return _require.default('ember-htmlbars/utils/string');
+    }
+  })();
+
+  var SafeString = strings.SafeString;
+  exports.SafeString = SafeString;
+  var escapeExpression = strings.escapeExpression;
+  exports.escapeExpression = escapeExpression;
+  var htmlSafe = strings.htmlSafe;
+  exports.htmlSafe = htmlSafe;
+  var isHTMLSafe = strings.isHTMLSafe;
+  exports.isHTMLSafe = isHTMLSafe;
 });
 enifed('ember-templates/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
@@ -11989,7 +12041,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+cbe74ddd";
+  exports.default = "2.7.0-canary+52ba7d03";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
