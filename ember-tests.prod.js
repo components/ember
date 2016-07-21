@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+52ba7d03
+ * @version   2.7.0-canary+7246a373
  */
 
 var enifed, requireModule, require, Ember;
@@ -8998,8 +8998,184 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Hodari');
     };
 
-    _class.prototype['@test renders with component helper with curried params, hash'] = function testRendersWithComponentHelperWithCurriedParamsHash() {
+    _class.prototype['@test GH#13742 keeps nested rest positional parameters if rendered with no positional parameters'] = function testGH13742KeepsNestedRestPositionalParametersIfRenderedWithNoPositionalParameters() {
       var _this3 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component "-looked-up" model.greeting model.name)}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this3.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('Good morning Zack');
+
+      this.runTask(function () {
+        return _this3.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('Good morning Matthew');
+
+      this.runTask(function () {
+        return _this3.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('Gabon Zack');
+    };
+
+    _class.prototype['@test overwrites nested rest positional parameters if rendered with positional parameters'] = function testOverwritesNestedRestPositionalParametersIfRenderedWithPositionalParameters() {
+      var _this4 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component "-looked-up" model.greeting model.name) model.name model.greeting}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this4.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('ZackGood morning ');
+
+      this.runTask(function () {
+        return _this4.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('MatthewGood morning ');
+
+      this.runTask(function () {
+        return _this4.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('ZackGabon ');
+    };
+
+    _class.prototype['@test GH#13742  keeps nested rest positional parameters if nested and rendered with no positional parameters'] = function testGH13742KeepsNestedRestPositionalParametersIfNestedAndRenderedWithNoPositionalParameters() {
+      var _this5 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component (component "-looked-up" model.greeting model.name))}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this5.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('Good morning Zack');
+
+      this.runTask(function () {
+        return _this5.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('Good morning Matthew');
+
+      this.runTask(function () {
+        return _this5.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('Gabon Zack');
+    };
+
+    _class.prototype['@test overwrites nested rest positional parameters if nested with new pos params and rendered with no positional parameters'] = function testOverwritesNestedRestPositionalParametersIfNestedWithNewPosParamsAndRenderedWithNoPositionalParameters() {
+      var _this6 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component (component "-looked-up" model.greeting model.name) model.name model.greeting)}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this6.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('ZackGood morning ');
+
+      this.runTask(function () {
+        return _this6.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('MatthewGood morning ');
+
+      this.runTask(function () {
+        return _this6.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('ZackGabon ');
+    };
+
+    _class.prototype['@test renders with component helper with curried params, hash'] = function testRendersWithComponentHelperWithCurriedParamsHash() {
+      var _this7 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9013,14 +9189,14 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hola Hodari');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('Hola Hodari');
     };
 
     _class.prototype['@test updates when component path is bound'] = function testUpdatesWhenComponentPathIsBound() {
-      var _this4 = this;
+      var _this8 = this;
 
       this.registerComponent('-mandarin', {
         template: 'ni hao'
@@ -9039,26 +9215,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('ni hao');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this8.rerender();
       });
 
       this.assertText('ni hao');
 
       this.runTask(function () {
-        return _this4.context.set('model.lookupComponent', '-hindi');
+        return _this8.context.set('model.lookupComponent', '-hindi');
       });
 
       this.assertText('Namaste');
 
       this.runTask(function () {
-        return _this4.context.set('model', { lookupComponent: '-mandarin' });
+        return _this8.context.set('model', { lookupComponent: '-mandarin' });
       });
 
       this.assertText('ni hao');
     };
 
     _class.prototype['@test updates when curried hash argument is bound'] = function testUpdatesWhenCurriedHashArgumentIsBound() {
-      var _this5 = this;
+      var _this9 = this;
 
       this.registerComponent('-looked-up', {
         template: '{{greeting}}'
@@ -9073,26 +9249,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this9.rerender();
       });
 
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this5.context.set('model.greeting', 'Hola');
+        return _this9.context.set('model.greeting', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this5.context.set('model', { greeting: 'Hodi' });
+        return _this9.context.set('model', { greeting: 'Hodi' });
       });
 
       this.assertText('Hodi');
     };
 
     _class.prototype['@test updates when curried hash arguments is bound in block form'] = function testUpdatesWhenCurriedHashArgumentsIsBoundInBlockForm() {
-      var _this6 = this;
+      var _this10 = this;
 
       this.registerComponent('-looked-up', {
         template: '{{greeting}}'
@@ -9107,26 +9283,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this10.rerender();
       });
 
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this6.context.set('model.greeting', 'Hola');
+        return _this10.context.set('model.greeting', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this6.context.set('model', { greeting: 'Hodi' });
+        return _this10.context.set('model', { greeting: 'Hodi' });
       });
 
       this.assertText('Hodi');
     };
 
     _class.prototype['@test nested components overwrite named positional parameters'] = function testNestedComponentsOverwriteNamedPositionalParameters() {
-      var _this7 = this;
+      var _this11 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9140,14 +9316,14 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodari 21');
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('Hodari 21');
     };
 
     _class.prototype['@test nested components overwrite hash parameters'] = function testNestedComponentsOverwriteHashParameters() {
-      var _this8 = this;
+      var _this12 = this;
 
       this.registerComponent('-looked-up', {
         template: '{{greeting}} {{name}} {{age}}'
@@ -9162,26 +9338,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Sigmundur 33');
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('Hodi Sigmundur 33');
 
       this.runTask(function () {
-        return _this8.context.set('model.greeting', 'Kaixo');
+        return _this12.context.set('model.greeting', 'Kaixo');
       });
 
       this.assertText('Kaixo Sigmundur 33');
 
       this.runTask(function () {
-        return _this8.context.set('model', { greeting: 'Hodi' });
+        return _this12.context.set('model', { greeting: 'Hodi' });
       });
 
       this.assertText('Hodi Sigmundur 33');
     };
 
     _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
-      var _this9 = this;
+      var _this13 = this;
 
       this.registerComponent('-inner-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9207,25 +9383,25 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this9.context.set('outerAge', 29);
+        return _this13.context.set('outerAge', 29);
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        return _this9.context.set('outerName', 'Not outer');
+        return _this13.context.set('outerName', 'Not outer');
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        _this9.context.set('model', {
+        _this13.context.set('model', {
           outerName: 'Outer',
           outerAge: 28
         });
@@ -9235,7 +9411,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
     };
 
     _class.prototype['@skip bound outer hash parameters get updated in the right scope'] = function skipBoundOuterHashParametersGetUpdatedInTheRightScope() {
-      var _this10 = this;
+      var _this14 = this;
 
       this.registerComponent('-inner-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9258,25 +9434,25 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this14.rerender();
       });
 
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this10.context.set('model.outerAge', 29);
+        return _this14.context.set('model.outerAge', 29);
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        return _this10.context.set('model.outerName', 'Not outer');
+        return _this14.context.set('model.outerName', 'Not outer');
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        _this10.context.set('model', {
+        _this14.context.set('model', {
           outerName: 'Outer',
           outerAge: 28
         });
@@ -9286,7 +9462,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
     };
 
     _class.prototype['@test conflicting positional and hash parameters raise and assertion if in the same closure'] = function testConflictingPositionalAndHashParametersRaiseAndAssertionIfInTheSameClosure() {
-      var _this11 = this;
+      var _this15 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9296,12 +9472,12 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       });
 
       expectAssertion(function () {
-        _this11.render('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
+        _this15.render('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
       }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
     };
 
     _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if rerendered'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfRerendered() {
-      var _this12 = this;
+      var _this16 = this;
 
       // In some cases, rerendering with a positional param used to cause an
       // assertion. This test checks it does not.
@@ -9321,26 +9497,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Hodari');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this16.rerender();
       });
 
       this.assertText('Hodi Hodari');
 
       this.runTask(function () {
-        return _this12.context.set('model.name', 'Sergio');
+        return _this16.context.set('model.name', 'Sergio');
       });
 
       this.assertText('Hodi Sergio');
 
       this.runTask(function () {
-        return _this12.context.set('model', { name: 'Hodari' });
+        return _this16.context.set('model', { name: 'Hodari' });
       });
 
       this.assertText('Hodi Hodari');
     };
 
     _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if in different closure'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfInDifferentClosure() {
-      var _this13 = this;
+      var _this17 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9354,40 +9530,40 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Sergio');
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('Hodi Sergio');
     };
 
     _class.prototype['@test raises an asserton when component path is null'] = function testRaisesAnAssertonWhenComponentPathIsNull() {
-      var _this14 = this;
+      var _this18 = this;
 
       expectAssertion(function () {
-        _this14.render('{{component (component lookupComponent)}}');
+        _this18.render('{{component (component lookupComponent)}}');
       });
     };
 
     _class.prototype['@test raises an assertion when component path is not a component name (static)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameStatic() {
-      var _this15 = this;
+      var _this19 = this;
 
       expectAssertion(function () {
-        _this15.render('{{component (component "not-a-component")}}');
+        _this19.render('{{component (component "not-a-component")}}');
       }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
     };
 
     _class.prototype['@test raises an assertion when component path is not a component name (dynamic)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameDynamic() {
-      var _this16 = this;
+      var _this20 = this;
 
       expectAssertion(function () {
-        _this16.render('{{component (component compName)}}', {
+        _this20.render('{{component (component compName)}}', {
           compName: 'not-a-component'
         });
       }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
     };
 
     _class.prototype['@test renders with dot path'] = function testRendersWithDotPath() {
-      var _this17 = this;
+      var _this21 = this;
 
       var expectedText = 'Hodi';
       this.registerComponent('-looked-up', {
@@ -9399,14 +9575,14 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this21.rerender();
       });
 
       this.assertText(expectedText);
     };
 
     _class.prototype['@test renders with dot path and attr'] = function testRendersWithDotPathAndAttr() {
-      var _this18 = this;
+      var _this22 = this;
 
       var expectedText = 'Hodi';
       this.registerComponent('-looked-up', {
@@ -9422,26 +9598,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this22.rerender();
       });
 
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this18.context.set('model.expectedText', 'Hola');
+        return _this22.context.set('model.expectedText', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this18.context.set('model', { expectedText: expectedText });
+        return _this22.context.set('model', { expectedText: expectedText });
       });
 
       this.assertText(expectedText);
     };
 
     _class.prototype['@test renders with dot path and curried over attr'] = function testRendersWithDotPathAndCurriedOverAttr() {
-      var _this19 = this;
+      var _this23 = this;
 
       var expectedText = 'Hodi';
       this.registerComponent('-looked-up', {
@@ -9457,26 +9633,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this23.rerender();
       });
 
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this19.context.set('model.expectedText', 'Hola');
+        return _this23.context.set('model.expectedText', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this19.context.set('model', { expectedText: expectedText });
+        return _this23.context.set('model', { expectedText: expectedText });
       });
 
       this.assertText(expectedText);
     };
 
     _class.prototype['@test renders with dot path and with rest positional parameters'] = function testRendersWithDotPathAndWithRestPositionalParameters() {
-      var _this20 = this;
+      var _this24 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9496,19 +9672,19 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText(expectedText + ',Hola');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this24.rerender();
       });
 
       this.assertText(expectedText + ',Hola');
 
       this.runTask(function () {
-        return _this20.context.set('model.expectedText', 'Kaixo');
+        return _this24.context.set('model.expectedText', 'Kaixo');
       });
 
       this.assertText('Kaixo,Hola');
 
       this.runTask(function () {
-        return _this20.context.set('model', { expectedText: expectedText });
+        return _this24.context.set('model', { expectedText: expectedText });
       });
 
       this.assertText(expectedText + ',Hola');
@@ -9536,7 +9712,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
     };
 
     _class.prototype['@test renders with dot path and updates attributes'] = function testRendersWithDotPathAndUpdatesAttributes(assert) {
-      var _this21 = this;
+      var _this25 = this;
 
       this.registerComponent('my-nested-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -9571,32 +9747,32 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$('#nested-prop').text(), '1');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this25.rerender();
       });
 
       assert.equal(this.$('#nested-prop').text(), '1');
 
       this.runTask(function () {
-        return _this21.$('button').click();
+        return _this25.$('button').click();
       });
 
       assert.equal(this.$('#nested-prop').text(), '2');
 
       this.runTask(function () {
-        return _this21.$('button').click();
+        return _this25.$('button').click();
       });
 
       assert.equal(this.$('#nested-prop').text(), '3');
 
       this.runTask(function () {
-        return _this21.context.set('model', { myProp: 1 });
+        return _this25.context.set('model', { myProp: 1 });
       });
 
       assert.equal(this.$('#nested-prop').text(), '1');
     };
 
     _class.prototype['@test adding parameters to a closure component\'s instance does not add it to other instances'] = function testAddingParametersToAClosureComponentSInstanceDoesNotAddItToOtherInstances() {
-      var _this22 = this;
+      var _this26 = this;
 
       // If parameters and attributes are not handled correctly, setting a value
       // in an invokation can leak to others invocation.
@@ -9613,14 +9789,14 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Foo');
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this26.rerender();
       });
 
       this.assertText('Foo');
     };
 
     _class.prototype['@test parameters in a closure are mutable when closure is a param'] = function testParametersInAClosureAreMutableWhenClosureIsAParam(assert) {
-      var _this23 = this;
+      var _this27 = this;
 
       // This checks that a `(mut)` is added to parameters and attributes to
       // contextual components when it is a param.
@@ -9641,26 +9817,26 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$('.value').text(), '8');
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this27.rerender();
       });
 
       assert.equal(this.$('.value').text(), '8');
 
       this.runTask(function () {
-        return _this23.$('.my-button').click();
+        return _this27.$('.my-button').click();
       });
 
       assert.equal(this.$('.value').text(), '10');
 
       this.runTask(function () {
-        return _this23.context.set('model', { val2: 8 });
+        return _this27.context.set('model', { val2: 8 });
       });
 
       assert.equal(this.$('.value').text(), '8');
     };
 
     _class.prototype['@test tagless blockless components render'] = function testTaglessBlocklessComponentsRender(assert) {
-      var _this24 = this;
+      var _this28 = this;
 
       this.registerComponent('my-comp', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({ tagName: '' })
@@ -9669,7 +9845,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.render('{{my-comp}}');
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this28.rerender();
       });
 
       assert.equal(this.$().text(), '');
@@ -9710,7 +9886,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this25 = this;
+        var _this29 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -9724,19 +9900,19 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this25.rerender();
+          return _this29.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this25.$('.my-button').click();
+          return _this29.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this25.context.set('model', { val2: 8 });
+          return _this29.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
@@ -30946,8 +31122,184 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Hodari');
     };
 
-    _class.prototype['@test renders with component helper with curried params, hash'] = function testRendersWithComponentHelperWithCurriedParamsHash() {
+    _class.prototype['@test GH#13742 keeps nested rest positional parameters if rendered with no positional parameters'] = function testGH13742KeepsNestedRestPositionalParametersIfRenderedWithNoPositionalParameters() {
       var _this3 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component "-looked-up" model.greeting model.name)}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this3.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('Good morning Zack');
+
+      this.runTask(function () {
+        return _this3.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('Good morning Matthew');
+
+      this.runTask(function () {
+        return _this3.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('Gabon Zack');
+    };
+
+    _class.prototype['@test overwrites nested rest positional parameters if rendered with positional parameters'] = function testOverwritesNestedRestPositionalParametersIfRenderedWithPositionalParameters() {
+      var _this4 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component "-looked-up" model.greeting model.name) model.name model.greeting}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this4.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('ZackGood morning ');
+
+      this.runTask(function () {
+        return _this4.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('MatthewGood morning ');
+
+      this.runTask(function () {
+        return _this4.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('ZackGabon ');
+    };
+
+    _class.prototype['@test GH#13742  keeps nested rest positional parameters if nested and rendered with no positional parameters'] = function testGH13742KeepsNestedRestPositionalParametersIfNestedAndRenderedWithNoPositionalParameters() {
+      var _this5 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component (component "-looked-up" model.greeting model.name))}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('Gabon Zack');
+
+      this.runTask(function () {
+        return _this5.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('Good morning Zack');
+
+      this.runTask(function () {
+        return _this5.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('Good morning Matthew');
+
+      this.runTask(function () {
+        return _this5.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('Gabon Zack');
+    };
+
+    _class.prototype['@test overwrites nested rest positional parameters if nested with new pos params and rendered with no positional parameters'] = function testOverwritesNestedRestPositionalParametersIfNestedWithNewPosParamsAndRenderedWithNoPositionalParameters() {
+      var _this6 = this;
+
+      this.registerComponent('-looked-up', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component (component "-looked-up" model.greeting model.name) model.name model.greeting)}}', {
+        model: {
+          greeting: 'Gabon ',
+          name: 'Zack'
+        }
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('ZackGabon ');
+
+      this.runTask(function () {
+        return _this6.context.set('model.greeting', 'Good morning ');
+      });
+
+      this.assertText('ZackGood morning ');
+
+      this.runTask(function () {
+        return _this6.context.set('model.name', 'Matthew');
+      });
+
+      this.assertText('MatthewGood morning ');
+
+      this.runTask(function () {
+        return _this6.context.set('model', { greeting: 'Gabon ', name: 'Zack' });
+      });
+
+      this.assertText('ZackGabon ');
+    };
+
+    _class.prototype['@test renders with component helper with curried params, hash'] = function testRendersWithComponentHelperWithCurriedParamsHash() {
+      var _this7 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -30961,14 +31313,14 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hola Hodari');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('Hola Hodari');
     };
 
     _class.prototype['@test updates when component path is bound'] = function testUpdatesWhenComponentPathIsBound() {
-      var _this4 = this;
+      var _this8 = this;
 
       this.registerComponent('-mandarin', {
         template: 'ni hao'
@@ -30987,26 +31339,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('ni hao');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this8.rerender();
       });
 
       this.assertText('ni hao');
 
       this.runTask(function () {
-        return _this4.context.set('model.lookupComponent', '-hindi');
+        return _this8.context.set('model.lookupComponent', '-hindi');
       });
 
       this.assertText('Namaste');
 
       this.runTask(function () {
-        return _this4.context.set('model', { lookupComponent: '-mandarin' });
+        return _this8.context.set('model', { lookupComponent: '-mandarin' });
       });
 
       this.assertText('ni hao');
     };
 
     _class.prototype['@test updates when curried hash argument is bound'] = function testUpdatesWhenCurriedHashArgumentIsBound() {
-      var _this5 = this;
+      var _this9 = this;
 
       this.registerComponent('-looked-up', {
         template: '{{greeting}}'
@@ -31021,26 +31373,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this9.rerender();
       });
 
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this5.context.set('model.greeting', 'Hola');
+        return _this9.context.set('model.greeting', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this5.context.set('model', { greeting: 'Hodi' });
+        return _this9.context.set('model', { greeting: 'Hodi' });
       });
 
       this.assertText('Hodi');
     };
 
     _class.prototype['@test updates when curried hash arguments is bound in block form'] = function testUpdatesWhenCurriedHashArgumentsIsBoundInBlockForm() {
-      var _this6 = this;
+      var _this10 = this;
 
       this.registerComponent('-looked-up', {
         template: '{{greeting}}'
@@ -31055,26 +31407,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this10.rerender();
       });
 
       this.assertText('Hodi');
 
       this.runTask(function () {
-        return _this6.context.set('model.greeting', 'Hola');
+        return _this10.context.set('model.greeting', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this6.context.set('model', { greeting: 'Hodi' });
+        return _this10.context.set('model', { greeting: 'Hodi' });
       });
 
       this.assertText('Hodi');
     };
 
     _class.prototype['@test nested components overwrite named positional parameters'] = function testNestedComponentsOverwriteNamedPositionalParameters() {
-      var _this7 = this;
+      var _this11 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31088,14 +31440,14 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodari 21');
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('Hodari 21');
     };
 
     _class.prototype['@test nested components overwrite hash parameters'] = function testNestedComponentsOverwriteHashParameters() {
-      var _this8 = this;
+      var _this12 = this;
 
       this.registerComponent('-looked-up', {
         template: '{{greeting}} {{name}} {{age}}'
@@ -31110,26 +31462,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Sigmundur 33');
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('Hodi Sigmundur 33');
 
       this.runTask(function () {
-        return _this8.context.set('model.greeting', 'Kaixo');
+        return _this12.context.set('model.greeting', 'Kaixo');
       });
 
       this.assertText('Kaixo Sigmundur 33');
 
       this.runTask(function () {
-        return _this8.context.set('model', { greeting: 'Hodi' });
+        return _this12.context.set('model', { greeting: 'Hodi' });
       });
 
       this.assertText('Hodi Sigmundur 33');
     };
 
     _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
-      var _this9 = this;
+      var _this13 = this;
 
       this.registerComponent('-inner-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31155,25 +31507,25 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this9.context.set('outerAge', 29);
+        return _this13.context.set('outerAge', 29);
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        return _this9.context.set('outerName', 'Not outer');
+        return _this13.context.set('outerName', 'Not outer');
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        _this9.context.set('model', {
+        _this13.context.set('model', {
           outerName: 'Outer',
           outerAge: 28
         });
@@ -31183,7 +31535,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
     };
 
     _class.prototype['@skip bound outer hash parameters get updated in the right scope'] = function skipBoundOuterHashParametersGetUpdatedInTheRightScope() {
-      var _this10 = this;
+      var _this14 = this;
 
       this.registerComponent('-inner-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31206,25 +31558,25 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this14.rerender();
       });
 
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this10.context.set('model.outerAge', 29);
+        return _this14.context.set('model.outerAge', 29);
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        return _this10.context.set('model.outerName', 'Not outer');
+        return _this14.context.set('model.outerName', 'Not outer');
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        _this10.context.set('model', {
+        _this14.context.set('model', {
           outerName: 'Outer',
           outerAge: 28
         });
@@ -31234,7 +31586,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
     };
 
     _class.prototype['@test conflicting positional and hash parameters raise and assertion if in the same closure'] = function testConflictingPositionalAndHashParametersRaiseAndAssertionIfInTheSameClosure() {
-      var _this11 = this;
+      var _this15 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31244,12 +31596,12 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       });
 
       expectAssertion(function () {
-        _this11.render('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
+        _this15.render('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
       }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
     };
 
     _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if rerendered'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfRerendered() {
-      var _this12 = this;
+      var _this16 = this;
 
       // In some cases, rerendering with a positional param used to cause an
       // assertion. This test checks it does not.
@@ -31269,26 +31621,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Hodari');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this16.rerender();
       });
 
       this.assertText('Hodi Hodari');
 
       this.runTask(function () {
-        return _this12.context.set('model.name', 'Sergio');
+        return _this16.context.set('model.name', 'Sergio');
       });
 
       this.assertText('Hodi Sergio');
 
       this.runTask(function () {
-        return _this12.context.set('model', { name: 'Hodari' });
+        return _this16.context.set('model', { name: 'Hodari' });
       });
 
       this.assertText('Hodi Hodari');
     };
 
     _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if in different closure'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfInDifferentClosure() {
-      var _this13 = this;
+      var _this17 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31302,40 +31654,40 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Sergio');
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('Hodi Sergio');
     };
 
     _class.prototype['@test raises an asserton when component path is null'] = function testRaisesAnAssertonWhenComponentPathIsNull() {
-      var _this14 = this;
+      var _this18 = this;
 
       expectAssertion(function () {
-        _this14.render('{{component (component lookupComponent)}}');
+        _this18.render('{{component (component lookupComponent)}}');
       });
     };
 
     _class.prototype['@test raises an assertion when component path is not a component name (static)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameStatic() {
-      var _this15 = this;
+      var _this19 = this;
 
       expectAssertion(function () {
-        _this15.render('{{component (component "not-a-component")}}');
+        _this19.render('{{component (component "not-a-component")}}');
       }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
     };
 
     _class.prototype['@test raises an assertion when component path is not a component name (dynamic)'] = function testRaisesAnAssertionWhenComponentPathIsNotAComponentNameDynamic() {
-      var _this16 = this;
+      var _this20 = this;
 
       expectAssertion(function () {
-        _this16.render('{{component (component compName)}}', {
+        _this20.render('{{component (component compName)}}', {
           compName: 'not-a-component'
         });
       }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
     };
 
     _class.prototype['@test renders with dot path'] = function testRendersWithDotPath() {
-      var _this17 = this;
+      var _this21 = this;
 
       var expectedText = 'Hodi';
       this.registerComponent('-looked-up', {
@@ -31347,14 +31699,14 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this21.rerender();
       });
 
       this.assertText(expectedText);
     };
 
     _class.prototype['@test renders with dot path and attr'] = function testRendersWithDotPathAndAttr() {
-      var _this18 = this;
+      var _this22 = this;
 
       var expectedText = 'Hodi';
       this.registerComponent('-looked-up', {
@@ -31370,26 +31722,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this22.rerender();
       });
 
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this18.context.set('model.expectedText', 'Hola');
+        return _this22.context.set('model.expectedText', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this18.context.set('model', { expectedText: expectedText });
+        return _this22.context.set('model', { expectedText: expectedText });
       });
 
       this.assertText(expectedText);
     };
 
     _class.prototype['@test renders with dot path and curried over attr'] = function testRendersWithDotPathAndCurriedOverAttr() {
-      var _this19 = this;
+      var _this23 = this;
 
       var expectedText = 'Hodi';
       this.registerComponent('-looked-up', {
@@ -31405,26 +31757,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this23.rerender();
       });
 
       this.assertText(expectedText);
 
       this.runTask(function () {
-        return _this19.context.set('model.expectedText', 'Hola');
+        return _this23.context.set('model.expectedText', 'Hola');
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this19.context.set('model', { expectedText: expectedText });
+        return _this23.context.set('model', { expectedText: expectedText });
       });
 
       this.assertText(expectedText);
     };
 
     _class.prototype['@test renders with dot path and with rest positional parameters'] = function testRendersWithDotPathAndWithRestPositionalParameters() {
-      var _this20 = this;
+      var _this24 = this;
 
       this.registerComponent('-looked-up', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31444,19 +31796,19 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText(expectedText + ',Hola');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this24.rerender();
       });
 
       this.assertText(expectedText + ',Hola');
 
       this.runTask(function () {
-        return _this20.context.set('model.expectedText', 'Kaixo');
+        return _this24.context.set('model.expectedText', 'Kaixo');
       });
 
       this.assertText('Kaixo,Hola');
 
       this.runTask(function () {
-        return _this20.context.set('model', { expectedText: expectedText });
+        return _this24.context.set('model', { expectedText: expectedText });
       });
 
       this.assertText(expectedText + ',Hola');
@@ -31484,7 +31836,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
     };
 
     _class.prototype['@test renders with dot path and updates attributes'] = function testRendersWithDotPathAndUpdatesAttributes(assert) {
-      var _this21 = this;
+      var _this25 = this;
 
       this.registerComponent('my-nested-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -31519,32 +31871,32 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$('#nested-prop').text(), '1');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this25.rerender();
       });
 
       assert.equal(this.$('#nested-prop').text(), '1');
 
       this.runTask(function () {
-        return _this21.$('button').click();
+        return _this25.$('button').click();
       });
 
       assert.equal(this.$('#nested-prop').text(), '2');
 
       this.runTask(function () {
-        return _this21.$('button').click();
+        return _this25.$('button').click();
       });
 
       assert.equal(this.$('#nested-prop').text(), '3');
 
       this.runTask(function () {
-        return _this21.context.set('model', { myProp: 1 });
+        return _this25.context.set('model', { myProp: 1 });
       });
 
       assert.equal(this.$('#nested-prop').text(), '1');
     };
 
     _class.prototype['@test adding parameters to a closure component\'s instance does not add it to other instances'] = function testAddingParametersToAClosureComponentSInstanceDoesNotAddItToOtherInstances() {
-      var _this22 = this;
+      var _this26 = this;
 
       // If parameters and attributes are not handled correctly, setting a value
       // in an invokation can leak to others invocation.
@@ -31561,14 +31913,14 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Foo');
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this26.rerender();
       });
 
       this.assertText('Foo');
     };
 
     _class.prototype['@test parameters in a closure are mutable when closure is a param'] = function testParametersInAClosureAreMutableWhenClosureIsAParam(assert) {
-      var _this23 = this;
+      var _this27 = this;
 
       // This checks that a `(mut)` is added to parameters and attributes to
       // contextual components when it is a param.
@@ -31589,26 +31941,26 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$('.value').text(), '8');
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this27.rerender();
       });
 
       assert.equal(this.$('.value').text(), '8');
 
       this.runTask(function () {
-        return _this23.$('.my-button').click();
+        return _this27.$('.my-button').click();
       });
 
       assert.equal(this.$('.value').text(), '10');
 
       this.runTask(function () {
-        return _this23.context.set('model', { val2: 8 });
+        return _this27.context.set('model', { val2: 8 });
       });
 
       assert.equal(this.$('.value').text(), '8');
     };
 
     _class.prototype['@test tagless blockless components render'] = function testTaglessBlocklessComponentsRender(assert) {
-      var _this24 = this;
+      var _this28 = this;
 
       this.registerComponent('my-comp', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({ tagName: '' })
@@ -31617,7 +31969,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.render('{{my-comp}}');
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this28.rerender();
       });
 
       assert.equal(this.$().text(), '');
@@ -31658,7 +32010,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this25 = this;
+        var _this29 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -31672,19 +32024,19 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this25.rerender();
+          return _this29.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this25.$('.my-button').click();
+          return _this29.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this25.context.set('model', { val2: 8 });
+          return _this29.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+52ba7d03
+ * @version   2.7.0-canary+7246a373
  */
 
 var enifed, requireModule, require, Ember;
@@ -15921,8 +15921,8 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
          */
         var newAttrs = _emberMetalAssign.default(new _emberMetalEmpty_object.default(), attrs);
         _emberHtmlbarsKeywordsClosureComponent.processPositionalParamsFromCell(componentCell, params, newAttrs);
+        attrs = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], newAttrs, componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_POSITIONAL_PARAMS], params);
         params = [];
-        attrs = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], newAttrs);
       }
     }
 
@@ -17276,7 +17276,7 @@ enifed('ember-htmlbars/keywords/closure-action', ['exports', 'ember-htmlbars/str
     return closureAction;
   }
 });
-enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-htmlbars/streams/stream', 'ember-metal/empty_object', 'ember-htmlbars/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-views/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberHtmlbarsStreamsStream, _emberMetalEmpty_object, _emberHtmlbarsStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberViewsUtilsLookupComponent) {
+enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_empty', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-htmlbars/streams/stream', 'ember-metal/empty_object', 'ember-htmlbars/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-views/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_empty, _emberMetalIs_none, _emberMetalSymbol, _emberHtmlbarsStreamsStream, _emberMetalEmpty_object, _emberHtmlbarsStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberViewsUtilsLookupComponent) {
   /**
   @module ember
   @submodule ember-templates
@@ -17367,7 +17367,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
     // This needs to be done in each nesting level to avoid raising assertions.
     processPositionalParamsFromCell(componentCell, params, hash);
 
-    return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = componentCell[COMPONENT_POSITIONAL_PARAMS], _ref[COMPONENT_CELL] = true, _ref;
+    return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash, componentCell[COMPONENT_POSITIONAL_PARAMS], params), _ref[COMPONENT_POSITIONAL_PARAMS] = componentCell[COMPONENT_POSITIONAL_PARAMS], _ref[COMPONENT_CELL] = true, _ref;
   }
 
   function processPositionalParamsFromCell(componentCell, params, hash) {
@@ -17405,8 +17405,56 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
     }
   }
 
+  /*
+   * This function merges two hashes in a new one.
+   * Furthermore this function deals with the issue expressed in #13742.
+   *
+   * ```hbs
+   * {{component (component 'link-to' 'index')}}
+   * ```
+   *
+   * results in the following error
+   *
+   * > You must provide one or more parameters to the link-to component.
+   *
+   * This is so because a naive merging would not take into account that the
+   * invocation (the external `{{component}}`) would result in the following
+   * attributes (before merging with the ones in the contextual component):
+   *
+   * ```js
+   * let attrs = { params: [] };
+   * ```
+   *
+   * Given that the contextual component has the following attributes:
+   *
+   * ```js
+   * let attrs = { params: ['index'] };
+   * ```
+   *
+   * Merging them would result in:
+   *
+   * ```js
+   * let attrs = { params: [] };
+   * ```
+   *
+   * Therefore, if there are no positional parameters and `positionalParams` is
+   * a string (rest positional parameters), we keep the parameters from the
+   * `original` hash.
+   *
+   */
+
   function mergeInNewHash(original, updates) {
-    return _emberMetalAssign.default({}, original, updates);
+    var positionalParams = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
+    var params = arguments.length <= 3 || arguments[3] === undefined ? [] : arguments[3];
+
+    var newHash = _emberMetalAssign.default({}, original, updates);
+
+    if (_emberHtmlbarsUtilsExtractPositionalParams.isRestPositionalParams(positionalParams) && _emberMetalIs_empty.default(params)) {
+      var propName = positionalParams;
+      newHash[propName] = original[propName];
+    }
+
+    return newHash;
   }
 });
 enifed('ember-htmlbars/keywords/component', ['exports', 'htmlbars-runtime/hooks', 'ember-htmlbars/keywords/closure-component', 'ember-metal/empty_object', 'ember-metal/assign'], function (exports, _htmlbarsRuntimeHooks, _emberHtmlbarsKeywordsClosureComponent, _emberMetalEmpty_object, _emberMetalAssign) {
@@ -17799,8 +17847,8 @@ enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/ass
 
       // This needs to be done in each nesting level to avoid raising assertions
       _emberHtmlbarsKeywordsClosureComponent.processPositionalParamsFromCell(closureComponent, params, hash);
+      hash = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], hash, closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_POSITIONAL_PARAMS], params);
       params = [];
-      hash = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], hash);
     }
 
     var templates = { default: template, inverse: inverse };
@@ -22379,6 +22427,7 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
   'use strict';
 
   exports.default = extractPositionalParams;
+  exports.isRestPositionalParams = isRestPositionalParams;
   exports.processPositionalParams = processPositionalParams;
 
   function extractPositionalParams(renderNode, component, params, attrs) {
@@ -22391,10 +22440,14 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
     }
   }
 
+  function isRestPositionalParams(positionalParams) {
+    return typeof positionalParams === 'string';
+  }
+
   function processPositionalParams(renderNode, positionalParams, params, attrs) {
     var raiseAssertions = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
 
-    var isRest = typeof positionalParams === 'string';
+    var isRest = isRestPositionalParams(positionalParams);
 
     if (isRest) {
       processRestPositionalParameters(renderNode, positionalParams, params, attrs, raiseAssertions);
@@ -50135,7 +50188,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+52ba7d03";
+  exports.default = "2.7.0-canary+7246a373";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
