@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e00362ae
+ * @version   2.7.0-canary+5d6cf8d2
  */
 
 var enifed, requireModule, require, Ember;
@@ -12271,7 +12271,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   /**
     A computed property which returns a new array with all the unique
     elements from an array, with uniqueness determined by specific key.
+  
     Example
+  
     ```javascript
     let Hamster = Ember.Object.extend({
       uniqueFruits: Ember.computed.uniqBy('fruits', 'id')
@@ -12286,6 +12288,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
     hamster.get('uniqueFruits'); // [ { id: 1, 'banana' }, { id: 2, 'grape' }, { id: 3, 'peach' }]
     ```
+  
     @method uniqBy
     @for Ember.computed
     @param {String} dependentKey
@@ -19884,7 +19887,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+e00362ae";
+  exports.default = "2.7.0-canary+5d6cf8d2";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
