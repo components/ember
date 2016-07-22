@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dc3cfac0
+ * @version   2.7.0-canary+a89dcfc0
  */
 
 var enifed, requireModule, require, Ember;
@@ -2270,6 +2270,36 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     equal(_emberRuntimeSystemLazy_load._loaded.application, app);
     _emberMetalRun_loop.default(app, 'destroy');
     equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
+  });
+});
+enifed('ember-application/tests/system/bootstrap-test', ['exports', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-views/system/jquery', 'ember-templates/template_registry'], function (exports, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberViewsSystemJquery, _emberTemplatesTemplate_registry) {
+  'use strict';
+
+  var app = undefined;
+
+  QUnit.module('Ember.Application', {
+    teardown: function () {
+      if (app) {
+        _emberMetalRun_loop.default(app, 'destroy');
+      }
+
+      _emberTemplatesTemplate_registry.setTemplates({});
+    }
+  });
+
+  QUnit.test('templates in script tags are extracted at application creation', function (assert) {
+    _emberViewsSystemJquery.default('#qunit-fixture').html('\n    <div id="app"></div>\n\n    <script type="text/x-handlebars">Hello {{outlet}}</script>\n    <script type="text/x-handlebars" id="index">World!</script>\n  ');
+
+    var application = _emberApplicationSystemApplication.default.extend();
+    application.Router = _emberRoutingSystemRouter.default.extend({
+      location: 'none'
+    });
+
+    app = _emberMetalRun_loop.default(function () {
+      return application.create({ rootElement: '#app' });
+    });
+
+    assert.equal(_emberViewsSystemJquery.default('#app').text(), 'Hello World!');
   });
 });
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerTestsUtilsHelpers) {

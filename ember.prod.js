@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dc3cfac0
+ * @version   2.7.0-canary+a89dcfc0
  */
 
 var enifed, requireModule, require, Ember;
@@ -3734,14 +3734,16 @@ enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'e
 
   var bootstrap = function () {};
 
-  var bootstrapModuleId = 'ember-template-compiler/system/bootstrap';
-  if (_emberEnvironment.environment.hasDOM && _require.has(bootstrapModuleId)) {
-    bootstrap = _require.default(bootstrapModuleId);
-  }
-
   _emberApplicationSystemApplication.default.initializer({
     name: 'domTemplates',
-    initialize: bootstrap
+    initialize: function () {
+      var bootstrapModuleId = 'ember-template-compiler/system/bootstrap';
+      if (_emberEnvironment.environment.hasDOM && _require.has(bootstrapModuleId)) {
+        bootstrap = _require.default(bootstrapModuleId).default;
+      }
+
+      bootstrap();
+    }
   });
 });
 enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/mixins/registry_proxy', 'ember-metal/assign', 'ember-environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-application/system/engine-instance'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeMixinsRegistry_proxy, _emberMetalAssign, _emberEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberApplicationSystemEngineInstance) {
@@ -47478,7 +47480,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+dc3cfac0";
+  exports.default = "2.7.0-canary+a89dcfc0";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
