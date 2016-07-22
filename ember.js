@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+7246a373
+ * @version   2.7.0-canary+6933403f
  */
 
 var enifed, requireModule, require, Ember;
@@ -4241,7 +4241,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require) {
   /**
   @module ember
   @submodule ember-application
@@ -4604,10 +4604,10 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       Called when creating and resetting the application.
        This is orthogonal to autoboot: the deprecated instance needs to
       be created at Application construction (not boot) time to expose
-      App.__container__ and the global Ember.View.views registry. If
-      autoboot sees that this instance exists, it will continue booting
-      it to avoid doing unncessary work (as opposed to building a new
-      instance at boot time), but they are otherwise unrelated.
+      App.__container__. If autoboot sees that this instance exists,
+      it will continue booting it to avoid doing unncessary work (as
+      opposed to building a new instance at boot time), but they are
+      otherwise unrelated.
        @private
       @method _buildDeprecatedInstance
     */
@@ -4619,10 +4619,6 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       // on App that rely on a single, default instance.
       this.__deprecatedInstance__ = instance;
       this.__container__ = instance.__container__;
-
-      // For the default instance only, set the view registry to the global
-      // Ember.View.views hash for backwards-compatibility.
-      _emberViewsViewsView.default.views = instance.lookup('-view-registry:main');
     },
 
     /**
@@ -5865,6 +5861,8 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     registry.injection('service:-dom-helper', 'document', 'service:-document');
 
     registry.injection('view', '_viewRegistry', '-view-registry:main');
+    registry.injection('renderer', '_viewRegistry', '-view-registry:main');
+    registry.injection('event_dispatcher:main', '_viewRegistry', '-view-registry:main');
 
     registry.injection('route', '_topLevelViewTemplate', 'template:-outlet');
 
@@ -7827,7 +7825,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
   var _CoreView$extend;
@@ -7858,7 +7856,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
       var _this = this;
 
       this._super.apply(this, arguments);
-      this._viewRegistry = this._viewRegistry || _emberViewsViewsView.default.views;
       this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
       this[ROOT_REF] = null;
       this[REFS] = new _emberMetalEmpty_object.default();
@@ -10801,7 +10798,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
 
   exports.default = ActionModifierManager;
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'ember-metal/tags', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _emberMetalTags, _glimmerReference) {
+enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'ember-metal/tags', 'glimmer-reference', 'ember-views/compat/fallback-view-registry', 'ember-metal/debug'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _emberMetalTags, _glimmerReference, _emberViewsCompatFallbackViewRegistry, _emberMetalDebug) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -10947,6 +10944,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     function Renderer(_ref2) {
       var dom = _ref2.dom;
       var env = _ref2.env;
+      var _viewRegistry = _ref2._viewRegistry;
       var _ref2$destinedForDOM = _ref2.destinedForDOM;
       var destinedForDOM = _ref2$destinedForDOM === undefined ? false : _ref2$destinedForDOM;
 
@@ -10957,6 +10955,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       this._env = env;
       this._destinedForDOM = destinedForDOM;
       this._scheduler = new Scheduler();
+      this._viewRegistry = _viewRegistry || _emberViewsCompatFallbackViewRegistry.default;
     }
 
     Renderer.prototype.destroy = function destroy() {
@@ -11046,6 +11045,15 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       // throw new Error('Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.');
     };
 
+    Renderer.prototype._register = function _register(view) {
+      _emberMetalDebug.assert('Attempted to register a view with an id already in use: ' + view.elementId, !this._viewRegistry[this.elementId]);
+      this._viewRegistry[view.elementId] = view;
+    };
+
+    Renderer.prototype._unregister = function _unregister(view) {
+      delete this._viewRegistry[this.elementId];
+    };
+
     return Renderer;
   })();
 
@@ -11053,8 +11061,9 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     create: function (_ref3) {
       var dom = _ref3.dom;
       var env = _ref3.env;
+      var _viewRegistry = _ref3._viewRegistry;
 
-      return new Renderer({ dom: dom, env: env, destinedForDOM: false });
+      return new Renderer({ dom: dom, env: env, _viewRegistry: _viewRegistry, destinedForDOM: false });
     }
   };
 
@@ -11063,8 +11072,9 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     create: function (_ref4) {
       var dom = _ref4.dom;
       var env = _ref4.env;
+      var _viewRegistry = _ref4._viewRegistry;
 
-      return new Renderer({ dom: dom, env: env, destinedForDOM: true });
+      return new Renderer({ dom: dom, env: env, _viewRegistry: _viewRegistry, destinedForDOM: true });
     }
   };
   exports.InteractiveRenderer = InteractiveRenderer;
@@ -19610,7 +19620,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     _containerOwner.setOwner(props, env.owner);
     props.renderer = props.parentView ? props.parentView.renderer : env.owner.lookup('renderer:-dom');
-    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.owner.lookup('-view-registry:main');
 
     var component = _component.create(props);
 
@@ -19868,7 +19877,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       _containerOwner.setOwner(props, owner);
       props.renderer = options.parentView ? options.parentView.renderer : owner && owner.lookup('renderer:-dom');
-      props._viewRegistry = options.parentView ? options.parentView._viewRegistry : owner && owner.lookup('-view-registry:main');
 
       if (proto.controller !== defaultController || hasSuppliedController) {
         delete props._context;
@@ -19934,7 +19942,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 // be safe to import this until we make the hook system public
 // and it gets actively used in addons or other downstream
 // libraries.
-enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-metal/set_properties', 'ember-htmlbars/system/build-component-template', 'ember-environment', 'htmlbars-runtime', 'ember-htmlbars/system/render-view'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberMetalSet_properties, _emberHtmlbarsSystemBuildComponentTemplate, _emberEnvironment, _htmlbarsRuntime, _emberHtmlbarsSystemRenderView) {
+enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-metal/set_properties', 'ember-htmlbars/system/build-component-template', 'ember-environment', 'htmlbars-runtime', 'ember-htmlbars/system/render-view', 'ember-views/compat/fallback-view-registry', 'ember-metal/debug'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberMetalSet_properties, _emberHtmlbarsSystemBuildComponentTemplate, _emberEnvironment, _htmlbarsRuntime, _emberHtmlbarsSystemRenderView, _emberViewsCompatFallbackViewRegistry, _emberMetalDebug) {
   'use strict';
 
   exports.Renderer = Renderer;
@@ -19944,6 +19952,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     var _ref = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var destinedForDOM = _ref.destinedForDOM;
+    var _viewRegistry = _ref._viewRegistry;
 
     this._dom = domHelper;
 
@@ -19954,6 +19963,8 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     // as whether we are running in an environment with DOM, but may be
     // overridden.
     this._destinedForDOM = destinedForDOM === undefined ? _emberEnvironment.environment.hasDOM : destinedForDOM;
+
+    this._viewRegistry = _viewRegistry || _emberViewsCompatFallbackViewRegistry.default;
   }
 
   Renderer.prototype.prerenderTopLevelView = function Renderer_prerenderTopLevelView(view, renderNode) {
@@ -20217,11 +20228,21 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     }
   };
 
+  Renderer.prototype._register = function Renderer_register(view) {
+    _emberMetalDebug.assert('Attempted to register a view with an id already in use: ' + view.elementId, !this._viewRegistry[this.elementId]);
+    this._viewRegistry[view.elementId] = view;
+  };
+
+  Renderer.prototype._unregister = function Renderer_unregister(view) {
+    delete this._viewRegistry[this.elementId];
+  };
+
   var InertRenderer = {
     create: function (_ref2) {
       var dom = _ref2.dom;
+      var _viewRegistry = _ref2._viewRegistry;
 
-      return new Renderer(dom, { destinedForDOM: false });
+      return new Renderer(dom, { destinedForDOM: false, _viewRegistry: _viewRegistry });
     }
   };
 
@@ -20229,8 +20250,9 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   var InteractiveRenderer = {
     create: function (_ref3) {
       var dom = _ref3.dom;
+      var _viewRegistry = _ref3._viewRegistry;
 
-      return new Renderer(dom, { destinedForDOM: true });
+      return new Renderer(dom, { destinedForDOM: true, _viewRegistry: _viewRegistry });
     }
   };
   exports.InteractiveRenderer = InteractiveRenderer;
@@ -47235,6 +47257,11 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
   exports.default = _emberMetalMixin.Mixin.create(AttrsProxyMixin);
 });
+enifed('ember-views/compat/fallback-view-registry', ['exports', 'ember-metal/dictionary'], function (exports, _emberMetalDictionary) {
+  'use strict';
+
+  exports.default = _emberMetalDictionary.default(null);
+});
 enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-runtime/system/object'], function (exports, _emberMetalDebug, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -48550,11 +48577,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     }
   }, _Mixin$create.handleEvent = function (eventName, evt) {
     return this._currentState.handleEvent(this, eventName, evt);
-  }, _Mixin$create._register = function () {
-    _emberMetalDebug.assert('Attempted to register a view with an id already in use: ' + this.elementId, !this._viewRegistry[this.elementId]);
-    this._viewRegistry[this.elementId] = this;
-  }, _Mixin$create._unregister = function () {
-    delete this._viewRegistry[this.elementId];
   }, _Mixin$create));
 });
 /*
@@ -48575,23 +48597,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
    @method handleEvent
   @param eventName {String}
   @param evt {Event}
-  @private
-*/
-
-/**
-  Registers the view in the view registry, keyed on the view's `elementId`.
-  This is used by the EventDispatcher to locate the view in response to
-  events.
-   This method should only be called once the view has been inserted into the
-  DOM.
-   @method _register
-  @private
-*/
-
-/**
-  Removes the view from the view registry. This should be called when the
-  view is removed from DOM.
-   @method _unregister
   @private
 */
 enifed('ember-views/mixins/view_target_action_support', ['exports', 'ember-metal/mixin', 'ember-runtime/mixins/target_action_support', 'ember-metal/alias'], function (exports, _emberMetalMixin, _emberRuntimeMixinsTarget_action_support, _emberMetalAlias) {
@@ -48780,7 +48785,7 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   */
   ActionManager.registeredActions = {};
 });
-enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-metal/assign', 'container/owner', 'ember-environment'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberMetalAssign, _containerOwner, _emberEnvironment) {
+enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-metal/assign', 'container/owner', 'ember-environment', 'ember-views/compat/fallback-view-registry'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberMetalAssign, _containerOwner, _emberEnvironment, _emberViewsCompatFallbackViewRegistry) {
   /**
   @module ember
   @submodule ember-views
@@ -48957,7 +48962,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', '
       var self = this;
 
       var owner = _containerOwner.getOwner(this);
-      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsViewsView.default.views;
+      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
 
       if (eventName === null) {
         return;
@@ -49555,7 +49560,7 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/debug', 'embe
       // Register the view for event handling. This hash is used by
       // Ember.EventDispatcher to dispatch incoming events.
       if (view.tagName !== '') {
-        view._register();
+        view.renderer._register(view);
       }
 
       _emberMetalDebug.runInDebug(function () {
@@ -49567,7 +49572,7 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/debug', 'embe
 
     exit: function (view) {
       if (view.tagName !== '') {
-        view._unregister();
+        view.renderer._unregister(view);
       }
     }
   });
@@ -50091,14 +50096,6 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
   var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
     attributeBindings: ['ariaRole:role'],
 
-    init: function () {
-      this._super.apply(this, arguments);
-
-      if (!this._viewRegistry) {
-        this._viewRegistry = View.views;
-      }
-    },
-
     /**
       Given a property name, returns a dasherized version of that
       property name if the property evaluates to a non-falsy value.
@@ -50142,17 +50139,6 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
   // once the view has been inserted into the DOM, legal manipulations
   // are done on the DOM element.
 
-  View.reopenClass({
-    /**
-      Global views hash
-       @property views
-      @static
-      @type Object
-      @private
-    */
-    views: {}
-  });
-
   exports.default = View;
   exports.ViewChildViewsSupport = _emberViewsMixinsChild_views_support.default;
   exports.ViewStateSupport = _emberViewsMixinsView_state_support.default;
@@ -50188,7 +50174,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+7246a373";
+  exports.default = "2.7.0-canary+6933403f";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
