@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5d6cf8d2
+ * @version   2.7.0-canary+c264a6eb
  */
 
 var enifed, requireModule, require, Ember;
@@ -9911,6 +9911,63 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/environment', 'ember-gl
   exports.Environment = _emberGlimmerEnvironment.default;
   exports.template = _emberGlimmerTemplate.default;
 });
+enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal/debug', 'ember-glimmer/helper'], function (exports, _emberMetalDebug, _emberGlimmerHelper) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+  'use strict';
+
+  exports.default = makeBoundHelper;
+
+  /**
+    Create a bound helper. Accepts a function that receives the ordered and hash parameters
+    from the template. If a bound property was provided in the template, it will be resolved to its
+    value and any changes to the bound property cause the helper function to be re-run with the updated
+    values.
+  
+    * `params` - An array of resolved ordered parameters.
+    * `hash` - An object containing the hash parameters.
+  
+    For example:
+  
+    * With an unquoted ordered parameter:
+  
+      ```javascript
+      {{x-capitalize foo}}
+      ```
+  
+      Assuming `foo` was set to `"bar"`, the bound helper would receive `["bar"]` as its first argument, and
+      an empty hash as its second.
+  
+    * With a quoted ordered parameter:
+  
+      ```javascript
+      {{x-capitalize "foo"}}
+      ```
+  
+      The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
+  
+    * With an unquoted hash parameter:
+  
+      ```javascript
+      {{x-repeat "foo" count=repeatCount}}
+      ```
+  
+      Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
+      and { count: 2 } as its second.
+  
+    @private
+    @method makeBoundHelper
+    @for Ember.HTMLBars
+    @param {Function} fn
+    @since 1.10.0
+  */
+
+  function makeBoundHelper(fn) {
+    return _emberGlimmerHelper.helper(fn);
+  }
+});
 enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation) {
   'use strict';
 
@@ -15984,7 +16041,7 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
     view.ownerView._destroyingSubtreeForView = view;
   }
 });
-enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/system/template'], function (exports, _emberMetalCore, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsSystemTemplate) {
+enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/template'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsSystemTemplate) {
   /**
     Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
     an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
@@ -16100,11 +16157,10 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/s
   _emberHtmlbarsHelpers.registerHelper('query-params', _emberHtmlbarsHelpersQueryParams.default);
 
   _emberMetalCore.default.HTMLBars = {
-    makeBoundHelper: _emberHtmlbarsSystemMake_bound_helper.default,
     DOMHelper: _emberHtmlbarsSystemDomHelper.default
   };
 });
-// reexports
+// exposing Ember.HTMLBars
 enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
   /**
   @module ember
@@ -18577,6 +18633,63 @@ enifed('ember-htmlbars/keywords/yield', ['exports'], function (exports) {
     }
 
     return true;
+  }
+});
+enifed('ember-htmlbars/make-bound-helper', ['exports', 'ember-metal/debug', 'ember-htmlbars/helper'], function (exports, _emberMetalDebug, _emberHtmlbarsHelper) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+  'use strict';
+
+  exports.default = makeBoundHelper;
+
+  /**
+    Create a bound helper. Accepts a function that receives the ordered and hash parameters
+    from the template. If a bound property was provided in the template, it will be resolved to its
+    value and any changes to the bound property cause the helper function to be re-run with the updated
+    values.
+  
+    * `params` - An array of resolved ordered parameters.
+    * `hash` - An object containing the hash parameters.
+  
+    For example:
+  
+    * With an unquoted ordered parameter:
+  
+      ```javascript
+      {{x-capitalize foo}}
+      ```
+  
+      Assuming `foo` was set to `"bar"`, the bound helper would receive `["bar"]` as its first argument, and
+      an empty hash as its second.
+  
+    * With a quoted ordered parameter:
+  
+      ```javascript
+      {{x-capitalize "foo"}}
+      ```
+  
+      The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
+  
+    * With an unquoted hash parameter:
+  
+      ```javascript
+      {{x-repeat "foo" count=repeatCount}}
+      ```
+  
+      Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
+      and { count: 2 } as its second.
+  
+    @private
+    @method makeBoundHelper
+    @for Ember.HTMLBars
+    @param {Function} fn
+    @since 1.10.0
+  */
+
+  function makeBoundHelper(fn) {
+    return _emberHtmlbarsHelper.helper(fn);
   }
 });
 enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/debug', 'dom-helper', 'ember-metal/is_none', 'ember-views/system/utils'], function (exports, _emberMetalDebug, _domHelper, _emberMetalIs_none, _emberViewsSystemUtils) {
@@ -21217,63 +21330,6 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/debug', '
     var helper = findHelper(name, view, env);
 
     return helper;
-  }
-});
-enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/debug', 'ember-htmlbars/helper'], function (exports, _emberMetalDebug, _emberHtmlbarsHelper) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-  'use strict';
-
-  exports.default = makeBoundHelper;
-
-  /**
-    Create a bound helper. Accepts a function that receives the ordered and hash parameters
-    from the template. If a bound property was provided in the template, it will be resolved to its
-    value and any changes to the bound property cause the helper function to be re-run with the updated
-    values.
-  
-    * `params` - An array of resolved ordered parameters.
-    * `hash` - An object containing the hash parameters.
-  
-    For example:
-  
-    * With an unquoted ordered parameter:
-  
-      ```javascript
-      {{x-capitalize foo}}
-      ```
-  
-      Assuming `foo` was set to `"bar"`, the bound helper would receive `["bar"]` as its first argument, and
-      an empty hash as its second.
-  
-    * With a quoted ordered parameter:
-  
-      ```javascript
-      {{x-capitalize "foo"}}
-      ```
-  
-      The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
-  
-    * With an unquoted hash parameter:
-  
-      ```javascript
-      {{x-repeat "foo" count=repeatCount}}
-      ```
-  
-      Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
-      and { count: 2 } as its second.
-  
-    @private
-    @method makeBoundHelper
-    @for Ember.HTMLBars
-    @param {Function} fn
-    @since 1.10.0
-  */
-
-  function makeBoundHelper(fn) {
-    return _emberHtmlbarsHelper.helper(fn);
   }
 });
 enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'ember-htmlbars/renderer', 'container/owner'], function (exports, _emberHtmlbarsEnv, _emberHtmlbarsRenderer, _containerOwner) {
@@ -44319,7 +44375,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures) {
+enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features', 'ember-templates/make-bound-helper'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures, _emberTemplatesMakeBoundHelper) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
@@ -44340,6 +44396,7 @@ enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-template
   if (true) {
     _emberRuntimeSystemString.default.isHTMLSafe = _emberTemplatesString.isHTMLSafe;
   }
+  EmberHTMLBars.makeBoundHelper = _emberTemplatesMakeBoundHelper.default;
 });
 // reexports
 enifed('ember-templates/component', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
@@ -44455,6 +44512,17 @@ enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates
   exports.default = _emberMetalCore.default;
 });
 // reexports
+enifed('ember-templates/make-bound-helper', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
+  'use strict';
+
+  exports.default = (function () {
+    if (_emberMetalFeatures.default('ember-glimmer')) {
+      return _require.default('ember-glimmer/make-bound-helper').default;
+    } else {
+      return _require.default('ember-htmlbars/make-bound-helper').default;
+    }
+  })();
+});
 enifed('ember-templates/renderer', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
 
@@ -47495,7 +47563,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5d6cf8d2";
+  exports.default = "2.7.0-canary+c264a6eb";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

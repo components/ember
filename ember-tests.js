@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5d6cf8d2
+ * @version   2.7.0-canary+c264a6eb
  */
 
 var enifed, requireModule, require, Ember;
@@ -2342,7 +2342,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
     equal(_emberViewsSystemJquery.default('h1', application.rootElement).text(), 'Fallback');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-htmlbars/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-templates/template_registry'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberHtmlbarsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberTemplatesTemplate_registry) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-templates/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-templates/helper', 'ember-templates/make-bound-helper', 'ember-template-compiler', 'ember-templates/template_registry'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberTemplatesComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberTemplatesHelper, _emberTemplatesMakeBoundHelper, _emberTemplateCompiler, _emberTemplatesTemplate_registry) {
   /* globals EmberDev */
   'use strict';
 
@@ -2424,25 +2424,9 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     detectEqual(application.FooBar, locator.lookupFactory('foo-bar:main'), 'looks up FooBar type without name on application');
   });
 
-  QUnit.test('the default resolver resolves helpers', function () {
-    expect(2);
-
-    function fooresolvertestHelper() {
-      ok(true, 'found fooresolvertestHelper');
-    }
-    function barBazResolverTestHelper() {
-      ok(true, 'found barBazResolverTestHelper');
-    }
-    _emberHtmlbarsHelpers.registerHelper('fooresolvertest', fooresolvertestHelper);
-    _emberHtmlbarsHelpers.registerHelper('bar-baz-resolver-test', barBazResolverTestHelper);
-
-    fooresolvertestHelper();
-    barBazResolverTestHelper();
-  });
-
   QUnit.test('the default resolver resolves container-registered helpers', function () {
-    var shorthandHelper = _emberHtmlbarsHelper.helper(function () {});
-    var helper = _emberHtmlbarsHelper.default.extend();
+    var shorthandHelper = _emberTemplatesHelper.helper(function () {});
+    var helper = _emberTemplatesHelper.default.extend();
 
     application.register('helper:shorthand', shorthandHelper);
     application.register('helper:complete', helper);
@@ -2456,12 +2440,12 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('the default resolver resolves helpers on the namespace', function () {
-    var ShorthandHelper = _emberHtmlbarsHelper.helper(function () {});
-    var CompleteHelper = _emberHtmlbarsHelper.default.extend();
+    var ShorthandHelper = _emberTemplatesHelper.helper(function () {});
+    var CompleteHelper = _emberTemplatesHelper.default.extend();
     var LegacyHTMLBarsBoundHelper = undefined;
 
     expectDeprecation(function () {
-      LegacyHTMLBarsBoundHelper = _emberHtmlbarsSystemMake_bound_helper.default(function () {});
+      LegacyHTMLBarsBoundHelper = _emberTemplatesMakeBoundHelper.default(function () {});
     }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.');
 
     application.ShorthandHelper = ShorthandHelper;
@@ -2585,7 +2569,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('assertion for routes without isRouteFactory property', function () {
-    application.FooRoute = _emberHtmlbarsComponent.default.extend();
+    application.FooRoute = _emberTemplatesComponent.default.extend();
 
     expectAssertion(function () {
       return registry.resolve('route:foo');
@@ -2630,7 +2614,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
   QUnit.test('no deprecation warning for component factories that extend from Ember.Component', function () {
     expectNoDeprecation();
-    application.FooView = _emberHtmlbarsComponent.default.extend();
+    application.FooView = _emberTemplatesComponent.default.extend();
     registry.resolve('component:foo');
   });
 
@@ -18162,7 +18146,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
+enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -18214,8 +18198,34 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('hello | hello world');
     };
 
-    _class.prototype['@test it can resolve custom class-based helpers with or without dashes'] = function testItCanResolveCustomClassBasedHelpersWithOrWithoutDashes() {
+    _class.prototype['@test it can resolve custom makeBoundHelper with or without dashes [DEPRECATED]'] = function testItCanResolveCustomMakeBoundHelperWithOrWithoutDashesDEPRECATED() {
       var _this3 = this;
+
+      expectDeprecation(function () {
+        _this3.owner.register('helper:hello', _emberGlimmerTestsUtilsHelpers.makeBoundHelper(function () {
+          return 'hello';
+        }));
+      }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.');
+
+      expectDeprecation(function () {
+        _this3.owner.register('helper:hello-world', _emberGlimmerTestsUtilsHelpers.makeBoundHelper(function () {
+          return 'hello world';
+        }));
+      }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.');
+
+      this.render('{{hello}} | {{hello-world}}');
+
+      this.assertText('hello | hello world');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('hello | hello world');
+    };
+
+    _class.prototype['@test it can resolve custom class-based helpers with or without dashes'] = function testItCanResolveCustomClassBasedHelpersWithOrWithoutDashes() {
+      var _this4 = this;
 
       this.registerHelper('hello', {
         compute: function () {
@@ -18234,14 +18244,14 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('hello | hello world');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this4.rerender();
       });
 
       this.assertText('hello | hello world');
     };
 
     _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
-      var _this4 = this;
+      var _this5 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -18266,7 +18276,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('1');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this5.rerender();
       });
 
       this.assertText('1');
@@ -18281,7 +18291,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper with static arguments can recompute a new value'] = function testClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
-      var _this5 = this;
+      var _this6 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -18306,7 +18316,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('1');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       this.assertText('1');
@@ -18321,7 +18331,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
-      var _this6 = this;
+      var _this7 = this;
 
       var computeCount = 0;
 
@@ -18330,58 +18340,6 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 
         computeCount++;
         return value + '-value';
-      });
-
-      this.render('{{hello-world model.name}}', {
-        model: { name: 'bob' }
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'model.name', 'sal');
-      });
-
-      this.assertText('sal-value');
-
-      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'model', { name: 'bob' });
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-    };
-
-    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
-      var _this7 = this;
-
-      var createCount = 0;
-      var computeCount = 0;
-
-      this.registerHelper('hello-world', {
-        init: function () {
-          this._super.apply(this, arguments);
-          createCount++;
-        },
-        compute: function (_ref2) {
-          var value = _ref2[0];
-
-          computeCount++;
-          return value + '-value';
-        }
       });
 
       this.render('{{hello-world model.name}}', {
@@ -18415,57 +18373,66 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('bob-value');
 
       assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
+    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
       var _this8 = this;
 
-      this.registerHelper('hello-world', function (_params, _hash) {
-        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-      });
+      var createCount = 0;
+      var computeCount = 0;
 
-      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
-        model: {
-          name: 'bob',
-          age: 42
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          createCount++;
+        },
+        compute: function (_ref2) {
+          var value = _ref2[0];
+
+          computeCount++;
+          return value + '-value';
         }
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _this8.rerender();
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this8.context, 'model.name', 'sal');
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'model.age', 28);
+        return _emberMetalProperty_set.set(_this8.context, 'model', { name: 'bob' });
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+      this.assertText('bob-value');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'model', { name: 'bob', age: 42 });
-      });
-
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
+    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
       var _this9 = this;
 
-      this.registerHelper('hello-world', {
-        compute: function (_params, _hash) {
-          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-        }
+      this.registerHelper('hello-world', function (_params, _hash) {
+        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
       });
 
       this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
@@ -18502,8 +18469,51 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
     };
 
-    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
       var _this10 = this;
+
+      this.registerHelper('hello-world', {
+        compute: function (_params, _hash) {
+          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+        }
+      });
+
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'model.name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'model.age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'model', { name: 'bob', age: 42 });
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+      var _this11 = this;
 
       this.registerHelper('join-words', {
         compute: function (params) {
@@ -18518,26 +18528,26 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'model.reason', 'Nickleback');
+        return _emberMetalProperty_set.set(_this11.context, 'model.reason', 'Nickleback');
       });
 
       this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'model', { reason: 'force' });
+        return _emberMetalProperty_set.set(_this11.context, 'model', { reason: 'force' });
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
     _class.prototype['@test parameterless helper is usable in subexpressions'] = function testParameterlessHelperIsUsableInSubexpressions() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.registerHelper('should-show', function () {
         return true;
@@ -18548,14 +18558,14 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('true');
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('true');
     };
 
     _class.prototype['@glimmer parameterless helper is usable in attributes'] = function glimmerParameterlessHelperIsUsableInAttributes() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.registerHelper('foo-bar', function () {
         return 'baz';
@@ -18566,53 +18576,53 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertHTML('<div data-foo-bar="baz"></div>');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertHTML('<div data-foo-bar="baz"></div>');
     };
 
     _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
-      var _this13 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this13.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
-    };
-
-    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this14 = this;
 
-      this.registerHelper('some-helper', {
-        compute: function () {}
-      });
+      this.registerHelper('some-helper', function () {});
 
       expectAssertion(function () {
         _this14.render('{{#some-helper}}{{/some-helper}}');
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this15 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this15.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
-    };
-
-    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
-      var _this16 = this;
 
       this.registerHelper('some-helper', {
         compute: function () {}
       });
 
       expectAssertion(function () {
+        _this15.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+      var _this16 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
         _this16.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+      var _this17 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this17.render('<div {{some-helper}}></div>');
       }, /Helpers may not be used in the element form/);
     };
 
@@ -18637,7 +18647,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
-      var _this17 = this;
+      var _this18 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -18663,7 +18673,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -18686,7 +18696,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
-      var _this18 = this;
+      var _this19 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -18716,7 +18726,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -27320,7 +27330,7 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper) {
   'use strict';
 
   exports.buildOwner = buildOwner;
@@ -27337,6 +27347,7 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
+  exports.makeBoundHelper = _emberGlimmerMakeBoundHelper.default;
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
@@ -40278,7 +40289,7 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
+enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -40330,8 +40341,34 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('hello | hello world');
     };
 
-    _class.prototype['@test it can resolve custom class-based helpers with or without dashes'] = function testItCanResolveCustomClassBasedHelpersWithOrWithoutDashes() {
+    _class.prototype['@test it can resolve custom makeBoundHelper with or without dashes [DEPRECATED]'] = function testItCanResolveCustomMakeBoundHelperWithOrWithoutDashesDEPRECATED() {
       var _this3 = this;
+
+      expectDeprecation(function () {
+        _this3.owner.register('helper:hello', _emberHtmlbarsTestsUtilsHelpers.makeBoundHelper(function () {
+          return 'hello';
+        }));
+      }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.');
+
+      expectDeprecation(function () {
+        _this3.owner.register('helper:hello-world', _emberHtmlbarsTestsUtilsHelpers.makeBoundHelper(function () {
+          return 'hello world';
+        }));
+      }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.');
+
+      this.render('{{hello}} | {{hello-world}}');
+
+      this.assertText('hello | hello world');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('hello | hello world');
+    };
+
+    _class.prototype['@test it can resolve custom class-based helpers with or without dashes'] = function testItCanResolveCustomClassBasedHelpersWithOrWithoutDashes() {
+      var _this4 = this;
 
       this.registerHelper('hello', {
         compute: function () {
@@ -40350,14 +40387,14 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('hello | hello world');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this4.rerender();
       });
 
       this.assertText('hello | hello world');
     };
 
     _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
-      var _this4 = this;
+      var _this5 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -40382,7 +40419,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('1');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this5.rerender();
       });
 
       this.assertText('1');
@@ -40397,7 +40434,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     };
 
     _class.prototype['@test class-based helper with static arguments can recompute a new value'] = function testClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
-      var _this5 = this;
+      var _this6 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -40422,7 +40459,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('1');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       this.assertText('1');
@@ -40437,7 +40474,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     };
 
     _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
-      var _this6 = this;
+      var _this7 = this;
 
       var computeCount = 0;
 
@@ -40446,58 +40483,6 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
 
         computeCount++;
         return value + '-value';
-      });
-
-      this.render('{{hello-world model.name}}', {
-        model: { name: 'bob' }
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'model.name', 'sal');
-      });
-
-      this.assertText('sal-value');
-
-      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'model', { name: 'bob' });
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-    };
-
-    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
-      var _this7 = this;
-
-      var createCount = 0;
-      var computeCount = 0;
-
-      this.registerHelper('hello-world', {
-        init: function () {
-          this._super.apply(this, arguments);
-          createCount++;
-        },
-        compute: function (_ref2) {
-          var value = _ref2[0];
-
-          computeCount++;
-          return value + '-value';
-        }
       });
 
       this.render('{{hello-world model.name}}', {
@@ -40531,57 +40516,66 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('bob-value');
 
       assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
+    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
       var _this8 = this;
 
-      this.registerHelper('hello-world', function (_params, _hash) {
-        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-      });
+      var createCount = 0;
+      var computeCount = 0;
 
-      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
-        model: {
-          name: 'bob',
-          age: 42
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          createCount++;
+        },
+        compute: function (_ref2) {
+          var value = _ref2[0];
+
+          computeCount++;
+          return value + '-value';
         }
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _this8.rerender();
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this8.context, 'model.name', 'sal');
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'model.age', 28);
+        return _emberMetalProperty_set.set(_this8.context, 'model', { name: 'bob' });
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+      this.assertText('bob-value');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'model', { name: 'bob', age: 42 });
-      });
-
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
+    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
       var _this9 = this;
 
-      this.registerHelper('hello-world', {
-        compute: function (_params, _hash) {
-          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-        }
+      this.registerHelper('hello-world', function (_params, _hash) {
+        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
       });
 
       this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
@@ -40618,8 +40612,51 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
     };
 
-    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
       var _this10 = this;
+
+      this.registerHelper('hello-world', {
+        compute: function (_params, _hash) {
+          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+        }
+      });
+
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'model.name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'model.age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this10.context, 'model', { name: 'bob', age: 42 });
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+      var _this11 = this;
 
       this.registerHelper('join-words', {
         compute: function (params) {
@@ -40634,26 +40671,26 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'model.reason', 'Nickleback');
+        return _emberMetalProperty_set.set(_this11.context, 'model.reason', 'Nickleback');
       });
 
       this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'model', { reason: 'force' });
+        return _emberMetalProperty_set.set(_this11.context, 'model', { reason: 'force' });
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
     _class.prototype['@test parameterless helper is usable in subexpressions'] = function testParameterlessHelperIsUsableInSubexpressions() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.registerHelper('should-show', function () {
         return true;
@@ -40664,14 +40701,14 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('true');
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('true');
     };
 
     _class.prototype['@glimmer parameterless helper is usable in attributes'] = function glimmerParameterlessHelperIsUsableInAttributes() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.registerHelper('foo-bar', function () {
         return 'baz';
@@ -40682,53 +40719,53 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertHTML('<div data-foo-bar="baz"></div>');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertHTML('<div data-foo-bar="baz"></div>');
     };
 
     _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
-      var _this13 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this13.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
-    };
-
-    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this14 = this;
 
-      this.registerHelper('some-helper', {
-        compute: function () {}
-      });
+      this.registerHelper('some-helper', function () {});
 
       expectAssertion(function () {
         _this14.render('{{#some-helper}}{{/some-helper}}');
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this15 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this15.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
-    };
-
-    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
-      var _this16 = this;
 
       this.registerHelper('some-helper', {
         compute: function () {}
       });
 
       expectAssertion(function () {
+        _this15.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+      var _this16 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
         _this16.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+      var _this17 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this17.render('<div {{some-helper}}></div>');
       }, /Helpers may not be used in the element form/);
     };
 
@@ -40753,7 +40790,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
-      var _this17 = this;
+      var _this18 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -40779,7 +40816,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -40802,7 +40839,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
-      var _this18 = this;
+      var _this19 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -40832,7 +40869,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -50216,7 +50253,7 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars-template-compiler/tests/utils/helpers', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer'], function (exports, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars-template-compiler/tests/utils/helpers', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer', 'ember-glimmer/make-bound-helper'], function (exports, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer, _emberGlimmerMakeBoundHelper) {
   'use strict';
 
   exports.buildOwner = buildOwner;
@@ -50234,6 +50271,7 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-r
   exports.LinkTo = _emberHtmlbarsComponentsLinkTo.default;
   exports.InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
+  exports.makeBoundHelper = _emberGlimmerMakeBoundHelper.default;
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
@@ -74660,7 +74698,7 @@ enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'e
 
   QUnit.module('ember-templates reexports');
 
-  [['_Renderer', 'ember-templates/renderer', 'Renderer'], ['Component', 'ember-templates/component', 'default'], ['Helper', 'ember-templates/helper', 'default'], ['Helper.helper', 'ember-templates/helper', 'helper'], ['Checkbox', 'ember-templates/components/checkbox', 'default'], ['LinkComponent', 'ember-templates/components/link-to', 'default'], ['TextArea', 'ember-templates/components/text_area', 'default'], ['TextField', 'ember-templates/components/text_field', 'default'], ['TEMPLATES', 'ember-templates/template_registry', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-templates/template', 'default'], ['Handlebars.SafeString', 'ember-templates/string', { get: 'getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-templates/string', 'escapeExpression'], ['String.htmlSafe', 'ember-templates/string', 'htmlSafe']].forEach(function (reexport) {
+  [['_Renderer', 'ember-templates/renderer', 'Renderer'], ['Component', 'ember-templates/component', 'default'], ['Helper', 'ember-templates/helper', 'default'], ['Helper.helper', 'ember-templates/helper', 'helper'], ['Checkbox', 'ember-templates/components/checkbox', 'default'], ['LinkComponent', 'ember-templates/components/link-to', 'default'], ['TextArea', 'ember-templates/components/text_area', 'default'], ['TextField', 'ember-templates/components/text_field', 'default'], ['TEMPLATES', 'ember-templates/template_registry', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-templates/template', 'default'], ['Handlebars.SafeString', 'ember-templates/string', { get: 'getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-templates/string', 'escapeExpression'], ['String.htmlSafe', 'ember-templates/string', 'htmlSafe'], ['HTMLBars.makeBoundHelper', 'ember-templates/make-bound-helper', 'default']].forEach(function (reexport) {
     var path = reexport[0];
     var moduleId = reexport[1];
     var exportName = reexport[2];
