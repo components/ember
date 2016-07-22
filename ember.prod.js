@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5993da4d
+ * @version   2.7.0-canary+e00362ae
  */
 
 var enifed, requireModule, require, Ember;
@@ -47461,10 +47461,17 @@ enifed("ember/features", ["exports"], function (exports) {
 
   exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null };
 });
-enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-templates', 'require', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberTemplates, _require, _emberRuntimeSystemLazy_load) {
+enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-templates', 'ember-runtime/system/lazy_load'], function (exports, _require, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberTemplates, _emberRuntimeSystemLazy_load) {
   // require the main entry points for each of these packages
   // this is so that the global exports occur properly
   'use strict';
+
+  if (_require.has('ember-htmlbars')) {
+    _require.default('ember-htmlbars');
+  }
+  if (_require.has('ember-glimmer')) {
+    _require.default('ember-glimmer');
+  }
 
   if (_require.has('ember-template-compiler')) {
     _require.default('ember-template-compiler');
@@ -47485,7 +47492,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5993da4d";
+  exports.default = "2.7.0-canary+e00362ae";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
