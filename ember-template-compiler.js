@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6933403f
+ * @version   2.7.0-canary+99096ec0
  */
 
 var enifed, requireModule, require, Ember;
@@ -11792,7 +11792,7 @@ enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-template
   exports.EmberHTMLBars = EmberHTMLBars;
   var EmberHandleBarsUtils = EmberHandlebars.Utils || {};
 
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+  if (true) {
     Object.defineProperty(EmberHandlebars, 'SafeString', {
       get: function () {
         _emberMetalDebug.deprecate('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
@@ -11813,7 +11813,7 @@ enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-template
   EmberHandleBarsUtils.escapeExpression = _emberTemplatesString.escapeExpression;
   _emberRuntimeSystemString.default.htmlSafe = _emberTemplatesString.htmlSafe;
 
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+  if (true) {
     _emberRuntimeSystemString.default.isHTMLSafe = _emberTemplatesString.isHTMLSafe;
   }
 });
@@ -12036,12 +12036,12 @@ enifed("ember-templates/template_registry", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": null, "ember-string-ishtmlsafe": null, "ember-testing-check-waiters": null, "ember-metal-weakmap": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+6933403f";
+  exports.default = "2.7.0-canary+99096ec0";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";

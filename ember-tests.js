@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+6933403f
+ * @version   2.7.0-canary+99096ec0
  */
 
 var enifed, requireModule, require, Ember;
@@ -1836,7 +1836,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     QUnit.test('can build and boot a registered engine', function (assert) {
       assert.expect(7);
 
@@ -3618,7 +3618,7 @@ enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember
     assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
   });
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     QUnit.test('can be booted when its parent has been set', function (assert) {
       assert.expect(3);
 
@@ -16578,89 +16578,187 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     return _class7;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  if (!EmberDev.runningProdBuild) {
-    (function () {
-      var warnings = undefined,
-          originalWarn = undefined;
+  var warnings = undefined,
+      originalWarn = undefined;
 
-      _emberGlimmerTestsUtilsTestCase.moduleFor('Inline style tests', (function (_RenderingTest4) {
-        _inherits(_class8, _RenderingTest4);
+  var StyleTest = (function (_RenderingTest4) {
+    _inherits(StyleTest, _RenderingTest4);
 
-        function _class8() {
-          _classCallCheck(this, _class8);
+    function StyleTest() {
+      _classCallCheck(this, StyleTest);
 
-          _RenderingTest4.apply(this, arguments);
-          warnings = [];
-          originalWarn = _emberMetalDebug.getDebugFunction('warn');
-          _emberMetalDebug.setDebugFunction('warn', function (message, test) {
-            if (!test) {
-              warnings.push(message);
-            }
-          });
+      _RenderingTest4.apply(this, arguments);
+      warnings = [];
+      originalWarn = _emberMetalDebug.getDebugFunction('warn');
+      _emberMetalDebug.setDebugFunction('warn', function (message, test) {
+        if (!test) {
+          warnings.push(message);
         }
+      });
+    }
 
-        _class8.prototype.teardown = function teardown() {
-          var _RenderingTest4$prototype$teardown;
+    StyleTest.prototype.teardown = function teardown() {
+      var _RenderingTest4$prototype$teardown;
 
-          (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(_slice.call(arguments)));
-          _emberMetalDebug.setDebugFunction('warn', originalWarn);
-        };
+      (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(_slice.call(arguments)));
+      _emberMetalDebug.setDebugFunction('warn', originalWarn);
+    };
 
-        _class8.prototype['@test specifying <div style={{userValue}}></div> generates a warning'] = function testSpecifyingDivStyleUserValueDivGeneratesAWarning(assert) {
-          this.render('<div style={{userValue}}></div>', {
-            userValue: 'width: 42px'
-          });
+    StyleTest.prototype.assertStyleWarning = function assertStyleWarning() {
+      this.assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
+    };
 
-          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
-        };
+    StyleTest.prototype.assertNoWarning = function assertNoWarning() {
+      this.assert.deepEqual(warnings, []);
+    };
 
-        _class8.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
-          var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-            attributeBindings: ['style']
-          });
+    return StyleTest;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
-          this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Inline style tests', (function (_StyleTest) {
+    _inherits(_class8, _StyleTest);
 
-          this.render('{{foo-bar style=userValue}}', {
-            userValue: 'width: 42px'
-          });
+    function _class8() {
+      _classCallCheck(this, _class8);
 
-          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
-        };
+      _StyleTest.apply(this, arguments);
+    }
 
-        _class8.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
-          this.render('<div style={{{userValue}}}></div>', {
-            userValue: 'width: 42px'
-          });
+    _class8.prototype['@test can set dynamic style'] = function testCanSetDynamicStyle() {
+      var _this30 = this;
 
-          assert.deepEqual(warnings, []);
-        };
+      this.render('<div style={{model.style}}></div>', {
+        model: {
+          style: 'width: 60px;'
+        }
+      });
 
-        _class8.prototype['@test specifying `<div style={{userValue}}></div>` works properly with a SafeString'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithASafeString(assert) {
-          this.render('<div style={{userValue}}></div>', {
-            userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px')
-          });
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
 
-          assert.deepEqual(warnings, []);
-        };
+      this.runTask(function () {
+        return _this30.rerender();
+      });
 
-        _class8.prototype['@test null value do not generate htmlsafe warning'] = function testNullValueDoNotGenerateHtmlsafeWarning(assert) {
-          this.render('<div style={{userValue}}></div>', {
-            userValue: null
-          });
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
 
-          assert.deepEqual(warnings, []);
-        };
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this30.context, 'model.style', 'height: 60px;');
+      });
 
-        _class8.prototype['@test undefined value do not generate htmlsafe warning'] = function testUndefinedValueDoNotGenerateHtmlsafeWarning(assert) {
-          this.render('<div style={{userValue}}></div>');
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'height: 60px;' } });
 
-          assert.deepEqual(warnings, []);
-        };
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this30.context, 'model', { style: 'width: 60px;' });
+      });
 
-        return _class8;
-      })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
-    })();
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+    };
+
+    _class8.prototype['@htmlbars can set dynamic style with -html-safe'] = function htmlbarsCanSetDynamicStyleWithHtmlSafe() {
+      var _this31 = this;
+
+      this.render('<div style={{-html-safe model.style}}></div>', {
+        model: {
+          style: 'width: 60px;'
+        }
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this31.context, 'model.style', 'height: 60px;');
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'height: 60px;' } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this31.context, 'model', { style: 'width: 60px;' });
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+    };
+
+    return _class8;
+  })(StyleTest));
+
+  if (!EmberDev.runningProdBuild) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('Inline style tests - warnings', (function (_StyleTest2) {
+      _inherits(_class9, _StyleTest2);
+
+      function _class9() {
+        _classCallCheck(this, _class9);
+
+        _StyleTest2.apply(this, arguments);
+      }
+
+      _class9.prototype['@test specifying <div style={{userValue}}></div> generates a warning'] = function testSpecifyingDivStyleUserValueDivGeneratesAWarning(assert) {
+        this.render('<div style={{userValue}}></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
+        var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['style']
+        });
+
+        this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+        this.render('{{foo-bar style=userValue}}', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
+        this.render('<div style={{{userValue}}}></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test specifying `<div style={{userValue}}></div>` works properly with a SafeString'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithASafeString(assert) {
+        this.render('<div style={{userValue}}></div>', {
+          userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px')
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test null value do not generate htmlsafe warning'] = function testNullValueDoNotGenerateHtmlsafeWarning(assert) {
+        this.render('<div style={{userValue}}></div>', {
+          userValue: null
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test undefined value do not generate htmlsafe warning'] = function testUndefinedValueDoNotGenerateHtmlsafeWarning(assert) {
+        this.render('<div style={{userValue}}></div>');
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test no warnings are triggered when using `-html-safe`'] = function testNoWarningsAreTriggeredWhenUsingHtmlSafe(assert) {
+        this.render('<div style={{-html-safe userValue}}></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertNoWarning();
+      };
+
+      return _class9;
+    })(StyleTest));
   }
 });
 enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set) {
@@ -28284,7 +28382,7 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
     return _class;
   })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
 
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+  if (true) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
       _inherits(_class2, _TestCase2);
 
@@ -28651,65 +28749,6 @@ enifed('ember-htmlbars-template-compiler/tests/utils/helpers', ['exports', 'embe
   exports.packageName = packageName;
   var engineName = 'HTMLBars';
   exports.engineName = engineName;
-});
-enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-htmlbars/component', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberHtmlbarsComponent, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils) {
-  /* globals EmberDev */
-
-  'use strict';
-
-  var component = undefined,
-      registry = undefined,
-      container = undefined,
-      warnings = undefined,
-      originalWarn = undefined;
-
-  QUnit.module('ember-htmlbars: {{-html-safe}} helper', {
-    setup: function () {
-      registry = new _emberRuntimeSystemContainer.Registry();
-      container = registry.container();
-      registry.optionsForType('helper', { instantiate: false });
-
-      warnings = [];
-      originalWarn = _emberMetalDebug.getDebugFunction('warn');
-      _emberMetalDebug.setDebugFunction('warn', function (message, test) {
-        if (!test) {
-          warnings.push(message);
-        }
-      });
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(container);
-      _emberRuntimeTestsUtils.runDestroy(component);
-      _emberMetalDebug.setDebugFunction('warn', originalWarn);
-    }
-  });
-
-  QUnit.test('adds the attribute to the element', function () {
-    component = _emberHtmlbarsComponent.default.create({
-      container: container,
-
-      layout: _emberHtmlbarsTestsUtilsHelpers.compile('<div style={{-html-safe "display: none;"}}></div>')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$('div').css('display'), 'none', 'attribute was set');
-  });
-
-  if (!EmberDev.runningProdBuild) {
-    QUnit.test('no warnings are triggered from setting style attribute', function () {
-      component = _emberHtmlbarsComponent.default.create({
-        container: container,
-
-        layout: _emberHtmlbarsTestsUtilsHelpers.compile('<div style={{-html-safe "display: none;"}}></div>')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      deepEqual(warnings, [], 'no warnings were triggered');
-    });
-  }
 });
 enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils) {
   'use strict';
@@ -38655,89 +38694,187 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     return _class7;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
-  if (!EmberDev.runningProdBuild) {
-    (function () {
-      var warnings = undefined,
-          originalWarn = undefined;
+  var warnings = undefined,
+      originalWarn = undefined;
 
-      _emberHtmlbarsTestsUtilsTestCase.moduleFor('Inline style tests', (function (_RenderingTest4) {
-        _inherits(_class8, _RenderingTest4);
+  var StyleTest = (function (_RenderingTest4) {
+    _inherits(StyleTest, _RenderingTest4);
 
-        function _class8() {
-          _classCallCheck(this, _class8);
+    function StyleTest() {
+      _classCallCheck(this, StyleTest);
 
-          _RenderingTest4.apply(this, arguments);
-          warnings = [];
-          originalWarn = _emberMetalDebug.getDebugFunction('warn');
-          _emberMetalDebug.setDebugFunction('warn', function (message, test) {
-            if (!test) {
-              warnings.push(message);
-            }
-          });
+      _RenderingTest4.apply(this, arguments);
+      warnings = [];
+      originalWarn = _emberMetalDebug.getDebugFunction('warn');
+      _emberMetalDebug.setDebugFunction('warn', function (message, test) {
+        if (!test) {
+          warnings.push(message);
         }
+      });
+    }
 
-        _class8.prototype.teardown = function teardown() {
-          var _RenderingTest4$prototype$teardown;
+    StyleTest.prototype.teardown = function teardown() {
+      var _RenderingTest4$prototype$teardown;
 
-          (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(_slice.call(arguments)));
-          _emberMetalDebug.setDebugFunction('warn', originalWarn);
-        };
+      (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(_slice.call(arguments)));
+      _emberMetalDebug.setDebugFunction('warn', originalWarn);
+    };
 
-        _class8.prototype['@test specifying <div style={{userValue}}></div> generates a warning'] = function testSpecifyingDivStyleUserValueDivGeneratesAWarning(assert) {
-          this.render('<div style={{userValue}}></div>', {
-            userValue: 'width: 42px'
-          });
+    StyleTest.prototype.assertStyleWarning = function assertStyleWarning() {
+      this.assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
+    };
 
-          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
-        };
+    StyleTest.prototype.assertNoWarning = function assertNoWarning() {
+      this.assert.deepEqual(warnings, []);
+    };
 
-        _class8.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
-          var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-            attributeBindings: ['style']
-          });
+    return StyleTest;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
-          this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Inline style tests', (function (_StyleTest) {
+    _inherits(_class8, _StyleTest);
 
-          this.render('{{foo-bar style=userValue}}', {
-            userValue: 'width: 42px'
-          });
+    function _class8() {
+      _classCallCheck(this, _class8);
 
-          assert.deepEqual(warnings, [_emberViewsSystemUtils.STYLE_WARNING]);
-        };
+      _StyleTest.apply(this, arguments);
+    }
 
-        _class8.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
-          this.render('<div style={{{userValue}}}></div>', {
-            userValue: 'width: 42px'
-          });
+    _class8.prototype['@test can set dynamic style'] = function testCanSetDynamicStyle() {
+      var _this30 = this;
 
-          assert.deepEqual(warnings, []);
-        };
+      this.render('<div style={{model.style}}></div>', {
+        model: {
+          style: 'width: 60px;'
+        }
+      });
 
-        _class8.prototype['@test specifying `<div style={{userValue}}></div>` works properly with a SafeString'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithASafeString(assert) {
-          this.render('<div style={{userValue}}></div>', {
-            userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px')
-          });
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
 
-          assert.deepEqual(warnings, []);
-        };
+      this.runTask(function () {
+        return _this30.rerender();
+      });
 
-        _class8.prototype['@test null value do not generate htmlsafe warning'] = function testNullValueDoNotGenerateHtmlsafeWarning(assert) {
-          this.render('<div style={{userValue}}></div>', {
-            userValue: null
-          });
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
 
-          assert.deepEqual(warnings, []);
-        };
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this30.context, 'model.style', 'height: 60px;');
+      });
 
-        _class8.prototype['@test undefined value do not generate htmlsafe warning'] = function testUndefinedValueDoNotGenerateHtmlsafeWarning(assert) {
-          this.render('<div style={{userValue}}></div>');
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'height: 60px;' } });
 
-          assert.deepEqual(warnings, []);
-        };
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this30.context, 'model', { style: 'width: 60px;' });
+      });
 
-        return _class8;
-      })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
-    })();
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+    };
+
+    _class8.prototype['@htmlbars can set dynamic style with -html-safe'] = function htmlbarsCanSetDynamicStyleWithHtmlSafe() {
+      var _this31 = this;
+
+      this.render('<div style={{-html-safe model.style}}></div>', {
+        model: {
+          style: 'width: 60px;'
+        }
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this31.context, 'model.style', 'height: 60px;');
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'height: 60px;' } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this31.context, 'model', { style: 'width: 60px;' });
+      });
+
+      this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
+    };
+
+    return _class8;
+  })(StyleTest));
+
+  if (!EmberDev.runningProdBuild) {
+    _emberHtmlbarsTestsUtilsTestCase.moduleFor('Inline style tests - warnings', (function (_StyleTest2) {
+      _inherits(_class9, _StyleTest2);
+
+      function _class9() {
+        _classCallCheck(this, _class9);
+
+        _StyleTest2.apply(this, arguments);
+      }
+
+      _class9.prototype['@test specifying <div style={{userValue}}></div> generates a warning'] = function testSpecifyingDivStyleUserValueDivGeneratesAWarning(assert) {
+        this.render('<div style={{userValue}}></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
+        var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['style']
+        });
+
+        this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+        this.render('{{foo-bar style=userValue}}', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
+        this.render('<div style={{{userValue}}}></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test specifying `<div style={{userValue}}></div>` works properly with a SafeString'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithASafeString(assert) {
+        this.render('<div style={{userValue}}></div>', {
+          userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px')
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test null value do not generate htmlsafe warning'] = function testNullValueDoNotGenerateHtmlsafeWarning(assert) {
+        this.render('<div style={{userValue}}></div>', {
+          userValue: null
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test undefined value do not generate htmlsafe warning'] = function testUndefinedValueDoNotGenerateHtmlsafeWarning(assert) {
+        this.render('<div style={{userValue}}></div>');
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test no warnings are triggered when using `-html-safe`'] = function testNoWarningsAreTriggeredWhenUsingHtmlSafe(assert) {
+        this.render('<div style={{-html-safe userValue}}></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertNoWarning();
+      };
+
+      return _class9;
+    })(StyleTest));
   }
 });
 enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set) {
@@ -46921,7 +47058,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
     app = appInstance = null;
   }
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     _internalTestHelpersTestsSkipIfGlimmer.testModule('mount keyword', {
       setup: function () {
         commonSetup();
@@ -51142,7 +51279,7 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/uti
     return _class;
   })(_emberHtmlbarsTestsUtilsAbstractTestCase.TestCase));
 
-  if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+  if (true) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
       _inherits(_class2, _TestCase2);
 
@@ -60719,7 +60856,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
   });
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
       Router.map(function () {
         var _this = this;
@@ -61194,7 +61331,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     equal(authService, appRoute.get('authService'), 'service.auth is injected');
   });
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     QUnit.module('Ember.Route with engines');
 
     QUnit.test('paramsFor considers an engine\'s mountPoint', function (assert) {
@@ -66953,7 +67090,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
       }
     });
 
-    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    if (true) {
       X.reopen({
         includes: function () {
           return true;
@@ -67032,7 +67169,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
     equal(allWhite, true);
   });
 
-  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+  if (true) {
     QUnit.test('should throw an error passing a second argument to includes', function () {
       var x = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default).create();
 
@@ -67953,7 +68090,7 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayLastIndexOf.default);
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayObjectAt.default);
 
-  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+  if (true) {
     ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayIncludes.default);
   }
 
@@ -68479,7 +68616,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
   }
 
-  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+  if (true) {
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
   }
 
@@ -68589,7 +68726,7 @@ enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runt
     var data = this.newFixture(3);
     var obj = this.newObject(data);
 
-    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    if (true) {
       expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
     }
     equal(obj.contains(data[1]), true, 'should return true if contained');
@@ -68599,7 +68736,7 @@ enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runt
     var data = this.newFixture(1);
     var obj = this.newObject(this.newFixture(3));
 
-    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+    if (true) {
       expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
     }
     equal(obj.contains(data[0]), false, 'should return false if not contained');
@@ -69507,7 +69644,7 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     deepEqual(this.toArray(obj), before, 'should not have changed original');
   });
 
-  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+  if (true) {
     suite.test('should remove NaN value', function () {
       var before = undefined,
           after = undefined,
@@ -74539,7 +74676,7 @@ enifed('ember-templates/tests/safe-string-test', ['exports', 'ember-templates/co
   QUnit.test('using new results in a deprecation', function (assert) {
     var result = undefined;
 
-    if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    if (true) {
       expectDeprecation(function () {
         result = new _emberTemplatesCompat.EmberHandlebars.SafeString('<b>test</b>');
       }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
@@ -74549,7 +74686,7 @@ enifed('ember-templates/tests/safe-string-test', ['exports', 'ember-templates/co
 
     assert.equal(result.toHTML(), '<b>test</b>');
 
-    if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    if (true) {
       // Ensure this functionality is maintained for backwards compat, but also deprecated.
       expectDeprecation(function () {
         assert.ok(result instanceof _emberTemplatesCompat.EmberHandlebars.SafeString);
@@ -74562,7 +74699,7 @@ enifed('ember-templates/tests/safe-string-test', ['exports', 'ember-templates/co
   QUnit.test('isHTMLSafe should detect SafeString', function (assert) {
     var safeString = undefined;
 
-    if (_emberMetalFeatures.default('ember-string-ishtmlsafe')) {
+    if (true) {
       expectDeprecation(function () {
         safeString = new _emberTemplatesCompat.EmberHandlebars.SafeString('<b>test</b>');
       }, 'Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe');
@@ -76560,7 +76697,7 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
     this.waiters.register();
 
     var waiters = undefined;
-    if (_emberMetalFeatures.default('ember-testing-check-waiters')) {
+    if (true) {
       expectDeprecation(function () {
         waiters = _emberTestingTestWaiters.generateDeprecatedWaitersArray();
       }, /Usage of `Ember.Test.waiters` is deprecated/);
@@ -79217,7 +79354,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     var included = undefined;
 
     keys(_emberHtmlbarsHelpers.default).forEach(function (name) {
-      if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
+      if (true) {
         included = originalHelpers.includes(name);
       } else {
         included = originalHelpers.contains(name);
@@ -86193,7 +86330,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     }, /You passed undefined as the outlet name/);
   });
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     QUnit.test('Route serializers work for Engines', function () {
       expect(2);
 
@@ -92083,7 +92220,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
+  if (true) {
     QUnit.test('Slow Promise from an Engine application route enters the mounts loading state', function () {
       expect(1);
 
