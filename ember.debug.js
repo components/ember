@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+5d6cf8d2
+ * @version   2.7.0-canary+e00362ae
  */
 
 var enifed, requireModule, require, Ember;
@@ -37777,9 +37777,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   /**
     A computed property which returns a new array with all the unique
     elements from an array, with uniqueness determined by specific key.
-  
     Example
-  
     ```javascript
     let Hamster = Ember.Object.extend({
       uniqueFruits: Ember.computed.uniqBy('fruits', 'id')
@@ -37794,7 +37792,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
     hamster.get('uniqueFruits'); // [ { id: 1, 'banana' }, { id: 2, 'grape' }, { id: 3, 'peach' }]
     ```
-  
     @method uniqBy
     @for Ember.computed
     @param {String} dependentKey
@@ -50203,7 +50200,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+5d6cf8d2";
+  exports.default = "2.7.0-canary+e00362ae";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
