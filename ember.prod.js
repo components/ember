@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dc3cfac0
+ * @version   2.7.0-canary+99096ec0
  */
 
 var enifed, requireModule, require, Ember;
@@ -12400,7 +12400,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
   exports.UnboundReference = UnboundReference;
 });
-enifed('ember-glimmer/utils/string', ['exports', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalFeatures, _emberMetalDebug) {
+enifed('ember-glimmer/utils/string', ['exports'], function (exports) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12408,7 +12408,6 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-metal/features', 'ember-
 
   'use strict';
 
-  exports.getSafeString = getSafeString;
   exports.escapeExpression = escapeExpression;
   exports.htmlSafe = htmlSafe;
   exports.isHTMLSafe = isHTMLSafe;
@@ -12434,11 +12433,6 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-metal/features', 'ember-
   })();
 
   exports.SafeString = SafeString;
-
-  function getSafeString() {
-
-    return SafeString;
-  }
 
   var escape = {
     '&': '&amp;',
@@ -21743,7 +21737,7 @@ enifed("ember-htmlbars/utils/normalize-self", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalFeatures, _emberMetalDebug) {
+enifed('ember-htmlbars/utils/string', ['exports'], function (exports) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -21751,7 +21745,6 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/features', 'ember
 
   'use strict';
 
-  exports.getSafeString = getSafeString;
   exports.escapeExpression = escapeExpression;
   exports.htmlSafe = htmlSafe;
   exports.isHTMLSafe = isHTMLSafe;
@@ -21777,11 +21770,6 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/features', 'ember
   })();
 
   exports.SafeString = SafeString;
-
-  function getSafeString() {
-
-    return SafeString;
-  }
 
   var escape = {
     '&': '&amp;',
@@ -44309,20 +44297,27 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures) {
+enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures, _emberMetalDebug) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
   exports.EmberHandlebars = EmberHandlebars;
   var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
   exports.EmberHTMLBars = EmberHTMLBars;
-  var EmberHandleBarsUtils = EmberHandlebars.Utils = EmberHandlebars.Utils || {};
+  var EmberHandleBarsUtils = EmberHandlebars.Utils || {};
 
-  exports.EmberHandleBarsUtils = EmberHandleBarsUtils;
-  Object.defineProperty(EmberHandlebars, 'SafeString', {
-    get: _emberTemplatesString.getSafeString
-  });
+  if (true) {
+    Object.defineProperty(EmberHandlebars, 'SafeString', {
+      get: function () {
 
+        return _emberTemplatesString.SafeString;
+      }
+    });
+  } else {
+    EmberHandlebars.SafeString = _emberTemplatesString.SafeString;
+  }
+
+  EmberHTMLBars.SafeString = _emberTemplatesString.SafeString;
   EmberHTMLBars.template = EmberHandlebars.template = _emberTemplatesTemplate.default;
   EmberHandleBarsUtils.escapeExpression = _emberTemplatesString.escapeExpression;
   _emberRuntimeSystemString.default.htmlSafe = _emberTemplatesString.htmlSafe;
@@ -44494,8 +44489,6 @@ enifed('ember-templates/string', ['exports', 'ember-metal/features', 'require'],
   exports.htmlSafe = htmlSafe;
   var isHTMLSafe = strings.isHTMLSafe;
   exports.isHTMLSafe = isHTMLSafe;
-  var getSafeString = strings.getSafeString;
-  exports.getSafeString = getSafeString;
 });
 enifed('ember-templates/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
@@ -47478,7 +47471,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+dc3cfac0";
+  exports.default = "2.7.0-canary+99096ec0";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+dc3cfac0
+ * @version   2.7.0-canary+99096ec0
  */
 
 var enifed, requireModule, require, Ember;
@@ -11783,20 +11783,32 @@ enifed('ember-template-compiler/system/register-plugin', ['exports', 'ember-temp
   var registerPlugin = _compiler.registerPlugin;
   exports.default = registerPlugin;
 });
-enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures) {
+enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-runtime/system/string', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberRuntimeSystemString, _emberMetalFeatures, _emberMetalDebug) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
   exports.EmberHandlebars = EmberHandlebars;
   var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
   exports.EmberHTMLBars = EmberHTMLBars;
-  var EmberHandleBarsUtils = EmberHandlebars.Utils = EmberHandlebars.Utils || {};
+  var EmberHandleBarsUtils = EmberHandlebars.Utils || {};
 
-  exports.EmberHandleBarsUtils = EmberHandleBarsUtils;
-  Object.defineProperty(EmberHandlebars, 'SafeString', {
-    get: _emberTemplatesString.getSafeString
-  });
+  if (true) {
+    Object.defineProperty(EmberHandlebars, 'SafeString', {
+      get: function () {
+        _emberMetalDebug.deprecate('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
+          id: 'ember-htmlbars.ember-handlebars-safestring',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+        });
 
+        return _emberTemplatesString.SafeString;
+      }
+    });
+  } else {
+    EmberHandlebars.SafeString = _emberTemplatesString.SafeString;
+  }
+
+  EmberHTMLBars.SafeString = _emberTemplatesString.SafeString;
   EmberHTMLBars.template = EmberHandlebars.template = _emberTemplatesTemplate.default;
   EmberHandleBarsUtils.escapeExpression = _emberTemplatesString.escapeExpression;
   _emberRuntimeSystemString.default.htmlSafe = _emberTemplatesString.htmlSafe;
@@ -11968,8 +11980,6 @@ enifed('ember-templates/string', ['exports', 'ember-metal/features', 'require'],
   exports.htmlSafe = htmlSafe;
   var isHTMLSafe = strings.isHTMLSafe;
   exports.isHTMLSafe = isHTMLSafe;
-  var getSafeString = strings.getSafeString;
-  exports.getSafeString = getSafeString;
 });
 enifed('ember-templates/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
   'use strict';
@@ -12031,7 +12041,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+dc3cfac0";
+  exports.default = "2.7.0-canary+99096ec0";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
