@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+99096ec0
+ * @version   2.7.0-canary+dc3cfac0
  */
 
 var enifed, requireModule, require, Ember;
@@ -74625,27 +74625,37 @@ enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-metal/f
     return compiler(string, options);
   }
 });
-enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'require'], function (exports, _emberTemplates, _require) {
+enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'ember-metal/features', 'require'], function (exports, _emberTemplates, _emberMetalFeatures, _require) {
   'use strict';
 
   QUnit.module('ember-templates reexports');
 
-  [['_Renderer', 'ember-templates/renderer', 'Renderer'], ['Component', 'ember-templates/component', 'default'], ['Helper', 'ember-templates/helper', 'default'], ['Helper.helper', 'ember-templates/helper', 'helper'], ['Checkbox', 'ember-templates/components/checkbox', 'default'], ['LinkComponent', 'ember-templates/components/link-to', 'default'], ['TextArea', 'ember-templates/components/text_area', 'default'], ['TextField', 'ember-templates/components/text_field', 'default'], ['TEMPLATES', 'ember-templates/template_registry', { get: 'getTemplates', set: 'setTemplates' }]].forEach(function (reexport) {
+  [['_Renderer', 'ember-templates/renderer', 'Renderer'], ['Component', 'ember-templates/component', 'default'], ['Helper', 'ember-templates/helper', 'default'], ['Helper.helper', 'ember-templates/helper', 'helper'], ['Checkbox', 'ember-templates/components/checkbox', 'default'], ['LinkComponent', 'ember-templates/components/link-to', 'default'], ['TextArea', 'ember-templates/components/text_area', 'default'], ['TextField', 'ember-templates/components/text_field', 'default'], ['TEMPLATES', 'ember-templates/template_registry', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-templates/template', 'default'], ['Handlebars.SafeString', 'ember-templates/string', { get: 'getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-templates/string', 'escapeExpression'], ['String.htmlSafe', 'ember-templates/string', 'htmlSafe']].forEach(function (reexport) {
     var path = reexport[0];
     var moduleId = reexport[1];
     var exportName = reexport[2];
 
     QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
-      var desc = getDescriptor(_emberTemplates.default, path);
-      var mod = _require.default(moduleId);
-      if (typeof exportName === 'string') {
-        assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
-      } else {
-        assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
-        assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
-      }
+      confirmExport(assert, path, moduleId, exportName);
     });
   });
+
+  if (true) {
+    QUnit.test('Ember.String.isHTMLSafe exports correctly', function (assert) {
+      confirmExport(assert, 'String.isHTMLSafe', 'ember-templates/string', 'isHTMLSafe');
+    });
+  }
+
+  function confirmExport(assert, path, moduleId, exportName) {
+    var desc = getDescriptor(_emberTemplates.default, path);
+    var mod = _require.default(moduleId);
+    if (typeof exportName === 'string') {
+      assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
+    } else {
+      assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
+      assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
+    }
+  }
 
   function getDescriptor(obj, path) {
     var parts = path.split('.');
