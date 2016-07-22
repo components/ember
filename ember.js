@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a89dcfc0
+ * @version   2.7.0-canary+5993da4d
  */
 
 var enifed, requireModule, require, Ember;
@@ -25425,7 +25425,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/v
   _emberMetalCore.default._suspendObserver = _emberMetalObserver._suspendObserver;
   _emberMetalCore.default._suspendObservers = _emberMetalObserver._suspendObservers;
 
-  _emberMetalCore.default.IS_BINDING = _emberMetalMixin.IS_BINDING;
   _emberMetalCore.default.required = _emberMetalMixin.required;
   _emberMetalCore.default.aliasMethod = _emberMetalMixin.aliasMethod;
   _emberMetalCore.default.observer = _emberMetalMixin.observer;
@@ -27308,6 +27307,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
   @module ember
   @submodule ember-metal
   */
+  exports.detectBinding = detectBinding;
   exports.mixin = mixin;
   exports.default = Mixin;
   exports.hasUnprocessedMixins = hasUnprocessedMixins;
@@ -27551,13 +27551,15 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     }
   }
 
-  var IS_BINDING = /^.+Binding$/;
+  function detectBinding(key) {
+    var length = key.length;
 
-  function detectBinding(obj, key, value, m) {
-    if (IS_BINDING.test(key)) {
-      m.writeBindings(key, value);
-    }
+    return length > 7 && key.charCodeAt(length - 7) === 66 && key.indexOf('inding', length - 6) !== -1;
   }
+
+  // warm both paths of above function
+  detectBinding('notbound');
+  detectBinding('fooBinding');
 
   function connectBindings(obj, m) {
     // TODO Mixin.apply(instance) should disconnect binding if exists
@@ -27672,7 +27674,11 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
       }
 
       replaceObserversAndListeners(obj, key, value);
-      detectBinding(obj, key, value, m);
+
+      if (detectBinding(key)) {
+        m.writeBindings(key, value);
+      }
+
       _emberMetalProperties.defineProperty(obj, key, desc, value, m);
     }
 
@@ -28204,7 +28210,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     return func;
   }
 
-  exports.IS_BINDING = IS_BINDING;
   exports.Mixin = Mixin;
   exports.required = required;
   exports.REQUIRED = REQUIRED;
@@ -43441,7 +43446,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
             var keyName = keyNames[j];
             var value = properties[keyName];
 
-            if (_emberMetalMixin.IS_BINDING.test(keyName)) {
+            if (_emberMetalMixin.detectBinding(keyName)) {
               m.writeBindings(keyName, value);
             }
 
@@ -50188,7 +50193,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a89dcfc0";
+  exports.default = "2.7.0-canary+5993da4d";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
