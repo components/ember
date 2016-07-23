@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c264a6eb
+ * @version   2.7.0-canary+bba09bd2
  */
 
 var enifed, requireModule, require, Ember;
@@ -49109,7 +49109,7 @@ enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 
     _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found, null, path, null, contentTemplate);
   });
 });
-enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/concat', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsConcat, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
   function hasSubscribers(stream) {
@@ -49124,7 +49124,7 @@ enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/s
   QUnit.module('Stream - concat');
 
   QUnit.test('returns string if no streams were in the array', function (assert) {
-    var result = _emberHtmlbarsStreamsUtils.concat(['foo', 'bar', 'baz'], ' ');
+    var result = _emberHtmlbarsStreamsConcat.default(['foo', 'bar', 'baz'], ' ');
 
     assert.equal(result, 'foo bar baz');
   });
@@ -49133,7 +49133,7 @@ enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/s
     var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
       return 'bar';
     });
-    var result = _emberHtmlbarsStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    var result = _emberHtmlbarsStreamsConcat.default(['foo', stream, 'baz'], ' ');
 
     assert.ok(_emberHtmlbarsStreamsUtils.isStream(result), 'a stream is returned');
     assert.equal(_emberHtmlbarsStreamsUtils.read(result), 'foo bar baz');
@@ -49144,7 +49144,7 @@ enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/s
     var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
       return value;
     });
-    var result = _emberHtmlbarsStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    var result = _emberHtmlbarsStreamsConcat.default(['foo', stream, 'baz'], ' ');
     result.activate();
 
     assert.equal(_emberHtmlbarsStreamsUtils.read(result), 'foo bar baz');
@@ -49159,7 +49159,7 @@ enifed('ember-htmlbars/tests/streams/concat_test', ['exports', 'ember-htmlbars/s
     var stream = new _emberHtmlbarsStreamsStream.Stream(function () {
       return 'bar';
     });
-    var result = _emberHtmlbarsStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    var result = _emberHtmlbarsStreamsConcat.default(['foo', stream, 'baz'], ' ');
     result.activate();
 
     assert.equal(hasSubscribers(stream), true, 'subscribers are present from the concat stream');

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c264a6eb
+ * @version   2.7.0-canary+bba09bd2
  */
 
 var enifed, requireModule, require, Ember;
@@ -16051,7 +16051,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
     manager.render(env, visitor);
   }
 });
-enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsUtils) {
+enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-htmlbars/streams/concat'], function (exports, _emberHtmlbarsStreamsConcat) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -16062,7 +16062,7 @@ enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-htmlbars/streams/utils'
   exports.default = concat;
 
   function concat(env, parts) {
-    return _emberHtmlbarsStreamsUtils.concat(parts, '');
+    return _emberHtmlbarsStreamsConcat.default(parts, '');
   }
 });
 enifed('ember-htmlbars/hooks/create-fresh-scope', ['exports', 'ember-htmlbars/streams/proxy-stream', 'ember-metal/empty_object'], function (exports, _emberHtmlbarsStreamsProxyStream, _emberMetalEmpty_object) {
@@ -20572,6 +20572,62 @@ enifed('ember-htmlbars/streams/class_name_binding', ['exports', 'ember-metal/deb
     }
   }
 });
+enifed('ember-htmlbars/streams/concat', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
+  'use strict';
+
+  exports.default = concat;
+
+  var ConcatStream = _emberHtmlbarsStreamsStream.default.extend({
+    init: function (array, separator) {
+      this.array = array;
+      this.separator = separator;
+
+      // Used by angle bracket components to detect an attribute was provided
+      // as a string literal.
+      this.isConcat = true;
+    },
+
+    label: function () {
+      var labels = _emberHtmlbarsStreamsUtils.labelsFor(this.array);
+      return 'concat([' + labels.join(', ') + ']; separator=' + _emberHtmlbarsStreamsUtils.inspect(this.separator) + ')';
+    },
+
+    compute: function () {
+      return concat(_emberHtmlbarsStreamsUtils.readArray(this.array), this.separator);
+    }
+  });
+
+  /*
+   Join an array, with any streams replaced by their current values.
+  
+   @private
+   @for Ember.stream
+   @function concat
+   @param {Array} array An array containing zero or more stream objects and
+                        zero or more non-stream objects.
+   @param {String} separator String to be used to join array elements.
+   @return {String} String with array elements concatenated and joined by the
+                    provided separator, and any stream array members having been
+                    replaced by the current value of the stream.
+   */
+
+  function concat(array, separator) {
+    // TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
+    var hasStream = _emberHtmlbarsStreamsUtils.scanArray(array);
+    if (hasStream) {
+      var stream = new ConcatStream(array, separator);
+
+      for (var i = 0; i < array.length; i++) {
+        _emberHtmlbarsStreamsUtils.addDependency(stream, array[i]);
+      }
+
+      return stream;
+    } else {
+      return array.join(separator);
+    }
+  }
+});
 enifed('ember-htmlbars/streams/dependency', ['exports', 'ember-metal/debug', 'ember-metal/assign', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalAssign, _emberHtmlbarsStreamsUtils) {
   'use strict';
 
@@ -21294,7 +21350,6 @@ enifed('ember-htmlbars/streams/utils', ['exports', 'ember-htmlbars/hooks/get-val
   exports.readHash = readHash;
   exports.scanArray = scanArray;
   exports.scanHash = scanHash;
-  exports.concat = concat;
   exports.labelsFor = labelsFor;
   exports.labelsForObject = labelsForObject;
   exports.labelFor = labelFor;
@@ -21489,57 +21544,6 @@ enifed('ember-htmlbars/streams/utils', ['exports', 'ember-htmlbars/hooks/get-val
     }
 
     return containsStream;
-  }
-
-  var ConcatStream = _emberHtmlbarsStreamsStream.default.extend({
-    init: function (array, separator) {
-      this.array = array;
-      this.separator = separator;
-
-      // Used by angle bracket components to detect an attribute was provided
-      // as a string literal.
-      this.isConcat = true;
-    },
-
-    label: function () {
-      var labels = labelsFor(this.array);
-      return 'concat([' + labels.join(', ') + ']; separator=' + inspect(this.separator) + ')';
-    },
-
-    compute: function () {
-      return concat(readArray(this.array), this.separator);
-    }
-  });
-
-  /*
-   Join an array, with any streams replaced by their current values.
-  
-   @private
-   @for Ember.stream
-   @function concat
-   @param {Array} array An array containing zero or more stream objects and
-                        zero or more non-stream objects.
-   @param {String} separator String to be used to join array elements.
-   @return {String} String with array elements concatenated and joined by the
-                    provided separator, and any stream array members having been
-                    replaced by the current value of the stream.
-   */
-
-  function concat(array, separator) {
-    // TODO: Create subclass ConcatStream < Stream. Defer
-    // subscribing to streams until the value() is called.
-    var hasStream = scanArray(array);
-    if (hasStream) {
-      var stream = new ConcatStream(array, separator);
-
-      for (var i = 0; i < array.length; i++) {
-        addDependency(stream, array[i]);
-      }
-
-      return stream;
-    } else {
-      return array.join(separator);
-    }
   }
 
   function labelsFor(streams) {
@@ -50272,7 +50276,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+c264a6eb";
+  exports.default = "2.7.0-canary+bba09bd2";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
