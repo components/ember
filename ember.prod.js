@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a1b35447
+ * @version   2.7.0-canary+fa4360a0
  */
 
 var enifed, requireModule, require, Ember;
@@ -44716,7 +44716,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-r
     }
   });
 });
-enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-htmlbars/renderer', 'ember-htmlbars/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-htmlbars/components/checkbox', 'ember-views/mixins/text_support', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberHtmlbarsRenderer, _emberHtmlbarsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberHtmlbarsComponentsCheckbox, _emberViewsMixinsText_support, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area) {
+enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/mixins/text_support'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsMixinsText_support) {
   /**
   @module ember
   @submodule ember-views
@@ -44745,15 +44745,8 @@ enifed('ember-views/index', ['exports', 'ember-runtime', 'ember-views/system/jqu
   ViewUtils.getViewClientRects = _emberViewsSystemUtils.getViewClientRects;
   ViewUtils.getViewBoundingClientRect = _emberViewsSystemUtils.getViewBoundingClientRect;
 
-  _emberRuntime.default._Renderer = _emberHtmlbarsRenderer.Renderer;
-
-  _emberRuntime.default.Checkbox = _emberHtmlbarsComponentsCheckbox.default;
-  _emberRuntime.default.TextField = _emberHtmlbarsComponentsText_field.default;
-  _emberRuntime.default.TextArea = _emberHtmlbarsComponentsText_area.default;
-
   _emberRuntime.default.TextSupport = _emberViewsMixinsText_support.default;
   _emberRuntime.default.ComponentLookup = _emberViewsComponent_lookup.default;
-  _emberRuntime.default.Component = _emberHtmlbarsComponent.default;
   _emberRuntime.default.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
 
   // END EXPORTS
@@ -46661,7 +46654,7 @@ enifed('ember-views/utils/lookup-component', ['exports'], function (exports) {
     return lookupComponentPair(componentLookup, owner, name);
   }
 });
-enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-htmlbars/renderer', 'ember-views/views/states', 'require'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberHtmlbarsRenderer, _emberViewsViewsStates, _require) {
+enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-views/views/states', 'require'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberViewsViewsStates, _require) {
   'use strict';
 
   // Normally, the renderer is injected by the container when the view is looked
@@ -46710,8 +46703,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
       // Fallback for legacy cases where the view was created directly
       // via `create()` instead of going through the container.
       if (!this.renderer) {
-        var DOMHelper = domHelper();
-        renderer = renderer || _emberHtmlbarsRenderer.InteractiveRenderer.create({ dom: new DOMHelper() });
+        renderer = renderer || htmlbarsRenderer();
         this.renderer = renderer;
       }
     },
@@ -46765,9 +46757,13 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
     isViewFactory: true
   });
 
-  var _domHelper = undefined;
-  function domHelper() {
-    return _domHelper = _domHelper || _require.default('ember-htmlbars/system/dom-helper').default;
+  var InteractiveRenderer = undefined,
+      DOMHelper = undefined;
+  function htmlbarsRenderer() {
+    DOMHelper = DOMHelper || _require.default('ember-htmlbars/system/dom-helper').default;
+    InteractiveRenderer = InteractiveRenderer || _require.default('ember-htmlbars/renderer').InteractiveRenderer;
+
+    return InteractiveRenderer.create({ dom: new DOMHelper() });
   }
 
   exports.default = CoreView;
@@ -47567,7 +47563,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a1b35447";
+  exports.default = "2.7.0-canary+fa4360a0";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
