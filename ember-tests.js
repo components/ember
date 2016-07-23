@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bba09bd2
+ * @version   2.7.0-canary+af55af5b
  */
 
 var enifed, requireModule, require, Ember;
@@ -1853,11 +1853,11 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
       return chatEngineInstance.boot().then(function () {
         assert.ok(true, 'boot successful');
 
-        ['route:basic', 'event_dispatcher:main', _containerRegistry.privatize(_templateObject), 'service:-routing'].forEach(function (key) {
+        ['route:basic', 'event_dispatcher:main', 'service:-routing'].forEach(function (key) {
           assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
         });
 
-        ['router:main', '-view-registry:main'].forEach(function (key) {
+        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main'].forEach(function (key) {
           assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
         });
       });

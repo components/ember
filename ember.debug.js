@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+bba09bd2
+ * @version   2.7.0-canary+af55af5b
  */
 
 var enifed, requireModule, require, Ember;
@@ -5373,11 +5373,11 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
         var parent = _emberApplicationSystemEngineParent.getEngineParent(this);
 
-        ['route:basic', 'event_dispatcher:main', _containerRegistry.privatize(_templateObject), 'service:-routing'].forEach(function (key) {
+        ['route:basic', 'event_dispatcher:main', 'service:-routing'].forEach(function (key) {
           return _this2.register(key, parent.resolveRegistration(key));
         });
 
-        ['router:main', '-view-registry:main'].forEach(function (key) {
+        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main'].forEach(function (key) {
           return _this2.register(key, parent.lookup(key), { instantiate: false });
         });
       }
@@ -50276,7 +50276,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+bba09bd2";
+  exports.default = "2.7.0-canary+af55af5b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
