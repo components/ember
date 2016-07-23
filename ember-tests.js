@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+011d79ac
+ * @version   2.7.0-canary+49182edf
  */
 
 var enifed, requireModule, require, Ember;
@@ -18727,7 +18727,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       }, /Helpers may not be used in the element form/);
     };
 
-    _class.prototype['@htmlbars class-based helper is torn down'] = function htmlbarsClassBasedHelperIsTornDown() {
+    _class.prototype['@test class-based helper is torn down'] = function testClassBasedHelperIsTornDown() {
       var destroyCalled = 0;
 
       this.registerHelper('some-helper', {
@@ -18849,7 +18849,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@htmlbars class-based helper used in subexpression is destroyed'] = function htmlbarsClassBasedHelperUsedInSubexpressionIsDestroyed() {
+    _class.prototype['@test class-based helper used in subexpression is destroyed'] = function testClassBasedHelperUsedInSubexpressionIsDestroyed() {
       var destroyCount = 0;
 
       this.registerHelper('dynamic-segment', {
@@ -41077,7 +41077,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       }, /Helpers may not be used in the element form/);
     };
 
-    _class.prototype['@htmlbars class-based helper is torn down'] = function htmlbarsClassBasedHelperIsTornDown() {
+    _class.prototype['@test class-based helper is torn down'] = function testClassBasedHelperIsTornDown() {
       var destroyCalled = 0;
 
       this.registerHelper('some-helper', {
@@ -41199,7 +41199,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
-    _class.prototype['@htmlbars class-based helper used in subexpression is destroyed'] = function htmlbarsClassBasedHelperUsedInSubexpressionIsDestroyed() {
+    _class.prototype['@test class-based helper used in subexpression is destroyed'] = function testClassBasedHelperUsedInSubexpressionIsDestroyed() {
       var destroyCount = 0;
 
       this.registerHelper('dynamic-segment', {
