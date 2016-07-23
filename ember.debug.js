@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fa4360a0
+ * @version   2.7.0-canary+97464253
  */
 
 var enifed, requireModule, require, Ember;
@@ -1644,9 +1644,10 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     ```
   
     @method getOwner
+    @for Ember
     @param {Object} object An object with an owner.
     @return {Object} An owner object.
-    @for Ember
+    @since 2.3.0
     @public
   */
 
@@ -1659,9 +1660,10 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     useful in some testing cases.
   
     @method setOwner
+    @for Ember
     @param {Object} object An object with an owner.
     @return {Object} An owner object.
-    @for Ember
+    @since 2.3.0
     @public
   */
 
@@ -50272,7 +50274,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+fa4360a0";
+  exports.default = "2.7.0-canary+97464253";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
