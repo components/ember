@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e8cede1b
+ * @version   2.7.0-canary+818b52cd
  */
 
 var enifed, requireModule, require, Ember;
@@ -8565,7 +8565,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
+enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/computed'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalComputed) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
@@ -8578,7 +8578,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('ClassNameBindings intigration', (function (_RenderingTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('ClassNameBindings integration', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
     function _class() {
@@ -8793,10 +8793,26 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
     };
 
+    _class.prototype['@test using a computed property for classNameBindings triggers an assertion'] = function testUsingAComputedPropertyForClassNameBindingsTriggersAnAssertion() {
+      var _this7 = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        classNameBindings: _emberMetalComputed.default(function () {
+          return ['isHappy:happy:sad'];
+        })
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this7.render('{{foo-bar}}');
+      }, /Only arrays are allowed/);
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('ClassBinding intigration', (function (_RenderingTest2) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('ClassBinding integration', (function (_RenderingTest2) {
     _inherits(_class2, _RenderingTest2);
 
     function _class2() {
@@ -8806,7 +8822,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
     }
 
     _class2.prototype['@test it should apply classBinding without condition always'] = function testItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -8815,14 +8831,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('foo  ember-view') } });
     };
 
     _class2.prototype['@test it should merge classBinding with class'] = function testItShouldMergeClassBindingWithClass() {
-      var _this8 = this;
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -8831,14 +8847,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only truthy condition'] = function testItShouldApplyClassBindingWithOnlyTruthyCondition() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -8847,14 +8863,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck  ember-view') } });
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('respeck  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only falsy condition'] = function testItShouldApplyClassBindingWithOnlyFalsyCondition() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -8863,34 +8879,18 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('shade  ember-view') } });
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('shade  ember-view') } });
     };
 
     _class2.prototype['@test it should apply nothing when classBinding is falsy but only supplies truthy class'] = function testItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
-      var _this11 = this;
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
-
-      this.runTask(function () {
-        return _this11.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
-    };
-
-    _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function testItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
       var _this12 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
 
@@ -8901,8 +8901,24 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
     };
 
-    _class2.prototype['@test it should apply classBinding with falsy condition'] = function testItShouldApplyClassBindingWithFalsyCondition() {
+    _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function testItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
       var _this13 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
+    };
+
+    _class2.prototype['@test it should apply classBinding with falsy condition'] = function testItShouldApplyClassBindingWithFalsyCondition() {
+      var _this14 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -8911,14 +8927,14 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('scrub  ember-view') } });
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('scrub  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with truthy condition'] = function testItShouldApplyClassBindingWithTruthyCondition() {
-      var _this14 = this;
+      var _this15 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -8927,7 +8943,7 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fresh  ember-view') } });
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('fresh  ember-view') } });
@@ -9975,7 +9991,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -12550,6 +12566,91 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       this.assertText('initial value');
+    };
+
+    _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
+      var _this65 = this;
+
+      var service = undefined;
+      this.registerService('name', _emberRuntimeSystemService.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          service = this;
+        },
+        last: 'Jackson'
+      }));
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          name: _emberRuntimeInject.default.service()
+        }),
+        template: '{{name.last}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Jackson');
+
+      this.runTask(function () {
+        return _this65.rerender();
+      });
+
+      this.assertText('Jackson');
+
+      this.runTask(function () {
+        service.set('last', 'McGuffey');
+      });
+
+      this.assertText('McGuffey');
+
+      this.runTask(function () {
+        service.set('last', 'Jackson');
+      });
+
+      this.assertText('Jackson');
+    };
+
+    _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
+      var _this66 = this;
+
+      var component = undefined;
+
+      function derp() {}
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+
+          actions: {
+            derp: derp
+          }
+        })
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assert.strictEqual(component.actions.derp, derp);
+
+      expectDeprecation(function () {
+        _this66.assert.strictEqual(component._actions.derp, derp);
+      }, 'Usage of `_actions` is deprecated, use `actions` instead.');
+    };
+
+    _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
+      var _this67 = this;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {}
+        })
+      });
+
+      expectAssertion(function () {
+        _this67.render('{{foo-bar}}');
+      }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
     };
 
     return _class;
@@ -23540,7 +23641,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberGlimmerTestsUtilsTestHelpers, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -23560,8 +23661,76 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       this.registerComponent('-text-area', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextArea });
     }
 
+    TextAreaRenderingTest.prototype.assertTextArea = function assertTextArea() {
+      var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var attrs = _ref2.attrs;
+      var value = _ref2.value;
+
+      var mergedAttrs = _emberMetalAssign.default({ 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view ember-text-area') }, attrs);
+      this.assertComponentElement(this.firstChild, { tagName: 'textarea', attrs: mergedAttrs });
+
+      if (value) {
+        this.assert.strictEqual(value, this.firstChild.value);
+      }
+    };
+
+    TextAreaRenderingTest.prototype.triggerEvent = function triggerEvent(type) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var event = document.createEvent('Events');
+      event.initEvent(type, true, true);
+      _emberMetalAssign.default(event, options);
+
+      this.firstChild.dispatchEvent(event);
+    };
+
     return TextAreaRenderingTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+  var BoundTextAreaAttributes = (function () {
+    function BoundTextAreaAttributes(cases) {
+      _classCallCheck(this, BoundTextAreaAttributes);
+
+      this.cases = cases;
+    }
+
+    BoundTextAreaAttributes.prototype.generate = function generate(_ref3) {
+      var _ref;
+
+      var attribute = _ref3.attribute;
+      var first = _ref3.first;
+      var second = _ref3.second;
+
+      return _ref = {}, _ref['@test ' + attribute] = function (assert) {
+        var _attrs,
+            _attrs2,
+            _attrs3,
+            _this = this;
+
+        this.render('{{textarea ' + attribute + '=value}}', {
+          value: first
+        });
+        this.assertTextArea({ attrs: (_attrs = {}, _attrs[attribute] = first, _attrs) });
+
+        this.assertStableRerender();
+
+        this.runTask(function () {
+          return _emberMetalProperty_set.set(_this.context, 'value', second);
+        });
+        this.assertTextArea({ attrs: (_attrs2 = {}, _attrs2[attribute] = second, _attrs2) });
+
+        this.runTask(function () {
+          return _emberMetalProperty_set.set(_this.context, 'value', first);
+        });
+        this.assertTextArea({ attrs: (_attrs3 = {}, _attrs3[attribute] = first, _attrs3) });
+      }, _ref;
+    };
+
+    return BoundTextAreaAttributes;
+  })();
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(TextAreaRenderingTest, new BoundTextAreaAttributes([{ attribute: 'placeholder', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'name', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'title', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'maxlength', first: '1', second: '2' }, { attribute: 'rows', first: '1', second: '2' }, { attribute: 'cols', first: '1', second: '2' }, { attribute: 'tabindex', first: '1', second: '2' }]));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{textarea}}', (function (_TextAreaRenderingTest) {
     _inherits(_class, _TextAreaRenderingTest);
@@ -23595,7 +23764,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
     };
 
     _class.prototype['@test Should become disabled when the context changes'] = function testShouldBecomeDisabledWhenTheContextChanges() {
-      var _this = this;
+      var _this2 = this;
 
       this.render('{{textarea disabled=disabled}}');
       ok(this.$('textarea').is(':not(:disabled)'));
@@ -23603,35 +23772,69 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', true);
+        return _emberMetalProperty_set.set(_this2.context, 'disabled', true);
       });
       ok(this.$('textarea').is(':disabled'));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', false);
+        return _emberMetalProperty_set.set(_this2.context, 'disabled', false);
       });
       ok(this.$('textarea').is(':not(:disabled)'));
     };
 
     _class.prototype['@test Should bind its contents to the specified value'] = function testShouldBindItsContentsToTheSpecifiedValue() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.render('{{textarea value=model.val}}', {
         model: { val: 'A beautiful day in Seattle' }
       });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'model.val', 'Auckland');
+        return _emberMetalProperty_set.set(_this3.context, 'model.val', 'Auckland');
       });
-      ok(this.$('textarea').val('Auckland'));
+      this.assertTextArea({ value: 'Auckland' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'model', { val: 'A beautiful day in Seattle' });
+        return _emberMetalProperty_set.set(_this3.context, 'model', { val: 'A beautiful day in Seattle' });
       });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
+    };
+
+    _class.prototype['@test should update the value for `cut` / `input` / `change` events'] = function testShouldUpdateTheValueForCutInputChangeEvents() {
+      var _this4 = this;
+
+      this.render('{{textarea value=model.val}}', {
+        model: { val: 'A beautiful day in Seattle' }
+      });
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this4.firstChild.value = 'Auckland';
+        _this4.triggerEvent('cut');
+      });
+      this.assertTextArea({ value: 'Auckland' });
+
+      this.runTask(function () {
+        _this4.firstChild.value = 'Hope';
+        _this4.triggerEvent('paste');
+      });
+      this.assertTextArea({ value: 'Hope' });
+
+      this.runTask(function () {
+        _this4.firstChild.value = 'Boston';
+        _this4.triggerEvent('input');
+      });
+      this.assertTextArea({ value: 'Boston' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model', { val: 'A beautiful day in Seattle' });
+      });
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
     };
 
     return _class;
@@ -27224,6 +27427,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       }
     };
 
+    AbstractRenderingTest.prototype.registerService = function registerService(name, klass) {
+      this.owner.register('service:' + name, klass);
+    };
+
     AbstractRenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
       if (!(node instanceof TextNode)) {
         throw new Error('Expecting a text node, but got ' + node);
@@ -30708,7 +30915,7 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
+enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/computed'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalComputed) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
@@ -30721,7 +30928,7 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassNameBindings intigration', (function (_RenderingTest) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassNameBindings integration', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
     function _class() {
@@ -30936,10 +31143,26 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.nthChild(3), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
     };
 
+    _class.prototype['@test using a computed property for classNameBindings triggers an assertion'] = function testUsingAComputedPropertyForClassNameBindingsTriggersAnAssertion() {
+      var _this7 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        classNameBindings: _emberMetalComputed.default(function () {
+          return ['isHappy:happy:sad'];
+        })
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      expectAssertion(function () {
+        _this7.render('{{foo-bar}}');
+      }, /Only arrays are allowed/);
+    };
+
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassBinding intigration', (function (_RenderingTest2) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassBinding integration', (function (_RenderingTest2) {
     _inherits(_class2, _RenderingTest2);
 
     function _class2() {
@@ -30949,7 +31172,7 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
     }
 
     _class2.prototype['@test it should apply classBinding without condition always'] = function testItShouldApplyClassBindingWithoutConditionAlways() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -30958,14 +31181,14 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('foo  ember-view') } });
     };
 
     _class2.prototype['@test it should merge classBinding with class'] = function testItShouldMergeClassBindingWithClass() {
-      var _this8 = this;
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -30974,14 +31197,14 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck myName ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only truthy condition'] = function testItShouldApplyClassBindingWithOnlyTruthyCondition() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -30990,14 +31213,14 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck  ember-view') } });
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('respeck  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with only falsy condition'] = function testItShouldApplyClassBindingWithOnlyFalsyCondition() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -31006,34 +31229,18 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('shade  ember-view') } });
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('shade  ember-view') } });
     };
 
     _class2.prototype['@test it should apply nothing when classBinding is falsy but only supplies truthy class'] = function testItShouldApplyNothingWhenClassBindingIsFalsyButOnlySuppliesTruthyClass() {
-      var _this11 = this;
-
-      this.registerComponent('foo-bar', { template: 'hello' });
-
-      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
-
-      this.runTask(function () {
-        return _this11.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
-    };
-
-    _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function testItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
       var _this12 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
-      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+      this.render('{{foo-bar classBinding="myName:respeck"}}', { myName: false });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
 
@@ -31044,8 +31251,24 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
     };
 
-    _class2.prototype['@test it should apply classBinding with falsy condition'] = function testItShouldApplyClassBindingWithFalsyCondition() {
+    _class2.prototype['@test it should apply nothing when classBinding is truthy but only supplies falsy class'] = function testItShouldApplyNothingWhenClassBindingIsTruthyButOnlySuppliesFalsyClass() {
       var _this13 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar classBinding="myName::shade"}}', { myName: true });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
+
+      this.runTask(function () {
+        return _this13.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
+    };
+
+    _class2.prototype['@test it should apply classBinding with falsy condition'] = function testItShouldApplyClassBindingWithFalsyCondition() {
+      var _this14 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -31054,14 +31277,14 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('scrub  ember-view') } });
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('scrub  ember-view') } });
     };
 
     _class2.prototype['@test it should apply classBinding with truthy condition'] = function testItShouldApplyClassBindingWithTruthyCondition() {
-      var _this14 = this;
+      var _this15 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -31070,7 +31293,7 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fresh  ember-view') } });
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('fresh  ember-view') } });
@@ -32118,7 +32341,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -34693,6 +34916,91 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       this.assertText('initial value');
+    };
+
+    _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
+      var _this65 = this;
+
+      var service = undefined;
+      this.registerService('name', _emberRuntimeSystemService.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          service = this;
+        },
+        last: 'Jackson'
+      }));
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          name: _emberRuntimeInject.default.service()
+        }),
+        template: '{{name.last}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Jackson');
+
+      this.runTask(function () {
+        return _this65.rerender();
+      });
+
+      this.assertText('Jackson');
+
+      this.runTask(function () {
+        service.set('last', 'McGuffey');
+      });
+
+      this.assertText('McGuffey');
+
+      this.runTask(function () {
+        service.set('last', 'Jackson');
+      });
+
+      this.assertText('Jackson');
+    };
+
+    _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
+      var _this66 = this;
+
+      var component = undefined;
+
+      function derp() {}
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+
+          actions: {
+            derp: derp
+          }
+        })
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assert.strictEqual(component.actions.derp, derp);
+
+      expectDeprecation(function () {
+        _this66.assert.strictEqual(component._actions.derp, derp);
+      }, 'Usage of `_actions` is deprecated, use `actions` instead.');
+    };
+
+    _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
+      var _this67 = this;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {}
+        })
+      });
+
+      expectAssertion(function () {
+        _this67.render('{{foo-bar}}');
+      }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
     };
 
     return _class;
@@ -45683,7 +45991,7 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -45703,8 +46011,76 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
       this.registerComponent('-text-area', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextArea });
     }
 
+    TextAreaRenderingTest.prototype.assertTextArea = function assertTextArea() {
+      var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var attrs = _ref2.attrs;
+      var value = _ref2.value;
+
+      var mergedAttrs = _emberMetalAssign.default({ 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view ember-text-area') }, attrs);
+      this.assertComponentElement(this.firstChild, { tagName: 'textarea', attrs: mergedAttrs });
+
+      if (value) {
+        this.assert.strictEqual(value, this.firstChild.value);
+      }
+    };
+
+    TextAreaRenderingTest.prototype.triggerEvent = function triggerEvent(type) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var event = document.createEvent('Events');
+      event.initEvent(type, true, true);
+      _emberMetalAssign.default(event, options);
+
+      this.firstChild.dispatchEvent(event);
+    };
+
     return TextAreaRenderingTest;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
+
+  var BoundTextAreaAttributes = (function () {
+    function BoundTextAreaAttributes(cases) {
+      _classCallCheck(this, BoundTextAreaAttributes);
+
+      this.cases = cases;
+    }
+
+    BoundTextAreaAttributes.prototype.generate = function generate(_ref3) {
+      var _ref;
+
+      var attribute = _ref3.attribute;
+      var first = _ref3.first;
+      var second = _ref3.second;
+
+      return _ref = {}, _ref['@test ' + attribute] = function (assert) {
+        var _attrs,
+            _attrs2,
+            _attrs3,
+            _this = this;
+
+        this.render('{{textarea ' + attribute + '=value}}', {
+          value: first
+        });
+        this.assertTextArea({ attrs: (_attrs = {}, _attrs[attribute] = first, _attrs) });
+
+        this.assertStableRerender();
+
+        this.runTask(function () {
+          return _emberMetalProperty_set.set(_this.context, 'value', second);
+        });
+        this.assertTextArea({ attrs: (_attrs2 = {}, _attrs2[attribute] = second, _attrs2) });
+
+        this.runTask(function () {
+          return _emberMetalProperty_set.set(_this.context, 'value', first);
+        });
+        this.assertTextArea({ attrs: (_attrs3 = {}, _attrs3[attribute] = first, _attrs3) });
+      }, _ref;
+    };
+
+    return BoundTextAreaAttributes;
+  })();
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(TextAreaRenderingTest, new BoundTextAreaAttributes([{ attribute: 'placeholder', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'name', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'title', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'maxlength', first: '1', second: '2' }, { attribute: 'rows', first: '1', second: '2' }, { attribute: 'cols', first: '1', second: '2' }, { attribute: 'tabindex', first: '1', second: '2' }]));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{textarea}}', (function (_TextAreaRenderingTest) {
     _inherits(_class, _TextAreaRenderingTest);
@@ -45738,7 +46114,7 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
     };
 
     _class.prototype['@test Should become disabled when the context changes'] = function testShouldBecomeDisabledWhenTheContextChanges() {
-      var _this = this;
+      var _this2 = this;
 
       this.render('{{textarea disabled=disabled}}');
       ok(this.$('textarea').is(':not(:disabled)'));
@@ -45746,35 +46122,69 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', true);
+        return _emberMetalProperty_set.set(_this2.context, 'disabled', true);
       });
       ok(this.$('textarea').is(':disabled'));
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'disabled', false);
+        return _emberMetalProperty_set.set(_this2.context, 'disabled', false);
       });
       ok(this.$('textarea').is(':not(:disabled)'));
     };
 
     _class.prototype['@test Should bind its contents to the specified value'] = function testShouldBindItsContentsToTheSpecifiedValue() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.render('{{textarea value=model.val}}', {
         model: { val: 'A beautiful day in Seattle' }
       });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'model.val', 'Auckland');
+        return _emberMetalProperty_set.set(_this3.context, 'model.val', 'Auckland');
       });
-      ok(this.$('textarea').val('Auckland'));
+      this.assertTextArea({ value: 'Auckland' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'model', { val: 'A beautiful day in Seattle' });
+        return _emberMetalProperty_set.set(_this3.context, 'model', { val: 'A beautiful day in Seattle' });
       });
-      ok(this.$('textarea').val('A beautiful day in Seattle'));
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
+    };
+
+    _class.prototype['@test should update the value for `cut` / `input` / `change` events'] = function testShouldUpdateTheValueForCutInputChangeEvents() {
+      var _this4 = this;
+
+      this.render('{{textarea value=model.val}}', {
+        model: { val: 'A beautiful day in Seattle' }
+      });
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this4.firstChild.value = 'Auckland';
+        _this4.triggerEvent('cut');
+      });
+      this.assertTextArea({ value: 'Auckland' });
+
+      this.runTask(function () {
+        _this4.firstChild.value = 'Hope';
+        _this4.triggerEvent('paste');
+      });
+      this.assertTextArea({ value: 'Hope' });
+
+      this.runTask(function () {
+        _this4.firstChild.value = 'Boston';
+        _this4.triggerEvent('input');
+      });
+      this.assertTextArea({ value: 'Boston' });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'model', { val: 'A beautiful day in Seattle' });
+      });
+      this.assertTextArea({ value: 'A beautiful day in Seattle' });
     };
 
     return _class;
@@ -50139,6 +50549,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       } else {
         throw new Error('Registered template "' + name + '" must be a string');
       }
+    };
+
+    AbstractRenderingTest.prototype.registerService = function registerService(name, klass) {
+      this.owner.register('service:' + name, klass);
     };
 
     AbstractRenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
@@ -76721,54 +77135,6 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
   });
 });
-enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (exports, _emberRuntimeSystemObject, _emberViewsViewsView, _emberViewsMixinsView_target_action_support) {
-  'use strict';
-
-  QUnit.module('ViewTargetActionSupport');
-
-  QUnit.test('it should return false if no action is specified', function () {
-    expect(1);
-
-    var view = _emberViewsViewsView.default.extend(_emberViewsMixinsView_target_action_support.default).create({
-      controller: _emberRuntimeSystemObject.default.create()
-    });
-
-    ok(false === view.triggerAction(), 'a valid target and action were specified');
-  });
-
-  QUnit.test('it should support actions specified as strings', function () {
-    expect(2);
-
-    var view = _emberViewsViewsView.default.extend(_emberViewsMixinsView_target_action_support.default).create({
-      controller: _emberRuntimeSystemObject.default.create({
-        anEvent: function () {
-          ok(true, 'anEvent method was called');
-        }
-      }),
-      action: 'anEvent'
-    });
-
-    ok(true === view.triggerAction(), 'a valid target and action were specified');
-  });
-
-  QUnit.test('it should invoke the send() method on the controller with the view\'s context', function () {
-    expect(3);
-
-    var view = _emberViewsViewsView.default.extend(_emberViewsMixinsView_target_action_support.default, {
-      controller: _emberRuntimeSystemObject.default.create({
-        send: function (evt, context) {
-          equal(evt, 'anEvent', 'send() method was invoked with correct event name');
-          equal(context, view.get('context'), 'send() method was invoked with correct context');
-        }
-      })
-    }).create({
-      context: {},
-      action: 'anEvent'
-    });
-
-    ok(true === view.triggerAction(), 'a valid target and action were specified');
-  });
-});
 enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-metal/instrumentation', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberMetalInstrumentation, _emberMetalFeatures) {
   'use strict';
 
@@ -77299,289 +77665,6 @@ enifed('ember-views/tests/test-helpers/get-element-style', ['exports'], function
     return style;
   };
 });
-enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-htmlbars/components/checkbox', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher'], function (exports, _emberHtmlbarsComponentsCheckbox, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher) {
-  'use strict';
-
-  function set(obj, key, value) {
-    _emberMetalRun_loop.default(function () {
-      return _emberMetalProperty_set.set(obj, key, value);
-    });
-  }
-
-  function append() {
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.appendTo('#qunit-fixture');
-    });
-  }
-
-  var checkboxComponent = undefined,
-      dispatcher = undefined;
-
-  QUnit.module('Ember.Checkbox', {
-    setup: function () {
-      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        dispatcher.destroy();
-        checkboxComponent.destroy();
-      });
-    }
-  });
-
-  QUnit.test('should begin disabled if the disabled attribute is true', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-
-    checkboxComponent.set('disabled', true);
-    append();
-
-    ok(checkboxComponent.$().is(':disabled'));
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is changed', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-
-    append();
-    ok(checkboxComponent.$().is(':not(:disabled)'));
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('disabled', true);
-    });
-    ok(checkboxComponent.$().is(':disabled'));
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('disabled', false);
-    });
-    ok(checkboxComponent.$().is(':not(:disabled)'));
-  });
-
-  QUnit.test('should begin indeterminate if the indeterminate attribute is true', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-
-    checkboxComponent.set('indeterminate', true);
-    append();
-
-    equal(checkboxComponent.$().prop('indeterminate'), true, 'Checkbox should be indeterminate');
-  });
-
-  QUnit.test('should become indeterminate if the indeterminate attribute is changed', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-
-    append();
-
-    equal(checkboxComponent.$().prop('indeterminate'), false, 'Checkbox should not be indeterminate');
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('indeterminate', true);
-    });
-    equal(checkboxComponent.$().prop('indeterminate'), true, 'Checkbox should be indeterminate');
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('indeterminate', false);
-    });
-    equal(checkboxComponent.$().prop('indeterminate'), false, 'Checkbox should not be indeterminate');
-  });
-
-  QUnit.test('should support the tabindex property', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('tabindex', 6);
-    });
-    append();
-
-    equal(checkboxComponent.$().prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('tabindex', 3);
-    });
-    equal(checkboxComponent.$().prop('tabindex'), '3', 'the checkbox tabindex changes when it is changed in the component');
-  });
-
-  QUnit.test('checkbox name is updated when setting name property of view', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('name', 'foo');
-    });
-    append();
-
-    equal(checkboxComponent.$().attr('name'), 'foo', 'renders checkbox with the name');
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.set('name', 'bar');
-    });
-
-    equal(checkboxComponent.$().attr('name'), 'bar', 'updates checkbox after name changes');
-  });
-
-  QUnit.test('checked property mirrors input value', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({});
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.append();
-    });
-
-    equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'initially starts with a false value');
-    equal(!!checkboxComponent.$().prop('checked'), false, 'the initial checked property is false');
-
-    set(checkboxComponent, 'checked', true);
-
-    equal(checkboxComponent.$().prop('checked'), true, 'changing the value property changes the DOM');
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.destroyElement();
-    });
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.append();
-    });
-
-    equal(checkboxComponent.$().prop('checked'), true, 'changing the value property changes the DOM');
-
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.destroyElement();
-    });
-    _emberMetalRun_loop.default(function () {
-      return set(checkboxComponent, 'checked', false);
-    });
-    _emberMetalRun_loop.default(function () {
-      return checkboxComponent.append();
-    });
-
-    equal(checkboxComponent.$().prop('checked'), false, 'changing the value property changes the DOM');
-  });
-
-  QUnit.test('checking the checkbox updates the value', function () {
-    checkboxComponent = _emberHtmlbarsComponentsCheckbox.default.create({ checked: true });
-    append();
-
-    equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), true, 'precond - initially starts with a true value');
-    equal(!!checkboxComponent.$().prop('checked'), true, 'precond - the initial checked property is true');
-
-    // IE fires 'change' event on blur.
-    checkboxComponent.$()[0].focus();
-    checkboxComponent.$()[0].click();
-    checkboxComponent.$()[0].blur();
-
-    equal(!!checkboxComponent.$().prop('checked'), false, 'after clicking a checkbox, the checked property changed');
-    equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
-  });
-});
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-templates/component', 'container/tests/test-helpers/build-owner', 'ember-metal/computed'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemService, _emberRuntimeInject, _emberTemplatesComponent, _containerTestsTestHelpersBuildOwner, _emberMetalComputed) {
-  'use strict';
-
-  var component = undefined,
-      controller = undefined;
-
-  QUnit.module('Ember.Component', {
-    setup: function () {
-      component = _emberTemplatesComponent.default.create();
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        if (component) {
-          component.destroy();
-        }
-        if (controller) {
-          controller.destroy();
-        }
-      });
-    }
-  });
-
-  QUnit.test('throws an error if `this._super` is not called from `init`', function () {
-    var TestComponent = _emberTemplatesComponent.default.extend({
-      init: function () {}
-    });
-
-    expectAssertion(function () {
-      TestComponent.create();
-    }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
-  });
-
-  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
-    expect(2);
-
-    component = _emberTemplatesComponent.default.extend({
-      actions: {
-        foo: function () {
-          ok(true, 'called foo action');
-        }
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      component._actions.foo();
-    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
-  });
-
-  QUnit.test('Specifying a defaultLayout to a component is deprecated', function () {
-    expectDeprecation(function () {
-      _emberTemplatesComponent.default.extend({
-        defaultLayout: 'hum-drum'
-      }).create();
-    }, /Specifying `defaultLayout` to .+ is deprecated\./);
-  });
-
-  QUnit.test('should warn if a computed property is used for classNames', function () {
-    expectAssertion(function () {
-      _emberTemplatesComponent.default.extend({
-        elementId: 'test',
-        classNames: _emberMetalComputed.default(function () {
-          return ['className'];
-        })
-      }).create();
-    }, /Only arrays of static class strings.*For dynamic classes/i);
-  });
-
-  QUnit.test('should warn if a non-array is used for classNameBindings', function () {
-    expectAssertion(function () {
-      _emberTemplatesComponent.default.extend({
-        elementId: 'test',
-        classNameBindings: _emberMetalComputed.default(function () {
-          return ['className'];
-        })
-      }).create();
-    }, /Only arrays are allowed/i);
-  });
-
-  QUnit.module('Ember.Component - injected properties');
-
-  QUnit.test('services can be injected into components', function () {
-    var owner = _containerTestsTestHelpersBuildOwner.default();
-
-    owner.register('component:application', _emberTemplatesComponent.default.extend({
-      profilerService: _emberRuntimeInject.default.service('profiler')
-    }));
-
-    owner.register('service:profiler', _emberRuntimeSystemService.default.extend());
-
-    var appComponent = owner.lookup('component:application');
-    var profilerService = owner.lookup('service:profiler');
-
-    equal(profilerService, appComponent.get('profilerService'), 'service.profiler is injected');
-  });
-
-  QUnit.module('Ember.Component - subscribed and sent actions trigger errors');
-
-  QUnit.test('component with target', function () {
-    expect(2);
-
-    var target = {
-      send: function (message, payload) {
-        equal('foo', message);
-        equal('baz', payload);
-      }
-    };
-
-    var appComponent = _emberTemplatesComponent.default.create({
-      target: target
-    });
-
-    appComponent.send('foo', 'baz');
-  });
-});
 enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView) {
   'use strict';
 
@@ -77637,179 +77720,6 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     _emberMetalRun_loop.default(view, 'createElement');
 
     confirmPayload(beforeCalls[0], view);
-  });
-});
-enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-htmlbars/components/text_area', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberHtmlbarsComponentsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
-  'use strict';
-
-  var textArea = undefined,
-      TestObject = undefined;
-
-  function set(object, key, value) {
-    _emberMetalRun_loop.default(function () {
-      return _emberMetalProperty_set.set(object, key, value);
-    });
-  }
-
-  function append() {
-    _emberMetalRun_loop.default(function () {
-      return textArea.appendTo('#qunit-fixture');
-    });
-  }
-
-  QUnit.module('TextArea', {
-    setup: function () {
-      TestObject = window.TestObject = _emberRuntimeSystemObject.default.create({
-        value: null
-      });
-
-      textArea = _emberHtmlbarsComponentsText_area.default.create();
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        return textArea.destroy();
-      });
-
-      TestObject = window.TestObject = textArea = null;
-    }
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is true', function () {
-    textArea.set('disabled', true);
-    append();
-
-    ok(textArea.$().is(':disabled'));
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is true', function () {
-    append();
-    ok(textArea.$().is(':not(:disabled)'));
-
-    _emberMetalRun_loop.default(function () {
-      return textArea.set('disabled', true);
-    });
-    ok(textArea.$().is(':disabled'));
-
-    _emberMetalRun_loop.default(function () {
-      return textArea.set('disabled', false);
-    });
-    ok(textArea.$().is(':not(:disabled)'));
-  });
-
-  ['placeholder', 'name', 'title', 'maxlength', 'rows', 'cols', 'tabindex'].forEach(function (attributeName) {
-    QUnit.test('text area ' + attributeName + ' is updated when setting ' + attributeName + ' property of view', function () {
-      _emberMetalRun_loop.default(function () {
-        set(textArea, attributeName, '1');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr(attributeName), '1', 'renders text area with ' + attributeName);
-
-      _emberMetalRun_loop.default(function () {
-        return set(textArea, attributeName, '2');
-      });
-
-      equal(textArea.$().attr(attributeName), '2', 'updates text area after ' + attributeName + ' changes');
-    });
-  });
-
-  QUnit.test('text area value is updated when setting value property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'value', 'foo');
-      textArea.append();
-    });
-
-    equal(textArea.$().val(), 'foo', 'renders text area with value');
-
-    _emberMetalRun_loop.default(function () {
-      return set(textArea, 'value', 'bar');
-    });
-
-    equal(textArea.$().val(), 'bar', 'updates text area after value changes');
-  });
-
-  QUnit.test('value binding works properly for inputs that haven\'t been created', function () {
-    _emberMetalRun_loop.default(function () {
-      textArea.destroy(); // destroy existing textarea
-
-      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
-
-      expectDeprecation(function () {
-        textArea = _emberHtmlbarsComponentsText_area.default.create({
-          valueBinding: 'TestObject.value'
-        });
-      }, deprecationMessage);
-    });
-
-    equal(_emberMetalProperty_get.get(textArea, 'value'), null, 'precond - default value is null');
-    equal(textArea.$(), undefined, 'precond - view doesn\'t have its layer created yet, thus no input element');
-
-    _emberMetalRun_loop.default(function () {
-      return set(TestObject, 'value', 'ohai');
-    });
-
-    equal(_emberMetalProperty_get.get(textArea, 'value'), 'ohai', 'value property was properly updated');
-
-    _emberMetalRun_loop.default(function () {
-      return textArea.append();
-    });
-
-    equal(_emberMetalProperty_get.get(textArea, 'value'), 'ohai', 'value property remains the same once the view has been appended');
-    equal(textArea.$().val(), 'ohai', 'value is reflected in the input element once it is created');
-  });
-
-  ['cut', 'paste', 'input'].forEach(function (eventName) {
-    QUnit.test('should update the value on ' + eventName + ' events', function () {
-      _emberMetalRun_loop.default(function () {
-        return textArea.append();
-      });
-
-      textArea.$().val('new value');
-      _emberMetalRun_loop.default(function () {
-        textArea.trigger(eventName, _emberRuntimeSystemObject.default.create({
-          type: eventName
-        }));
-      });
-
-      equal(textArea.get('value'), 'new value', 'value property updates on ' + eventName + ' events');
-    });
-  });
-
-  QUnit.test('should call the insertNewline method when return key is pressed', function () {
-    var wasCalled = undefined;
-    var event = _emberRuntimeSystemObject.default.create({
-      keyCode: 13
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return textArea.append();
-    });
-
-    textArea.insertNewline = function () {
-      wasCalled = true;
-    };
-
-    textArea.trigger('keyUp', event);
-    ok(wasCalled, 'invokes insertNewline method');
-  });
-
-  QUnit.test('should call the cancel method when escape key is pressed', function () {
-    var wasCalled = undefined;
-    var event = _emberRuntimeSystemObject.default.create({
-      keyCode: 27
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return textArea.append();
-    });
-
-    textArea.cancel = function () {
-      wasCalled = true;
-    };
-
-    textArea.trigger('keyUp', event);
-    ok(wasCalled, 'invokes cancel method');
   });
 });
 enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-htmlbars/components/text_field', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberHtmlbarsComponentsText_field, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery) {
