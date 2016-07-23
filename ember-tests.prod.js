@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+af55af5b
+ * @version   2.7.0-canary+a1b35447
  */
 
 var enifed, requireModule, require, Ember;
@@ -5232,7 +5232,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-htmlbars/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberHtmlbarsComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var App = null;
@@ -5624,7 +5624,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
 
       App.register('template:components/x-foo', _emberTemplateCompilerTestsUtilsHelpers.compile('\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    '));
 
-      App.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
+      App.register('component:x-foo', _emberTemplatesComponent.default.extend({
         tagName: 'x-foo',
 
         isolatedCounter: _emberRuntimeInject.default.service(),
@@ -5647,7 +5647,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
 
       App.register('template:components/x-bar', _emberTemplateCompilerTestsUtilsHelpers.compile('\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    '));
 
-      App.register('component:x-bar', _emberHtmlbarsComponent.default.extend({
+      App.register('component:x-bar', _emberTemplatesComponent.default.extend({
         counter: _emberRuntimeInject.default.service('shared-counter'),
 
         actions: {
@@ -53923,7 +53923,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], functio
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-htmlbars/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberHtmlbarsComponent, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-templates/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberTemplatesComponent, _emberMetalEvents) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -54193,7 +54193,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
   });
 
   QUnit.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
-    var obj = _emberHtmlbarsComponent.default.create();
+    var obj = _emberTemplatesComponent.default.create();
 
     expectDeprecation(function () {
       _emberMetalEvents.addListener(obj, 'didInitAttrs');
@@ -77468,7 +77468,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-htmlbars/comp
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'ember-metal/computed'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemService, _emberRuntimeInject, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _emberMetalComputed) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-templates/component', 'container/tests/test-helpers/build-owner', 'ember-metal/computed'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemService, _emberRuntimeInject, _emberTemplatesComponent, _containerTestsTestHelpersBuildOwner, _emberMetalComputed) {
   'use strict';
 
   var component = undefined,
@@ -77476,7 +77476,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
 
   QUnit.module('Ember.Component', {
     setup: function () {
-      component = _emberHtmlbarsComponent.default.create();
+      component = _emberTemplatesComponent.default.create();
     },
     teardown: function () {
       _emberMetalRun_loop.default(function () {
@@ -77491,7 +77491,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
   });
 
   QUnit.test('throws an error if `this._super` is not called from `init`', function () {
-    var TestComponent = _emberHtmlbarsComponent.default.extend({
+    var TestComponent = _emberTemplatesComponent.default.extend({
       init: function () {}
     });
 
@@ -77503,7 +77503,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
   QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
     expect(2);
 
-    component = _emberHtmlbarsComponent.default.extend({
+    component = _emberTemplatesComponent.default.extend({
       actions: {
         foo: function () {
           ok(true, 'called foo action');
@@ -77518,7 +77518,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
 
   QUnit.test('Specifying a defaultLayout to a component is deprecated', function () {
     expectDeprecation(function () {
-      _emberHtmlbarsComponent.default.extend({
+      _emberTemplatesComponent.default.extend({
         defaultLayout: 'hum-drum'
       }).create();
     }, /Specifying `defaultLayout` to .+ is deprecated\./);
@@ -77526,7 +77526,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
 
   QUnit.test('should warn if a computed property is used for classNames', function () {
     expectAssertion(function () {
-      _emberHtmlbarsComponent.default.extend({
+      _emberTemplatesComponent.default.extend({
         elementId: 'test',
         classNames: _emberMetalComputed.default(function () {
           return ['className'];
@@ -77537,7 +77537,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
 
   QUnit.test('should warn if a non-array is used for classNameBindings', function () {
     expectAssertion(function () {
-      _emberHtmlbarsComponent.default.extend({
+      _emberTemplatesComponent.default.extend({
         elementId: 'test',
         classNameBindings: _emberMetalComputed.default(function () {
           return ['className'];
@@ -77551,7 +77551,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
   QUnit.test('services can be injected into components', function () {
     var owner = _containerTestsTestHelpersBuildOwner.default();
 
-    owner.register('component:application', _emberHtmlbarsComponent.default.extend({
+    owner.register('component:application', _emberTemplatesComponent.default.extend({
       profilerService: _emberRuntimeInject.default.service('profiler')
     }));
 
@@ -77575,7 +77575,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/run_lo
       }
     };
 
-    var appComponent = _emberHtmlbarsComponent.default.create({
+    var appComponent = _emberTemplatesComponent.default.create({
       target: target
     });
 
@@ -79326,7 +79326,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler/tests/utils/helpers', 'ember-htmlbars/helpers', 'ember-templates/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-templates/template_registry', 'ember-metal/features', 'require'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsHelpers, _emberTemplatesComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberTemplatesTemplate_registry, _emberMetalFeatures, _require) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-template-compiler', 'ember-templates/component', 'ember-views/system/jquery', 'ember-templates/template_registry', 'ember-metal/features', 'require'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberTemplateCompiler, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplatesTemplate_registry, _emberMetalFeatures, _require) {
   'use strict';
 
   var OutletView = undefined;
@@ -79338,15 +79338,10 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
 
   var App = undefined,
       appInstance = undefined;
-  var originalHelpers = undefined;
-
-  var keys = Object.keys;
 
   function prepare() {
-    _emberTemplatesTemplate_registry.set('components/expand-it', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>hello {{yield}}</p>'));
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello world {{#expand-it}}world{{/expand-it}}'));
-
-    originalHelpers = _emberRuntimeSystemNative_array.A(keys(_emberHtmlbarsHelpers.default));
+    _emberTemplatesTemplate_registry.set('components/expand-it', _emberTemplateCompiler.compile('<p>hello {{yield}}</p>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('Hello world {{#expand-it}}world{{/expand-it}}'));
   }
 
   function cleanup() {
@@ -79358,23 +79353,6 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
         App = appInstance = null;
       } finally {
         _emberTemplatesTemplate_registry.setTemplates({});
-        cleanupHelpers();
-      }
-    });
-  }
-
-  function cleanupHelpers() {
-    var included = undefined;
-
-    keys(_emberHtmlbarsHelpers.default).forEach(function (name) {
-      if (true) {
-        included = originalHelpers.includes(name);
-      } else {
-        included = originalHelpers.contains(name);
-      }
-
-      if (!included) {
-        delete _emberHtmlbarsHelpers.default[name];
       }
     });
   }
@@ -79430,47 +79408,44 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Late-registered components can be rendered with custom `layout` property', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>there goes {{my-hero}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>there goes {{my-hero}}</div>'));
 
     boot(function () {
       appInstance.register('component:my-hero', _emberTemplatesComponent.default.extend({
         classNames: 'testing123',
-        layout: _emberTemplateCompilerTestsUtilsHelpers.compile('watch him as he GOES')
+        layout: _emberTemplateCompiler.compile('watch him as he GOES')
       }));
     });
 
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'there goes watch him as he GOES', 'The component is composed correctly');
-    ok(!_emberHtmlbarsHelpers.default['my-hero'], 'Component wasn\'t saved to global helpers hash');
   });
 
   QUnit.test('Late-registered components can be rendered with template registered on the container', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>'));
 
     boot(function () {
-      appInstance.register('template:components/sally-rutherford', _emberTemplateCompilerTestsUtilsHelpers.compile('funkytowny{{yield}}'));
+      appInstance.register('template:components/sally-rutherford', _emberTemplateCompiler.compile('funkytowny{{yield}}'));
       appInstance.register('component:sally-rutherford', _emberTemplatesComponent.default);
     });
 
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'hello world funkytowny-funkytowny!!!', 'The component is composed correctly');
-    ok(!_emberHtmlbarsHelpers.default['sally-rutherford'], 'Component wasn\'t saved to global helpers hash');
   });
 
   QUnit.test('Late-registered components can be rendered with ONLY the template registered on the container', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>'));
 
     boot(function () {
-      appInstance.register('template:components/borf-snorlax', _emberTemplateCompilerTestsUtilsHelpers.compile('goodfreakingTIMES{{yield}}'));
+      appInstance.register('template:components/borf-snorlax', _emberTemplateCompiler.compile('goodfreakingTIMES{{yield}}'));
     });
 
     equal(_emberViewsSystemJquery.default('#wrapper').text(), 'hello world goodfreakingTIMES-goodfreakingTIMES!!!', 'The component is composed correctly');
-    ok(!_emberHtmlbarsHelpers.default['borf-snorlax'], 'Component wasn\'t saved to global helpers hash');
   });
 
   QUnit.test('Assigning layoutName to a component should setup the template as a layout', function () {
     expect(1);
 
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    _emberTemplatesTemplate_registry.set('foo-bar-baz', _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}-{{yield}}'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('foo-bar-baz', _emberTemplateCompiler.compile('{{text}}-{{yield}}'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79489,8 +79464,8 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   QUnit.test('Assigning layoutName and layout to a component should use the `layout` value', function () {
     expect(1);
 
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    _emberTemplatesTemplate_registry.set('foo-bar-baz', _emberTemplateCompilerTestsUtilsHelpers.compile('No way!'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('foo-bar-baz', _emberTemplateCompiler.compile('No way!'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79500,7 +79475,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
       appInstance.register('component:my-component', _emberTemplatesComponent.default.extend({
         text: 'inner',
         layoutName: 'foo-bar-baz',
-        layout: _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}-{{yield}}')
+        layout: _emberTemplateCompiler.compile('{{text}}-{{yield}}')
       }));
     });
 
@@ -79510,7 +79485,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   QUnit.test('Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]', function () {
     expect(2);
 
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
 
     expectDeprecation(function () {
       boot(function () {
@@ -79520,7 +79495,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
 
         appInstance.register('component:my-component', _emberTemplatesComponent.default.extend({
           text: 'inner',
-          defaultLayout: _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}-{{yield}}')
+          defaultLayout: _emberTemplateCompiler.compile('{{text}}-{{yield}}')
         }));
       });
     }, /Specifying `defaultLayout` to .+ is deprecated\./);
@@ -79531,8 +79506,8 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   QUnit.test('Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]', function () {
     expect(2);
 
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}-{{yield}}'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompiler.compile('{{text}}-{{yield}}'));
 
     expectDeprecation(function () {
       boot(function () {
@@ -79542,7 +79517,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
 
         appInstance.register('component:my-component', _emberTemplatesComponent.default.extend({
           text: 'inner',
-          defaultLayout: _emberTemplateCompilerTestsUtilsHelpers.compile('should not see this!')
+          defaultLayout: _emberTemplateCompiler.compile('should not see this!')
         }));
       });
     }, /Specifying `defaultLayout` to .+ is deprecated\./);
@@ -79551,7 +79526,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Using name of component that does not exist', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>'));
 
     expectAssertion(function () {
       return boot();
@@ -79564,8 +79539,8 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components with a block should have the proper content when a template is provided', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}-{{yield}}'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompiler.compile('{{text}}-{{yield}}'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79581,7 +79556,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components with a block should yield the proper content without a template provided', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79597,8 +79572,8 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components without a block should have the proper content when a template is provided', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component}}</div>'));
-    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('{{text}}'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompiler.compile('{{text}}'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79614,7 +79589,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components without a block should have the proper content', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{my-component}}</div>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79633,7 +79608,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
 
   // The test following this one is the non-deprecated version
   QUnit.test('properties of a component without a template should not collide with internal structures [DEPRECATED]', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component data=foo}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{my-component data=foo}}</div>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79652,7 +79627,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('attrs property of a component without a template should not collide with internal structures', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{my-component attrs=foo}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{my-component attrs=foo}}</div>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79672,7 +79647,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components trigger actions in the parents context when called from within a block', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>{{/my-component}}</div>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79692,8 +79667,8 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components trigger actions in the components context when called from within its template', function () {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
+    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompiler.compile('<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -79717,9 +79692,9 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
   });
 
   QUnit.test('Components receive the top-level view as their ownerView', function (assert) {
-    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{my-component}}'));
-    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompilerTestsUtilsHelpers.compile('<div></div>'));
+    _emberTemplatesTemplate_registry.set('application', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompiler.compile('{{my-component}}'));
+    _emberTemplatesTemplate_registry.set('components/my-component', _emberTemplateCompiler.compile('<div></div>'));
 
     var component = undefined;
 
