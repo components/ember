@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a3ac634c
+ * @version   2.7.0-canary+3450feb4
  */
 
 var enifed, requireModule, require, Ember;
@@ -21624,7 +21624,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils) {
+enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/assign'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalAssign) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -21640,10 +21640,6 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       _classCallCheck(this, InputRenderingTest);
 
       _RenderingTest.call(this);
-
-      // Modifying input.selectionStart, which is utilized in the cursor tests,
-      // causes an event in Safari.
-      _emberRuntimeTestsUtils.runDestroy(this.owner.lookup('event_dispatcher:main'));
 
       this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
       this.registerComponent('-checkbox', { ComponentClass: _emberGlimmerTestsUtilsHelpers.Checkbox });
@@ -21705,6 +21701,17 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       var input = this.$input()[0];
       this.assert.equal(input.selectionStart, start, 'the cursor start position should be ' + start);
       this.assert.equal(input.selectionEnd, end, 'the cursor end position should be ' + end);
+    };
+
+    InputRenderingTest.prototype.triggerEvent = function triggerEvent(type, options) {
+      var event = document.createEvent('Events');
+      event.initEvent(type, true, true);
+      _emberMetalAssign.default(event, options);
+
+      var element = this.$input()[0];
+      this.runTask(function () {
+        element.dispatchEvent(event);
+      });
     };
 
     return InputRenderingTest;
@@ -21867,6 +21874,10 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     _class.prototype['@test cursor selection range'] = function testCursorSelectionRange(assert) {
       var _this6 = this;
 
+      // Modifying input.selectionStart, which is utilized in the cursor tests,
+      // causes an event in Safari.
+      _emberRuntimeTestsUtils.runDestroy(this.owner.lookup('event_dispatcher:main'));
+
       this.render('{{input type="text" value=value}}', { value: 'original' });
 
       var input = this.$input()[0];
@@ -21910,6 +21921,160 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       }, 'Using \'{{input on="focus-in" action="doFoo"}}\' (\'-top-level\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
     };
 
+    _class.prototype['@test sends an action with `{{input action="foo"}}` when <enter> is pressed [DEPRECATED]'] = function testSendsAnActionWithInputActionFooWhenEnterIsPressedDEPRECATED(assert) {
+      var _this8 = this;
+
+      assert.expect(2);
+
+      expectDeprecation(function () {
+        _this8.render('{{input action=\'foo\'}}', {
+          actions: {
+            foo: function () {
+              assert.ok(true, 'action was triggered');
+            }
+          }
+        });
+      }, /Please use '{{input enter="foo"}}' instead/);
+
+      this.triggerEvent('keyup', {
+        keyCode: 13
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input enter="foo"}}` when <enter> is pressed'] = function testSendsAnActionWithInputEnterFooWhenEnterIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input enter=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 13
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input key-press="foo"}}` is pressed'] = function testSendsAnActionWithInputKeyPressFooIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input value=value key-press=\'foo\'}}', {
+        value: 'initial',
+
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keypress', {
+        keyCode: 65
+      });
+    };
+
+    _class.prototype['@test sends an action to the parent level when `bubbles=true` is provided'] = function testSendsAnActionToTheParentLevelWhenBubblesTrueIsProvided(assert) {
+      assert.expect(1);
+
+      var ParentComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        change: function () {
+          assert.ok(true, 'bubbled upwards');
+        }
+      });
+
+      this.registerComponent('x-parent', {
+        ComponentClass: ParentComponent,
+        template: '{{input bubbles=true}}'
+      });
+      this.render('{{x-parent}}');
+
+      this.triggerEvent('change');
+    };
+
+    _class.prototype['@test triggers `focus-in` when focused'] = function testTriggersFocusInWhenFocused(assert) {
+      var _this9 = this;
+
+      assert.expect(1);
+
+      this.render('{{input focus-in=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.runTask(function () {
+        _this9.$input().trigger('focusin');
+      });
+    };
+
+    _class.prototype['@test sends `insert-newline` when <enter> is pressed'] = function testSendsInsertNewlineWhenEnterIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input insert-newline=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 13
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input escape-press="foo"}}` when <escape> is pressed'] = function testSendsAnActionWithInputEscapePressFooWhenEscapeIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input escape-press=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 27
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input key-down="foo"}}` when a key is pressed'] = function testSendsAnActionWithInputKeyDownFooWhenAKeyIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input key-down=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keydown', {
+        keyCode: 65
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input key-up="foo"}}` when a key is pressed'] = function testSendsAnActionWithInputKeyUpFooWhenAKeyIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input key-up=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 65
+      });
+    };
+
     return _class;
   })(InputRenderingTest));
 
@@ -21923,26 +22088,26 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     }
 
     _class2.prototype['@test a bound property can be used to determine type'] = function testABoundPropertyCanBeUsedToDetermineType() {
-      var _this8 = this;
+      var _this10 = this;
 
       this.render('{{input type=type}}', { type: 'password' });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this10.rerender();
       });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'type', 'text');
+        return _emberMetalProperty_set.set(_this10.context, 'type', 'text');
       });
 
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'type', 'password');
+        return _emberMetalProperty_set.set(_this10.context, 'type', 'password');
       });
 
       this.assertAttr('type', 'password');
@@ -21961,7 +22126,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     }
 
     _class3.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
-      var _this9 = this;
+      var _this11 = this;
 
       this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
         disabled: false,
@@ -21976,7 +22141,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this11.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -21985,9 +22150,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this9.context, 'disabled', true);
-        _emberMetalProperty_set.set(_this9.context, 'name', 'updated-name');
-        _emberMetalProperty_set.set(_this9.context, 'tabindex', 11);
+        _emberMetalProperty_set.set(_this11.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this11.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this11.context, 'tabindex', 11);
       });
 
       this.assertSingleCheckbox();
@@ -21996,9 +22161,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '11');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this9.context, 'disabled', false);
-        _emberMetalProperty_set.set(_this9.context, 'name', 'original-name');
-        _emberMetalProperty_set.set(_this9.context, 'tabindex', 10);
+        _emberMetalProperty_set.set(_this11.context, 'disabled', false);
+        _emberMetalProperty_set.set(_this11.context, 'name', 'original-name');
+        _emberMetalProperty_set.set(_this11.context, 'tabindex', 10);
       });
 
       this.assertSingleCheckbox();
@@ -22008,15 +22173,15 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     };
 
     _class3.prototype['@test `value` property assertion'] = function testValuePropertyAssertion() {
-      var _this10 = this;
+      var _this12 = this;
 
       expectAssertion(function () {
-        _this10.render('{{input type="checkbox" value=value}}', { value: 'value' });
+        _this12.render('{{input type="checkbox" value=value}}', { value: 'value' });
       }, /you must use `checked=/);
     };
 
     _class3.prototype['@test with a bound type'] = function testWithABoundType(assert) {
-      var _this11 = this;
+      var _this13 = this;
 
       this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
 
@@ -22024,26 +22189,26 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this13.rerender();
       });
 
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'isChecked', false);
+        return _emberMetalProperty_set.set(_this13.context, 'isChecked', false);
       });
 
       this.assertCheckboxIsNotChecked();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'isChecked', true);
+        return _emberMetalProperty_set.set(_this13.context, 'isChecked', true);
       });
 
       this.assertCheckboxIsChecked();
     };
 
     _class3.prototype['@test with static values'] = function testWithStaticValues(assert) {
-      var _this12 = this;
+      var _this14 = this;
 
       this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
 
@@ -22054,7 +22219,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('name', 'original-name');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this14.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -22077,7 +22242,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     }
 
     _class4.prototype['@test null values'] = function testNullValues(assert) {
-      var _this13 = this;
+      var _this15 = this;
 
       var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
 
@@ -22095,20 +22260,20 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this15.rerender();
       });
 
       this.assertValue('');
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this13.context, 'disabled', true);
-        _emberMetalProperty_set.set(_this13.context, 'value', 'Updated value');
-        _emberMetalProperty_set.set(_this13.context, 'placeholder', 'Updated placeholder');
-        _emberMetalProperty_set.set(_this13.context, 'name', 'updated-name');
-        _emberMetalProperty_set.set(_this13.context, 'maxlength', 11);
-        _emberMetalProperty_set.set(_this13.context, 'size', 21);
-        _emberMetalProperty_set.set(_this13.context, 'tabindex', 31);
+        _emberMetalProperty_set.set(_this15.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this15.context, 'value', 'Updated value');
+        _emberMetalProperty_set.set(_this15.context, 'placeholder', 'Updated placeholder');
+        _emberMetalProperty_set.set(_this15.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this15.context, 'maxlength', 11);
+        _emberMetalProperty_set.set(_this15.context, 'size', 21);
+        _emberMetalProperty_set.set(_this15.context, 'tabindex', 31);
       });
 
       this.assertDisabled();
@@ -22120,13 +22285,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '31');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this13.context, 'disabled', null);
-        _emberMetalProperty_set.set(_this13.context, 'value', null);
-        _emberMetalProperty_set.set(_this13.context, 'placeholder', null);
-        _emberMetalProperty_set.set(_this13.context, 'name', null);
-        _emberMetalProperty_set.set(_this13.context, 'maxlength', null);
+        _emberMetalProperty_set.set(_this15.context, 'disabled', null);
+        _emberMetalProperty_set.set(_this15.context, 'value', null);
+        _emberMetalProperty_set.set(_this15.context, 'placeholder', null);
+        _emberMetalProperty_set.set(_this15.context, 'name', null);
+        _emberMetalProperty_set.set(_this15.context, 'maxlength', null);
         // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
-        _emberMetalProperty_set.set(_this13.context, 'tabindex', null);
+        _emberMetalProperty_set.set(_this15.context, 'tabindex', null);
       });
 
       this.assertAttr('disabled', undefined);
@@ -27385,7 +27550,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
       owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
       owner.inject('event_dispatcher:main', '_viewRegistry', '-view-registry:main');
-      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
+      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), this.element);
     }
 
     AbstractRenderingTest.prototype.compile = function compile() {
@@ -43974,7 +44139,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     return _class11;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/assign'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalAssign) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -43990,10 +44155,6 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       _classCallCheck(this, InputRenderingTest);
 
       _RenderingTest.call(this);
-
-      // Modifying input.selectionStart, which is utilized in the cursor tests,
-      // causes an event in Safari.
-      _emberRuntimeTestsUtils.runDestroy(this.owner.lookup('event_dispatcher:main'));
 
       this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
       this.registerComponent('-checkbox', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Checkbox });
@@ -44055,6 +44216,17 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       var input = this.$input()[0];
       this.assert.equal(input.selectionStart, start, 'the cursor start position should be ' + start);
       this.assert.equal(input.selectionEnd, end, 'the cursor end position should be ' + end);
+    };
+
+    InputRenderingTest.prototype.triggerEvent = function triggerEvent(type, options) {
+      var event = document.createEvent('Events');
+      event.initEvent(type, true, true);
+      _emberMetalAssign.default(event, options);
+
+      var element = this.$input()[0];
+      this.runTask(function () {
+        element.dispatchEvent(event);
+      });
     };
 
     return InputRenderingTest;
@@ -44217,6 +44389,10 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     _class.prototype['@test cursor selection range'] = function testCursorSelectionRange(assert) {
       var _this6 = this;
 
+      // Modifying input.selectionStart, which is utilized in the cursor tests,
+      // causes an event in Safari.
+      _emberRuntimeTestsUtils.runDestroy(this.owner.lookup('event_dispatcher:main'));
+
       this.render('{{input type="text" value=value}}', { value: 'original' });
 
       var input = this.$input()[0];
@@ -44260,6 +44436,160 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       }, 'Using \'{{input on="focus-in" action="doFoo"}}\' (\'-top-level\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
     };
 
+    _class.prototype['@test sends an action with `{{input action="foo"}}` when <enter> is pressed [DEPRECATED]'] = function testSendsAnActionWithInputActionFooWhenEnterIsPressedDEPRECATED(assert) {
+      var _this8 = this;
+
+      assert.expect(2);
+
+      expectDeprecation(function () {
+        _this8.render('{{input action=\'foo\'}}', {
+          actions: {
+            foo: function () {
+              assert.ok(true, 'action was triggered');
+            }
+          }
+        });
+      }, /Please use '{{input enter="foo"}}' instead/);
+
+      this.triggerEvent('keyup', {
+        keyCode: 13
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input enter="foo"}}` when <enter> is pressed'] = function testSendsAnActionWithInputEnterFooWhenEnterIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input enter=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 13
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input key-press="foo"}}` is pressed'] = function testSendsAnActionWithInputKeyPressFooIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input value=value key-press=\'foo\'}}', {
+        value: 'initial',
+
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keypress', {
+        keyCode: 65
+      });
+    };
+
+    _class.prototype['@test sends an action to the parent level when `bubbles=true` is provided'] = function testSendsAnActionToTheParentLevelWhenBubblesTrueIsProvided(assert) {
+      assert.expect(1);
+
+      var ParentComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        change: function () {
+          assert.ok(true, 'bubbled upwards');
+        }
+      });
+
+      this.registerComponent('x-parent', {
+        ComponentClass: ParentComponent,
+        template: '{{input bubbles=true}}'
+      });
+      this.render('{{x-parent}}');
+
+      this.triggerEvent('change');
+    };
+
+    _class.prototype['@test triggers `focus-in` when focused'] = function testTriggersFocusInWhenFocused(assert) {
+      var _this9 = this;
+
+      assert.expect(1);
+
+      this.render('{{input focus-in=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.runTask(function () {
+        _this9.$input().trigger('focusin');
+      });
+    };
+
+    _class.prototype['@test sends `insert-newline` when <enter> is pressed'] = function testSendsInsertNewlineWhenEnterIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input insert-newline=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 13
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input escape-press="foo"}}` when <escape> is pressed'] = function testSendsAnActionWithInputEscapePressFooWhenEscapeIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input escape-press=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 27
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input key-down="foo"}}` when a key is pressed'] = function testSendsAnActionWithInputKeyDownFooWhenAKeyIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input key-down=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keydown', {
+        keyCode: 65
+      });
+    };
+
+    _class.prototype['@test sends an action with `{{input key-up="foo"}}` when a key is pressed'] = function testSendsAnActionWithInputKeyUpFooWhenAKeyIsPressed(assert) {
+      assert.expect(1);
+
+      this.render('{{input key-up=\'foo\'}}', {
+        actions: {
+          foo: function () {
+            assert.ok(true, 'action was triggered');
+          }
+        }
+      });
+
+      this.triggerEvent('keyup', {
+        keyCode: 65
+      });
+    };
+
     return _class;
   })(InputRenderingTest));
 
@@ -44273,26 +44603,26 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     }
 
     _class2.prototype['@test a bound property can be used to determine type'] = function testABoundPropertyCanBeUsedToDetermineType() {
-      var _this8 = this;
+      var _this10 = this;
 
       this.render('{{input type=type}}', { type: 'password' });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this10.rerender();
       });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'type', 'text');
+        return _emberMetalProperty_set.set(_this10.context, 'type', 'text');
       });
 
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'type', 'password');
+        return _emberMetalProperty_set.set(_this10.context, 'type', 'password');
       });
 
       this.assertAttr('type', 'password');
@@ -44311,7 +44641,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     }
 
     _class3.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
-      var _this9 = this;
+      var _this11 = this;
 
       this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
         disabled: false,
@@ -44326,7 +44656,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this11.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -44335,9 +44665,9 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this9.context, 'disabled', true);
-        _emberMetalProperty_set.set(_this9.context, 'name', 'updated-name');
-        _emberMetalProperty_set.set(_this9.context, 'tabindex', 11);
+        _emberMetalProperty_set.set(_this11.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this11.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this11.context, 'tabindex', 11);
       });
 
       this.assertSingleCheckbox();
@@ -44346,9 +44676,9 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertAttr('tabindex', '11');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this9.context, 'disabled', false);
-        _emberMetalProperty_set.set(_this9.context, 'name', 'original-name');
-        _emberMetalProperty_set.set(_this9.context, 'tabindex', 10);
+        _emberMetalProperty_set.set(_this11.context, 'disabled', false);
+        _emberMetalProperty_set.set(_this11.context, 'name', 'original-name');
+        _emberMetalProperty_set.set(_this11.context, 'tabindex', 10);
       });
 
       this.assertSingleCheckbox();
@@ -44358,15 +44688,15 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     };
 
     _class3.prototype['@test `value` property assertion'] = function testValuePropertyAssertion() {
-      var _this10 = this;
+      var _this12 = this;
 
       expectAssertion(function () {
-        _this10.render('{{input type="checkbox" value=value}}', { value: 'value' });
+        _this12.render('{{input type="checkbox" value=value}}', { value: 'value' });
       }, /you must use `checked=/);
     };
 
     _class3.prototype['@test with a bound type'] = function testWithABoundType(assert) {
-      var _this11 = this;
+      var _this13 = this;
 
       this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
 
@@ -44374,26 +44704,26 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this13.rerender();
       });
 
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'isChecked', false);
+        return _emberMetalProperty_set.set(_this13.context, 'isChecked', false);
       });
 
       this.assertCheckboxIsNotChecked();
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'isChecked', true);
+        return _emberMetalProperty_set.set(_this13.context, 'isChecked', true);
       });
 
       this.assertCheckboxIsChecked();
     };
 
     _class3.prototype['@test with static values'] = function testWithStaticValues(assert) {
-      var _this12 = this;
+      var _this14 = this;
 
       this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
 
@@ -44404,7 +44734,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertAttr('name', 'original-name');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this14.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -44427,7 +44757,7 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     }
 
     _class4.prototype['@test null values'] = function testNullValues(assert) {
-      var _this13 = this;
+      var _this15 = this;
 
       var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
 
@@ -44445,20 +44775,20 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this15.rerender();
       });
 
       this.assertValue('');
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this13.context, 'disabled', true);
-        _emberMetalProperty_set.set(_this13.context, 'value', 'Updated value');
-        _emberMetalProperty_set.set(_this13.context, 'placeholder', 'Updated placeholder');
-        _emberMetalProperty_set.set(_this13.context, 'name', 'updated-name');
-        _emberMetalProperty_set.set(_this13.context, 'maxlength', 11);
-        _emberMetalProperty_set.set(_this13.context, 'size', 21);
-        _emberMetalProperty_set.set(_this13.context, 'tabindex', 31);
+        _emberMetalProperty_set.set(_this15.context, 'disabled', true);
+        _emberMetalProperty_set.set(_this15.context, 'value', 'Updated value');
+        _emberMetalProperty_set.set(_this15.context, 'placeholder', 'Updated placeholder');
+        _emberMetalProperty_set.set(_this15.context, 'name', 'updated-name');
+        _emberMetalProperty_set.set(_this15.context, 'maxlength', 11);
+        _emberMetalProperty_set.set(_this15.context, 'size', 21);
+        _emberMetalProperty_set.set(_this15.context, 'tabindex', 31);
       });
 
       this.assertDisabled();
@@ -44470,13 +44800,13 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
       this.assertAttr('tabindex', '31');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this13.context, 'disabled', null);
-        _emberMetalProperty_set.set(_this13.context, 'value', null);
-        _emberMetalProperty_set.set(_this13.context, 'placeholder', null);
-        _emberMetalProperty_set.set(_this13.context, 'name', null);
-        _emberMetalProperty_set.set(_this13.context, 'maxlength', null);
+        _emberMetalProperty_set.set(_this15.context, 'disabled', null);
+        _emberMetalProperty_set.set(_this15.context, 'value', null);
+        _emberMetalProperty_set.set(_this15.context, 'placeholder', null);
+        _emberMetalProperty_set.set(_this15.context, 'name', null);
+        _emberMetalProperty_set.set(_this15.context, 'maxlength', null);
         // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
-        _emberMetalProperty_set.set(_this13.context, 'tabindex', null);
+        _emberMetalProperty_set.set(_this15.context, 'tabindex', null);
       });
 
       this.assertAttr('disabled', undefined);
@@ -50509,7 +50839,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
       owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
       owner.inject('event_dispatcher:main', '_viewRegistry', '-view-registry:main');
-      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), owner.element);
+      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), this.element);
     }
 
     AbstractRenderingTest.prototype.compile = function compile() {
@@ -77785,535 +78115,6 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     _emberMetalRun_loop.default(view, 'createElement');
 
     confirmPayload(beforeCalls[0], view);
-  });
-});
-enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-htmlbars/components/text_field', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberHtmlbarsComponentsText_field, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery) {
-  'use strict';
-
-  function K() {
-    return this;
-  }
-
-  var textField = undefined;
-  var TestObject = undefined;
-
-  var view = undefined;
-
-  function appendView(view) {
-    _emberMetalRun_loop.default(view, 'appendTo', '#qunit-fixture');
-  }
-
-  function caretPosition(element) {
-    var ctrl = element[0];
-    var caretPos = 0;
-
-    // IE Support
-    if (document.selection) {
-      ctrl.focus();
-      var selection = document.selection.createRange();
-
-      selection.moveStart('character', -ctrl.value.length);
-
-      caretPos = selection.text.length;
-    } else if (ctrl.selectionStart || ctrl.selectionStart === '0') {
-      // Firefox support
-      caretPos = ctrl.selectionStart;
-    }
-
-    return caretPos;
-  }
-
-  function setCaretPosition(element, pos) {
-    var ctrl = element[0];
-
-    if (ctrl.setSelectionRange) {
-      ctrl.focus();
-      ctrl.setSelectionRange(pos, pos);
-    } else if (ctrl.createTextRange) {
-      var range = ctrl.createTextRange();
-      range.collapse(true);
-      range.moveEnd('character', pos);
-      range.moveStart('character', pos);
-      range.select();
-    }
-  }
-
-  function set(object, key, value) {
-    _emberMetalRun_loop.default(function () {
-      return _emberMetalProperty_set.set(object, key, value);
-    });
-  }
-
-  function append() {
-    _emberMetalRun_loop.default(function () {
-      return textField.appendTo('#qunit-fixture');
-    });
-  }
-
-  QUnit.module('Ember.TextField', {
-    setup: function () {
-      TestObject = window.TestObject = _emberRuntimeSystemObject.default.create({
-        value: null
-      });
-
-      textField = _emberHtmlbarsComponentsText_field.default.create();
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        return textField.destroy();
-      });
-      TestObject = window.TestObject = textField = null;
-    }
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is true before append', function () {
-    textField.set('disabled', true);
-    append();
-
-    ok(textField.$().is(':disabled'));
-  });
-
-  QUnit.test('should become disabled if the disabled attribute is true', function () {
-    append();
-    ok(textField.$().is(':not(:disabled)'));
-
-    _emberMetalRun_loop.default(function () {
-      return textField.set('disabled', true);
-    });
-    ok(textField.$().is(':disabled'));
-
-    _emberMetalRun_loop.default(function () {
-      return textField.set('disabled', false);
-    });
-    ok(textField.$().is(':not(:disabled)'));
-  });
-
-  ['placeholder', 'name', 'title', 'size', 'maxlength', 'tabindex'].forEach(function (attributeName) {
-    QUnit.test('text field ' + attributeName + ' is updated when setting ' + attributeName + ' property of view', function () {
-      _emberMetalRun_loop.default(function () {
-        set(textField, attributeName, '1');
-        textField.append();
-      });
-
-      equal(textField.$().attr(attributeName), '1', 'renders text field with ' + attributeName);
-
-      _emberMetalRun_loop.default(function () {
-        return set(textField, attributeName, '2');
-      });
-
-      equal(textField.$().attr(attributeName), '2', 'updates text field after ' + attributeName + ' changes');
-    });
-  });
-
-  QUnit.test('input value is updated when setting value property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'value', 'foo');
-      textField.append();
-    });
-
-    equal(textField.$().val(), 'foo', 'renders text field with value');
-
-    _emberMetalRun_loop.default(function () {
-      return set(textField, 'value', 'bar');
-    });
-
-    equal(textField.$().val(), 'bar', 'updates text field after value changes');
-  });
-
-  QUnit.test('input type is configurable when creating view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'type', 'password');
-      textField.append();
-    });
-
-    equal(textField.$().attr('type'), 'password', 'renders text field with type');
-  });
-
-  QUnit.test('value binding works properly for inputs that haven\'t been created', function () {
-    _emberMetalRun_loop.default(function () {
-      textField.destroy(); // destroy existing textField
-
-      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
-
-      expectDeprecation(function () {
-        textField = _emberHtmlbarsComponentsText_field.default.create({
-          valueBinding: 'TestObject.value'
-        });
-      }, deprecationMessage);
-    });
-
-    equal(_emberMetalProperty_get.get(textField, 'value'), null, 'precond - default value is null');
-    equal(textField.$(), undefined, 'precond - view doesn\'t have its layer created yet, thus no input element');
-
-    _emberMetalRun_loop.default(function () {
-      return set(TestObject, 'value', 'ohai');
-    });
-
-    equal(_emberMetalProperty_get.get(textField, 'value'), 'ohai', 'value property was properly updated');
-
-    _emberMetalRun_loop.default(function () {
-      return textField.append();
-    });
-
-    equal(_emberMetalProperty_get.get(textField, 'value'), 'ohai', 'value property remains the same once the view has been appended');
-    equal(textField.$().val(), 'ohai', 'value is reflected in the input element once it is created');
-  });
-
-  QUnit.test('value binding sets value on the element', function () {
-    _emberMetalRun_loop.default(function () {
-      textField.destroy(); // destroy existing textField
-
-      var deprecationMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
-
-      expectDeprecation(function () {
-        textField = _emberHtmlbarsComponentsText_field.default.create({
-          valueBinding: 'TestObject.value'
-        });
-      }, deprecationMessage);
-
-      textField.append();
-    });
-
-    // Set the value via the DOM
-    _emberMetalRun_loop.default(function () {
-      textField.$().val('via dom');
-      // Trigger lets the view know we changed this value (like a real user editing)
-      textField.trigger('input', _emberRuntimeSystemObject.default.create({
-        type: 'input'
-      }));
-    });
-
-    equal(_emberMetalProperty_get.get(textField, 'value'), 'via dom', 'value property was properly updated via dom');
-    equal(textField.$().val(), 'via dom', 'dom property was properly updated via dom');
-
-    // Now, set it via the binding
-    _emberMetalRun_loop.default(function () {
-      return set(TestObject, 'value', 'via view');
-    });
-
-    equal(_emberMetalProperty_get.get(textField, 'value'), 'via view', 'value property was properly updated via view');
-    equal(textField.$().val(), 'via view', 'dom property was properly updated via view');
-  });
-
-  QUnit.test('should call the insertNewline method when return key is pressed', function () {
-    var wasCalled = undefined;
-    var event = _emberRuntimeSystemObject.default.create({
-      keyCode: 13
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return textField.append();
-    });
-
-    textField.insertNewline = function () {
-      wasCalled = true;
-    };
-
-    textField.trigger('keyUp', event);
-    ok(wasCalled, 'invokes insertNewline method');
-  });
-
-  QUnit.test('should call the cancel method when escape key is pressed', function () {
-    var wasCalled = undefined;
-    var event = _emberRuntimeSystemObject.default.create({
-      keyCode: 27
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return textField.append();
-    });
-
-    textField.cancel = function () {
-      wasCalled = true;
-    };
-
-    textField.trigger('keyUp', event);
-    ok(wasCalled, 'invokes cancel method');
-  });
-
-  QUnit.test('should send an action if one is defined when the return key is pressed', function () {
-    expect(2);
-
-    var StubController = _emberRuntimeSystemObject.default.extend({
-      send: function (actionName, value, sender) {
-        equal(actionName, 'didTriggerAction', 'text field sent correct action name');
-        equal(value, 'textFieldValue', 'text field sent its current value as first argument');
-      }
-    });
-
-    textField.set('action', 'didTriggerAction');
-    textField.set('value', 'textFieldValue');
-    textField.set('targetObject', StubController.create());
-
-    _emberMetalRun_loop.default(function () {
-      return textField.append();
-    });
-
-    var event = {
-      keyCode: 13,
-      stopPropagation: K
-    };
-
-    textField.trigger('keyUp', event);
-  });
-
-  QUnit.test('should send an action on keyPress if one is defined with onEvent=keyPress', function () {
-    expect(2);
-
-    var StubController = _emberRuntimeSystemObject.default.extend({
-      send: function (actionName, value, sender) {
-        equal(actionName, 'didTriggerAction', 'text field sent correct action name');
-        equal(value, 'textFieldValue', 'text field sent its current value as first argument');
-      }
-    });
-
-    textField.set('action', 'didTriggerAction');
-    textField.set('onEvent', 'keyPress');
-    textField.set('value', 'textFieldValue');
-    textField.set('targetObject', StubController.create());
-
-    _emberMetalRun_loop.default(function () {
-      return textField.append();
-    });
-
-    var event = {
-      keyCode: 48,
-      stopPropagation: K
-    };
-
-    textField.trigger('keyPress', event);
-  });
-
-  QUnit.test('bubbling of handled actions can be enabled via bubbles property', function () {
-    textField.set('bubbles', true);
-    textField.set('action', 'didTriggerAction');
-
-    textField.set('controller', _emberRuntimeSystemObject.default.create({
-      send: K
-    }));
-
-    append();
-
-    var stopPropagationCount = 0;
-    var event = {
-      keyCode: 13,
-      stopPropagation: function () {
-        stopPropagationCount++;
-      }
-    };
-
-    textField.trigger('keyUp', event);
-    equal(stopPropagationCount, 0, 'propagation was not prevented if bubbles is true');
-
-    textField.set('bubbles', false);
-    textField.trigger('keyUp', event);
-    equal(stopPropagationCount, 1, 'propagation was prevented if bubbles is false');
-  });
-
-  var dispatcher = undefined,
-      StubController = undefined;
-  QUnit.module('Ember.TextField - Action events', {
-    setup: function () {
-      dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-      dispatcher.setup();
-
-      StubController = _emberRuntimeSystemObject.default.extend({
-        send: function (actionName, value, sender) {
-          equal(actionName, 'doSomething', 'text field sent correct action name');
-        }
-      });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        dispatcher.destroy();
-
-        if (textField) {
-          textField.destroy();
-        }
-
-        if (view) {
-          view.destroy();
-        }
-      });
-    }
-  });
-
-  QUnit.test('when the text field is blurred, the `focus-out` action is sent to the controller', function () {
-    expect(1);
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'focus-out': 'doSomething',
-      targetObject: StubController.create({})
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      return textField.$().blur();
-    });
-  });
-
-  QUnit.test('when the text field is focused, the `focus-in` action is sent to the controller', function () {
-    expect(1);
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'focus-in': 'doSomething',
-      targetObject: StubController.create({})
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      return textField.$().focusin();
-    });
-  });
-
-  QUnit.test('when the user presses a key, the `key-press` action is sent to the controller', function () {
-    expect(1);
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'key-press': 'doSomething',
-      targetObject: StubController.create({})
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      var event = _emberViewsSystemJquery.default.Event('keypress');
-      event.keyCode = event.which = 13;
-      textField.$().trigger(event);
-    });
-  });
-
-  QUnit.test('when the user inserts a new line, the `insert-newline` action is sent to the controller', function () {
-    expect(1);
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'insert-newline': 'doSomething',
-      targetObject: StubController.create({})
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      var event = _emberViewsSystemJquery.default.Event('keyup');
-      event.keyCode = event.which = 13;
-      textField.$().trigger(event);
-    });
-  });
-
-  QUnit.test('when the user presses the `enter` key, the `enter` action is sent to the controller', function () {
-    expect(1);
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'enter': 'doSomething',
-      targetObject: StubController.create({})
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      var event = _emberViewsSystemJquery.default.Event('keyup');
-      event.keyCode = event.which = 13;
-      textField.$().trigger(event);
-    });
-  });
-
-  QUnit.test('when the user hits escape, the `escape-press` action is sent to the controller', function () {
-    expect(1);
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'escape-press': 'doSomething',
-      targetObject: StubController.create({})
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      var event = _emberViewsSystemJquery.default.Event('keyup');
-      event.keyCode = event.which = 27;
-      textField.$().trigger(event);
-    });
-  });
-
-  QUnit.test('when the user presses a key, the `key-down` action is sent to the controller', function () {
-    expect(3);
-    var event = undefined;
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'key-down': 'doSomething',
-      targetObject: StubController.create({
-        send: function (actionName, value, evt) {
-          equal(actionName, 'doSomething', 'text field sent correct action name');
-          equal(value, '', 'value was blank in key-down');
-          equal(evt, event, 'event was received as param');
-        }
-      })
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      event = _emberViewsSystemJquery.default.Event('keydown');
-      event.keyCode = event.which = 65;
-      textField.$().val('foo');
-      textField.$().trigger(event);
-    });
-  });
-
-  QUnit.test('when the user releases a key, the `key-up` action is sent to the controller', function () {
-    expect(3);
-    var event = undefined;
-
-    textField = _emberHtmlbarsComponentsText_field.default.create({
-      'key-up': 'doSomething',
-      targetObject: StubController.create({
-        send: function (actionName, value, evt) {
-          equal(actionName, 'doSomething', 'text field sent correct action name');
-          equal(value, 'bar', 'value was received');
-          equal(evt, event, 'event was received as param');
-        }
-      })
-    });
-
-    append();
-
-    _emberMetalRun_loop.default(function () {
-      event = _emberViewsSystemJquery.default.Event('keyup');
-      event.keyCode = event.which = 65;
-      textField.$().val('bar');
-      textField.$().trigger(event);
-    });
-  });
-
-  QUnit.test('should not reset cursor position when text field receives keyUp event', function () {
-    view = _emberHtmlbarsComponentsText_field.default.create({
-      value: 'Broseidon, King of the Brocean'
-    });
-
-    appendView(view);
-
-    setCaretPosition(view.$(), 5);
-
-    _emberMetalRun_loop.default(function () {
-      view.trigger('keyUp', {});
-    });
-
-    equal(caretPosition(view.$()), 5, 'The keyUp event should not result in the cursor being reset due to the attribute bindings');
-  });
-
-  QUnit.test('an unsupported type defaults to `text`', function () {
-    view = _emberHtmlbarsComponentsText_field.default.create({
-      type: 'blahblah'
-    });
-
-    equal(_emberMetalProperty_get.get(view, 'type'), 'text', 'should default to text if the type is not a valid type');
-
-    appendView(view);
-
-    equal(view.element.type, 'text');
   });
 });
 enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
