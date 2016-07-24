@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+fca54ff3
+ * @version   2.7.0-canary+e6f49f74
  */
 
 var enifed, requireModule, require, Ember;
@@ -10056,7 +10056,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -11042,7 +11042,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
           this._super.apply(this, arguments);
           component = this;
         },
-        output: _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold)
+        output: _emberGlimmerTestsUtilsHelpers.htmlSafe(expectedHtmlBold)
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{output}}' });
@@ -11058,13 +11058,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlItalic));
+        return _emberMetalProperty_set.set(component, 'output', _emberGlimmerTestsUtilsHelpers.htmlSafe(expectedHtmlItalic));
       });
 
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlItalic);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold));
+        return _emberMetalProperty_set.set(component, 'output', _emberGlimmerTestsUtilsHelpers.htmlSafe(expectedHtmlBold));
       });
 
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -15534,7 +15534,7 @@ enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-tes
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/debug', 'ember-views/system/utils', 'ember-glimmer/tests/utils/helpers', 'ember-htmlbars/utils/string'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberGlimmerTestsUtilsTestHelpers, _emberMetalDebug, _emberViewsSystemUtils, _emberGlimmerTestsUtilsHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/debug', 'ember-views/system/utils', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberGlimmerTestsUtilsTestHelpers, _emberMetalDebug, _emberViewsSystemUtils, _emberGlimmerTestsUtilsHelpers) {
   /* globals EmberDev */
   'use strict';
 
@@ -16844,7 +16844,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       _class9.prototype['@test specifying `<div style={{userValue}}></div>` works properly with a SafeString'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithASafeString(assert) {
         this.render('<div style={{userValue}}></div>', {
-          userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px')
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
         });
 
         this.assertNoWarning();
@@ -27702,7 +27702,7 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString) {
   'use strict';
 
   exports.buildOwner = buildOwner;
@@ -27720,6 +27720,8 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
   exports.makeBoundHelper = _emberGlimmerMakeBoundHelper.default;
+  exports.htmlSafe = _emberGlimmerUtilsString.htmlSafe;
+  exports.SafeString = _emberGlimmerUtilsString.SafeString;
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
@@ -32571,7 +32573,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/utils/string', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsUtilsString, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -33557,7 +33559,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
           this._super.apply(this, arguments);
           component = this;
         },
-        output: _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold)
+        output: _emberHtmlbarsTestsUtilsHelpers.htmlSafe(expectedHtmlBold)
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{output}}' });
@@ -33573,13 +33575,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlItalic));
+        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsTestsUtilsHelpers.htmlSafe(expectedHtmlItalic));
       });
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlItalic);
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsUtilsString.htmlSafe(expectedHtmlBold));
+        return _emberMetalProperty_set.set(component, 'output', _emberHtmlbarsTestsUtilsHelpers.htmlSafe(expectedHtmlBold));
       });
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -38049,7 +38051,7 @@ enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-te
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/debug', 'ember-views/system/utils', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/utils/string'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalDebug, _emberViewsSystemUtils, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/object_proxy', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/debug', 'ember-views/system/utils', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemObject_proxy, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalDebug, _emberViewsSystemUtils, _emberHtmlbarsTestsUtilsHelpers) {
   /* globals EmberDev */
   'use strict';
 
@@ -39359,7 +39361,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
       _class9.prototype['@test specifying `<div style={{userValue}}></div>` works properly with a SafeString'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithASafeString(assert) {
         this.render('<div style={{userValue}}></div>', {
-          userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px')
+          userValue: new _emberHtmlbarsTestsUtilsHelpers.SafeString('width: 42px')
         });
 
         this.assertNoWarning();
@@ -50997,7 +50999,7 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars-template-compiler/tests/utils/helpers', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer', 'ember-glimmer/make-bound-helper'], function (exports, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer, _emberGlimmerMakeBoundHelper) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars-template-compiler/tests/utils/helpers', 'ember-htmlbars-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/keywords/closure-action', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/component', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/link-to', 'ember-htmlbars/renderer', 'ember-glimmer/make-bound-helper', 'ember-htmlbars/utils/string'], function (exports, _emberHtmlbarsSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTemplateCompilerTestsUtilsHelpers, _emberHtmlbarsTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsKeywordsClosureAction, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsComponent, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsLinkTo, _emberHtmlbarsRenderer, _emberGlimmerMakeBoundHelper, _emberHtmlbarsUtilsString) {
   'use strict';
 
   exports.buildOwner = buildOwner;
@@ -51016,6 +51018,8 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-r
   exports.InteractiveRenderer = _emberHtmlbarsRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberHtmlbarsRenderer.InertRenderer;
   exports.makeBoundHelper = _emberGlimmerMakeBoundHelper.default;
+  exports.htmlSafe = _emberHtmlbarsUtilsString.htmlSafe;
+  exports.SafeString = _emberHtmlbarsUtilsString.SafeString;
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
