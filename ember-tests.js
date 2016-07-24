@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+e6f49f74
+ * @version   2.7.0-canary+05e8a7b4
  */
 
 var enifed, requireModule, require, Ember;
@@ -16874,6 +16874,275 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       return _class9;
     })(StyleTest));
+  }
+});
+enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-metal/run_loop'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalFeatures, _emberMetalInstrumentation, _emberMetalRun_loop) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test events bubble view hierarchy for form elements'] = function testEventsBubbleViewHierarchyForFormElements(assert) {
+      var _this = this;
+
+      var receivedEvent = undefined;
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          change: function (event) {
+            receivedEvent = event;
+          }
+        }),
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.runTask(function () {
+        return _this.$('#is-done').trigger('change');
+      });
+      assert.ok(receivedEvent, 'change event was triggered');
+      assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
+    };
+
+    _class.prototype['@test dispatches to the nearest event manager'] = function testDispatchesToTheNearestEventManager(assert) {
+      var _this2 = this;
+
+      var receivedEvent = undefined;
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          click: function (event) {
+            assert.notOk(true, 'should not trigger `click` on component');
+          },
+
+          eventManager: {
+            click: function (event) {
+              receivedEvent = event;
+            }
+          }
+        }),
+
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.runTask(function () {
+        return _this2.$('#is-done').trigger('click');
+      });
+      assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
+    };
+
+    _class.prototype['@test event manager can re-dispatch to the component'] = function testEventManagerCanReDispatchToTheComponent(assert) {
+      var _this3 = this;
+
+      var handlers = [];
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          click: function () {
+            handlers.push('component');
+          },
+
+          eventManager: {
+            click: function (event, component) {
+              handlers.push('eventManager');
+              // Re-dispatch event when you get it.
+              //
+              // The second parameter tells the dispatcher
+              // that this event has been handled. This
+              // API will clearly need to be reworked since
+              // multiple eventManagers in a single view
+              // hierarchy would break, but it shows that
+              // re-dispatching works
+              component.$().trigger('click', this);
+            }
+          }
+        }),
+
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.runTask(function () {
+        return _this3.$('#is-done').trigger('click');
+      });
+      assert.deepEqual(handlers, ['eventManager', 'component']);
+    };
+
+    _class.prototype['@test event handlers are wrapped in a run loop'] = function testEventHandlersAreWrappedInARunLoop(assert) {
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          change: function () {
+            assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'a run loop should have started');
+          }
+        }),
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.$('#is-done').trigger('click');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher#setup', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.call(this);
+
+      var dispatcher = this.owner.lookup('event_dispatcher:main');
+      _emberMetalRun_loop.default(dispatcher, 'destroy');
+      this.owner.__container__.reset('event_dispatcher:main');
+      this.dispatcher = this.owner.lookup('event_dispatcher:main');
+    }
+
+    _class2.prototype['@test additonal events can be specified'] = function testAdditonalEventsCanBeSpecified(assert) {
+      this.dispatcher.setup({ myevent: 'myEvent' });
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          myEvent: function () {
+            assert.ok(true, 'custom event was triggered');
+          }
+        }),
+        template: '<p>Hello!</p>'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.$('div').trigger('myevent');
+    };
+
+    _class2.prototype['@test a rootElement can be specified'] = function testARootElementCanBeSpecified(assert) {
+      this.$().append('<div id="app"></div>');
+      this.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+
+      assert.ok(this.$('#app').hasClass('ember-application'), 'custom rootElement was used');
+      assert.equal(this.dispatcher.rootElement, '#app', 'the dispatchers rootElement was updated');
+    };
+
+    _class2.prototype['@test default events can be disabled via `customEvents`'] = function testDefaultEventsCanBeDisabledViaCustomEvents(assert) {
+      this.dispatcher.setup({ click: null });
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          click: function () {
+            assert.ok(false, 'click method was called');
+          },
+
+          null: function () {
+            assert.ok(false, 'null method was called');
+          },
+
+          doubleClick: function () {
+            assert.ok(true, 'a non-disabled event is still handled properly');
+          }
+        }),
+
+        template: '<p>Hello!</p>'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.$('div').trigger('click');
+      this.$('div').trigger('dblclick');
+    };
+
+    _class2.prototype['@test throws if specified rootElement does not exist'] = function testThrowsIfSpecifiedRootElementDoesNotExist(assert) {
+      var _this4 = this;
+
+      assert.throws(function () {
+        _this4.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+      });
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
+      _inherits(_class3, _RenderingTest3);
+
+      function _class3() {
+        _classCallCheck(this, _class3);
+
+        _RenderingTest3.apply(this, arguments);
+      }
+
+      _class3.prototype.teardown = function teardown() {
+        _RenderingTest3.prototype.teardown.call(this);
+        _emberMetalInstrumentation.reset();
+      };
+
+      _class3.prototype['@test instruments triggered events'] = function testInstrumentsTriggeredEvents(assert) {
+        var clicked = 0;
+
+        this.registerComponent('x-foo', {
+          ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+            click: function (evt) {
+              clicked++;
+            }
+          }),
+          template: '<p>hello</p>'
+        });
+
+        this.render('{{x-foo}}');
+
+        this.$('div').trigger('click');
+
+        assert.equal(clicked, 1, 'precond - the click handler was invoked');
+
+        var clickInstrumented = 0;
+        _emberMetalInstrumentation.subscribe('interaction.click', {
+          before: function () {
+            clickInstrumented++;
+            assert.equal(clicked, 1, 'invoked before event is handled');
+          },
+          after: function () {
+            clickInstrumented++;
+            assert.equal(clicked, 2, 'invoked after event is handled');
+          }
+        });
+
+        var keypressInstrumented = 0;
+        _emberMetalInstrumentation.subscribe('interaction.keypress', {
+          before: function () {
+            keypressInstrumented++;
+          },
+          after: function () {
+            keypressInstrumented++;
+          }
+        });
+
+        this.$('div').trigger('click');
+        this.$('div').trigger('change');
+        assert.equal(clicked, 2, 'precond - The click handler was invoked');
+        assert.equal(clickInstrumented, 2, 'The click was instrumented');
+        assert.strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
+      };
+
+      return _class3;
+    })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
   }
 });
 enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set) {
@@ -77532,350 +77801,6 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
     }
 
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
-  });
-});
-enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-runtime/tests/utils', 'ember-metal/instrumentation', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberRuntimeTestsUtils, _emberMetalInstrumentation, _emberMetalFeatures) {
-  'use strict';
-
-  var owner = undefined,
-      view = undefined;
-  var dispatcher = undefined;
-
-  QUnit.module('EventDispatcher', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('component', { singleton: false });
-      owner.registerOptionsForType('view', { singleton: false });
-      owner.registerOptionsForType('template', { instantiate: false });
-      owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
-
-      dispatcher = owner.lookup('event_dispatcher:main');
-
-      _emberMetalRun_loop.default(dispatcher, 'setup');
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      _emberMetalInstrumentation.reset();
-    }
-  });
-
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
-    QUnit.test('should instrument triggered events', function () {
-      var clicked = 0;
-
-      _emberMetalRun_loop.default(function () {
-        view = _emberViewsViewsView.default.create({
-          click: function (evt) {
-            clicked++;
-          },
-
-          template: _emberHtmlbarsTemplateCompiler.compile('<p>hello</p>')
-        }).appendTo(dispatcher.get('rootElement'));
-      });
-
-      view.$().trigger('click');
-
-      equal(clicked, 1, 'precond - The click handler was invoked');
-
-      var clickInstrumented = 0;
-      _emberMetalInstrumentation.subscribe('interaction.click', {
-        before: function () {
-          clickInstrumented++;
-          equal(clicked, 1, 'invoked before event is handled');
-        },
-        after: function () {
-          clickInstrumented++;
-          equal(clicked, 2, 'invoked after event is handled');
-        }
-      });
-
-      var keypressInstrumented = 0;
-      _emberMetalInstrumentation.subscribe('interaction.keypress', {
-        before: function () {
-          keypressInstrumented++;
-        },
-        after: function () {
-          keypressInstrumented++;
-        }
-      });
-
-      try {
-        view.$().trigger('click');
-        view.$().trigger('change');
-        equal(clicked, 2, 'precond - The click handler was invoked');
-        equal(clickInstrumented, 2, 'The click was instrumented');
-        strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
-      } finally {
-        _emberMetalInstrumentation.reset();
-      }
-    });
-  }
-
-  QUnit.test('should not dispatch events to views not inDOM', function () {
-    var receivedEvent = undefined;
-
-    view = _emberViewsViewsView.default.extend({
-      mouseDown: function (evt) {
-        receivedEvent = evt;
-      }
-    }).create({
-      template: _emberHtmlbarsTemplateCompiler.compile('some <span id="awesome">awesome</span> content')
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    var $element = view.$();
-
-    _emberMetalRun_loop.default(function () {
-      view.destroyElement();
-    });
-
-    $element.trigger('mousedown');
-
-    ok(!receivedEvent, 'does not pass event to associated event method');
-    receivedEvent = null;
-
-    $element.find('span#awesome').trigger('mousedown');
-    ok(!receivedEvent, 'event does not bubble up to nearest View');
-    receivedEvent = null;
-
-    // Cleanup
-    $element.remove();
-  });
-
-  QUnit.test('should send change events up view hierarchy if view contains form elements', function () {
-    var receivedEvent = undefined;
-    view = _emberViewsViewsView.default.create({
-      template: _emberHtmlbarsTemplateCompiler.compile('<input id="is-done" type="checkbox">'),
-
-      change: function (evt) {
-        receivedEvent = evt;
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    _emberViewsSystemJquery.default('#is-done').trigger('change');
-    ok(receivedEvent, 'calls change method when a child element is changed');
-    equal(receivedEvent.target, _emberViewsSystemJquery.default('#is-done')[0], 'target property is the element that was clicked');
-  });
-
-  QUnit.test('events should stop propagating if the view is destroyed', function () {
-    var _Component$extend;
-
-    var parentComponentReceived = undefined,
-        receivedEvent = undefined;
-
-    owner.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
-      layout: _emberHtmlbarsTemplateCompiler.compile('<input id="is-done" type="checkbox" />'),
-      change: function (evt) {
-        var _this = this;
-
-        receivedEvent = true;
-        _emberMetalRun_loop.default(function () {
-          return _emberMetalProperty_get.get(_this, 'parentView').destroy();
-        });
-      }
-    }));
-
-    var parentComponent = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberHtmlbarsTemplateCompiler.compile('{{x-foo}}'), _Component$extend.change = function (evt) {
-      parentComponentReceived = true;
-    }, _Component$extend)).create();
-
-    _emberRuntimeTestsUtils.runAppend(parentComponent);
-
-    ok(_emberViewsSystemJquery.default('#is-done').length, 'precond - component is in the DOM');
-    _emberViewsSystemJquery.default('#is-done').trigger('change');
-    ok(!_emberViewsSystemJquery.default('#is-done').length, 'precond - component is not in the DOM');
-    ok(receivedEvent, 'calls change method when a child element is changed');
-    ok(!parentComponentReceived, 'parent component does not receive the event');
-  });
-
-  QUnit.test('should dispatch events to nearest event manager', function () {
-    var receivedEvent = 0;
-    view = _emberViewsViewsView.default.create({
-      template: _emberHtmlbarsTemplateCompiler.compile('<input id="is-done" type="checkbox">'),
-
-      eventManager: _emberRuntimeSystemObject.default.create({
-        mouseDown: function () {
-          receivedEvent++;
-        }
-      }),
-
-      mouseDown: function () {}
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    _emberViewsSystemJquery.default('#is-done').trigger('mousedown');
-    equal(receivedEvent, 1, 'event should go to manager and not view');
-  });
-
-  QUnit.test('event manager should be able to re-dispatch events to view', function () {
-    var _Component$extend$create;
-
-    var receivedEvent = 0;
-
-    owner.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
-      elementId: 'nestedView',
-
-      mouseDown: function (evt) {
-        receivedEvent++;
-      }
-    }));
-
-    view = _emberHtmlbarsComponent.default.extend({
-      eventManager: _emberRuntimeSystemObject.default.extend({
-        mouseDown: function (evt, view) {
-          // Re-dispatch event when you get it.
-          //
-          // The second parameter tells the dispatcher
-          // that this event has been handled. This
-          // API will clearly need to be reworked since
-          // multiple eventManagers in a single view
-          // hierarchy would break, but it shows that
-          // re-dispatching works
-          view.$().trigger('mousedown', this);
-        }
-      }).create(),
-
-      mouseDown: function (evt) {
-        receivedEvent++;
-      }
-    }).create((_Component$extend$create = {}, _Component$extend$create[_containerOwner.OWNER] = owner, _Component$extend$create.layout = _emberHtmlbarsTemplateCompiler.compile('{{x-foo}}'), _Component$extend$create));
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    _emberViewsSystemJquery.default('#nestedView').trigger('mousedown');
-    equal(receivedEvent, 2, 'event should go to manager and not view');
-  });
-
-  QUnit.test('event handlers should be wrapped in a run loop', function () {
-    expect(1);
-
-    view = _emberViewsViewsView.default.extend({
-      eventManager: _emberRuntimeSystemObject.default.extend({
-        mouseDown: function () {
-          ok(_emberMetalRun_loop.default.currentRunLoop, 'a run loop should have started');
-        }
-      }).create()
-    }).create({
-      elementId: 'test-view'
-    });
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    _emberViewsSystemJquery.default('#test-view').trigger('mousedown');
-  });
-
-  QUnit.module('EventDispatcher#setup', {
-    setup: function () {
-      _emberMetalRun_loop.default(function () {
-        dispatcher = _emberViewsSystemEvent_dispatcher.default.create({
-          rootElement: '#qunit-fixture'
-        });
-      });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        if (view) {
-          view.destroy();
-        }
-        dispatcher.destroy();
-      });
-    }
-  });
-
-  QUnit.test('additional events which should be listened on can be passed', function () {
-    expect(1);
-
-    _emberMetalRun_loop.default(function () {
-      dispatcher.setup({ myevent: 'myEvent' });
-
-      view = _emberViewsViewsView.default.create({
-        elementId: 'leView',
-        myEvent: function () {
-          ok(true, 'custom event has been triggered');
-        }
-      }).appendTo(dispatcher.get('rootElement'));
-    });
-
-    _emberViewsSystemJquery.default('#leView').trigger('myevent');
-  });
-
-  QUnit.test('additional events and rootElement can be specified', function () {
-    expect(3);
-
-    _emberViewsSystemJquery.default('#qunit-fixture').append('<div class=\'custom-root\'></div>');
-
-    _emberMetalRun_loop.default(function () {
-      dispatcher.setup({ myevent: 'myEvent' }, '.custom-root');
-
-      view = _emberViewsViewsView.default.create({
-        elementId: 'leView',
-        myEvent: function () {
-          ok(true, 'custom event has been triggered');
-        }
-      }).appendTo(dispatcher.get('rootElement'));
-    });
-
-    ok(_emberViewsSystemJquery.default('.custom-root').hasClass('ember-application'), 'the custom rootElement is used');
-    equal(dispatcher.get('rootElement'), '.custom-root', 'the rootElement is updated');
-
-    _emberViewsSystemJquery.default('#leView').trigger('myevent');
-  });
-
-  QUnit.test('default events can be disabled via `customEvents`', function () {
-    expect(1);
-
-    _emberMetalRun_loop.default(function () {
-      dispatcher.setup({
-        click: null
-      });
-
-      view = _emberViewsViewsView.default.create({
-        elementId: 'leView',
-
-        null: function () {
-          // yes, at one point `click: null` made an event handler
-          // for `click` that called `null` on the view
-          ok(false, 'null event has been triggered');
-        },
-
-        click: function () {
-          ok(false, 'click event has been triggered');
-        },
-
-        doubleClick: function () {
-          ok(true, 'good event was still triggered');
-        }
-      }).appendTo(dispatcher.get('rootElement'));
-    });
-
-    _emberViewsSystemJquery.default('#leView').trigger('click');
-    _emberViewsSystemJquery.default('#leView').trigger('dblclick');
-  });
-
-  QUnit.test('throws an error if rootElement was not found', function () {
-    expect(1);
-
-    _emberMetalRun_loop.default(function () {
-      throws(function () {
-        return dispatcher.setup({ myevent: 'myEvent' }, '.unexisting-custom-root');
-      });
-    });
   });
 });
 enifed('ember-views/tests/system/jquery_ext_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-views/views/view'], function (exports, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberViewsViewsView) {
