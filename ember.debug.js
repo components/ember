@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+05e8a7b4
+ * @version   2.7.0-canary+c63793d7
  */
 
 var enifed, requireModule, require, Ember;
@@ -46252,27 +46252,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
   */
   _emberTestingTestHelpers.registerAsyncHelper('wait', _emberTestingHelpersWait.default);
   _emberTestingTestHelpers.registerAsyncHelper('andThen', _emberTestingHelpersAnd_then.default);
-
-  /**
-    Returns the currently active route name.
-  
-  Example:
-  
-  ```javascript
-  function validateRouteName() {
-    equal(currentRouteName(), 'some.path', "correct route was transitioned into.");
-  }
-  
-  visit('/some/path').then(validateRouteName)
-  ```
-  
-  @method currentRouteName
-  @return {Object} The name of the currently active route.
-  @since 1.5.0
-  @public
-  */
   _emberTestingTestHelpers.registerHelper('currentRouteName', _emberTestingHelpersCurrent_route_name.default);
-
   /**
     Returns the current path.
   
@@ -46312,52 +46292,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
   @public
   */
   _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
-
-  /**
-   Pauses the current test - this is useful for debugging while testing or for test-driving.
-   It allows you to inspect the state of your application at any point.
-  
-   Example (The test will pause before clicking the button):
-  
-   ```javascript
-   visit('/')
-   return pauseTest();
-  
-   click('.btn');
-   ```
-  
-   @since 1.9.0
-   @method pauseTest
-   @return {Object} A promise that will never resolve
-   @public
-  */
   _emberTestingTestHelpers.registerAsyncHelper('pauseTest', _emberTestingHelpersPause_test.default);
-
-  /**
-    Triggers the given DOM event on the element identified by the provided selector.
-  
-    Example:
-  
-    ```javascript
-    triggerEvent('#some-elem-id', 'blur');
-    ```
-  
-    This is actually used internally by the `keyEvent` helper like so:
-  
-    ```javascript
-    triggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });
-    ```
-  
-   @method triggerEvent
-   @param {String} selector jQuery selector for finding element on the DOM
-   @param {String} [context] jQuery selector that will limit the selector
-                             argument to find only within the context's children
-   @param {String} type The event type to be triggered.
-   @param {Object} [options] The options to be passed to jQuery.Event.
-   @return {RSVP.Promise}
-   @since 1.5.0
-   @public
-  */
   _emberTestingTestHelpers.registerAsyncHelper('triggerEvent', _emberTestingHelpersTrigger_event.default);
 });
 enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
@@ -46399,9 +46334,28 @@ enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal/property_g
   }
 });
 enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  /**
+  @module ember
+  @submodule ember-testing
+  */
   'use strict';
 
   exports.default = currentRouteName;
+
+  /**
+    Returns the currently active route name.
+  Example:
+  ```javascript
+  function validateRouteName() {
+    equal(currentRouteName(), 'some.path', "correct route was transitioned into.");
+  }
+  visit('/some/path').then(validateRouteName)
+  ```
+  @method currentRouteName
+  @return {Object} The name of the currently active route.
+  @since 1.5.0
+  @public
+  */
 
   function currentRouteName(app) {
     var routingService = app.__container__.lookup('service:-routing');
@@ -46490,18 +46444,62 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
   }
 });
 enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
+  /**
+  @module ember
+  @submodule ember-testing
+  */
   'use strict';
 
   exports.default = pauseTest;
+
+  /**
+   Pauses the current test - this is useful for debugging while testing or for test-driving.
+   It allows you to inspect the state of your application at any point.
+   Example (The test will pause before clicking the button):
+   ```javascript
+   visit('/')
+   return pauseTest();
+   click('.btn');
+   ```
+   @since 1.9.0
+   @method pauseTest
+   @return {Object} A promise that will never resolve
+   @public
+  */
 
   function pauseTest() {
     return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
   }
 });
 enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
+  /**
+  @module ember
+  @submodule ember-testing
+  */
   'use strict';
 
   exports.default = triggerEvent;
+
+  /**
+    Triggers the given DOM event on the element identified by the provided selector.
+    Example:
+    ```javascript
+    triggerEvent('#some-elem-id', 'blur');
+    ```
+    This is actually used internally by the `keyEvent` helper like so:
+    ```javascript
+    triggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });
+    ```
+   @method triggerEvent
+   @param {String} selector jQuery selector for finding element on the DOM
+   @param {String} [context] jQuery selector that will limit the selector
+                             argument to find only within the context's children
+   @param {String} type The event type to be triggered.
+   @param {Object} [options] The options to be passed to jQuery.Event.
+   @return {RSVP.Promise}
+   @since 1.5.0
+   @public
+  */
 
   function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
     var arity = arguments.length;
@@ -50291,7 +50289,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+05e8a7b4";
+  exports.default = "2.7.0-canary+c63793d7";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
