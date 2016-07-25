@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d82a89da
+ * @version   2.7.0-canary+a99dd190
  */
 
 var enifed, requireModule, require, Ember;
@@ -2103,7 +2103,7 @@ enifed('ember-glimmer-template-compiler/plugins/transform-action-syntax', ['expo
     node.params.unshift(builders.path(''));
   }
 });
-enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-props', ['exports'], function (exports) {
+enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-args', ['exports'], function (exports) {
   /**
    @module ember
    @submodule ember-glimmer
@@ -2119,7 +2119,7 @@ enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-props', ['e
     to
   
     ```handlebars
-   {{foo.bar}}
+   {{@foo.bar}}
     ```
   
     as well as `{{#if attrs.foo}}`, `{{deeply (nested attrs.foobar.baz)}}` etc
@@ -2150,7 +2150,10 @@ enifed('ember-glimmer-template-compiler/plugins/transform-attrs-into-props', ['e
     traverse(ast, {
       PathExpression: function (node) {
         if (node.parts[0] === 'attrs') {
-          return b.path(node.original.substr(6));
+          var path = b.path(node.original.substr(6));
+          path.original = '@' + path.original;
+          path.data = true;
+          return path;
         }
       }
     });
@@ -2355,7 +2358,7 @@ enifed('ember-glimmer-template-compiler/plugins/transform-input-type-syntax', ['
     }
   }
 });
-enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-input-type-syntax', 'ember-glimmer-template-compiler/plugins/transform-attrs-into-props', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberMetalAssign) {
+enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-glimmer-template-compiler/plugins/transform-action-syntax', 'ember-glimmer-template-compiler/plugins/transform-input-type-syntax', 'ember-glimmer-template-compiler/plugins/transform-attrs-into-args', 'ember-glimmer-template-compiler/plugins/transform-each-in-into-each', 'ember-glimmer-template-compiler/plugins/transform-has-block-syntax', 'ember-metal/assign'], function (exports, _emberTemplateCompilerPlugins, _emberGlimmerTemplateCompilerPluginsTransformActionSyntax, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoArgs, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax, _emberMetalAssign) {
   'use strict';
 
   exports.default = compileOptions;
@@ -2363,7 +2366,7 @@ enifed('ember-glimmer-template-compiler/system/compile-options', ['exports', 'em
   exports.removePlugin = removePlugin;
   var PLUGINS = [].concat(_emberTemplateCompilerPlugins.default, [
   // the following are ember-glimmer specific
-  _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoProps.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default]);
+  _emberGlimmerTemplateCompilerPluginsTransformActionSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberGlimmerTemplateCompilerPluginsTransformAttrsIntoArgs.default, _emberGlimmerTemplateCompilerPluginsTransformEachInIntoEach.default, _emberGlimmerTemplateCompilerPluginsTransformHasBlockSyntax.default]);
 
   exports.PLUGINS = PLUGINS;
   var USER_PLUGINS = [];
@@ -6655,6 +6658,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
+  if (true || false) {
+    members.lastRendered = ownMap;
+    members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
+  }
+
   var memberNames = Object.keys(members);
   var META_FIELD = '__ember_meta__';
 
@@ -6682,6 +6690,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // have detailed knowledge of how each property should really be
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
+
+    if (true || false) {
+      this._lastRendered = undefined;
+      this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
+    }
 
     this._initializeListeners();
   }
@@ -8602,7 +8615,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Object.defineProperty(obj, keyName, desc);
   }
 });
-enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol) {
+enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol', 'ember-metal/features', 'ember-metal/transaction'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol, _emberMetalFeatures, _emberMetalTransaction) {
   'use strict';
 
   var PROPERTY_DID_CHANGE = _emberMetalSymbol.default('PROPERTY_DID_CHANGE');
@@ -8700,6 +8713,10 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
     }
 
     _emberMetalTags.markObjectAsDirty(m);
+
+    if (true || false) {
+      _emberMetalTransaction.assertNotRendered(obj, keyName, m);
+    }
   }
 
   var WILL_SEEN = undefined,
@@ -10013,6 +10030,93 @@ enifed("ember-metal/testing", ["exports"], function (exports) {
   function setTesting(value) {
     testing = !!value;
   }
+});
+enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalMeta, _emberMetalDebug, _emberMetalFeatures) {
+  'use strict';
+
+  var runInTransaction = undefined,
+      didRender = undefined,
+      assertNotRendered = undefined;
+
+  if (true || false) {
+    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.');
+  }
+
+  var raise = _emberMetalDebug.assert;
+  if (false) {
+    raise = function (message, test) {
+      _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+    };
+  }
+
+  if (true || false) {
+    (function () {
+      var counter = 0;
+      var inTransaction = false;
+      var shouldReflush = undefined;
+
+      exports.default = runInTransaction = function (callback) {
+        shouldReflush = false;
+        inTransaction = true;
+        callback();
+        inTransaction = false;
+        counter++;
+        return shouldReflush;
+      };
+
+      exports.didRender = didRender = function (object, key, reference) {
+        if (!inTransaction) {
+          return;
+        }
+        var meta = _emberMetalMeta.meta(object);
+        var lastRendered = meta.writableLastRendered();
+        lastRendered[key] = counter;
+
+        _emberMetalDebug.runInDebug(function () {
+          var lastRenderedFrom = meta.writableLastRenderedFrom();
+          lastRenderedFrom[key] = reference;
+        });
+      };
+
+      exports.assertNotRendered = assertNotRendered = function (object, key, _meta) {
+        var meta = _meta || _emberMetalMeta.meta(object);
+        var lastRendered = meta.readableLastRendered();
+
+        if (lastRendered && lastRendered[key] === counter) {
+          raise((function () {
+            var ref = meta.readableLastRenderedFrom();
+            var parts = [];
+            var lastRef = ref[key];
+
+            while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              parts.unshift(lastRef._propertyKey);
+              lastRef = lastRef._parentReference;
+            }
+
+            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and will be removed in Ember 3.0.';
+          })(), false);
+
+          shouldReflush = true;
+        }
+      };
+    })();
+  } else {
+    exports.default = runInTransaction = function () {
+      throw new Error('Cannot call runInTransaction without Glimmer');
+    };
+
+    exports.didRender = didRender = function () {
+      throw new Error('Cannot call didRender without Glimmer');
+    };
+
+    exports.assertNotRendered = assertNotRendered = function () {
+      throw new Error('Cannot call assertNotRendered without Glimmer');
+    };
+  }
+
+  exports.default = runInTransaction;
+  exports.didRender = didRender;
+  exports.assertNotRendered = assertNotRendered;
 });
 enifed('ember-metal/utils', ['exports'], function (exports) {
   'no use strict';
@@ -12043,12 +12147,12 @@ enifed("ember-templates/template_registry", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": null };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d82a89da";
+  exports.default = "2.7.0-canary+a99dd190";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";

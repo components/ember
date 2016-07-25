@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d82a89da
+ * @version   2.7.0-canary+a99dd190
  */
 
 var enifed, requireModule, require, Ember;
@@ -6716,6 +6716,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
+  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+    members.lastRendered = ownMap;
+    members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
+  }
+
   var memberNames = Object.keys(members);
   var META_FIELD = '__ember_meta__';
 
@@ -6743,6 +6748,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // have detailed knowledge of how each property should really be
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
+
+    if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+      this._lastRendered = undefined;
+      this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
+    }
 
     this._initializeListeners();
   }
@@ -8663,7 +8673,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Object.defineProperty(obj, keyName, desc);
   }
 });
-enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol) {
+enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol', 'ember-metal/features', 'ember-metal/transaction'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol, _emberMetalFeatures, _emberMetalTransaction) {
   'use strict';
 
   var PROPERTY_DID_CHANGE = _emberMetalSymbol.default('PROPERTY_DID_CHANGE');
@@ -8761,6 +8771,10 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
     }
 
     _emberMetalTags.markObjectAsDirty(m);
+
+    if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+      _emberMetalTransaction.assertNotRendered(obj, keyName, m);
+    }
   }
 
   var WILL_SEEN = undefined,
@@ -10074,6 +10088,93 @@ enifed("ember-metal/testing", ["exports"], function (exports) {
   function setTesting(value) {
     testing = !!value;
   }
+});
+enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalMeta, _emberMetalDebug, _emberMetalFeatures) {
+  'use strict';
+
+  var runInTransaction = undefined,
+      didRender = undefined,
+      assertNotRendered = undefined;
+
+  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.');
+  }
+
+  var raise = _emberMetalDebug.assert;
+  if (_emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+    raise = function (message, test) {
+      _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+    };
+  }
+
+  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+    (function () {
+      var counter = 0;
+      var inTransaction = false;
+      var shouldReflush = undefined;
+
+      exports.default = runInTransaction = function (callback) {
+        shouldReflush = false;
+        inTransaction = true;
+        callback();
+        inTransaction = false;
+        counter++;
+        return shouldReflush;
+      };
+
+      exports.didRender = didRender = function (object, key, reference) {
+        if (!inTransaction) {
+          return;
+        }
+        var meta = _emberMetalMeta.meta(object);
+        var lastRendered = meta.writableLastRendered();
+        lastRendered[key] = counter;
+
+        _emberMetalDebug.runInDebug(function () {
+          var lastRenderedFrom = meta.writableLastRenderedFrom();
+          lastRenderedFrom[key] = reference;
+        });
+      };
+
+      exports.assertNotRendered = assertNotRendered = function (object, key, _meta) {
+        var meta = _meta || _emberMetalMeta.meta(object);
+        var lastRendered = meta.readableLastRendered();
+
+        if (lastRendered && lastRendered[key] === counter) {
+          raise((function () {
+            var ref = meta.readableLastRenderedFrom();
+            var parts = [];
+            var lastRef = ref[key];
+
+            while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              parts.unshift(lastRef._propertyKey);
+              lastRef = lastRef._parentReference;
+            }
+
+            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and will be removed in Ember 3.0.';
+          })(), false);
+
+          shouldReflush = true;
+        }
+      };
+    })();
+  } else {
+    exports.default = runInTransaction = function () {
+      throw new Error('Cannot call runInTransaction without Glimmer');
+    };
+
+    exports.didRender = didRender = function () {
+      throw new Error('Cannot call didRender without Glimmer');
+    };
+
+    exports.assertNotRendered = assertNotRendered = function () {
+      throw new Error('Cannot call assertNotRendered without Glimmer');
+    };
+  }
+
+  exports.default = runInTransaction;
+  exports.didRender = didRender;
+  exports.assertNotRendered = assertNotRendered;
 });
 enifed('ember-metal/utils', ['exports'], function (exports) {
   'no use strict';
@@ -19885,12 +19986,12 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": null };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d82a89da";
+  exports.default = "2.7.0-canary+a99dd190";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';

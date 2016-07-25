@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+d82a89da
+ * @version   2.7.0-canary+a99dd190
  */
 
 var enifed, requireModule, require, Ember;
@@ -7829,14 +7829,10 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/readonly', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersReadonly, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'glimmer-reference', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _glimmerReference, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
   var _CoreView$extend;
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n            Cannot set the `', '` property (on component ', ') to\n            `', '`. The `', '` property came from an immutable\n            binding in the template, such as {{', ' ', '="string"}}\n            or {{', ' ', '=(if theTruth "truth" "false")}}.\n          '], ['\n            Cannot set the \\`', '\\` property (on component ', ') to\n            \\`', '\\`. The \\`', '\\` property came from an immutable\n            binding in the template, such as {{', ' ', '="string"}}\n            or {{', ' ', '=(if theTruth "truth" "false")}}.\n          ']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   var DIRTY_TAG = _emberMetalSymbol.default('DIRTY_TAG');
   exports.DIRTY_TAG = DIRTY_TAG;
@@ -7910,14 +7906,8 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
         reference = undefined;
 
     if ((args = this[ARGS]) && (reference = args[key])) {
-      var value = _emberMetalProperty_get.get(this, key);
-
       if (reference[_emberGlimmerUtilsReferences.UPDATE]) {
-        reference[_emberGlimmerUtilsReferences.UPDATE](value);
-      } else if (!_emberGlimmerHelpersReadonly.isReadonly(reference)) {
-        var _name = this._debugContainerKey.split(':')[1];
-
-        throw new Error(strip(_templateObject, key, _name, value, key, _name, key, _name, key));
+        reference[_emberGlimmerUtilsReferences.UPDATE](_emberMetalProperty_get.get(this, key));
       }
     }
   }, _CoreView$extend.getAttr = function (key) {
@@ -7944,28 +7934,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
 
     if (ref) {
       return ref;
-    }
-
-    var args = this[ARGS];
-    ref = args && args[key];
-
-    if (!ref || _emberGlimmerHelpersReadonly.isReadonly(ref)) {
+    } else {
       return refs[key] = new _emberGlimmerUtilsReferences.PropertyReference(this[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE](), key);
     }
-
-    var concatenatedProperties = this.concatenatedProperties;
-
-    if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(key) >= 0) {
-      return refs[key] = new _emberGlimmerUtilsReferences.PropertyReference(this[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE](), key);
-    }
-
-    var mergedProperties = this.mergedProperties;
-
-    if (mergedProperties && mergedProperties.length > 0 && mergedProperties.indexOf(key) >= 0) {
-      return refs[key] = new _emberGlimmerUtilsReferences.PropertyReference(this[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE](), key);
-    }
-
-    return refs[key] = ref;
   }, _CoreView$extend));
 
   Component[_emberMetalMixin.NAME_KEY] = 'Ember.Component';
@@ -7973,22 +7944,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   Component.reopenClass({
     isComponentFactory: true
   });
-
-  function strip(_ref) {
-    for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      values[_key - 1] = arguments[_key];
-    }
-
-    var strings = _ref;
-
-    var str = strings.map(function (string, index) {
-      var interpolated = values[index];
-      return string + (interpolated !== undefined ? interpolated : '');
-    }).join('');
-    return str.split('\n').map(function (s) {
-      return s.trim();
-    }).join(' ');
-  }
 
   exports.default = Component;
 });
@@ -10499,16 +10454,8 @@ enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-glimmer/utils/ref
     }
   };
 });
-enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-metal/symbol', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/mut'], function (exports, _emberMetalSymbol, _emberGlimmerUtilsReferences, _emberGlimmerHelpersMut) {
+enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/mut'], function (exports, _emberGlimmerUtilsReferences, _emberGlimmerHelpersMut) {
   'use strict';
-
-  exports.isReadonly = isReadonly;
-
-  var READONLY_REFERENCE = _emberMetalSymbol.default('READONLY');
-
-  function isReadonly(ref) {
-    return ref && ref[READONLY_REFERENCE];
-  }
 
   exports.default = {
     isInternalHelper: true,
@@ -10518,7 +10465,6 @@ enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-metal/symbol', 'embe
 
       var wrapped = Object.create(ref);
 
-      wrapped[READONLY_REFERENCE] = true;
       wrapped[_emberGlimmerUtilsReferences.UPDATE] = undefined;
 
       return wrapped;
@@ -10860,10 +10806,21 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
 
   exports.default = ActionModifierManager;
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'ember-metal/tags', 'glimmer-reference', 'ember-views/compat/fallback-view-registry', 'ember-metal/debug'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _emberMetalTags, _glimmerReference, _emberViewsCompatFallbackViewRegistry, _emberMetalDebug) {
+enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'ember-metal/tags', 'glimmer-reference', 'ember-views/compat/fallback-view-registry', 'ember-metal/debug', 'ember-metal/transaction', 'ember-metal/features'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _emberMetalTags, _glimmerReference, _emberViewsCompatFallbackViewRegistry, _emberMetalDebug, _emberMetalTransaction, _emberMetalFeatures) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var runInTransaction = undefined;
+
+  if (true || false) {
+    runInTransaction = _emberMetalTransaction.default;
+  } else {
+    runInTransaction = function (callback) {
+      callback();
+      return false;
+    };
+  }
 
   var backburner = _emberMetalRun_loop.default.backburner;
 
@@ -11040,9 +10997,27 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         isTopLevel: true
       });
 
-      env.begin();
-      var result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
-      env.commit();
+      var result = undefined,
+          shouldReflush = undefined,
+          afterRender = undefined,
+          didChangeAfterRender = undefined;
+
+      var callback = function () {
+        result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
+      };
+
+      var rerender = function () {
+        return result.rerender({ alwaysRevalidate: shouldReflush });
+      };
+
+      do {
+        env.begin();
+        shouldReflush = runInTransaction(callback);
+        afterRender = _glimmerReference.CURRENT_TAG.value();
+        env.commit();
+        didChangeAfterRender = !_glimmerReference.CURRENT_TAG.validate(afterRender);
+        callback = rerender;
+      } while (shouldReflush || didChangeAfterRender);
 
       this._scheduler.registerView(view);
 
@@ -11065,9 +11040,27 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         isTopLevel: true
       });
 
-      env.begin();
-      var result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
-      env.commit();
+      var result = undefined,
+          shouldReflush = undefined,
+          afterRender = undefined,
+          didChangeAfterRender = undefined;
+
+      var callback = function () {
+        result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
+      };
+
+      var rerender = function () {
+        return result.rerender({ alwaysRevalidate: shouldReflush });
+      };
+
+      do {
+        env.begin();
+        shouldReflush = runInTransaction(callback);
+        afterRender = _glimmerReference.CURRENT_TAG.value();
+        env.commit();
+        didChangeAfterRender = !_glimmerReference.CURRENT_TAG.validate(afterRender);
+        callback = rerender;
+      } while (shouldReflush || didChangeAfterRender);
 
       this._scheduler.registerView(view);
 
@@ -11081,9 +11074,22 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     Renderer.prototype.rerender = function rerender(view) {
       var env = this._env;
 
-      env.begin();
-      (view['_renderResult'] || this._root['_renderResult']).rerender();
-      env.commit();
+      var renderResult = view['_renderResult'] || this._root['_renderResult'];
+      var shouldReflush = false;
+      var afterRender = undefined,
+          didChangeAfterRender = undefined;
+
+      var callback = function () {
+        return renderResult.rerender({ alwaysRevalidate: shouldReflush });
+      };
+
+      do {
+        env.begin();
+        shouldReflush = runInTransaction(callback);
+        afterRender = _glimmerReference.CURRENT_TAG.value();
+        env.commit();
+        didChangeAfterRender = !_glimmerReference.CURRENT_TAG.validate(afterRender);
+      } while (shouldReflush || didChangeAfterRender);
     };
 
     Renderer.prototype.remove = function remove(view) {
@@ -12608,7 +12614,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     return PositionalArgs;
   })();
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy, _emberMetalDebug) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/transaction', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalTransaction, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy, _emberMetalDebug) {
   'use strict';
 
   exports.applyClassNameBinding = applyClassNameBinding;
@@ -12741,6 +12747,45 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
   exports.RootReference = RootReference;
 
+  var TwoWayFlushDetectionTag = undefined;
+
+  if (true || false) {
+    TwoWayFlushDetectionTag = (function () {
+      function _class(tag, key, ref) {
+        _classCallCheck(this, _class);
+
+        this.tag = tag;
+        this.parent = null;
+        this.key = key;
+        this.ref = ref;
+      }
+
+      _class.prototype.value = function value() {
+        return this.tag.value();
+      };
+
+      _class.prototype.validate = function validate(ticket) {
+        var parent = this.parent;
+        var key = this.key;
+
+        var isValid = this.tag.validate(ticket);
+
+        if (isValid && parent) {
+          _emberMetalTransaction.didRender(parent, key, this.ref);
+        }
+
+        return isValid;
+      };
+
+      _class.prototype.didCompute = function didCompute(parent) {
+        this.parent = parent;
+        _emberMetalTransaction.didRender(parent, this.key, this.ref);
+      };
+
+      return _class;
+    })();
+  }
+
   var PropertyReference = (function (_CachedReference) {
     _inherits(PropertyReference, _CachedReference);
 
@@ -12754,10 +12799,16 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       var parentReferenceTag = parentReference.tag;
       var parentObjectTag = new _glimmerReference.UpdatableTag(_glimmerReference.CURRENT_TAG);
 
-      this.tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
       this._parentReference = parentReference;
       this._parentObjectTag = parentObjectTag;
       this._propertyKey = propertyKey;
+
+      if (true || false) {
+        var tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
+        this.tag = new TwoWayFlushDetectionTag(tag, propertyKey, this);
+      } else {
+        this.tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
+      }
     }
 
     PropertyReference.prototype.compute = function compute() {
@@ -12778,6 +12829,11 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
           var meta = _emberMetalMeta.meta(parentValue);
           _emberMetalWatch_key.watchKey(parentValue, _propertyKey, meta);
         }
+
+        if (true || false) {
+          this.tag.didCompute(parentValue);
+        }
+
         return _emberMetalProperty_get.get(parentValue, _propertyKey);
       } else {
         return null;
@@ -26784,6 +26840,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
+  if (true || false) {
+    members.lastRendered = ownMap;
+    members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
+  }
+
   var memberNames = Object.keys(members);
   var META_FIELD = '__ember_meta__';
 
@@ -26811,6 +26872,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // have detailed knowledge of how each property should really be
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
+
+    if (true || false) {
+      this._lastRendered = undefined;
+      this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
+    }
 
     this._initializeListeners();
   }
@@ -28731,7 +28797,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Object.defineProperty(obj, keyName, desc);
   }
 });
-enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol) {
+enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol', 'ember-metal/features', 'ember-metal/transaction'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol, _emberMetalFeatures, _emberMetalTransaction) {
   'use strict';
 
   var PROPERTY_DID_CHANGE = _emberMetalSymbol.default('PROPERTY_DID_CHANGE');
@@ -28829,6 +28895,10 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
     }
 
     _emberMetalTags.markObjectAsDirty(m);
+
+    if (true || false) {
+      _emberMetalTransaction.assertNotRendered(obj, keyName, m);
+    }
   }
 
   var WILL_SEEN = undefined,
@@ -30142,6 +30212,93 @@ enifed("ember-metal/testing", ["exports"], function (exports) {
   function setTesting(value) {
     testing = !!value;
   }
+});
+enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalMeta, _emberMetalDebug, _emberMetalFeatures) {
+  'use strict';
+
+  var runInTransaction = undefined,
+      didRender = undefined,
+      assertNotRendered = undefined;
+
+  if (true || false) {
+    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.');
+  }
+
+  var raise = _emberMetalDebug.assert;
+  if (false) {
+    raise = function (message, test) {
+      _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+    };
+  }
+
+  if (true || false) {
+    (function () {
+      var counter = 0;
+      var inTransaction = false;
+      var shouldReflush = undefined;
+
+      exports.default = runInTransaction = function (callback) {
+        shouldReflush = false;
+        inTransaction = true;
+        callback();
+        inTransaction = false;
+        counter++;
+        return shouldReflush;
+      };
+
+      exports.didRender = didRender = function (object, key, reference) {
+        if (!inTransaction) {
+          return;
+        }
+        var meta = _emberMetalMeta.meta(object);
+        var lastRendered = meta.writableLastRendered();
+        lastRendered[key] = counter;
+
+        _emberMetalDebug.runInDebug(function () {
+          var lastRenderedFrom = meta.writableLastRenderedFrom();
+          lastRenderedFrom[key] = reference;
+        });
+      };
+
+      exports.assertNotRendered = assertNotRendered = function (object, key, _meta) {
+        var meta = _meta || _emberMetalMeta.meta(object);
+        var lastRendered = meta.readableLastRendered();
+
+        if (lastRendered && lastRendered[key] === counter) {
+          raise((function () {
+            var ref = meta.readableLastRenderedFrom();
+            var parts = [];
+            var lastRef = ref[key];
+
+            while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              parts.unshift(lastRef._propertyKey);
+              lastRef = lastRef._parentReference;
+            }
+
+            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and will be removed in Ember 3.0.';
+          })(), false);
+
+          shouldReflush = true;
+        }
+      };
+    })();
+  } else {
+    exports.default = runInTransaction = function () {
+      throw new Error('Cannot call runInTransaction without Glimmer');
+    };
+
+    exports.didRender = didRender = function () {
+      throw new Error('Cannot call didRender without Glimmer');
+    };
+
+    exports.assertNotRendered = assertNotRendered = function () {
+      throw new Error('Cannot call assertNotRendered without Glimmer');
+    };
+  }
+
+  exports.default = runInTransaction;
+  exports.didRender = didRender;
+  exports.assertNotRendered = assertNotRendered;
 });
 enifed('ember-metal/utils', ['exports'], function (exports) {
   'no use strict';
@@ -50204,7 +50361,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-glimmer": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": null };
 });
 enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-templates', 'ember-runtime/system/lazy_load'], function (exports, _require, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberTemplates, _emberRuntimeSystemLazy_load) {
   // require the main entry points for each of these packages
@@ -50237,7 +50394,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+d82a89da";
+  exports.default = "2.7.0-canary+a99dd190";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
