@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c63793d7
+ * @version   2.7.0-canary+d82a89da
  */
 
 var enifed, requireModule, require, Ember;
@@ -19834,7 +19834,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 // be safe to import this until we make the hook system public
 // and it gets actively used in addons or other downstream
 // libraries.
-enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _containerOwner, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/assign', 'ember-metal/debug', 'ember-htmlbars/system/build-component-template', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'container/owner', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalAssign, _emberMetalDebug, _emberHtmlbarsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalSet_properties, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _containerOwner, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.default = ViewNodeManager;
@@ -19871,17 +19871,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       }
       if (attrs && attrs._defaultTagName) {
         options._defaultTagName = _emberHtmlbarsHooksGetValue.default(attrs._defaultTagName);
-      }
-
-      if (found.component.create && contentScope) {
-        var _self = contentScope.getSelf();
-        if (_self) {
-          options._context = _emberHtmlbarsHooksGetValue.default(contentScope.getSelf());
-        }
-      }
-
-      if (found.self) {
-        options._context = _emberHtmlbarsHooksGetValue.default(found.self);
       }
 
       component = componentInfo.component = createOrUpdateComponent(found.component, options, found.createOptions, renderNode, env, attrs);
@@ -20002,8 +19991,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
     var snapshot = takeSnapshot(attrs);
     var props = _emberMetalAssign.default({}, options);
-    var defaultController = _emberViewsViewsView.default.proto().controller;
-    var hasSuppliedController = 'controller' in attrs || 'controller' in props;
 
     if (!props.ownerView && options.parentView) {
       props.ownerView = options.parentView.ownerView;
@@ -20011,8 +19998,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
     props.attrs = snapshot;
     if (component.create) {
-      var proto = component.proto();
-
       if (createOptions) {
         _emberMetalAssign.default(props, createOptions);
       }
@@ -20023,10 +20008,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       _containerOwner.setOwner(props, owner);
       props.renderer = options.parentView ? options.parentView.renderer : owner && owner.lookup('renderer:-dom');
-
-      if (proto.controller !== defaultController || hasSuppliedController) {
-        delete props._context;
-      }
 
       component = component.create(props);
     } else {
@@ -21746,39 +21727,6 @@ enifed('ember-htmlbars/streams/utils', ['exports', 'ember-htmlbars/hooks/get-val
     } else {
       return object;
     }
-  }
-});
-enifed('ember-htmlbars/system/append-templated-view', ['exports', 'ember-metal/property_get', 'ember-views/views/view'], function (exports, _emberMetalProperty_get, _emberViewsViewsView) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.default = appendTemplatedView;
-
-  function appendTemplatedView(parentView, morph, viewClassOrInstance, props) {
-    var viewProto = undefined;
-    if (_emberViewsViewsView.default.detectInstance(viewClassOrInstance)) {
-      viewProto = viewClassOrInstance;
-    } else {
-      viewProto = viewClassOrInstance.proto();
-    }
-
-    // We only want to override the `_context` computed property if there is
-    // no specified controller. See View#_context for more information.
-    var noControllerInProto = !viewProto.controller;
-    if (viewProto.controller && viewProto.controller.isDescriptor) {
-      noControllerInProto = true;
-    }
-    if (noControllerInProto && !viewProto.controllerBinding && !props.controller && !props.controllerBinding) {
-      props._context = _emberMetalProperty_get.get(parentView, 'context'); // TODO: is this right?!
-    }
-
-    props._morph = morph;
-
-    return parentView.appendChild(viewClassOrInstance, props);
   }
 });
 enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'htmlbars-runtime', 'htmlbars-util/template-utils', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _htmlbarsRuntime, _htmlbarsUtilTemplateUtils, _emberHtmlbarsHooksGetValue, _emberHtmlbarsStreamsUtils) {
@@ -50289,7 +50237,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+c63793d7";
+  exports.default = "2.7.0-canary+d82a89da";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+c63793d7
+ * @version   2.7.0-canary+d82a89da
  */
 
 var enifed, requireModule, require, Ember;
@@ -16820,6 +16820,15 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
+  var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
+
+  function fireNativeWithDataTransfer(node, type, dataTransfer) {
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent(type, true, true);
+    event.dataTransfer = dataTransfer;
+    node.dispatchEvent(event);
+  }
+
   _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
@@ -17077,6 +17086,36 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
       };
 
       return _class3;
+    })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+  }
+
+  if (canDataTransfer) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Event Properties', (function (_RenderingTest4) {
+      _inherits(_class4, _RenderingTest4);
+
+      function _class4() {
+        _classCallCheck(this, _class4);
+
+        _RenderingTest4.apply(this, arguments);
+      }
+
+      _class4.prototype['@test dataTransfer property is added to drop event'] = function testDataTransferPropertyIsAddedToDropEvent(assert) {
+        var receivedEvent = undefined;
+        this.registerComponent('x-foo', {
+          ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+            drop: function (event) {
+              receivedEvent = event;
+            }
+          })
+        });
+
+        this.render('{{x-foo}}');
+
+        fireNativeWithDataTransfer(this.$('div')[0], 'drop', 'success');
+        assert.equal(receivedEvent.dataTransfer, 'success');
+      };
+
+      return _class4;
     })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
   }
 });
@@ -77738,80 +77777,6 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
   });
 });
-enifed('ember-views/tests/system/jquery_ext_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-views/views/view'], function (exports, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberViewsViewsView) {
-  'use strict';
-
-  var view = undefined,
-      dispatcher = undefined;
-
-  // Adapted from https://github.com/jquery/jquery/blob/f30f7732e7775b6e417c4c22ced7adb2bf76bf89/test/data/testinit.js
-
-  var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
-
-  function fireNativeWithDataTransfer(node, type, dataTransfer) {
-    var event = document.createEvent('HTMLEvents');
-    event.initEvent(type, true, true);
-    event.dataTransfer = dataTransfer;
-    node.dispatchEvent(event);
-  }
-
-  QUnit.module('EventDispatcher - jQuery integration', {
-    setup: function () {
-      _emberMetalRun_loop.default(function () {
-        dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
-        dispatcher.setup();
-      });
-    },
-
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        if (view) {
-          view.destroy();
-        }
-        dispatcher.destroy();
-      });
-    }
-  });
-
-  if (canDataTransfer) {
-    QUnit.test('jQuery.event.fix copies over the dataTransfer property', function () {
-      var originalEvent = undefined;
-      var receivedEvent = undefined;
-
-      originalEvent = {
-        type: 'drop',
-        dataTransfer: 'success',
-        target: document.body
-      };
-
-      receivedEvent = _emberViewsSystemJquery.default.event.fix(originalEvent);
-
-      ok(receivedEvent !== originalEvent, 'attributes are copied to a new event object');
-      equal(receivedEvent.dataTransfer, originalEvent.dataTransfer, 'copies dataTransfer property to jQuery event');
-    });
-
-    QUnit.test('drop handler should receive event with dataTransfer property', function () {
-      var receivedEvent = undefined;
-      var dropCalled = 0;
-
-      view = _emberViewsViewsView.default.extend({
-        drop: function (evt) {
-          receivedEvent = evt;
-          dropCalled++;
-        }
-      }).create();
-
-      _emberMetalRun_loop.default(function () {
-        return view.append();
-      });
-
-      fireNativeWithDataTransfer(view.$().get(0), 'drop', 'success');
-
-      equal(dropCalled, 1, 'called drop handler once');
-      equal(receivedEvent.dataTransfer, 'success', 'copies dataTransfer property to jQuery event');
-    });
-  }
-});
 enifed('ember-views/tests/system/view_utils_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemUtils) {
   'use strict';
 
@@ -78398,56 +78363,6 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
     });
 
     equal(view.$().attr('style'), 'color: blue; display: none;', 'has concatenated style attribute');
-  });
-});
-enifed('ember-views/tests/views/view/jquery_test', ['exports', 'ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsTemplateCompiler) {
-  'use strict';
-
-  var view = undefined;
-  QUnit.module('EmberView#$', {
-    setup: function () {
-      view = _emberViewsViewsView.default.extend({
-        template: _emberHtmlbarsTemplateCompiler.compile('<span></span>')
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('returns undefined if no element', function () {
-    var view = _emberViewsViewsView.default.create();
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should have no element');
-    equal(view.$(), undefined, 'should return undefined');
-    equal(view.$('span'), undefined, 'should undefined if filter passed');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-
-  QUnit.test('returns jQuery object selecting element if provided', function () {
-    ok(_emberMetalProperty_get.get(view, 'element'), 'precond - should have element');
-
-    var jquery = view.$();
-    equal(jquery.length, 1, 'view.$() should have one element');
-    equal(jquery[0], _emberMetalProperty_get.get(view, 'element'), 'element should be element');
-  });
-
-  QUnit.test('returns jQuery object selecting element inside element if provided', function () {
-    ok(_emberMetalProperty_get.get(view, 'element'), 'precond - should have element');
-
-    var jquery = view.$('span');
-    equal(jquery.length, 1, 'view.$() should have one element');
-    equal(jquery[0].parentNode, _emberMetalProperty_get.get(view, 'element'), 'element should be in element');
-  });
-
-  QUnit.test('returns empty jQuery object if filter passed that does not match item in parent', function () {
-    ok(_emberMetalProperty_get.get(view, 'element'), 'precond - should have element');
-
-    var jquery = view.$('body'); // would normally work if not scoped to view
-    equal(jquery.length, 0, 'view.$(body) should have no elements');
   });
 });
 enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler) {
