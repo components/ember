@@ -12299,7 +12299,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified value twice in a single render/);
           var outer = undefined,
@@ -12378,7 +12378,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this59 = this;
 
-      if (!true) {
+      if (!false) {
         (function () {
           var outer = undefined,
               middle = undefined;
@@ -12441,7 +12441,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this60 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified wrapper.content twice in a single render/);
           var outer = undefined,
@@ -12581,7 +12581,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
 
-      if (!true) {
+      if (!false) {
         var outer = undefined,
             middle = undefined;
 
@@ -35527,7 +35527,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified value twice in a single render/);
           var outer = undefined,
@@ -35606,7 +35606,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this59 = this;
 
-      if (!true) {
+      if (!false) {
         (function () {
           var outer = undefined,
               middle = undefined;
@@ -35669,7 +35669,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this60 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified wrapper.content twice in a single render/);
           var outer = undefined,
@@ -35809,7 +35809,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
 
-      if (!true) {
+      if (!false) {
         var outer = undefined,
             middle = undefined;
 
