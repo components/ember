@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+81a41930
+ * @version   2.9.0-canary+7ee7fcf5
  */
 
 var enifed, requireModule, require, Ember;
@@ -12344,7 +12344,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified value twice in a single render/);
           var outer = undefined,
@@ -12423,7 +12423,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this59 = this;
 
-      if (!true) {
+      if (!false) {
         (function () {
           var outer = undefined,
               middle = undefined;
@@ -12486,7 +12486,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this60 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified wrapper.content twice in a single render/);
           var outer = undefined,
@@ -12626,7 +12626,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
 
-      if (!true) {
+      if (!false) {
         var outer = undefined,
             middle = undefined;
 
@@ -30559,427 +30559,6 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var owner = undefined,
-      component = undefined;
-
-  function commonSetup() {
-    owner = _containerTestsTestHelpersBuildOwner.default();
-    owner.registerOptionsForType('component', { singleton: false });
-    owner.registerOptionsForType('template', { instantiate: false });
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-  }
-
-  function commonTeardown() {
-    _emberRuntimeTestsUtils.runDestroy(owner);
-    _emberRuntimeTestsUtils.runDestroy(component);
-    owner = component = null;
-  }
-
-  QUnit.module('component - invocation', {
-    setup: function () {
-      commonSetup();
-    },
-
-    teardown: function () {
-      commonTeardown();
-    }
-  });
-
-  QUnit.test('moduleName is available on _renderNode when a layout is present', function () {
-    var _Component$extend;
-
-    expect(1);
-
-    var layoutModuleName = 'my-app-name/templates/components/sample-component';
-    var sampleComponentLayout = _emberHtmlbarsTemplateCompiler.compile('Sample Component - {{yield}}', {
-      moduleName: layoutModuleName
-    });
-    owner.register('template:components/sample-component', sampleComponentLayout);
-    owner.register('component:sample-component', _emberHtmlbarsComponent.default.extend({
-      didInsertElement: function () {
-        equal(this._renderNode.lastResult.template.meta.moduleName, layoutModuleName);
-      }
-    }));
-
-    component = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberHtmlbarsTemplateCompiler.compile('{{sample-component}}'), _Component$extend)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-  });
-
-  QUnit.test('moduleName is available on _renderNode when no layout is present', function () {
-    var _Component$extend2;
-
-    expect(1);
-
-    var templateModuleName = 'my-app-name/templates/application';
-    owner.register('component:sample-component', _emberHtmlbarsComponent.default.extend({
-      didInsertElement: function () {
-        equal(this._renderNode.lastResult.template.meta.moduleName, templateModuleName);
-      }
-    }));
-
-    component = _emberHtmlbarsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = owner, _Component$extend2.layout = _emberHtmlbarsTemplateCompiler.compile('{{#sample-component}}Derp{{/sample-component}}', {
-      moduleName: templateModuleName
-    }), _Component$extend2)).create();
-
-    _emberRuntimeTestsUtils.runAppend(component);
-  });
-});
-enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-views/component_lookup', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberViewsComponent_lookup, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var owner = undefined,
-      view = undefined;
-  var hooks = undefined;
-
-  var styles = [{
-    name: 'curly',
-    class: _emberHtmlbarsTestsUtilsHelpers.Component
-  }];
-
-  styles.forEach(function (style) {
-    function invoke(name) {
-      var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      if (style.name === 'curly') {
-        var attrs = Object.keys(hash).map(function (k) {
-          return k + '=' + val(hash[k]);
-        }).join(' ');
-        return '{{' + name + ' ' + attrs + '}}';
-      } else if (style.name === 'angle') {
-        var attrs = Object.keys(hash).map(function (k) {
-          return k + '=' + val(hash[k]);
-        }).join(' ');
-        return '<' + name + ' ' + attrs + ' />';
-      }
-    }
-
-    function val(value) {
-      if (value.isString) {
-        return JSON.stringify(value.value);
-      }
-
-      if (style.name === 'curly') {
-        return '(readonly ' + value + ')';
-      } else {
-        return '{{' + value + '}}';
-      }
-    }
-
-    function string(val) {
-      return { isString: true, value: val };
-    }
-
-    QUnit.module('component - lifecycle hooks (' + style.name + ')', {
-      setup: function () {
-        owner = _containerTestsTestHelpersBuildOwner.default();
-        owner.registerOptionsForType('component', { singleton: false });
-        owner.registerOptionsForType('view', { singleton: false });
-        owner.registerOptionsForType('template', { instantiate: false });
-        owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-
-        hooks = [];
-      },
-
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(owner);
-        _emberRuntimeTestsUtils.runDestroy(view);
-        owner = view = null;
-      }
-    });
-
-    function pushHook(view, type, arg) {
-      hooks.push(hook(view, type, arg));
-    }
-
-    function hook(view, type, arg) {
-      return { type: type, view: view, arg: arg };
-    }
-
-    QUnit.test('lifecycle hooks are invoked in a predictable order', function () {
-      var _EmberView$extend;
-
-      var components = {};
-
-      function component(label) {
-        return style.class.extend({
-          init: function () {
-            this.label = label;
-            components[label] = this;
-            this._super.apply(this, arguments);
-            pushHook(label, 'init');
-          },
-
-          didInitAttrs: function (options) {
-            pushHook(label, 'didInitAttrs', options);
-          },
-
-          didUpdateAttrs: function (options) {
-            pushHook(label, 'didUpdateAttrs', options);
-          },
-
-          willUpdate: function (options) {
-            pushHook(label, 'willUpdate', options);
-          },
-
-          didReceiveAttrs: function (options) {
-            pushHook(label, 'didReceiveAttrs', options);
-          },
-
-          willRender: function () {
-            pushHook(label, 'willRender');
-          },
-
-          didRender: function () {
-            pushHook(label, 'didRender');
-          },
-
-          didInsertElement: function () {
-            pushHook(label, 'didInsertElement');
-          },
-
-          didUpdate: function (options) {
-            pushHook(label, 'didUpdate', options);
-          }
-        });
-      }
-
-      owner.register('component:the-top', component('top'));
-      owner.register('component:the-middle', component('middle'));
-      owner.register('component:the-bottom', component('bottom'));
-
-      owner.register('template:components/the-top', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Twitter: {{attrs.twitter}} ' + invoke('the-middle', { name: string('Tom Dale') }) + '</div>'));
-      owner.register('template:components/the-middle', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Name: {{attrs.name}} ' + invoke('the-bottom', { website: string('tomdale.net') }) + '</div>'));
-      owner.register('template:components/the-bottom', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Website: {{attrs.website}}</div>'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend = {}, _EmberView$extend[_containerOwner.OWNER] = owner, _EmberView$extend.template = _emberHtmlbarsTestsUtilsHelpers.compile(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend.twitter = '@tomdale', _EmberView$extend)).create();
-
-      expectDeprecation(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, /\[DEPRECATED\] didInitAttrs called in <\(subclass of Ember.Component\)\:ember[\d+]+>\./);
-
-      ok(component, 'The component was inserted');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Twitter: @tomdale Name: Tom Dale Website: tomdale.net');
-
-      var topAttrs = { twitter: '@tomdale' };
-      var middleAttrs = { name: 'Tom Dale' };
-      var bottomAttrs = { website: 'tomdale.net' };
-
-      deepEqual(hooks, [hook('top', 'init'), hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'init'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'init'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
-
-      hooks = [];
-
-      _emberMetalRun_loop.default(function () {
-        return components.bottom.rerender();
-      });
-
-      deepEqual(hooks, [hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender')]);
-
-      hooks = [];
-
-      _emberMetalRun_loop.default(function () {
-        return components.middle.rerender();
-      });
-
-      bottomAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'tomdale.net' } };
-
-      deepEqual(hooks, [hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender')]);
-
-      hooks = [];
-
-      _emberMetalRun_loop.default(function () {
-        return components.top.rerender();
-      });
-
-      middleAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Tom Dale' } };
-
-      deepEqual(hooks, [hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-
-      hooks = [];
-
-      _emberMetalRun_loop.default(function () {
-        return view.set('twitter', '@hipstertomdale');
-      });
-
-      // Because the `twitter` attr is only used by the topmost component,
-      // and not passed down, we do not expect to see lifecycle hooks
-      // called for child components. If the `didReceiveAttrs` hook used
-      // the new attribute to rerender itself imperatively, that would result
-      // in lifecycle hooks being invoked for the child.
-
-      deepEqual(hooks, [hook('top', 'didUpdateAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'didReceiveAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-    });
-
-    QUnit.test('passing values through attrs causes lifecycle hooks to fire if the attribute values have changed', function () {
-      var _EmberView$extend2;
-
-      var components = {};
-
-      function component(label) {
-        return style.class.extend({
-          init: function () {
-            this.label = label;
-            components[label] = this;
-            this._super.apply(this, arguments);
-            pushHook(label, 'init');
-          },
-
-          didInitAttrs: function (options) {
-            pushHook(label, 'didInitAttrs', options);
-          },
-
-          didUpdateAttrs: function (options) {
-            pushHook(label, 'didUpdateAttrs', options);
-          },
-
-          willUpdate: function (options) {
-            pushHook(label, 'willUpdate', options);
-          },
-
-          didReceiveAttrs: function (options) {
-            pushHook(label, 'didReceiveAttrs', options);
-          },
-
-          willRender: function () {
-            pushHook(label, 'willRender');
-          },
-
-          didRender: function () {
-            pushHook(label, 'didRender');
-          },
-
-          didInsertElement: function () {
-            pushHook(label, 'didInsertElement');
-          },
-
-          didUpdate: function (options) {
-            pushHook(label, 'didUpdate', options);
-          }
-        });
-      }
-
-      owner.register('component:the-top', component('top'));
-      owner.register('component:the-middle', component('middle'));
-      owner.register('component:the-bottom', component('bottom'));
-
-      owner.register('template:components/the-top', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Top: ' + invoke('the-middle', { twitterTop: 'attrs.twitter' }) + '</div>'));
-      owner.register('template:components/the-middle', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Middle: ' + invoke('the-bottom', { twitterMiddle: 'attrs.twitterTop' }) + '</div>'));
-      owner.register('template:components/the-bottom', _emberHtmlbarsTestsUtilsHelpers.compile('<div>Bottom: {{attrs.twitterMiddle}}</div>'));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend2 = {}, _EmberView$extend2[_containerOwner.OWNER] = owner, _EmberView$extend2.template = _emberHtmlbarsTestsUtilsHelpers.compile(invoke('the-top', { twitter: 'view.twitter' })), _EmberView$extend2.twitter = '@tomdale', _EmberView$extend2)).create();
-
-      expectDeprecation(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, /\[DEPRECATED\] didInitAttrs called in <\(subclass of Ember.Component\)\:ember[\d+]+>\./);
-
-      ok(component, 'The component was inserted');
-      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Top: Middle: Bottom: @tomdale');
-
-      var topAttrs = { twitter: '@tomdale' };
-      var middleAttrs = { twitterTop: '@tomdale' };
-      var bottomAttrs = { twitterMiddle: '@tomdale' };
-
-      deepEqual(hooks, [hook('top', 'init'), hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'init'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'init'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
-
-      hooks = [];
-
-      _emberMetalRun_loop.default(function () {
-        return view.set('twitter', '@hipstertomdale');
-      });
-
-      // Because the `twitter` attr is used by the all of the components,
-      // the lifecycle hooks are invoked for all components.
-
-      topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } };
-      middleAttrs = { oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@hipstertomdale' } };
-      bottomAttrs = { oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@hipstertomdale' } };
-
-      deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-
-      hooks = [];
-
-      // In this case, because the attrs are passed down, all child components are invoked.
-
-      _emberMetalRun_loop.default(function () {
-        return view.rerender();
-      });
-
-      topAttrs = { oldAttrs: { twitter: '@hipstertomdale' }, newAttrs: { twitter: '@hipstertomdale' } };
-      middleAttrs = { oldAttrs: { twitterTop: '@hipstertomdale' }, newAttrs: { twitterTop: '@hipstertomdale' } };
-      bottomAttrs = { oldAttrs: { twitterMiddle: '@hipstertomdale' }, newAttrs: { twitterMiddle: '@hipstertomdale' } };
-
-      deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-    });
-
-    QUnit.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
-      var _style$class$extend;
-
-      var component = undefined;
-
-      component = style.class.extend((_style$class$extend = {}, _style$class$extend[_containerOwner.OWNER] = owner, _style$class$extend.layout = _emberHtmlbarsTestsUtilsHelpers.compile('<div>{{handle}}</div>'), _style$class$extend.handle = '@wycats', _style$class$extend.didInsertElement = function () {
-        this.set('handle', '@tomdale');
-      }, _style$class$extend)).create();
-
-      expectDeprecation(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, /modified inside the didInsertElement hook/);
-
-      assert.strictEqual(component.$().text(), '@tomdale');
-
-      _emberMetalRun_loop.default(function () {
-        return component.destroy();
-      });
-    });
-
-    QUnit.test('DEPRECATED: didInitAttrs is deprecated', function (assert) {
-      var _style$class$extend2;
-
-      var component = undefined;
-
-      var componentClass = style.class.extend((_style$class$extend2 = {}, _style$class$extend2[_containerOwner.OWNER] = owner, _style$class$extend2.layout = _emberHtmlbarsTestsUtilsHelpers.compile('<div>{{handle}}</div>'), _style$class$extend2.handle = '@wycats', _style$class$extend2.didInitAttrs = function () {
-        this._super.apply(this, arguments);
-      }, _style$class$extend2));
-
-      expectDeprecation(function () {
-        component = componentClass.create();
-      }, /\[DEPRECATED\] didInitAttrs called in <\(subclass of Ember.Component\)\:ember[\d+]+>\./);
-
-      _emberMetalRun_loop.default(function () {
-        return component.destroy();
-      });
-    });
-
-    QUnit.test('properties set during `init` are availabe in `didReceiveAttrs`', function (assert) {
-      var _EmberView$extend3;
-
-      assert.expect(1);
-
-      owner.register('component:the-thing', style.class.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          this.propertySetInInit = 'init fired!';
-        },
-
-        didReceiveAttrs: function () {
-          this._super.apply(this, arguments);
-
-          assert.equal(this.propertySetInInit, 'init fired!', 'init has already finished before didReceiveAttrs');
-        }
-      }));
-
-      view = _emberViewsViewsView.default.extend((_EmberView$extend3 = {}, _EmberView$extend3[_containerOwner.OWNER] = owner, _EmberView$extend3.template = _emberHtmlbarsTestsUtilsHelpers.compile(invoke('the-thing')), _EmberView$extend3)).create();
-
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-  });
-
-  // TODO: Write a test that involves deep mutability: the component plucks something
-  // from inside the attrs hash out into state and passes it as attrs into a child
-  // component. The hooks should run correctly.
-});
 enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalObserver) {
   'use strict';
 
@@ -35617,7 +35196,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified value twice in a single render/);
           var outer = undefined,
@@ -35696,7 +35275,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this59 = this;
 
-      if (!true) {
+      if (!false) {
         (function () {
           var outer = undefined,
               middle = undefined;
@@ -35759,7 +35338,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this60 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified wrapper.content twice in a single render/);
           var outer = undefined,
@@ -35899,7 +35478,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
 
-      if (!true) {
+      if (!false) {
         var outer = undefined,
             middle = undefined;
 
