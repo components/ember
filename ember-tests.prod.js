@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a99dd190
+ * @version   2.9.0-canary+f4a09d6e
  */
 
 var enifed, requireModule, require, Ember;
@@ -13873,7 +13873,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You cannot use `classNameBindings` on a tag-less component/);
     };
 
-    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `attributeBindings` are specified'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndAttributeBindingsAreSpecified() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `attributeBindings` are specified'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndAttributeBindingsAreSpecified() {
       var _this4 = this;
 
       var template = 'hit dem folks';
@@ -13888,7 +13888,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
       }, /You cannot use `attributeBindings` on a tag-less component/);
     };
 
-    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `elementId` is specified via JS'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaJS() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `elementId` is specified via JS'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaJS() {
       var _this5 = this;
 
       var template = 'hit dem folks';
@@ -36929,7 +36929,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You cannot use `classNameBindings` on a tag-less component/);
     };
 
-    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `attributeBindings` are specified'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndAttributeBindingsAreSpecified() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `attributeBindings` are specified'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndAttributeBindingsAreSpecified() {
       var _this4 = this;
 
       var template = 'hit dem folks';
@@ -36944,7 +36944,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
       }, /You cannot use `attributeBindings` on a tag-less component/);
     };
 
-    _class.prototype['@glimmer throws an error if `tagName` is an empty string and `elementId` is specified via JS'] = function glimmerThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaJS() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `elementId` is specified via JS'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaJS() {
       var _this5 = this;
 
       var template = 'hit dem folks';

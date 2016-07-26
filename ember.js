@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+a99dd190
+ * @version   2.9.0-canary+f4a09d6e
  */
 
 var enifed, requireModule, require, Ember;
@@ -19735,9 +19735,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     if (attrs.id) {
       createOptions.elementId = _emberHtmlbarsHooksGetValue.default(attrs.id);
     }
-    if (attrs._defaultTagName) {
-      createOptions._defaultTagName = _emberHtmlbarsHooksGetValue.default(attrs._defaultTagName);
-    }
   }
 
   ComponentNodeManager.prototype.render = function ComponentNodeManager_render(_env, visitor) {
@@ -19924,9 +19921,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       }
       if (attrs && attrs.tagName) {
         options.tagName = _emberHtmlbarsHooksGetValue.default(attrs.tagName);
-      }
-      if (attrs && attrs._defaultTagName) {
-        options._defaultTagName = _emberHtmlbarsHooksGetValue.default(attrs._defaultTagName);
       }
 
       component = componentInfo.component = createOrUpdateComponent(found.component, options, found.createOptions, renderNode, env, attrs);
@@ -21824,9 +21818,28 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
         elementTemplate.meta = meta;
 
         blockToRender = createElementBlock(elementTemplate, blockToRender, component);
-      } else {
-        validateTaglessComponent(component);
       }
+
+      _emberMetalDebug.assert('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), (function () {
+        var _component = component;
+        var classNameBindings = _component.classNameBindings;
+
+        return tagName !== '' || !classNameBindings || classNameBindings.length === 0;
+      })());
+
+      _emberMetalDebug.assert('You cannot use `elementId` on a tag-less component: ' + component.toString(), (function () {
+        var _component2 = component;
+        var elementId = _component2.elementId;
+
+        return tagName !== '' || !elementId && elementId !== '';
+      })());
+
+      _emberMetalDebug.assert('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), (function () {
+        var _component3 = component;
+        var attributeBindings = _component3.attributeBindings;
+
+        return tagName !== '' || !attributeBindings || attributeBindings.length === 0;
+      })());
     }
 
     // tagName is one of:
@@ -21916,7 +21929,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     var tagName = view.tagName;
 
     if (tagName === null || tagName === undefined) {
-      tagName = view._defaultTagName || 'div';
+      tagName = 'div';
     }
 
     return tagName;
@@ -21927,7 +21940,6 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
   function normalizeComponentAttributes(component, attrs) {
     var normalized = {};
     var attributeBindings = component.attributeBindings;
-    var streamBasePath = component.isComponent ? '' : 'view.';
 
     if (attrs.id && _emberHtmlbarsHooksGetValue.default(attrs.id)) {
       // Do not allow binding to the `id`
@@ -21947,7 +21959,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
         if (colonIndex !== -1) {
           var attrProperty = attr.substring(0, colonIndex);
           attrName = attr.substring(colonIndex + 1);
-          expression = _htmlbarsUtilTemplateUtils.buildStatement('get', '' + streamBasePath + attrProperty);
+          expression = _htmlbarsUtilTemplateUtils.buildStatement('get', attrProperty);
         } else if (attrs[attr]) {
           // TODO: For compatibility with 1.x, we probably need to `set`
           // the component's attribute here if it is a CP, but we also
@@ -21957,7 +21969,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
           expression = _htmlbarsUtilTemplateUtils.buildStatement('value', attrs[attr]);
         } else {
           attrName = attr;
-          expression = _htmlbarsUtilTemplateUtils.buildStatement('get', '' + streamBasePath + attr);
+          expression = _htmlbarsUtilTemplateUtils.buildStatement('get', attr);
         }
 
         _emberMetalDebug.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attrName !== 'class');
@@ -21965,11 +21977,13 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
       }
     }
 
+    normalized.role = _htmlbarsUtilTemplateUtils.buildStatement('get', 'ariaRole');
+
     if (attrs.tagName) {
       component.tagName = attrs.tagName;
     }
 
-    var normalizedClass = normalizeClass(component, attrs, streamBasePath);
+    var normalizedClass = normalizeClass(component, attrs);
     if (normalizedClass) {
       normalized.class = normalizedClass;
     }
@@ -21988,7 +22002,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     return normalized;
   }
 
-  function normalizeClass(component, attrs, streamBasePath) {
+  function normalizeClass(component, attrs) {
     var normalizedClass = [];
     var classNames = _emberMetalProperty_get.get(component, 'classNames');
     var classNameBindings = _emberMetalProperty_get.get(component, 'classNameBindings');
@@ -22002,7 +22016,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
 
     if (attrs.classBinding) {
-      normalizeClasses(attrs.classBinding.split(' '), normalizedClass, streamBasePath);
+      normalizeClasses(attrs.classBinding.split(' '), normalizedClass);
     }
 
     if (classNames) {
@@ -22012,7 +22026,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
     }
 
     if (classNameBindings) {
-      normalizeClasses(classNameBindings, normalizedClass, streamBasePath);
+      normalizeClasses(classNameBindings, normalizedClass);
     }
 
     if (normalizeClass.length) {
@@ -22037,21 +22051,12 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
         continue;
       }
 
-      var prop = '' + streamBasePath + propName;
-
       output.push(_htmlbarsUtilTemplateUtils.buildStatement('subexpr', '-normalize-class', [
       // params
-      _htmlbarsUtilTemplateUtils.buildStatement('value', propName), _htmlbarsUtilTemplateUtils.buildStatement('get', prop)], [
+      _htmlbarsUtilTemplateUtils.buildStatement('value', propName), _htmlbarsUtilTemplateUtils.buildStatement('get', propName)], [
       // hash
       'activeClass', activeClass, 'inactiveClass', inactiveClass]));
     }
-  }
-
-  function validateTaglessComponent(component) {
-    _emberMetalDebug.assert('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), (function () {
-      var classNameBindings = component.classNameBindings;
-      return !classNameBindings || classNameBindings.length === 0;
-    })());
   }
 });
 enifed('ember-htmlbars/system/dom-helper', ['exports', 'dom-helper', 'ember-htmlbars/morphs/morph', 'ember-htmlbars/morphs/attr-morph'], function (exports, _domHelper, _emberHtmlbarsMorphsMorph, _emberHtmlbarsMorphsAttrMorph) {
@@ -48716,13 +48721,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     // the default case and a user-specified tag.
     tagName: null,
 
-    /*
-      Used to specify a default tagName that can be overridden when extending
-      or invoking from a template.
-       @property _defaultTagName
-      @private
-    */
-
     // .......................................................
     // CORE DISPLAY METHODS
     //
@@ -50306,22 +50304,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     @public
   */
   // jscs:disable validateIndentation
-  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default, {
-    attributeBindings: ['ariaRole:role'],
-
-    /**
-      Given a property name, returns a dasherized version of that
-      property name if the property evaluates to a non-falsy value.
-       For example, if the view has property `isUrgent` that evaluates to true,
-      passing `isUrgent` to this method will return `"is-urgent"`.
-       @method _classStringForProperty
-      @param property
-      @private
-    */
-    _classStringForProperty: function (parsedPath) {
-      return View._classStringForValue(parsedPath.path, parsedPath.stream.value(), parsedPath.className, parsedPath.falsyClassName);
-    }
-  });
+  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default);
 
   // jscs:enable validateIndentation
 
@@ -50394,7 +50377,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0-canary+a99dd190";
+  exports.default = "2.9.0-canary+f4a09d6e";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
