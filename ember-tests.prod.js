@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+b888104b
+ * @version   2.9.0-canary+2ba6ff8c
  */
 
 var enifed, requireModule, require, Ember;
@@ -78677,12 +78677,6 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
 
     confirmPayload(payload, view);
   });
-
-  QUnit.test('should add ember-view to views', function () {
-    _emberMetalRun_loop.default(view, 'createElement');
-
-    confirmPayload(beforeCalls[0], view);
-  });
 });
 enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
@@ -78774,32 +78768,6 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     });
   });
 
-  QUnit.test('remove removes an element from the DOM', function () {
-    willDestroyCalled = 0;
-
-    view = View.create({
-      willDestroyElement: function () {
-        willDestroyCalled++;
-      }
-    });
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    ok(_emberViewsSystemJquery.default('#' + _emberMetalProperty_get.get(view, 'elementId')).length === 1, 'precond - element was inserted');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroyElement();
-    });
-
-    ok(_emberViewsSystemJquery.default('#' + _emberMetalProperty_get.get(view, 'elementId')).length === 0, 'remove removes an element from the DOM');
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'remove nulls out the element');
-    equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');
-  });
-
   QUnit.test('destroy more forcibly removes the view', function () {
     willDestroyCalled = 0;
 
@@ -78871,108 +78839,6 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
 
     var viewElem = _emberViewsSystemJquery.default('#child');
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
-  });
-});
-enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler) {
-  'use strict';
-
-  var view = undefined;
-
-  QUnit.module('Ember.View#createElement', {
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        view.destroy();
-      });
-    }
-  });
-
-  QUnit.test('returns the receiver', function () {
-    view = _emberViewsViewsView.default.create();
-
-    var ret = _emberMetalRun_loop.default(function () {
-      return view.createElement();
-    });
-
-    equal(ret, view, 'returns receiver');
-  });
-
-  QUnit.test('calls render and turns resultant string into element', function () {
-    view = _emberViewsViewsView.default.create({
-      tagName: 'span',
-      template: _emberHtmlbarsTemplateCompiler.compile('foo')
-    });
-
-    equal(_emberMetalProperty_get.get(view, 'element'), null, 'precondition - has no element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.createElement();
-    });
-
-    var elem = _emberMetalProperty_get.get(view, 'element');
-    ok(elem, 'has element now');
-    equal(elem.innerHTML, 'foo', 'has innerHTML from context');
-    equal(elem.tagName.toString().toLowerCase(), 'span', 'has tagName from view');
-  });
-});
-enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView) {
-  'use strict';
-
-  var view = undefined;
-
-  QUnit.module('EmberView#destroyElement', {
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        return view.destroy();
-      });
-    }
-  });
-
-  QUnit.test('if it has no element, does nothing', function () {
-    var callCount = 0;
-    view = _emberViewsViewsView.default.create({
-      willDestroyElement: function () {
-        callCount++;
-      }
-    });
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - does NOT have element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroyElement();
-    });
-
-    equal(callCount, 0, 'did not invoke callback');
-  });
-
-  QUnit.test('returns receiver', function () {
-    var ret = undefined;
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-      ret = view.destroyElement();
-    });
-
-    equal(ret, view, 'returns receiver');
-  });
-
-  QUnit.test('removes element from parentNode if in DOM', function () {
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    var parent = view.$().parent();
-
-    ok(_emberMetalProperty_get.get(view, 'element'), 'precond - has element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroyElement();
-    });
-
-    equal(view.$(), undefined, 'view has no selector');
-    ok(!parent.find('#' + view.get('elementId')).length, 'element no longer in parent node');
   });
 });
 enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+b888104b
+ * @version   2.9.0-canary+2ba6ff8c
  */
 
 var enifed, requireModule, require, Ember;
@@ -19350,11 +19350,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     // This guard prevents revalidation on an already-destroyed view.
     if (view._renderNode.lastResult) {
       view._renderNode.lastResult.revalidate(view.env);
-      // supports createElement, which operates without moving the view into
-      // the inDOM state.
-      if (view._state === 'inDOM') {
-        this.dispatchLifecycleHooks(view.env);
-      }
+      this.dispatchLifecycleHooks(view.env);
       this.clearRenderedViews(view.env);
     }
   };
@@ -19431,12 +19427,6 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     morph.ownerNode = morph;
     view._willInsert = true;
     _emberMetalRun_loop.default.scheduleOnce('render', this, this.renderTopLevelView, view, morph);
-  };
-
-  Renderer.prototype.createElement = function Renderer_createElement(view) {
-    var morph = this._dom.createFragmentMorph();
-    morph.ownerNode = morph;
-    this.prerenderTopLevelView(view, morph);
   };
 
   Renderer.prototype.didCreateElement = function (view, element) {
@@ -45750,8 +45740,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
 
     /**
       Appends the view's element to the specified parent element.
-       If the view does not have an HTML representation yet, `createElement()`
-      will be called automatically.
        Note that this method just schedules the view to be appended; the DOM
       element will not be appended to the given element until all bindings have
       finished synchronizing.
@@ -45903,26 +45891,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     },
 
     /**
-      Creates a DOM representation of the view and all of its child views by
-      recursively calling the `render()` method. Once the element is created,
-      it sets the `element` property of the view to the rendered element.
-       After the element has been inserted into the DOM, `didInsertElement` will
-      be called on this view and all of its child views.
-       @method createElement
-      @return {Ember.View} receiver
-      @private
-    */
-    createElement: function () {
-      if (this.element) {
-        return this;
-      }
-
-      this.renderer.createElement(this);
-
-      return this;
-    },
-
-    /**
       Called when a view is going to insert an element into the DOM.
        @event willInsertElement
       @public
@@ -45948,26 +45916,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       @public
     */
     willClearRender: K,
-
-    /**
-      Destroys any existing element along with the element for any child views
-      as well. If the view does not currently have a element, then this method
-      will do nothing.
-       If you implement `willDestroyElement()` on your view, then this method will
-      be invoked on your view before your element is destroyed to give you a
-      chance to clean up any event handlers, etc.
-       If you write a `willDestroyElement()` handler, you can assume that your
-      `didInsertElement()` handler was called earlier for the same element.
-       You should not call or override this method yourself, but you may
-      want to implement the above callbacks.
-       @method destroyElement
-      @return {Ember.View} receiver
-      @private
-    */
-    destroyElement: function () {
-      this._currentState.destroyElement(this);
-      return this;
-    },
 
     /**
       You must call `destroy` on a view to destroy the view (and all of its
@@ -46939,8 +46887,6 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'emb
       return true; // continue event propagation
     },
 
-    destroyElement: function () {},
-
     destroy: function () {},
 
     rerender: function (view) {
@@ -46964,9 +46910,6 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/assign', 
     },
     rerender: function () {
       throw new _emberMetalError.default('You can\'t call rerender on a view being destroyed');
-    },
-    destroyElement: function () {
-      throw new _emberMetalError.default('You can\'t call destroyElement on a view being destroyed');
     }
   });
 
@@ -46999,10 +46942,6 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
     rerender: function (view) {
       view.renderer.ensureViewNotRendering(view);
       view.renderer.rerender(view);
-    },
-
-    destroyElement: function (view) {
-      view.renderer.remove(view, false);
     },
 
     destroy: function (view) {
@@ -47645,7 +47584,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+b888104b";
+  exports.default = "2.9.0-canary+2ba6ff8c";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
