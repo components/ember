@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+a93480de
+ * @version   2.9.0-canary+81a41930
  */
 
 var enifed, requireModule, require, Ember;
@@ -30216,7 +30216,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       assertNotRendered = undefined;
 
   if (true || false) {
-    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.');
+    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', _emberMetalFeatures.default('ember-glimmer'));
   }
 
   var raise = _emberMetalDebug.assert;
@@ -50319,7 +50319,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+a93480de";
+  exports.default = "2.9.0-canary+81a41930";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
