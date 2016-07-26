@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+f4bf04d7
+ * @version   2.9.0-canary+b888104b
  */
 
 var enifed, requireModule, require, Ember;
@@ -15757,6 +15757,94 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
     };
 
     return _class4;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-views/system/utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberViewsSystemUtils) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var hasGetClientRects = undefined,
+      hasGetBoundingClientRect = undefined;
+  var ClientRectListCtor = undefined,
+      ClientRectCtor = undefined;
+
+  (function () {
+    if (document.createRange) {
+      var range = document.createRange();
+
+      if (range.getClientRects) {
+        var clientRectsList = range.getClientRects();
+        hasGetClientRects = true;
+        ClientRectListCtor = clientRectsList && clientRectsList.constructor;
+      }
+
+      if (range.getBoundingClientRect) {
+        var clientRect = range.getBoundingClientRect();
+        hasGetBoundingClientRect = true;
+        ClientRectCtor = clientRect && clientRect.constructor;
+      }
+    }
+  })();
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('ember-views/system/utils', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars getViewClientRects'] = function htmlbarsGetViewClientRects(assert) {
+      if (!hasGetClientRects || !ClientRectListCtor) {
+        assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
+        return;
+      }
+
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<p>Hi, mom!</p>'
+      });
+
+      this.render('{{hi-mom}}');
+
+      assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
+    };
+
+    _class.prototype['@htmlbars getViewBoudningClientRect'] = function htmlbarsGetViewBoudningClientRect(assert) {
+      if (!hasGetBoundingClientRect || !ClientRectCtor) {
+        assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
+        return;
+      }
+
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<p>Hi, mom!</p>'
+      });
+
+      this.render('{{hi-mom}}');
+
+      assert.ok(_emberViewsSystemUtils.getViewBoundingClientRect(component) instanceof ClientRectCtor);
+    };
+
+    return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/components/web-component-fallback-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
@@ -38897,6 +38985,94 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
     };
 
     return _class4;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-views/system/utils'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberViewsSystemUtils) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var hasGetClientRects = undefined,
+      hasGetBoundingClientRect = undefined;
+  var ClientRectListCtor = undefined,
+      ClientRectCtor = undefined;
+
+  (function () {
+    if (document.createRange) {
+      var range = document.createRange();
+
+      if (range.getClientRects) {
+        var clientRectsList = range.getClientRects();
+        hasGetClientRects = true;
+        ClientRectListCtor = clientRectsList && clientRectsList.constructor;
+      }
+
+      if (range.getBoundingClientRect) {
+        var clientRect = range.getBoundingClientRect();
+        hasGetBoundingClientRect = true;
+        ClientRectCtor = clientRect && clientRect.constructor;
+      }
+    }
+  })();
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('ember-views/system/utils', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars getViewClientRects'] = function htmlbarsGetViewClientRects(assert) {
+      if (!hasGetClientRects || !ClientRectListCtor) {
+        assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
+        return;
+      }
+
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<p>Hi, mom!</p>'
+      });
+
+      this.render('{{hi-mom}}');
+
+      assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
+    };
+
+    _class.prototype['@htmlbars getViewBoudningClientRect'] = function htmlbarsGetViewBoudningClientRect(assert) {
+      if (!hasGetBoundingClientRect || !ClientRectCtor) {
+        assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
+        return;
+      }
+
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<p>Hi, mom!</p>'
+      });
+
+      this.render('{{hi-mom}}');
+
+      assert.ok(_emberViewsSystemUtils.getViewBoundingClientRect(component) instanceof ClientRectCtor);
+    };
+
+    return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/components/web-component-fallback-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
@@ -78470,74 +78646,6 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
     }
 
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
-  });
-});
-enifed('ember-views/tests/system/view_utils_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemUtils) {
-  'use strict';
-
-  var hasGetClientRects = undefined,
-      hasGetBoundingClientRect = undefined;
-  var ClientRectListCtor = undefined,
-      ClientRectCtor = undefined;
-
-  (function () {
-    if (document.createRange) {
-      var range = document.createRange();
-
-      if (range.getClientRects) {
-        var clientRectsList = range.getClientRects();
-        hasGetClientRects = true;
-        ClientRectListCtor = clientRectsList && clientRectsList.constructor;
-      }
-
-      if (range.getBoundingClientRect) {
-        var clientRect = range.getBoundingClientRect();
-        hasGetBoundingClientRect = true;
-        ClientRectCtor = clientRect && clientRect.constructor;
-      }
-    }
-  })();
-
-  var view = undefined;
-
-  QUnit.module('ViewUtils', {
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        if (view) {
-          view.destroy();
-        }
-      });
-    }
-  });
-
-  QUnit.test('getViewClientRects', function () {
-    if (!hasGetClientRects || !ClientRectListCtor) {
-      ok(true, 'The test environment does not support the DOM API required to run this test.');
-      return;
-    }
-
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      return view.appendTo('#qunit-fixture');
-    });
-
-    ok(_emberViewsSystemUtils.getViewClientRects(view) instanceof ClientRectListCtor);
-  });
-
-  QUnit.test('getViewBoundingClientRect', function () {
-    if (!hasGetBoundingClientRect || !ClientRectCtor) {
-      ok(true, 'The test environment does not support the DOM API required to run this test.');
-      return;
-    }
-
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      return view.appendTo('#qunit-fixture');
-    });
-
-    ok(_emberViewsSystemUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
   });
 });
 enifed('ember-views/tests/test-helpers/equal-html', ['exports'], function (exports) {
