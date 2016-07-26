@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+8a9c8329
+ * @version   2.9.0-canary+c590984e
  */
 
 var enifed, requireModule, require, Ember;
@@ -9440,7 +9440,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Sigmundur 33');
     };
 
-    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@glimmer bound outer named parameters get updated in the right scope'] = function glimmerBoundOuterNamedParametersGetUpdatedInTheRightScope() {
       var _this13 = this;
 
       this.registerComponent('-inner-component', {
@@ -9494,7 +9494,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Inner 28');
     };
 
-    _class.prototype['@skip bound outer hash parameters get updated in the right scope'] = function skipBoundOuterHashParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@test bound outer hash parameters get updated in the right scope'] = function testBoundOuterHashParametersGetUpdatedInTheRightScope() {
       var _this14 = this;
 
       this.registerComponent('-inner-component', {
@@ -11273,7 +11273,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: something here');
     };
 
-    _class.prototype['@skip non-block with properties overridden in init'] = function skipNonBlockWithPropertiesOverriddenInInit() {
+    _class.prototype['@glimmer non-block with properties overridden in init'] = function glimmerNonBlockWithPropertiesOverriddenInInit() {
       var _this34 = this;
 
       var instance = undefined;
@@ -25995,7 +25995,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
       this.assertValue('', 'Value is updated the second time');
     };
 
-    _class.prototype['@skip DOM is SSOT if value is set'] = function skipDOMIsSSOTIfValueIsSet() {
+    _class.prototype['@test DOM is SSOT if value is set'] = function testDOMIsSSOTIfValueIsSet() {
       var template = '<input value={{value}}>';
       this.render(template, { value: 'hola' });
 
@@ -26009,9 +26009,19 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
 
       this.assertValue('hola', 'DOM is used');
 
-      this.setComponentValue('hello');
+      this.setComponentValue('bye');
 
-      this.assertValue('hello', 'DOM is used');
+      this.assertValue('bye', 'Value is used');
+
+      // Simulates setting the input to the same value as it already is which won't cause a rerender
+
+      this.setDOMValue('hola');
+
+      this.assertValue('hola', 'DOM is used');
+
+      this.setComponentValue('hola');
+
+      this.assertValue('hola', 'Value is used');
     };
 
     // private helpers and assertions
@@ -32410,7 +32420,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Sigmundur 33');
     };
 
-    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@glimmer bound outer named parameters get updated in the right scope'] = function glimmerBoundOuterNamedParametersGetUpdatedInTheRightScope() {
       var _this13 = this;
 
       this.registerComponent('-inner-component', {
@@ -32464,7 +32474,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Inner 28');
     };
 
-    _class.prototype['@skip bound outer hash parameters get updated in the right scope'] = function skipBoundOuterHashParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@test bound outer hash parameters get updated in the right scope'] = function testBoundOuterHashParametersGetUpdatedInTheRightScope() {
       var _this14 = this;
 
       this.registerComponent('-inner-component', {
@@ -34243,7 +34253,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: something here');
     };
 
-    _class.prototype['@skip non-block with properties overridden in init'] = function skipNonBlockWithPropertiesOverriddenInInit() {
+    _class.prototype['@glimmer non-block with properties overridden in init'] = function glimmerNonBlockWithPropertiesOverriddenInInit() {
       var _this34 = this;
 
       var instance = undefined;
@@ -48657,7 +48667,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
       this.assertValue('', 'Value is updated the second time');
     };
 
-    _class.prototype['@skip DOM is SSOT if value is set'] = function skipDOMIsSSOTIfValueIsSet() {
+    _class.prototype['@test DOM is SSOT if value is set'] = function testDOMIsSSOTIfValueIsSet() {
       var template = '<input value={{value}}>';
       this.render(template, { value: 'hola' });
 
@@ -48671,9 +48681,19 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
 
       this.assertValue('hola', 'DOM is used');
 
-      this.setComponentValue('hello');
+      this.setComponentValue('bye');
 
-      this.assertValue('hello', 'DOM is used');
+      this.assertValue('bye', 'Value is used');
+
+      // Simulates setting the input to the same value as it already is which won't cause a rerender
+
+      this.setDOMValue('hola');
+
+      this.assertValue('hola', 'DOM is used');
+
+      this.setComponentValue('hola');
+
+      this.assertValue('hola', 'Value is used');
     };
 
     // private helpers and assertions
