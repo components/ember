@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+2ba6ff8c
+ * @version   2.9.0-canary+a93480de
  */
 
 var enifed, requireModule, require, Ember;
@@ -7880,7 +7880,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     @private
   */
   MixinPrototype.detect = function (obj) {
-    if (!obj) {
+    if (typeof obj !== 'object' || obj === null) {
       return false;
     }
     if (obj instanceof Mixin) {
@@ -10035,7 +10035,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
       throw new Error('Cannot call tagFor without Glimmer');
     }
 
-    if (object && typeof object === 'object') {
+    if (typeof object === 'object' && object) {
       var meta = _meta || _emberMetalMeta.meta(object);
       return meta.writableTag(makeTag);
     } else {
@@ -10375,7 +10375,11 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   */
 
   function guidFor(obj) {
-    if (obj && obj[GUID_KEY]) {
+    var type = typeof obj;
+    var isObject = type === 'object' && obj !== null;
+    var isFunction = type === 'function';
+
+    if ((isObject || isFunction) && obj[GUID_KEY]) {
       return obj[GUID_KEY];
     }
 
@@ -10389,7 +10393,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
 
     var ret = undefined;
-    var type = typeof obj;
 
     // Don't allow prototype changes to String etc. to change the guidFor
     switch (type) {
@@ -19991,7 +19994,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+2ba6ff8c";
+  exports.default = "2.9.0-canary+a93480de";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';

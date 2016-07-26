@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+2ba6ff8c
+ * @version   2.9.0-canary+a93480de
  */
 
 var enifed, requireModule, require, Ember;
@@ -12106,7 +12106,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
         _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
       }
 
-      if (parentValue && typeof parentValue === 'object') {
+      if (typeof parentValue === 'object' && parentValue) {
         if (false) {
           var meta = _emberMetalMeta.meta(parentValue);
           _emberMetalWatch_key.watchKey(parentValue, _propertyKey, meta);
@@ -15327,7 +15327,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
       var templateMeta = null;
       if (sm.block) {
         templateMeta = sm.block.template.meta;
-      } else if (sm.scope && sm.scope._view) {
+      } else if (sm.scope && sm.scope._view && sm.scope._view.template) {
         templateMeta = sm.scope._view.template.meta;
       }
       env.meta.moduleName = templateMeta && templateMeta.moduleName || env.meta && env.meta.moduleName;
@@ -17299,7 +17299,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-ht
       if (object !== this.observedObject || key !== this.observedKey) {
         this._clearObservedObject();
 
-        if (object && typeof object === 'object' && key) {
+        if (typeof object === 'object' && object && key) {
           _emberMetalObserver.addObserver(object, key, this, this.notify);
           this.observedObject = object;
           this.observedKey = key;
@@ -20019,7 +20019,7 @@ enifed('ember-htmlbars/streams/key-stream', ['exports', 'ember-metal/debug', 'em
       if (object !== this.observedObject) {
         this._clearObservedObject();
 
-        if (object && typeof object === 'object') {
+        if (typeof object === 'object' && object) {
           _emberMetalObserver.addObserver(object, this.key, this, this.notify);
           this.observedObject = object;
         }
@@ -27053,7 +27053,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     @private
   */
   MixinPrototype.detect = function (obj) {
-    if (!obj) {
+    if (typeof obj !== 'object' || obj === null) {
       return false;
     }
     if (obj instanceof Mixin) {
@@ -29188,7 +29188,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
       throw new Error('Cannot call tagFor without Glimmer');
     }
 
-    if (object && typeof object === 'object') {
+    if (typeof object === 'object' && object) {
       var meta = _meta || _emberMetalMeta.meta(object);
       return meta.writableTag(makeTag);
     } else {
@@ -29519,7 +29519,11 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   */
 
   function guidFor(obj) {
-    if (obj && obj[GUID_KEY]) {
+    var type = typeof obj;
+    var isObject = type === 'object' && obj !== null;
+    var isFunction = type === 'function';
+
+    if ((isObject || isFunction) && obj[GUID_KEY]) {
       return obj[GUID_KEY];
     }
 
@@ -29533,7 +29537,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
 
     var ret = undefined;
-    var type = typeof obj;
 
     // Don't allow prototype changes to String etc. to change the guidFor
     switch (type) {
@@ -47584,7 +47587,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+2ba6ff8c";
+  exports.default = "2.9.0-canary+a93480de";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

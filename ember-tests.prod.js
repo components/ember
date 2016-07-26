@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+2ba6ff8c
+ * @version   2.9.0-canary+a93480de
  */
 
 var enifed, requireModule, require, Ember;
@@ -8956,7 +8956,8 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
       _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
       _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -9869,6 +9870,50 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), '');
     };
 
+    _class.prototype['@test GH#13494 tagless blockless component with property binding'] = function testGH13494TaglessBlocklessComponentWithPropertyBinding(assert) {
+      var _this29 = this;
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          message: 'hello',
+          actions: {
+            change: function () {
+              this.set('message', 'goodbye');
+            }
+          }
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14)
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          tagName: ''
+        })
+      });
+
+      this.render('{{outer-component}}');
+
+      assert.equal(this.$().text(), 'message: hello');
+
+      this.runTask(function () {
+        return _this29.rerender();
+      });
+
+      assert.equal(this.$().text(), 'message: hello');
+
+      this.runTask(function () {
+        return _this29.$('button').click();
+      });
+
+      assert.equal(this.$().text(), 'message: goodbye');
+
+      this.runTask(function () {
+        return _this29.rerender();
+      });
+
+      assert.equal(this.$().text(), 'message: goodbye');
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
@@ -9904,13 +9949,13 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this29 = this;
+        var _this30 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
             positionalParams: ['val']
           }),
-          template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14)
+          template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15)
         });
 
         setup.call(this, assert);
@@ -9918,19 +9963,19 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this29.rerender();
+          return _this30.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this29.$('.my-button').click();
+          return _this30.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this29.context.set('model', { val2: 8 });
+          return _this30.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
@@ -32184,7 +32229,8 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
       _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
       _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
+      _templateObject14 = _taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -33097,6 +33143,50 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), '');
     };
 
+    _class.prototype['@test GH#13494 tagless blockless component with property binding'] = function testGH13494TaglessBlocklessComponentWithPropertyBinding(assert) {
+      var _this29 = this;
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          message: 'hello',
+          actions: {
+            change: function () {
+              this.set('message', 'goodbye');
+            }
+          }
+        }),
+        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14)
+      });
+
+      this.registerComponent('inner-component', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: ''
+        })
+      });
+
+      this.render('{{outer-component}}');
+
+      assert.equal(this.$().text(), 'message: hello');
+
+      this.runTask(function () {
+        return _this29.rerender();
+      });
+
+      assert.equal(this.$().text(), 'message: hello');
+
+      this.runTask(function () {
+        return _this29.$('button').click();
+      });
+
+      assert.equal(this.$().text(), 'message: goodbye');
+
+      this.runTask(function () {
+        return _this29.rerender();
+      });
+
+      assert.equal(this.$().text(), 'message: goodbye');
+    };
+
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
@@ -33132,13 +33222,13 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this29 = this;
+        var _this30 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
             positionalParams: ['val']
           }),
-          template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14)
+          template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject15)
         });
 
         setup.call(this, assert);
@@ -33146,19 +33236,19 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this29.rerender();
+          return _this30.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this29.$('.my-button').click();
+          return _this30.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this29.context.set('model', { val2: 8 });
+          return _this30.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
