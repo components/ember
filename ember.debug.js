@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+b1ccb543
+ * @version   2.9.0-canary+3e42d203
  */
 
 var enifed, requireModule, require, Ember;
@@ -20175,7 +20175,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
 
     _emberHtmlbarsSystemRenderView.renderHTMLBarsBlock(view, block, renderNode);
     view.lastResult = renderNode.lastResult;
-    this.clearRenderedViews(view.env);
+    this.clearRenderedViews(view._env);
   };
 
   Renderer.prototype.renderTopLevelView = function Renderer_renderTopLevelView(view, renderNode) {
@@ -20183,16 +20183,16 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     if (view._willInsert) {
       view._willInsert = false;
       this.prerenderTopLevelView(view, renderNode);
-      this.dispatchLifecycleHooks(view.env);
+      this.dispatchLifecycleHooks(view._env);
     }
   };
 
   Renderer.prototype.revalidateTopLevelView = function Renderer_revalidateTopLevelView(view) {
     // This guard prevents revalidation on an already-destroyed view.
     if (view._renderNode.lastResult) {
-      view._renderNode.lastResult.revalidate(view.env);
-      this.dispatchLifecycleHooks(view.env);
-      this.clearRenderedViews(view.env);
+      view._renderNode.lastResult.revalidate(view._env);
+      this.dispatchLifecycleHooks(view._env);
+      this.clearRenderedViews(view._env);
     }
   };
 
@@ -20222,7 +20222,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
 
   Renderer.prototype.ensureViewNotRendering = function Renderer_ensureViewNotRendering(view) {
-    var env = view.ownerView.env;
+    var env = view.ownerView._env;
     if (env && env.renderedViews.indexOf(view.elementId) !== -1) {
       throw new Error('Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.');
     }
@@ -20475,14 +20475,14 @@ enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-htmlbars/str
       this.helper = helper;
       this.params = params;
       this.templates = templates;
-      this.env = env;
+      this._env = env;
       this.scope = scope;
       this.hash = hash;
       this.label = label;
     },
 
     compute: function () {
-      return this.helper(_emberHtmlbarsStreamsUtils.getArrayValues(this.params), _emberHtmlbarsStreamsUtils.getHashValues(this.hash), this.templates, this.env, this.scope);
+      return this.helper(_emberHtmlbarsStreamsUtils.getArrayValues(this.params), _emberHtmlbarsStreamsUtils.getHashValues(this.hash), this.templates, this._env, this.scope);
     }
   });
 });
@@ -22322,7 +22322,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/node-man
     var meta = block && block.template && block.template.meta;
     var env = _emberHtmlbarsSystemRenderEnv.default.build(view, meta);
 
-    view.env = env;
+    view._env = env;
     _emberHtmlbarsNodeManagersViewNodeManager.createOrUpdateComponent(view, {}, null, renderNode, env);
     var nodeManager = new _emberHtmlbarsNodeManagersViewNodeManager.default(view, null, renderNode, block, view.tagName !== '');
 
@@ -22901,8 +22901,8 @@ enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'emb
     setOutletState: function (state) {
       this.outletState = { main: state };
 
-      if (this.env) {
-        this.env.outletState = this.outletState;
+      if (this._env) {
+        this._env.outletState = this.outletState;
       }
 
       if (this.lastResult) {
@@ -48730,7 +48730,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     this.renderer.revalidateTopLevelView(this);
     this.scheduledRevalidation = false;
   }, _Mixin$create.scheduleRevalidate = function (node, label, manualRerender) {
-    if (node && !this._dispatching && this.env.renderedNodes.has(node)) {
+    if (node && !this._dispatching && this._env.renderedNodes.has(node)) {
       if (manualRerender) {
         _emberMetalDebug.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 3.0', false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
       } else {
@@ -49483,7 +49483,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
       this._isDispatchingAttrs = false;
       this._isVisible = false;
       this.element = null;
-      this.env = null;
+      this._env = null;
       this._isVisible = _emberMetalProperty_get.get(this, 'isVisible');
 
       // Fallback for legacy cases where the view was created directly
@@ -50331,7 +50331,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+b1ccb543";
+  exports.default = "2.9.0-canary+3e42d203";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
