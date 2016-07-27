@@ -10981,7 +10981,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
   var runInTransaction = undefined;
 
-  if (true || false) {
+  if (false || true) {
     runInTransaction = _emberMetalTransaction.default;
   } else {
     runInTransaction = function (callback) {
@@ -13029,7 +13029,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
   var TwoWayFlushDetectionTag = undefined;
 
-  if (true || false) {
+  if (false || true) {
     TwoWayFlushDetectionTag = (function () {
       function _class(tag, key, ref) {
         _classCallCheck(this, _class);
@@ -13083,7 +13083,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       this._parentObjectTag = parentObjectTag;
       this._propertyKey = propertyKey;
 
-      if (true || false) {
+      if (false || true) {
         var tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
         this.tag = new TwoWayFlushDetectionTag(tag, propertyKey, this);
       } else {
@@ -13110,7 +13110,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
           _emberMetalWatch_key.watchKey(parentValue, _propertyKey, meta);
         }
 
-        if (true || false) {
+        if (false || true) {
           this.tag.didCompute(parentValue);
         }
 
@@ -27115,7 +27115,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
-  if (true || false) {
+  if (false || true) {
     members.lastRendered = ownMap;
     members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
   }
@@ -27148,7 +27148,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
 
-    if (true || false) {
+    if (false || true) {
       this._lastRendered = undefined;
       this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
     }
@@ -29171,7 +29171,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
 
     _emberMetalTags.markObjectAsDirty(m);
 
-    if (true || false) {
+    if (false || true) {
       _emberMetalTransaction.assertNotRendered(obj, keyName, m);
     }
   }
@@ -30495,18 +30495,18 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  if (true || false) {
+  if (false || true) {
     _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', _emberMetalFeatures.default('ember-glimmer'));
   }
 
   var raise = _emberMetalDebug.assert;
-  if (false) {
+  if (true) {
     raise = function (message, test) {
       _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
     };
   }
 
-  if (true || false) {
+  if (false || true) {
     (function () {
       var counter = 0;
       var inTransaction = false;
