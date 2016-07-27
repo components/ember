@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+3e42d203
+ * @version   2.9.0-canary+23b6c64f
  */
 
 var enifed, requireModule, require, Ember;
@@ -12279,7 +12279,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified value twice in a single render/);
           var outer = undefined,
@@ -12358,7 +12358,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this59 = this;
 
-      if (!true) {
+      if (!false) {
         (function () {
           var outer = undefined,
               middle = undefined;
@@ -12421,7 +12421,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this60 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified wrapper.content twice in a single render/);
           var outer = undefined,
@@ -12561,7 +12561,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
 
-      if (!true) {
+      if (!false) {
         var outer = undefined,
             middle = undefined;
 
@@ -26174,7 +26174,8 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       _templateObject6 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
       _templateObject7 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
       _templateObject8 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']);
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -26253,9 +26254,11 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
         _emberMetalProperty_set.set(_this.context, 'categories.Smartphones', 100);
         _emberMetalProperty_set.set(_this.context, 'categories.Tweets', 443115);
 
-        // {{#each-in}} does not currently observe internal mutations to the hash
-        // so we manually trigger a rerender. This behavior may change in the future.
-        _this.rerender();
+        if (_this.isHTMLBars) {
+          // {{#each-in}} in HTMLBars does not observe internal mutations to the
+          // hash so we manually trigger a rerender.
+          _this.rerender();
+        }
       });
 
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
@@ -26326,9 +26329,11 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
         _emberMetalProperty_set.set(protoCategories, 'Robots', 666);
         _emberMetalProperty_set.set(categories, 'Tweets', 443115);
 
-        // {{#each-in}} does not currently observe internal mutations to the hash
-        // so we manually trigger a rerender. This behavior may change in the future.
-        _this3.rerender();
+        if (_this3.isHTMLBars) {
+          // {{#each-in}} in HTMLBars does not observe internal mutations to the
+          // hash so we manually trigger a rerender.
+          _this3.rerender();
+        }
       });
 
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
@@ -26344,7 +26349,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
     };
 
-    _class.prototype['@test it does not observe property mutations on the object'] = function testItDoesNotObservePropertyMutationsOnTheObject() {
+    _class.prototype['@test it does not observe direct property mutations (not going through set) on the object'] = function testItDoesNotObserveDirectPropertyMutationsNotGoingThroughSetOnTheObject() {
       var _this4 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
@@ -26385,25 +26390,12 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
           'Smartphones': 8203,
           'JavaScript Frameworks': Infinity
         });
-        _this4.rerender();
       });
 
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
     };
 
-    return _class;
-  })(EachInTest));
-
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}} undefined path', (function (_RenderingTest) {
-    _inherits(_class2, _RenderingTest);
-
-    function _class2() {
-      _classCallCheck(this, _class2);
-
-      _RenderingTest.apply(this, arguments);
-    }
-
-    _class2.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
+    _class.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
       var _this5 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9), { foo: {} });
@@ -26429,8 +26421,46 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       this.assertText('');
     };
 
-    return _class2;
-  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+    _class.prototype['@test it iterate over array with `in` instead of walking over elements'] = function testItIterateOverArrayWithInInsteadOfWalkingOverElements(assert) {
+      var _this6 = this;
+
+      var arr = [1, 2, 3];
+      arr.foo = 'bar';
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10), { arr: arr });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar]');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar]');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(arr, 'zomg', 'lol');
+
+        if (_this6.isHTMLBars) {
+          // {{#each-in}} in HTMLBars does not observe internal mutations to the
+          // hash so we manually trigger a rerender.
+          _this6.rerender();
+        }
+      });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar][zomg:lol]');
+
+      arr = [1, 2, 3];
+      arr.foo = 'bar';
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'arr', arr);
+      });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar]');
+    };
+
+    return _class;
+  })(EachInTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-metal/property_events', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberMetalProperty_events, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
@@ -35259,7 +35289,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified value twice in a single render/);
           var outer = undefined,
@@ -35338,7 +35368,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this59 = this;
 
-      if (!true) {
+      if (!false) {
         (function () {
           var outer = undefined,
               middle = undefined;
@@ -35401,7 +35431,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this60 = this;
 
-      if (true) {
+      if (false) {
         (function () {
           expectDeprecation(/modified wrapper.content twice in a single render/);
           var outer = undefined,
@@ -35541,7 +35571,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
 
-      if (!true) {
+      if (!false) {
         var outer = undefined,
             middle = undefined;
 
@@ -48961,7 +48991,8 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       _templateObject6 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
       _templateObject7 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
       _templateObject8 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']);
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -49040,9 +49071,11 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
         _emberMetalProperty_set.set(_this.context, 'categories.Smartphones', 100);
         _emberMetalProperty_set.set(_this.context, 'categories.Tweets', 443115);
 
-        // {{#each-in}} does not currently observe internal mutations to the hash
-        // so we manually trigger a rerender. This behavior may change in the future.
-        _this.rerender();
+        if (_this.isHTMLBars) {
+          // {{#each-in}} in HTMLBars does not observe internal mutations to the
+          // hash so we manually trigger a rerender.
+          _this.rerender();
+        }
       });
 
       this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
@@ -49113,9 +49146,11 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
         _emberMetalProperty_set.set(protoCategories, 'Robots', 666);
         _emberMetalProperty_set.set(categories, 'Tweets', 443115);
 
-        // {{#each-in}} does not currently observe internal mutations to the hash
-        // so we manually trigger a rerender. This behavior may change in the future.
-        _this3.rerender();
+        if (_this3.isHTMLBars) {
+          // {{#each-in}} in HTMLBars does not observe internal mutations to the
+          // hash so we manually trigger a rerender.
+          _this3.rerender();
+        }
       });
 
       this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7));
@@ -49131,7 +49166,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject6));
     };
 
-    _class.prototype['@test it does not observe property mutations on the object'] = function testItDoesNotObservePropertyMutationsOnTheObject() {
+    _class.prototype['@test it does not observe direct property mutations (not going through set) on the object'] = function testItDoesNotObserveDirectPropertyMutationsNotGoingThroughSetOnTheObject() {
       var _this4 = this;
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
@@ -49172,25 +49207,12 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
           'Smartphones': 8203,
           'JavaScript Frameworks': Infinity
         });
-        _this4.rerender();
       });
 
       this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
     };
 
-    return _class;
-  })(EachInTest));
-
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}} undefined path', (function (_RenderingTest) {
-    _inherits(_class2, _RenderingTest);
-
-    function _class2() {
-      _classCallCheck(this, _class2);
-
-      _RenderingTest.apply(this, arguments);
-    }
-
-    _class2.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
+    _class.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
       var _this5 = this;
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9), { foo: {} });
@@ -49216,8 +49238,46 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       this.assertText('');
     };
 
-    return _class2;
-  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+    _class.prototype['@test it iterate over array with `in` instead of walking over elements'] = function testItIterateOverArrayWithInInsteadOfWalkingOverElements(assert) {
+      var _this6 = this;
+
+      var arr = [1, 2, 3];
+      arr.foo = 'bar';
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10), { arr: arr });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar]');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar]');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(arr, 'zomg', 'lol');
+
+        if (_this6.isHTMLBars) {
+          // {{#each-in}} in HTMLBars does not observe internal mutations to the
+          // hash so we manually trigger a rerender.
+          _this6.rerender();
+        }
+      });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar][zomg:lol]');
+
+      arr = [1, 2, 3];
+      arr.foo = 'bar';
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this6.context, 'arr', arr);
+      });
+
+      this.assertText('[0:1][1:2][2:3][foo:bar]');
+    };
+
+    return _class;
+  })(EachInTest));
 });
 enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-metal/property_events', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberMetalProperty_events, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';

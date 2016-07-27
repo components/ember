@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+3e42d203
+ * @version   2.9.0-canary+23b6c64f
  */
 
 var enifed, requireModule, require, Ember;
@@ -9889,9 +9889,7 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-metal/symbol'], funct
   exports.isEachIn = isEachIn;
 
   /**
-    The `{{each-in}}` helper loops over properties on an object. It is unbound,
-    in that new (or removed) properties added to the target object will not be
-    rendered.
+    The `{{each-in}}` helper loops over properties on an object.
   
     For example, given a `user` object that looks like:
   
@@ -10813,7 +10811,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
   var runInTransaction = undefined;
 
-  if (false || true) {
+  if (true || false) {
     runInTransaction = _emberMetalTransaction.default;
   } else {
     runInTransaction = function (callback) {
@@ -12406,6 +12404,12 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
       if (iterable === undefined || iterable === null) {
         return EMPTY_ITERATOR;
+      } else if (_emberGlimmerHelpersEachIn.isEachIn(ref)) {
+        var keys = Object.keys(iterable);
+        var values = keys.map(function (key) {
+          return iterable[key];
+        });
+        return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
       } else if (_emberRuntimeMixinsArray.isEmberArray(iterable)) {
         return new EmberArrayIterator(iterable, keyFor);
       } else if (Array.isArray(iterable)) {
@@ -12422,12 +12426,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
         })();
 
         if (typeof _ret === 'object') return _ret.v;
-      } else if (_emberGlimmerHelpersEachIn.isEachIn(ref)) {
-        var keys = Object.keys(iterable);
-        var values = keys.map(function (key) {
-          return iterable[key];
-        });
-        return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
       } else {
         throw new Error('Don\'t know how to {{#each ' + iterable + '}}');
       }
@@ -12761,7 +12759,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
   var TwoWayFlushDetectionTag = undefined;
 
-  if (false || true) {
+  if (true || false) {
     TwoWayFlushDetectionTag = (function () {
       function _class(tag, key, ref) {
         _classCallCheck(this, _class);
@@ -12815,7 +12813,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       this._parentObjectTag = parentObjectTag;
       this._propertyKey = propertyKey;
 
-      if (false || true) {
+      if (true || false) {
         var tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
         this.tag = new TwoWayFlushDetectionTag(tag, propertyKey, this);
       } else {
@@ -12842,7 +12840,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
           _emberMetalWatch_key.watchKey(parentValue, _propertyKey, meta);
         }
 
-        if (false || true) {
+        if (true || false) {
           this.tag.didCompute(parentValue);
         }
 
@@ -26847,7 +26845,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
-  if (false || true) {
+  if (true || false) {
     members.lastRendered = ownMap;
     members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
   }
@@ -26880,7 +26878,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
 
-    if (false || true) {
+    if (true || false) {
       this._lastRendered = undefined;
       this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
     }
@@ -28903,7 +28901,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
 
     _emberMetalTags.markObjectAsDirty(m);
 
-    if (false || true) {
+    if (true || false) {
       _emberMetalTransaction.assertNotRendered(obj, keyName, m);
     }
   }
@@ -30227,18 +30225,18 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  if (false || true) {
+  if (true || false) {
     _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', _emberMetalFeatures.default('ember-glimmer'));
   }
 
   var raise = _emberMetalDebug.assert;
-  if (true) {
+  if (false) {
     raise = function (message, test) {
       _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
     };
   }
 
-  if (false || true) {
+  if (true || false) {
     (function () {
       var counter = 0;
       var inTransaction = false;
@@ -50331,7 +50329,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+3e42d203";
+  exports.default = "2.9.0-canary+23b6c64f";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
