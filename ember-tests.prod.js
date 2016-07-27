@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+c79b7626
+ * @version   2.9.0-canary+73be3953
  */
 
 var enifed, requireModule, require, Ember;
@@ -17339,7 +17339,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
     };
 
-    _class8.prototype['@htmlbars can set dynamic style with -html-safe'] = function htmlbarsCanSetDynamicStyleWithHtmlSafe() {
+    _class8.prototype['@test can set dynamic style with -html-safe'] = function testCanSetDynamicStyleWithHtmlSafe() {
       var _this31 = this;
 
       this.render('<div style={{-html-safe model.style}}></div>', {
@@ -40517,7 +40517,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       this.assertElement(this.firstChild, { tagName: 'div', content: '', attrs: { 'style': 'width: 60px;' } });
     };
 
-    _class8.prototype['@htmlbars can set dynamic style with -html-safe'] = function htmlbarsCanSetDynamicStyleWithHtmlSafe() {
+    _class8.prototype['@test can set dynamic style with -html-safe'] = function testCanSetDynamicStyleWithHtmlSafe() {
       var _this31 = this;
 
       this.render('<div style={{-html-safe model.style}}></div>', {
