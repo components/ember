@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+c7e2bb92
+ * @version   2.9.0-canary+89f82744
  */
 
 var enifed, requireModule, require, Ember;
@@ -8431,8 +8431,6 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
 enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/cache', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-views/system/utils', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalCache, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxRender, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberViewsSystemUtils, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -8456,16 +8454,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
     wrapClassAttribute(args);
     return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
   }
-
-  var StyleAttributeChangeList = {
-    setAttribute: function (dom, element, attr, value) {
-      _glimmerRuntime.AttributeChangeList.setAttribute.apply(_glimmerRuntime.AttributeChangeList, arguments);
-    },
-
-    updateAttribute: function () {
-      this.setAttribute.apply(this, arguments);
-    }
-  };
 
   var builtInDynamicComponents = {
     input: function (_ref2, getDefinition) {
@@ -8709,16 +8697,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
 
     Environment.prototype.hasPartial = function hasPartial(name) {
       return _emberViewsSystemLookup_partial.hasPartial(this, name[0]);
-    };
-
-    Environment.prototype.attributeFor = function attributeFor(element, attr, reference, isTrusting) {
-      var _GlimmerEnvironment$prototype$attributeFor;
-
-      if (attr === 'style' && !isTrusting) {
-        return StyleAttributeChangeList;
-      }
-
-      return (_GlimmerEnvironment$prototype$attributeFor = _GlimmerEnvironment.prototype.attributeFor).call.apply(_GlimmerEnvironment$prototype$attributeFor, [this].concat(_slice.call(arguments)));
     };
 
     Environment.prototype.lookupPartial = function lookupPartial(name) {
@@ -10703,7 +10681,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'require', 'container/registr
     registry.register('component:link-to', _emberGlimmerComponentsLinkTo.default);
   }
 });
-enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args', 'container/registry', 'ember-metal/assign', 'ember-metal/property_get'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs, _containerRegistry, _emberMetalAssign, _emberMetalProperty_get) {
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args', 'container/registry', 'ember-metal/assign', 'ember-metal/property_get'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs, _containerRegistry, _emberMetalAssign, _emberMetalProperty_get) {
   'use strict';
 
   exports.validatePositionalParameters = validatePositionalParameters;
@@ -10737,15 +10715,19 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
     while (i !== -1) {
       var binding = attributeBindings[i];
-      var parsedMicroSyntax = _emberGlimmerUtilsReferences.AttributeBindingReference.parseMicroSyntax(binding);
-      var prop = parsedMicroSyntax[0];
+      var parsed = _emberGlimmerUtilsBindings.AttributeBinding.parse(binding);
+      var attribute = parsed[1];
 
-      if (seen.indexOf(prop) === -1) {
-        seen.push(prop);
-        _emberGlimmerUtilsReferences.AttributeBindingReference.apply(component, parsedMicroSyntax, operations);
+      if (seen.indexOf(attribute) === -1) {
+        seen.push(attribute);
+        _emberGlimmerUtilsBindings.AttributeBinding.apply(component, parsed, operations);
       }
 
       i--;
+    }
+
+    if (!seen['style']) {
+      _emberGlimmerUtilsBindings.IsVisibleBinding.apply(component, operations);
     }
   }
 
@@ -10916,6 +10898,8 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       if (attributeBindings && attributeBindings.length) {
         applyAttributeBindings(attributeBindings, component, operations);
+      } else {
+        _emberGlimmerUtilsBindings.IsVisibleBinding.apply(component, operations);
       }
 
       if (classRef) {
@@ -10930,7 +10914,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       if (classNameBindings && classNameBindings.length) {
         classNameBindings.forEach(function (binding) {
-          _emberGlimmerUtilsReferences.applyClassNameBinding(component, binding, operations);
+          _emberGlimmerUtilsBindings.ClassNameBinding.apply(component, binding, operations);
         });
       }
 
@@ -11732,6 +11716,206 @@ enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer"], f
 
   exports.default = _emberGlimmer.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
 });
+enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-runtime/system/string', 'glimmer-reference', 'ember-glimmer/utils/references', 'ember-glimmer/utils/string'], function (exports, _emberMetalDebug, _emberRuntimeSystemString, _glimmerReference, _emberGlimmerUtilsReferences, _emberGlimmerUtilsString) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function referenceForKey(component, key) {
+    return component[_emberGlimmerUtilsReferences.REFERENCE_FOR_KEY](key);
+  }
+
+  function referenceForParts(component, parts) {
+    return _glimmerReference.referenceFromParts(component[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE](), parts);
+  }
+
+  var AttributeBinding = {
+    parse: function (microsyntax) {
+      var colonIndex = microsyntax.indexOf(':');
+
+      if (colonIndex === -1) {
+        return [microsyntax, microsyntax, true];
+      } else {
+        var prop = microsyntax.substring(0, colonIndex);
+        var attribute = microsyntax.substring(colonIndex + 1);
+
+        return [prop, attribute, false];
+      }
+    },
+
+    apply: function (component, parsed, operations) {
+      var prop = parsed[0];
+      var attribute = parsed[1];
+      var isSimple = parsed[2];
+
+      var isPath = prop.indexOf('.') > -1;
+      var value = isPath ? referenceForParts(component, prop.split('.')) : referenceForKey(component, prop);
+      var reference = undefined;
+
+      if (attribute === 'style') {
+        reference = new StyleBindingReference(value, referenceForKey(component, 'isVisible'));
+      } else {
+        reference = _glimmerReference.map(value, this.mapAttributeValue);
+      }
+
+      operations.addAttribute(attribute, reference);
+    },
+
+    mapAttributeValue: function (value) {
+      if (value === null || value === undefined || value === false) {
+        return null;
+      } else if (value === true) {
+        // Note:
+        // This is here to mimic functionality in HTMLBars for properties.
+        // For instance when a property like "disable" is set all of these
+        // forms are valid and have the same disabled functionality:
+        //
+        // <input disabled />
+        // <input disabled="true" />
+        // <input disabled="false" />
+        // <input disabled="" />
+        //
+        // For compatability sake we do not just cast the true boolean to
+        // a string. Potentially we can revisit this in the future as the
+        // casting feels better and we can remove this branch.
+        return '';
+      } else {
+        return value;
+      }
+    }
+  };
+
+  exports.AttributeBinding = AttributeBinding;
+  var DISPLAY_NONE = 'display: none;';
+  var SAFE_DISPLAY_NONE = _emberGlimmerUtilsString.htmlSafe(DISPLAY_NONE);
+
+  var StyleBindingReference = (function (_CachedReference) {
+    _inherits(StyleBindingReference, _CachedReference);
+
+    function StyleBindingReference(inner, isVisible) {
+      _classCallCheck(this, StyleBindingReference);
+
+      _CachedReference.call(this);
+
+      this.tag = inner.tag;
+      this.inner = inner;
+      this.isVisible = isVisible;
+    }
+
+    StyleBindingReference.prototype.compute = function compute() {
+      var value = this.inner.value();
+      var isVisible = this.isVisible.value();
+
+      if (isVisible !== false) {
+        return value;
+      } else if (!value && value !== 0) {
+        return SAFE_DISPLAY_NONE;
+      } else {
+        var style = value + ' ' + DISPLAY_NONE;
+        return _emberGlimmerUtilsString.isHTMLSafe(value) ? _emberGlimmerUtilsString.htmlSafe(style) : style;
+      }
+    };
+
+    return StyleBindingReference;
+  })(_glimmerReference.CachedReference);
+
+  var IsVisibleBinding = {
+    apply: function (component, operations) {
+      operations.addAttribute('style', _glimmerReference.map(referenceForKey(component, 'isVisible'), this.mapStyleValue));
+    },
+
+    mapStyleValue: function (isVisible) {
+      return isVisible === false ? SAFE_DISPLAY_NONE : null;
+    }
+  };
+
+  exports.IsVisibleBinding = IsVisibleBinding;
+  var ClassNameBinding = {
+    apply: function (component, microsyntax, operations) {
+      var _microsyntax$split = microsyntax.split(':');
+
+      var prop = _microsyntax$split[0];
+      var truthy = _microsyntax$split[1];
+      var falsy = _microsyntax$split[2];
+
+      var isPath = prop.indexOf('.') > -1;
+      var parts = isPath && prop.split('.');
+      var value = isPath ? referenceForParts(component, parts) : referenceForKey(component, prop);
+      var ref = undefined;
+
+      if (truthy === undefined) {
+        ref = new SimpleClassNameBindingReference(value, isPath ? parts[parts.length - 1] : prop);
+      } else {
+        ref = new ColonClassNameBindingReference(value, truthy, falsy);
+      }
+
+      operations.addAttribute('class', ref);
+    }
+  };
+
+  exports.ClassNameBinding = ClassNameBinding;
+
+  var SimpleClassNameBindingReference = (function (_CachedReference2) {
+    _inherits(SimpleClassNameBindingReference, _CachedReference2);
+
+    function SimpleClassNameBindingReference(inner, path) {
+      _classCallCheck(this, SimpleClassNameBindingReference);
+
+      _CachedReference2.call(this);
+
+      this.tag = inner.tag;
+      this.inner = inner;
+      this.path = path;
+      this.dasherizedPath = null;
+    }
+
+    SimpleClassNameBindingReference.prototype.compute = function compute() {
+      var value = this.inner.value();
+
+      if (value === true) {
+        var path = this.path;
+        var dasherizedPath = this.dasherizedPath;
+
+        return dasherizedPath || (this.dasherizedPath = _emberRuntimeSystemString.dasherize(path));
+      } else if (value || value === 0) {
+        return value;
+      } else {
+        return null;
+      }
+    };
+
+    return SimpleClassNameBindingReference;
+  })(_glimmerReference.CachedReference);
+
+  var ColonClassNameBindingReference = (function (_CachedReference3) {
+    _inherits(ColonClassNameBindingReference, _CachedReference3);
+
+    function ColonClassNameBindingReference(inner, truthy, falsy) {
+      _classCallCheck(this, ColonClassNameBindingReference);
+
+      _CachedReference3.call(this);
+
+      this.tag = inner.tag;
+      this.inner = inner;
+      this.truthy = truthy || null;
+      this.falsy = falsy || null;
+    }
+
+    ColonClassNameBindingReference.prototype.compute = function compute() {
+      var inner = this.inner;
+      var truthy = this.truthy;
+      var falsy = this.falsy;
+
+      return inner.value() ? truthy : falsy;
+    };
+
+    return ColonClassNameBindingReference;
+  })(_glimmerReference.CachedReference);
+});
 enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/tags', 'ember-metal/empty_object', 'ember-runtime/mixins/array', 'ember-runtime/mixins/-proxy', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', 'glimmer-reference'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberMetalTags, _emberMetalEmpty_object, _emberRuntimeMixinsArray, _emberRuntimeMixinsProxy, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn, _glimmerReference) {
   'use strict';
 
@@ -12155,10 +12339,8 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     return PositionalArgs;
   })();
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/transaction', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime/system/string', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy', 'ember-metal/debug'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalTransaction, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntimeSystemString, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy, _emberMetalDebug) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/transaction', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalTransaction, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy) {
   'use strict';
-
-  exports.applyClassNameBinding = applyClassNameBinding;
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -12583,175 +12765,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   })(CachedReference);
 
   exports.InternalHelperReference = InternalHelperReference;
-
-  var AttributeBindingReference = (function (_CachedReference5) {
-    _inherits(AttributeBindingReference, _CachedReference5);
-
-    AttributeBindingReference.apply = function apply(component, parsedMicroSyntax, operations) {
-      var reference = undefined;
-      var prop = parsedMicroSyntax[0];
-      var attr = undefined;
-
-      if (parsedMicroSyntax.length === 1) {
-        reference = new this(component, prop);
-      } else {
-        attr = parsedMicroSyntax[1];
-        reference = new this(component, prop, attr);
-      }
-
-      operations.addAttribute(reference.attributeName, reference);
-    };
-
-    AttributeBindingReference.parseMicroSyntax = function parseMicroSyntax(microsyntax) {
-      var colonIndex = microsyntax.indexOf(':');
-
-      if (colonIndex === -1) {
-        return [microsyntax];
-      } else {
-        var prop = microsyntax.substring(0, colonIndex);
-        var attr = microsyntax.substring(colonIndex + 1);
-
-        return [prop, attr];
-      }
-    };
-
-    function AttributeBindingReference(component, propertyPath) {
-      var attributeName = arguments.length <= 2 || arguments[2] === undefined ? propertyPath : arguments[2];
-      return (function () {
-        _classCallCheck(this, AttributeBindingReference);
-
-        _CachedReference5.call(this);
-
-        if (propertyPath.indexOf('.') > -1) {
-          // For bindings like `foo.bar.baz`, just checking the tag for the component itself is not enough.
-          this.tag = _glimmerReference.CURRENT_TAG;
-        } else {
-          this.tag = _emberMetalTags.tagFor(component);
-        }
-
-        this.component = component;
-        this.propertyPath = propertyPath;
-        this.attributeName = attributeName;
-      }).apply(this, arguments);
-    }
-
-    AttributeBindingReference.prototype.compute = function compute() {
-      var value = _emberMetalProperty_get.get(this.component, this.propertyPath);
-
-      if (value === null || value === undefined || value === false) {
-        return null;
-      } else if (value === true) {
-        // Note:
-        // This is here to mimic functionality in HTMLBars for properties.
-        // For instance when a property like "disable" is set all of these
-        // forms are valid and have the same disabled functionality:
-        //
-        // <input disabled />
-        // <input disabled="true" />
-        // <input disabled="false" />
-        // <input disabled="" />
-        //
-        // For compatability sake we do not just cast the true boolean to
-        // a string. Potentially we can revisit this in the future as the
-        // casting feels better and we can remove this branch.
-        return '';
-      } else {
-        return value;
-      }
-    };
-
-    return AttributeBindingReference;
-  })(CachedReference);
-
-  exports.AttributeBindingReference = AttributeBindingReference;
-
-  function applyClassNameBinding(component, microsyntax, operations) {
-    var _microsyntax$split = microsyntax.split(':');
-
-    var prop = _microsyntax$split[0];
-    var truthy = _microsyntax$split[1];
-    var falsy = _microsyntax$split[2];
-
-    var ref = undefined;
-
-    if (truthy !== undefined) {
-      ref = new ColonClassNameBindingReference(component, prop, truthy, falsy);
-    } else {
-      ref = new SimpleClassNameBindingReference(component, prop);
-    }
-
-    operations.addAttribute('class', ref);
-  }
-
-  var SimpleClassNameBindingReference = (function (_CachedReference6) {
-    _inherits(SimpleClassNameBindingReference, _CachedReference6);
-
-    function SimpleClassNameBindingReference(component, propertyPath) {
-      _classCallCheck(this, SimpleClassNameBindingReference);
-
-      _CachedReference6.call(this);
-
-      if (propertyPath.indexOf('.') > -1) {
-        // For bindings like `foo.bar.baz`, just checking the tag for the component itself is not enough.
-        this.tag = _glimmerReference.CURRENT_TAG;
-      } else {
-        this.tag = _emberMetalTags.tagFor(component);
-      }
-
-      this.component = component;
-      this.propertyPath = propertyPath;
-    }
-
-    SimpleClassNameBindingReference.prototype.compute = function compute() {
-      var value = _emberMetalProperty_get.get(this.component, this.propertyPath);
-
-      if (value === true) {
-        return propertyPathToClassName(this.propertyPath);
-      } else if (value || value === 0) {
-        return value;
-      } else {
-        return null;
-      }
-    };
-
-    return SimpleClassNameBindingReference;
-  })(CachedReference);
-
-  var ColonClassNameBindingReference = (function (_CachedReference7) {
-    _inherits(ColonClassNameBindingReference, _CachedReference7);
-
-    function ColonClassNameBindingReference(component, propertyPath, truthy, falsy) {
-      _classCallCheck(this, ColonClassNameBindingReference);
-
-      _CachedReference7.call(this);
-
-      if (propertyPath.indexOf('.') > -1) {
-        // For bindings like `foo.bar.baz`, just checking the tag for the component itself is not enough.
-        this.tag = _glimmerReference.CURRENT_TAG;
-      } else {
-        this.tag = _emberMetalTags.tagFor(component);
-      }
-
-      this.component = component;
-      this.propertyPath = propertyPath;
-      this.truthy = truthy || null;
-      this.falsy = falsy || null;
-    }
-
-    ColonClassNameBindingReference.prototype.compute = function compute() {
-      var value = _emberMetalProperty_get.get(this.component, this.propertyPath);
-      return !!value ? this.truthy : this.falsy;
-    };
-
-    return ColonClassNameBindingReference;
-  })(CachedReference);
-
-  function propertyPathToClassName(propertyPath) {
-    var parts = propertyPath.split('.');
-    var last = parts[parts.length - 1];
-
-    return _emberRuntimeSystemString.dasherize(last);
-  }
 
   var EMPTY_OBJECT = {};
 
@@ -47846,7 +47859,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+c7e2bb92";
+  exports.default = "2.9.0-canary+89f82744";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -57427,7 +57440,7 @@ enifed('glimmer-runtime/lib/component/interfaces.tslint', ['exports'], function 
     });
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvY29tcG9uZW50L2ludGVyZmFjZXMudHNsaW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLFNBQUssQ0FBQyxNQUFNLENBQUMsd0NBQXdDLENBQUMsQ0FBQztBQUN2RCxTQUFLLENBQUMsSUFBSSxDQUFDLGdFQUFnRSxFQUFFLFVBQVMsTUFBTSxFQUFBO0FBQzFGLGNBQU0sQ0FBQyxNQUFNLENBQUMsQ0FBQyxDQUFDLENBQUM7QUFDakIsY0FBTSxDQUFDLEVBQUUsQ0FBQyxLQUFLLEVBQUUscUVBQXFFLENBQUMsQ0FBQztLQUN6RixDQUFDLENBQUMiLCJmaWxlIjoiaW50ZXJmYWNlcy50c2xpbnQuanMiLCJzb3VyY2VzQ29udGVudCI6WyJRVW5pdC5tb2R1bGUoJ0pTSGludCAtIGdsaW1tZXItcnVudGltZS9saWIvY29tcG9uZW50Jyk7XG5RVW5pdC50ZXN0KCdnbGltbWVyLXJ1bnRpbWUvbGliL2NvbXBvbmVudC9pbnRlcmZhY2VzLnRzIHNob3VsZCBwYXNzIGpzaGludCcsIGZ1bmN0aW9uKGFzc2VydCkgeyBcbiAgYXNzZXJ0LmV4cGVjdCgxKTtcbiAgYXNzZXJ0Lm9rKGZhbHNlLCAnZ2xpbW1lci1ydW50aW1lL2xpYi9jb21wb25lbnQvaW50ZXJmYWNlcy50cyBzaG91bGQgcGFzcyBqc2hpbnQuXFxuXFxuJyk7IFxufSk7XG4iXX0=
-enifed('glimmer-runtime/lib/dom/change-lists', ['exports', 'glimmer-runtime/lib/dom/sanitized-values', 'glimmer-runtime/lib/dom/props', 'glimmer-runtime/lib/dom/helper'], function (exports, _glimmerRuntimeLibDomSanitizedValues, _glimmerRuntimeLibDomProps, _glimmerRuntimeLibDomHelper) {
+enifed('glimmer-runtime/lib/dom/change-lists', ['exports', 'glimmer-runtime/lib/dom/sanitized-values', 'glimmer-runtime/lib/dom/props', 'glimmer-runtime/lib/dom/helper', 'glimmer-runtime/lib/compiled/opcodes/content'], function (exports, _glimmerRuntimeLibDomSanitizedValues, _glimmerRuntimeLibDomProps, _glimmerRuntimeLibDomHelper, _glimmerRuntimeLibCompiledOpcodesContent) {
     'use strict';
 
     exports.defaultChangeLists = defaultChangeLists;
@@ -57514,9 +57527,9 @@ enifed('glimmer-runtime/lib/dom/change-lists', ['exports', 'glimmer-runtime/lib/
         setAttribute: function (dom, element, attr, value, namespace) {
             if (value !== null && value !== undefined) {
                 if (namespace) {
-                    dom.setAttributeNS(element, namespace, attr, value);
+                    dom.setAttributeNS(element, namespace, attr, _glimmerRuntimeLibCompiledOpcodesContent.normalizeTextValue(value));
                 } else {
-                    dom.setAttribute(element, attr, value);
+                    dom.setAttribute(element, attr, _glimmerRuntimeLibCompiledOpcodesContent.normalizeTextValue(value));
                 }
             }
         },
@@ -57581,7 +57594,7 @@ enifed('glimmer-runtime/lib/dom/change-lists', ['exports', 'glimmer-runtime/lib/
     };
     exports.SafeHrefAttributeChangeList = SafeHrefAttributeChangeList;
 });
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvZG9tL2NoYW5nZS1saXN0cy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7OztBQWFBLGFBQUEsa0JBQUEsQ0FBbUMsT0FBZ0IsRUFBRSxJQUFZLEVBQUUsVUFBbUIsRUFBRSxTQUFpQixFQUFBO0FBQ3ZHLFlBQUksT0FBTyxHQUFHLE9BQU8sQ0FBQyxPQUFPLENBQUM7QUFDOUIsWUFBSSxLQUFLLEdBQUcsT0FBTyxDQUFDLFlBQVksaUNBVHpCLGFBQWEsQUFTOEIsQ0FBQztBQUVuRCxZQUFJLEtBQUssRUFBRTtBQUNULG1CQUFPLDJCQUEyQixDQUFDLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztTQUNuRDs7aUNBRWMsMkJBaEJSLGlCQUFpQixDQWdCUyxPQUFPLEVBQUUsSUFBSSxDQUFDOztZQUF6QyxJQUFJLHNCQUFKLElBQUk7O0FBRVYsWUFBSSxJQUFJLEtBQUssTUFBTSxFQUFFO0FBQ25CLG1CQUFPLDJCQUEyQixDQUFDLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztTQUNuRCxNQUFNO0FBQ0wsbUJBQU8sMEJBQTBCLENBQUMsT0FBTyxFQUFFLElBQUksQ0FBQyxDQUFDO1NBQ2xEO0tBQ0Y7O0FBRUQsYUFBQSwwQkFBQSxDQUEyQyxPQUFlLEVBQUUsSUFBWSxFQUFBO0FBQ3RFLFlBQUkscUNBNUJKLG9CQUFvQixDQTRCSyxPQUFPLEVBQUUsSUFBSSxDQUFDLEVBQUU7QUFDdkMsbUJBQU8sMEJBQTBCLENBQUM7U0FDbkM7QUFFRCxZQUFJLFlBQVksQ0FBQyxPQUFPLEVBQUUsSUFBSSxDQUFDLEVBQUU7QUFDL0IsbUJBQU8sNEJBQTRCLENBQUM7U0FDckM7QUFFRCxlQUFPLGtCQUFrQixDQUFDO0tBQzNCOztBQUVELGFBQUEsMkJBQUEsQ0FBNEMsT0FBZSxFQUFFLElBQVksRUFBQTtBQUN2RSxZQUFJLHFDQXhDSixvQkFBb0IsQ0F3Q0ssT0FBTyxFQUFFLElBQUksQ0FBQyxFQUFFO0FBQ3ZDLG1CQUFP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S0FBSyxDQUFDLENBQUM7U0FDOUM7S0FDRixDQUFDOztBQUVLLFFBQU0sMEJBQTBCLEdBQUc7QUFDeEMsb0JBQVksRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFVLEVBQUE7QUFDckUsOEJBQWtCLENBQUMsWUFBWSxDQUFDLEdBQUcsRUFBRSxPQUFPLEVBQUUsSUFBSSxFQUFFLHFDQWpKdEQsc0JBQXNCLENBaUp1RCxHQUFHLEVBQUUsT0FBTyxFQUFFLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQyxDQUFDO1NBQ3hHO0FBRUQsdUJBQWUsRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFVLEVBQUE7QUFDeEUsZ0JBQUksQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLE9BQU8sRUFBRSxJQUFJLEVBQUUsS0FBSyxDQUFDLENBQUM7U0FDOUM7S0FDRixDQUFDOztBQUVLLFFBQU0sMkJBQTJCLEdBQUc7QUFDekMsb0JBQVksRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFVLEVBQUE7QUFDckUsK0JBQW1CLENBQUMsWUFBWSxDQUFDLEdBQUcsRUFBRSxPQUFPLEVBQUUsSUFBSSxFQUFFLHFDQTNKdkQsc0JBQXNCLENBMkp3RCxHQUFHLEVBQUUsT0FBTyxFQUFFLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQyxDQUFDO1NBQ3pHO0FBQ0QsdUJBQWUsRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFVLEVBQUE7QUFDeEUsZ0JBQUksQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLE9BQU8sRUFBRSxJQUFJLEVBQUUsS0FBSyxDQUFDLENBQUM7U0FDOUM7S0FDRixDQUFDIiwiZmlsZSI6ImNoYW5nZS1saXN0cy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IERPTUhlbHBlciB9IGZyb20gJy4vaGVscGVyJztcbmltcG9ydCB7XG4gIHNhbml0aXplQXR0cmlidXRlVmFsdWUsXG4gIHJlcXVpcmVzU2FuaXRpemF0aW9uXG59IGZyb20gJy4vc2FuaXRpemVkLXZhbHVlcyc7XG5pbXBvcnQgeyBub3JtYWxpemVQcm9wZXJ0eSwgbm9ybWFsaXplUHJvcGVydHlWYWx1ZSB9IGZyb20gJy4vcHJvcHMnO1xuaW1wb3J0IHsgU1ZHX05BTUVTUEFDRSB9IGZyb20gJy4vaGVscGVyJztcblxuZXhwb3J0IGludGVyZmFjZSBJQ2hhbmdlTGlzdCB7XG4gIHNldEF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogYW55LCBuYW1lc3BhY2U/OiBzdHJpbmcpOiB2b2lkO1xuICB1cGRhdGVBdHRyaWJ1dGUoZG9tOiBET01IZWxwZXIsIGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgdmFsdWU6IGFueSwgbmFtZXNwYWNlPzogc3RyaW5nKTogdm9pZDtcbn1cblxuZXhwb3J0IGZ1bmN0aW9uIGRlZmF1bHRDaGFuZ2VMaXN0cyhlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIGlzVHJ1c3Rpbmc6IGJvb2xlYW4sIG5hbWVzcGFjZTogc3RyaW5nKSB7XG4gIGxldCB0YWdOYW1lID0gZWxlbWVudC50YWdOYW1lO1xuICBsZXQgaXNTVkcgPSBlbGVtZW50Lm5hbWVzcGFjZVVSSSA9PT0gU1ZHX05BTUVTUEFDRTtcblxuICBpZiAoaXNTVkcpIHtcbiAgICByZXR1cm4gZGVmYXVsdEF0dHJpYnV0ZUNoYW5nZUxpc3RzKHRhZ05hbWUsIGF0dHIpO1xuICB9XG5cbiAgbGV0IHsgdHlwZSB9ID0gbm9ybWFsaXplUHJvcGVydHkoZWxlbWVudCwgYXR0cik7XG5cbiAgaWYgKHR5cGUgPT09ICdhdHRyJykge1xuICAgIHJldHVybiBkZWZhdWx0QXR0cmlidXRlQ2hhbmdlTGlzdHModGFnTmFtZSwgYXR0cik7XG4gIH0gZWxzZSB7XG4gICAgcmV0dXJuIGRlZmF1bHRQcm9wZXJ0eUNoYW5nZUxpc3RzKHRhZ05hbWUsIGF0dHIpO1xuICB9XG59XG5cbmV4cG9ydCBmdW5jdGlvbiBkZWZhdWx0UHJvcGVydHlDaGFuZ2VMaXN0cyh0YWdOYW1lOiBzdHJpbmcsIGF0dHI6IHN0cmluZykge1xuICBpZiAocmVxdWlyZXNTYW5pdGl6YXRpb24odGFnTmFtZSwgYXR0cikpIHtcbiAgICByZXR1cm4gU2FmZUhyZWZQcm9wZXJ0eUNoYW5nZUxpc3Q7XG4gIH1cblxuICBpZiAoaXNJbnB1dFZhbHVlKHRhZ05hbWUsIGF0dHIpKSB7XG4gICAgcmV0dXJuIElucHV0VmFsdWVQcm9wZXJ0eUNoYW5nZUxpc3Q7XG4gIH1cblxuICByZXR1cm4gUHJvcGVydHlDaGFuZ2VMaXN0O1xufVxuXG5leHBvcnQgZnVuY3Rpb24gZGVmYXVsdEF0dHJpYnV0ZUNoYW5nZUxpc3RzKHRhZ05hbWU6IHN0cmluZywgYXR0cjogc3RyaW5nKSB7XG4gIGlmIChyZXF1aXJlc1Nhbml0aXphdGlvbih0YWdOYW1lLCBhdHRyKSkge1xuICAgIHJldHVybiBTYWZlSHJlZkF0dHJpYnV0ZUNoYW5nZUxpc3Q7XG4gIH1cblxuICBpZiAoaXNJbnB1dFZhbHVlKHRhZ05hbWUsIGF0dHIpKSB7XG4gICAgcmV0dXJuIElucHV0VmFsdWVBdHRyaWJ1dGVDaGFuZ2VMaXN0O1xuICB9XG5cbiAgcmV0dXJuIEF0dHJpYnV0ZUNoYW5nZUxpc3Q7XG59XG5cbmV4cG9ydCBmdW5jdGlvbiByZWFkRE9NQXR0cihlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcpIHtcbiAgIGxldCBpc1NWRyA9IGVsZW1lbnQubmFtZXNwYWNlVVJJID09PSBTVkdfTkFNRVNQQUNFO1xuICAgbGV0IHsgdHlwZSwgbm9ybWFsaXplZCB9ID0gbm9ybWFsaXplUHJvcGVydHkoZWxlbWVudCwgYXR0cik7XG5cbiAgIGlmIChpc1NWRykge1xuICAgICByZXR1cm4gZWxlbWVudC5nZXRBdHRyaWJ1dGUobm9ybWFsaXplZCk7XG4gICB9XG5cbiAgIGlmICh0eXBlID09PSAnYXR0cicpIHtcbiAgICAgcmV0dXJuIGVsZW1lbnQuZ2V0QXR0cmlidXRlKG5vcm1hbGl6ZWQpO1xuICAgfSB7XG4gICAgIHJldHVybiBlbGVtZW50W25vcm1hbGl6ZWRdO1xuICAgfVxufTtcblxuZXhwb3J0IGNvbnN0IFByb3BlcnR5Q2hhbmdlTGlzdCA9IHtcbiAgc2V0QXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBhbnksIG5hbWVzcGFjZT86IHN0cmluZykge1xuICAgIGlmICh2YWx1ZSAhPT0gbnVsbCkge1xuICAgICAgbGV0IG5vcm1hbGl6ZWQgPSBhdHRyLnRvTG93ZXJDYXNlKCk7XG4gICAgICBlbGVtZW50W25vcm1hbGl6ZWRdID0gbm9ybWFsaXplUHJvcGVydHlWYWx1ZSh2YWx1ZSk7XG4gICAgfVxuICB9LFxuXG4gIHVwZGF0ZUF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogYW55LCBuYW1lc3BhY2U/OiBzdHJpbmcpIHtcbiAgICBpZiAodmFsdWUgPT09IG51bGwpIHtcbiAgICAgIGxldCBub3JtYWxpemVkID0gYXR0ci50b0xvd2VyQ2FzZSgpO1xuICAgICAgZWxlbWVudFtub3JtYWxpemVkXSA9IHZhbHVlO1xuICAgIH0gZWxzZSB7XG4gICAgICB0aGlzLnNldEF0dHJpYnV0ZSguLi5hcmd1bWVudHMpO1xuICAgIH1cbiAgfVxufTtcblxuZXhwb3J0IGNvbnN0IEF0dHJpYnV0ZUNoYW5nZUxpc3QgPSB7XG4gIHNldEF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogYW55LCBuYW1lc3BhY2U/OiBzdHJpbmcpIHtcbiAgICBpZiAodmFsdWUgIT09IG51bGwgJiYgdmFsdWUgIT09IHVuZGVmaW5lZCkge1xuICAgICAgaWYgKG5hbWVzcGFjZSkge1xuICAgICAgICBkb20uc2V0QXR0cmlidXRlTlMoZWxlbWVudCwgbmFtZXNwYWNlLCBhdHRyLCB2YWx1ZSk7XG4gICAgICB9IGVsc2Uge1xuICAgICAgICBkb20uc2V0QXR0cmlidXRlKGVsZW1lbnQsIGF0dHIsIHZhbHVlKTtcbiAgICAgIH1cbiAgICB9XG4gIH0sXG5cbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBhbnksIG5hbWVzcGFjZT86IHN0cmluZykge1xuICAgIGlmICh2YWx1ZSA9PT0gbnVsbCkge1xuICAgICAgaWYgKG5hbWVzcGFjZSkge1xuICAgICAgICBkb20ucmVtb3ZlQXR0cmlidXRlTlMoZWxlbWVudCwgbmFtZXNwYWNlLCBhdHRyKTtcbiAgICAgIH0gZWxzZSB7XG4gICAgICAgIGRvbS5yZW1vdmVBdHRyaWJ1dGUoZWxlbWVudCwgYXR0cik7XG4gICAgICB9XG4gICAgfSBlbHNlIHtcbiAgICAgIHRoaXMuc2V0QXR0cmlidXRlKGRvbSwgZWxlbWVudCwgYXR0ciwgdmFsdWUpO1xuICAgIH1cbiAgfVxufTtcblxuZnVuY3Rpb24gaXNJbnB1dFZhbHVlKHRhZ05hbWU6IHN0cmluZywgYXR0cmlidXRlOiBzdHJpbmcpIHtcbiAgcmV0dXJuIHRhZ05hbWUgPT09ICdJTlBVVCcgJiYgYXR0cmlidXRlID09PSAndmFsdWUnO1xufVxuXG5mdW5jdGlvbiBub3JtYWxpemVkSW5wdXRWYWx1ZSh2YWx1ZSkge1xuICByZXR1cm4gdmFsdWUgPT09IG51bGwgPyAnJyA6IHZhbHVlO1xufVxuXG5leHBvcnQgY29uc3QgSW5wdXRWYWx1ZVByb3BlcnR5Q2hhbmdlTGlzdCA9IHtcbiAgc2V0QXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBhbnkpIHtcbiAgICBsZXQgaW5wdXQgPSA8SFRNTElucHV0RWxlbWVudD5lbGVtZW50O1xuICAgIGxldCBjdXJyZW50VmFsdWUgPSBpbnB1dC52YWx1ZTtcbiAgICBsZXQgbm9ybWFsaXplZFZhbHVlID0gbm9ybWFsaXplZElucHV0VmFsdWUodmFsdWUpO1xuXG4gICAgaWYgKGN1cnJlbnRWYWx1ZSAhPT0gbm9ybWFsaXplZFZhbHVlKSB7XG4gICAgICBpbnB1dC52YWx1ZSA9IG5vcm1hbGl6ZWRWYWx1ZTtcbiAgICB9XG4gIH0sXG5cbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBhbnkpIHtcbiAgICB0aGlzLnNldEF0dHJpYnV0ZShkb20sIGVsZW1lbnQsIGF0dHIsIHZhbHVlKTtcbiAgfVxufTtcblxuZXhwb3J0IGNvbnN0IElucHV0VmFsdWVBdHRyaWJ1dGVDaGFuZ2VMaXN0ID0ge1xuICBzZXRBdHRyaWJ1dGUoZG9tOiBET01IZWxwZXIsIGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgdmFsdWU6IGFueSkge1xuICAgIEF0dHJpYnV0ZUNoYW5nZUxpc3Quc2V0QXR0cmlidXRlKGRvbSwgZWxlbWVudCwgYXR0ciwgbm9ybWFsaXplZElucHV0VmFsdWUodmFsdWUpKTtcbiAgfSxcblxuICB1cGRhdGVBdHRyaWJ1dGUoZG9tOiBET01IZWxwZXIsIGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgdmFsdWU6IGFueSkge1xuICAgIHRoaXMuc2V0QXR0cmlidXRlKGRvbSwgZWxlbWVudCwgYXR0ciwgdmFsdWUpO1xuICB9XG59O1xuXG5leHBvcnQgY29uc3QgU2FmZUhyZWZQcm9wZXJ0eUNoYW5nZUxpc3QgPSB7XG4gIHNldEF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogYW55KSB7XG4gICAgUHJvcGVydHlDaGFuZ2VMaXN0LnNldEF0dHJpYnV0ZShkb20sIGVsZW1lbnQsIGF0dHIsIHNhbml0aXplQXR0cmlidXRlVmFsdWUoZG9tLCBlbGVtZW50LCBhdHRyLCB2YWx1ZSkpO1xuICB9LFxuXG4gIHVwZGF0ZUF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogYW55KSB7XG4gICAgdGhpcy5zZXRBdHRyaWJ1dGUoZG9tLCBlbGVtZW50LCBhdHRyLCB2YWx1ZSk7XG4gIH1cbn07XG5cbmV4cG9ydCBjb25zdCBTYWZlSHJlZkF0dHJpYnV0ZUNoYW5nZUxpc3QgPSB7XG4gIHNldEF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogYW55KSB7XG4gICAgQXR0cmlidXRlQ2hhbmdlTGlzdC5zZXRBdHRyaWJ1dGUoZG9tLCBlbGVtZW50LCBhdHRyLCBzYW5pdGl6ZUF0dHJpYnV0ZVZhbHVlKGRvbSwgZWxlbWVudCwgYXR0ciwgdmFsdWUpKTtcbiAgfSxcbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBhbnkpIHtcbiAgICB0aGlzLnNldEF0dHJpYnV0ZShkb20sIGVsZW1lbnQsIGF0dHIsIHZhbHVlKTtcbiAgfVxufTtcbiJdfQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItcnVudGltZS9saWIvZG9tL2NoYW5nZS1saXN0cy50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7OztBQWVBLGFBQUEsa0JBQUEsQ0FBbUMsT0FBZ0IsRUFBRSxJQUFZLEVBQUUsVUFBbUIsRUFBRSxTQUFpQixFQUFBO0FBQ3ZHLFlBQUksT0FBTyxHQUFHLE9BQU8sQ0FBQyxPQUFPLENBQUM7QUFDOUIsWUFBSSxLQUFLLEdBQUcsT0FBTyxDQUFDLFlBQVksaUNBVnpCLGFBQWEsQUFVOEIsQ0FBQztBQUVuRCxZQUFJLEtBQUssRUFBRTtBQUNULG1CQUFPLDJCQUEyQixDQUFDLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztTQUNuRDs7aUNBRWMsMkJBakJSLGlCQUFpQixDQWlCUyxPQUFPLEVBQUUsSUFBSSxDQUFDOztZQUF6QyxJQUFJLHNCQUFKLElBQUk7O0FBRVYsWUFBSSxJQUFJLEtBQUssTUFBTSxFQUFFO0FBQ25CLG1CQUFPLDJCQUEyQixDQUFDLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztTQUNuRCxNQUFNO0FBQ0wsbUJBQU8sMEJBQTBCLENBQUMsT0FBTyxFQUFFLElBQUksQ0FBQyxDQUFDO1NBQ2xEO0tBQ0Y7O0FBRUQsYUFBQSwwQkFBQSxDQUEyQyxPQUFlLEVBQUUsSUFBWSxFQUFBO0FBQ3RFLFlBQUkscUNBN0JKLG9CQUFvQixDQTZCSyxPQUFPLEVBQUUsSUFBSSxDQUFDLEVBQUU7QUFDdkMsbUJBQU8sMEJBQTBCLENBQUM7U0FDbkM7QUFFRCxZQUFJLFlBQVksQ0FBQyxPQUFPLEVBQUUsSUFBSSxDQUFDLEVBQUU7QUFDL0IsbUJBQU8sNEJBQTRCLENBQUM7U0FDckM7QUFFRCxlQUFPLGtCQUFrQixDQUFDO0tBQzNCOztBQUVELGFBQUEsMkJBQUEsQ0FBNEMsT0FBZSxFQUFFLElBQVksRUFBQTtBQUN2RSxZQUFJLHFDQXpDSixvQkFBb0IsQ0F5Q0ssT0FBTyxFQUFFLElBQUksQ0FBQyxFQUFFO0FBQ3ZDLG1CQUFP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M0UsZ0JBQUksQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLE9BQU8sRUFBRSxJQUFJLEVBQUUsS0FBSyxDQUFDLENBQUM7U0FDOUM7S0FDRixDQUFDOztBQUVLLFFBQU0sMEJBQTBCLEdBQUc7QUFDeEMsb0JBQVksRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFhLEVBQUE7QUFDeEUsOEJBQWtCLENBQUMsWUFBWSxDQUFDLEdBQUcsRUFBRSxPQUFPLEVBQUUsSUFBSSxFQUFFLHFDQWxKdEQsc0JBQXNCLENBa0p1RCxHQUFHLEVBQUUsT0FBTyxFQUFFLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQyxDQUFDO1NBQ3hHO0FBRUQsdUJBQWUsRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFhLEVBQUE7QUFDM0UsZ0JBQUksQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLE9BQU8sRUFBRSxJQUFJLEVBQUUsS0FBSyxDQUFDLENBQUM7U0FDOUM7S0FDRixDQUFDOztBQUVLLFFBQU0sMkJBQTJCLEdBQUc7QUFDekMsb0JBQVksRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFhLEVBQUE7QUFDeEUsK0JBQW1CLENBQUMsWUFBWSxDQUFDLEdBQUcsRUFBRSxPQUFPLEVBQUUsSUFBSSxFQUFFLHFDQTVKdkQsc0JBQXNCLENBNEp3RCxHQUFHLEVBQUUsT0FBTyxFQUFFLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQyxDQUFDO1NBQ3pHO0FBQ0QsdUJBQWUsRUFBQSxVQUFDLEdBQWMsRUFBRSxPQUFnQixFQUFFLElBQVksRUFBRSxLQUFhLEVBQUE7QUFDM0UsZ0JBQUksQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLE9BQU8sRUFBRSxJQUFJLEVBQUUsS0FBSyxDQUFDLENBQUM7U0FDOUM7S0FDRixDQUFDIiwiZmlsZSI6ImNoYW5nZS1saXN0cy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IE9wYXF1ZSB9IGZyb20gJ2dsaW1tZXItdXRpbCc7XG5pbXBvcnQgeyBET01IZWxwZXIgfSBmcm9tICcuL2hlbHBlcic7XG5pbXBvcnQge1xuICBzYW5pdGl6ZUF0dHJpYnV0ZVZhbHVlLFxuICByZXF1aXJlc1Nhbml0aXphdGlvblxufSBmcm9tICcuL3Nhbml0aXplZC12YWx1ZXMnO1xuaW1wb3J0IHsgbm9ybWFsaXplUHJvcGVydHksIG5vcm1hbGl6ZVByb3BlcnR5VmFsdWUgfSBmcm9tICcuL3Byb3BzJztcbmltcG9ydCB7IFNWR19OQU1FU1BBQ0UgfSBmcm9tICcuL2hlbHBlcic7XG5pbXBvcnQgeyBub3JtYWxpemVUZXh0VmFsdWUgfSBmcm9tICcuLi9jb21waWxlZC9vcGNvZGVzL2NvbnRlbnQnO1xuXG5leHBvcnQgaW50ZXJmYWNlIElDaGFuZ2VMaXN0IHtcbiAgc2V0QXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUsIG5hbWVzcGFjZT86IHN0cmluZyk6IHZvaWQ7XG4gIHVwZGF0ZUF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogT3BhcXVlLCBuYW1lc3BhY2U/OiBzdHJpbmcpOiB2b2lkO1xufVxuXG5leHBvcnQgZnVuY3Rpb24gZGVmYXVsdENoYW5nZUxpc3RzKGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgaXNUcnVzdGluZzogYm9vbGVhbiwgbmFtZXNwYWNlOiBzdHJpbmcpIHtcbiAgbGV0IHRhZ05hbWUgPSBlbGVtZW50LnRhZ05hbWU7XG4gIGxldCBpc1NWRyA9IGVsZW1lbnQubmFtZXNwYWNlVVJJID09PSBTVkdfTkFNRVNQQUNFO1xuXG4gIGlmIChpc1NWRykge1xuICAgIHJldHVybiBkZWZhdWx0QXR0cmlidXRlQ2hhbmdlTGlzdHModGFnTmFtZSwgYXR0cik7XG4gIH1cblxuICBsZXQgeyB0eXBlIH0gPSBub3JtYWxpemVQcm9wZXJ0eShlbGVtZW50LCBhdHRyKTtcblxuICBpZiAodHlwZSA9PT0gJ2F0dHInKSB7XG4gICAgcmV0dXJuIGRlZmF1bHRBdHRyaWJ1dGVDaGFuZ2VMaXN0cyh0YWdOYW1lLCBhdHRyKTtcbiAgfSBlbHNlIHtcbiAgICByZXR1cm4gZGVmYXVsdFByb3BlcnR5Q2hhbmdlTGlzdHModGFnTmFtZSwgYXR0cik7XG4gIH1cbn1cblxuZXhwb3J0IGZ1bmN0aW9uIGRlZmF1bHRQcm9wZXJ0eUNoYW5nZUxpc3RzKHRhZ05hbWU6IHN0cmluZywgYXR0cjogc3RyaW5nKSB7XG4gIGlmIChyZXF1aXJlc1Nhbml0aXphdGlvbih0YWdOYW1lLCBhdHRyKSkge1xuICAgIHJldHVybiBTYWZlSHJlZlByb3BlcnR5Q2hhbmdlTGlzdDtcbiAgfVxuXG4gIGlmIChpc0lucHV0VmFsdWUodGFnTmFtZSwgYXR0cikpIHtcbiAgICByZXR1cm4gSW5wdXRWYWx1ZVByb3BlcnR5Q2hhbmdlTGlzdDtcbiAgfVxuXG4gIHJldHVybiBQcm9wZXJ0eUNoYW5nZUxpc3Q7XG59XG5cbmV4cG9ydCBmdW5jdGlvbiBkZWZhdWx0QXR0cmlidXRlQ2hhbmdlTGlzdHModGFnTmFtZTogc3RyaW5nLCBhdHRyOiBzdHJpbmcpIHtcbiAgaWYgKHJlcXVpcmVzU2FuaXRpemF0aW9uKHRhZ05hbWUsIGF0dHIpKSB7XG4gICAgcmV0dXJuIFNhZmVIcmVmQXR0cmlidXRlQ2hhbmdlTGlzdDtcbiAgfVxuXG4gIGlmIChpc0lucHV0VmFsdWUodGFnTmFtZSwgYXR0cikpIHtcbiAgICByZXR1cm4gSW5wdXRWYWx1ZUF0dHJpYnV0ZUNoYW5nZUxpc3Q7XG4gIH1cblxuICByZXR1cm4gQXR0cmlidXRlQ2hhbmdlTGlzdDtcbn1cblxuZXhwb3J0IGZ1bmN0aW9uIHJlYWRET01BdHRyKGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZykge1xuICAgbGV0IGlzU1ZHID0gZWxlbWVudC5uYW1lc3BhY2VVUkkgPT09IFNWR19OQU1FU1BBQ0U7XG4gICBsZXQgeyB0eXBlLCBub3JtYWxpemVkIH0gPSBub3JtYWxpemVQcm9wZXJ0eShlbGVtZW50LCBhdHRyKTtcblxuICAgaWYgKGlzU1ZHKSB7XG4gICAgIHJldHVybiBlbGVtZW50LmdldEF0dHJpYnV0ZShub3JtYWxpemVkKTtcbiAgIH1cblxuICAgaWYgKHR5cGUgPT09ICdhdHRyJykge1xuICAgICByZXR1cm4gZWxlbWVudC5nZXRBdHRyaWJ1dGUobm9ybWFsaXplZCk7XG4gICB9IHtcbiAgICAgcmV0dXJuIGVsZW1lbnRbbm9ybWFsaXplZF07XG4gICB9XG59O1xuXG5leHBvcnQgY29uc3QgUHJvcGVydHlDaGFuZ2VMaXN0ID0ge1xuICBzZXRBdHRyaWJ1dGUoZG9tOiBET01IZWxwZXIsIGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgdmFsdWU6IE9wYXF1ZSwgbmFtZXNwYWNlPzogc3RyaW5nKSB7XG4gICAgaWYgKHZhbHVlICE9PSBudWxsKSB7XG4gICAgICBsZXQgbm9ybWFsaXplZCA9IGF0dHIudG9Mb3dlckNhc2UoKTtcbiAgICAgIGVsZW1lbnRbbm9ybWFsaXplZF0gPSBub3JtYWxpemVQcm9wZXJ0eVZhbHVlKHZhbHVlKTtcbiAgICB9XG4gIH0sXG5cbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUsIG5hbWVzcGFjZT86IHN0cmluZykge1xuICAgIGlmICh2YWx1ZSA9PT0gbnVsbCkge1xuICAgICAgbGV0IG5vcm1hbGl6ZWQgPSBhdHRyLnRvTG93ZXJDYXNlKCk7XG4gICAgICBlbGVtZW50W25vcm1hbGl6ZWRdID0gdmFsdWU7XG4gICAgfSBlbHNlIHtcbiAgICAgIHRoaXMuc2V0QXR0cmlidXRlKC4uLmFyZ3VtZW50cyk7XG4gICAgfVxuICB9XG59O1xuXG5leHBvcnQgY29uc3QgQXR0cmlidXRlQ2hhbmdlTGlzdCA9IHtcbiAgc2V0QXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUsIG5hbWVzcGFjZT86IHN0cmluZykge1xuICAgIGlmICh2YWx1ZSAhPT0gbnVsbCAmJiB2YWx1ZSAhPT0gdW5kZWZpbmVkKSB7XG4gICAgICBpZiAobmFtZXNwYWNlKSB7XG4gICAgICAgIGRvbS5zZXRBdHRyaWJ1dGVOUyhlbGVtZW50LCBuYW1lc3BhY2UsIGF0dHIsIG5vcm1hbGl6ZVRleHRWYWx1ZSh2YWx1ZSkpO1xuICAgICAgfSBlbHNlIHtcbiAgICAgICAgZG9tLnNldEF0dHJpYnV0ZShlbGVtZW50LCBhdHRyLCBub3JtYWxpemVUZXh0VmFsdWUodmFsdWUpKTtcbiAgICAgIH1cbiAgICB9XG4gIH0sXG5cbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUsIG5hbWVzcGFjZT86IHN0cmluZykge1xuICAgIGlmICh2YWx1ZSA9PT0gbnVsbCkge1xuICAgICAgaWYgKG5hbWVzcGFjZSkge1xuICAgICAgICBkb20ucmVtb3ZlQXR0cmlidXRlTlMoZWxlbWVudCwgbmFtZXNwYWNlLCBhdHRyKTtcbiAgICAgIH0gZWxzZSB7XG4gICAgICAgIGRvbS5yZW1vdmVBdHRyaWJ1dGUoZWxlbWVudCwgYXR0cik7XG4gICAgICB9XG4gICAgfSBlbHNlIHtcbiAgICAgIHRoaXMuc2V0QXR0cmlidXRlKGRvbSwgZWxlbWVudCwgYXR0ciwgdmFsdWUpO1xuICAgIH1cbiAgfVxufTtcblxuZnVuY3Rpb24gaXNJbnB1dFZhbHVlKHRhZ05hbWU6IHN0cmluZywgYXR0cmlidXRlOiBzdHJpbmcpIHtcbiAgcmV0dXJuIHRhZ05hbWUgPT09ICdJTlBVVCcgJiYgYXR0cmlidXRlID09PSAndmFsdWUnO1xufVxuXG5mdW5jdGlvbiBub3JtYWxpemVkSW5wdXRWYWx1ZSh2YWx1ZSkge1xuICByZXR1cm4gdmFsdWUgPT09IG51bGwgPyAnJyA6IHZhbHVlO1xufVxuXG5leHBvcnQgY29uc3QgSW5wdXRWYWx1ZVByb3BlcnR5Q2hhbmdlTGlzdCA9IHtcbiAgc2V0QXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUpIHtcbiAgICBsZXQgaW5wdXQgPSA8SFRNTElucHV0RWxlbWVudD5lbGVtZW50O1xuICAgIGxldCBjdXJyZW50VmFsdWUgPSBpbnB1dC52YWx1ZTtcbiAgICBsZXQgbm9ybWFsaXplZFZhbHVlID0gbm9ybWFsaXplZElucHV0VmFsdWUodmFsdWUpO1xuXG4gICAgaWYgKGN1cnJlbnRWYWx1ZSAhPT0gbm9ybWFsaXplZFZhbHVlKSB7XG4gICAgICBpbnB1dC52YWx1ZSA9IG5vcm1hbGl6ZWRWYWx1ZTtcbiAgICB9XG4gIH0sXG5cbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUpIHtcbiAgICB0aGlzLnNldEF0dHJpYnV0ZShkb20sIGVsZW1lbnQsIGF0dHIsIHZhbHVlKTtcbiAgfVxufTtcblxuZXhwb3J0IGNvbnN0IElucHV0VmFsdWVBdHRyaWJ1dGVDaGFuZ2VMaXN0ID0ge1xuICBzZXRBdHRyaWJ1dGUoZG9tOiBET01IZWxwZXIsIGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgdmFsdWU6IE9wYXF1ZSkge1xuICAgIEF0dHJpYnV0ZUNoYW5nZUxpc3Quc2V0QXR0cmlidXRlKGRvbSwgZWxlbWVudCwgYXR0ciwgbm9ybWFsaXplZElucHV0VmFsdWUodmFsdWUpKTtcbiAgfSxcblxuICB1cGRhdGVBdHRyaWJ1dGUoZG9tOiBET01IZWxwZXIsIGVsZW1lbnQ6IEVsZW1lbnQsIGF0dHI6IHN0cmluZywgdmFsdWU6IE9wYXF1ZSkge1xuICAgIHRoaXMuc2V0QXR0cmlidXRlKGRvbSwgZWxlbWVudCwgYXR0ciwgdmFsdWUpO1xuICB9XG59O1xuXG5leHBvcnQgY29uc3QgU2FmZUhyZWZQcm9wZXJ0eUNoYW5nZUxpc3QgPSB7XG4gIHNldEF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogT3BhcXVlKSB7XG4gICAgUHJvcGVydHlDaGFuZ2VMaXN0LnNldEF0dHJpYnV0ZShkb20sIGVsZW1lbnQsIGF0dHIsIHNhbml0aXplQXR0cmlidXRlVmFsdWUoZG9tLCBlbGVtZW50LCBhdHRyLCB2YWx1ZSkpO1xuICB9LFxuXG4gIHVwZGF0ZUF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogT3BhcXVlKSB7XG4gICAgdGhpcy5zZXRBdHRyaWJ1dGUoZG9tLCBlbGVtZW50LCBhdHRyLCB2YWx1ZSk7XG4gIH1cbn07XG5cbmV4cG9ydCBjb25zdCBTYWZlSHJlZkF0dHJpYnV0ZUNoYW5nZUxpc3QgPSB7XG4gIHNldEF0dHJpYnV0ZShkb206IERPTUhlbHBlciwgZWxlbWVudDogRWxlbWVudCwgYXR0cjogc3RyaW5nLCB2YWx1ZTogT3BhcXVlKSB7XG4gICAgQXR0cmlidXRlQ2hhbmdlTGlzdC5zZXRBdHRyaWJ1dGUoZG9tLCBlbGVtZW50LCBhdHRyLCBzYW5pdGl6ZUF0dHJpYnV0ZVZhbHVlKGRvbSwgZWxlbWVudCwgYXR0ciwgdmFsdWUpKTtcbiAgfSxcbiAgdXBkYXRlQXR0cmlidXRlKGRvbTogRE9NSGVscGVyLCBlbGVtZW50OiBFbGVtZW50LCBhdHRyOiBzdHJpbmcsIHZhbHVlOiBPcGFxdWUpIHtcbiAgICB0aGlzLnNldEF0dHJpYnV0ZShkb20sIGVsZW1lbnQsIGF0dHIsIHZhbHVlKTtcbiAgfVxufTtcbiJdfQ==
 enifed('glimmer-runtime/lib/dom/change-lists.tslint', ['exports'], function (exports) {
     'use strict';
 
