@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+23b6c64f
+ * @version   2.9.0-canary+c7e2bb92
  */
 
 var enifed, requireModule, require, Ember;
@@ -9032,7 +9032,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components', (function (_RenderingTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
     function _class() {
@@ -9125,6 +9125,8 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
       this.assertText('Gabon Zack');
     };
+
+    // Take a look at this one. Seems to pass even when currying isn't implemented.
 
     _class.prototype['@test overwrites nested rest positional parameters if rendered with positional parameters'] = function testOverwritesNestedRestPositionalParametersIfRenderedWithPositionalParameters() {
       var _this4 = this;
@@ -9440,7 +9442,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Sigmundur 33');
     };
 
-    _class.prototype['@glimmer bound outer named parameters get updated in the right scope'] = function glimmerBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
       var _this13 = this;
 
       this.registerComponent('-inner-component', {
@@ -9643,7 +9645,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
         _this20.render('{{component (component compName)}}', {
           compName: 'not-a-component'
         });
-      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
+      }, /The component helper cannot be used without a valid component name. You used "not-a-component" via \(component .*\)/);
     };
 
     _class.prototype['@test renders with dot path'] = function testRendersWithDotPath() {
@@ -10087,7 +10089,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
     }
   }]));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
 enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberRuntimeSystemObject, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
@@ -32042,7 +32044,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components', (function (_RenderingTest) {
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: closure components', (function (_RenderingTest) {
     _inherits(_class, _RenderingTest);
 
     function _class() {
@@ -32135,6 +32137,8 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
       this.assertText('Gabon Zack');
     };
+
+    // Take a look at this one. Seems to pass even when currying isn't implemented.
 
     _class.prototype['@test overwrites nested rest positional parameters if rendered with positional parameters'] = function testOverwritesNestedRestPositionalParametersIfRenderedWithPositionalParameters() {
       var _this4 = this;
@@ -32450,7 +32454,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Sigmundur 33');
     };
 
-    _class.prototype['@glimmer bound outer named parameters get updated in the right scope'] = function glimmerBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
       var _this13 = this;
 
       this.registerComponent('-inner-component', {
@@ -32653,7 +32657,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         _this20.render('{{component (component compName)}}', {
           compName: 'not-a-component'
         });
-      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
+      }, /The component helper cannot be used without a valid component name. You used "not-a-component" via \(component .*\)/);
     };
 
     _class.prototype['@test renders with dot path'] = function testRendersWithDotPath() {
@@ -33097,7 +33101,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
     }
   }]));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@htmlbars Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
 enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
