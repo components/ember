@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+c590984e
+ * @version   2.9.0-canary+c2fafcf9
  */
 
 var enifed, requireModule, require, Ember;
@@ -5232,7 +5232,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery) {
   'use strict';
 
   var App = null;
@@ -5566,7 +5566,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     });
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('Ember.Application - visit() Integration Tests', {
+  QUnit.module('Ember.Application - visit() Integration Tests', {
     teardown: function () {
       if (instances) {
         _emberMetalRun_loop.default(instances, 'forEach', function (i) {
@@ -5582,7 +5582,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     }
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Ember Islands-style setup', function (assert) {
+  QUnit.test('Ember Islands-style setup', function (assert) {
     var xFooInitCalled = false;
     var xFooDidInsertElementCalled = false;
 
