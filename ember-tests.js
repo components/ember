@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+c2fafcf9
+ * @version   2.9.0-canary+798ba8a1
  */
 
 var enifed, requireModule, require, Ember;
@@ -76243,6 +76243,33 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
 
   exports.runAppend = runAppend;
   exports.runDestroy = runDestroy;
+});
+enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: assert-reserved-named-arguments');
+
+  QUnit.test('Paths beginning with @ are not valid', function () {
+    expect(3);
+
+    expectAssertion(function () {
+      _emberTemplateCompilerTestsUtilsHelpers.compile('{{@foo}}', {
+        moduleName: 'baz/foo-bar'
+      });
+    }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
+
+    expectAssertion(function () {
+      _emberTemplateCompilerTestsUtilsHelpers.compile('{{#if @foo}}Yup{{/if}}', {
+        moduleName: 'baz/foo-bar'
+      });
+    }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
+
+    expectAssertion(function () {
+      _emberTemplateCompilerTestsUtilsHelpers.compile('{{input type=(if @foo "bar" "baz")}}', {
+        moduleName: 'baz/foo-bar'
+      });
+    }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
+  });
 });
 enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
   'use strict';
