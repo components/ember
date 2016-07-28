@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+64979def
+ * @version   2.9.0-canary+7d486b91
  */
 
 var enifed, requireModule, require, Ember;
@@ -14897,6 +14897,26 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
       }, deprecation);
 
       return p;
+    };
+
+    _class.prototype['@test accessing `currentWhen` triggers a deprecation'] = function testAccessingCurrentWhenTriggersADeprecation(assert) {
+      var component = undefined;
+      this.registerComponent('link-to', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkTo.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        })
+      });
+
+      this.registerTemplate('application', '{{link-to \'Index\' \'index\'}}');
+
+      return this.visit('/').then(function () {
+        expectDeprecation(function () {
+          component.get('currentWhen');
+        }, /Usage of `currentWhen` is deprecated, use `current-when` instead/);
+      });
     };
 
     _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresent() {
@@ -38074,6 +38094,26 @@ enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', '
       return p;
     };
 
+    _class.prototype['@test accessing `currentWhen` triggers a deprecation'] = function testAccessingCurrentWhenTriggersADeprecation(assert) {
+      var component = undefined;
+      this.registerComponent('link-to', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.LinkTo.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        })
+      });
+
+      this.registerTemplate('application', '{{link-to \'Index\' \'index\'}}');
+
+      return this.visit('/').then(function () {
+        expectDeprecation(function () {
+          component.get('currentWhen');
+        }, /Usage of `currentWhen` is deprecated, use `current-when` instead/);
+      });
+    };
+
     _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresent() {
       var _this2 = this;
 
@@ -56165,7 +56205,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], functio
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-templates/component', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberTemplatesComponent, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-templates/component', 'ember-metal/events', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberTemplatesComponent, _emberMetalEvents, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -56434,7 +56474,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
     equal(triggered, 1, 'should invoke from subclass property');
   });
 
-  QUnit.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
     var obj = _emberTemplatesComponent.default.create();
 
     expectDeprecation(function () {
@@ -76942,13 +76982,6 @@ enifed('ember-templates/tests/reexports_test', ['exports', 'ember-templates', 'e
     var last = parts[parts.length - 1];
     return Object.getOwnPropertyDescriptor(value, last);
   }
-
-  // TODO: This test should go somewhere else
-  QUnit.test('`LinkComponent#currentWhen` is deprecated in favour of `current-when` (DEPRECATED)', function () {
-    expectDeprecation(/Usage of `currentWhen` is deprecated, use `current-when` instead/);
-    var link = _emberTemplates.default.LinkComponent.create();
-    link.get('currentWhen');
-  });
 });
 enifed('ember-templates/tests/safe-string-test', ['exports', 'ember-templates/compat', 'ember-templates/string', 'ember-metal/features'], function (exports, _emberTemplatesCompat, _emberTemplatesString, _emberMetalFeatures) {
   'use strict';
@@ -79034,7 +79067,7 @@ enifed('ember-views/tests/test-helpers/get-element-style', ['exports'], function
     return style;
   };
 });
-enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView) {
+enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var view = undefined,
@@ -79077,7 +79110,7 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     }
   });
 
-  QUnit.test('generates the proper instrumentation details when called directly', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('generates the proper instrumentation details when called directly', function () {
     var payload = {};
 
     view.instrumentDetails(payload);
@@ -79085,10 +79118,11 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     confirmPayload(payload, view);
   });
 });
-enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/component_lookup', 'ember-templates/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'internal-test-helpers/tests/skip-if-glimmer', 'require'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsComponent_lookup, _emberTemplatesComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _internalTestHelpersTestsSkipIfGlimmer, _require) {
   'use strict';
 
-  var owner = undefined,
+  var compile = undefined,
+      owner = undefined,
       View = undefined,
       view = undefined,
       otherView = undefined,
@@ -79100,10 +79134,13 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     owner.registerOptionsForType('view', { singleton: false });
     owner.registerOptionsForType('template', { instantiate: false });
     owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+    compile = _require.default('ember-htmlbars-template-compiler').compile;
   }
 
-  QUnit.module('EmberView - append() and appendTo()', {
+  _internalTestHelpersTestsSkipIfGlimmer.testModule('EmberView - append() and appendTo()', {
     setup: function () {
+      commonSetup();
       View = _emberViewsViewsView.default.extend({});
     },
 
@@ -79113,7 +79150,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     }
   });
 
-  QUnit.test('can call `appendTo` for multiple views #11109', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('can call `appendTo` for multiple views #11109', function () {
     var elem = undefined;
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div><div id="other-menu"></div>');
 
@@ -79135,7 +79172,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(elem.length > 0, 'creates and appends the second view\'s element');
   });
 
-  QUnit.test('should be added to the specified element when calling appendTo()', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the specified element when calling appendTo()', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
 
     view = View.create();
@@ -79150,9 +79187,9 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 
-  QUnit.test('should be added to the document body when calling append()', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the document body when calling append()', function () {
     view = View.create({
-      template: _emberHtmlbarsTemplateCompiler.compile('foo bar baz')
+      template: compile('foo bar baz')
     });
 
     ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
@@ -79165,7 +79202,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 
-  QUnit.test('raises an assert when a target does not exist in the DOM', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('raises an assert when a target does not exist in the DOM', function () {
     view = View.create();
 
     expectAssertion(function () {
@@ -79175,7 +79212,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     });
   });
 
-  QUnit.test('destroy more forcibly removes the view', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('destroy more forcibly removes the view', function () {
     willDestroyCalled = 0;
 
     view = View.create({
@@ -79202,17 +79239,17 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');
   });
 
-  QUnit.module('EmberView - append() and appendTo() in a view hierarchy', {
+  _internalTestHelpersTestsSkipIfGlimmer.testModule('EmberView - append() and appendTo() in a view hierarchy', {
     setup: function () {
       var _Component$extend;
 
       commonSetup();
 
-      owner.register('component:x-foo', _emberHtmlbarsComponent.default.extend({
+      owner.register('component:x-foo', _emberTemplatesComponent.default.extend({
         elementId: 'child'
       }));
 
-      View = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = _emberHtmlbarsTemplateCompiler.compile('{{x-foo}}'), _Component$extend));
+      View = _emberTemplatesComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = compile('{{x-foo}}'), _Component$extend));
     },
 
     teardown: function () {
@@ -79220,7 +79257,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     }
   });
 
-  QUnit.test('should be added to the specified element when calling appendTo()', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the specified element when calling appendTo()', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
 
     view = View.create();
@@ -79235,7 +79272,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 
-  QUnit.test('should be added to the document body when calling append()', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the document body when calling append()', function () {
     _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
 
     view = View.create();
@@ -79248,16 +79285,18 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 });
-enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars-template-compiler'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsTemplateCompiler) {
+enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'internal-test-helpers/tests/skip-if-glimmer', 'require'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _internalTestHelpersTestsSkipIfGlimmer, _require) {
   'use strict';
 
   var View = undefined,
-      view = undefined;
+      view = undefined,
+      compile = undefined;
 
-  QUnit.module('EmberView - renderToElement()', {
+  _internalTestHelpersTestsSkipIfGlimmer.testModule('EmberView - renderToElement()', {
     setup: function () {
+      compile = compile || _require.default('ember-htmlbars-template-compiler').compile;
       View = _emberViewsViewsView.default.extend({
-        template: _emberHtmlbarsTemplateCompiler.compile('<h1>hello world</h1> goodbye world')
+        template: compile('<h1>hello world</h1> goodbye world')
       });
     },
 
@@ -79270,7 +79309,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     }
   });
 
-  QUnit.test('should render into and return a body element', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('should render into and return a body element', function () {
     view = View.create();
 
     ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
@@ -79285,7 +79324,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
     equal(element.firstChild.firstChild.nextSibling.nodeValue, ' goodbye world', 'renders the text node');
   });
 
-  QUnit.test('should create and render into an element with a provided tagName', function () {
+  _internalTestHelpersTestsSkipIfGlimmer.test('should create and render into an element with a provided tagName', function () {
     view = View.create();
 
     ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
