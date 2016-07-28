@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+73be3953
+ * @version   2.9.0-canary+72aaec19
  */
 
 var enifed, requireModule, require, Ember;
@@ -23898,10 +23898,7 @@ enifed('ember-glimmer/tests/integration/helpers/mut-test', ['exports', 'ember-gl
       this.assertText('');
     };
 
-    // TODO: This is not really consistent with how the rest of the system works. Investigate if we need to
-    // support this, if not then this test can be deleted.
-
-    _class.prototype['@htmlbars automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function htmlbarsAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem() {
+    _class.prototype['@test automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem() {
       var inner = undefined;
 
       this.registerComponent('x-inner', {
@@ -46768,10 +46765,7 @@ enifed('ember-htmlbars/tests/integration/helpers/mut-test', ['exports', 'ember-h
       this.assertText('');
     };
 
-    // TODO: This is not really consistent with how the rest of the system works. Investigate if we need to
-    // support this, if not then this test can be deleted.
-
-    _class.prototype['@htmlbars automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function htmlbarsAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem() {
+    _class.prototype['@test automatic mutable bindings tolerate constant non-stream inputs and attempts to set them'] = function testAutomaticMutableBindingsTolerateConstantNonStreamInputsAndAttemptsToSetThem() {
       var inner = undefined;
 
       this.registerComponent('x-inner', {
