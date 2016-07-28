@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+72aaec19
+ * @version   2.9.0-canary+64979def
  */
 
 var enifed, requireModule, require, Ember;
@@ -12119,7 +12119,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       var iterable = ref.value();
 
       if (_emberRuntimeMixinsProxy.isProxy(iterable)) {
-        valueTag.update(_glimmerReference.VOLATILE_TAG);
+        valueTag.update(_glimmerReference.CURRENT_TAG);
       } else {
         valueTag.update(_emberMetalTags.tagFor(iterable));
       }
@@ -12541,7 +12541,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       var parentValue = _parentReference.value();
 
       if (_emberRuntimeMixinsProxy.isProxy(parentValue)) {
-        _parentObjectTag.update(_glimmerReference.VOLATILE_TAG);
+        _parentObjectTag.update(_glimmerReference.CURRENT_TAG);
       } else {
         _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
       }
@@ -12646,7 +12646,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
 
     ConditionalReference.prototype.toBool = function toBool(predicate) {
       if (_emberRuntimeMixinsProxy.isProxy(predicate)) {
-        this.objectTag.update(_glimmerReference.VOLATILE_TAG);
+        this.objectTag.update(_glimmerReference.CURRENT_TAG);
         return _emberMetalProperty_get.get(predicate, 'isTruthy');
       } else {
         this.objectTag.update(_emberMetalTags.tagFor(predicate));
@@ -47858,7 +47858,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+72aaec19";
+  exports.default = "2.9.0-canary+64979def";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
