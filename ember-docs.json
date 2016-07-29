@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.8.0-beta.1"
+        "version": "v2.9.0-alpha.1"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -3028,7 +3028,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/binding.js",
-            "line": 347,
+            "line": 353,
             "deprecated": true,
             "deprecationMessage": "See http://emberjs.com/deprecations/v2.x#toc_ember-binding",
             "access": "public",
@@ -9510,7 +9510,7 @@
         },
         {
             "file": "packages/ember-metal/lib/binding.js",
-            "line": 191,
+            "line": 196,
             "description": "Disconnects the binding instance. Changes will no longer be relayed. You\nwill not usually need to call this method.",
             "itemtype": "method",
             "name": "disconnect",
@@ -9527,7 +9527,7 @@
         },
         {
             "file": "packages/ember-metal/lib/binding.js",
-            "line": 480,
+            "line": 486,
             "description": "Global helper method to create a new binding. Just pass the root object\nalong with a `to` and `from` path to create and connect the binding.",
             "itemtype": "method",
             "name": "bind",
@@ -10752,7 +10752,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 360,
+            "line": 372,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -11171,7 +11171,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 27,
+            "line": 29,
             "description": "This function is called just before an object property is about to change.\nIt will notify any before observers and prepare caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyDidChange()` which you should call just\nafter the property value changes.",
             "itemtype": "method",
             "name": "propertyWillChange",
@@ -11198,7 +11198,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 65,
+            "line": 67,
             "description": "This function is called just after an object property has changed.\nIt will notify any observers and clear caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyWillChange()` which you should call just\nbefore the property value changes.",
             "itemtype": "method",
             "name": "propertyDidChange",
@@ -11225,7 +11225,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 205,
+            "line": 214,
             "itemtype": "method",
             "name": "beginPropertyChanges",
             "chainable": 1,
@@ -11236,7 +11236,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 214,
+            "line": 223,
             "itemtype": "method",
             "name": "endPropertyChanges",
             "access": "private",
@@ -11246,7 +11246,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 226,
+            "line": 235,
             "description": "Make a series of property changes together in an\nexception-safe way.\n\n```javascript\nEmber.changeProperties(function() {\n  obj1.set('foo', mayBlowUpWhenSet);\n  obj2.set('bar', baz);\n});\n```",
             "itemtype": "method",
             "name": "changeProperties",
@@ -11991,7 +11991,7 @@
         },
         {
             "file": "packages/ember-metal/lib/utils.js",
-            "line": 276,
+            "line": 279,
             "description": "Wraps the passed function so that `this._super` will point to the superFunc\nwhen the function is invoked. This is the primitive we use to implement\ncalls to super.",
             "access": "private",
             "tagname": "",
@@ -12018,7 +12018,7 @@
         },
         {
             "file": "packages/ember-metal/lib/utils.js",
-            "line": 316,
+            "line": 319,
             "description": "Checks to see if the `methodName` exists on the `obj`.\n\n```javascript\nlet foo = { bar: function() { return 'bar'; }, baz: null };\n\nEmber.canInvoke(foo, 'bar'); // true\nEmber.canInvoke(foo, 'baz'); // false\nEmber.canInvoke(foo, 'bat'); // false\n```",
             "itemtype": "method",
             "name": "canInvoke",
@@ -12045,7 +12045,7 @@
         },
         {
             "file": "packages/ember-metal/lib/utils.js",
-            "line": 338,
+            "line": 341,
             "description": "Checks to see if the `methodName` exists on the `obj`,\nand if it does, invokes it with the arguments passed.\n\n```javascript\nlet d = new Date('03/15/2013');\n\nEmber.tryInvoke(d, 'getTime');              // 1363320000000\nEmber.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000\nEmber.tryInvoke(d, 'noSuchMethod', [2014]); // undefined\n```",
             "itemtype": "method",
             "name": "tryInvoke",
@@ -12078,7 +12078,7 @@
         },
         {
             "file": "packages/ember-metal/lib/utils.js",
-            "line": 370,
+            "line": 373,
             "description": "Forces the passed object to be part of an array. If the object is already\nan array, it will return the object. Otherwise, it will add the object to\nan array. If obj is `null` or `undefined`, it will return an empty array.\n\n```javascript\nEmber.makeArray();            // []\nEmber.makeArray(null);        // []\nEmber.makeArray(undefined);   // []\nEmber.makeArray('lindsay');   // ['lindsay']\nEmber.makeArray([1, 2, 42]);  // [1, 2, 42]\n\nlet controller = Ember.ArrayProxy.create({ content: [] });\n\nEmber.makeArray(controller) === controller;  // true\n```",
             "itemtype": "method",
             "name": "makeArray",
@@ -12100,7 +12100,7 @@
         },
         {
             "file": "packages/ember-metal/lib/utils.js",
-            "line": 398,
+            "line": 401,
             "description": "Convenience method to inspect an object. This method will attempt to\nconvert the object into a useful string description.\n\nIt is a pretty simple implementation. If you want something more robust,\nuse something like JSDump: https://github.com/NV/jsDump",
             "itemtype": "method",
             "name": "inspect",
@@ -12123,7 +12123,7 @@
         },
         {
             "file": "packages/ember-metal/lib/utils.js",
-            "line": 451,
+            "line": 454,
             "params": [
                 {
                     "name": "t",
@@ -20404,7 +20404,7 @@
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
             "line": 114,
-            "description": "Appends the view's element to the specified parent element.\n\nIf the view does not have an HTML representation yet, `createElement()`\nwill be called automatically.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the given element until all bindings have\nfinished synchronizing.\n\nThis is not typically a function that you will need to call directly when\nbuilding your application. If you do need to use `appendTo`, be sure that\nthe target element you are providing is associated with an `Ember.Application`\nand does not have an ancestor element that is associated with an Ember view.",
+            "description": "Appends the view's element to the specified parent element.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the given element until all bindings have\nfinished synchronizing.\n\nThis is not typically a function that you will need to call directly when\nbuilding your application. If you do need to use `appendTo`, be sure that\nthe target element you are providing is associated with an `Ember.Application`\nand does not have an ancestor element that is associated with an Ember view.",
             "itemtype": "method",
             "name": "appendTo",
             "params": [
@@ -20426,7 +20426,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 156,
+            "line": 153,
             "description": "Creates a new DOM element, renders the view into it, then returns the\nelement.\n\nBy default, the element created and rendered into will be a `BODY` element,\nsince this is the default context that views are rendered into when being\ninserted directly into the DOM.\n\n```js\nlet element = view.renderToElement();\nelement.tagName; // => \"BODY\"\n```\n\nYou can override the kind of element rendered into and returned by\nspecifying an optional tag name as the first argument.\n\n```js\nlet element = view.renderToElement('table');\nelement.tagName; // => \"TABLE\"\n```\n\nThis method is useful if you want to render the view into an element that\nis not in the document's body. Instead, a new `body` element, detached from\nthe DOM is returned. FastBoot uses this to serialize the rendered view into\na string for transmission over the network.\n\n```js\napp.visit('/').then(function(instance) {\n  let element;\n  Ember.run(function() {\n    element = renderToElement(instance);\n  });\n\n  res.send(serialize(element));\n});\n```",
             "itemtype": "method",
             "name": "renderToElement",
@@ -20449,7 +20449,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 207,
+            "line": 204,
             "description": "Replaces the content of the specified parent element with this view's\nelement. If the view does not have an HTML representation yet,\nthe element will be generated automatically.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the given element until all bindings have\nfinished synchronizing",
             "itemtype": "method",
             "name": "replaceIn",
@@ -20472,7 +20472,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 232,
+            "line": 229,
             "description": "Appends the view's element to the document body. If the view does\nnot have an HTML representation yet\nthe element will be generated automatically.\n\nIf your application uses the `rootElement` property, you must append\nthe view within that element. Rendering views outside of the `rootElement`\nis not supported.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the document body until all bindings have\nfinished synchronizing.",
             "itemtype": "method",
             "name": "append",
@@ -20488,7 +20488,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 253,
+            "line": 250,
             "description": "The HTML `id` of the view's element in the DOM. You can provide this\nvalue yourself but it must be unique (just as in HTML):\n\n```handlebars\n  {{my-component elementId=\"a-really-cool-id\"}}\n```\n\nIf not manually set a default value will be provided by the framework.\n\nOnce rendered an element's `elementId` is considered immutable and you\nshould never change it. If you need to compute a dynamic value for the\n`elementId`, you should do this when the component or element is being\ninstantiated:\n\n```javascript\n  export default Ember.Component.extend({\n    setElementId: Ember.on('init', function() {\n      let index = this.get('index');\n      this.set('elementId', 'component-id' + index);\n    })\n  });\n```",
             "itemtype": "property",
             "name": "elementId",
@@ -20501,7 +20501,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 283,
+            "line": 280,
             "description": "Attempts to discover the element in the parent element. The default\nimplementation looks for an element with an ID of `elementId` (or the\nview's guid if `elementId` is null). You can override this method to\nprovide your own form of lookup. For example, if you want to discover your\nelement using a CSS class name instead of an ID.",
             "itemtype": "method",
             "name": "findElementInParentElement",
@@ -20524,23 +20524,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 300,
-            "description": "Creates a DOM representation of the view and all of its child views by\nrecursively calling the `render()` method. Once the element is created,\nit sets the `element` property of the view to the rendered element.\n\nAfter the element has been inserted into the DOM, `didInsertElement` will\nbe called on this view and all of its child views.",
-            "itemtype": "method",
-            "name": "createElement",
-            "return": {
-                "description": "receiver",
-                "type": "Ember.View"
-            },
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.ViewTargetActionSupport",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 320,
+            "line": 297,
             "description": "Called when a view is going to insert an element into the DOM.",
             "itemtype": "event",
             "name": "willInsertElement",
@@ -20552,7 +20536,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 328,
+            "line": 305,
             "description": "Called when the element of the view has been inserted into the DOM\nor after the view was re-rendered. Override this function to do any\nset up that requires an element in the document body.\n\nWhen a view has children, didInsertElement will be called on the\nchild view(s) first, bubbling upwards through the hierarchy.",
             "itemtype": "event",
             "name": "didInsertElement",
@@ -20564,7 +20548,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 341,
+            "line": 318,
             "description": "Called when the view is about to rerender, but before anything has\nbeen torn down. This is a good opportunity to tear down any manual\nobservers you have installed based on the DOM state",
             "itemtype": "event",
             "name": "willClearRender",
@@ -20576,23 +20560,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 351,
-            "description": "Destroys any existing element along with the element for any child views\nas well. If the view does not currently have a element, then this method\nwill do nothing.\n\nIf you implement `willDestroyElement()` on your view, then this method will\nbe invoked on your view before your element is destroyed to give you a\nchance to clean up any event handlers, etc.\n\nIf you write a `willDestroyElement()` handler, you can assume that your\n`didInsertElement()` handler was called earlier for the same element.\n\nYou should not call or override this method yourself, but you may\nwant to implement the above callbacks.",
-            "itemtype": "method",
-            "name": "destroyElement",
-            "return": {
-                "description": "receiver",
-                "type": "Ember.View"
-            },
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.ViewTargetActionSupport",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 375,
+            "line": 328,
             "description": "You must call `destroy` on a view to destroy the view (and all of its\nchild views). This will remove the view from any parent node, then make\nsure that the DOM element managed by the view can be released by the\nmemory manager.",
             "itemtype": "method",
             "name": "destroy",
@@ -20604,7 +20572,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 389,
+            "line": 342,
             "description": "Called when the element of the view is going to be destroyed. Override\nthis function to do any teardown that requires an element, like removing\nevent listeners.\n\nPlease note: any property changes made during this event will have no\neffect on object observers.",
             "itemtype": "event",
             "name": "willDestroyElement",
@@ -20616,7 +20584,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 402,
+            "line": 355,
             "description": "Called when the parentView property has changed.",
             "itemtype": "event",
             "name": "parentViewDidChange",
@@ -20628,7 +20596,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 414,
+            "line": 367,
             "description": "Tag name for the view's outer element. The tag name is only used when an\nelement is first created. If you change the `tagName` for an element, you\nmust destroy and recreate the view element.\n\nBy default, the render buffer will use a `<div>` tag for views.",
             "itemtype": "property",
             "name": "tagName",
@@ -20642,7 +20610,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 443,
+            "line": 388,
             "description": "Setup a view, but do not finish waking it up.\n\n* configure `childViews`\n* register the view with the global views hash, which is used for event\n  dispatch",
             "itemtype": "method",
             "name": "init",
@@ -20654,7 +20622,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 546,
+            "line": 491,
             "description": "Handle events from `Ember.EventDispatcher`",
             "itemtype": "method",
             "name": "handleEvent",
@@ -20924,25 +20892,6 @@
             "namespace": "Ember"
         },
         {
-            "file": "packages/ember-views/lib/views/view.js",
-            "line": 518,
-            "description": "Given a property name, returns a dasherized version of that\nproperty name if the property evaluates to a non-falsy value.\n\nFor example, if the view has property `isUrgent` that evaluates to true,\npassing `isUrgent` to this method will return `\"is-urgent\"`.",
-            "itemtype": "method",
-            "name": "_classStringForProperty",
-            "params": [
-                {
-                    "name": "property",
-                    "description": ""
-                }
-            ],
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.View",
-            "module": "ember",
-            "submodule": "ember-views",
-            "namespace": "Ember"
-        },
-        {
             "file": "packages/ember-views/lib/index.js",
             "line": 23,
             "description": "Alias for jQuery",
@@ -21134,7 +21083,7 @@
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-metal/lib/utils.js:451"
+            "line": " packages/ember-metal/lib/utils.js:454"
         },
         {
             "message": "Missing item type\nCalled by the router to instruct the location to do any feature detection\nnecessary. In the case of AutoLocation, we detect whether to use history\nor hash concrete implementations.",
