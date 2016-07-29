@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+eac9d743
+ * @version   2.9.0-canary+ed8b3edc
  */
 
 var enifed, requireModule, require, Ember;
@@ -5914,6 +5914,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
+      _emberMetalDebug.deprecate('Should not throw', false, { id: 'test', until: 'forever' });
       assert.ok(true, 'Ember.deprecate did not throw');
     } catch (e) {
       assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
@@ -5926,6 +5927,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
+      _emberMetalDebug.deprecate('Should not throw', false, { id: 'test', until: 'forever' });
       assert.ok(true, 'Ember.deprecate did not throw');
     } catch (e) {
       assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
@@ -5933,7 +5935,9 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
 
     _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
 
-    assert.throws(function () {}, /Should throw/);
+    assert.throws(function () {
+      _emberMetalDebug.deprecate('Should throw', false, { id: 'test', until: 'forever' });
+    }, /Should throw/);
   });
 
   QUnit.test('When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id', function (assert) {
@@ -5947,22 +5951,41 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     });
 
     try {
+      _emberMetalDebug.deprecate('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
       assert.ok(true, 'Did not throw when level is set by id');
     } catch (e) {
       assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
     }
 
-    assert.throws(function () {}, /Should throw with no matching id/);
+    assert.throws(function () {
+      _emberMetalDebug.deprecate('Should throw with no matching id', false, { id: 'test', until: 'forever' });
+    }, /Should throw with no matching id/);
 
-    assert.throws(function () {}, /Should throw with non-matching id/);
+    assert.throws(function () {
+      _emberMetalDebug.deprecate('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
+    }, /Should throw with non-matching id/);
   });
 
   QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function () {
     expect(3);
+
+    throws(function () {
+      return _emberMetalDebug.deprecate('Deprecation is thrown', false, { id: 'test', until: 'forever' });
+    });
+    throws(function () {
+      return _emberMetalDebug.deprecate('Deprecation is thrown', '', { id: 'test', until: 'forever' });
+    });
+    throws(function () {
+      return _emberMetalDebug.deprecate('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
+    });
   });
 
   QUnit.test('Ember.deprecate does not invoke a function as the second argument', function () {
     expect(1);
+
+    _emberMetalDebug.deprecate('Deprecation is thrown', function () {
+      ok(false, 'this function should not be invoked');
+    }, { id: 'test', until: 'forever' });
 
     ok(true, 'deprecations were not thrown');
   });
@@ -5970,15 +5993,33 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
     expect(1);
 
+    _emberMetalDebug.deprecate('Deprecation is thrown', true, { id: 'test', until: 'forever' });
+    _emberMetalDebug.deprecate('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
+    _emberMetalDebug.deprecate('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
+
     ok(true, 'deprecations were not thrown');
   });
 
   QUnit.test('Ember.assert throws if second argument is falsy', function () {
     expect(3);
+
+    throws(function () {
+      return _emberMetalDebug.assert('Assertion is thrown', false);
+    });
+    throws(function () {
+      return _emberMetalDebug.assert('Assertion is thrown', '');
+    });
+    throws(function () {
+      return _emberMetalDebug.assert('Assertion is thrown', 0);
+    });
   });
 
   QUnit.test('Ember.assert does not throw if second argument is a function', function (assert) {
     assert.expect(1);
+
+    _emberMetalDebug.assert('Assertion is thrown', function () {
+      return true;
+    });
 
     ok(true, 'assertions were not thrown');
   });
@@ -5986,12 +6027,19 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
   QUnit.test('Ember.assert does not throw if second argument is truthy', function () {
     expect(1);
 
+    _emberMetalDebug.assert('Assertion is thrown', true);
+    _emberMetalDebug.assert('Assertion is thrown', '1');
+    _emberMetalDebug.assert('Assertion is thrown', 1);
+
     ok(true, 'assertions were not thrown');
   });
 
   QUnit.test('Ember.assert does not throw if second argument is an object', function () {
     expect(1);
     var Igor = _emberRuntimeSystemObject.default.extend();
+
+    _emberMetalDebug.assert('is truthy', Igor);
+    _emberMetalDebug.assert('is truthy', Igor.create());
 
     ok(true, 'assertions were not thrown');
   });
@@ -6011,12 +6059,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     });
 
     try {
+      _emberMetalDebug.deprecate('Deprecation for testing purposes', false, { id: id, until: until });
       ok(true, 'Deprecation did not throw');
     } catch (e) {
       ok(false, 'Deprecation was thrown despite being added to blacklist');
     }
 
     try {
+      _emberMetalDebug.deprecate('Deprecation for testing purposes', false, { id: id, until: until });
       ok(true, 'Deprecation did not throw');
     } catch (e) {
       ok(false, 'Deprecation was thrown despite being added to blacklist');
@@ -6024,9 +6074,13 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
 
     shouldThrow = true;
 
-    throws(function () {});
+    throws(function () {
+      _emberMetalDebug.deprecate('Deprecation is thrown', false, { id: id, until: until });
+    });
 
-    throws(function () {});
+    throws(function () {
+      _emberMetalDebug.deprecate('Deprecation is thrown', false, { id: id, until: until });
+    });
   });
 
   QUnit.test('Ember.deprecate without options triggers a deprecation', function (assert) {
@@ -6039,6 +6093,9 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
         assert.ok(true, 'original deprecation is still triggered');
       }
     });
+
+    _emberMetalDebug.deprecate('foo');
+    _emberMetalDebug.deprecate('foo', false, {});
   });
 
   QUnit.test('Ember.deprecate without options.id triggers a deprecation', function (assert) {
@@ -6051,6 +6108,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
         assert.ok(true, 'original deprecation is still triggered');
       }
     });
+
+    _emberMetalDebug.deprecate('foo', false, { until: 'forever' });
   });
 
   QUnit.test('Ember.deprecate without options.until triggers a deprecation', function (assert) {
@@ -6063,6 +6122,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
         assert.ok(true, 'original deprecation is still triggered');
       }
     });
+
+    _emberMetalDebug.deprecate('foo', false, { id: 'test' });
   });
 
   QUnit.test('warn without options triggers a deprecation', function (assert) {
@@ -6075,6 +6136,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberDebugWarn.registerHandler(function (message) {
       assert.equal(message, 'foo', 'original warning is triggered');
     });
+
+    _emberMetalDebug.warn('foo');
   });
 
   QUnit.test('warn without options.id triggers a deprecation', function (assert) {
@@ -6087,6 +6150,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberDebugWarn.registerHandler(function (message) {
       assert.equal(message, 'foo', 'original warning is triggered');
     });
+
+    _emberMetalDebug.warn('foo', false, {});
   });
 });
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-debug'], function (exports, _emberEnvironment, _emberMetalDebug, _emberDebug) {
@@ -12895,7 +12960,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       this.assertText('initial value - initial value');
 
-      if (false) {
+      if (true) {
         expectAssertion(function () {
           component.bar = 'foo-bar';
         }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
@@ -36335,7 +36400,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       this.assertText('initial value - initial value');
 
-      if (false) {
+      if (true) {
         expectAssertion(function () {
           component.bar = 'foo-bar';
         }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
@@ -54428,7 +54493,7 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     return _emberMetalMeta.meta(object).hasInValues(property);
   }
 
-  if (false) {
+  if (true) {
     QUnit.test('does not assert if property is not being watched', function () {
       var obj = {
         someProp: null,
@@ -75140,7 +75205,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     equal(o.get('foo'), 'bar');
   });
 
-  if (false) {
+  if (true) {
     QUnit.test('sets up mandatory setters for watched simple properties', function () {
       var MyClass = _emberRuntimeSystemObject.default.extend({
         foo: null,
@@ -75281,7 +75346,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
   });
 
-  if (false) {
+  if (true) {
     // MANDATORY_SETTER moves value to meta.values
     // a destroyed object removes meta but leaves the accessor
     // that looks it up

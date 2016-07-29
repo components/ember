@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+eac9d743
+ * @version   2.9.0-canary+ed8b3edc
  */
 
 var enifed, requireModule, require, Ember;
@@ -12195,7 +12195,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+eac9d743";
+  exports.default = "2.9.0-canary+ed8b3edc";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
@@ -32728,19 +32728,19 @@ enifed('glimmer-util/lib/array-utils.tslint', ['exports'], function (exports) {
     });
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItdXRpbC9saWIvYXJyYXktdXRpbHMudHNsaW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLFNBQUssQ0FBQyxNQUFNLENBQUMsMkJBQTJCLENBQUMsQ0FBQztBQUMxQyxTQUFLLENBQUMsSUFBSSxDQUFDLG9EQUFvRCxFQUFFLFVBQVMsTUFBTSxFQUFBO0FBQzlFLGNBQU0sQ0FBQyxNQUFNLENBQUMsQ0FBQyxDQUFDLENBQUM7QUFDakIsY0FBTSxDQUFDLEVBQUUsQ0FBQyxLQUFLLEVBQUUseURBQXlELENBQUMsQ0FBQztLQUM3RSxDQUFDLENBQUMiLCJmaWxlIjoiYXJyYXktdXRpbHMudHNsaW50LmpzIiwic291cmNlc0NvbnRlbnQiOlsiUVVuaXQubW9kdWxlKCdKU0hpbnQgLSBnbGltbWVyLXV0aWwvbGliJyk7XG5RVW5pdC50ZXN0KCdnbGltbWVyLXV0aWwvbGliL2FycmF5LXV0aWxzLnRzIHNob3VsZCBwYXNzIGpzaGludCcsIGZ1bmN0aW9uKGFzc2VydCkgeyBcbiAgYXNzZXJ0LmV4cGVjdCgxKTtcbiAgYXNzZXJ0Lm9rKGZhbHNlLCAnZ2xpbW1lci11dGlsL2xpYi9hcnJheS11dGlscy50cyBzaG91bGQgcGFzcyBqc2hpbnQuXFxuXFxuJyk7IFxufSk7XG4iXX0=
-enifed("glimmer-util/lib/assert", ["exports", "glimmer-util/lib/logger"], function (exports, _glimmerUtilLibLogger) {
+enifed("glimmer-util/lib/assert", ["exports"], function (exports) {
+    // import Logger from './logger';
+    // let alreadyWarned = false;
     "use strict";
 
     exports.debugAssert = debugAssert;
     exports.prodAssert = prodAssert;
 
-    var alreadyWarned = false;
-
     function debugAssert(test, msg) {
-        if (!alreadyWarned) {
-            alreadyWarned = true;
-            _glimmerUtilLibLogger.default.warn("Don't leave debug assertions on in public builds");
-        }
+        // if (!alreadyWarned) {
+        //   alreadyWarned = true;
+        //   Logger.warn("Don't leave debug assertions on in public builds");
+        // }
         if (!test) {
             throw new Error(msg || "assertion failure");
         }
@@ -32750,7 +32750,7 @@ enifed("glimmer-util/lib/assert", ["exports", "glimmer-util/lib/logger"], functi
 
     exports.default = debugAssert;
 });
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItdXRpbC9saWIvYXNzZXJ0LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7OztBQUVBLFFBQUksYUFBYSxHQUFHLEtBQUssQ0FBQzs7QUFDMUIsYUFBQSxXQUFBLENBQTRCLElBQUksRUFBRSxHQUFHLEVBQUE7QUFDbkMsWUFBSSxDQUFDLGFBQWEsRUFBRTtBQUNsQix5QkFBYSxHQUFHLElBQUksQ0FBQztBQUNyQiwwQ0FBTyxJQUFJLENBQUMsa0RBQWtELENBQUMsQ0FBQztTQUNqRTtBQUVELFlBQUksQ0FBQyxJQUFJLEVBQUU7QUFDVCxrQkFBTSxJQUFJLEtBQUssQ0FBQyxHQUFHLElBQUksbUJBQW1CLENBQUMsQ0FBQztTQUM3QztLQUNGOztBQUVELGFBQUEsVUFBQSxHQUFBLEVBQStCOztzQkFFaEIsV0FBVyIsImZpbGUiOiJhc3NlcnQuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgTG9nZ2VyIGZyb20gJy4vbG9nZ2VyJztcblxubGV0IGFscmVhZHlXYXJuZWQgPSBmYWxzZTtcbmV4cG9ydCBmdW5jdGlvbiBkZWJ1Z0Fzc2VydCh0ZXN0LCBtc2cpIHtcbiAgaWYgKCFhbHJlYWR5V2FybmVkKSB7XG4gICAgYWxyZWFkeVdhcm5lZCA9IHRydWU7XG4gICAgTG9nZ2VyLndhcm4oXCJEb24ndCBsZWF2ZSBkZWJ1ZyBhc3NlcnRpb25zIG9uIGluIHB1YmxpYyBidWlsZHNcIik7XG4gIH1cblxuICBpZiAoIXRlc3QpIHtcbiAgICB0aHJvdyBuZXcgRXJyb3IobXNnIHx8IFwiYXNzZXJ0aW9uIGZhaWx1cmVcIik7XG4gIH1cbn1cblxuZXhwb3J0IGZ1bmN0aW9uIHByb2RBc3NlcnQoKSB7fVxuXG5leHBvcnQgZGVmYXVsdCBkZWJ1Z0Fzc2VydDsiXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItdXRpbC9saWIvYXNzZXJ0LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7O0FBSUEsYUFBQSxXQUFBLENBQTRCLElBQUksRUFBRSxHQUFHLEVBQUE7Ozs7O0FBTW5DLFlBQUksQ0FBQyxJQUFJLEVBQUU7QUFDVCxrQkFBTSxJQUFJLEtBQUssQ0FBQyxHQUFHLElBQUksbUJBQW1CLENBQUMsQ0FBQztTQUM3QztLQUNGOztBQUVELGFBQUEsVUFBQSxHQUFBLEVBQStCOztzQkFFaEIsV0FBVyIsImZpbGUiOiJhc3NlcnQuanMiLCJzb3VyY2VzQ29udGVudCI6WyIvLyBpbXBvcnQgTG9nZ2VyIGZyb20gJy4vbG9nZ2VyJztcblxuLy8gbGV0IGFscmVhZHlXYXJuZWQgPSBmYWxzZTtcblxuZXhwb3J0IGZ1bmN0aW9uIGRlYnVnQXNzZXJ0KHRlc3QsIG1zZykge1xuICAvLyBpZiAoIWFscmVhZHlXYXJuZWQpIHtcbiAgLy8gICBhbHJlYWR5V2FybmVkID0gdHJ1ZTtcbiAgLy8gICBMb2dnZXIud2FybihcIkRvbid0IGxlYXZlIGRlYnVnIGFzc2VydGlvbnMgb24gaW4gcHVibGljIGJ1aWxkc1wiKTtcbiAgLy8gfVxuXG4gIGlmICghdGVzdCkge1xuICAgIHRocm93IG5ldyBFcnJvcihtc2cgfHwgXCJhc3NlcnRpb24gZmFpbHVyZVwiKTtcbiAgfVxufVxuXG5leHBvcnQgZnVuY3Rpb24gcHJvZEFzc2VydCgpIHt9XG5cbmV4cG9ydCBkZWZhdWx0IGRlYnVnQXNzZXJ0O1xuIl19
 enifed('glimmer-util/lib/assert.tslint', ['exports'], function (exports) {
     'use strict';
 
