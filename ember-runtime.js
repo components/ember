@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+f247628d
+ * @version   2.9.0-null+b236ff1e
  */
 
 var enifed, requireModule, require, Ember;
@@ -10116,6 +10116,13 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
     };
   }
 
+  var implication = undefined;
+  if (false) {
+    implication = 'will be removed in Ember 3.0.';
+  } else if (true) {
+    implication = 'is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.';
+  }
+
   if (true || false) {
     (function () {
       var counter = 0;
@@ -10155,12 +10162,20 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
             var parts = [];
             var lastRef = ref[key];
 
-            while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
-              parts.unshift(lastRef._propertyKey);
-              lastRef = lastRef._parentReference;
+            var label = undefined;
+
+            if (lastRef) {
+              while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+                parts.unshift(lastRef._propertyKey);
+                lastRef = lastRef._parentReference;
+              }
+
+              label = parts.join();
+            } else {
+              label = 'the same value';
             }
 
-            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and will be removed in Ember 3.0.';
+            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -20003,7 +20018,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+f247628d";
+  exports.default = "2.9.0-null+b236ff1e";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
