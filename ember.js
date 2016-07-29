@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+af78380b
+ * @version   2.9.0-canary+eac9d743
  */
 
 var enifed, requireModule, require, Ember;
@@ -23799,31 +23799,36 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
       this.store = store || new DefaultStore();
     }
 
-    Cache.prototype.set = function set(obj, value) {
-      if (this.limit > this.size) {
-        var key = this.key === undefined ? obj : this.key(obj);
-        this.size++;
-        if (value === undefined) {
-          this.store.set(key, UNDEFINED);
-        } else {
-          this.store.set(key, value);
-        }
-      }
-      return value;
-    };
-
     Cache.prototype.get = function get(obj) {
       var key = this.key === undefined ? obj : this.key(obj);
       var value = this.store.get(key);
       if (value === undefined) {
         this.misses++;
-        value = this.set(key, this.func(obj));
+        value = this._set(key, this.func(obj));
       } else if (value === UNDEFINED) {
         this.hits++;
         value = undefined;
       } else {
         this.hits++;
         // nothing to translate
+      }
+
+      return value;
+    };
+
+    Cache.prototype.set = function set(obj, value) {
+      var key = this.key === undefined ? obj : this.key(obj);
+      return this._set(key, value);
+    };
+
+    Cache.prototype._set = function _set(key, value) {
+      if (this.limit > this.size) {
+        this.size++;
+        if (value === undefined) {
+          this.store.set(key, UNDEFINED);
+        } else {
+          this.store.set(key, value);
+        }
       }
 
       return value;
@@ -50599,7 +50604,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+af78380b";
+  exports.default = "2.9.0-canary+eac9d743";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+af78380b
+ * @version   2.9.0-canary+eac9d743
  */
 
 var enifed, requireModule, require, Ember;
@@ -28254,6 +28254,172 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/empty_object', 'glimmer-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalEmpty_object, _glimmerRuntime) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var Counter = (function () {
+    function Counter() {
+      _classCallCheck(this, Counter);
+
+      this.reset();
+    }
+
+    Counter.prototype.increment = function increment(key) {
+      this.total++;
+      return this.counts[key] = (this.counts[key] || 0) + 1;
+    };
+
+    Counter.prototype.get = function get(key) {
+      return this.counts[key] || 0;
+    };
+
+    Counter.prototype.reset = function reset() {
+      this.total = 0;
+      this.counts = new _emberMetalEmpty_object.default();
+    };
+
+    return Counter;
+  })();
+
+  var COUNTER = new Counter();
+
+  var BasicCompiler = (function () {
+    function BasicCompiler(template) {
+      _classCallCheck(this, BasicCompiler);
+
+      this.template = template;
+    }
+
+    BasicCompiler.prototype.compile = function compile(builder) {
+      var template = this.template;
+
+      COUNTER.increment(this.constructor.id + '+' + template.id);
+      builder.wrapLayout(template.asLayout());
+    };
+
+    return BasicCompiler;
+  })();
+
+  var TypeOneCompiler = (function (_BasicCompiler) {
+    _inherits(TypeOneCompiler, _BasicCompiler);
+
+    function TypeOneCompiler() {
+      _classCallCheck(this, TypeOneCompiler);
+
+      _BasicCompiler.apply(this, arguments);
+    }
+
+    return TypeOneCompiler;
+  })(BasicCompiler);
+
+  var TypeTwoCompiler = (function (_BasicCompiler2) {
+    _inherits(TypeTwoCompiler, _BasicCompiler2);
+
+    function TypeTwoCompiler() {
+      _classCallCheck(this, TypeTwoCompiler);
+
+      _BasicCompiler2.apply(this, arguments);
+    }
+
+    return TypeTwoCompiler;
+  })(BasicCompiler);
+
+  TypeOneCompiler.id = 'type-one';
+  TypeTwoCompiler.id = 'type-two';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Layout cache test', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.call(this);
+      COUNTER.reset();
+    }
+
+    _class.prototype.templateFor = function templateFor(content) {
+      var Factory = this.compile(content);
+      return new Factory(this);
+    };
+
+    _class.prototype['@test each template is only compiled once'] = function testEachTemplateIsOnlyCompiledOnce(assert) {
+      var env = this.env;
+
+      var template1 = this.templateFor('Hello world!');
+      var template2 = this.templateFor('{{foo}} {{bar}}');
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
+      assert.strictEqual(COUNTER.get('type-one+' + template2.id), 0);
+      assert.strictEqual(COUNTER.total, 1);
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
+      assert.strictEqual(COUNTER.get('type-one+' + template2.id), 0);
+      assert.strictEqual(COUNTER.total, 1);
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
+      assert.strictEqual(COUNTER.get('type-one+' + template2.id), 1);
+      assert.strictEqual(COUNTER.total, 2);
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+
+      assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
+      assert.strictEqual(COUNTER.get('type-one+' + template2.id), 1);
+      assert.strictEqual(COUNTER.total, 2);
+    };
+
+    _class.prototype['@test each template/compiler pair is treated as unique'] = function testEachTemplateCompilerPairIsTreatedAsUnique(assert) {
+      var env = this.env;
+
+      var template = this.templateFor('Hello world!');
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
+      assert.strictEqual(COUNTER.get('type-two+' + template.id), 0);
+      assert.strictEqual(COUNTER.total, 1);
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
+      assert.strictEqual(COUNTER.get('type-two+' + template.id), 0);
+      assert.strictEqual(COUNTER.total, 1);
+
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
+      assert.strictEqual(COUNTER.get('type-two+' + template.id), 1);
+      assert.strictEqual(COUNTER.total, 2);
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+
+      assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
+      assert.strictEqual(COUNTER.get('type-two+' + template.id), 1);
+      assert.strictEqual(COUNTER.total, 2);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
@@ -55288,6 +55454,22 @@ enifed('ember-metal/tests/cache_test', ['exports', 'ember-metal/cache'], functio
     equal(cache.get('foo'), 'FOO');
   });
 
+  QUnit.test('explicit sets', function () {
+    var cache = new _emberMetalCache.default(100, function (key) {
+      return key.toUpperCase();
+    });
+
+    equal(cache.get('foo'), 'FOO');
+
+    equal(cache.set('foo', 'FOO!!!'), 'FOO!!!');
+
+    equal(cache.get('foo'), 'FOO!!!');
+
+    strictEqual(cache.set('foo', undefined), undefined);
+
+    strictEqual(cache.get('foo'), undefined);
+  });
+
   QUnit.test('caches computation correctly', function () {
     var count = 0;
     var cache = new _emberMetalCache.default(100, function (key) {
@@ -55306,10 +55488,41 @@ enifed('ember-metal/tests/cache_test', ['exports', 'ember-metal/cache'], functio
     equal(count, 2);
   });
 
-  QUnit.test('handles undefined value correctly', function () {
-    var cache = new _emberMetalCache.default(100, function (key) {});
+  QUnit.test('caches computation correctly with custom cache keys', function () {
+    var count = 0;
+    var cache = new _emberMetalCache.default(100, function (obj) {
+      count++;
+      return obj.value.toUpperCase();
+    }, function (obj) {
+      return obj.key;
+    });
 
-    equal(cache.get('foo'), undefined);
+    equal(count, 0);
+    cache.get({ key: 'foo', value: 'foo' });
+    equal(count, 1);
+    cache.get({ key: 'bar', value: 'bar' });
+    equal(count, 2);
+    cache.get({ key: 'bar', value: 'bar' });
+    equal(count, 2);
+    cache.get({ key: 'foo', value: 'foo' });
+    equal(count, 2);
+  });
+
+  QUnit.test('handles undefined value correctly', function () {
+    var count = 0;
+    var cache = new _emberMetalCache.default(100, function (key) {
+      count++;
+    });
+
+    equal(count, 0);
+    strictEqual(cache.get('foo'), undefined);
+    equal(count, 1);
+    strictEqual(cache.get('bar'), undefined);
+    equal(count, 2);
+    strictEqual(cache.get('bar'), undefined);
+    equal(count, 2);
+    strictEqual(cache.get('foo'), undefined);
+    equal(count, 2);
   });
 
   QUnit.test('continues working after reaching cache limit', function () {
