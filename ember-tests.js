@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+0628013c
+ * @version   2.9.0-canary+af78380b
  */
 
 var enifed, requireModule, require, Ember;
@@ -7647,7 +7647,7 @@ enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', '
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars should accept bindings as a string or an Ember.binding'] = function htmlbarsShouldAcceptBindingsAsAStringOrAnEmberBinding() {
+    _class.prototype['@test should accept bindings as a string or an Ember.binding'] = function testShouldAcceptBindingsAsAStringOrAnEmberBinding() {
       var _this = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14311,7 +14311,7 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/run_loop'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalRun_loop) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -14832,6 +14832,75 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 
     return _class;
   })(LifeCycleHooksTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test afterRender set'] = function testAfterRenderSet() {
+      var _this8 = this;
+
+      var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        width: '5',
+        didInsertElement: function () {
+          var _this7 = this;
+
+          _emberMetalRun_loop.default.scheduleOnce('afterRender', function () {
+            _this7.set('width', '10');
+          });
+        }
+      });
+
+      var template = '{{width}}';
+      this.registerComponent('foo-bar', { ComponentClass: ComponentClass, template: template });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('10');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('10');
+    };
+
+    _class2.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
+      var _this10 = this;
+
+      var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        didInsertElement: function () {
+          var _this9 = this;
+
+          _emberMetalRun_loop.default.scheduleOnce('afterRender', function () {
+            var parent = _this9.get('parent');
+            parent.set('foo', 'wat');
+          });
+        }
+      });
+
+      var template = '{{foo}}';
+
+      this.registerComponent('foo-bar', { ComponentClass: ComponentClass, template: template });
+
+      this.render('{{foo-bar parent=this foo=foo}}');
+
+      this.assertText('wat');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('wat');
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   function bind(func, thisArg) {
     return function () {
@@ -20642,6 +20711,8 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@glimmer it should unregister event handlers on teardown, but not on rerender'] = function glimmerItShouldUnregisterEventHandlersOnTeardownButNotOnRerender() {
+      var _this17 = this;
+
       var editHandlerWasCalled = false;
       var component = undefined;
 
@@ -20667,7 +20738,9 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 
       var previousAttributes = getActionAttributes(component.$('a').get(0));
 
-      this.rerender();
+      this.runTask(function () {
+        return _this17.rerender();
+      });
 
       var rerenderedAttributes = getActionAttributes(component.$('a').get(0));
 
@@ -20752,7 +20825,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@test it should capture events from child elements and allow them to trigger the action'] = function testItShouldCaptureEventsFromChildElementsAndAllowThemToTriggerTheAction() {
-      var _this17 = this;
+      var _this18 = this;
 
       var editHandlerWasCalled = false;
 
@@ -20772,14 +20845,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this17.$('button').click();
+        _this18.$('button').click();
       });
 
       this.assert.ok(editHandlerWasCalled, 'event on a child target triggered the action of its parent');
     };
 
     _class2.prototype['@test it should allow bubbling of events from action helper to original parent event'] = function testItShouldAllowBubblingOfEventsFromActionHelperToOriginalParentEvent() {
-      var _this18 = this;
+      var _this19 = this;
 
       var editHandlerWasCalled = false;
       var originalHandlerWasCalled = false;
@@ -20803,14 +20876,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this18.$('a').click();
+        _this19.$('a').click();
       });
 
       this.assert.ok(editHandlerWasCalled && originalHandlerWasCalled, 'both event handlers were called');
     };
 
     _class2.prototype['@test it should not bubble an event from action helper to original parent event if `bubbles=false` is passed'] = function testItShouldNotBubbleAnEventFromActionHelperToOriginalParentEventIfBubblesFalseIsPassed() {
-      var _this19 = this;
+      var _this20 = this;
 
       var editHandlerWasCalled = false;
       var originalHandlerWasCalled = false;
@@ -20834,7 +20907,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this19.$('a').click();
+        _this20.$('a').click();
       });
 
       this.assert.ok(editHandlerWasCalled, 'the child event handler was called');
@@ -20842,7 +20915,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@test it should allow "send" as the action name (#594)'] = function testItShouldAllowSendAsTheActionName594() {
-      var _this20 = this;
+      var _this21 = this;
 
       var sendHandlerWasCalled = false;
 
@@ -20862,14 +20935,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this20.$('a').click();
+        _this21.$('a').click();
       });
 
       this.assert.ok(sendHandlerWasCalled, 'the event handler was called');
     };
 
     _class2.prototype['@test it should send the view, event, and current context to the action'] = function testItShouldSendTheViewEventAndCurrentContextToTheAction() {
-      var _this21 = this;
+      var _this22 = this;
 
       var passedTarget = undefined;
       var passedContext = undefined;
@@ -20910,7 +20983,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this21.$('#edit').click();
+        _this22.$('#edit').click();
       });
 
       this.assert.ok(passedTarget, 'the action is called with the target as this');
@@ -20918,7 +20991,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@test it should only trigger actions for the event they were registered on'] = function testItShouldOnlyTriggerActionsForTheEventTheyWereRegisteredOn() {
-      var _this22 = this;
+      var _this23 = this;
 
       var editHandlerWasCalled = false;
 
@@ -20938,7 +21011,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this22.$('a').click();
+        _this23.$('a').click();
       });
 
       this.assert.ok(editHandlerWasCalled, 'the event handler was called on click');
@@ -20946,14 +21019,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       editHandlerWasCalled = false;
 
       this.runTask(function () {
-        _this22.$('a').trigger('mouseover');
+        _this23.$('a').trigger('mouseover');
       });
 
       this.assert.notOk(editHandlerWasCalled, 'the event handler was not called on mouseover');
     };
 
     _class2.prototype['@test it should allow multiple contexts to be specified'] = function testItShouldAllowMultipleContextsToBeSpecified() {
-      var _this23 = this;
+      var _this24 = this;
 
       var passedContexts = undefined;
       var models = [_emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create()];
@@ -20980,14 +21053,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this23.$('button').click();
+        _this24.$('button').click();
       });
 
       this.assert.deepEqual(passedContexts, models, 'the action was called with the passed contexts');
     };
 
     _class2.prototype['@test it should allow multiple contexts to be specified mixed with string args'] = function testItShouldAllowMultipleContextsToBeSpecifiedMixedWithStringArgs() {
-      var _this24 = this;
+      var _this25 = this;
 
       var passedContexts = undefined;
       var model = _emberRuntimeSystemObject.default.create();
@@ -21013,7 +21086,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this24.$('button').click();
+        _this25.$('button').click();
       });
 
       this.assert.deepEqual(passedContexts, ['herp', model], 'the action was called with the passed contexts');
@@ -21070,7 +21143,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@test it can trigger actions for keyboard events'] = function testItCanTriggerActionsForKeyboardEvents() {
-      var _this25 = this;
+      var _this26 = this;
 
       var showCalled = false;
 
@@ -21093,7 +21166,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
         var event = _emberViewsSystemJquery.default.Event('keyup');
         event.char = 'a';
         event.which = 65;
-        _this25.$('input').trigger(event);
+        _this26.$('input').trigger(event);
       });
 
       this.assert.ok(showCalled, 'the action was called with keyup');
@@ -21206,7 +21279,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@test a quoteless function parameter should be called, including arguments'] = function testAQuotelessFunctionParameterShouldBeCalledIncludingArguments() {
-      var _this26 = this;
+      var _this27 = this;
 
       var submitCalled = false;
       var incomingArg = undefined;
@@ -21228,7 +21301,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this26.$('a').click();
+        _this27.$('a').click();
       });
 
       this.assert.ok(submitCalled, 'submit function called');
@@ -21236,7 +21309,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@test a quoteless parameter that does not resolve to a value asserts'] = function testAQuotelessParameterThatDoesNotResolveToAValueAsserts() {
-      var _this27 = this;
+      var _this28 = this;
 
       var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         actions: {
@@ -21250,12 +21323,12 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       });
 
       expectAssertion(function () {
-        _this27.render('{{example-component}}');
+        _this28.render('{{example-component}}');
       }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
     };
 
     _class2.prototype['@glimmer allows multiple actions on a single element'] = function glimmerAllowsMultipleActionsOnASingleElement() {
-      var _this28 = this;
+      var _this29 = this;
 
       var clickActionWasCalled = false;
       var doubleClickActionWasCalled = false;
@@ -21283,20 +21356,20 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assert.equal(actionAttrs.length, 2, 'two action attributes were added');
 
       this.runTask(function () {
-        _this28.$('a').trigger('click');
+        _this29.$('a').trigger('click');
       });
 
       this.assert.ok(clickActionWasCalled, 'the clicked action was called');
 
       this.runTask(function () {
-        _this28.$('a').trigger('dblclick');
+        _this29.$('a').trigger('dblclick');
       });
 
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
     _class2.prototype['@htmlbars allows multiple actions on a single element'] = function htmlbarsAllowsMultipleActionsOnASingleElement() {
-      var _this29 = this;
+      var _this30 = this;
 
       var clickActionWasCalled = false;
       var doubleClickActionWasCalled = false;
@@ -21320,20 +21393,20 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this29.$('a').trigger('click');
+        _this30.$('a').trigger('click');
       });
 
       this.assert.ok(clickActionWasCalled, 'the clicked action was called');
 
       this.runTask(function () {
-        _this29.$('a').trigger('dblclick');
+        _this30.$('a').trigger('dblclick');
       });
 
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided'] = function testItShouldRespectPreventDefaultOptionIfProvided() {
-      var _this30 = this;
+      var _this31 = this;
 
       var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         actions: {
@@ -21351,14 +21424,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this30.$('a').trigger(event);
+        _this31.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided bound'] = function testItShouldRespectPreventDefaultOptionIfProvidedBound() {
-      var _this31 = this;
+      var _this32 = this;
 
       var component = undefined;
 
@@ -21383,7 +21456,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this31.$('a').trigger(event);
+        _this32.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
@@ -21392,14 +21465,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 
       this.runTask(function () {
         component.set('shouldPreventDefault', true);
-        _this31.$('a').trigger(event);
+        _this32.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
     };
 
     _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
-      var _this32 = this;
+      var _this33 = this;
 
       var outerActionCalled = false;
       var innerClickCalled = false;
@@ -21439,7 +21512,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{outer-component}}');
 
       this.runTask(function () {
-        _this32.$('button').click();
+        _this33.$('button').click();
       });
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');
@@ -28794,7 +28867,7 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString) {
   'use strict';
 
   exports.buildOwner = buildOwner;
@@ -28819,8 +28892,16 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
     _emberGlimmerSetupRegistry.setupEngineRegistry(owner.__registry__);
     _emberGlimmerSetupRegistry.setupApplicationRegistry(owner.__registry__);
+
     owner.register('service:-document', document, { instantiate: false });
+    owner.register('-environment:main', {
+      isInteractive: true,
+      options: { jQuery: _emberViewsSystemJquery.default }
+    }, { instantiate: false });
+    owner.inject('view', '_environment', '-environment:main');
+    owner.inject('component', '_environment', '-environment:main');
     owner.inject('service:-dom-helper', 'document', 'service:-document');
+    owner.inject('view', 'renderer', 'renderer:-dom');
     owner.inject('component', 'renderer', 'renderer:-dom');
     owner.inject('template', 'env', 'service:-glimmer-environment');
 
@@ -30840,7 +30921,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars should accept bindings as a string or an Ember.binding'] = function htmlbarsShouldAcceptBindingsAsAStringOrAnEmberBinding() {
+    _class.prototype['@test should accept bindings as a string or an Ember.binding'] = function testShouldAcceptBindingsAsAStringOrAnEmberBinding() {
       var _this = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -37504,7 +37585,7 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
+enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/run_loop'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalRun_loop) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -38025,6 +38106,75 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 
     return _class;
   })(LifeCycleHooksTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test afterRender set'] = function testAfterRenderSet() {
+      var _this8 = this;
+
+      var ComponentClass = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        width: '5',
+        didInsertElement: function () {
+          var _this7 = this;
+
+          _emberMetalRun_loop.default.scheduleOnce('afterRender', function () {
+            _this7.set('width', '10');
+          });
+        }
+      });
+
+      var template = '{{width}}';
+      this.registerComponent('foo-bar', { ComponentClass: ComponentClass, template: template });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('10');
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertText('10');
+    };
+
+    _class2.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
+      var _this10 = this;
+
+      var ComponentClass = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        didInsertElement: function () {
+          var _this9 = this;
+
+          _emberMetalRun_loop.default.scheduleOnce('afterRender', function () {
+            var parent = _this9.get('parent');
+            parent.set('foo', 'wat');
+          });
+        }
+      });
+
+      var template = '{{foo}}';
+
+      this.registerComponent('foo-bar', { ComponentClass: ComponentClass, template: template });
+
+      this.render('{{foo-bar parent=this foo=foo}}');
+
+      this.assertText('wat');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('wat');
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   function bind(func, thisArg) {
     return function () {
@@ -43527,6 +43677,8 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@glimmer it should unregister event handlers on teardown, but not on rerender'] = function glimmerItShouldUnregisterEventHandlersOnTeardownButNotOnRerender() {
+      var _this17 = this;
+
       var editHandlerWasCalled = false;
       var component = undefined;
 
@@ -43552,7 +43704,9 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 
       var previousAttributes = getActionAttributes(component.$('a').get(0));
 
-      this.rerender();
+      this.runTask(function () {
+        return _this17.rerender();
+      });
 
       var rerenderedAttributes = getActionAttributes(component.$('a').get(0));
 
@@ -43637,7 +43791,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@test it should capture events from child elements and allow them to trigger the action'] = function testItShouldCaptureEventsFromChildElementsAndAllowThemToTriggerTheAction() {
-      var _this17 = this;
+      var _this18 = this;
 
       var editHandlerWasCalled = false;
 
@@ -43657,14 +43811,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this17.$('button').click();
+        _this18.$('button').click();
       });
 
       this.assert.ok(editHandlerWasCalled, 'event on a child target triggered the action of its parent');
     };
 
     _class2.prototype['@test it should allow bubbling of events from action helper to original parent event'] = function testItShouldAllowBubblingOfEventsFromActionHelperToOriginalParentEvent() {
-      var _this18 = this;
+      var _this19 = this;
 
       var editHandlerWasCalled = false;
       var originalHandlerWasCalled = false;
@@ -43688,14 +43842,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this18.$('a').click();
+        _this19.$('a').click();
       });
 
       this.assert.ok(editHandlerWasCalled && originalHandlerWasCalled, 'both event handlers were called');
     };
 
     _class2.prototype['@test it should not bubble an event from action helper to original parent event if `bubbles=false` is passed'] = function testItShouldNotBubbleAnEventFromActionHelperToOriginalParentEventIfBubblesFalseIsPassed() {
-      var _this19 = this;
+      var _this20 = this;
 
       var editHandlerWasCalled = false;
       var originalHandlerWasCalled = false;
@@ -43719,7 +43873,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this19.$('a').click();
+        _this20.$('a').click();
       });
 
       this.assert.ok(editHandlerWasCalled, 'the child event handler was called');
@@ -43727,7 +43881,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@test it should allow "send" as the action name (#594)'] = function testItShouldAllowSendAsTheActionName594() {
-      var _this20 = this;
+      var _this21 = this;
 
       var sendHandlerWasCalled = false;
 
@@ -43747,14 +43901,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this20.$('a').click();
+        _this21.$('a').click();
       });
 
       this.assert.ok(sendHandlerWasCalled, 'the event handler was called');
     };
 
     _class2.prototype['@test it should send the view, event, and current context to the action'] = function testItShouldSendTheViewEventAndCurrentContextToTheAction() {
-      var _this21 = this;
+      var _this22 = this;
 
       var passedTarget = undefined;
       var passedContext = undefined;
@@ -43795,7 +43949,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this21.$('#edit').click();
+        _this22.$('#edit').click();
       });
 
       this.assert.ok(passedTarget, 'the action is called with the target as this');
@@ -43803,7 +43957,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@test it should only trigger actions for the event they were registered on'] = function testItShouldOnlyTriggerActionsForTheEventTheyWereRegisteredOn() {
-      var _this22 = this;
+      var _this23 = this;
 
       var editHandlerWasCalled = false;
 
@@ -43823,7 +43977,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this22.$('a').click();
+        _this23.$('a').click();
       });
 
       this.assert.ok(editHandlerWasCalled, 'the event handler was called on click');
@@ -43831,14 +43985,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       editHandlerWasCalled = false;
 
       this.runTask(function () {
-        _this22.$('a').trigger('mouseover');
+        _this23.$('a').trigger('mouseover');
       });
 
       this.assert.notOk(editHandlerWasCalled, 'the event handler was not called on mouseover');
     };
 
     _class2.prototype['@test it should allow multiple contexts to be specified'] = function testItShouldAllowMultipleContextsToBeSpecified() {
-      var _this23 = this;
+      var _this24 = this;
 
       var passedContexts = undefined;
       var models = [_emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create()];
@@ -43865,14 +44019,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this23.$('button').click();
+        _this24.$('button').click();
       });
 
       this.assert.deepEqual(passedContexts, models, 'the action was called with the passed contexts');
     };
 
     _class2.prototype['@test it should allow multiple contexts to be specified mixed with string args'] = function testItShouldAllowMultipleContextsToBeSpecifiedMixedWithStringArgs() {
-      var _this24 = this;
+      var _this25 = this;
 
       var passedContexts = undefined;
       var model = _emberRuntimeSystemObject.default.create();
@@ -43898,7 +44052,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this24.$('button').click();
+        _this25.$('button').click();
       });
 
       this.assert.deepEqual(passedContexts, ['herp', model], 'the action was called with the passed contexts');
@@ -43955,7 +44109,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@test it can trigger actions for keyboard events'] = function testItCanTriggerActionsForKeyboardEvents() {
-      var _this25 = this;
+      var _this26 = this;
 
       var showCalled = false;
 
@@ -43978,7 +44132,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
         var event = _emberViewsSystemJquery.default.Event('keyup');
         event.char = 'a';
         event.which = 65;
-        _this25.$('input').trigger(event);
+        _this26.$('input').trigger(event);
       });
 
       this.assert.ok(showCalled, 'the action was called with keyup');
@@ -44091,7 +44245,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@test a quoteless function parameter should be called, including arguments'] = function testAQuotelessFunctionParameterShouldBeCalledIncludingArguments() {
-      var _this26 = this;
+      var _this27 = this;
 
       var submitCalled = false;
       var incomingArg = undefined;
@@ -44113,7 +44267,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this26.$('a').click();
+        _this27.$('a').click();
       });
 
       this.assert.ok(submitCalled, 'submit function called');
@@ -44121,7 +44275,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@test a quoteless parameter that does not resolve to a value asserts'] = function testAQuotelessParameterThatDoesNotResolveToAValueAsserts() {
-      var _this27 = this;
+      var _this28 = this;
 
       var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         actions: {
@@ -44135,12 +44289,12 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       });
 
       expectAssertion(function () {
-        _this27.render('{{example-component}}');
+        _this28.render('{{example-component}}');
       }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
     };
 
     _class2.prototype['@glimmer allows multiple actions on a single element'] = function glimmerAllowsMultipleActionsOnASingleElement() {
-      var _this28 = this;
+      var _this29 = this;
 
       var clickActionWasCalled = false;
       var doubleClickActionWasCalled = false;
@@ -44168,20 +44322,20 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assert.equal(actionAttrs.length, 2, 'two action attributes were added');
 
       this.runTask(function () {
-        _this28.$('a').trigger('click');
+        _this29.$('a').trigger('click');
       });
 
       this.assert.ok(clickActionWasCalled, 'the clicked action was called');
 
       this.runTask(function () {
-        _this28.$('a').trigger('dblclick');
+        _this29.$('a').trigger('dblclick');
       });
 
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
     _class2.prototype['@htmlbars allows multiple actions on a single element'] = function htmlbarsAllowsMultipleActionsOnASingleElement() {
-      var _this29 = this;
+      var _this30 = this;
 
       var clickActionWasCalled = false;
       var doubleClickActionWasCalled = false;
@@ -44205,20 +44359,20 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{example-component}}');
 
       this.runTask(function () {
-        _this29.$('a').trigger('click');
+        _this30.$('a').trigger('click');
       });
 
       this.assert.ok(clickActionWasCalled, 'the clicked action was called');
 
       this.runTask(function () {
-        _this29.$('a').trigger('dblclick');
+        _this30.$('a').trigger('dblclick');
       });
 
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided'] = function testItShouldRespectPreventDefaultOptionIfProvided() {
-      var _this30 = this;
+      var _this31 = this;
 
       var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         actions: {
@@ -44236,14 +44390,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this30.$('a').trigger(event);
+        _this31.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided bound'] = function testItShouldRespectPreventDefaultOptionIfProvidedBound() {
-      var _this31 = this;
+      var _this32 = this;
 
       var component = undefined;
 
@@ -44268,7 +44422,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this31.$('a').trigger(event);
+        _this32.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
@@ -44277,14 +44431,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 
       this.runTask(function () {
         component.set('shouldPreventDefault', true);
-        _this31.$('a').trigger(event);
+        _this32.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
     };
 
     _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
-      var _this32 = this;
+      var _this33 = this;
 
       var outerActionCalled = false;
       var innerClickCalled = false;
@@ -44324,7 +44478,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{outer-component}}');
 
       this.runTask(function () {
-        _this32.$('button').click();
+        _this33.$('button').click();
       });
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');

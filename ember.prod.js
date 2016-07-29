@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+0628013c
+ * @version   2.9.0-canary+af78380b
  */
 
 var enifed, requireModule, require, Ember;
@@ -10327,141 +10327,77 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     return DynamicScope;
   })();
 
-  var SchedulerRegistrar = (function () {
-    function SchedulerRegistrar() {
-      var _this = this;
+  var renderers = [];
 
-      _classCallCheck(this, SchedulerRegistrar);
-
-      this.callback = null;
-      this.callbacks = null;
-
-      backburner.on('begin', function (arg1, arg2) {
-        if (_this.callback) {
-          _this.callback(arg1, arg2);
-        } else if (_this.callbacks) {
-          for (var i = 0; i < _this.callbacks.length; ++i) {
-            _this.callbacks[i](arg1, arg2);
-          }
-        }
-      });
-    }
-
-    SchedulerRegistrar.prototype.register = function register(callback) {
-      if (this.callbacks) {
-        this.callbacks.push(callback);
-      } else if (!this.callback) {
-        this.callback = callback;
-      } else {
-        this.callbacks = [this.callback, callback];
-        this.callback = null;
-      }
-    };
-
-    SchedulerRegistrar.prototype.deregister = function deregister(callback) {
-      var foundCallback = false;
-      if (this.callbacks) {
-        var callbackIndex = this.callbacks.indexOf(callback);
-        foundCallback = ~callbackIndex;
-        if (foundCallback) {
-          this.callbacks.splice(callbackIndex, 1);
-        }
-      } else if (this.callback === callback) {
-        this.callback = null;
-        foundCallback = true;
-      }
-
-      if (!foundCallback) {
-        throw new TypeError('Cannot deregister a callback that has not been registered.');
-      }
-    };
-
-    SchedulerRegistrar.prototype.hasRegistrations = function hasRegistrations() {
-      return !!this.callback || !!this.callbacks && !!this.callbacks.length;
-    };
-
-    return SchedulerRegistrar;
-  })();
-
-  var schedulerRegistrar = new SchedulerRegistrar();
-
-  _emberMetalTags.setHasViews(function rendererHasViews() {
-    return schedulerRegistrar.hasRegistrations();
+  _emberMetalTags.setHasViews(function () {
+    return renderers.length > 0;
   });
 
-  var Scheduler = (function () {
-    function Scheduler() {
-      var _this2 = this;
+  function register(renderer) {
+    renderers.push(renderer);
+  }
 
-      _classCallCheck(this, Scheduler);
+  function deregister(renderer) {
+    var index = renderers.indexOf(renderer);
 
-      this._root = null;
-      this._scheduleMaybeUpdate = function () {
-        _emberMetalRun_loop.default.backburner.schedule('render', _this2, _this2._maybeUpdate, _glimmerReference.CURRENT_TAG.value());
-      };
+    renderers.splice(index, 1);
+  }
+
+  function loopBegin() {
+    for (var i = 0; i < renderers.length; i++) {
+      renderers[i]._scheduleRevalidate();
     }
+  }
 
-    Scheduler.prototype.destroy = function destroy() {
-      if (this._root) {
-        this.deregisterView(this._root);
-      }
-    };
+  function K() {}
 
-    Scheduler.prototype.registerView = function registerView(view) {
-      if (!this.root) {
-        schedulerRegistrar.register(this._scheduleMaybeUpdate);
-        this._root = view;
-      } else {
-        throw new TypeError('Cannot register more than one root view.');
+  var loops = 0;
+  function loopEnd(current, next) {
+    for (var i = 0; i < renderers.length; i++) {
+      if (!renderers[i]._isValid()) {
+        if (loops > 10) {
+          loops = 0;
+          // TODO: do something better
+          renderers[i].destroy();
+          throw new Error('infinite rendering invalidation detected');
+        }
+        loops++;
+        return backburner.join(null, K);
       }
-    };
+    }
+    loops = 0;
+  }
 
-    Scheduler.prototype.deregisterView = function deregisterView(view) {
-      if (this._root === view) {
-        this._root = null;
-        schedulerRegistrar.deregister(this._scheduleMaybeUpdate);
-      }
-    };
-
-    Scheduler.prototype._maybeUpdate = function _maybeUpdate(lastTagValue) {
-      if (_glimmerReference.CURRENT_TAG.validate(lastTagValue)) {
-        return;
-      }
-      var view = this._root;
-      if (view) {
-        view.renderer.rerender(view);
-      }
-    };
-
-    return Scheduler;
-  })();
+  backburner.on('begin', loopBegin);
+  backburner.on('end', loopEnd);
 
   var Renderer = (function () {
     function Renderer(_ref2) {
       var dom = _ref2.dom;
       var env = _ref2.env;
-      var _viewRegistry = _ref2._viewRegistry;
+      var _ref2$_viewRegistry = _ref2._viewRegistry;
+
+      var _viewRegistry = _ref2$_viewRegistry === undefined ? _emberViewsCompatFallbackViewRegistry.default : _ref2$_viewRegistry;
+
       var _ref2$destinedForDOM = _ref2.destinedForDOM;
       var destinedForDOM = _ref2$destinedForDOM === undefined ? false : _ref2$destinedForDOM;
 
       _classCallCheck(this, Renderer);
 
-      this._root = null;
       this._dom = dom;
       this._env = env;
+      this._viewRegistry = _viewRegistry;
       this._destinedForDOM = destinedForDOM;
-      this._scheduler = new Scheduler();
-      this._viewRegistry = _viewRegistry || _emberViewsCompatFallbackViewRegistry.default;
+      this._destroyed = false;
+      this._root = null;
+      this._result = null;
+      this._lastRevision = null;
+      this._transaction = null;
     }
 
-    Renderer.prototype.destroy = function destroy() {
-      this._scheduler.destroy();
-    };
+    // renderer HOOKS
 
     Renderer.prototype.appendOutletView = function appendOutletView(view, target) {
-      this._root = view;
-
-      var env = this._env;
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
       var controller = view.outletState.render.controller;
       var ref = view.toReference();
@@ -10473,36 +10409,10 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         rootOutletState: ref,
         isTopLevel: true
       });
-
-      var result = undefined,
-          shouldReflush = undefined,
-          afterRender = undefined,
-          didChangeAfterRender = undefined;
-
-      var callback = function () {
-        result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
-      };
-
-      var rerender = function () {
-        return result.rerender({ alwaysRevalidate: shouldReflush });
-      };
-
-      do {
-        env.begin();
-        shouldReflush = runInTransaction(callback);
-        afterRender = _glimmerReference.CURRENT_TAG.value();
-        env.commit();
-        didChangeAfterRender = !_glimmerReference.CURRENT_TAG.validate(afterRender);
-        callback = rerender;
-      } while (shouldReflush || didChangeAfterRender);
-
-      this._scheduler.registerView(view);
-
-      return result;
+      this._renderRoot(view, view.template, self, target, dynamicScope);
     };
 
     Renderer.prototype.appendTo = function appendTo(view, target) {
-      var env = this._env;
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
       var dynamicScope = new DynamicScope({
         view: view,
@@ -10516,73 +10426,11 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         rootOutletState: _glimmerReference.UNDEFINED_REFERENCE,
         isTopLevel: true
       });
-
-      var result = undefined,
-          shouldReflush = undefined,
-          afterRender = undefined,
-          didChangeAfterRender = undefined;
-
-      var callback = function () {
-        result = view.template.asEntryPoint().render(self, env, { appendTo: target, dynamicScope: dynamicScope });
-      };
-
-      var rerender = function () {
-        return result.rerender({ alwaysRevalidate: shouldReflush });
-      };
-
-      do {
-        env.begin();
-        shouldReflush = runInTransaction(callback);
-        afterRender = _glimmerReference.CURRENT_TAG.value();
-        env.commit();
-        didChangeAfterRender = !_glimmerReference.CURRENT_TAG.validate(afterRender);
-        callback = rerender;
-      } while (shouldReflush || didChangeAfterRender);
-
-      this._scheduler.registerView(view);
-
-      // FIXME: Store this somewhere else
-      view['_renderResult'] = result;
-
-      // FIXME: This should happen inside `env.commit()`
-      view._transitionTo('inDOM');
+      this._renderRoot(view, view.template, self, target, dynamicScope);
     };
 
     Renderer.prototype.rerender = function rerender(view) {
-      var env = this._env;
-
-      var renderResult = view['_renderResult'] || this._root['_renderResult'];
-      var shouldReflush = false;
-      var afterRender = undefined,
-          didChangeAfterRender = undefined;
-
-      var callback = function () {
-        return renderResult.rerender({ alwaysRevalidate: shouldReflush });
-      };
-
-      do {
-        env.begin();
-        shouldReflush = runInTransaction(callback);
-        afterRender = _glimmerReference.CURRENT_TAG.value();
-        env.commit();
-        didChangeAfterRender = !_glimmerReference.CURRENT_TAG.validate(afterRender);
-      } while (shouldReflush || didChangeAfterRender);
-    };
-
-    Renderer.prototype.remove = function remove(view) {
-      this._scheduler.deregisterView(view);
-      view.trigger('willDestroyElement');
-      view._transitionTo('destroying');
-
-      var _renderResult = view._renderResult;
-
-      if (_renderResult) {
-        _renderResult.destroy();
-      }
-
-      if (!view.isDestroying) {
-        view.destroy();
-      }
+      this._scheduleRevalidate();
     };
 
     Renderer.prototype.componentInitAttrs = function componentInitAttrs() {
@@ -10594,12 +10442,116 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       // throw new Error('Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.');
     };
 
-    Renderer.prototype._register = function _register(view) {
+    Renderer.prototype.register = function register(view) {
       this._viewRegistry[view.elementId] = view;
     };
 
-    Renderer.prototype._unregister = function _unregister(view) {
+    Renderer.prototype.unregister = function unregister(view) {
       delete this._viewRegistry[this.elementId];
+    };
+
+    Renderer.prototype.remove = function remove(view) {
+      view.trigger('willDestroyElement');
+      view._transitionTo('destroying');
+
+      if (this._root === view) {
+        this._clearRoot();
+      }
+
+      if (!view.isDestroying) {
+        view.destroy();
+      }
+    };
+
+    Renderer.prototype.destroy = function destroy() {
+      if (this._destroyed) {
+        return;
+      }
+      this._destroyed = true;
+      this._clearRoot();
+    };
+
+    Renderer.prototype._renderRoot = function _renderRoot(root, template, self, parentElement, dynamicScope) {
+      var _this = this;
+
+      this._root = root;
+      register(this);
+
+      var options = {
+        alwaysRevalidate: false
+      };
+      var env = this._env;
+
+      var render = function () {
+        var result = template.asEntryPoint().render(self, env, {
+          appendTo: parentElement,
+          dynamicScope: dynamicScope
+        });
+        _this._result = result;
+        _this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+
+        if (root._transitionTo) {
+          root._transitionTo('inDOM');
+        }
+
+        render = function () {
+          result.rerender(options);
+          _this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+        };
+      };
+
+      var transaction = function () {
+        var shouldReflush = false;
+        do {
+          env.begin();
+          options.alwaysRevalidate = shouldReflush;
+          shouldReflush = runInTransaction(render);
+          env.commit();
+        } while (shouldReflush);
+      };
+
+      this._transaction = function () {
+        try {
+          transaction();
+        } catch (e) {
+          _this.destroy();
+          throw e;
+        }
+      };
+
+      this._transaction();
+    };
+
+    Renderer.prototype._clearRoot = function _clearRoot() {
+      var root = this._root;
+      var result = this._result;
+      this._root = null;
+      this._result = null;
+      this._lastRevision = null;
+      this._transaction = null;
+
+      if (root) {
+        deregister(this);
+      }
+
+      if (result) {
+        result.destroy();
+      }
+    };
+
+    Renderer.prototype._scheduleRevalidate = function _scheduleRevalidate() {
+      backburner.scheduleOnce('render', this, this._revalidate);
+    };
+
+    Renderer.prototype._isValid = function _isValid() {
+      return !this._root || _glimmerReference.CURRENT_TAG.validate(this._lastRevision);
+    };
+
+    Renderer.prototype._revalidate = function _revalidate() {
+      if (this._isValid()) {
+        return;
+      }
+      this._transaction();
     };
 
     return Renderer;
@@ -19837,11 +19789,11 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     }
   };
 
-  Renderer.prototype._register = function Renderer_register(view) {
+  Renderer.prototype.register = function Renderer_register(view) {
     this._viewRegistry[view.elementId] = view;
   };
 
-  Renderer.prototype._unregister = function Renderer_unregister(view) {
+  Renderer.prototype.unregister = function Renderer_unregister(view) {
     delete this._viewRegistry[this.elementId];
   };
 
@@ -28210,6 +28162,9 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       obj[PROPERTY_DID_CHANGE](keyName);
     }
 
+    if (obj.isDestroying) {
+      return;
+    }
     _emberMetalTags.markObjectAsDirty(m);
 
     if (false || false) {
@@ -47260,13 +47215,13 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/debug', 'embe
       // Register the view for event handling. This hash is used by
       // Ember.EventDispatcher to dispatch incoming events.
       if (view.tagName !== '') {
-        view.renderer._register(view);
+        view.renderer.register(view);
       }
     },
 
     exit: function (view) {
       if (view.tagName !== '') {
-        view.renderer._unregister(view);
+        view.renderer.unregister(view);
       }
     }
   });
@@ -47860,7 +47815,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+0628013c";
+  exports.default = "2.9.0-canary+af78380b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

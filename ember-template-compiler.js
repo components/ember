@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-canary+0628013c
+ * @version   2.9.0-canary+af78380b
  */
 
 var enifed, requireModule, require, Ember;
@@ -8713,6 +8713,9 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       obj[PROPERTY_DID_CHANGE](keyName);
     }
 
+    if (obj.isDestroying) {
+      return;
+    }
     _emberMetalTags.markObjectAsDirty(m);
 
     if (true || false) {
@@ -12187,7 +12190,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-canary+0628013c";
+  exports.default = "2.9.0-canary+af78380b";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
