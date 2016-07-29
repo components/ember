@@ -6659,7 +6659,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
-  if (false || true) {
+  if (true || false) {
     members.lastRendered = ownMap;
     members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
   }
@@ -6692,7 +6692,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
 
-    if (false || true) {
+    if (true || false) {
       this._lastRendered = undefined;
       this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
     }
@@ -8718,7 +8718,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
     }
     _emberMetalTags.markObjectAsDirty(m);
 
-    if (false || true) {
+    if (true || false) {
       _emberMetalTransaction.assertNotRendered(obj, keyName, m);
     }
   }
@@ -10042,18 +10042,18 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  if (false || true) {
+  if (true || false) {
     _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', _emberMetalFeatures.default('ember-glimmer'));
   }
 
   var raise = _emberMetalDebug.assert;
-  if (true) {
+  if (false) {
     raise = function (message, test) {
       _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
     };
   }
 
-  if (false || true) {
+  if (true || false) {
     (function () {
       var counter = 0;
       var inTransaction = false;
