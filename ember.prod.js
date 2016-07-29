@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b236ff1e
+ * @version   2.9.0-null+f247628d
  */
 
 var enifed, requireModule, require, Ember;
@@ -29956,13 +29956,6 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
     };
   }
 
-  var implication = undefined;
-  if (false) {
-    implication = 'will be removed in Ember 3.0.';
-  } else if (true) {
-    implication = 'is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.';
-  }
-
   if (true || false) {
     (function () {
       var counter = 0;
@@ -30002,20 +29995,12 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
             var parts = [];
             var lastRef = ref[key];
 
-            var label = undefined;
-
-            if (lastRef) {
-              while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
-                parts.unshift(lastRef._propertyKey);
-                lastRef = lastRef._parentReference;
-              }
-
-              label = parts.join();
-            } else {
-              label = 'the same value';
+            while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              parts.unshift(lastRef._propertyKey);
+              lastRef = lastRef._parentReference;
             }
 
-            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and will be removed in Ember 3.0.';
           })(), false);
 
           shouldReflush = true;
@@ -48475,7 +48460,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+b236ff1e";
+  exports.default = "2.9.0-null+f247628d";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
