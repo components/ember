@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+1fdfb44b
+ * @version   2.9.0-null+8ba7f68f
  */
 
 var enifed, requireModule, require, Ember;
@@ -4607,11 +4607,7 @@ enifed("ember-metal/empty_object", ["exports"], function (exports) {
   EmptyObject.prototype = proto;
   exports.default = EmptyObject;
 });
-enifed('ember-metal/error', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = EmberError;
-  var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
+enifed("ember-metal/error", ["exports"], function (exports) {
 
   /**
     A subclass of the JavaScript Error object for use in Ember.
@@ -4622,24 +4618,30 @@ enifed('ember-metal/error', ['exports'], function (exports) {
     @constructor
     @public
   */
+  "use strict";
 
-  function EmberError() {
-    var tmp = Error.apply(this, arguments);
+  exports.default = EmberError;
 
-    // Adds a `stack` property to the given error object that will yield the
-    // stack trace at the time captureStackTrace was called.
-    // When collecting the stack trace all frames above the topmost call
-    // to this function, including that call, will be left out of the
-    // stack trace.
-    // This is useful because we can hide Ember implementation details
-    // that are not very helpful for the user.
+  function EmberError(message) {
+    if (!(this instanceof EmberError)) {
+      return new EmberError(message);
+    }
+
+    var error = Error.call(this, message);
+
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, EmberError);
+    } else {
+      this.stack = error.stack;
     }
-    // Unfortunately errors are not enumerable in Chrome (at least), so `for prop in tmp` doesn't work.
-    for (var idx = 0; idx < errorProps.length; idx++) {
-      this[errorProps[idx]] = tmp[errorProps[idx]];
-    }
+
+    this.description = error.description;
+    this.fileName = error.fileName;
+    this.lineNumber = error.lineNumber;
+    this.message = error.message;
+    this.name = error.name;
+    this.number = error.number;
+    this.code = error.code;
   }
 
   EmberError.prototype = Object.create(Error.prototype);
@@ -12210,7 +12212,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+1fdfb44b";
+  exports.default = "2.9.0-null+8ba7f68f";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
