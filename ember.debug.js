@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b03c1bf3
+ * @version   2.9.0-null+b2e5d62b
  */
 
 var enifed, requireModule, require, Ember;
@@ -18955,7 +18955,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     return new MutStream(stream);
   }
 });
-enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view', 'ember-metal/features', 'ember/version'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView, _emberMetalFeatures, _emberVersion) {
+enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view', 'ember-metal/features', 'ember/version'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView, _emberMetalFeatures, _emberVersion) {
   /**
   @module ember
   @submodule ember-templates
@@ -19074,8 +19074,6 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
       var parentView = env.view;
       var outletState = state.outletState;
       var toRender = outletState.render;
-      var namespace = owner.lookup('application:main');
-      var LOG_VIEW_LOOKUPS = _emberMetalProperty_get.get(namespace, 'LOG_VIEW_LOOKUPS');
 
       var ViewClass = outletState.render.ViewClass;
 
@@ -19097,10 +19095,6 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
       };
 
       var template = _template || toRender.template && toRender.template.raw;
-
-      if (LOG_VIEW_LOOKUPS && ViewClass) {
-        _emberMetalDebug.info('Rendering ' + toRender.name + ' with ' + ViewClass, { fullName: 'view:' + toRender.name });
-      }
 
       if (state.manager) {
         state.manager.destroy();
@@ -50711,7 +50705,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+b03c1bf3";
+  exports.default = "2.9.0-null+b2e5d62b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b03c1bf3
+ * @version   2.9.0-null+b2e5d62b
  */
 
 var enifed, requireModule, require, Ember;
@@ -26432,8 +26432,6 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
 enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -26449,46 +26447,50 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       _RenderingTest.apply(this, arguments);
 
       var CoreOutlet = this.owner._lookupFactory('view:-outlet');
-      this.top = CoreOutlet.create();
+      this.component = CoreOutlet.create();
     }
-
-    _class.prototype.teardown = function teardown() {
-      var _RenderingTest$prototype$teardown;
-
-      _emberRuntimeTestsUtils.runDestroy(this.top);
-
-      (_RenderingTest$prototype$teardown = _RenderingTest.prototype.teardown).call.apply(_RenderingTest$prototype$teardown, [this].concat(_slice.call(arguments)));
-    };
-
-    _class.prototype.withTemplate = function withTemplate(string) {
-      return {
-        render: {
-          template: this.compile(string)
-        },
-        outlets: {}
-      };
-    };
-
-    _class.prototype.appendTop = function appendTop() {
-      _emberRuntimeTestsUtils.runAppend(this.top);
-    };
 
     _class.prototype['@htmlbars should render the outlet when set after DOM insertion'] = function htmlbarsShouldRenderTheOutletWhenSetAfterDOMInsertion() {
       var _this = this;
 
-      var routerState = this.withTemplate('<h1>HI</h1>{{outlet}}');
-      this.top.setOutletState(routerState);
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.compile('HI{{outlet}}')
+        },
+        outlets: Object.create(null)
+      };
 
-      this.appendTop();
+      this.runTask(function () {
+        return _this.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
 
       this.assertText('HI');
 
       this.assertStableRerender();
 
-      routerState.outlets.main = this.withTemplate('<p>BYE</p>');
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.compile('<p>BYE</p>')
+        },
+        outlets: Object.create(null)
+      };
 
       this.runTask(function () {
-        return _this.top.setOutletState(routerState);
+        return _this.component.setOutletState(outletState);
       });
 
       this.assertText('HIBYE');
@@ -41192,6 +41194,314 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     })(StyleTest));
   }
 });
+enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-metal/run_loop'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalFeatures, _emberMetalInstrumentation, _emberMetalRun_loop) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
+
+  function fireNativeWithDataTransfer(node, type, dataTransfer) {
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent(type, true, true);
+    event.dataTransfer = dataTransfer;
+    node.dispatchEvent(event);
+  }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test events bubble view hierarchy for form elements'] = function testEventsBubbleViewHierarchyForFormElements(assert) {
+      var _this = this;
+
+      var receivedEvent = undefined;
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          change: function (event) {
+            receivedEvent = event;
+          }
+        }),
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.runTask(function () {
+        return _this.$('#is-done').trigger('change');
+      });
+      assert.ok(receivedEvent, 'change event was triggered');
+      assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
+    };
+
+    _class.prototype['@test dispatches to the nearest event manager'] = function testDispatchesToTheNearestEventManager(assert) {
+      var _this2 = this;
+
+      var receivedEvent = undefined;
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          click: function (event) {
+            assert.notOk(true, 'should not trigger `click` on component');
+          },
+
+          eventManager: {
+            click: function (event) {
+              receivedEvent = event;
+            }
+          }
+        }),
+
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.runTask(function () {
+        return _this2.$('#is-done').trigger('click');
+      });
+      assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
+    };
+
+    _class.prototype['@test event manager can re-dispatch to the component'] = function testEventManagerCanReDispatchToTheComponent(assert) {
+      var _this3 = this;
+
+      var handlers = [];
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          click: function () {
+            handlers.push('component');
+          },
+
+          eventManager: {
+            click: function (event, component) {
+              handlers.push('eventManager');
+              // Re-dispatch event when you get it.
+              //
+              // The second parameter tells the dispatcher
+              // that this event has been handled. This
+              // API will clearly need to be reworked since
+              // multiple eventManagers in a single view
+              // hierarchy would break, but it shows that
+              // re-dispatching works
+              component.$().trigger('click', this);
+            }
+          }
+        }),
+
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.runTask(function () {
+        return _this3.$('#is-done').trigger('click');
+      });
+      assert.deepEqual(handlers, ['eventManager', 'component']);
+    };
+
+    _class.prototype['@test event handlers are wrapped in a run loop'] = function testEventHandlersAreWrappedInARunLoop(assert) {
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          change: function () {
+            assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'a run loop should have started');
+          }
+        }),
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.$('#is-done').trigger('click');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher#setup', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.call(this);
+
+      var dispatcher = this.owner.lookup('event_dispatcher:main');
+      _emberMetalRun_loop.default(dispatcher, 'destroy');
+      this.owner.__container__.reset('event_dispatcher:main');
+      this.dispatcher = this.owner.lookup('event_dispatcher:main');
+    }
+
+    _class2.prototype['@test additonal events can be specified'] = function testAdditonalEventsCanBeSpecified(assert) {
+      this.dispatcher.setup({ myevent: 'myEvent' });
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          myEvent: function () {
+            assert.ok(true, 'custom event was triggered');
+          }
+        }),
+        template: '<p>Hello!</p>'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.$('div').trigger('myevent');
+    };
+
+    _class2.prototype['@test a rootElement can be specified'] = function testARootElementCanBeSpecified(assert) {
+      this.$().append('<div id="app"></div>');
+      this.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+
+      assert.ok(this.$('#app').hasClass('ember-application'), 'custom rootElement was used');
+      assert.equal(this.dispatcher.rootElement, '#app', 'the dispatchers rootElement was updated');
+    };
+
+    _class2.prototype['@test default events can be disabled via `customEvents`'] = function testDefaultEventsCanBeDisabledViaCustomEvents(assert) {
+      this.dispatcher.setup({ click: null });
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          click: function () {
+            assert.ok(false, 'click method was called');
+          },
+
+          null: function () {
+            assert.ok(false, 'null method was called');
+          },
+
+          doubleClick: function () {
+            assert.ok(true, 'a non-disabled event is still handled properly');
+          }
+        }),
+
+        template: '<p>Hello!</p>'
+      });
+
+      this.render('{{x-foo}}');
+
+      this.$('div').trigger('click');
+      this.$('div').trigger('dblclick');
+    };
+
+    _class2.prototype['@test throws if specified rootElement does not exist'] = function testThrowsIfSpecifiedRootElementDoesNotExist(assert) {
+      var _this4 = this;
+
+      assert.throws(function () {
+        _this4.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+      });
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+    _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
+      _inherits(_class3, _RenderingTest3);
+
+      function _class3() {
+        _classCallCheck(this, _class3);
+
+        _RenderingTest3.apply(this, arguments);
+      }
+
+      _class3.prototype.teardown = function teardown() {
+        _RenderingTest3.prototype.teardown.call(this);
+        _emberMetalInstrumentation.reset();
+      };
+
+      _class3.prototype['@test instruments triggered events'] = function testInstrumentsTriggeredEvents(assert) {
+        var clicked = 0;
+
+        this.registerComponent('x-foo', {
+          ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+            click: function (evt) {
+              clicked++;
+            }
+          }),
+          template: '<p>hello</p>'
+        });
+
+        this.render('{{x-foo}}');
+
+        this.$('div').trigger('click');
+
+        assert.equal(clicked, 1, 'precond - the click handler was invoked');
+
+        var clickInstrumented = 0;
+        _emberMetalInstrumentation.subscribe('interaction.click', {
+          before: function () {
+            clickInstrumented++;
+            assert.equal(clicked, 1, 'invoked before event is handled');
+          },
+          after: function () {
+            clickInstrumented++;
+            assert.equal(clicked, 2, 'invoked after event is handled');
+          }
+        });
+
+        var keypressInstrumented = 0;
+        _emberMetalInstrumentation.subscribe('interaction.keypress', {
+          before: function () {
+            keypressInstrumented++;
+          },
+          after: function () {
+            keypressInstrumented++;
+          }
+        });
+
+        this.$('div').trigger('click');
+        this.$('div').trigger('change');
+        assert.equal(clicked, 2, 'precond - The click handler was invoked');
+        assert.equal(clickInstrumented, 2, 'The click was instrumented');
+        assert.strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
+      };
+
+      return _class3;
+    })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+  }
+
+  if (canDataTransfer) {
+    _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher - Event Properties', (function (_RenderingTest4) {
+      _inherits(_class4, _RenderingTest4);
+
+      function _class4() {
+        _classCallCheck(this, _class4);
+
+        _RenderingTest4.apply(this, arguments);
+      }
+
+      _class4.prototype['@test dataTransfer property is added to drop event'] = function testDataTransferPropertyIsAddedToDropEvent(assert) {
+        var receivedEvent = undefined;
+        this.registerComponent('x-foo', {
+          ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+            drop: function (event) {
+              receivedEvent = event;
+            }
+          })
+        });
+
+        this.render('{{x-foo}}');
+
+        fireNativeWithDataTransfer(this.$('div')[0], 'drop', 'success');
+        assert.equal(receivedEvent.dataTransfer, 'success');
+      };
+
+      return _class4;
+    })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+  }
+});
 enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set) {
   'use strict';
 
@@ -49825,6 +50135,76 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
       _emberRuntimeTestsUtils.runAppend(component);
     });
   }
+});
+enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('outlet view', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+
+      var CoreOutlet = this.owner._lookupFactory('view:-outlet');
+      this.component = CoreOutlet.create();
+    }
+
+    _class.prototype['@htmlbars should render the outlet when set after DOM insertion'] = function htmlbarsShouldRenderTheOutletWhenSetAfterDOMInsertion() {
+      var _this = this;
+
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.compile('HI{{outlet}}')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.compile('<p>BYE</p>')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIBYE');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
