@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+13ea22bd
+ * @version   2.9.0-null+1fdfb44b
  */
 
 var enifed, requireModule, require, Ember;
@@ -1684,7 +1684,7 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container/registry'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _containerRegistry) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container/registry', 'ember-runtime/system/object'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _containerRegistry, _emberRuntimeSystemObject) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
@@ -1861,6 +1861,18 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
           assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
         });
       });
+    });
+
+    QUnit.test('can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers', function (assert) {
+      var namespace = _emberRuntimeSystemObject.default.create({
+        Resolver: { create: function () {} }
+      });
+
+      var registry = _emberApplicationSystemApplication.default.buildRegistry(namespace);
+
+      _emberApplicationSystemApplicationInstance.default.setupRegistry(registry);
+
+      assert.equal(registry.resolve('service:-document'), document);
     });
   }
 });
@@ -2270,6 +2282,16 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     equal(_emberRuntimeSystemLazy_load._loaded.application, app);
     _emberMetalRun_loop.default(app, 'destroy');
     equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
+  });
+
+  QUnit.test('can build a registry via Ember.Application.buildRegistry() --- simulates ember-test-helpers', function (assert) {
+    var namespace = _emberRuntimeSystemObject.default.create({
+      Resolver: { create: function () {} }
+    });
+
+    var registry = _emberApplicationSystemApplication.default.buildRegistry(namespace);
+
+    assert.equal(registry.resolve('application:main'), namespace);
   });
 });
 enifed('ember-application/tests/system/bootstrap-test', ['exports', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-routing/system/router', 'ember-views/system/jquery', 'ember-templates/template_registry'], function (exports, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberViewsSystemJquery, _emberTemplatesTemplate_registry) {
