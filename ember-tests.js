@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+f9683a43
+ * @version   2.9.0-null+8fa4d1de
  */
 
 var enifed, requireModule, require, Ember;
@@ -26429,6 +26429,74 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('outlet view', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+
+      var CoreOutlet = this.owner._lookupFactory('view:-outlet');
+      this.top = CoreOutlet.create();
+    }
+
+    _class.prototype.teardown = function teardown() {
+      var _RenderingTest$prototype$teardown;
+
+      _emberRuntimeTestsUtils.runDestroy(this.top);
+
+      (_RenderingTest$prototype$teardown = _RenderingTest.prototype.teardown).call.apply(_RenderingTest$prototype$teardown, [this].concat(_slice.call(arguments)));
+    };
+
+    _class.prototype.withTemplate = function withTemplate(string) {
+      return {
+        render: {
+          template: this.compile(string)
+        },
+        outlets: {}
+      };
+    };
+
+    _class.prototype.appendTop = function appendTop() {
+      _emberRuntimeTestsUtils.runAppend(this.top);
+    };
+
+    _class.prototype['@htmlbars should render the outlet when set after DOM insertion'] = function htmlbarsShouldRenderTheOutletWhenSetAfterDOMInsertion() {
+      var _this = this;
+
+      var routerState = this.withTemplate('<h1>HI</h1>{{outlet}}');
+      this.top.setOutletState(routerState);
+
+      this.appendTop();
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      routerState.outlets.main = this.withTemplate('<p>BYE</p>');
+
+      this.runTask(function () {
+        return _this.top.setOutletState(routerState);
+      });
+
+      this.assertText('HIBYE');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
@@ -30632,23 +30700,6 @@ enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_
       _emberRuntimeTestsUtils.runDestroy(top);
       appInstance = top = null;
     }
-  });
-
-  QUnit.test('view should render the outlet when set after dom insertion', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-
-    _emberMetalRun_loop.default(function () {
-      return top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
   });
 
   QUnit.test('a top-level outlet should always be a view', function () {
