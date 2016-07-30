@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c076329e
+ * @version   2.9.0-null+13ea22bd
  */
 
 var enifed, requireModule, require, Ember;
@@ -83491,6 +83491,26 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     });
 
     equal(_emberViewsSystemJquery.default('.alert-box', '#qunit-fixture').text(), 'Invader!', 'Template for alert was render into outlet');
+  });
+
+  QUnit.test('templateName is still used when calling render with no name and options', function () {
+    Router.map(function () {
+      this.route('home', { path: '/' });
+    });
+
+    _emberTemplatesTemplate_registry.set('alert', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'alert-box\'>Invader!</div>'));
+    _emberTemplatesTemplate_registry.set('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
+
+    App.HomeRoute = _emberRoutingSystemRoute.default.extend({
+      templateName: 'alert',
+      renderTemplate: function () {
+        this.render({});
+      }
+    });
+
+    bootApplication();
+
+    equal(_emberViewsSystemJquery.default('.alert-box', '#qunit-fixture').text(), 'Invader!', 'default templateName was rendered into outlet');
   });
 
   QUnit.test('The Homepage with a `setupController` hook', function () {
