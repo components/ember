@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+2c206582
+ * @version   2.9.0-null+c076329e
  */
 
 var enifed, requireModule, require, Ember;
@@ -4973,7 +4973,7 @@ enifed('ember-application/tests/system/readiness_test', ['exports', 'ember-metal
     });
   });
 });
-enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-routing/system/router', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'container/registry'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberRoutingSystemRouter, _emberRuntimeControllersController, _emberViewsSystemJquery, _containerRegistry) {
+enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-routing/system/router', 'ember-runtime/controllers/controller', 'container/registry'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberRoutingSystemRouter, _emberRuntimeControllersController, _containerRegistry) {
   'use strict';
 
   var application = undefined,
@@ -5212,24 +5212,6 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
 
     ok(DS.defaultStore, 'still has defaultStore');
     ok(application.__container__.lookup('store:main'), 'store is still present');
-  });
-
-  QUnit.test('Ensure that the hashchange event listener is removed', function () {
-    var listeners = undefined;
-
-    _emberViewsSystemJquery.default(window).off('hashchange'); // ensure that any previous listeners are cleared
-
-    application = _emberMetalRun_loop.default(function () {
-      return Application.create();
-    });
-
-    listeners = _emberViewsSystemJquery.default._data(_emberViewsSystemJquery.default(window)[0], 'events');
-    equal(listeners['hashchange'].length, 1, 'hashchange event listener was set up');
-
-    application.reset();
-
-    listeners = _emberViewsSystemJquery.default._data(_emberViewsSystemJquery.default(window)[0], 'events');
-    equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
 enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery) {
@@ -29062,6 +29044,7 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
     owner.register('service:-document', document, { instantiate: false });
     owner.register('-environment:main', {
       isInteractive: true,
+      hasDOM: true,
       options: { jQuery: _emberViewsSystemJquery.default }
     }, { instantiate: false });
     owner.inject('view', '_environment', '-environment:main');
@@ -62582,7 +62565,7 @@ enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-met
     equal(_emberRoutingLocationAuto_location.getHashPath('/app/', browserLocation), '/app/#/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
   });
 });
-enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-routing/location/hash_location', 'ember-views/system/jquery'], function (exports, _emberMetalProperty_get, _emberMetalUtils, _emberMetalRun_loop, _emberRoutingLocationHash_location, _emberViewsSystemJquery) {
+enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-routing/location/hash_location'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRoutingLocationHash_location) {
   'use strict';
 
   var HashTestLocation = undefined,
@@ -62614,6 +62597,12 @@ enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-met
       protocol: protocol,
       search: tmp.search
     };
+  }
+
+  function triggerHashchange() {
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('hashchange', true, false);
+    window.dispatchEvent(event);
   }
 
   QUnit.module('Ember.HashLocation', {
@@ -62707,35 +62696,6 @@ enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-met
     equal(_emberMetalProperty_get.get(location, 'lastSetURL'), '/foo');
   });
 
-  QUnit.test('HashLocation.onUpdateURL() registers a hashchange callback', function () {
-    expect(3);
-
-    var oldInit = _emberViewsSystemJquery.default.fn.init;
-
-    _emberViewsSystemJquery.default.fn.init = function (element) {
-      equal(element, window);
-
-      return {
-        on: function (eventName, callback) {
-          equal(eventName, 'hashchange.ember-location-' + guid);
-          equal(Object.prototype.toString.call(callback), '[object Function]');
-        }
-      };
-    };
-
-    createLocation({
-      // Mock so test teardown doesn't fail
-      willDestroy: function () {}
-    });
-
-    var guid = _emberMetalUtils.guidFor(location);
-
-    location.onUpdateURL(function () {});
-
-    // clean up
-    _emberViewsSystemJquery.default.fn.init = oldInit;
-  });
-
   QUnit.test('HashLocation.onUpdateURL callback executes as expected', function () {
     expect(1);
 
@@ -62749,7 +62709,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-met
 
     location.onUpdateURL(callback);
 
-    _emberViewsSystemJquery.default(window).trigger('hashchange');
+    triggerHashchange();
   });
 
   QUnit.test('HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path', function () {
@@ -62768,7 +62728,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-met
 
     location.onUpdateURL(callback);
 
-    _emberViewsSystemJquery.default(window).trigger('hashchange');
+    triggerHashchange();
   });
 
   QUnit.test('HashLocation.formatURL() prepends a # to the provided string', function () {
@@ -62780,31 +62740,22 @@ enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-met
   });
 
   QUnit.test('HashLocation.willDestroy() cleans up hashchange event listener', function () {
-    expect(2);
-
-    var oldInit = _emberViewsSystemJquery.default.fn.init;
-
-    _emberViewsSystemJquery.default.fn.init = function (element) {
-      equal(element, window);
-
-      return {
-        off: function (eventName) {
-          equal(eventName, 'hashchange.ember-location-' + guid);
-        }
-      };
-    };
+    expect(1);
 
     createLocation();
 
-    var guid = _emberMetalUtils.guidFor(location);
+    var callback = function (param) {
+      ok(true, 'should invoke callback once');
+    };
 
-    location.willDestroy();
+    location.onUpdateURL(callback);
 
-    // noop so test teardown doesn't call our mocked jQuery again
-    location.willDestroy = function () {};
+    triggerHashchange();
 
-    // clean up
-    _emberViewsSystemJquery.default.fn.init = oldInit;
+    _emberMetalRun_loop.default(location, 'destroy');
+    location = null;
+
+    triggerHashchange();
   });
 });
 enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-routing/location/history_location'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRoutingLocationHistory_location) {

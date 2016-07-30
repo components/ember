@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+2c206582
+ * @version   2.9.0-null+c076329e
  */
 
 var enifed, requireModule, require, Ember;
@@ -5175,7 +5175,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     if (!librariesRegistered) {
       librariesRegistered = true;
 
-      if (_emberEnvironment.environment.hasDOM) {
+      if (_emberEnvironment.environment.hasDOM && typeof _emberViewsSystemJquery.default === 'function') {
         _emberMetalLibraries.default.registerCoreLibrary('jQuery', _emberViewsSystemJquery.default().jquery);
       }
     }
@@ -31662,7 +31662,7 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/debug', 
     return path;
   }
 });
-enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/system/object', 'ember-routing/location/api', 'ember-views/system/jquery'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeSystemObject, _emberRoutingLocationApi, _emberViewsSystemJquery) {
+enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-routing/location/api'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRoutingLocationApi) {
   'use strict';
 
   /**
@@ -31685,6 +31685,8 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/property
 
     init: function () {
       _emberMetalProperty_set.set(this, 'location', _emberMetalProperty_get.get(this, '_location') || window.location);
+
+      this._hashchangeHandler = undefined;
     },
 
     /**
@@ -31758,9 +31760,9 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/property
     onUpdateURL: function (callback) {
       var _this = this;
 
-      var guid = _emberMetalUtils.guidFor(this);
+      this._removeEventListener();
 
-      _emberViewsSystemJquery.default(window).on('hashchange.ember-location-' + guid, function () {
+      this._hashchangeHandler = function () {
         _emberMetalRun_loop.default(function () {
           var path = _this.getURL();
           if (_emberMetalProperty_get.get(_this, 'lastSetURL') === path) {
@@ -31771,7 +31773,9 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/property
 
           callback(path);
         });
-      });
+      };
+
+      window.addEventListener('hashchange', this._hashchangeHandler);
     },
 
     /**
@@ -31793,13 +31797,17 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/property
       @method willDestroy
     */
     willDestroy: function () {
-      var guid = _emberMetalUtils.guidFor(this);
+      this._removeEventListener();
+    },
 
-      _emberViewsSystemJquery.default(window).off('hashchange.ember-location-' + guid);
+    _removeEventListener: function () {
+      if (this._hashchangeHandler) {
+        window.removeEventListener('hashchange', this._hashchangeHandler);
+      }
     }
   });
 });
-enifed('ember-routing/location/history_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-runtime/system/object', 'ember-routing/location/api', 'ember-views/system/jquery'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberRuntimeSystemObject, _emberRoutingLocationApi, _emberViewsSystemJquery) {
+enifed('ember-routing/location/history_location', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-routing/location/api'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRoutingLocationApi) {
   'use strict';
 
   /**
@@ -31822,8 +31830,15 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
     implementation: 'history',
 
     init: function () {
+      this._super.apply(this, arguments);
+
+      var base = document.querySelector('base');
+      var baseURL = base ? base.getAttribute('href') : '';
+
+      _emberMetalProperty_set.set(this, 'baseURL', baseURL);
       _emberMetalProperty_set.set(this, 'location', _emberMetalProperty_get.get(this, 'location') || window.location);
-      _emberMetalProperty_set.set(this, 'baseURL', _emberViewsSystemJquery.default('base').attr('href') || '');
+
+      this._popstateHandler = undefined;
     },
 
     /**
@@ -31968,9 +31983,9 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
     onUpdateURL: function (callback) {
       var _this = this;
 
-      var guid = _emberMetalUtils.guidFor(this);
+      this._removeEventListener();
 
-      _emberViewsSystemJquery.default(window).on('popstate.ember-location-' + guid, function (e) {
+      this._popstateHandler = function () {
         // Ignore initial page load popstate event in Chrome
         if (!popstateFired) {
           popstateFired = true;
@@ -31979,7 +31994,9 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
           }
         }
         callback(_this.getURL());
-      });
+      };
+
+      window.addEventListener('popstate', this._popstateHandler);
     },
 
     /**
@@ -32012,9 +32029,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       @method willDestroy
     */
     willDestroy: function () {
-      var guid = _emberMetalUtils.guidFor(this);
-
-      _emberViewsSystemJquery.default(window).off('popstate.ember-location-' + guid);
+      this._removeEventListener();
     },
 
     /**
@@ -32022,7 +32037,13 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
        Returns normalized location.hash
        @method getHash
     */
-    getHash: _emberRoutingLocationApi.default._getHash
+    getHash: _emberRoutingLocationApi.default._getHash,
+
+    _removeEventListener: function () {
+      if (this._popstateHandler) {
+        window.removeEventListener('popstate', this._popstateHandler);
+      }
+    }
   });
 });
 enifed('ember-routing/location/none_location', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject) {
@@ -46481,7 +46502,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/mixin']
     }
   });
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-metal/symbol', 'ember-environment', 'ember-views/system/utils', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberMetalSymbol, _emberEnvironment, _emberViewsSystemUtils, _emberViewsSystemJquery) {
   'use strict';
 
   var _Mixin$create;
@@ -46605,23 +46626,34 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       @private
     */
     appendTo: function (selector) {
-      var $ = this._environment ? this._environment.options.jQuery : _emberViewsSystemJquery.default;
+      var env = this._environment || _emberEnvironment.environment;
+      var target = undefined;
 
-      if ($) {
-        var target = $(selector);
+      if (env.hasDOM) {
+        target = typeof selector === 'string' ? document.querySelector(selector) : selector;
 
-        _emberMetalDebug.assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target.length > 0);
-        _emberMetalDebug.assert('You cannot append to an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
+        _emberMetalDebug.assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target);
+        _emberMetalDebug.assert('You cannot append to an existing Ember.View.', !_emberViewsSystemUtils.matches(target, '.ember-view'));
+        _emberMetalDebug.assert('You cannot append to an existing Ember.View.', (function () {
+          var node = target.parentNode;
+          while (node) {
+            if (node.nodeType !== 9 && _emberViewsSystemUtils.matches(node, '.ember-view')) {
+              return false;
+            }
 
-        this.renderer.appendTo(this, target[0]);
+            node = node.parentNode;
+          }
+
+          return true;
+        })());
       } else {
-        var target = selector;
+        target = selector;
 
         _emberMetalDebug.assert('You tried to append to a selector string (' + selector + ') in an environment without jQuery', typeof target !== 'string');
         _emberMetalDebug.assert('You tried to append to a non-Element (' + selector + ') in an environment without jQuery', typeof selector.appendChild === 'function');
-
-        this.renderer.appendTo(this, target);
       }
+
+      this.renderer.appendTo(this, target);
 
       return this;
     },
@@ -47488,6 +47520,8 @@ enifed('ember-views/system/platform', ['exports', 'ember-environment'], function
   exports.canSetNameOnInputs = canSetNameOnInputs;
 });
 enifed('ember-views/system/utils', ['exports'], function (exports) {
+  /* globals Element */
+
   /**
   @module ember
   @submodule ember-views
@@ -47498,6 +47532,7 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
   exports.isSimpleClick = isSimpleClick;
   exports.getViewClientRects = getViewClientRects;
   exports.getViewBoundingClientRect = getViewBoundingClientRect;
+  exports.matches = matches;
 
   function isSimpleClick(event) {
     var modifier = event.shiftKey || event.metaKey || event.altKey || event.ctrlKey;
@@ -47553,6 +47588,22 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
   function getViewBoundingClientRect(view) {
     var range = getViewRange(view);
     return range.getBoundingClientRect();
+  }
+
+  /**
+    Determines if the element matches the specified selector.
+  
+    @private
+    @method matches
+    @param {DOMElement} el
+    @param {String} selector
+  */
+  var elMatches = typeof Element !== 'undefined' && (Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector);
+
+  exports.elMatches = elMatches;
+
+  function matches(el, selector) {
+    return elMatches.call(el, selector);
   }
 });
 enifed('ember-views/utils/lookup-component', ['exports'], function (exports) {
@@ -48475,7 +48526,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+2c206582";
+  exports.default = "2.9.0-null+c076329e";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
