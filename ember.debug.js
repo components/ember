@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+8ba7f68f
+ * @version   2.9.0-null+cf2fdd22
  */
 
 var enifed, requireModule, require, Ember;
@@ -9787,11 +9787,11 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-glimmer/utils/referenc
       var actionType = typeof rawAction;
       var action = rawAction;
 
-      if (_emberMetalIs_none.default(rawAction)) {
-        throw new _emberMetalError.default('Action passed is null or undefined in (action) from ' + target + '.');
-      } else if (rawActionRef[INVOKE]) {
+      if (rawActionRef[INVOKE]) {
         target = rawActionRef;
         action = rawActionRef[INVOKE];
+      } else if (_emberMetalIs_none.default(rawAction)) {
+        throw new _emberMetalError.default('Action passed is null or undefined in (action) from ' + target + '.');
       } else if (actionType === 'string') {
         // on-change={{action 'setName'}}
         var actionName = rawAction;
@@ -10774,7 +10774,7 @@ enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal/debug', 'embe
     return _emberGlimmerHelper.helper(fn);
   }
 });
-enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation) {
+enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation', 'ember-glimmer/helpers/action'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation, _emberGlimmerHelpersAction) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -10914,6 +10914,12 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
           args: args,
           target: target
         };
+        if (typeof actionName[_emberGlimmerHelpersAction.INVOKE] === 'function') {
+          _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
+            actionName[_emberGlimmerHelpersAction.INVOKE].apply(actionName, args);
+          });
+          return;
+        }
         if (typeof actionName === 'function') {
           _emberMetalInstrumentation.flaggedInstrument('interaction.ember-action', payload, function () {
             actionName.apply(target, args);
@@ -10954,13 +10960,20 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
 
       var implicitTarget = undefined;
       var actionName = undefined;
+      var actionNameRef = undefined;
 
       if (positional.length > 1) {
         implicitTarget = positional.at(0);
-        actionName = positional.at(1).value();
-      }
+        actionNameRef = positional.at(1);
 
-      _emberMetalDebug.assert('You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).', typeof actionName === 'string' || typeof actionName === 'function');
+        if (actionNameRef[_emberGlimmerHelpersAction.INVOKE]) {
+          actionName = actionNameRef;
+        } else {
+          actionName = actionNameRef.value();
+
+          _emberMetalDebug.assert('You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).', typeof actionName === 'string' || typeof actionName === 'function');
+        }
+      }
 
       var actionArgs = [];
       // The first two arguments are (1) `this` and (2) the action name.
@@ -10983,7 +10996,11 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
     ActionModifierManager.prototype.update = function update(modifier, element, args, dom, dynamicScope) {
       var positional = args.positional;
 
-      modifier.actionName = positional.at(1).value();
+      var actionNameRef = positional.at(1);
+
+      if (!actionNameRef[_emberGlimmerHelpersAction.INVOKE]) {
+        modifier.actionName = actionNameRef.value();
+      }
       modifier.eventName = modifier.getEventName();
 
       // Not sure if this is needed? If we mutate the actionState is that good enough?
@@ -50694,7 +50711,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+8ba7f68f";
+  exports.default = "2.9.0-null+cf2fdd22";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

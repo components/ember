@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+8ba7f68f
+ * @version   2.9.0-null+cf2fdd22
  */
 
 var enifed, requireModule, require, Ember;
@@ -19136,6 +19136,55 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.assert.deepEqual(invokableArgs, [1, 2, 3, 4, 5, 6]);
     };
 
+    _class2.prototype['@test closure action with `(mut undefinedThing)` works properly [GH#13959]'] = function testClosureActionWithMutUndefinedThingWorksProperlyGH13959() {
+      var _this11 = this;
+
+      var component = undefined;
+
+      var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        label: undefined,
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        }
+      });
+
+      this.registerComponent('example-component', {
+        ComponentClass: ExampleComponent,
+        template: '<button onclick={{action (mut label) "Clicked!"}}>{{if label label "Click me"}}</button>'
+      });
+
+      this.render('{{example-component}}');
+
+      this.assertText('Click me');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this11.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', 'Dun clicked');
+      });
+
+      this.assertText('Dun clicked');
+
+      this.runTask(function () {
+        _this11.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', undefined);
+      });
+
+      this.assertText('Click me');
+    };
+
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -21521,6 +21570,55 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');
       this.assert.ok(innerClickCalled, 'the click was triggered');
+    };
+
+    _class2.prototype['@glimmer element action with (mut undefinedThing) works properly'] = function glimmerElementActionWithMutUndefinedThingWorksProperly() {
+      var _this34 = this;
+
+      var component = undefined;
+
+      var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        label: undefined,
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        }
+      });
+
+      this.registerComponent('example-component', {
+        ComponentClass: ExampleComponent,
+        template: '<button {{action (mut label) "Clicked!"}}>{{if label label "Click me"}}</button>'
+      });
+
+      this.render('{{example-component}}');
+
+      this.assertText('Click me');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this34.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', 'Dun clicked');
+      });
+
+      this.assertText('Dun clicked');
+
+      this.runTask(function () {
+        _this34.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', undefined);
+      });
+
+      this.assertText('Click me');
     };
 
     return _class2;
@@ -42269,6 +42367,55 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
       this.assert.deepEqual(invokableArgs, [1, 2, 3, 4, 5, 6]);
     };
 
+    _class2.prototype['@test closure action with `(mut undefinedThing)` works properly [GH#13959]'] = function testClosureActionWithMutUndefinedThingWorksProperlyGH13959() {
+      var _this11 = this;
+
+      var component = undefined;
+
+      var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        label: undefined,
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        }
+      });
+
+      this.registerComponent('example-component', {
+        ComponentClass: ExampleComponent,
+        template: '<button onclick={{action (mut label) "Clicked!"}}>{{if label label "Click me"}}</button>'
+      });
+
+      this.render('{{example-component}}');
+
+      this.assertText('Click me');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this11.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', 'Dun clicked');
+      });
+
+      this.assertText('Dun clicked');
+
+      this.runTask(function () {
+        _this11.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', undefined);
+      });
+
+      this.assertText('Click me');
+    };
+
     return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
@@ -44654,6 +44801,55 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');
       this.assert.ok(innerClickCalled, 'the click was triggered');
+    };
+
+    _class2.prototype['@glimmer element action with (mut undefinedThing) works properly'] = function glimmerElementActionWithMutUndefinedThingWorksProperly() {
+      var _this34 = this;
+
+      var component = undefined;
+
+      var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        label: undefined,
+        init: function () {
+          this._super.apply(this, arguments);
+          component = this;
+        }
+      });
+
+      this.registerComponent('example-component', {
+        ComponentClass: ExampleComponent,
+        template: '<button {{action (mut label) "Clicked!"}}>{{if label label "Click me"}}</button>'
+      });
+
+      this.render('{{example-component}}');
+
+      this.assertText('Click me');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this34.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', 'Dun clicked');
+      });
+
+      this.assertText('Dun clicked');
+
+      this.runTask(function () {
+        _this34.$('button').click();
+      });
+
+      this.assertText('Clicked!');
+
+      this.runTask(function () {
+        component.set('label', undefined);
+      });
+
+      this.assertText('Click me');
     };
 
     return _class2;
