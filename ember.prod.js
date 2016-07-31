@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b2e5d62b
+ * @version   2.9.0-null+06ecec27
  */
 
 var enifed, requireModule, require, Ember;
@@ -8666,7 +8666,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
       });
 
       this._templateCache = new _emberMetalCache.default(1000, function (Template) {
-        return new Template(_this);
+        return Template.create({ env: _this });
       }, function (template) {
         return template.id;
       });
@@ -11824,28 +11824,17 @@ enifed('ember-glimmer/template', ['exports', 'glimmer-runtime'], function (expor
 
   exports.default = template;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  var templateId = 0;
-
   var Wrapper = (function () {
-    Wrapper.create = function create(options) {
-      return new this(options);
-    };
-
-    function Wrapper(_ref, id) {
-      var env = _ref.env;
-
+    function Wrapper(id, env, spec) {
       _classCallCheck(this, Wrapper);
 
       this.id = id;
+      this.env = env;
+      this.spec = spec;
       this._entryPoint = null;
       this._layout = null;
-      this.env = env;
     }
 
     Wrapper.prototype.asEntryPoint = function asEntryPoint() {
@@ -11855,7 +11844,6 @@ enifed('ember-glimmer/template', ['exports', 'glimmer-runtime'], function (expor
 
         this._entryPoint = _glimmerRuntime.Template.fromSpec(spec, env);
       }
-
       return this._entryPoint;
     };
 
@@ -11866,31 +11854,24 @@ enifed('ember-glimmer/template', ['exports', 'glimmer-runtime'], function (expor
 
         this._layout = _glimmerRuntime.Template.layoutFromSpec(spec, env);
       }
-
       return this._layout;
     };
 
     return Wrapper;
   })();
 
+  var templateId = 0;
+
   function template(json) {
-    var id = templateId++;
+    var id = ++templateId;
+    return {
+      id: id,
+      create: function (_ref) {
+        var env = _ref.env;
 
-    var Factory = (function (_Wrapper) {
-      _inherits(Factory, _Wrapper);
-
-      function Factory(options) {
-        _classCallCheck(this, Factory);
-
-        _Wrapper.call(this, options, id);
-        this.spec = JSON.parse(json);
+        return new Wrapper(id, env, JSON.parse(json));
       }
-
-      return Factory;
-    })(Wrapper);
-    Factory.id = id;
-
-    return Factory;
+    };
   }
 });
 enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer"], function (exports, _emberGlimmer) {
@@ -48561,7 +48542,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+b2e5d62b";
+  exports.default = "2.9.0-null+06ecec27";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

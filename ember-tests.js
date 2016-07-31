@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b2e5d62b
+ * @version   2.9.0-null+06ecec27
  */
 
 var enifed, requireModule, require, Ember;
@@ -7241,35 +7241,6 @@ enifed('ember-glimmer-template-compiler/tests/plugins-test', ['exports', 'ember-
     expect(2);
 
     _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile('some random template', { plugins: { ast: [TestPlugin] } });
-  });
-});
-enifed('ember-glimmer-template-compiler/tests/precompile-test', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmer) {
-  'use strict';
-
-  QUnit.module('Glimmer Precompile:');
-
-  QUnit.test('returns a string', function (assert) {
-    var str = _emberGlimmerTemplateCompiler.precompile('Hello');
-    assert.equal(typeof str, 'string');
-  });
-
-  QUnit.test('when wrapped in a template, precompile is the same as compile', function (assert) {
-    // Simulating what happens in a broccoli plugin
-    // when it is creating an AMD module. e.g.
-    // ...
-    // processString(content) {
-    //   return `template(${precompile(content)})`;
-    // }
-    var Precompiled = _emberGlimmer.template(JSON.parse(_emberGlimmerTemplateCompiler.precompile('Hello')));
-    var Compiled = _emberGlimmerTemplateCompiler.compile('Hello');
-
-    assert.equal(Precompiled.toString(), Compiled.toString(), 'Both return factories');
-
-    var precompiled = new Precompiled({ env: {} });
-    var compiled = new Compiled({ env: {} });
-
-    assert.ok(typeof precompiled.spec !== 'string', 'Spec has been parsed');
-    assert.ok(typeof compiled.spec !== 'string', 'Spec has been parsed');
   });
 });
 enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember-glimmer-template-compiler', 'ember-metal/assign', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompiler, _emberMetalAssign, _emberGlimmerTemplateCompilerSystemCompileOptions) {
@@ -28582,7 +28553,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 
     _class.prototype.templateFor = function templateFor(content) {
       var Factory = this.compile(content);
-      return new Factory(this);
+      return this.env.getTemplate(Factory);
     };
 
     _class.prototype['@test each template is only compiled once'] = function testEachTemplateIsOnlyCompiledOnce(assert) {
@@ -28652,6 +28623,84 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
       assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
       assert.strictEqual(COUNTER.get('type-two+' + template.id), 1);
       assert.strictEqual(COUNTER.total, 2);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmer, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Template factory test', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test the template factory returned from precompile is the same as compile'] = function testTheTemplateFactoryReturnedFromPrecompileIsTheSameAsCompile(assert) {
+      var env = this.env;
+
+      var templateStr = 'Hello {{name}}';
+      var options = { moduleName: 'some-module' };
+
+      var spec = _emberGlimmerTemplateCompiler.precompile(templateStr, options);
+      var body = 'exports.default = template(' + spec + ');';
+      var module = new Function('exports', 'template', body);
+      var exports = {};
+      module(exports, _emberGlimmer.template);
+      var Precompiled = exports['default'];
+
+      var Compiled = _emberGlimmerTemplateCompiler.compile(templateStr, options);
+
+      assert.equal(typeof Precompiled.create, 'function', 'precompiled is a factory');
+      assert.ok(Precompiled.id, 'precompiled has id');
+
+      assert.equal(typeof Compiled.create, 'function', 'compiled is a factory');
+      assert.ok(Compiled.id, 'compiled has id');
+
+      assert.equal(env._templateCache.misses, 0, 'misses 0');
+      assert.equal(env._templateCache.hits, 0, 'hits 0');
+
+      var precompiled = env.getTemplate(Precompiled);
+
+      assert.equal(env._templateCache.misses, 1, 'misses 1');
+      assert.equal(env._templateCache.hits, 0, 'hits 0');
+
+      var compiled = env.getTemplate(Compiled);
+
+      assert.equal(env._templateCache.misses, 2, 'misses 2');
+      assert.equal(env._templateCache.hits, 0, 'hits 0');
+
+      assert.ok(typeof precompiled.spec !== 'string', 'Spec has been parsed');
+      assert.ok(typeof compiled.spec !== 'string', 'Spec has been parsed');
+
+      this.registerComponent('x-precompiled', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: Precompiled
+        })
+      });
+
+      this.registerComponent('x-compiled', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: Compiled
+        })
+      });
+
+      this.render('{{x-precompiled name="precompiled"}} {{x-compiled name="compiled"}}');
+
+      assert.equal(env._templateCache.misses, 2, 'misses 2');
+      assert.equal(env._templateCache.hits, 2, 'hits 2');
+
+      this.assertText('Hello precompiled Hello compiled');
     };
 
     return _class;
