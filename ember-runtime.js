@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+06ecec27
+ * @version   2.9.0-null+3a7b78a9
  */
 
 var enifed, requireModule, require, Ember;
@@ -6724,7 +6724,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     tag: ownCustomObject
   };
 
-  if (true || false) {
+  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     members.lastRendered = ownMap;
     members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
   }
@@ -6757,7 +6757,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     // inherited, and we can optimize it much better than JS runtimes.
     this.parent = parentMeta;
 
-    if (true || false) {
+    if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
       this._lastRendered = undefined;
       this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
     }
@@ -7008,7 +7008,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     descriptor: META_DESC
   };
 
-  if (true) {
+  if (_emberMetalFeatures.default('mandatory-setter')) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
       var internalKey = '_' + key;
 
@@ -8609,7 +8609,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
 
     if (desc instanceof Descriptor) {
       value = desc;
-      if (true) {
+      if (_emberMetalFeatures.default('mandatory-setter')) {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -8630,7 +8630,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
       if (desc == null) {
         value = data;
 
-        if (true) {
+        if (_emberMetalFeatures.default('mandatory-setter')) {
           if (watching) {
             meta.writeValues(keyName, data);
 
@@ -8783,7 +8783,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
     }
     _emberMetalTags.markObjectAsDirty(m);
 
-    if (true || false) {
+    if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
       _emberMetalTransaction.assertNotRendered(obj, keyName, m);
     }
   }
@@ -9165,7 +9165,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     } else {
       _emberMetalProperty_events.propertyWillChange(obj, keyName);
 
-      if (true) {
+      if (_emberMetalFeatures.default('mandatory-setter')) {
         setWithMandatorySetter(meta, obj, keyName, value);
       } else {
         obj[keyName] = value;
@@ -9177,7 +9177,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     return value;
   }
 
-  if (true) {
+  if (_emberMetalFeatures.default('mandatory-setter')) {
     var setWithMandatorySetter = function (meta, obj, keyName, value) {
       if (meta && meta.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -10107,25 +10107,25 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  if (true || false) {
+  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', _emberMetalFeatures.default('ember-glimmer'));
   }
 
   var raise = _emberMetalDebug.assert;
-  if (false) {
+  if (_emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     raise = function (message, test) {
       _emberMetalDebug.deprecate(message, test, { id: 'ember-views.render-double-modify', until: '3.0.0' });
     };
   }
 
   var implication = undefined;
-  if (false) {
+  if (_emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     implication = 'will be removed in Ember 3.0.';
-  } else if (true) {
+  } else if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender')) {
     implication = 'is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.';
   }
 
-  if (true || false) {
+  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     (function () {
       var counter = 0;
       var inTransaction = false;
@@ -10767,7 +10767,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         obj.willWatchProperty(keyName);
       }
 
-      if (true) {
+      if (_emberMetalFeatures.default('mandatory-setter')) {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(m, obj, keyName);
       }
@@ -10776,7 +10776,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
     }
   }
 
-  if (true) {
+  if (_emberMetalFeatures.default('mandatory-setter')) {
     (function () {
       var hasOwnProperty = function (obj, key) {
         return Object.prototype.hasOwnProperty.call(obj, key);
@@ -10840,7 +10840,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         obj.didUnwatchProperty(keyName);
       }
 
-      if (true) {
+      if (_emberMetalFeatures.default('mandatory-setter')) {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -13351,7 +13351,7 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
 
-  if (true) {
+  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
     EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
   }
 
@@ -14074,7 +14074,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   }).readOnly(), _Mixin$create.lastObject = _emberMetalComputed.computed(function () {
     return objectAt(this, _emberMetalProperty_get.get(this, 'length') - 1);
   }).readOnly(), _Mixin$create.contains = function (obj) {
-    if (true) {
+    if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
       _emberMetalDebug.deprecate('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
     }
 
@@ -14159,7 +14159,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     return this.__each;
   }).volatile(), _Mixin$create));
 
-  if (true) {
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
     ArrayMixin.reopen({
       /**
         Returns `true` if the passed object can be found in the array.
@@ -14946,7 +14946,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
       @public
     */
     contains: function (obj) {
-      if (true) {
+      if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
         _emberMetalDebug.deprecate('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
       }
 
@@ -15734,7 +15734,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
     }
   });
 
-  if (true) {
+  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
     Enumerable.reopen({
       /**
         Returns a new enumerable that contains only items containing a unique property value.
@@ -15765,7 +15765,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
     });
   }
 
-  if (true) {
+  if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
     Enumerable.reopen({
       /**
         Returns `true` if the passed object can be found in the enumerable.
@@ -16426,7 +16426,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
     addObject: function (obj) {
       var included = undefined;
 
-      if (true) {
+      if (_emberMetalFeatures.default('ember-runtime-enumerable-includes')) {
         included = this.includes(obj);
       } else {
         included = this.contains(obj);
@@ -18113,7 +18113,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
               if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (true) {
+                if (_emberMetalFeatures.default('mandatory-setter')) {
                   _emberMetalProperties.defineProperty(this, keyName, null, value); // setup mandatory setter
                 } else {
                     this[keyName] = value;
@@ -20020,7 +20020,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+06ecec27";
+  exports.default = "2.9.0-null+3a7b78a9";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
