@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.1+c68e8c7f
+ * @version   2.8.0-beta.1+75fce1bd
  */
 
 var enifed, requireModule, require, Ember;
@@ -9669,7 +9669,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
       var templateMeta = null;
       if (sm.block) {
         templateMeta = sm.block.template.meta;
-      } else if (sm.scope && sm.scope._view) {
+      } else if (sm.scope && sm.scope._view && sm.scope._view.template) {
         templateMeta = sm.scope._view.template.meta;
       }
       env.meta.moduleName = templateMeta && templateMeta.moduleName || env.meta && env.meta.moduleName;
@@ -13676,7 +13676,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
 
     _emberHtmlbarsSystemRenderView.renderHTMLBarsBlock(view, block, renderNode);
     view.lastResult = renderNode.lastResult;
-    this.clearRenderedViews(view.env);
+    this.clearRenderedViews(view._env);
   };
 
   Renderer.prototype.renderTopLevelView = function Renderer_renderTopLevelView(view, renderNode) {
@@ -13684,16 +13684,16 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     if (view._willInsert) {
       view._willInsert = false;
       this.prerenderTopLevelView(view, renderNode);
-      this.dispatchLifecycleHooks(view.env);
+      this.dispatchLifecycleHooks(view._env);
     }
   };
 
   Renderer.prototype.revalidateTopLevelView = function Renderer_revalidateTopLevelView(view) {
     // This guard prevents revalidation on an already-destroyed view.
     if (view._renderNode.lastResult) {
-      view._renderNode.lastResult.revalidate(view.env);
-      this.dispatchLifecycleHooks(view.env);
-      this.clearRenderedViews(view.env);
+      view._renderNode.lastResult.revalidate(view._env);
+      this.dispatchLifecycleHooks(view._env);
+      this.clearRenderedViews(view._env);
     }
   };
 
@@ -13723,7 +13723,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
 
   Renderer.prototype.ensureViewNotRendering = function Renderer_ensureViewNotRendering(view) {
-    var env = view.ownerView.env;
+    var env = view.ownerView._env;
     if (env && env.renderedViews.indexOf(view.elementId) !== -1) {
       throw new Error('Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.');
     }
@@ -13975,14 +13975,14 @@ enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-htmlbars/str
       this.helper = helper;
       this.params = params;
       this.templates = templates;
-      this.env = env;
+      this._env = env;
       this.scope = scope;
       this.hash = hash;
       this.label = label;
     },
 
     compute: function () {
-      return this.helper(_emberHtmlbarsStreamsUtils.getArrayValues(this.params), _emberHtmlbarsStreamsUtils.getHashValues(this.hash), this.templates, this.env, this.scope);
+      return this.helper(_emberHtmlbarsStreamsUtils.getArrayValues(this.params), _emberHtmlbarsStreamsUtils.getHashValues(this.hash), this.templates, this._env, this.scope);
     }
   });
 });
@@ -15776,7 +15776,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/node-man
     var meta = block && block.template && block.template.meta;
     var env = _emberHtmlbarsSystemRenderEnv.default.build(view, meta);
 
-    view.env = env;
+    view._env = env;
     _emberHtmlbarsNodeManagersViewNodeManager.createOrUpdateComponent(view, {}, null, renderNode, env);
     var nodeManager = new _emberHtmlbarsNodeManagersViewNodeManager.default(view, null, renderNode, block, view.tagName !== '');
 
@@ -16347,8 +16347,8 @@ enifed('ember-htmlbars/views/outlet', ['exports', 'ember-views/views/view', 'emb
     setOutletState: function (state) {
       this.outletState = { main: state };
 
-      if (this.env) {
-        this.env.outletState = this.outletState;
+      if (this._env) {
+        this._env.outletState = this.outletState;
       }
 
       if (this.lastResult) {
@@ -16646,7 +16646,7 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 
       _emberMetalEvents.addListener(obj, 'willDestroy', this, 'disconnect');
 
-      fireDeprecations(possibleGlobal, this._oneWay, !possibleGlobal && !this._oneWay);
+      fireDeprecations(obj, this._to, this._from, possibleGlobal, this._oneWay, !possibleGlobal && !this._oneWay);
 
       this._readyToSync = true;
       this._fromObj = fromObj;
@@ -16754,10 +16754,12 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 
   };
 
-  function fireDeprecations(deprecateGlobal, deprecateOneWay, deprecateAlias) {
+  function fireDeprecations(obj, toPath, fromPath, deprecateGlobal, deprecateOneWay, deprecateAlias) {
     var deprecateGlobalMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
     var deprecateOneWayMessage = '`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.';
     var deprecateAliasMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+    var objectInfo = 'The `' + toPath + '` property of `' + obj + '` is an `Ember.Binding` connected to `' + fromPath + '`, but ';
   }
 
   function mixinProperties(to, from) {
@@ -16961,31 +16963,36 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
       this.store = store || new DefaultStore();
     }
 
-    Cache.prototype.set = function set(obj, value) {
-      if (this.limit > this.size) {
-        var key = this.key === undefined ? obj : this.key(obj);
-        this.size++;
-        if (value === undefined) {
-          this.store.set(key, UNDEFINED);
-        } else {
-          this.store.set(key, value);
-        }
-      }
-      return value;
-    };
-
     Cache.prototype.get = function get(obj) {
       var key = this.key === undefined ? obj : this.key(obj);
       var value = this.store.get(key);
       if (value === undefined) {
         this.misses++;
-        value = this.set(key, this.func(obj));
+        value = this._set(key, this.func(obj));
       } else if (value === UNDEFINED) {
         this.hits++;
         value = undefined;
       } else {
         this.hits++;
         // nothing to translate
+      }
+
+      return value;
+    };
+
+    Cache.prototype.set = function set(obj, value) {
+      var key = this.key === undefined ? obj : this.key(obj);
+      return this._set(key, value);
+    };
+
+    Cache.prototype._set = function _set(key, value) {
+      if (this.limit > this.size) {
+        this.size++;
+        if (value === undefined) {
+          this.store.set(key, UNDEFINED);
+        } else {
+          this.store.set(key, value);
+        }
       }
 
       return value;
@@ -40253,7 +40260,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     this.renderer.revalidateTopLevelView(this);
     this.scheduledRevalidation = false;
   }, _Mixin$create.scheduleRevalidate = function (node, label, manualRerender) {
-    if (node && !this._dispatching && this.env.renderedNodes.has(node)) {
+    if (node && !this._dispatching && this._env.renderedNodes.has(node)) {
       if (manualRerender) {} else {}
       _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
       return;
@@ -40992,7 +40999,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/property_get', 'e
       this._isDispatchingAttrs = false;
       this._isVisible = false;
       this.element = null;
-      this.env = null;
+      this._env = null;
       this._isVisible = _emberMetalProperty_get.get(this, 'isVisible');
 
       // Fallback for legacy cases where the view was created directly
@@ -41834,7 +41841,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.1+c68e8c7f";
+  exports.default = "2.8.0-beta.1+75fce1bd";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
