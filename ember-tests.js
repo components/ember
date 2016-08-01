@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+3a7b78a9
+ * @version   2.9.0-null+bd29c1ee
  */
 
 var enifed, requireModule, require, Ember;
@@ -26263,6 +26263,26 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
       this.assertPropertyHasValue(propertyName, values[0], propertyName + ' can be set back to the initial value');
     };
 
+    _class.prototype.runFalsyValueProperty = function runFalsyValueProperty(values) {
+      var _this3 = this;
+
+      var value = 'value';
+      var template = '<input value={{value}}>';
+      this.render(template, { value: values[0] });
+      this.assertPropertyHasValue(value, '', value + ' is set on initial render');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+      this.assertPropertyHasValue(value, '', value + ' is set on noop rerender');
+      this.setComponentValue(values[1]);
+
+      this.assertPropertyHasValue(value, values[1], value + ' is set on rerender');
+
+      this.setComponentValue(values[0]);
+      this.assertPropertyHasValue(value, '', value + ' can be set back to the initial value');
+    };
+
     _class.prototype['@test input disabled attribute'] = function testInputDisabledAttribute() {
       this.runPropertyTest('disabled', [false, true]);
     };
@@ -26289,6 +26309,18 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
 
     _class.prototype['@test input tabindex attribute'] = function testInputTabindexAttribute() {
       this.runAttributeTest('tabindex', [2, 3]);
+    };
+
+    _class.prototype['@test null input value'] = function testNullInputValue() {
+      this.runFalsyValueProperty([null, 'hello']);
+    };
+
+    _class.prototype['@test undefined input value'] = function testUndefinedInputValue() {
+      this.runFalsyValueProperty([undefined, 'hello']);
+    };
+
+    _class.prototype['@glimmer undefined `toString` method as input value'] = function glimmerUndefinedToStringMethodAsInputValue() {
+      this.runFalsyValueProperty([Object.create(null), 'hello']);
     };
 
     _class.prototype['@test cursor position is not lost when updating content'] = function testCursorPositionIsNotLostWhenUpdatingContent() {
@@ -26360,10 +26392,10 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     };
 
     _class.prototype.setComponentValue = function setComponentValue(value) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'value', value);
+        return _emberMetalProperty_set.set(_this4.context, 'value', value);
       });
     };
 
@@ -49933,6 +49965,26 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
       this.assertPropertyHasValue(propertyName, values[0], propertyName + ' can be set back to the initial value');
     };
 
+    _class.prototype.runFalsyValueProperty = function runFalsyValueProperty(values) {
+      var _this3 = this;
+
+      var value = 'value';
+      var template = '<input value={{value}}>';
+      this.render(template, { value: values[0] });
+      this.assertPropertyHasValue(value, '', value + ' is set on initial render');
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+      this.assertPropertyHasValue(value, '', value + ' is set on noop rerender');
+      this.setComponentValue(values[1]);
+
+      this.assertPropertyHasValue(value, values[1], value + ' is set on rerender');
+
+      this.setComponentValue(values[0]);
+      this.assertPropertyHasValue(value, '', value + ' can be set back to the initial value');
+    };
+
     _class.prototype['@test input disabled attribute'] = function testInputDisabledAttribute() {
       this.runPropertyTest('disabled', [false, true]);
     };
@@ -49959,6 +50011,18 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
 
     _class.prototype['@test input tabindex attribute'] = function testInputTabindexAttribute() {
       this.runAttributeTest('tabindex', [2, 3]);
+    };
+
+    _class.prototype['@test null input value'] = function testNullInputValue() {
+      this.runFalsyValueProperty([null, 'hello']);
+    };
+
+    _class.prototype['@test undefined input value'] = function testUndefinedInputValue() {
+      this.runFalsyValueProperty([undefined, 'hello']);
+    };
+
+    _class.prototype['@glimmer undefined `toString` method as input value'] = function glimmerUndefinedToStringMethodAsInputValue() {
+      this.runFalsyValueProperty([Object.create(null), 'hello']);
     };
 
     _class.prototype['@test cursor position is not lost when updating content'] = function testCursorPositionIsNotLostWhenUpdatingContent() {
@@ -50030,10 +50094,10 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
     };
 
     _class.prototype.setComponentValue = function setComponentValue(value) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'value', value);
+        return _emberMetalProperty_set.set(_this4.context, 'value', value);
       });
     };
 
