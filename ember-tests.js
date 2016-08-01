@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+10cf9647
+ * @version   2.9.0-null+6449018e
  */
 
 var enifed, requireModule, require, Ember;
@@ -10223,7 +10223,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberRuntimeSystemObject, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeSystemObject, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -13230,6 +13230,70 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         tagName: 'div',
         attrs: { id: 'foo-bar', style: _emberGlimmerTestsUtilsTestHelpers.styles('color: blue; display: none;') }
       });
+    };
+
+    _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
+      var _this74 = this;
+
+      var component = undefined;
+      var assertElement = function (expectedValue) {
+        // value is a property, not an attribute
+        _this74.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this74.assert.equal(_this74.firstChild.value, expectedValue, 'value property is correct');
+        _this74.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+      };
+
+      this.registerComponent('one-way-input', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          tagName: 'input',
+          attributeBindings: ['value'],
+
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+
+          change: function () {
+            var value = this.readDOMAttr('value');
+            this.set('value', value);
+          }
+        })
+      });
+
+      this.render('{{one-way-input value=value}}', {
+        value: 'foo'
+      });
+
+      assertElement('foo');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this74.firstChild.value = 'bar';
+        _this74.$('input').trigger('change');
+      });
+
+      assertElement('bar');
+
+      this.runTask(function () {
+        _this74.firstChild.value = 'foo';
+        _this74.$('input').trigger('change');
+      });
+
+      assertElement('foo');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(component, 'value', 'bar');
+      });
+
+      assertElement('bar');
+
+      this.runTask(function () {
+        _this74.firstChild.value = 'foo';
+        _this74.$('input').trigger('change');
+      });
+
+      assertElement('foo');
     };
 
     return _class;
@@ -33925,7 +33989,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalMixin, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
+enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -36932,6 +36996,70 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         tagName: 'div',
         attrs: { id: 'foo-bar', style: _emberHtmlbarsTestsUtilsTestHelpers.styles('color: blue; display: none;') }
       });
+    };
+
+    _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
+      var _this74 = this;
+
+      var component = undefined;
+      var assertElement = function (expectedValue) {
+        // value is a property, not an attribute
+        _this74.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this74.assert.equal(_this74.firstChild.value, expectedValue, 'value property is correct');
+        _this74.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+      };
+
+      this.registerComponent('one-way-input', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: 'input',
+          attributeBindings: ['value'],
+
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          },
+
+          change: function () {
+            var value = this.readDOMAttr('value');
+            this.set('value', value);
+          }
+        })
+      });
+
+      this.render('{{one-way-input value=value}}', {
+        value: 'foo'
+      });
+
+      assertElement('foo');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this74.firstChild.value = 'bar';
+        _this74.$('input').trigger('change');
+      });
+
+      assertElement('bar');
+
+      this.runTask(function () {
+        _this74.firstChild.value = 'foo';
+        _this74.$('input').trigger('change');
+      });
+
+      assertElement('foo');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(component, 'value', 'bar');
+      });
+
+      assertElement('bar');
+
+      this.runTask(function () {
+        _this74.firstChild.value = 'foo';
+        _this74.$('input').trigger('change');
+      });
+
+      assertElement('foo');
     };
 
     return _class;
