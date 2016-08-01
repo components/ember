@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-alpha.1
+ * @version   v2.9.0-alpha.2
  */
 
 var enifed, requireModule, require, Ember;
@@ -1660,7 +1660,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
     $('<input type="checkbox">').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
-  if (_emberEnvironment.environment.hasDOM) {
+  if (_emberEnvironment.environment.hasDOM && typeof $ === 'function') {
     $(function () {
       /*
         Determine whether a checkbox checked using jQuery's "click" method will have
