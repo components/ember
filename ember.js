@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.1+2414d715
+ * @version   2.8.0-beta.1+c68e8c7f
  */
 
 var enifed, requireModule, require, Ember;
@@ -3890,21 +3890,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     },
 
     setupRegistry: function (options) {
-      var registry = this.__registry__;
-
-      registry.register('-environment:main', options.toEnvironment(), { instantiate: false });
-      registry.injection('view', '_environment', '-environment:main');
-      registry.injection('route', '_environment', '-environment:main');
-
-      registry.register('service:-document', options.document, { instantiate: false });
-
-      if (options.isInteractive) {
-        registry.injection('view', 'renderer', 'renderer:-dom');
-        registry.injection('component', 'renderer', 'renderer:-dom');
-      } else {
-        registry.injection('view', 'renderer', 'renderer:-inert');
-        registry.injection('component', 'renderer', 'renderer:-inert');
-      }
+      this.constructor.setupRegistry(this.__registry__, options);
     },
 
     router: _emberMetalComputed.computed(function () {
@@ -4040,6 +4026,32 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
       // getURL returns the set url with the rootURL stripped off
       return router.handleURL(location.getURL()).then(handleResolve, handleReject);
+    }
+  });
+
+  ApplicationInstance.reopenClass({
+    /**
+     @private
+     @method setupRegistry
+     @param {Registry} registry
+     @param {BootOptions} options
+    */
+    setupRegistry: function (registry) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? new BootOptions() : arguments[1];
+
+      registry.register('-environment:main', options.toEnvironment(), { instantiate: false });
+      registry.injection('view', '_environment', '-environment:main');
+      registry.injection('route', '_environment', '-environment:main');
+
+      registry.register('service:-document', options.document, { instantiate: false });
+
+      if (options.isInteractive) {
+        registry.injection('view', 'renderer', 'renderer:-dom');
+        registry.injection('component', 'renderer', 'renderer:-dom');
+      } else {
+        registry.injection('view', 'renderer', 'renderer:-inert');
+        registry.injection('component', 'renderer', 'renderer:-inert');
+      }
     }
   });
 
@@ -44432,7 +44444,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.1+2414d715";
+  exports.default = "2.8.0-beta.1+c68e8c7f";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
