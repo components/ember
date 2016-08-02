@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6449018e
+ * @version   2.9.0-null+20de5413
  */
 
 var enifed, requireModule, require, Ember;
@@ -9154,7 +9154,9 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
       _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
       _templateObject14 = _taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject17 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -10113,6 +10115,155 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), 'message: goodbye');
     };
 
+    _class.prototype['@test GH#13982 contextual component ref is stable even when bound params change'] = function testGH13982ContextualComponentRefIsStableEvenWhenBoundParamsChange(assert) {
+      var _this30 = this;
+
+      var instance = undefined,
+          previousInstance = undefined;
+      var initCount = 0;
+
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: '{{if isOpen "open" "closed"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15), {
+        isOpen: true
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance was created');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this30.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this30.context.set('isOpen', false);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this30.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this30.context.set('isOpen', true);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+    };
+
+    _class.prototype['@glimmer GH#13982 contextual component ref is recomputed when component name param changes'] = function glimmerGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
+      var _this31 = this;
+
+      var instance = undefined,
+          previousInstance = undefined;
+      var initCount = 0;
+
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: 'my-comp: {{if isOpen "open" "closed"}}'
+      });
+
+      this.registerComponent('your-comp', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: 'your-comp: {{if isOpen "open" "closed"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16), {
+        compName: 'my-comp',
+        isOpen: true
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance was created');
+      assert.equal(previousInstance, undefined, 'there is no previous instance');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'my-comp: open');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance exists after rerender');
+      assert.equal(previousInstance, undefined, 'there is no previous instance after rerender');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'my-comp: open');
+
+      this.runTask(function () {
+        return _this31.context.set('compName', 'your-comp');
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
+      assert.ok(!_emberMetalIs_empty.default(previousInstance), 'a previous instance now exists');
+      assert.notEqual(instance, previousInstance, 'the instance and previous instance are not the same object');
+      assert.equal(initCount, 2, 'the component was constructed exactly 2 times');
+      assert.equal(this.$().text(), 'your-comp: open');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed (rerender)');
+      assert.ok(!_emberMetalIs_empty.default(previousInstance), 'a previous instance now exists (rerender)');
+      assert.notEqual(instance, previousInstance, 'the instance and previous instance are not the same object (rerender)');
+      assert.equal(initCount, 2, 'the component was constructed exactly 2 times (rerender)');
+      assert.equal(this.$().text(), 'your-comp: open');
+
+      this.runTask(function () {
+        return _this31.context.set('compName', 'my-comp');
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
+      assert.ok(!_emberMetalIs_empty.default(previousInstance), 'a previous instance still exists');
+      assert.notEqual(instance, previousInstance, 'the instance and previous instance are not the same object');
+      assert.equal(initCount, 3, 'the component was constructed exactly 3 times (rerender)');
+      assert.equal(this.$().text(), 'my-comp: open');
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
@@ -10148,13 +10299,13 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this30 = this;
+        var _this32 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
             positionalParams: ['val']
           }),
-          template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15)
+          template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject17)
         });
 
         setup.call(this, assert);
@@ -10162,19 +10313,19 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this30.rerender();
+          return _this32.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this30.$('.my-button').click();
+          return _this32.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this30.context.set('model', { val2: 8 });
+          return _this32.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
@@ -32920,7 +33071,9 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
       _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
       _templateObject14 = _taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
+      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject17 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -33879,6 +34032,155 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), 'message: goodbye');
     };
 
+    _class.prototype['@test GH#13982 contextual component ref is stable even when bound params change'] = function testGH13982ContextualComponentRefIsStableEvenWhenBoundParamsChange(assert) {
+      var _this30 = this;
+
+      var instance = undefined,
+          previousInstance = undefined;
+      var initCount = 0;
+
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: '{{if isOpen "open" "closed"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject15), {
+        isOpen: true
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance was created');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this30.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this30.context.set('isOpen', false);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this30.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this30.context.set('isOpen', true);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+    };
+
+    _class.prototype['@glimmer GH#13982 contextual component ref is recomputed when component name param changes'] = function glimmerGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
+      var _this31 = this;
+
+      var instance = undefined,
+          previousInstance = undefined;
+      var initCount = 0;
+
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: 'my-comp: {{if isOpen "open" "closed"}}'
+      });
+
+      this.registerComponent('your-comp', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: 'your-comp: {{if isOpen "open" "closed"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16), {
+        compName: 'my-comp',
+        isOpen: true
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance was created');
+      assert.equal(previousInstance, undefined, 'there is no previous instance');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'my-comp: open');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance exists after rerender');
+      assert.equal(previousInstance, undefined, 'there is no previous instance after rerender');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'my-comp: open');
+
+      this.runTask(function () {
+        return _this31.context.set('compName', 'your-comp');
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
+      assert.ok(!_emberMetalIs_empty.default(previousInstance), 'a previous instance now exists');
+      assert.notEqual(instance, previousInstance, 'the instance and previous instance are not the same object');
+      assert.equal(initCount, 2, 'the component was constructed exactly 2 times');
+      assert.equal(this.$().text(), 'your-comp: open');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed (rerender)');
+      assert.ok(!_emberMetalIs_empty.default(previousInstance), 'a previous instance now exists (rerender)');
+      assert.notEqual(instance, previousInstance, 'the instance and previous instance are not the same object (rerender)');
+      assert.equal(initCount, 2, 'the component was constructed exactly 2 times (rerender)');
+      assert.equal(this.$().text(), 'your-comp: open');
+
+      this.runTask(function () {
+        return _this31.context.set('compName', 'my-comp');
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
+      assert.ok(!_emberMetalIs_empty.default(previousInstance), 'a previous instance still exists');
+      assert.notEqual(instance, previousInstance, 'the instance and previous instance are not the same object');
+      assert.equal(initCount, 3, 'the component was constructed exactly 3 times (rerender)');
+      assert.equal(this.$().text(), 'my-comp: open');
+    };
+
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
@@ -33914,13 +34216,13 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this30 = this;
+        var _this32 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
             positionalParams: ['val']
           }),
-          template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject15)
+          template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject17)
         });
 
         setup.call(this, assert);
@@ -33928,19 +34230,19 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this30.rerender();
+          return _this32.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this30.$('.my-button').click();
+          return _this32.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this30.context.set('model', { val2: 8 });
+          return _this32.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
