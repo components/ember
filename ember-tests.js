@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+20de5413
+ * @version   2.9.0-null+ef157d01
  */
 
 var enifed, requireModule, require, Ember;
@@ -10181,8 +10181,75 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), 'open', 'the componet text is "open"');
     };
 
-    _class.prototype['@glimmer GH#13982 contextual component ref is recomputed when component name param changes'] = function glimmerGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
+    _class.prototype['@test GH#13982 contextual component ref is stable even when bound params change (bound name param)'] = function testGH13982ContextualComponentRefIsStableEvenWhenBoundParamsChangeBoundNameParam(assert) {
       var _this31 = this;
+
+      var instance = undefined,
+          previousInstance = undefined;
+      var initCount = 0;
+
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: '{{if isOpen "open" "closed"}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16), {
+        compName: 'my-comp',
+        isOpen: true
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance was created');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this31.context.set('isOpen', false);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this31.context.set('isOpen', true);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+    };
+
+    _class.prototype['@glimmer GH#13982 contextual component ref is recomputed when component name param changes'] = function glimmerGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
+      var _this32 = this;
 
       var instance = undefined,
           previousInstance = undefined;
@@ -10225,7 +10292,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), 'my-comp: open');
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this32.rerender();
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'a instance exists after rerender');
@@ -10234,7 +10301,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), 'my-comp: open');
 
       this.runTask(function () {
-        return _this31.context.set('compName', 'your-comp');
+        return _this32.context.set('compName', 'your-comp');
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
@@ -10244,7 +10311,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), 'your-comp: open');
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this32.rerender();
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed (rerender)');
@@ -10254,7 +10321,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       assert.equal(this.$().text(), 'your-comp: open');
 
       this.runTask(function () {
-        return _this31.context.set('compName', 'my-comp');
+        return _this32.context.set('compName', 'my-comp');
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
@@ -10299,7 +10366,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this32 = this;
+        var _this33 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -10313,19 +10380,19 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this32.rerender();
+          return _this33.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this32.$('.my-button').click();
+          return _this33.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this32.context.set('model', { val2: 8 });
+          return _this33.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
@@ -34098,8 +34165,75 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), 'open', 'the componet text is "open"');
     };
 
-    _class.prototype['@glimmer GH#13982 contextual component ref is recomputed when component name param changes'] = function glimmerGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
+    _class.prototype['@test GH#13982 contextual component ref is stable even when bound params change (bound name param)'] = function testGH13982ContextualComponentRefIsStableEvenWhenBoundParamsChangeBoundNameParam(assert) {
       var _this31 = this;
+
+      var instance = undefined,
+          previousInstance = undefined;
+      var initCount = 0;
+
+      this.registerComponent('my-comp', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            previousInstance = instance;
+            instance = this;
+            initCount++;
+          },
+          isOpen: undefined
+        }),
+        template: '{{if isOpen "open" "closed"}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16), {
+        compName: 'my-comp',
+        isOpen: true
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'a instance was created');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+
+      this.runTask(function () {
+        return _this31.context.set('isOpen', false);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this31.rerender();
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'closed', 'the component text is "closed"');
+
+      this.runTask(function () {
+        return _this31.context.set('isOpen', true);
+      });
+
+      assert.ok(!_emberMetalIs_empty.default(instance), 'the component instance exists');
+      assert.equal(previousInstance, undefined, 'no previous component exists');
+      assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
+      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+    };
+
+    _class.prototype['@glimmer GH#13982 contextual component ref is recomputed when component name param changes'] = function glimmerGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
+      var _this32 = this;
 
       var instance = undefined,
           previousInstance = undefined;
@@ -34142,7 +34276,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), 'my-comp: open');
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this32.rerender();
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'a instance exists after rerender');
@@ -34151,7 +34285,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), 'my-comp: open');
 
       this.runTask(function () {
-        return _this31.context.set('compName', 'your-comp');
+        return _this32.context.set('compName', 'your-comp');
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
@@ -34161,7 +34295,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), 'your-comp: open');
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this32.rerender();
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed (rerender)');
@@ -34171,7 +34305,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), 'your-comp: open');
 
       this.runTask(function () {
-        return _this31.context.set('compName', 'my-comp');
+        return _this32.context.set('compName', 'my-comp');
       });
 
       assert.ok(!_emberMetalIs_empty.default(instance), 'an instance was created after component name changed');
@@ -34216,7 +34350,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this32 = this;
+        var _this33 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -34230,19 +34364,19 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this32.rerender();
+          return _this33.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this32.$('.my-button').click();
+          return _this33.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this32.context.set('model', { val2: 8 });
+          return _this33.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
