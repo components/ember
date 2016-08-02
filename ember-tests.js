@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ef157d01
+ * @version   2.9.0-null+ad5d20bb
  */
 
 var enifed, requireModule, require, Ember;
@@ -22737,13 +22737,13 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_TogglingHelperConditionalsTest) {
-    _inherits(_class, _TogglingHelperConditionalsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_IfUnlessHelperTest) {
+    _inherits(_class, _IfUnlessHelperTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _TogglingHelperConditionalsTest.apply(this, arguments);
+      _IfUnlessHelperTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -22771,15 +22771,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest2) {
-    _inherits(_class2, _TogglingHelperConditionalsTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_IfUnlessHelperTest2) {
+    _inherits(_class2, _IfUnlessHelperTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _TogglingHelperConditionalsTest2.apply(this, arguments);
+      _IfUnlessHelperTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -22791,15 +22791,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class2;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest3) {
-    _inherits(_class3, _TogglingHelperConditionalsTest3);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_IfUnlessHelperTest3) {
+    _inherits(_class3, _IfUnlessHelperTest3);
 
     function _class3() {
       _classCallCheck(this, _class3);
 
-      _TogglingHelperConditionalsTest3.apply(this, arguments);
+      _IfUnlessHelperTest3.apply(this, arguments);
     }
 
     _class3.prototype.templateFor = function templateFor(_ref3) {
@@ -22811,15 +22811,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class3;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_TogglingHelperConditionalsTest4) {
-    _inherits(_class4, _TogglingHelperConditionalsTest4);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_IfUnlessHelperTest4) {
+    _inherits(_class4, _IfUnlessHelperTest4);
 
     function _class4() {
       _classCallCheck(this, _class4);
 
-      _TogglingHelperConditionalsTest4.apply(this, arguments);
+      _IfUnlessHelperTest4.apply(this, arguments);
     }
 
     _class4.prototype.wrapperFor = function wrapperFor(templates) {
@@ -22835,15 +22835,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class4;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_TogglingHelperConditionalsTest5) {
-    _inherits(_class5, _TogglingHelperConditionalsTest5);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_IfUnlessHelperTest5) {
+    _inherits(_class5, _IfUnlessHelperTest5);
 
     function _class5() {
       _classCallCheck(this, _class5);
 
-      _TogglingHelperConditionalsTest5.apply(this, arguments);
+      _IfUnlessHelperTest5.apply(this, arguments);
     }
 
     _class5.prototype.wrapperFor = function wrapperFor(templates) {
@@ -22863,15 +22863,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class5;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_TogglingHelperConditionalsTest6) {
-    _inherits(_class6, _TogglingHelperConditionalsTest6);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_IfUnlessHelperTest6) {
+    _inherits(_class6, _IfUnlessHelperTest6);
 
     function _class6() {
       _classCallCheck(this, _class6);
 
-      _TogglingHelperConditionalsTest6.apply(this, arguments);
+      _IfUnlessHelperTest6.apply(this, arguments);
     }
 
     _class6.prototype.templateFor = function templateFor(_ref6) {
@@ -22883,15 +22883,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class6;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_TogglingHelperConditionalsTest7) {
-    _inherits(_class7, _TogglingHelperConditionalsTest7);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_IfUnlessHelperTest7) {
+    _inherits(_class7, _IfUnlessHelperTest7);
 
     function _class7() {
       _classCallCheck(this, _class7);
 
-      _TogglingHelperConditionalsTest7.apply(this, arguments);
+      _IfUnlessHelperTest7.apply(this, arguments);
     }
 
     _class7.prototype.templateFor = function templateFor(_ref7) {
@@ -22919,15 +22919,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class7;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest8) {
-    _inherits(_class8, _TogglingHelperConditionalsTest8);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_IfUnlessHelperTest8) {
+    _inherits(_class8, _IfUnlessHelperTest8);
 
     function _class8() {
       _classCallCheck(this, _class8);
 
-      _TogglingHelperConditionalsTest8.apply(this, arguments);
+      _IfUnlessHelperTest8.apply(this, arguments);
     }
 
     _class8.prototype.templateFor = function templateFor(_ref8) {
@@ -22939,15 +22939,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class8;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest9) {
-    _inherits(_class9, _TogglingHelperConditionalsTest9);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_IfUnlessHelperTest9) {
+    _inherits(_class9, _IfUnlessHelperTest9);
 
     function _class9() {
       _classCallCheck(this, _class9);
 
-      _TogglingHelperConditionalsTest9.apply(this, arguments);
+      _IfUnlessHelperTest9.apply(this, arguments);
     }
 
     _class9.prototype.templateFor = function templateFor(_ref9) {
@@ -22959,15 +22959,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class9;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_TogglingHelperConditionalsTest10) {
-    _inherits(_class10, _TogglingHelperConditionalsTest10);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_IfUnlessHelperTest10) {
+    _inherits(_class10, _IfUnlessHelperTest10);
 
     function _class10() {
       _classCallCheck(this, _class10);
 
-      _TogglingHelperConditionalsTest10.apply(this, arguments);
+      _IfUnlessHelperTest10.apply(this, arguments);
     }
 
     _class10.prototype.wrapperFor = function wrapperFor(templates) {
@@ -22983,15 +22983,15 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class10;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_TogglingHelperConditionalsTest11) {
-    _inherits(_class11, _TogglingHelperConditionalsTest11);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_IfUnlessHelperTest11) {
+    _inherits(_class11, _IfUnlessHelperTest11);
 
     function _class11() {
       _classCallCheck(this, _class11);
 
-      _TogglingHelperConditionalsTest11.apply(this, arguments);
+      _IfUnlessHelperTest11.apply(this, arguments);
     }
 
     _class11.prototype.wrapperFor = function wrapperFor(templates) {
@@ -23011,7 +23011,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     };
 
     return _class11;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 });
 enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/assign'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalAssign) {
   'use strict';
@@ -26953,7 +26953,8 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       _templateObject7 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
       _templateObject8 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
       _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']);
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -26963,56 +26964,63 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  var EachInTest = (function (_BasicConditionalsTest) {
-    _inherits(EachInTest, _BasicConditionalsTest);
+  var EachInTest = (function (_TogglingSyntaxConditionalsTest) {
+    _inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 
     function EachInTest() {
       _classCallCheck(this, EachInTest);
 
-      _BasicConditionalsTest.apply(this, arguments);
+      _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
-    _createClass(EachInTest, [{
-      key: 'truthyValue',
-      get: function () {
-        return { 'Not Empty': 1 };
-      }
-    }, {
-      key: 'falsyValue',
-      get: function () {
-        return {};
-      }
-    }]);
-
-    return EachInTest;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.BasicConditionalsTest);
-
-  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachInTest, _emberGlimmerTestsUtilsSharedConditionalTests.SyntaxCondtionalTestHelpers, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([
-  // TODO: figure out what the rest of the cases are
-  { foo: 1 }, _emberRuntimeSystemObject.default.create({ 'Not Empty': 1 }), _emberRuntimeSystemObject_proxy.default.create({ content: { 'Not empty': 1 } }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({}) }), _emberRuntimeSystemObject_proxy.default.create({ content: _emberRuntimeSystemObject.default.create() })]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([
-  // TODO: figure out what the rest of the cases are
-  {}, Object.create({ 'Not Empty': 1 }), Object.create({}), _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject_proxy.default.create({}),
-  // TODO: These 2 should be falsy but are returning true
-  //ObjectProxy.create({ content: null }),
-  //ObjectProxy.create({ content: {} }),
-  undefined, null]));
-
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}}', (function (_EachInTest) {
-    _inherits(_class, _EachInTest);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _EachInTest.apply(this, arguments);
-    }
-
-    _class.prototype.templateFor = function templateFor(_ref) {
+    EachInTest.prototype.templateFor = function templateFor(_ref) {
       var cond = _ref.cond;
       var truthy = _ref.truthy;
       var falsy = _ref.falsy;
 
       return '{{#each-in ' + cond + ' as |key|}}' + truthy + '{{else}}' + falsy + '{{/each-in}}';
     };
+
+    return EachInTest;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest);
+
+  function EmptyFunction() {}
+
+  function NonEmptyFunction() {}
+  NonEmptyFunction.foo = 'bar';
+
+  var EmptyConstructor = function EmptyConstructor() {
+    _classCallCheck(this, EmptyConstructor);
+  };
+
+  var NonEmptyConstructor = function NonEmptyConstructor() {
+    _classCallCheck(this, NonEmptyConstructor);
+  };
+
+  NonEmptyConstructor.foo = 'bar';
+
+  var BasicEachInTest = (function (_EachInTest) {
+    _inherits(BasicEachInTest, _EachInTest);
+
+    function BasicEachInTest() {
+      _classCallCheck(this, BasicEachInTest);
+
+      _EachInTest.apply(this, arguments);
+    }
+
+    return BasicEachInTest;
+  })(EachInTest);
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(BasicEachInTest, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([{ foo: 1 }, _emberRuntimeSystemObject.default.create({ 'Not Empty': 1 }), [1], NonEmptyFunction, NonEmptyConstructor]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, [], EmptyFunction, EmptyConstructor, {}, Object.create(null), Object.create({}), Object.create({ 'Not Empty': 1 }), _emberRuntimeSystemObject.default.create()]));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}}', (function (_BasicEachInTest) {
+    _inherits(_class, _BasicEachInTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _BasicEachInTest.apply(this, arguments);
+    }
 
     _class.prototype['@test it repeats the given block for each item in the hash'] = function testItRepeatsTheGivenBlockForEachItemInTheHash() {
       var _this = this;
@@ -27237,10 +27245,145 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       this.assertText('[0:1][1:2][2:3][foo:bar]');
     };
 
+    _createClass(_class, [{
+      key: 'truthyValue',
+      get: function () {
+        return { 'Not Empty': 1 };
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return {};
+      }
+    }]);
+
     return _class;
-  })(EachInTest));
+  })(BasicEachInTest));
+
+  var EachInEdgeCasesTest = (function (_EachInTest2) {
+    _inherits(EachInEdgeCasesTest, _EachInTest2);
+
+    function EachInEdgeCasesTest() {
+      _classCallCheck(this, EachInEdgeCasesTest);
+
+      _EachInTest2.apply(this, arguments);
+    }
+
+    return EachInEdgeCasesTest;
+  })(EachInTest);
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachInEdgeCasesTest, new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([true, 1, 'hello']));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} edge cases', (function (_EachInEdgeCasesTest) {
+    _inherits(_class2, _EachInEdgeCasesTest);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _EachInEdgeCasesTest.apply(this, arguments);
+    }
+
+    _createClass(_class2, [{
+      key: 'truthyValue',
+      get: function () {
+        return { 'Not Empty': 1 };
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return {};
+      }
+    }]);
+
+    return _class2;
+  })(EachInEdgeCasesTest));
+
+  var EachInProxyTest = (function (_EachInTest3) {
+    _inherits(EachInProxyTest, _EachInTest3);
+
+    function EachInProxyTest() {
+      _classCallCheck(this, EachInProxyTest);
+
+      _EachInTest3.apply(this, arguments);
+    }
+
+    return EachInProxyTest;
+  })(EachInTest);
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachInProxyTest, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([_emberRuntimeSystemObject_proxy.default.create({ content: { 'Not empty': 1 } })]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([_emberRuntimeSystemObject_proxy.default.create(), _emberRuntimeSystemObject_proxy.default.create({ content: null }), _emberRuntimeSystemObject_proxy.default.create({ content: {} }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create(null) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({}) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({ 'Not Empty': 1 }) }), _emberRuntimeSystemObject_proxy.default.create({ content: _emberRuntimeSystemObject.default.create() })]));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} with `ObjectProxy`', (function (_EachInProxyTest) {
+    _inherits(_class3, _EachInProxyTest);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _EachInProxyTest.apply(this, arguments);
+    }
+
+    _class3.prototype['@test it iterates over the content, not the proxy'] = function testItIteratesOverTheContentNotTheProxy() {
+      var _this7 = this;
+
+      var content = {
+        'Smartphones': 8203,
+        'JavaScript Frameworks': Infinity
+      };
+
+      var proxy = _emberRuntimeSystemObject_proxy.default.create({
+        content: content,
+        foo: 'bar'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { categories: proxy });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(proxy, 'content.Smartphones', 100);
+        _emberMetalProperty_set.set(proxy, 'content.Tweets', 443115);
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(proxy, 'content', {
+          'Smartphones': 100,
+          'Tablets': 20
+        });
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'categories', _emberRuntimeSystemObject_proxy.default.create({
+          content: {
+            'Smartphones': 8203,
+            'JavaScript Frameworks': Infinity
+          }
+        }));
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+    };
+
+    _createClass(_class3, [{
+      key: 'truthyValue',
+      get: function () {
+        return _emberRuntimeSystemObject_proxy.default.create({ content: { 'Not Empty': 1 } });
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return _emberRuntimeSystemObject_proxy.default.create({ content: null });
+      }
+    }]);
+
+    return _class3;
+  })(EachInProxyTest));
 });
-enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-metal/property_events', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberMetalProperty_events, _emberGlimmerTestsUtilsSharedConditionalTests) {
+enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-metal/property_events', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberMetalProperty_events, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -27250,22 +27393,114 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  var EachTest = (function (_BasicConditionalsTest) {
-    _inherits(EachTest, _BasicConditionalsTest);
+  var ArrayLike = (function () {
+    function ArrayLike(content) {
+      _classCallCheck(this, ArrayLike);
 
-    function EachTest() {
-      _classCallCheck(this, EachTest);
-
-      _BasicConditionalsTest.apply(this, arguments);
+      this._array = content;
     }
 
-    _createClass(EachTest, [{
+    ArrayLike.prototype.forEach = function forEach(callback) {
+      this._array.forEach(callback);
+    };
+
+    // The following methods are APIs used by the tests
+
+    ArrayLike.prototype.objectAt = function objectAt(idx) {
+      return this._array[idx];
+    };
+
+    ArrayLike.prototype.clear = function clear() {
+      this._array.length = 0;
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.replace = function replace(idx, del, ins) {
+      var _array;
+
+      (_array = this._array).splice.apply(_array, [idx, del].concat(ins));
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.unshiftObject = function unshiftObject(obj) {
+      this._array.unshift(obj);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.unshiftObjects = function unshiftObjects(arr) {
+      var _array2;
+
+      (_array2 = this._array).unshift.apply(_array2, arr);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.pushObject = function pushObject(obj) {
+      this._array.push(obj);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.pushObjects = function pushObjects(arr) {
+      var _array3;
+
+      (_array3 = this._array).push.apply(_array3, arr);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.shiftObject = function shiftObject() {
+      var obj = this._array.shift();
+      this.arrayContentDidChange();
+      return obj;
+    };
+
+    ArrayLike.prototype.popObject = function popObject() {
+      var obj = this._array.pop();
+      this.arrayContentDidChange();
+      return obj;
+    };
+
+    ArrayLike.prototype.insertAt = function insertAt(idx, obj) {
+      this._array.splice(idx, 0, obj);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.removeAt = function removeAt(idx) {
+      var len = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+
+      this._array.splice(idx, len);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.arrayContentDidChange = function arrayContentDidChange() {
+      _emberMetalProperty_events.propertyDidChange(this, '[]');
+      _emberMetalProperty_events.propertyDidChange(this, 'length');
+    };
+
+    _createClass(ArrayLike, [{
+      key: 'length',
+      get: function () {
+        return this._array.length;
+      }
+    }]);
+
+    return ArrayLike;
+  })();
+
+  var TogglingEachTest = (function (_TogglingSyntaxConditionalsTest) {
+    _inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
+
+    function TogglingEachTest() {
+      _classCallCheck(this, TogglingEachTest);
+
+      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+    }
+
+    _createClass(TogglingEachTest, [{
       key: 'truthyValue',
       get: function () {
         return ['non-empty'];
@@ -27277,22 +27512,30 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       }
     }]);
 
-    return EachTest;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.BasicConditionalsTest);
+    return TogglingEachTest;
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest);
 
-  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachTest, _emberGlimmerTestsUtilsSharedConditionalTests.SyntaxCondtionalTestHelpers, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([
-  // TODO: figure out what the rest of the cases are
-  ['hello']]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([
-  // TODO: figure out what the rest of the cases are
-  [], undefined]), _emberGlimmerTestsUtilsSharedConditionalTests.ArrayTestCases);
+  var BasicEachTest = (function (_TogglingEachTest) {
+    _inherits(BasicEachTest, _TogglingEachTest);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}}', (function (_EachTest) {
-    _inherits(_class, _EachTest);
+    function BasicEachTest() {
+      _classCallCheck(this, BasicEachTest);
+
+      _TogglingEachTest.apply(this, arguments);
+    }
+
+    return BasicEachTest;
+  })(TogglingEachTest);
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(BasicEachTest, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([['hello'], _emberRuntimeSystemNative_array.A(['hello']), new ArrayLike(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: _emberRuntimeSystemNative_array.A(['hello']) })]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, []]), _emberGlimmerTestsUtilsSharedConditionalTests.ArrayTestCases);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each}}', (function (_BasicEachTest) {
+    _inherits(_class, _BasicEachTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _EachTest.apply(this, arguments);
+      _BasicEachTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -27304,15 +27547,15 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
     };
 
     return _class;
-  })(EachTest));
+  })(BasicEachTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}}', (function (_EachTest2) {
-    _inherits(_class2, _EachTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each as}}', (function (_BasicEachTest2) {
+    _inherits(_class2, _BasicEachTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _EachTest2.apply(this, arguments);
+      _BasicEachTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -27323,499 +27566,513 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       return '{{#each ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/each}}';
     };
 
-    _class2.prototype['@test it repeats the given block for each item in the array'] = function testItRepeatsTheGivenBlockForEachItemInTheArray() {
+    return _class2;
+  })(BasicEachTest));
+
+  var EachEdgeCasesTest = (function (_TogglingEachTest2) {
+    _inherits(EachEdgeCasesTest, _TogglingEachTest2);
+
+    function EachEdgeCasesTest() {
+      _classCallCheck(this, EachEdgeCasesTest);
+
+      _TogglingEachTest2.apply(this, arguments);
+    }
+
+    return EachEdgeCasesTest;
+  })(TogglingEachTest);
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachEdgeCasesTest, new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([true, 'hello', 1, Object, function () {}, {}, { foo: 'bar' }, Object.create(null), Object.create({}), Object.create({ foo: 'bar' })]));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each}}', (function (_EachEdgeCasesTest) {
+    _inherits(_class3, _EachEdgeCasesTest);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _EachEdgeCasesTest.apply(this, arguments);
+    }
+
+    _class3.prototype.templateFor = function templateFor(_ref3) {
+      var cond = _ref3.cond;
+      var truthy = _ref3.truthy;
+      var falsy = _ref3.falsy;
+
+      return '{{#each ' + cond + '}}' + truthy + '{{else}}' + falsy + '{{/each}}';
+    };
+
+    return _class3;
+  })(EachEdgeCasesTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each as}}', (function (_EachEdgeCasesTest2) {
+    _inherits(_class4, _EachEdgeCasesTest2);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _EachEdgeCasesTest2.apply(this, arguments);
+    }
+
+    _class4.prototype.templateFor = function templateFor(_ref4) {
+      var cond = _ref4.cond;
+      var truthy = _ref4.truthy;
+      var falsy = _ref4.falsy;
+
+      return '{{#each ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/each}}';
+    };
+
+    return _class4;
+  })(EachEdgeCasesTest));
+
+  var AbstractEachTest = (function (_RenderingTest) {
+    _inherits(AbstractEachTest, _RenderingTest);
+
+    function AbstractEachTest() {
+      _classCallCheck(this, AbstractEachTest);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    /* abstract */
+
+    AbstractEachTest.prototype.makeList = function makeList() {
+      // this.list = this.delegate = ...;
+      throw new Error('Not implemented: `makeList`');
+    };
+
+    AbstractEachTest.prototype.replaceList = function replaceList(list) {
       var _this = this;
 
-      this.render('{{#each list as |item|}}{{item.text}}{{else}}Empty{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'hello' }])
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'list', _this.makeList(list));
+      });
+    };
+
+    AbstractEachTest.prototype.forEach = function forEach(callback) {
+      return this.delegate.forEach(callback);
+    };
+
+    AbstractEachTest.prototype.objectAt = function objectAt(idx) {
+      return this.delegate.objectAt(idx);
+    };
+
+    AbstractEachTest.prototype.clear = function clear() {
+      return this.delegate.clear();
+    };
+
+    AbstractEachTest.prototype.replace = function replace(idx, del, ins) {
+      return this.delegate.replace(idx, del, ins);
+    };
+
+    AbstractEachTest.prototype.unshiftObject = function unshiftObject(obj) {
+      return this.delegate.unshiftObject(obj);
+    };
+
+    AbstractEachTest.prototype.unshiftObjects = function unshiftObjects(arr) {
+      return this.delegate.unshiftObjects(arr);
+    };
+
+    AbstractEachTest.prototype.pushObject = function pushObject(obj) {
+      return this.delegate.pushObject(obj);
+    };
+
+    AbstractEachTest.prototype.pushObjects = function pushObjects(arr) {
+      return this.delegate.pushObjects(arr);
+    };
+
+    AbstractEachTest.prototype.shiftObject = function shiftObject() {
+      return this.delegate.shiftObject();
+    };
+
+    AbstractEachTest.prototype.popObject = function popObject() {
+      return this.delegate.popObject();
+    };
+
+    AbstractEachTest.prototype.insertAt = function insertAt(idx, obj) {
+      return this.delegate.insertAt(idx, obj);
+    };
+
+    AbstractEachTest.prototype.removeAt = function removeAt(idx, len) {
+      return this.delegate.removeAt(idx, len);
+    };
+
+    AbstractEachTest.prototype.render = function render(template) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      if (this.list === undefined) {
+        throw new Error('Must call `this.makeList()` before calling this.render()');
+      }
+
+      context.list = this.list;
+
+      return _RenderingTest.prototype.render.call(this, template, context);
+    };
+
+    return AbstractEachTest;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+  var SingleEachTest = (function (_AbstractEachTest) {
+    _inherits(SingleEachTest, _AbstractEachTest);
+
+    function SingleEachTest() {
+      _classCallCheck(this, SingleEachTest);
+
+      _AbstractEachTest.apply(this, arguments);
+    }
+
+    SingleEachTest.prototype['@test it repeats the given block for each item in the array'] = function testItRepeatsTheGivenBlockForEachItemInTheArray() {
+      var _this2 = this;
+
+      this.makeList([{ text: 'hello' }]);
+
+      this.render('{{#each list as |item|}}{{item.text}}{{else}}Empty{{/each}}');
+
+      this.assertText('hello');
+
+      this.runTask(function () {
+        return _this2.rerender();
       });
 
       this.assertText('hello');
 
       this.runTask(function () {
-        return _this.rerender();
-      });
-
-      this.assertText('hello');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this.context, 'list').objectAt(0), 'text', 'Hello');
+        return _emberMetalProperty_set.set(_this2.objectAt(0), 'text', 'Hello');
       });
 
       this.assertText('Hello');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
+        _this2.pushObject({ text: ' ' });
+        _this2.pushObject({ text: 'World' });
       });
 
       this.assertText('Hello World');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: 'Earth' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
-        list.insertAt(1, { text: 'Globe' });
+        _this2.pushObject({ text: 'Earth' });
+        _this2.removeAt(1);
+        _this2.insertAt(1, { text: 'Globe' });
       });
 
       this.assertText('HelloGlobeWorldEarth');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: 'Planet' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'Earth' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 3);
+        _this2.pushObject({ text: 'Planet' });
+        _this2.removeAt(1);
+        _this2.insertAt(1, { text: ' ' });
+        _this2.pushObject({ text: ' ' });
+        _this2.pushObject({ text: 'Earth' });
+        _this2.removeAt(3);
       });
 
       this.assertText('Hello WorldPlanet Earth');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: 'Globe' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 2);
+        _this2.pushObject({ text: 'Globe' });
+        _this2.removeAt(1);
+        _this2.insertAt(1, { text: ' ' });
+        _this2.pushObject({ text: ' ' });
+        _this2.pushObject({ text: 'World' });
+        _this2.removeAt(2);
       });
 
       this.assertText('Hello Planet EarthGlobe World');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this.context, 'list').replace(2, 4, { text: 'my' });
+        return _this2.replace(2, 4, { text: 'my' });
       });
 
       this.assertText('Hello my World');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this.context, 'list').clear();
+        return _this2.clear();
       });
 
       this.assertText('Empty');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'list', [{ text: 'hello' }]);
-      });
+      this.replaceList([{ text: 'hello' }]);
 
       this.assertText('hello');
     };
 
-    _class2.prototype['@test it repeats the given block for each item using an objects forEach'] = function testItRepeatsTheGivenBlockForEachItemUsingAnObjectsForEach() {
-      var _this2 = this;
-
-      var ObjectWithForEach = (function () {
-        function ObjectWithForEach(items) {
-          _classCallCheck(this, ObjectWithForEach);
-
-          this._array = items || [];
-        }
-
-        ObjectWithForEach.prototype.forEach = function forEach(cb) {
-          this._array.forEach(cb);
-        };
-
-        ObjectWithForEach.prototype.pushObject = function pushObject(item) {
-          this._array.push(item);
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        ObjectWithForEach.prototype.removeAt = function removeAt(index) {
-          this._array.splice(index, 1);
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        ObjectWithForEach.prototype.insertAt = function insertAt(index, item) {
-          this._array.splice(index, 0, item);
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        ObjectWithForEach.prototype.clear = function clear() {
-          this._array.length = 0;
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        _createClass(ObjectWithForEach, [{
-          key: 'length',
-          get: function () {
-            return this._array.length;
-          }
-        }]);
-
-        return ObjectWithForEach;
-      })();
-
-      var firstItem = { text: 'hello' };
-      this.render('{{#each list as |item|}}{{item.text}}{{else}}Empty{{/each}}', {
-        list: new ObjectWithForEach([firstItem])
-      });
-
-      this.assertText('hello');
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(firstItem, 'text', 'Hello');
-      });
-
-      this.assertText('Hello');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
-        _this2.component.rerender();
-      });
-
-      this.assertText('Hello World');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: 'Earth' });
-        list.removeAt(1);
-        list.insertAt(1, { text: 'Globe' });
-        _this2.component.rerender();
-      });
-
-      this.assertText('HelloGlobeWorldEarth');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: 'Planet' });
-        list.removeAt(1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'Earth' });
-        list.removeAt(3);
-        _this2.component.rerender();
-      });
-
-      this.assertText('Hello WorldPlanet Earth');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: 'Globe' });
-        list.removeAt(1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
-        list.removeAt(2);
-        _this2.component.rerender();
-      });
-
-      this.assertText('Hello Planet EarthGlobe World');
-
-      this.runTask(function () {
-        _emberMetalProperty_get.get(_this2.context, 'list').clear();
-        _this2.component.rerender();
-      });
-
-      this.assertText('Empty');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'list', new ObjectWithForEach([{ text: 'hello' }]));
-      });
-
-      this.assertText('hello');
-    };
-
-    _class2.prototype['@test it receives the index as the second parameter'] = function testItReceivesTheIndexAsTheSecondParameter() {
+    SingleEachTest.prototype['@test it receives the index as the second parameter'] = function testItReceivesTheIndexAsTheSecondParameter() {
       var _this3 = this;
 
-      this.render('{{#each list as |item index|}}{{index}}. {{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'hello' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'hello' }, { text: 'world' }]);
 
-      this.assertText('0. hello1. world');
+      this.render('{{#each list as |item index|}}[{{index}}. {{item.text}}]{{/each}}');
+
+      this.assertText('[0. hello][1. world]');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this3.context, 'list').insertAt(1, { text: 'my' });
+        return _this3.insertAt(1, { text: 'my' });
       });
 
-      this.assertText('0. hello1. my2. world');
+      this.assertText('[0. hello][1. my][2. world]');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'list', [{ text: 'hello' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'hello' }, { text: 'world' }]);
 
-      this.assertText('0. hello1. world');
+      this.assertText('[0. hello][1. world]');
     };
 
-    _class2.prototype['@test it accepts a string key'] = function testItAcceptsAStringKey() {
+    SingleEachTest.prototype['@test it accepts a string key'] = function testItAcceptsAStringKey() {
       var _this4 = this;
 
-      this.render('{{#each list key=\'text\' as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'hello' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'hello' }, { text: 'world' }]);
+
+      this.render('{{#each list key=\'text\' as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('helloworld');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this4.context, 'list').pushObject({ text: 'again' });
+        return _this4.pushObject({ text: 'again' });
       });
 
       this.assertText('helloworldagain');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'list', [{ text: 'hello' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'hello' }, { text: 'world' }]);
 
       this.assertText('helloworld');
     };
 
-    _class2.prototype['@test it accepts a numeric key'] = function testItAcceptsANumericKey() {
+    SingleEachTest.prototype['@test it accepts a numeric key'] = function testItAcceptsANumericKey() {
       var _this5 = this;
 
-      this.render('{{#each list key=\'id\' as |item|}}{{item.id}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ id: 1 }, { id: 2 }])
-      });
+      this.makeList([{ id: 1 }, { id: 2 }]);
+
+      this.render('{{#each list key=\'id\' as |item|}}{{item.id}}{{/each}}');
 
       this.assertText('12');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this5.context, 'list').pushObject({ id: 3 });
+        return _this5.pushObject({ id: 3 });
       });
 
       this.assertText('123');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'list', [{ id: 1 }, { id: 2 }]);
-      });
+      this.replaceList([{ id: 1 }, { id: 2 }]);
 
       this.assertText('12');
     };
 
-    _class2.prototype['@test it can specify @index as the key'] = function testItCanSpecifyIndexAsTheKey() {
+    SingleEachTest.prototype['@test it can specify @index as the key'] = function testItCanSpecifyIndexAsTheKey() {
       var _this6 = this;
 
-      this.render('{{#each list key=\'@index\' as |item|}}{{item.id}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ id: 1 }, { id: 2 }])
-      });
+      this.makeList([{ id: 1 }, { id: 2 }]);
+
+      this.render('{{#each list key=\'@index\' as |item|}}{{item.id}}{{/each}}');
 
       this.assertText('12');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this6.context, 'list').pushObject({ id: 3 });
+        return _this6.pushObject({ id: 3 });
       });
 
       this.assertText('123');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'list', [{ id: 1 }, { id: 2 }]);
-      });
+      this.replaceList([{ id: 1 }, { id: 2 }]);
 
       this.assertText('12');
     };
 
-    _class2.prototype['@test it can specify @identity as the key for arrays of primitives'] = function testItCanSpecifyIdentityAsTheKeyForArraysOfPrimitives() {
+    SingleEachTest.prototype['@test it can specify @identity as the key for arrays of primitives'] = function testItCanSpecifyIdentityAsTheKeyForArraysOfPrimitives() {
       var _this7 = this;
 
-      this.render('{{#each list key=\'@identity\' as |item|}}{{item}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([1, 2])
-      });
+      this.makeList([1, 2]);
+
+      this.render('{{#each list key=\'@identity\' as |item|}}{{item}}{{/each}}');
 
       this.assertText('12');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this7.context, 'list').pushObject(3);
+        return _this7.pushObject(3);
       });
 
       this.assertText('123');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'list', [1, 2]);
-      });
+      this.replaceList([1, 2]);
 
       this.assertText('12');
     };
 
-    _class2.prototype['@test it can specify @identity as the key for mixed arrays of objects and primitives'] = function testItCanSpecifyIdentityAsTheKeyForMixedArraysOfObjectsAndPrimitives() {
+    SingleEachTest.prototype['@test it can specify @identity as the key for mixed arrays of objects and primitives'] = function testItCanSpecifyIdentityAsTheKeyForMixedArraysOfObjectsAndPrimitives() {
       var _this8 = this;
 
-      this.render('{{#each list key=\'@identity\' as |item|}}{{if item.id item.id item}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([1, { id: 2 }, 3])
-      });
+      this.makeList([1, { id: 2 }, 3]);
+
+      this.render('{{#each list key=\'@identity\' as |item|}}{{if item.id item.id item}}{{/each}}');
 
       this.assertText('123');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this8.context, 'list').insertAt(2, { id: 4 });
+        return _this8.insertAt(2, { id: 4 });
       });
 
       this.assertText('1243');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'list', [1, { id: 2 }, 3]);
-      });
+      this.replaceList([1, { id: 2 }, 3]);
 
       this.assertText('123');
     };
 
-    _class2.prototype['@test it can render duplicate primitive items'] = function testItCanRenderDuplicatePrimitiveItems() {
+    SingleEachTest.prototype['@test it can render duplicate primitive items'] = function testItCanRenderDuplicatePrimitiveItems() {
       var _this9 = this;
 
-      this.render('{{#each list as |item|}}{{item}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A(['a', 'a', 'a'])
-      });
+      this.makeList(['a', 'a', 'a']);
+
+      this.render('{{#each list as |item|}}{{item}}{{/each}}');
 
       this.assertText('aaa');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this9.context, 'list').pushObject('a');
+        return _this9.pushObject('a');
       });
 
       this.assertText('aaaa');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this9.context, 'list').pushObject('a');
+        return _this9.pushObject('a');
       });
 
       this.assertText('aaaaa');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this9.context, 'list', ['a', 'a', 'a']);
-      });
+      this.replaceList(['a', 'a', 'a']);
 
       this.assertText('aaa');
     };
 
-    _class2.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
+    SingleEachTest.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
       var _this10 = this;
 
       var duplicateItem = { text: 'foo' };
-      this.render('{{#each list as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }])
-      });
+
+      this.makeList([duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }]);
+
+      this.render('{{#each list as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('foofoobarbaz');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this10.context, 'list').pushObject(duplicateItem);
+        return _this10.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoo');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this10.context, 'list').pushObject(duplicateItem);
+        return _this10.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoofoo');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'list', [duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }]);
-      });
+      this.replaceList([duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }]);
 
       this.assertText('foofoobarbaz');
     };
 
-    _class2.prototype['@test it maintains DOM stability when condition changes between objects with the same keys'] = function testItMaintainsDOMStabilityWhenConditionChangesBetweenObjectsWithTheSameKeys() {
+    SingleEachTest.prototype['@test it maintains DOM stability when condition changes between objects with the same keys'] = function testItMaintainsDOMStabilityWhenConditionChangesBetweenObjectsWithTheSameKeys() {
       var _this11 = this;
 
-      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
+
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('Hello world');
 
       this.takeSnapshot();
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this11.context, 'list');
-        list.popObject();
-        list.popObject();
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'world' });
+        _this11.popObject();
+        _this11.popObject();
+        _this11.pushObject({ text: ' ' });
+        _this11.pushObject({ text: 'world' });
       });
 
       this.assertText('Hello world');
 
       this.assertInvariants();
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'list', [{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
       this.assertText('Hello world');
 
       this.assertInvariants();
     };
 
-    _class2.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
+    SingleEachTest.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
       var _this12 = this;
 
-      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
+
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('Hello world');
 
       this.assertStableRerender();
 
-      var oldSnapshot = this.snapshot;
+      var oldSnapshot = this.takeSnapshot();
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this12.context, 'list');
-        list.unshiftObject({ text: ', ' });
-        list.unshiftObject({ text: 'Hi' });
-        list.pushObject({ text: '!' });
-        list.pushObject({ text: 'earth' });
+        _this12.unshiftObject({ text: ', ' });
+        _this12.unshiftObject({ text: 'Hi' });
+        _this12.pushObject({ text: '!' });
+        _this12.pushObject({ text: 'earth' });
       });
 
       this.assertText('Hi, Hello world!earth');
 
       this.assertPartialInvariants(2, 5);
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'list', [{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
       this.assertText('Hello world');
+
       this.assertInvariants(oldSnapshot, this.takeSnapshot());
     };
 
-    _class2.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
-      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }])
-      });
+    SingleEachTest.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
+      var _this13 = this;
+
+      this.makeList([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }]);
+
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('HelloHelloHello');
 
-      var list = _emberMetalProperty_get.get(this.context, 'list');
-
       this.runTask(function () {
-        list.forEach(function (hash) {
+        _this13.forEach(function (hash) {
           return _emberMetalProperty_set.set(hash, 'text', 'Goodbye');
         });
       });
 
       this.assertText('GoodbyeGoodbyeGoodbye');
+
+      this.replaceList([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }]);
+
+      this.assertText('HelloHelloHello');
     };
 
-    _class2.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
-      var _this13 = this;
+    SingleEachTest.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
+      var _this14 = this;
 
-      this.render('{{name}}-{{#each people as |person|}}{{name}}{{/each}}-{{name}}', {
-        name: 'Joel',
-        people: _emberRuntimeSystemNative_array.A([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }])
+      this.makeList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
+
+      this.render('{{name}}-{{#each list as |person|}}{{name}}{{/each}}-{{name}}', {
+        name: 'Joel'
       });
 
       this.assertText('Joel-JoelJoelJoel-Joel');
@@ -27823,152 +28080,229 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this13.context, 'people').shiftObject();
+        return _this14.shiftObject();
       });
 
       this.assertText('Joel-JoelJoel-Joel');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'name', 'Godfrey');
+        return _emberMetalProperty_set.set(_this14.context, 'name', 'Godfrey');
       });
 
       this.assertText('Godfrey-GodfreyGodfrey-Godfrey');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this13.context, 'name', 'Joel');
-        _emberMetalProperty_set.set(_this13.context, 'people', [{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
+        return _emberMetalProperty_set.set(_this14.context, 'name', 'Joel');
       });
+      this.replaceList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
 
       this.assertText('Joel-JoelJoelJoel-Joel');
     };
 
-    _class2.prototype['@test can access the item and the original scope'] = function testCanAccessTheItemAndTheOriginalScope() {
-      var _this14 = this;
-
-      this.render('{{#each people key="name" as |person|}}[{{title}}: {{person.name}}]{{/each}}', {
-        title: 'Señor Engineer',
-        people: _emberRuntimeSystemNative_array.A([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }])
-      });
-
-      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
-
-      this.runTask(function () {
-        return _this14.rerender();
-      });
-
-      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
-
-      this.runTask(function () {
-        var people = _emberMetalProperty_get.get(_this14.context, 'people');
-        _emberMetalProperty_set.set(people.objectAt(1), 'name', 'Stefan Penner');
-        _emberRuntimeMixinsMutable_array.removeAt(people, 0);
-        people.pushObject({ name: 'Tom Dale' });
-        people.insertAt(1, { name: 'Chad Hietala' });
-        _emberMetalProperty_set.set(_this14.context, 'title', 'Principal Engineer');
-      });
-
-      this.assertText('[Principal Engineer: Stefan Penner][Principal Engineer: Chad Hietala][Principal Engineer: Godfrey Chan][Principal Engineer: Tom Dale]');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this14.context, 'people', [{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
-        _emberMetalProperty_set.set(_this14.context, 'title', 'Señor Engineer');
-      });
-
-      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
-    };
-
-    _class2.prototype['@test the scoped variable is not available outside the {{#each}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
+    SingleEachTest.prototype['@test can access the item and the original scope'] = function testCanAccessTheItemAndTheOriginalScope() {
       var _this15 = this;
 
-      this.render('{{name}}-{{#each other as |name|}}{{name}}{{/each}}-{{name}}', {
-        name: 'Stef',
-        other: _emberRuntimeSystemNative_array.A(['Yehuda'])
+      this.makeList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
+
+      this.render('{{#each list key="name" as |person|}}[{{title}}: {{person.name}}]{{/each}}', {
+        title: 'Señor Engineer'
       });
 
-      this.assertText('Stef-Yehuda-Stef');
+      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
 
       this.runTask(function () {
         return _this15.rerender();
       });
 
+      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.objectAt(1), 'name', 'Stefan Penner');
+        _this15.removeAt(0);
+        _this15.pushObject({ name: 'Tom Dale' });
+        _this15.insertAt(1, { name: 'Chad Hietala' });
+        _emberMetalProperty_set.set(_this15.context, 'title', 'Principal Engineer');
+      });
+
+      this.assertText('[Principal Engineer: Stefan Penner][Principal Engineer: Chad Hietala][Principal Engineer: Godfrey Chan][Principal Engineer: Tom Dale]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'title', 'Señor Engineer');
+      });
+      this.replaceList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
+
+      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
+    };
+
+    SingleEachTest.prototype['@test the scoped variable is not available outside the {{#each}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
+      var _this16 = this;
+
+      this.makeList(['Yehuda']);
+
+      this.render('{{name}}-{{#each list as |name|}}{{name}}{{/each}}-{{name}}', {
+        name: 'Stef'
+      });
+
       this.assertText('Stef-Yehuda-Stef');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this15.context, 'other').pushObjects([' ', 'Katz']);
+        return _this16.rerender();
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+
+      this.runTask(function () {
+        return _this16.pushObjects([' ', 'Katz']);
       });
 
       this.assertText('Stef-Yehuda Katz-Stef');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this15.context, 'name', 'Tom');
+        return _emberMetalProperty_set.set(_this16.context, 'name', 'Tom');
       });
 
       this.assertText('Tom-Yehuda Katz-Tom');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this15.context, 'name', 'Stef');
-        _emberMetalProperty_set.set(_this15.context, 'other', ['Yehuda']);
+        return _emberMetalProperty_set.set(_this16.context, 'name', 'Stef');
       });
+      this.replaceList(['Yehuda']);
 
       this.assertText('Stef-Yehuda-Stef');
     };
 
-    _class2.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
-      var _this16 = this;
+    SingleEachTest.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
+      var _this17 = this;
 
-      this.render('{{#each falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/each}}', {
-        falsyThing: [],
+      this.makeList([]);
+
+      this.render('{{#each list as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/each}}', {
         otherThing: 'bar'
       });
 
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'otherThing', 'biz');
+        return _emberMetalProperty_set.set(_this17.context, 'otherThing', 'biz');
       });
 
       this.assertText('No Thing biz');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'falsyThing', ['non-empty']);
+        return _this17.pushObject('non-empty');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'otherThing', 'baz');
+        return _emberMetalProperty_set.set(_this17.context, 'otherThing', 'baz');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'otherThing', 'bar');
-        _emberMetalProperty_set.set(_this16.context, 'falsyThing', null);
+        return _emberMetalProperty_set.set(_this17.context, 'otherThing', 'bar');
       });
+      this.replaceList([]);
 
       this.assertText('No Thing bar');
     };
 
-    return _class2;
-  })(EachTest));
+    return SingleEachTest;
+  })(AbstractEachTest);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#each as}} helpers', (function (_RenderingTest) {
-    _inherits(_class3, _RenderingTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with arrays', (function (_SingleEachTest) {
+    _inherits(_class5, _SingleEachTest);
 
-    function _class3() {
-      _classCallCheck(this, _class3);
+    function _class5() {
+      _classCallCheck(this, _class5);
 
-      _RenderingTest.apply(this, arguments);
+      _SingleEachTest.apply(this, arguments);
     }
 
-    _class3.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
-      var _this17 = this;
+    _class5.prototype.makeList = function makeList(list) {
+      return this.list = this.delegate = _emberRuntimeSystemNative_array.A(list);
+    };
+
+    return _class5;
+  })(SingleEachTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array-like objects', (function (_SingleEachTest2) {
+    _inherits(_class6, _SingleEachTest2);
+
+    function _class6() {
+      _classCallCheck(this, _class6);
+
+      _SingleEachTest2.apply(this, arguments);
+    }
+
+    _class6.prototype.makeList = function makeList(list) {
+      return this.list = this.delegate = new ArrayLike(list);
+    };
+
+    return _class6;
+  })(SingleEachTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, modifying itself', (function (_SingleEachTest3) {
+    _inherits(_class7, _SingleEachTest3);
+
+    function _class7() {
+      _classCallCheck(this, _class7);
+
+      _SingleEachTest3.apply(this, arguments);
+    }
+
+    _class7.prototype.makeList = function makeList(list) {
+      return this.list = this.delegate = _emberRuntimeSystemArray_proxy.default.create({ content: _emberRuntimeSystemNative_array.A(list) });
+    };
+
+    return _class7;
+  })(SingleEachTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, replacing its content', (function (_SingleEachTest4) {
+    _inherits(_class8, _SingleEachTest4);
+
+    function _class8() {
+      _classCallCheck(this, _class8);
+
+      _SingleEachTest4.apply(this, arguments);
+    }
+
+    _class8.prototype.makeList = function makeList(list) {
+      var content = this.delegate = _emberRuntimeSystemNative_array.A(list);
+      return this.list = _emberRuntimeSystemArray_proxy.default.create({ content: content });
+    };
+
+    _class8.prototype.replaceList = function replaceList(list) {
+      var _this18 = this;
+
+      this.runTask(function () {
+        return _this18.list.set('content', _emberRuntimeSystemNative_array.A(list));
+      });
+    };
+
+    return _class8;
+  })(SingleEachTest));
+
+  // TODO: Refactor the following tests so we can run them against different kind of arrays
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#each as}} helpers', (function (_RenderingTest2) {
+    _inherits(_class9, _RenderingTest2);
+
+    function _class9() {
+      _classCallCheck(this, _class9);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class9.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
+      var _this19 = this;
 
       this.render('Admin: {{#each admins key="name" as |person|}}[{{person.name}}]{{/each}} User: {{#each users key="name" as |person|}}[{{person.name}}]{{/each}}', {
         admins: _emberRuntimeSystemNative_array.A([{ name: 'Tom Dale' }]),
@@ -27978,28 +28312,28 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this17.context, 'admins').pushObject({ name: 'Godfrey Chan' });
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this17.context, 'users').objectAt(0), 'name', 'Stefan Penner');
+        _emberMetalProperty_get.get(_this19.context, 'admins').pushObject({ name: 'Godfrey Chan' });
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this19.context, 'users').objectAt(0), 'name', 'Stefan Penner');
       });
 
       this.assertText('Admin: [Tom Dale][Godfrey Chan] User: [Stefan Penner]');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this17.context, 'admins', [{ name: 'Tom Dale' }]);
-        _emberMetalProperty_set.set(_this17.context, 'users', [{ name: 'Yehuda Katz' }]);
+        _emberMetalProperty_set.set(_this19.context, 'admins', [{ name: 'Tom Dale' }]);
+        _emberMetalProperty_set.set(_this19.context, 'users', [{ name: 'Yehuda Katz' }]);
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
     };
 
-    _class3.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
-      var _this18 = this;
+    _class9.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
+      var _this20 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
         content: _emberRuntimeSystemNative_array.A(['X', 'Y']),
@@ -28011,22 +28345,22 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this18.context, 'content').pushObject('Z');
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this18.context, 'options').objectAt(0), 'value', 0);
+        _emberMetalProperty_get.get(_this20.context, 'content').pushObject('Z');
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this20.context, 'options').objectAt(0), 'value', 0);
       });
 
       this.assertText('X-0:One2:TwoY-0:One2:TwoZ-0:One2:Two');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this18.context, 'content', ['X', 'Y']);
-        _emberMetalProperty_set.set(_this18.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
+        _emberMetalProperty_set.set(_this20.context, 'content', ['X', 'Y']);
+        _emberMetalProperty_set.set(_this20.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
       });
 
       this.assertText('X-1:One2:TwoY-1:One2:Two');
     };
 
-    _class3.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this19 = this;
+    _class9.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
+      var _this21 = this;
 
       this.render('{{ring}}-{{#each first as |ring|}}{{ring}}-{{#each fifth as |ring|}}{{ring}}-{{#each ninth as |ring|}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}', {
         ring: 'Greed',
@@ -28038,37 +28372,37 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'ring', 'O');
-        _emberMetalProperty_get.get(_this19.context, 'fifth').insertAt(0, 'D');
+        _emberMetalProperty_set.set(_this21.context, 'ring', 'O');
+        _emberMetalProperty_get.get(_this21.context, 'fifth').insertAt(0, 'D');
       });
 
       this.assertText('O-Limbo-D-Treachery-D-Wrath-Treachery-Wrath-Limbo-O');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this19.context, 'first').pushObject('I');
-        _emberMetalProperty_get.get(_this19.context, 'ninth').replace(0, 1, 'K');
+        _emberMetalProperty_get.get(_this21.context, 'first').pushObject('I');
+        _emberMetalProperty_get.get(_this21.context, 'ninth').replace(0, 1, 'K');
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'ring', 'Greed');
-        _emberMetalProperty_set.set(_this19.context, 'first', ['Limbo']);
-        _emberMetalProperty_set.set(_this19.context, 'fifth', ['Wrath']);
-        _emberMetalProperty_set.set(_this19.context, 'ninth', ['Treachery']);
+        _emberMetalProperty_set.set(_this21.context, 'ring', 'Greed');
+        _emberMetalProperty_set.set(_this21.context, 'first', ['Limbo']);
+        _emberMetalProperty_set.set(_this21.context, 'fifth', ['Wrath']);
+        _emberMetalProperty_set.set(_this21.context, 'ninth', ['Treachery']);
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
     };
 
-    _class3.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
-      var _this20 = this;
+    _class9.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
+      var _this22 = this;
 
       this.render('{{#each name key="@index" as |foo|}}{{#each foo as |bar|}}{{bar}}{{/each}}{{/each}}', {
         name: _emberRuntimeSystemNative_array.A([_emberRuntimeSystemNative_array.A(['caterpillar'])])
@@ -28077,13 +28411,13 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this22.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        var name = _emberMetalProperty_get.get(_this20.context, 'name');
+        var name = _emberMetalProperty_get.get(_this22.context, 'name');
         name.objectAt(0).replace(0, 1, 'lady');
         name.pushObject(['bird']);
       });
@@ -28091,51 +28425,51 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('ladybird');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'name', [['caterpillar']]);
+        return _emberMetalProperty_set.set(_this22.context, 'name', [['caterpillar']]);
       });
 
       this.assertText('caterpillar');
     };
 
-    return _class3;
+    return _class9;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} undefined path', (function (_RenderingTest2) {
-    _inherits(_class4, _RenderingTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} undefined path', (function (_RenderingTest3) {
+    _inherits(_class10, _RenderingTest3);
 
-    function _class4() {
-      _classCallCheck(this, _class4);
+    function _class10() {
+      _classCallCheck(this, _class10);
 
-      _RenderingTest2.apply(this, arguments);
+      _RenderingTest3.apply(this, arguments);
     }
 
-    _class4.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this21 = this;
+    _class10.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
+      var _this23 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this23.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'foo', { bar: { baz: ['Here!'] } });
+        return _emberMetalProperty_set.set(_this23.context, 'foo', { bar: { baz: ['Here!'] } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'foo', {});
+        return _emberMetalProperty_set.set(_this23.context, 'foo', {});
       });
 
       this.assertText('');
     };
 
-    return _class4;
+    return _class10;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
@@ -28152,13 +28486,13 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} with inverse', (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(_class, _TogglingSyntaxConditionalsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} with inverse', (function (_IfUnlessWithSyntaxTest) {
+    _inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+      _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -28170,15 +28504,15 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     };
 
     return _class;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}} with inverse', (function (_TogglingSyntaxConditionalsTest2) {
-    _inherits(_class2, _TogglingSyntaxConditionalsTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}} with inverse', (function (_IfUnlessWithSyntaxTest2) {
+    _inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _TogglingSyntaxConditionalsTest2.apply(this, arguments);
+      _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -28190,15 +28524,15 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     };
 
     return _class2;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} and {{#unless}} without inverse', (function (_TogglingSyntaxConditionalsTest3) {
-    _inherits(_class3, _TogglingSyntaxConditionalsTest3);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} and {{#unless}} without inverse', (function (_IfUnlessWithSyntaxTest3) {
+    _inherits(_class3, _IfUnlessWithSyntaxTest3);
 
     function _class3() {
       _classCallCheck(this, _class3);
 
-      _TogglingSyntaxConditionalsTest3.apply(this, arguments);
+      _IfUnlessWithSyntaxTest3.apply(this, arguments);
     }
 
     _class3.prototype.templateFor = function templateFor(_ref3) {
@@ -28210,7 +28544,7 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
     };
 
     return _class3;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_RenderingTest) {
     _inherits(_class4, _RenderingTest);
@@ -28303,13 +28637,13 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(_class, _TogglingSyntaxConditionalsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_IfUnlessWithSyntaxTest) {
+    _inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+      _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -28321,15 +28655,15 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     };
 
     return _class;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_TogglingSyntaxConditionalsTest2) {
-    _inherits(_class2, _TogglingSyntaxConditionalsTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_IfUnlessWithSyntaxTest2) {
+    _inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _TogglingSyntaxConditionalsTest2.apply(this, arguments);
+      _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -28588,7 +28922,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
     };
 
     return _class2;
-  })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
     _inherits(_class3, _RenderingTest);
@@ -29059,8 +29393,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
           var generator = mixinOrGenerator;
           mixin = {};
 
-          generator.cases.forEach(function (value) {
-            _emberMetalAssign.default(mixin, generator.generate(value));
+          generator.cases.forEach(function (value, idx) {
+            _emberMetalAssign.default(mixin, generator.generate(value, idx));
           });
         })();
       } else {
@@ -29701,7 +30035,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
     /* abstract */
 
-    AbstractGenerator.prototype.generate = function generate(value) {
+    AbstractGenerator.prototype.generate = function generate(value, idx) {
       throw new Error('Not implemented: `generate`');
     };
 
@@ -29717,10 +30051,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       _AbstractGenerator.apply(this, arguments);
     }
 
-    TruthyGenerator.prototype.generate = function generate(value) {
+    TruthyGenerator.prototype.generate = function generate(value, idx) {
       var _ref;
 
-      return _ref = {}, _ref['@test it should consider ' + JSON.stringify(value) + ' truthy'] = function () {
+      return _ref = {}, _ref['@test it should consider ' + JSON.stringify(value) + ' truthy [' + idx + ']'] = function () {
         var _this = this;
 
         this.renderValues(value);
@@ -29761,10 +30095,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       _AbstractGenerator2.apply(this, arguments);
     }
 
-    FalsyGenerator.prototype.generate = function generate(value) {
+    FalsyGenerator.prototype.generate = function generate(value, idx) {
       var _ref2;
 
-      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' falsy'] = function () {
+      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' falsy [' + idx + ']'] = function () {
         var _this2 = this;
 
         this.renderValues(value);
@@ -29805,10 +30139,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       _TruthyGenerator.apply(this, arguments);
     }
 
-    StableTruthyGenerator.prototype.generate = function generate(value) {
+    StableTruthyGenerator.prototype.generate = function generate(value, idx) {
       var _assign;
 
-      return _emberMetalAssign.default(_TruthyGenerator.prototype.generate.call(this, value), (_assign = {}, _assign['@test it maintains DOM stability when condition changes from ' + value + ' to another truthy value and back'] = function () {
+      return _emberMetalAssign.default(_TruthyGenerator.prototype.generate.call(this, value, idx), (_assign = {}, _assign['@test it maintains DOM stability when condition changes from ' + value + ' to another truthy value and back [' + idx + ']'] = function () {
         var _this3 = this;
 
         this.renderValues(value);
@@ -29849,10 +30183,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       _FalsyGenerator.apply(this, arguments);
     }
 
-    StableFalsyGenerator.prototype.generate = function generate(value) {
+    StableFalsyGenerator.prototype.generate = function generate(value, idx) {
       var _assign2;
 
-      return _emberMetalAssign.default(_FalsyGenerator.prototype.generate.call(this, value), (_assign2 = {}, _assign2['@test it maintains DOM stability when condition changes from ' + value + ' to another falsy value and back'] = function () {
+      return _emberMetalAssign.default(_FalsyGenerator.prototype.generate.call(this, value), (_assign2 = {}, _assign2['@test it maintains DOM stability when condition changes from ' + value + ' to another falsy value and back [' + idx + ']'] = function () {
         var _this4 = this;
 
         this.renderValues(value);
@@ -29896,13 +30230,13 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     // Testing behaviors shared across all conditionals, i.e. {{#if}}, {{#unless}},
     // {{#with}}, {{#each}}, {{#each-in}}, (if) and (unless)
 
-    ObjectProxyGenerator.prototype.generate = function generate(value) {
+    ObjectProxyGenerator.prototype.generate = function generate(value, idx) {
       // This is inconsistent with our usual to-bool policy, but the current proxy implementation
       // simply uses !!content to determine truthiness
       if (value) {
         var _ref3;
 
-        return _ref3 = {}, _ref3['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy'] = function () {
+        return _ref3 = {}, _ref3['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy [' + idx + ']'] = function () {
           var _this5 = this;
 
           this.renderValues(_emberRuntimeSystemObject_proxy.default.create({ content: value }));
@@ -29930,7 +30264,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       } else {
         var _ref4;
 
-        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy'] = function () {
+        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy [' + idx + ']'] = function () {
           var _this6 = this;
 
           this.renderValues(_emberRuntimeSystemObject_proxy.default.create({ content: value }));
@@ -30149,8 +30483,18 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   }, _ArrayTestCases);
 
   exports.ArrayTestCases = ArrayTestCases;
+  var IfUnlessWithTestCases = [new StableTruthyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }), Object, function () {},
+  /*jshint -W053 */
+  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
+  /*jshint +W053 */
+  new Date()]), new StableFalsyGenerator([false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A(), _emberRuntimeSystemObject_proxy.default.create({ content: undefined })]), new ObjectProxyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: [] }), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }), _emberRuntimeSystemObject_proxy.default.create({ content: undefined }),
+  /*jshint -W053 */
+  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
+  /*jshint +W053 */
+  new Date(), false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A()]), ObjectTestCases, ArrayTestCases];
+
   // Testing behaviors shared across the "toggling" conditionals, i.e. {{#if}},
-  // {{#unless}}, {{#with}}, (if) and (unless)
+  // {{#unless}}, {{#with}}, {{#each}}, {{#each-in}}, (if) and (unless)
 
   var TogglingConditionalsTest = (function (_BasicConditionalsTest) {
     _inherits(TogglingConditionalsTest, _BasicConditionalsTest);
@@ -30161,22 +30505,11 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       _BasicConditionalsTest.apply(this, arguments);
     }
 
+    // Testing behaviors shared across the (if) and (unless) helpers
     return TogglingConditionalsTest;
   })(BasicConditionalsTest);
 
   exports.TogglingConditionalsTest = TogglingConditionalsTest;
-
-  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(TogglingConditionalsTest, new StableTruthyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }),
-  /*jshint -W053 */
-  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
-  /*jshint +W053 */
-  new Date()]), new StableFalsyGenerator([false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A(), _emberRuntimeSystemObject_proxy.default.create({ content: undefined })]), new ObjectProxyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: [] }), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }), _emberRuntimeSystemObject_proxy.default.create({ content: undefined }),
-  /*jshint -W053 */
-  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
-  /*jshint +W053 */
-  new Date(), false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A()]), ObjectTestCases, ArrayTestCases);
-
-  // Testing behaviors shared across the (if) and (unless) helpers
 
   var TogglingHelperConditionalsTest = (function (_TogglingConditionalsTest) {
     _inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
@@ -30206,8 +30539,47 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.render(wrappedTemplate, context);
     };
 
-    TogglingHelperConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+    TogglingHelperConditionalsTest.prototype['@test it has access to the outer scope from both templates'] = function testItHasAccessToTheOuterScopeFromBothTemplates() {
       var _this12 = this;
+
+      var template = this.wrapperFor([this.templateFor({ cond: 'cond1', truthy: 'truthy', falsy: 'falsy' }), this.templateFor({ cond: 'cond2', truthy: 'truthy', falsy: 'falsy' })]);
+
+      this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue, truthy: 'YES', falsy: 'NO' });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this12.context, 'truthy', 'YASS');
+        _emberMetalProperty_set.set(_this12.context, 'falsy', 'NOPE');
+      });
+
+      this.assertText('YASSNOPE');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.falsyValue);
+        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.truthyValue);
+      });
+
+      this.assertText('NOPEYASS');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this12.context, 'truthy', 'YES');
+        _emberMetalProperty_set.set(_this12.context, 'falsy', 'NO');
+        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.truthyValue);
+        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.falsyValue);
+      });
+
+      this.assertText('YESNO');
+    };
+
+    TogglingHelperConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+      var _this13 = this;
 
       var template = this.wrapperFor([this.templateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }), this.templateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' })]);
 
@@ -30216,34 +30588,34 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.falsyValue);
+        return _emberMetalProperty_set.set(_this13.context, 'cond1', _this13.falsyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.truthyValue);
-        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.truthyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond1', _this13.truthyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', _this13.truthyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.truthyValue);
-        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.falsyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond1', _this13.truthyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', _this13.falsyValue);
       });
 
       this.assertText('T1F2');
     };
 
     TogglingHelperConditionalsTest.prototype['@glimmer evaluation should be lazy'] = function glimmerEvaluationShouldBeLazy(assert) {
-      var _this13 = this;
+      var _this14 = this;
 
       var truthyEvaluated = undefined;
       var falsyEvaluated = undefined;
@@ -30277,38 +30649,38 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '(x-truthy)', falsy: '(x-falsy)' });
 
       withoutEvaluatingFalsy(function () {
-        return _this13.render(template, { cond: _this13.truthyValue });
+        return _this14.render(template, { cond: _this14.truthyValue });
       });
 
       this.assertText('T');
 
       withoutEvaluatingFalsy(function () {
-        return _this13.runTask(function () {
-          return _this13.rerender();
+        return _this14.runTask(function () {
+          return _this14.rerender();
         });
       });
 
       this.assertText('T');
 
       withoutEvaluatingTruthy(function () {
-        return _this13.runTask(function () {
-          return _emberMetalProperty_set.set(_this13.context, 'cond', _this13.falsyValue);
+        return _this14.runTask(function () {
+          return _emberMetalProperty_set.set(_this14.context, 'cond', _this14.falsyValue);
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingTruthy(function () {
-        return _this13.runTask(function () {
-          return _this13.rerender();
+        return _this14.runTask(function () {
+          return _this14.rerender();
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingFalsy(function () {
-        return _this13.runTask(function () {
-          return _emberMetalProperty_set.set(_this13.context, 'cond', _this13.truthyValue);
+        return _this14.runTask(function () {
+          return _emberMetalProperty_set.set(_this14.context, 'cond', _this14.truthyValue);
         });
       });
 
@@ -30319,9 +30691,36 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   })(TogglingConditionalsTest);
 
   exports.TogglingHelperConditionalsTest = TogglingHelperConditionalsTest;
-  var SyntaxCondtionalTestHelpers = {
 
-    renderValues: function () {
+  var IfUnlessHelperTest = (function (_TogglingHelperConditionalsTest) {
+    _inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
+
+    function IfUnlessHelperTest() {
+      _classCallCheck(this, IfUnlessHelperTest);
+
+      _TogglingHelperConditionalsTest.apply(this, arguments);
+    }
+
+    return IfUnlessHelperTest;
+  })(TogglingHelperConditionalsTest);
+
+  exports.IfUnlessHelperTest = IfUnlessHelperTest;
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins.apply(undefined, [IfUnlessHelperTest].concat(IfUnlessWithTestCases));
+
+  // Testing behaviors shared across the "toggling" syntatical constructs,
+  // i.e. {{#if}}, {{#unless}}, {{#with}}, {{#each}} and {{#each-in}}
+
+  var TogglingSyntaxConditionalsTest = (function (_TogglingConditionalsTest2) {
+    _inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
+
+    function TogglingSyntaxConditionalsTest() {
+      _classCallCheck(this, TogglingSyntaxConditionalsTest);
+
+      _TogglingConditionalsTest2.apply(this, arguments);
+    }
+
+    TogglingSyntaxConditionalsTest.prototype.renderValues = function renderValues() {
       var templates = [];
       var context = {};
 
@@ -30336,165 +30735,106 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
       var wrappedTemplate = this.wrapperFor(templates);
       this.render(wrappedTemplate, _emberMetalAssign.default({ t: 'T', f: 'F' }, context));
-    }
-
-  };
-
-  exports.SyntaxCondtionalTestHelpers = SyntaxCondtionalTestHelpers;
-  // Testing behaviors shared across the "toggling" syntatical constructs,
-  // i.e. {{#if}}, {{#unless}} and {{#with}}
-
-  var TogglingSyntaxConditionalsTest = (function (_TogglingConditionalsTest2) {
-    _inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
-
-    function TogglingSyntaxConditionalsTest() {
-      _classCallCheck(this, TogglingSyntaxConditionalsTest);
-
-      _TogglingConditionalsTest2.apply(this, arguments);
-    }
+    };
 
     TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
-      var _this14 = this;
+      var _this15 = this;
 
       var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
 
-      this.render(template, { cond1: true, cond2: this.falsyValue });
+      this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'cond1', _this14.falsyValue);
+        return _emberMetalProperty_set.set(_this15.context, 'cond1', _this15.falsyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this14.context, 'cond1', _this14.truthyValue);
-        _emberMetalProperty_set.set(_this14.context, 'cond2', _this14.truthyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond1', _this15.truthyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', _this15.truthyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this14.context, 'cond1', _this14.truthyValue);
-        _emberMetalProperty_set.set(_this14.context, 'cond2', _this14.falsyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond1', _this15.truthyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', _this15.falsyValue);
       });
 
       this.assertText('T1F2');
     };
 
+    TogglingSyntaxConditionalsTest.prototype['@test it has access to the outer scope from both templates'] = function testItHasAccessToTheOuterScopeFromBothTemplates() {
+      var _this16 = this;
+
+      var template = this.wrapperFor([this.templateFor({ cond: 'cond1', truthy: '{{truthy}}', falsy: '{{falsy}}' }), this.templateFor({ cond: 'cond2', truthy: '{{truthy}}', falsy: '{{falsy}}' })]);
+
+      this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue, truthy: 'YES', falsy: 'NO' });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        return _this16.rerender();
+      });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this16.context, 'truthy', 'YASS');
+        _emberMetalProperty_set.set(_this16.context, 'falsy', 'NOPE');
+      });
+
+      this.assertText('YASSNOPE');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.falsyValue);
+        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.truthyValue);
+      });
+
+      this.assertText('NOPEYASS');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this16.context, 'truthy', 'YES');
+        _emberMetalProperty_set.set(_this16.context, 'falsy', 'NO');
+        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.truthyValue);
+        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.falsyValue);
+      });
+
+      this.assertText('YESNO');
+    };
+
     TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing another conditional'] = function testItUpdatesCorrectlyWhenEnclosingAnotherConditional() {
-      var _this15 = this;
+      var _this17 = this;
 
       // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#if inner}}T-inner{{else}}F-inner{{/if}}', falsy: 'F-outer' });
+      var inner = this.templateFor({ cond: 'inner', truthy: 'T-inner', falsy: 'F-inner' });
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: inner, falsy: 'F-outer' });
 
       this.render(template, { outer: this.truthyValue, inner: this.truthyValue });
 
       this.assertText('T-inner');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('T-inner');
 
       // Changes the inner bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this15.context, 'inner', _this15.falsyValue);
+        return _emberMetalProperty_set.set(_this17.context, 'inner', _this17.falsyValue);
       });
 
       this.assertText('F-inner');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this15.context, 'outer', _this15.falsyValue);
-      });
-
-      this.assertText('F-outer');
-    };
-
-    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing #each'] = function testItUpdatesCorrectlyWhenEnclosingEach() {
-      var _this16 = this;
-
-      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
-
-      this.render(template, { outer: this.truthyValue, inner: ['inner', '-', 'before'] });
-
-      this.assertText('inner-before');
-
-      this.runTask(function () {
-        return _this16.rerender();
-      });
-
-      this.assertText('inner-before');
-
-      // Changes the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'inner', ['inner-after']);
-      });
-
-      this.assertText('inner-after');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'outer', _this16.falsyValue);
-      });
-
-      this.assertText('F-outer');
-
-      // Reset
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'inner', ['inner-again']);
-        _emberMetalProperty_set.set(_this16.context, 'outer', _this16.truthyValue);
-      });
-
-      this.assertText('inner-again');
-
-      // Now clear the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'inner', []);
-      });
-
-      this.assertText('');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'outer', _this16.falsyValue);
-      });
-
-      this.assertText('F-outer');
-    };
-
-    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
-      var _this17 = this;
-
-      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
-
-      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
-
-      this.assertText('inner-before');
-
-      this.runTask(function () {
-        return _this17.rerender();
-      });
-
-      this.assertText('inner-before');
-
-      // Changes the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this17.context, 'inner', '<p>inner-after</p>');
-      });
-
-      this.assertText('inner-after');
 
       // Now rerender the outer conditional, which require first clearing its bounds
       this.runTask(function () {
@@ -30504,8 +30844,92 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('F-outer');
     };
 
-    TogglingSyntaxConditionalsTest.prototype['@test child conditional should not render children if parent conditional becomes false'] = function testChildConditionalShouldNotRenderChildrenIfParentConditionalBecomesFalse(assert) {
+    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing #each'] = function testItUpdatesCorrectlyWhenEnclosingEach() {
       var _this18 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: this.truthyValue, inner: ['inner', '-', 'before'] });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-after']);
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', _this18.falsyValue);
+      });
+
+      this.assertText('F-outer');
+
+      // Reset
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-again']);
+        _emberMetalProperty_set.set(_this18.context, 'outer', _this18.truthyValue);
+      });
+
+      this.assertText('inner-again');
+
+      // Now clear the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', []);
+      });
+
+      this.assertText('');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', _this18.falsyValue);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
+      var _this19 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'inner', '<p>inner-after</p>');
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test child conditional should not render children if parent conditional becomes false'] = function testChildConditionalShouldNotRenderChildrenIfParentConditionalBecomesFalse(assert) {
+      var _this20 = this;
 
       var childCreated = false;
 
@@ -30528,23 +30952,23 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       this.assertText('');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this20.rerender();
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this18.context, 'cond2', _this18.truthyValue);
-        _emberMetalProperty_set.set(_this18.context, 'cond1', _this18.falsyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond2', _this20.truthyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond1', _this20.falsyValue);
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this18.context, 'cond2', _this18.falsyValue);
-        _emberMetalProperty_set.set(_this18.context, 'cond1', _this18.truthyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond2', _this20.falsyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond1', _this20.truthyValue);
       });
 
       assert.ok(!childCreated);
@@ -30552,7 +30976,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test evaluation should be lazy'] = function testEvaluationShouldBeLazy(assert) {
-      var _this19 = this;
+      var _this21 = this;
 
       var truthyEvaluated = undefined;
       var falsyEvaluated = undefined;
@@ -30586,38 +31010,38 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '{{x-truthy}}', falsy: '{{x-falsy}}' });
 
       withoutEvaluatingFalsy(function () {
-        return _this19.render(template, { cond: _this19.truthyValue });
+        return _this21.render(template, { cond: _this21.truthyValue });
       });
 
       this.assertText('T');
 
       withoutEvaluatingFalsy(function () {
-        return _this19.runTask(function () {
-          return _this19.rerender();
+        return _this21.runTask(function () {
+          return _this21.rerender();
         });
       });
 
       this.assertText('T');
 
       withoutEvaluatingTruthy(function () {
-        return _this19.runTask(function () {
-          return _emberMetalProperty_set.set(_this19.context, 'cond', _this19.falsyValue);
+        return _this21.runTask(function () {
+          return _emberMetalProperty_set.set(_this21.context, 'cond', _this21.falsyValue);
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingTruthy(function () {
-        return _this19.runTask(function () {
-          return _this19.rerender();
+        return _this21.runTask(function () {
+          return _this21.rerender();
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingFalsy(function () {
-        return _this19.runTask(function () {
-          return _emberMetalProperty_set.set(_this19.context, 'cond', _this19.truthyValue);
+        return _this21.runTask(function () {
+          return _emberMetalProperty_set.set(_this21.context, 'cond', _this21.truthyValue);
         });
       });
 
@@ -30629,7 +31053,21 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   exports.TogglingSyntaxConditionalsTest = TogglingSyntaxConditionalsTest;
 
-  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(TogglingSyntaxConditionalsTest, SyntaxCondtionalTestHelpers);
+  var IfUnlessWithSyntaxTest = (function (_TogglingSyntaxConditionalsTest) {
+    _inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
+
+    function IfUnlessWithSyntaxTest() {
+      _classCallCheck(this, IfUnlessWithSyntaxTest);
+
+      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+    }
+
+    return IfUnlessWithSyntaxTest;
+  })(TogglingSyntaxConditionalsTest);
+
+  exports.IfUnlessWithSyntaxTest = IfUnlessWithSyntaxTest;
+
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins.apply(undefined, [IfUnlessWithSyntaxTest].concat(IfUnlessWithTestCases));
 });
 enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils/string', 'ember-metal/features', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerUtilsString, _emberMetalFeatures, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
@@ -46721,13 +47159,13 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_TogglingHelperConditionalsTest) {
-    _inherits(_class, _TogglingHelperConditionalsTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_IfUnlessHelperTest) {
+    _inherits(_class, _IfUnlessHelperTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _TogglingHelperConditionalsTest.apply(this, arguments);
+      _IfUnlessHelperTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -46755,15 +47193,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest2) {
-    _inherits(_class2, _TogglingHelperConditionalsTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_IfUnlessHelperTest2) {
+    _inherits(_class2, _IfUnlessHelperTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _TogglingHelperConditionalsTest2.apply(this, arguments);
+      _IfUnlessHelperTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -46775,15 +47213,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class2;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest3) {
-    _inherits(_class3, _TogglingHelperConditionalsTest3);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_IfUnlessHelperTest3) {
+    _inherits(_class3, _IfUnlessHelperTest3);
 
     function _class3() {
       _classCallCheck(this, _class3);
 
-      _TogglingHelperConditionalsTest3.apply(this, arguments);
+      _IfUnlessHelperTest3.apply(this, arguments);
     }
 
     _class3.prototype.templateFor = function templateFor(_ref3) {
@@ -46795,15 +47233,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class3;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_TogglingHelperConditionalsTest4) {
-    _inherits(_class4, _TogglingHelperConditionalsTest4);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_IfUnlessHelperTest4) {
+    _inherits(_class4, _IfUnlessHelperTest4);
 
     function _class4() {
       _classCallCheck(this, _class4);
 
-      _TogglingHelperConditionalsTest4.apply(this, arguments);
+      _IfUnlessHelperTest4.apply(this, arguments);
     }
 
     _class4.prototype.wrapperFor = function wrapperFor(templates) {
@@ -46819,15 +47257,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class4;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_TogglingHelperConditionalsTest5) {
-    _inherits(_class5, _TogglingHelperConditionalsTest5);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_IfUnlessHelperTest5) {
+    _inherits(_class5, _IfUnlessHelperTest5);
 
     function _class5() {
       _classCallCheck(this, _class5);
 
-      _TogglingHelperConditionalsTest5.apply(this, arguments);
+      _IfUnlessHelperTest5.apply(this, arguments);
     }
 
     _class5.prototype.wrapperFor = function wrapperFor(templates) {
@@ -46847,15 +47285,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class5;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_TogglingHelperConditionalsTest6) {
-    _inherits(_class6, _TogglingHelperConditionalsTest6);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_IfUnlessHelperTest6) {
+    _inherits(_class6, _IfUnlessHelperTest6);
 
     function _class6() {
       _classCallCheck(this, _class6);
 
-      _TogglingHelperConditionalsTest6.apply(this, arguments);
+      _IfUnlessHelperTest6.apply(this, arguments);
     }
 
     _class6.prototype.templateFor = function templateFor(_ref6) {
@@ -46867,15 +47305,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class6;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_TogglingHelperConditionalsTest7) {
-    _inherits(_class7, _TogglingHelperConditionalsTest7);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_IfUnlessHelperTest7) {
+    _inherits(_class7, _IfUnlessHelperTest7);
 
     function _class7() {
       _classCallCheck(this, _class7);
 
-      _TogglingHelperConditionalsTest7.apply(this, arguments);
+      _IfUnlessHelperTest7.apply(this, arguments);
     }
 
     _class7.prototype.templateFor = function templateFor(_ref7) {
@@ -46903,15 +47341,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class7;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_TogglingHelperConditionalsTest8) {
-    _inherits(_class8, _TogglingHelperConditionalsTest8);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_IfUnlessHelperTest8) {
+    _inherits(_class8, _IfUnlessHelperTest8);
 
     function _class8() {
       _classCallCheck(this, _class8);
 
-      _TogglingHelperConditionalsTest8.apply(this, arguments);
+      _IfUnlessHelperTest8.apply(this, arguments);
     }
 
     _class8.prototype.templateFor = function templateFor(_ref8) {
@@ -46923,15 +47361,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class8;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_TogglingHelperConditionalsTest9) {
-    _inherits(_class9, _TogglingHelperConditionalsTest9);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_IfUnlessHelperTest9) {
+    _inherits(_class9, _IfUnlessHelperTest9);
 
     function _class9() {
       _classCallCheck(this, _class9);
 
-      _TogglingHelperConditionalsTest9.apply(this, arguments);
+      _IfUnlessHelperTest9.apply(this, arguments);
     }
 
     _class9.prototype.templateFor = function templateFor(_ref9) {
@@ -46943,15 +47381,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class9;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_TogglingHelperConditionalsTest10) {
-    _inherits(_class10, _TogglingHelperConditionalsTest10);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_IfUnlessHelperTest10) {
+    _inherits(_class10, _IfUnlessHelperTest10);
 
     function _class10() {
       _classCallCheck(this, _class10);
 
-      _TogglingHelperConditionalsTest10.apply(this, arguments);
+      _IfUnlessHelperTest10.apply(this, arguments);
     }
 
     _class10.prototype.wrapperFor = function wrapperFor(templates) {
@@ -46967,15 +47405,15 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class10;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_TogglingHelperConditionalsTest11) {
-    _inherits(_class11, _TogglingHelperConditionalsTest11);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_IfUnlessHelperTest11) {
+    _inherits(_class11, _IfUnlessHelperTest11);
 
     function _class11() {
       _classCallCheck(this, _class11);
 
-      _TogglingHelperConditionalsTest11.apply(this, arguments);
+      _IfUnlessHelperTest11.apply(this, arguments);
     }
 
     _class11.prototype.wrapperFor = function wrapperFor(templates) {
@@ -46995,7 +47433,7 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     };
 
     return _class11;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingHelperConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 });
 enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/assign'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalAssign) {
   'use strict';
@@ -51052,7 +51490,8 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       _templateObject7 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
       _templateObject8 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
       _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']);
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
+      _templateObject11 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -51062,56 +51501,63 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  var EachInTest = (function (_BasicConditionalsTest) {
-    _inherits(EachInTest, _BasicConditionalsTest);
+  var EachInTest = (function (_TogglingSyntaxConditionalsTest) {
+    _inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 
     function EachInTest() {
       _classCallCheck(this, EachInTest);
 
-      _BasicConditionalsTest.apply(this, arguments);
+      _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
-    _createClass(EachInTest, [{
-      key: 'truthyValue',
-      get: function () {
-        return { 'Not Empty': 1 };
-      }
-    }, {
-      key: 'falsyValue',
-      get: function () {
-        return {};
-      }
-    }]);
-
-    return EachInTest;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.BasicConditionalsTest);
-
-  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachInTest, _emberHtmlbarsTestsUtilsSharedConditionalTests.SyntaxCondtionalTestHelpers, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([
-  // TODO: figure out what the rest of the cases are
-  { foo: 1 }, _emberRuntimeSystemObject.default.create({ 'Not Empty': 1 }), _emberRuntimeSystemObject_proxy.default.create({ content: { 'Not empty': 1 } }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({}) }), _emberRuntimeSystemObject_proxy.default.create({ content: _emberRuntimeSystemObject.default.create() })]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([
-  // TODO: figure out what the rest of the cases are
-  {}, Object.create({ 'Not Empty': 1 }), Object.create({}), _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject_proxy.default.create({}),
-  // TODO: These 2 should be falsy but are returning true
-  //ObjectProxy.create({ content: null }),
-  //ObjectProxy.create({ content: {} }),
-  undefined, null]));
-
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}}', (function (_EachInTest) {
-    _inherits(_class, _EachInTest);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _EachInTest.apply(this, arguments);
-    }
-
-    _class.prototype.templateFor = function templateFor(_ref) {
+    EachInTest.prototype.templateFor = function templateFor(_ref) {
       var cond = _ref.cond;
       var truthy = _ref.truthy;
       var falsy = _ref.falsy;
 
       return '{{#each-in ' + cond + ' as |key|}}' + truthy + '{{else}}' + falsy + '{{/each-in}}';
     };
+
+    return EachInTest;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest);
+
+  function EmptyFunction() {}
+
+  function NonEmptyFunction() {}
+  NonEmptyFunction.foo = 'bar';
+
+  var EmptyConstructor = function EmptyConstructor() {
+    _classCallCheck(this, EmptyConstructor);
+  };
+
+  var NonEmptyConstructor = function NonEmptyConstructor() {
+    _classCallCheck(this, NonEmptyConstructor);
+  };
+
+  NonEmptyConstructor.foo = 'bar';
+
+  var BasicEachInTest = (function (_EachInTest) {
+    _inherits(BasicEachInTest, _EachInTest);
+
+    function BasicEachInTest() {
+      _classCallCheck(this, BasicEachInTest);
+
+      _EachInTest.apply(this, arguments);
+    }
+
+    return BasicEachInTest;
+  })(EachInTest);
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(BasicEachInTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([{ foo: 1 }, _emberRuntimeSystemObject.default.create({ 'Not Empty': 1 }), [1], NonEmptyFunction, NonEmptyConstructor]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, [], EmptyFunction, EmptyConstructor, {}, Object.create(null), Object.create({}), Object.create({ 'Not Empty': 1 }), _emberRuntimeSystemObject.default.create()]));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}}', (function (_BasicEachInTest) {
+    _inherits(_class, _BasicEachInTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _BasicEachInTest.apply(this, arguments);
+    }
 
     _class.prototype['@test it repeats the given block for each item in the hash'] = function testItRepeatsTheGivenBlockForEachItemInTheHash() {
       var _this = this;
@@ -51336,10 +51782,145 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       this.assertText('[0:1][1:2][2:3][foo:bar]');
     };
 
+    _createClass(_class, [{
+      key: 'truthyValue',
+      get: function () {
+        return { 'Not Empty': 1 };
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return {};
+      }
+    }]);
+
     return _class;
-  })(EachInTest));
+  })(BasicEachInTest));
+
+  var EachInEdgeCasesTest = (function (_EachInTest2) {
+    _inherits(EachInEdgeCasesTest, _EachInTest2);
+
+    function EachInEdgeCasesTest() {
+      _classCallCheck(this, EachInEdgeCasesTest);
+
+      _EachInTest2.apply(this, arguments);
+    }
+
+    return EachInEdgeCasesTest;
+  })(EachInTest);
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachInEdgeCasesTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([true, 1, 'hello']));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} edge cases', (function (_EachInEdgeCasesTest) {
+    _inherits(_class2, _EachInEdgeCasesTest);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _EachInEdgeCasesTest.apply(this, arguments);
+    }
+
+    _createClass(_class2, [{
+      key: 'truthyValue',
+      get: function () {
+        return { 'Not Empty': 1 };
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return {};
+      }
+    }]);
+
+    return _class2;
+  })(EachInEdgeCasesTest));
+
+  var EachInProxyTest = (function (_EachInTest3) {
+    _inherits(EachInProxyTest, _EachInTest3);
+
+    function EachInProxyTest() {
+      _classCallCheck(this, EachInProxyTest);
+
+      _EachInTest3.apply(this, arguments);
+    }
+
+    return EachInProxyTest;
+  })(EachInTest);
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachInProxyTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([_emberRuntimeSystemObject_proxy.default.create({ content: { 'Not empty': 1 } })]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([_emberRuntimeSystemObject_proxy.default.create(), _emberRuntimeSystemObject_proxy.default.create({ content: null }), _emberRuntimeSystemObject_proxy.default.create({ content: {} }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create(null) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({}) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({ 'Not Empty': 1 }) }), _emberRuntimeSystemObject_proxy.default.create({ content: _emberRuntimeSystemObject.default.create() })]));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} with `ObjectProxy`', (function (_EachInProxyTest) {
+    _inherits(_class3, _EachInProxyTest);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _EachInProxyTest.apply(this, arguments);
+    }
+
+    _class3.prototype['@test it iterates over the content, not the proxy'] = function testItIteratesOverTheContentNotTheProxy() {
+      var _this7 = this;
+
+      var content = {
+        'Smartphones': 8203,
+        'JavaScript Frameworks': Infinity
+      };
+
+      var proxy = _emberRuntimeSystemObject_proxy.default.create({
+        content: content,
+        foo: 'bar'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), { categories: proxy });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(proxy, 'content.Smartphones', 100);
+        _emberMetalProperty_set.set(proxy, 'content.Tweets', 443115);
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(proxy, 'content', {
+          'Smartphones': 100,
+          'Tablets': 20
+        });
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject11));
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'categories', _emberRuntimeSystemObject_proxy.default.create({
+          content: {
+            'Smartphones': 8203,
+            'JavaScript Frameworks': Infinity
+          }
+        }));
+      });
+
+      this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
+    };
+
+    _createClass(_class3, [{
+      key: 'truthyValue',
+      get: function () {
+        return _emberRuntimeSystemObject_proxy.default.create({ content: { 'Not Empty': 1 } });
+      }
+    }, {
+      key: 'falsyValue',
+      get: function () {
+        return _emberRuntimeSystemObject_proxy.default.create({ content: null });
+      }
+    }]);
+
+    return _class3;
+  })(EachInProxyTest));
 });
-enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-metal/property_events', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberMetalProperty_events, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
+enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-metal/property_events', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberMetalProperty_events, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -51349,22 +51930,114 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  var EachTest = (function (_BasicConditionalsTest) {
-    _inherits(EachTest, _BasicConditionalsTest);
+  var ArrayLike = (function () {
+    function ArrayLike(content) {
+      _classCallCheck(this, ArrayLike);
 
-    function EachTest() {
-      _classCallCheck(this, EachTest);
-
-      _BasicConditionalsTest.apply(this, arguments);
+      this._array = content;
     }
 
-    _createClass(EachTest, [{
+    ArrayLike.prototype.forEach = function forEach(callback) {
+      this._array.forEach(callback);
+    };
+
+    // The following methods are APIs used by the tests
+
+    ArrayLike.prototype.objectAt = function objectAt(idx) {
+      return this._array[idx];
+    };
+
+    ArrayLike.prototype.clear = function clear() {
+      this._array.length = 0;
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.replace = function replace(idx, del, ins) {
+      var _array;
+
+      (_array = this._array).splice.apply(_array, [idx, del].concat(ins));
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.unshiftObject = function unshiftObject(obj) {
+      this._array.unshift(obj);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.unshiftObjects = function unshiftObjects(arr) {
+      var _array2;
+
+      (_array2 = this._array).unshift.apply(_array2, arr);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.pushObject = function pushObject(obj) {
+      this._array.push(obj);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.pushObjects = function pushObjects(arr) {
+      var _array3;
+
+      (_array3 = this._array).push.apply(_array3, arr);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.shiftObject = function shiftObject() {
+      var obj = this._array.shift();
+      this.arrayContentDidChange();
+      return obj;
+    };
+
+    ArrayLike.prototype.popObject = function popObject() {
+      var obj = this._array.pop();
+      this.arrayContentDidChange();
+      return obj;
+    };
+
+    ArrayLike.prototype.insertAt = function insertAt(idx, obj) {
+      this._array.splice(idx, 0, obj);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.removeAt = function removeAt(idx) {
+      var len = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+
+      this._array.splice(idx, len);
+      this.arrayContentDidChange();
+    };
+
+    ArrayLike.prototype.arrayContentDidChange = function arrayContentDidChange() {
+      _emberMetalProperty_events.propertyDidChange(this, '[]');
+      _emberMetalProperty_events.propertyDidChange(this, 'length');
+    };
+
+    _createClass(ArrayLike, [{
+      key: 'length',
+      get: function () {
+        return this._array.length;
+      }
+    }]);
+
+    return ArrayLike;
+  })();
+
+  var TogglingEachTest = (function (_TogglingSyntaxConditionalsTest) {
+    _inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
+
+    function TogglingEachTest() {
+      _classCallCheck(this, TogglingEachTest);
+
+      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+    }
+
+    _createClass(TogglingEachTest, [{
       key: 'truthyValue',
       get: function () {
         return ['non-empty'];
@@ -51376,22 +52049,30 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       }
     }]);
 
-    return EachTest;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.BasicConditionalsTest);
+    return TogglingEachTest;
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest);
 
-  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachTest, _emberHtmlbarsTestsUtilsSharedConditionalTests.SyntaxCondtionalTestHelpers, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([
-  // TODO: figure out what the rest of the cases are
-  ['hello']]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([
-  // TODO: figure out what the rest of the cases are
-  [], undefined]), _emberHtmlbarsTestsUtilsSharedConditionalTests.ArrayTestCases);
+  var BasicEachTest = (function (_TogglingEachTest) {
+    _inherits(BasicEachTest, _TogglingEachTest);
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}}', (function (_EachTest) {
-    _inherits(_class, _EachTest);
+    function BasicEachTest() {
+      _classCallCheck(this, BasicEachTest);
+
+      _TogglingEachTest.apply(this, arguments);
+    }
+
+    return BasicEachTest;
+  })(TogglingEachTest);
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(BasicEachTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([['hello'], _emberRuntimeSystemNative_array.A(['hello']), new ArrayLike(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: _emberRuntimeSystemNative_array.A(['hello']) })]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, []]), _emberHtmlbarsTestsUtilsSharedConditionalTests.ArrayTestCases);
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each}}', (function (_BasicEachTest) {
+    _inherits(_class, _BasicEachTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _EachTest.apply(this, arguments);
+      _BasicEachTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -51403,15 +52084,15 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
     };
 
     return _class;
-  })(EachTest));
+  })(BasicEachTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}}', (function (_EachTest2) {
-    _inherits(_class2, _EachTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each as}}', (function (_BasicEachTest2) {
+    _inherits(_class2, _BasicEachTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _EachTest2.apply(this, arguments);
+      _BasicEachTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -51422,499 +52103,513 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       return '{{#each ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/each}}';
     };
 
-    _class2.prototype['@test it repeats the given block for each item in the array'] = function testItRepeatsTheGivenBlockForEachItemInTheArray() {
+    return _class2;
+  })(BasicEachTest));
+
+  var EachEdgeCasesTest = (function (_TogglingEachTest2) {
+    _inherits(EachEdgeCasesTest, _TogglingEachTest2);
+
+    function EachEdgeCasesTest() {
+      _classCallCheck(this, EachEdgeCasesTest);
+
+      _TogglingEachTest2.apply(this, arguments);
+    }
+
+    return EachEdgeCasesTest;
+  })(TogglingEachTest);
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachEdgeCasesTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([true, 'hello', 1, Object, function () {}, {}, { foo: 'bar' }, Object.create(null), Object.create({}), Object.create({ foo: 'bar' })]));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each}}', (function (_EachEdgeCasesTest) {
+    _inherits(_class3, _EachEdgeCasesTest);
+
+    function _class3() {
+      _classCallCheck(this, _class3);
+
+      _EachEdgeCasesTest.apply(this, arguments);
+    }
+
+    _class3.prototype.templateFor = function templateFor(_ref3) {
+      var cond = _ref3.cond;
+      var truthy = _ref3.truthy;
+      var falsy = _ref3.falsy;
+
+      return '{{#each ' + cond + '}}' + truthy + '{{else}}' + falsy + '{{/each}}';
+    };
+
+    return _class3;
+  })(EachEdgeCasesTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each as}}', (function (_EachEdgeCasesTest2) {
+    _inherits(_class4, _EachEdgeCasesTest2);
+
+    function _class4() {
+      _classCallCheck(this, _class4);
+
+      _EachEdgeCasesTest2.apply(this, arguments);
+    }
+
+    _class4.prototype.templateFor = function templateFor(_ref4) {
+      var cond = _ref4.cond;
+      var truthy = _ref4.truthy;
+      var falsy = _ref4.falsy;
+
+      return '{{#each ' + cond + ' as |test|}}' + truthy + '{{else}}' + falsy + '{{/each}}';
+    };
+
+    return _class4;
+  })(EachEdgeCasesTest));
+
+  var AbstractEachTest = (function (_RenderingTest) {
+    _inherits(AbstractEachTest, _RenderingTest);
+
+    function AbstractEachTest() {
+      _classCallCheck(this, AbstractEachTest);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    /* abstract */
+
+    AbstractEachTest.prototype.makeList = function makeList() {
+      // this.list = this.delegate = ...;
+      throw new Error('Not implemented: `makeList`');
+    };
+
+    AbstractEachTest.prototype.replaceList = function replaceList(list) {
       var _this = this;
 
-      this.render('{{#each list as |item|}}{{item.text}}{{else}}Empty{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'hello' }])
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this.context, 'list', _this.makeList(list));
+      });
+    };
+
+    AbstractEachTest.prototype.forEach = function forEach(callback) {
+      return this.delegate.forEach(callback);
+    };
+
+    AbstractEachTest.prototype.objectAt = function objectAt(idx) {
+      return this.delegate.objectAt(idx);
+    };
+
+    AbstractEachTest.prototype.clear = function clear() {
+      return this.delegate.clear();
+    };
+
+    AbstractEachTest.prototype.replace = function replace(idx, del, ins) {
+      return this.delegate.replace(idx, del, ins);
+    };
+
+    AbstractEachTest.prototype.unshiftObject = function unshiftObject(obj) {
+      return this.delegate.unshiftObject(obj);
+    };
+
+    AbstractEachTest.prototype.unshiftObjects = function unshiftObjects(arr) {
+      return this.delegate.unshiftObjects(arr);
+    };
+
+    AbstractEachTest.prototype.pushObject = function pushObject(obj) {
+      return this.delegate.pushObject(obj);
+    };
+
+    AbstractEachTest.prototype.pushObjects = function pushObjects(arr) {
+      return this.delegate.pushObjects(arr);
+    };
+
+    AbstractEachTest.prototype.shiftObject = function shiftObject() {
+      return this.delegate.shiftObject();
+    };
+
+    AbstractEachTest.prototype.popObject = function popObject() {
+      return this.delegate.popObject();
+    };
+
+    AbstractEachTest.prototype.insertAt = function insertAt(idx, obj) {
+      return this.delegate.insertAt(idx, obj);
+    };
+
+    AbstractEachTest.prototype.removeAt = function removeAt(idx, len) {
+      return this.delegate.removeAt(idx, len);
+    };
+
+    AbstractEachTest.prototype.render = function render(template) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      if (this.list === undefined) {
+        throw new Error('Must call `this.makeList()` before calling this.render()');
+      }
+
+      context.list = this.list;
+
+      return _RenderingTest.prototype.render.call(this, template, context);
+    };
+
+    return AbstractEachTest;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
+
+  var SingleEachTest = (function (_AbstractEachTest) {
+    _inherits(SingleEachTest, _AbstractEachTest);
+
+    function SingleEachTest() {
+      _classCallCheck(this, SingleEachTest);
+
+      _AbstractEachTest.apply(this, arguments);
+    }
+
+    SingleEachTest.prototype['@test it repeats the given block for each item in the array'] = function testItRepeatsTheGivenBlockForEachItemInTheArray() {
+      var _this2 = this;
+
+      this.makeList([{ text: 'hello' }]);
+
+      this.render('{{#each list as |item|}}{{item.text}}{{else}}Empty{{/each}}');
+
+      this.assertText('hello');
+
+      this.runTask(function () {
+        return _this2.rerender();
       });
 
       this.assertText('hello');
 
       this.runTask(function () {
-        return _this.rerender();
-      });
-
-      this.assertText('hello');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this.context, 'list').objectAt(0), 'text', 'Hello');
+        return _emberMetalProperty_set.set(_this2.objectAt(0), 'text', 'Hello');
       });
 
       this.assertText('Hello');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
+        _this2.pushObject({ text: ' ' });
+        _this2.pushObject({ text: 'World' });
       });
 
       this.assertText('Hello World');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: 'Earth' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
-        list.insertAt(1, { text: 'Globe' });
+        _this2.pushObject({ text: 'Earth' });
+        _this2.removeAt(1);
+        _this2.insertAt(1, { text: 'Globe' });
       });
 
       this.assertText('HelloGlobeWorldEarth');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: 'Planet' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'Earth' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 3);
+        _this2.pushObject({ text: 'Planet' });
+        _this2.removeAt(1);
+        _this2.insertAt(1, { text: ' ' });
+        _this2.pushObject({ text: ' ' });
+        _this2.pushObject({ text: 'Earth' });
+        _this2.removeAt(3);
       });
 
       this.assertText('Hello WorldPlanet Earth');
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this.context, 'list');
-        list.pushObject({ text: 'Globe' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
-        _emberRuntimeMixinsMutable_array.removeAt(list, 2);
+        _this2.pushObject({ text: 'Globe' });
+        _this2.removeAt(1);
+        _this2.insertAt(1, { text: ' ' });
+        _this2.pushObject({ text: ' ' });
+        _this2.pushObject({ text: 'World' });
+        _this2.removeAt(2);
       });
 
       this.assertText('Hello Planet EarthGlobe World');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this.context, 'list').replace(2, 4, { text: 'my' });
+        return _this2.replace(2, 4, { text: 'my' });
       });
 
       this.assertText('Hello my World');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this.context, 'list').clear();
+        return _this2.clear();
       });
 
       this.assertText('Empty');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this.context, 'list', [{ text: 'hello' }]);
-      });
+      this.replaceList([{ text: 'hello' }]);
 
       this.assertText('hello');
     };
 
-    _class2.prototype['@test it repeats the given block for each item using an objects forEach'] = function testItRepeatsTheGivenBlockForEachItemUsingAnObjectsForEach() {
-      var _this2 = this;
-
-      var ObjectWithForEach = (function () {
-        function ObjectWithForEach(items) {
-          _classCallCheck(this, ObjectWithForEach);
-
-          this._array = items || [];
-        }
-
-        ObjectWithForEach.prototype.forEach = function forEach(cb) {
-          this._array.forEach(cb);
-        };
-
-        ObjectWithForEach.prototype.pushObject = function pushObject(item) {
-          this._array.push(item);
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        ObjectWithForEach.prototype.removeAt = function removeAt(index) {
-          this._array.splice(index, 1);
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        ObjectWithForEach.prototype.insertAt = function insertAt(index, item) {
-          this._array.splice(index, 0, item);
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        ObjectWithForEach.prototype.clear = function clear() {
-          this._array.length = 0;
-          _emberMetalProperty_events.propertyDidChange(this, 'length');
-        };
-
-        _createClass(ObjectWithForEach, [{
-          key: 'length',
-          get: function () {
-            return this._array.length;
-          }
-        }]);
-
-        return ObjectWithForEach;
-      })();
-
-      var firstItem = { text: 'hello' };
-      this.render('{{#each list as |item|}}{{item.text}}{{else}}Empty{{/each}}', {
-        list: new ObjectWithForEach([firstItem])
-      });
-
-      this.assertText('hello');
-
-      this.assertStableRerender();
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(firstItem, 'text', 'Hello');
-      });
-
-      this.assertText('Hello');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
-        _this2.component.rerender();
-      });
-
-      this.assertText('Hello World');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: 'Earth' });
-        list.removeAt(1);
-        list.insertAt(1, { text: 'Globe' });
-        _this2.component.rerender();
-      });
-
-      this.assertText('HelloGlobeWorldEarth');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: 'Planet' });
-        list.removeAt(1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'Earth' });
-        list.removeAt(3);
-        _this2.component.rerender();
-      });
-
-      this.assertText('Hello WorldPlanet Earth');
-
-      this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this2.context, 'list');
-        list.pushObject({ text: 'Globe' });
-        list.removeAt(1);
-        list.insertAt(1, { text: ' ' });
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'World' });
-        list.removeAt(2);
-        _this2.component.rerender();
-      });
-
-      this.assertText('Hello Planet EarthGlobe World');
-
-      this.runTask(function () {
-        _emberMetalProperty_get.get(_this2.context, 'list').clear();
-        _this2.component.rerender();
-      });
-
-      this.assertText('Empty');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'list', new ObjectWithForEach([{ text: 'hello' }]));
-      });
-
-      this.assertText('hello');
-    };
-
-    _class2.prototype['@test it receives the index as the second parameter'] = function testItReceivesTheIndexAsTheSecondParameter() {
+    SingleEachTest.prototype['@test it receives the index as the second parameter'] = function testItReceivesTheIndexAsTheSecondParameter() {
       var _this3 = this;
 
-      this.render('{{#each list as |item index|}}{{index}}. {{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'hello' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'hello' }, { text: 'world' }]);
 
-      this.assertText('0. hello1. world');
+      this.render('{{#each list as |item index|}}[{{index}}. {{item.text}}]{{/each}}');
+
+      this.assertText('[0. hello][1. world]');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this3.context, 'list').insertAt(1, { text: 'my' });
+        return _this3.insertAt(1, { text: 'my' });
       });
 
-      this.assertText('0. hello1. my2. world');
+      this.assertText('[0. hello][1. my][2. world]');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this3.context, 'list', [{ text: 'hello' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'hello' }, { text: 'world' }]);
 
-      this.assertText('0. hello1. world');
+      this.assertText('[0. hello][1. world]');
     };
 
-    _class2.prototype['@test it accepts a string key'] = function testItAcceptsAStringKey() {
+    SingleEachTest.prototype['@test it accepts a string key'] = function testItAcceptsAStringKey() {
       var _this4 = this;
 
-      this.render('{{#each list key=\'text\' as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'hello' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'hello' }, { text: 'world' }]);
+
+      this.render('{{#each list key=\'text\' as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('helloworld');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this4.context, 'list').pushObject({ text: 'again' });
+        return _this4.pushObject({ text: 'again' });
       });
 
       this.assertText('helloworldagain');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'list', [{ text: 'hello' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'hello' }, { text: 'world' }]);
 
       this.assertText('helloworld');
     };
 
-    _class2.prototype['@test it accepts a numeric key'] = function testItAcceptsANumericKey() {
+    SingleEachTest.prototype['@test it accepts a numeric key'] = function testItAcceptsANumericKey() {
       var _this5 = this;
 
-      this.render('{{#each list key=\'id\' as |item|}}{{item.id}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ id: 1 }, { id: 2 }])
-      });
+      this.makeList([{ id: 1 }, { id: 2 }]);
+
+      this.render('{{#each list key=\'id\' as |item|}}{{item.id}}{{/each}}');
 
       this.assertText('12');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this5.context, 'list').pushObject({ id: 3 });
+        return _this5.pushObject({ id: 3 });
       });
 
       this.assertText('123');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this5.context, 'list', [{ id: 1 }, { id: 2 }]);
-      });
+      this.replaceList([{ id: 1 }, { id: 2 }]);
 
       this.assertText('12');
     };
 
-    _class2.prototype['@test it can specify @index as the key'] = function testItCanSpecifyIndexAsTheKey() {
+    SingleEachTest.prototype['@test it can specify @index as the key'] = function testItCanSpecifyIndexAsTheKey() {
       var _this6 = this;
 
-      this.render('{{#each list key=\'@index\' as |item|}}{{item.id}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ id: 1 }, { id: 2 }])
-      });
+      this.makeList([{ id: 1 }, { id: 2 }]);
+
+      this.render('{{#each list key=\'@index\' as |item|}}{{item.id}}{{/each}}');
 
       this.assertText('12');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this6.context, 'list').pushObject({ id: 3 });
+        return _this6.pushObject({ id: 3 });
       });
 
       this.assertText('123');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this6.context, 'list', [{ id: 1 }, { id: 2 }]);
-      });
+      this.replaceList([{ id: 1 }, { id: 2 }]);
 
       this.assertText('12');
     };
 
-    _class2.prototype['@test it can specify @identity as the key for arrays of primitives'] = function testItCanSpecifyIdentityAsTheKeyForArraysOfPrimitives() {
+    SingleEachTest.prototype['@test it can specify @identity as the key for arrays of primitives'] = function testItCanSpecifyIdentityAsTheKeyForArraysOfPrimitives() {
       var _this7 = this;
 
-      this.render('{{#each list key=\'@identity\' as |item|}}{{item}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([1, 2])
-      });
+      this.makeList([1, 2]);
+
+      this.render('{{#each list key=\'@identity\' as |item|}}{{item}}{{/each}}');
 
       this.assertText('12');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this7.context, 'list').pushObject(3);
+        return _this7.pushObject(3);
       });
 
       this.assertText('123');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this7.context, 'list', [1, 2]);
-      });
+      this.replaceList([1, 2]);
 
       this.assertText('12');
     };
 
-    _class2.prototype['@test it can specify @identity as the key for mixed arrays of objects and primitives'] = function testItCanSpecifyIdentityAsTheKeyForMixedArraysOfObjectsAndPrimitives() {
+    SingleEachTest.prototype['@test it can specify @identity as the key for mixed arrays of objects and primitives'] = function testItCanSpecifyIdentityAsTheKeyForMixedArraysOfObjectsAndPrimitives() {
       var _this8 = this;
 
-      this.render('{{#each list key=\'@identity\' as |item|}}{{if item.id item.id item}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([1, { id: 2 }, 3])
-      });
+      this.makeList([1, { id: 2 }, 3]);
+
+      this.render('{{#each list key=\'@identity\' as |item|}}{{if item.id item.id item}}{{/each}}');
 
       this.assertText('123');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this8.context, 'list').insertAt(2, { id: 4 });
+        return _this8.insertAt(2, { id: 4 });
       });
 
       this.assertText('1243');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this8.context, 'list', [1, { id: 2 }, 3]);
-      });
+      this.replaceList([1, { id: 2 }, 3]);
 
       this.assertText('123');
     };
 
-    _class2.prototype['@test it can render duplicate primitive items'] = function testItCanRenderDuplicatePrimitiveItems() {
+    SingleEachTest.prototype['@test it can render duplicate primitive items'] = function testItCanRenderDuplicatePrimitiveItems() {
       var _this9 = this;
 
-      this.render('{{#each list as |item|}}{{item}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A(['a', 'a', 'a'])
-      });
+      this.makeList(['a', 'a', 'a']);
+
+      this.render('{{#each list as |item|}}{{item}}{{/each}}');
 
       this.assertText('aaa');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this9.context, 'list').pushObject('a');
+        return _this9.pushObject('a');
       });
 
       this.assertText('aaaa');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this9.context, 'list').pushObject('a');
+        return _this9.pushObject('a');
       });
 
       this.assertText('aaaaa');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this9.context, 'list', ['a', 'a', 'a']);
-      });
+      this.replaceList(['a', 'a', 'a']);
 
       this.assertText('aaa');
     };
 
-    _class2.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
+    SingleEachTest.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
       var _this10 = this;
 
       var duplicateItem = { text: 'foo' };
-      this.render('{{#each list as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }])
-      });
+
+      this.makeList([duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }]);
+
+      this.render('{{#each list as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('foofoobarbaz');
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this10.context, 'list').pushObject(duplicateItem);
+        return _this10.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoo');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this10.context, 'list').pushObject(duplicateItem);
+        return _this10.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoofoo');
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this10.context, 'list', [duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }]);
-      });
+      this.replaceList([duplicateItem, duplicateItem, { text: 'bar' }, { text: 'baz' }]);
 
       this.assertText('foofoobarbaz');
     };
 
-    _class2.prototype['@test it maintains DOM stability when condition changes between objects with the same keys'] = function testItMaintainsDOMStabilityWhenConditionChangesBetweenObjectsWithTheSameKeys() {
+    SingleEachTest.prototype['@test it maintains DOM stability when condition changes between objects with the same keys'] = function testItMaintainsDOMStabilityWhenConditionChangesBetweenObjectsWithTheSameKeys() {
       var _this11 = this;
 
-      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
+
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('Hello world');
 
       this.takeSnapshot();
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this11.context, 'list');
-        list.popObject();
-        list.popObject();
-        list.pushObject({ text: ' ' });
-        list.pushObject({ text: 'world' });
+        _this11.popObject();
+        _this11.popObject();
+        _this11.pushObject({ text: ' ' });
+        _this11.pushObject({ text: 'world' });
       });
 
       this.assertText('Hello world');
 
       this.assertInvariants();
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'list', [{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
       this.assertText('Hello world');
 
       this.assertInvariants();
     };
 
-    _class2.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
+    SingleEachTest.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
       var _this12 = this;
 
-      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }])
-      });
+      this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
+
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('Hello world');
 
       this.assertStableRerender();
 
-      var oldSnapshot = this.snapshot;
+      var oldSnapshot = this.takeSnapshot();
 
       this.runTask(function () {
-        var list = _emberMetalProperty_get.get(_this12.context, 'list');
-        list.unshiftObject({ text: ', ' });
-        list.unshiftObject({ text: 'Hi' });
-        list.pushObject({ text: '!' });
-        list.pushObject({ text: 'earth' });
+        _this12.unshiftObject({ text: ', ' });
+        _this12.unshiftObject({ text: 'Hi' });
+        _this12.pushObject({ text: '!' });
+        _this12.pushObject({ text: 'earth' });
       });
 
       this.assertText('Hi, Hello world!earth');
 
       this.assertPartialInvariants(2, 5);
 
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'list', [{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
-      });
+      this.replaceList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
       this.assertText('Hello world');
+
       this.assertInvariants(oldSnapshot, this.takeSnapshot());
     };
 
-    _class2.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
-      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}', {
-        list: _emberRuntimeSystemNative_array.A([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }])
-      });
+    SingleEachTest.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
+      var _this13 = this;
+
+      this.makeList([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }]);
+
+      this.render('{{#each list key="text" as |item|}}{{item.text}}{{/each}}');
 
       this.assertText('HelloHelloHello');
 
-      var list = _emberMetalProperty_get.get(this.context, 'list');
-
       this.runTask(function () {
-        list.forEach(function (hash) {
+        _this13.forEach(function (hash) {
           return _emberMetalProperty_set.set(hash, 'text', 'Goodbye');
         });
       });
 
       this.assertText('GoodbyeGoodbyeGoodbye');
+
+      this.replaceList([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }]);
+
+      this.assertText('HelloHelloHello');
     };
 
-    _class2.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
-      var _this13 = this;
+    SingleEachTest.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
+      var _this14 = this;
 
-      this.render('{{name}}-{{#each people as |person|}}{{name}}{{/each}}-{{name}}', {
-        name: 'Joel',
-        people: _emberRuntimeSystemNative_array.A([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }])
+      this.makeList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
+
+      this.render('{{name}}-{{#each list as |person|}}{{name}}{{/each}}-{{name}}', {
+        name: 'Joel'
       });
 
       this.assertText('Joel-JoelJoelJoel-Joel');
@@ -51922,152 +52617,229 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this13.context, 'people').shiftObject();
+        return _this14.shiftObject();
       });
 
       this.assertText('Joel-JoelJoel-Joel');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'name', 'Godfrey');
+        return _emberMetalProperty_set.set(_this14.context, 'name', 'Godfrey');
       });
 
       this.assertText('Godfrey-GodfreyGodfrey-Godfrey');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this13.context, 'name', 'Joel');
-        _emberMetalProperty_set.set(_this13.context, 'people', [{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
+        return _emberMetalProperty_set.set(_this14.context, 'name', 'Joel');
       });
+      this.replaceList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
 
       this.assertText('Joel-JoelJoelJoel-Joel');
     };
 
-    _class2.prototype['@test can access the item and the original scope'] = function testCanAccessTheItemAndTheOriginalScope() {
-      var _this14 = this;
-
-      this.render('{{#each people key="name" as |person|}}[{{title}}: {{person.name}}]{{/each}}', {
-        title: 'Señor Engineer',
-        people: _emberRuntimeSystemNative_array.A([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }])
-      });
-
-      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
-
-      this.runTask(function () {
-        return _this14.rerender();
-      });
-
-      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
-
-      this.runTask(function () {
-        var people = _emberMetalProperty_get.get(_this14.context, 'people');
-        _emberMetalProperty_set.set(people.objectAt(1), 'name', 'Stefan Penner');
-        _emberRuntimeMixinsMutable_array.removeAt(people, 0);
-        people.pushObject({ name: 'Tom Dale' });
-        people.insertAt(1, { name: 'Chad Hietala' });
-        _emberMetalProperty_set.set(_this14.context, 'title', 'Principal Engineer');
-      });
-
-      this.assertText('[Principal Engineer: Stefan Penner][Principal Engineer: Chad Hietala][Principal Engineer: Godfrey Chan][Principal Engineer: Tom Dale]');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this14.context, 'people', [{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
-        _emberMetalProperty_set.set(_this14.context, 'title', 'Señor Engineer');
-      });
-
-      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
-    };
-
-    _class2.prototype['@test the scoped variable is not available outside the {{#each}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
+    SingleEachTest.prototype['@test can access the item and the original scope'] = function testCanAccessTheItemAndTheOriginalScope() {
       var _this15 = this;
 
-      this.render('{{name}}-{{#each other as |name|}}{{name}}{{/each}}-{{name}}', {
-        name: 'Stef',
-        other: _emberRuntimeSystemNative_array.A(['Yehuda'])
+      this.makeList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
+
+      this.render('{{#each list key="name" as |person|}}[{{title}}: {{person.name}}]{{/each}}', {
+        title: 'Señor Engineer'
       });
 
-      this.assertText('Stef-Yehuda-Stef');
+      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
 
       this.runTask(function () {
         return _this15.rerender();
       });
 
+      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this15.objectAt(1), 'name', 'Stefan Penner');
+        _this15.removeAt(0);
+        _this15.pushObject({ name: 'Tom Dale' });
+        _this15.insertAt(1, { name: 'Chad Hietala' });
+        _emberMetalProperty_set.set(_this15.context, 'title', 'Principal Engineer');
+      });
+
+      this.assertText('[Principal Engineer: Stefan Penner][Principal Engineer: Chad Hietala][Principal Engineer: Godfrey Chan][Principal Engineer: Tom Dale]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this15.context, 'title', 'Señor Engineer');
+      });
+      this.replaceList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
+
+      this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
+    };
+
+    SingleEachTest.prototype['@test the scoped variable is not available outside the {{#each}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
+      var _this16 = this;
+
+      this.makeList(['Yehuda']);
+
+      this.render('{{name}}-{{#each list as |name|}}{{name}}{{/each}}-{{name}}', {
+        name: 'Stef'
+      });
+
       this.assertText('Stef-Yehuda-Stef');
 
       this.runTask(function () {
-        return _emberMetalProperty_get.get(_this15.context, 'other').pushObjects([' ', 'Katz']);
+        return _this16.rerender();
+      });
+
+      this.assertText('Stef-Yehuda-Stef');
+
+      this.runTask(function () {
+        return _this16.pushObjects([' ', 'Katz']);
       });
 
       this.assertText('Stef-Yehuda Katz-Stef');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this15.context, 'name', 'Tom');
+        return _emberMetalProperty_set.set(_this16.context, 'name', 'Tom');
       });
 
       this.assertText('Tom-Yehuda Katz-Tom');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this15.context, 'name', 'Stef');
-        _emberMetalProperty_set.set(_this15.context, 'other', ['Yehuda']);
+        return _emberMetalProperty_set.set(_this16.context, 'name', 'Stef');
       });
+      this.replaceList(['Yehuda']);
 
       this.assertText('Stef-Yehuda-Stef');
     };
 
-    _class2.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
-      var _this16 = this;
+    SingleEachTest.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
+      var _this17 = this;
 
-      this.render('{{#each falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/each}}', {
-        falsyThing: [],
+      this.makeList([]);
+
+      this.render('{{#each list as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/each}}', {
         otherThing: 'bar'
       });
 
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'otherThing', 'biz');
+        return _emberMetalProperty_set.set(_this17.context, 'otherThing', 'biz');
       });
 
       this.assertText('No Thing biz');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'falsyThing', ['non-empty']);
+        return _this17.pushObject('non-empty');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'otherThing', 'baz');
+        return _emberMetalProperty_set.set(_this17.context, 'otherThing', 'baz');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'otherThing', 'bar');
-        _emberMetalProperty_set.set(_this16.context, 'falsyThing', null);
+        return _emberMetalProperty_set.set(_this17.context, 'otherThing', 'bar');
       });
+      this.replaceList([]);
 
       this.assertText('No Thing bar');
     };
 
-    return _class2;
-  })(EachTest));
+    return SingleEachTest;
+  })(AbstractEachTest);
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#each as}} helpers', (function (_RenderingTest) {
-    _inherits(_class3, _RenderingTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with arrays', (function (_SingleEachTest) {
+    _inherits(_class5, _SingleEachTest);
 
-    function _class3() {
-      _classCallCheck(this, _class3);
+    function _class5() {
+      _classCallCheck(this, _class5);
 
-      _RenderingTest.apply(this, arguments);
+      _SingleEachTest.apply(this, arguments);
     }
 
-    _class3.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
-      var _this17 = this;
+    _class5.prototype.makeList = function makeList(list) {
+      return this.list = this.delegate = _emberRuntimeSystemNative_array.A(list);
+    };
+
+    return _class5;
+  })(SingleEachTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array-like objects', (function (_SingleEachTest2) {
+    _inherits(_class6, _SingleEachTest2);
+
+    function _class6() {
+      _classCallCheck(this, _class6);
+
+      _SingleEachTest2.apply(this, arguments);
+    }
+
+    _class6.prototype.makeList = function makeList(list) {
+      return this.list = this.delegate = new ArrayLike(list);
+    };
+
+    return _class6;
+  })(SingleEachTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, modifying itself', (function (_SingleEachTest3) {
+    _inherits(_class7, _SingleEachTest3);
+
+    function _class7() {
+      _classCallCheck(this, _class7);
+
+      _SingleEachTest3.apply(this, arguments);
+    }
+
+    _class7.prototype.makeList = function makeList(list) {
+      return this.list = this.delegate = _emberRuntimeSystemArray_proxy.default.create({ content: _emberRuntimeSystemNative_array.A(list) });
+    };
+
+    return _class7;
+  })(SingleEachTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, replacing its content', (function (_SingleEachTest4) {
+    _inherits(_class8, _SingleEachTest4);
+
+    function _class8() {
+      _classCallCheck(this, _class8);
+
+      _SingleEachTest4.apply(this, arguments);
+    }
+
+    _class8.prototype.makeList = function makeList(list) {
+      var content = this.delegate = _emberRuntimeSystemNative_array.A(list);
+      return this.list = _emberRuntimeSystemArray_proxy.default.create({ content: content });
+    };
+
+    _class8.prototype.replaceList = function replaceList(list) {
+      var _this18 = this;
+
+      this.runTask(function () {
+        return _this18.list.set('content', _emberRuntimeSystemNative_array.A(list));
+      });
+    };
+
+    return _class8;
+  })(SingleEachTest));
+
+  // TODO: Refactor the following tests so we can run them against different kind of arrays
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#each as}} helpers', (function (_RenderingTest2) {
+    _inherits(_class9, _RenderingTest2);
+
+    function _class9() {
+      _classCallCheck(this, _class9);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class9.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
+      var _this19 = this;
 
       this.render('Admin: {{#each admins key="name" as |person|}}[{{person.name}}]{{/each}} User: {{#each users key="name" as |person|}}[{{person.name}}]{{/each}}', {
         admins: _emberRuntimeSystemNative_array.A([{ name: 'Tom Dale' }]),
@@ -52077,28 +52849,28 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this17.context, 'admins').pushObject({ name: 'Godfrey Chan' });
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this17.context, 'users').objectAt(0), 'name', 'Stefan Penner');
+        _emberMetalProperty_get.get(_this19.context, 'admins').pushObject({ name: 'Godfrey Chan' });
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this19.context, 'users').objectAt(0), 'name', 'Stefan Penner');
       });
 
       this.assertText('Admin: [Tom Dale][Godfrey Chan] User: [Stefan Penner]');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this17.context, 'admins', [{ name: 'Tom Dale' }]);
-        _emberMetalProperty_set.set(_this17.context, 'users', [{ name: 'Yehuda Katz' }]);
+        _emberMetalProperty_set.set(_this19.context, 'admins', [{ name: 'Tom Dale' }]);
+        _emberMetalProperty_set.set(_this19.context, 'users', [{ name: 'Yehuda Katz' }]);
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
     };
 
-    _class3.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
-      var _this18 = this;
+    _class9.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
+      var _this20 = this;
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
         content: _emberRuntimeSystemNative_array.A(['X', 'Y']),
@@ -52110,22 +52882,22 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this18.context, 'content').pushObject('Z');
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this18.context, 'options').objectAt(0), 'value', 0);
+        _emberMetalProperty_get.get(_this20.context, 'content').pushObject('Z');
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this20.context, 'options').objectAt(0), 'value', 0);
       });
 
       this.assertText('X-0:One2:TwoY-0:One2:TwoZ-0:One2:Two');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this18.context, 'content', ['X', 'Y']);
-        _emberMetalProperty_set.set(_this18.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
+        _emberMetalProperty_set.set(_this20.context, 'content', ['X', 'Y']);
+        _emberMetalProperty_set.set(_this20.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
       });
 
       this.assertText('X-1:One2:TwoY-1:One2:Two');
     };
 
-    _class3.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this19 = this;
+    _class9.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
+      var _this21 = this;
 
       this.render('{{ring}}-{{#each first as |ring|}}{{ring}}-{{#each fifth as |ring|}}{{ring}}-{{#each ninth as |ring|}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}', {
         ring: 'Greed',
@@ -52137,37 +52909,37 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'ring', 'O');
-        _emberMetalProperty_get.get(_this19.context, 'fifth').insertAt(0, 'D');
+        _emberMetalProperty_set.set(_this21.context, 'ring', 'O');
+        _emberMetalProperty_get.get(_this21.context, 'fifth').insertAt(0, 'D');
       });
 
       this.assertText('O-Limbo-D-Treachery-D-Wrath-Treachery-Wrath-Limbo-O');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this19.context, 'first').pushObject('I');
-        _emberMetalProperty_get.get(_this19.context, 'ninth').replace(0, 1, 'K');
+        _emberMetalProperty_get.get(_this21.context, 'first').pushObject('I');
+        _emberMetalProperty_get.get(_this21.context, 'ninth').replace(0, 1, 'K');
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'ring', 'Greed');
-        _emberMetalProperty_set.set(_this19.context, 'first', ['Limbo']);
-        _emberMetalProperty_set.set(_this19.context, 'fifth', ['Wrath']);
-        _emberMetalProperty_set.set(_this19.context, 'ninth', ['Treachery']);
+        _emberMetalProperty_set.set(_this21.context, 'ring', 'Greed');
+        _emberMetalProperty_set.set(_this21.context, 'first', ['Limbo']);
+        _emberMetalProperty_set.set(_this21.context, 'fifth', ['Wrath']);
+        _emberMetalProperty_set.set(_this21.context, 'ninth', ['Treachery']);
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
     };
 
-    _class3.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
-      var _this20 = this;
+    _class9.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
+      var _this22 = this;
 
       this.render('{{#each name key="@index" as |foo|}}{{#each foo as |bar|}}{{bar}}{{/each}}{{/each}}', {
         name: _emberRuntimeSystemNative_array.A([_emberRuntimeSystemNative_array.A(['caterpillar'])])
@@ -52176,13 +52948,13 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this22.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        var name = _emberMetalProperty_get.get(_this20.context, 'name');
+        var name = _emberMetalProperty_get.get(_this22.context, 'name');
         name.objectAt(0).replace(0, 1, 'lady');
         name.pushObject(['bird']);
       });
@@ -52190,51 +52962,51 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('ladybird');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this20.context, 'name', [['caterpillar']]);
+        return _emberMetalProperty_set.set(_this22.context, 'name', [['caterpillar']]);
       });
 
       this.assertText('caterpillar');
     };
 
-    return _class3;
+    return _class9;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} undefined path', (function (_RenderingTest2) {
-    _inherits(_class4, _RenderingTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} undefined path', (function (_RenderingTest3) {
+    _inherits(_class10, _RenderingTest3);
 
-    function _class4() {
-      _classCallCheck(this, _class4);
+    function _class10() {
+      _classCallCheck(this, _class10);
 
-      _RenderingTest2.apply(this, arguments);
+      _RenderingTest3.apply(this, arguments);
     }
 
-    _class4.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this21 = this;
+    _class10.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
+      var _this23 = this;
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this23.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'foo', { bar: { baz: ['Here!'] } });
+        return _emberMetalProperty_set.set(_this23.context, 'foo', { bar: { baz: ['Here!'] } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this21.context, 'foo', {});
+        return _emberMetalProperty_set.set(_this23.context, 'foo', {});
       });
 
       this.assertText('');
     };
 
-    return _class4;
+    return _class10;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
@@ -52251,13 +53023,13 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} with inverse', (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(_class, _TogglingSyntaxConditionalsTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} with inverse', (function (_IfUnlessWithSyntaxTest) {
+    _inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+      _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -52269,15 +53041,15 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     };
 
     return _class;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}} with inverse', (function (_TogglingSyntaxConditionalsTest2) {
-    _inherits(_class2, _TogglingSyntaxConditionalsTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}} with inverse', (function (_IfUnlessWithSyntaxTest2) {
+    _inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _TogglingSyntaxConditionalsTest2.apply(this, arguments);
+      _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -52289,15 +53061,15 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     };
 
     return _class2;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} and {{#unless}} without inverse', (function (_TogglingSyntaxConditionalsTest3) {
-    _inherits(_class3, _TogglingSyntaxConditionalsTest3);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} and {{#unless}} without inverse', (function (_IfUnlessWithSyntaxTest3) {
+    _inherits(_class3, _IfUnlessWithSyntaxTest3);
 
     function _class3() {
       _classCallCheck(this, _class3);
 
-      _TogglingSyntaxConditionalsTest3.apply(this, arguments);
+      _IfUnlessWithSyntaxTest3.apply(this, arguments);
     }
 
     _class3.prototype.templateFor = function templateFor(_ref3) {
@@ -52309,7 +53081,7 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
     };
 
     return _class3;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_RenderingTest) {
     _inherits(_class4, _RenderingTest);
@@ -52402,13 +53174,13 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
 
   function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(_class, _TogglingSyntaxConditionalsTest);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_IfUnlessWithSyntaxTest) {
+    _inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+      _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
     _class.prototype.templateFor = function templateFor(_ref) {
@@ -52420,15 +53192,15 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
     };
 
     return _class;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
-  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_TogglingSyntaxConditionalsTest2) {
-    _inherits(_class2, _TogglingSyntaxConditionalsTest2);
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_IfUnlessWithSyntaxTest2) {
+    _inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
       _classCallCheck(this, _class2);
 
-      _TogglingSyntaxConditionalsTest2.apply(this, arguments);
+      _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
     _class2.prototype.templateFor = function templateFor(_ref2) {
@@ -52687,7 +53459,7 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
     };
 
     return _class2;
-  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest));
+  })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
     _inherits(_class3, _RenderingTest);
@@ -53573,8 +54345,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
           var generator = mixinOrGenerator;
           mixin = {};
 
-          generator.cases.forEach(function (value) {
-            _emberMetalAssign.default(mixin, generator.generate(value));
+          generator.cases.forEach(function (value, idx) {
+            _emberMetalAssign.default(mixin, generator.generate(value, idx));
           });
         })();
       } else {
@@ -54213,7 +54985,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
     /* abstract */
 
-    AbstractGenerator.prototype.generate = function generate(value) {
+    AbstractGenerator.prototype.generate = function generate(value, idx) {
       throw new Error('Not implemented: `generate`');
     };
 
@@ -54229,10 +55001,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       _AbstractGenerator.apply(this, arguments);
     }
 
-    TruthyGenerator.prototype.generate = function generate(value) {
+    TruthyGenerator.prototype.generate = function generate(value, idx) {
       var _ref;
 
-      return _ref = {}, _ref['@test it should consider ' + JSON.stringify(value) + ' truthy'] = function () {
+      return _ref = {}, _ref['@test it should consider ' + JSON.stringify(value) + ' truthy [' + idx + ']'] = function () {
         var _this = this;
 
         this.renderValues(value);
@@ -54273,10 +55045,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       _AbstractGenerator2.apply(this, arguments);
     }
 
-    FalsyGenerator.prototype.generate = function generate(value) {
+    FalsyGenerator.prototype.generate = function generate(value, idx) {
       var _ref2;
 
-      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' falsy'] = function () {
+      return _ref2 = {}, _ref2['@test it should consider ' + JSON.stringify(value) + ' falsy [' + idx + ']'] = function () {
         var _this2 = this;
 
         this.renderValues(value);
@@ -54317,10 +55089,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       _TruthyGenerator.apply(this, arguments);
     }
 
-    StableTruthyGenerator.prototype.generate = function generate(value) {
+    StableTruthyGenerator.prototype.generate = function generate(value, idx) {
       var _assign;
 
-      return _emberMetalAssign.default(_TruthyGenerator.prototype.generate.call(this, value), (_assign = {}, _assign['@test it maintains DOM stability when condition changes from ' + value + ' to another truthy value and back'] = function () {
+      return _emberMetalAssign.default(_TruthyGenerator.prototype.generate.call(this, value, idx), (_assign = {}, _assign['@test it maintains DOM stability when condition changes from ' + value + ' to another truthy value and back [' + idx + ']'] = function () {
         var _this3 = this;
 
         this.renderValues(value);
@@ -54361,10 +55133,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       _FalsyGenerator.apply(this, arguments);
     }
 
-    StableFalsyGenerator.prototype.generate = function generate(value) {
+    StableFalsyGenerator.prototype.generate = function generate(value, idx) {
       var _assign2;
 
-      return _emberMetalAssign.default(_FalsyGenerator.prototype.generate.call(this, value), (_assign2 = {}, _assign2['@test it maintains DOM stability when condition changes from ' + value + ' to another falsy value and back'] = function () {
+      return _emberMetalAssign.default(_FalsyGenerator.prototype.generate.call(this, value), (_assign2 = {}, _assign2['@test it maintains DOM stability when condition changes from ' + value + ' to another falsy value and back [' + idx + ']'] = function () {
         var _this4 = this;
 
         this.renderValues(value);
@@ -54408,13 +55180,13 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     // Testing behaviors shared across all conditionals, i.e. {{#if}}, {{#unless}},
     // {{#with}}, {{#each}}, {{#each-in}}, (if) and (unless)
 
-    ObjectProxyGenerator.prototype.generate = function generate(value) {
+    ObjectProxyGenerator.prototype.generate = function generate(value, idx) {
       // This is inconsistent with our usual to-bool policy, but the current proxy implementation
       // simply uses !!content to determine truthiness
       if (value) {
         var _ref3;
 
-        return _ref3 = {}, _ref3['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy'] = function () {
+        return _ref3 = {}, _ref3['@test it should consider an object proxy with `' + JSON.stringify(value) + '` truthy [' + idx + ']'] = function () {
           var _this5 = this;
 
           this.renderValues(_emberRuntimeSystemObject_proxy.default.create({ content: value }));
@@ -54442,7 +55214,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       } else {
         var _ref4;
 
-        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy'] = function () {
+        return _ref4 = {}, _ref4['@test it should consider an object proxy with `' + JSON.stringify(value) + '` falsy [' + idx + ']'] = function () {
           var _this6 = this;
 
           this.renderValues(_emberRuntimeSystemObject_proxy.default.create({ content: value }));
@@ -54661,8 +55433,18 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   }, _ArrayTestCases);
 
   exports.ArrayTestCases = ArrayTestCases;
+  var IfUnlessWithTestCases = [new StableTruthyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }), Object, function () {},
+  /*jshint -W053 */
+  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
+  /*jshint +W053 */
+  new Date()]), new StableFalsyGenerator([false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A(), _emberRuntimeSystemObject_proxy.default.create({ content: undefined })]), new ObjectProxyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: [] }), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }), _emberRuntimeSystemObject_proxy.default.create({ content: undefined }),
+  /*jshint -W053 */
+  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
+  /*jshint +W053 */
+  new Date(), false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A()]), ObjectTestCases, ArrayTestCases];
+
   // Testing behaviors shared across the "toggling" conditionals, i.e. {{#if}},
-  // {{#unless}}, {{#with}}, (if) and (unless)
+  // {{#unless}}, {{#with}}, {{#each}}, {{#each-in}}, (if) and (unless)
 
   var TogglingConditionalsTest = (function (_BasicConditionalsTest) {
     _inherits(TogglingConditionalsTest, _BasicConditionalsTest);
@@ -54673,22 +55455,11 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       _BasicConditionalsTest.apply(this, arguments);
     }
 
+    // Testing behaviors shared across the (if) and (unless) helpers
     return TogglingConditionalsTest;
   })(BasicConditionalsTest);
 
   exports.TogglingConditionalsTest = TogglingConditionalsTest;
-
-  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(TogglingConditionalsTest, new StableTruthyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }),
-  /*jshint -W053 */
-  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
-  /*jshint +W053 */
-  new Date()]), new StableFalsyGenerator([false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A(), _emberRuntimeSystemObject_proxy.default.create({ content: undefined })]), new ObjectProxyGenerator([true, ' ', 'hello', 'false', 'null', 'undefined', 1, ['hello'], _emberRuntimeSystemNative_array.A(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: [] }), {}, { foo: 'bar' }, _emberRuntimeSystemObject.default.create(), _emberRuntimeSystemObject.default.create({ foo: 'bar' }), _emberRuntimeSystemObject_proxy.default.create({ content: true }), _emberRuntimeSystemObject_proxy.default.create({ content: undefined }),
-  /*jshint -W053 */
-  new String('hello'), new String(''), new Boolean(true), new Boolean(false),
-  /*jshint +W053 */
-  new Date(), false, null, undefined, '', 0, [], _emberRuntimeSystemNative_array.A()]), ObjectTestCases, ArrayTestCases);
-
-  // Testing behaviors shared across the (if) and (unless) helpers
 
   var TogglingHelperConditionalsTest = (function (_TogglingConditionalsTest) {
     _inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
@@ -54718,8 +55489,47 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.render(wrappedTemplate, context);
     };
 
-    TogglingHelperConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+    TogglingHelperConditionalsTest.prototype['@test it has access to the outer scope from both templates'] = function testItHasAccessToTheOuterScopeFromBothTemplates() {
       var _this12 = this;
+
+      var template = this.wrapperFor([this.templateFor({ cond: 'cond1', truthy: 'truthy', falsy: 'falsy' }), this.templateFor({ cond: 'cond2', truthy: 'truthy', falsy: 'falsy' })]);
+
+      this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue, truthy: 'YES', falsy: 'NO' });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this12.context, 'truthy', 'YASS');
+        _emberMetalProperty_set.set(_this12.context, 'falsy', 'NOPE');
+      });
+
+      this.assertText('YASSNOPE');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.falsyValue);
+        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.truthyValue);
+      });
+
+      this.assertText('NOPEYASS');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this12.context, 'truthy', 'YES');
+        _emberMetalProperty_set.set(_this12.context, 'falsy', 'NO');
+        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.truthyValue);
+        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.falsyValue);
+      });
+
+      this.assertText('YESNO');
+    };
+
+    TogglingHelperConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
+      var _this13 = this;
 
       var template = this.wrapperFor([this.templateFor({ cond: '(unbound cond1)', truthy: '"T1"', falsy: '"F1"' }), this.templateFor({ cond: '(unbound cond2)', truthy: '"T2"', falsy: '"F2"' })]);
 
@@ -54728,34 +55538,34 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.falsyValue);
+        return _emberMetalProperty_set.set(_this13.context, 'cond1', _this13.falsyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.truthyValue);
-        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.truthyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond1', _this13.truthyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', _this13.truthyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this12.context, 'cond1', _this12.truthyValue);
-        _emberMetalProperty_set.set(_this12.context, 'cond2', _this12.falsyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond1', _this13.truthyValue);
+        _emberMetalProperty_set.set(_this13.context, 'cond2', _this13.falsyValue);
       });
 
       this.assertText('T1F2');
     };
 
     TogglingHelperConditionalsTest.prototype['@glimmer evaluation should be lazy'] = function glimmerEvaluationShouldBeLazy(assert) {
-      var _this13 = this;
+      var _this14 = this;
 
       var truthyEvaluated = undefined;
       var falsyEvaluated = undefined;
@@ -54789,38 +55599,38 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '(x-truthy)', falsy: '(x-falsy)' });
 
       withoutEvaluatingFalsy(function () {
-        return _this13.render(template, { cond: _this13.truthyValue });
+        return _this14.render(template, { cond: _this14.truthyValue });
       });
 
       this.assertText('T');
 
       withoutEvaluatingFalsy(function () {
-        return _this13.runTask(function () {
-          return _this13.rerender();
+        return _this14.runTask(function () {
+          return _this14.rerender();
         });
       });
 
       this.assertText('T');
 
       withoutEvaluatingTruthy(function () {
-        return _this13.runTask(function () {
-          return _emberMetalProperty_set.set(_this13.context, 'cond', _this13.falsyValue);
+        return _this14.runTask(function () {
+          return _emberMetalProperty_set.set(_this14.context, 'cond', _this14.falsyValue);
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingTruthy(function () {
-        return _this13.runTask(function () {
-          return _this13.rerender();
+        return _this14.runTask(function () {
+          return _this14.rerender();
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingFalsy(function () {
-        return _this13.runTask(function () {
-          return _emberMetalProperty_set.set(_this13.context, 'cond', _this13.truthyValue);
+        return _this14.runTask(function () {
+          return _emberMetalProperty_set.set(_this14.context, 'cond', _this14.truthyValue);
         });
       });
 
@@ -54831,9 +55641,36 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   })(TogglingConditionalsTest);
 
   exports.TogglingHelperConditionalsTest = TogglingHelperConditionalsTest;
-  var SyntaxCondtionalTestHelpers = {
 
-    renderValues: function () {
+  var IfUnlessHelperTest = (function (_TogglingHelperConditionalsTest) {
+    _inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
+
+    function IfUnlessHelperTest() {
+      _classCallCheck(this, IfUnlessHelperTest);
+
+      _TogglingHelperConditionalsTest.apply(this, arguments);
+    }
+
+    return IfUnlessHelperTest;
+  })(TogglingHelperConditionalsTest);
+
+  exports.IfUnlessHelperTest = IfUnlessHelperTest;
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins.apply(undefined, [IfUnlessHelperTest].concat(IfUnlessWithTestCases));
+
+  // Testing behaviors shared across the "toggling" syntatical constructs,
+  // i.e. {{#if}}, {{#unless}}, {{#with}}, {{#each}} and {{#each-in}}
+
+  var TogglingSyntaxConditionalsTest = (function (_TogglingConditionalsTest2) {
+    _inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
+
+    function TogglingSyntaxConditionalsTest() {
+      _classCallCheck(this, TogglingSyntaxConditionalsTest);
+
+      _TogglingConditionalsTest2.apply(this, arguments);
+    }
+
+    TogglingSyntaxConditionalsTest.prototype.renderValues = function renderValues() {
       var templates = [];
       var context = {};
 
@@ -54848,165 +55685,106 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
       var wrappedTemplate = this.wrapperFor(templates);
       this.render(wrappedTemplate, _emberMetalAssign.default({ t: 'T', f: 'F' }, context));
-    }
-
-  };
-
-  exports.SyntaxCondtionalTestHelpers = SyntaxCondtionalTestHelpers;
-  // Testing behaviors shared across the "toggling" syntatical constructs,
-  // i.e. {{#if}}, {{#unless}} and {{#with}}
-
-  var TogglingSyntaxConditionalsTest = (function (_TogglingConditionalsTest2) {
-    _inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
-
-    function TogglingSyntaxConditionalsTest() {
-      _classCallCheck(this, TogglingSyntaxConditionalsTest);
-
-      _TogglingConditionalsTest2.apply(this, arguments);
-    }
+    };
 
     TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
-      var _this14 = this;
+      var _this15 = this;
 
       var template = '' + this.templateFor({ cond: '(unbound cond1)', truthy: 'T1', falsy: 'F1' }) + this.templateFor({ cond: '(unbound cond2)', truthy: 'T2', falsy: 'F2' });
 
-      this.render(template, { cond1: true, cond2: this.falsyValue });
+      this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'cond1', _this14.falsyValue);
+        return _emberMetalProperty_set.set(_this15.context, 'cond1', _this15.falsyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this14.context, 'cond1', _this14.truthyValue);
-        _emberMetalProperty_set.set(_this14.context, 'cond2', _this14.truthyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond1', _this15.truthyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', _this15.truthyValue);
       });
 
       this.assertText('T1F2');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this14.context, 'cond1', _this14.truthyValue);
-        _emberMetalProperty_set.set(_this14.context, 'cond2', _this14.falsyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond1', _this15.truthyValue);
+        _emberMetalProperty_set.set(_this15.context, 'cond2', _this15.falsyValue);
       });
 
       this.assertText('T1F2');
     };
 
+    TogglingSyntaxConditionalsTest.prototype['@test it has access to the outer scope from both templates'] = function testItHasAccessToTheOuterScopeFromBothTemplates() {
+      var _this16 = this;
+
+      var template = this.wrapperFor([this.templateFor({ cond: 'cond1', truthy: '{{truthy}}', falsy: '{{falsy}}' }), this.templateFor({ cond: 'cond2', truthy: '{{truthy}}', falsy: '{{falsy}}' })]);
+
+      this.render(template, { cond1: this.truthyValue, cond2: this.falsyValue, truthy: 'YES', falsy: 'NO' });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        return _this16.rerender();
+      });
+
+      this.assertText('YESNO');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this16.context, 'truthy', 'YASS');
+        _emberMetalProperty_set.set(_this16.context, 'falsy', 'NOPE');
+      });
+
+      this.assertText('YASSNOPE');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.falsyValue);
+        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.truthyValue);
+      });
+
+      this.assertText('NOPEYASS');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this16.context, 'truthy', 'YES');
+        _emberMetalProperty_set.set(_this16.context, 'falsy', 'NO');
+        _emberMetalProperty_set.set(_this16.context, 'cond1', _this16.truthyValue);
+        _emberMetalProperty_set.set(_this16.context, 'cond2', _this16.falsyValue);
+      });
+
+      this.assertText('YESNO');
+    };
+
     TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing another conditional'] = function testItUpdatesCorrectlyWhenEnclosingAnotherConditional() {
-      var _this15 = this;
+      var _this17 = this;
 
       // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#if inner}}T-inner{{else}}F-inner{{/if}}', falsy: 'F-outer' });
+      var inner = this.templateFor({ cond: 'inner', truthy: 'T-inner', falsy: 'F-inner' });
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: inner, falsy: 'F-outer' });
 
       this.render(template, { outer: this.truthyValue, inner: this.truthyValue });
 
       this.assertText('T-inner');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('T-inner');
 
       // Changes the inner bounds
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this15.context, 'inner', _this15.falsyValue);
+        return _emberMetalProperty_set.set(_this17.context, 'inner', _this17.falsyValue);
       });
 
       this.assertText('F-inner');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this15.context, 'outer', _this15.falsyValue);
-      });
-
-      this.assertText('F-outer');
-    };
-
-    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing #each'] = function testItUpdatesCorrectlyWhenEnclosingEach() {
-      var _this16 = this;
-
-      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
-
-      this.render(template, { outer: this.truthyValue, inner: ['inner', '-', 'before'] });
-
-      this.assertText('inner-before');
-
-      this.runTask(function () {
-        return _this16.rerender();
-      });
-
-      this.assertText('inner-before');
-
-      // Changes the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'inner', ['inner-after']);
-      });
-
-      this.assertText('inner-after');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'outer', _this16.falsyValue);
-      });
-
-      this.assertText('F-outer');
-
-      // Reset
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this16.context, 'inner', ['inner-again']);
-        _emberMetalProperty_set.set(_this16.context, 'outer', _this16.truthyValue);
-      });
-
-      this.assertText('inner-again');
-
-      // Now clear the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'inner', []);
-      });
-
-      this.assertText('');
-
-      // Now rerender the outer conditional, which require first clearing its bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this16.context, 'outer', _this16.falsyValue);
-      });
-
-      this.assertText('F-outer');
-    };
-
-    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
-      var _this17 = this;
-
-      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
-      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
-
-      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
-
-      this.assertText('inner-before');
-
-      this.runTask(function () {
-        return _this17.rerender();
-      });
-
-      this.assertText('inner-before');
-
-      // Changes the inner bounds
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this17.context, 'inner', '<p>inner-after</p>');
-      });
-
-      this.assertText('inner-after');
 
       // Now rerender the outer conditional, which require first clearing its bounds
       this.runTask(function () {
@@ -55016,8 +55794,92 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('F-outer');
     };
 
-    TogglingSyntaxConditionalsTest.prototype['@test child conditional should not render children if parent conditional becomes false'] = function testChildConditionalShouldNotRenderChildrenIfParentConditionalBecomesFalse(assert) {
+    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing #each'] = function testItUpdatesCorrectlyWhenEnclosingEach() {
       var _this18 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{#each inner as |text|}}{{text}}{{/each}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: this.truthyValue, inner: ['inner', '-', 'before'] });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-after']);
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', _this18.falsyValue);
+      });
+
+      this.assertText('F-outer');
+
+      // Reset
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this18.context, 'inner', ['inner-again']);
+        _emberMetalProperty_set.set(_this18.context, 'outer', _this18.truthyValue);
+      });
+
+      this.assertText('inner-again');
+
+      // Now clear the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'inner', []);
+      });
+
+      this.assertText('');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.context, 'outer', _this18.falsyValue);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test it updates correctly when enclosing triple-curlies'] = function testItUpdatesCorrectlyWhenEnclosingTripleCurlies() {
+      var _this19 = this;
+
+      // This tests whether the outer conditional tracks its bounds correctly as its inner bounds changes
+      var template = this.wrappedTemplateFor({ cond: 'outer', truthy: '{{{inner}}}', falsy: 'F-outer' });
+
+      this.render(template, { outer: this.truthyValue, inner: '<b>inner</b>-<b>before</b>' });
+
+      this.assertText('inner-before');
+
+      this.runTask(function () {
+        return _this19.rerender();
+      });
+
+      this.assertText('inner-before');
+
+      // Changes the inner bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'inner', '<p>inner-after</p>');
+      });
+
+      this.assertText('inner-after');
+
+      // Now rerender the outer conditional, which require first clearing its bounds
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this19.context, 'outer', _this19.falsyValue);
+      });
+
+      this.assertText('F-outer');
+    };
+
+    TogglingSyntaxConditionalsTest.prototype['@test child conditional should not render children if parent conditional becomes false'] = function testChildConditionalShouldNotRenderChildrenIfParentConditionalBecomesFalse(assert) {
+      var _this20 = this;
 
       var childCreated = false;
 
@@ -55040,23 +55902,23 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       this.assertText('');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this20.rerender();
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this18.context, 'cond2', _this18.truthyValue);
-        _emberMetalProperty_set.set(_this18.context, 'cond1', _this18.falsyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond2', _this20.truthyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond1', _this20.falsyValue);
       });
 
       assert.ok(!childCreated);
       this.assertText('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this18.context, 'cond2', _this18.falsyValue);
-        _emberMetalProperty_set.set(_this18.context, 'cond1', _this18.truthyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond2', _this20.falsyValue);
+        _emberMetalProperty_set.set(_this20.context, 'cond1', _this20.truthyValue);
       });
 
       assert.ok(!childCreated);
@@ -55064,7 +55926,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test evaluation should be lazy'] = function testEvaluationShouldBeLazy(assert) {
-      var _this19 = this;
+      var _this21 = this;
 
       var truthyEvaluated = undefined;
       var falsyEvaluated = undefined;
@@ -55098,38 +55960,38 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       var template = this.wrappedTemplateFor({ cond: 'cond', truthy: '{{x-truthy}}', falsy: '{{x-falsy}}' });
 
       withoutEvaluatingFalsy(function () {
-        return _this19.render(template, { cond: _this19.truthyValue });
+        return _this21.render(template, { cond: _this21.truthyValue });
       });
 
       this.assertText('T');
 
       withoutEvaluatingFalsy(function () {
-        return _this19.runTask(function () {
-          return _this19.rerender();
+        return _this21.runTask(function () {
+          return _this21.rerender();
         });
       });
 
       this.assertText('T');
 
       withoutEvaluatingTruthy(function () {
-        return _this19.runTask(function () {
-          return _emberMetalProperty_set.set(_this19.context, 'cond', _this19.falsyValue);
+        return _this21.runTask(function () {
+          return _emberMetalProperty_set.set(_this21.context, 'cond', _this21.falsyValue);
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingTruthy(function () {
-        return _this19.runTask(function () {
-          return _this19.rerender();
+        return _this21.runTask(function () {
+          return _this21.rerender();
         });
       });
 
       this.assertText('F');
 
       withoutEvaluatingFalsy(function () {
-        return _this19.runTask(function () {
-          return _emberMetalProperty_set.set(_this19.context, 'cond', _this19.truthyValue);
+        return _this21.runTask(function () {
+          return _emberMetalProperty_set.set(_this21.context, 'cond', _this21.truthyValue);
         });
       });
 
@@ -55141,7 +56003,21 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
   exports.TogglingSyntaxConditionalsTest = TogglingSyntaxConditionalsTest;
 
-  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(TogglingSyntaxConditionalsTest, SyntaxCondtionalTestHelpers);
+  var IfUnlessWithSyntaxTest = (function (_TogglingSyntaxConditionalsTest) {
+    _inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
+
+    function IfUnlessWithSyntaxTest() {
+      _classCallCheck(this, IfUnlessWithSyntaxTest);
+
+      _TogglingSyntaxConditionalsTest.apply(this, arguments);
+    }
+
+    return IfUnlessWithSyntaxTest;
+  })(TogglingSyntaxConditionalsTest);
+
+  exports.IfUnlessWithSyntaxTest = IfUnlessWithSyntaxTest;
+
+  _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins.apply(undefined, [IfUnlessWithSyntaxTest].concat(IfUnlessWithTestCases));
 });
 enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/utils/string', 'ember-metal/features', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsUtilsString, _emberMetalFeatures, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';

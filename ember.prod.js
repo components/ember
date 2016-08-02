@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ef157d01
+ * @version   2.9.0-null+ad5d20bb
  */
 
 var enifed, requireModule, require, Ember;
@@ -12103,22 +12103,33 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
       if (_emberRuntimeMixinsProxy.isProxy(iterable)) {
         valueTag.update(_glimmerReference.CURRENT_TAG);
+        iterable = _emberMetalProperty_get.get(iterable, 'content');
       } else {
         valueTag.update(_emberMetalTags.tagFor(iterable));
       }
 
       if (iterable === undefined || iterable === null) {
         return EMPTY_ITERATOR;
-      } else if (_emberGlimmerHelpersEachIn.isEachIn(ref)) {
+      }
+
+      var typeofIterable = typeof iterable;
+
+      if (typeofIterable !== 'object' && typeofIterable !== 'function') {
+        return EMPTY_ITERATOR;
+      }
+
+      if (_emberGlimmerHelpersEachIn.isEachIn(ref)) {
         var keys = Object.keys(iterable);
         var values = keys.map(function (key) {
           return iterable[key];
         });
         return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
-      } else if (_emberRuntimeMixinsArray.isEmberArray(iterable)) {
-        return new EmberArrayIterator(iterable, keyFor);
-      } else if (Array.isArray(iterable)) {
+      }
+
+      if (Array.isArray(iterable)) {
         return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
+      } else if (_emberRuntimeMixinsArray.isEmberArray(iterable)) {
+        return _emberMetalProperty_get.get(iterable, 'length') > 0 ? new EmberArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
       } else if (typeof iterable.forEach === 'function') {
         var _ret = (function () {
           var array = [];
@@ -12132,7 +12143,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
         if (typeof _ret === 'object') return _ret.v;
       } else {
-        throw new Error('Don\'t know how to {{#each ' + iterable + '}}');
+        return EMPTY_ITERATOR;
       }
     };
 
@@ -47903,7 +47914,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+ef157d01";
+  exports.default = "2.9.0-null+ad5d20bb";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
