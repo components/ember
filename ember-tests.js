@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.2
+ * @version   2.8.0-beta.2+aec1fa69
  */
 
 var enifed, requireModule, require, Ember;
@@ -8931,6 +8931,36 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'a', attrs: { href: 'unsafe:javascript:alert(\'foo\')' } });
+    };
+
+    _class.prototype['@test it can bind the role attribute (issue #14007)'] = function testItCanBindTheRoleAttributeIssue14007() {
+      var _this17 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({ attributeBindings: ['role'] });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar role=role}}', { role: 'button' });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { role: 'button' } });
+
+      this.runTask(function () {
+        return _this17.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { role: 'button' } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this17.context, 'role', 'combobox');
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { role: 'combobox' } });
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this17.context, 'role', null);
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'div' });
     };
 
     return _class;
