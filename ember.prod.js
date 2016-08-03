@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ad5d20bb
+ * @version   2.9.0-null+3d25f980
  */
 
 var enifed, requireModule, require, Ember;
@@ -21357,7 +21357,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
       }
     }
 
-    normalized.role = _htmlbarsUtilTemplateUtils.buildStatement('get', 'ariaRole');
+    normalized.role = normalized.role || _htmlbarsUtilTemplateUtils.buildStatement('get', 'ariaRole');
 
     if (attrs.tagName) {
       component.tagName = attrs.tagName;
@@ -47914,7 +47914,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+ad5d20bb";
+  exports.default = "2.9.0-null+3d25f980";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
