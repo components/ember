@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+3d25f980
+ * @version   2.9.0-null+138de8f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -19165,12 +19165,12 @@ enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup
     ```
   
     The above example template will render a template named
-    "_nav", which has the same context as the parent template
-    it's rendered into, so if the "_nav" template also referenced
+    "-nav", which has the same context as the parent template
+    it's rendered into, so if the "-nav" template also referenced
     `{{foo}}`, it would print the same thing as the `{{foo}}`
     in the above example.
   
-    If a "_nav" template isn't found, the `partial` helper will
+    If a "-nav" template isn't found, the `partial` helper will
     fall back to a template named "nav".
   
     ### Bound template names
@@ -50708,7 +50708,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+3d25f980";
+  exports.default = "2.9.0-null+138de8f6";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
