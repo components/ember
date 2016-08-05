@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+eecc9f99
+ * @version   2.9.0-null+35325469
  */
 
 var enifed, requireModule, require, Ember;
@@ -80997,6 +80997,32 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     fillIn('#first', 'current value');
     andThen(function () {
       deepEqual(events, ['input', 'change'], '`input` and `change` events are fired in the proper order');
+    });
+
+    return wait();
+  });
+
+  QUnit.test('`fillIn` only sets the value in the first matched element', function () {
+    var fillIn = undefined,
+        find = undefined,
+        visit = undefined,
+        andThen = undefined,
+        wait = undefined;
+
+    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<input type="text" id="first" class="in-test"><input type="text" id="second" class="in-test">'));
+    _emberMetalRun_loop.default(App, App.advanceReadiness);
+
+    fillIn = App.testHelpers.fillIn;
+    find = App.testHelpers.find;
+    visit = App.testHelpers.visit;
+    andThen = App.testHelpers.andThen;
+    wait = App.testHelpers.wait;
+
+    visit('/');
+    fillIn('input.in-test', 'new value');
+    andThen(function () {
+      equal(find('#first').val(), 'new value');
+      equal(find('#second').val(), '');
     });
 
     return wait();
