@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.2+af0a4225
+ * @version   2.8.0-beta.2+0531c184
  */
 
 var enifed, requireModule, require, Ember;
@@ -40630,7 +40630,7 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], fun
     el = $el[0];
     _emberTestingEvents.focus(el);
 
-    $el.val(text);
+    $el.eq(0).val(text);
     _emberTestingEvents.fireEvent(el, 'input');
     _emberTestingEvents.fireEvent(el, 'change');
 
@@ -44456,7 +44456,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.2+af0a4225";
+  exports.default = "2.8.0-beta.2+0531c184";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
