@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.2+aec1fa69
+ * @version   2.8.0-beta.2+af0a4225
  */
 
 var enifed, requireModule, require, Ember;
@@ -5391,9 +5391,12 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
           return _this2.register(key, parent.resolveRegistration(key));
         });
 
-        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main'].forEach(function (key) {
+        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', '-environment:main'].forEach(function (key) {
           return _this2.register(key, parent.lookup(key), { instantiate: false });
         });
+
+        this.inject('view', '_environment', '-environment:main');
+        this.inject('route', '_environment', '-environment:main');
       }
     });
   }
@@ -6624,13 +6627,16 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console'
   
     @method deprecate
     @param {String} message A description of the deprecation.
-    @param {Boolean} test A boolean. If falsy, the deprecation
-      will be displayed.
-    @param {Object} options An object that can be used to pass
-      in a `url` to the transition guide on the emberjs.com website, and a unique
-      `id` for this deprecation. The `id` can be used by Ember debugging tools
-      to change the behavior (raise, log or silence) for that specific deprecation.
-      The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @param {Boolean} test A boolean. If falsy, the deprecation will be displayed.
+    @param {Object} options
+    @param {String} options.id A unique id for this deprecation. The id can be
+      used by Ember debugging tools to change the behavior (raise, log or silence)
+      for that specific deprecation. The id should be namespaced by dots, e.g.
+      "view.helper.select".
+    @param {string} options.until The version of Ember when this deprecation
+      warning will be removed.
+    @param {String} [options.url] An optional url to the transition guide on the
+      emberjs.com website.
     @for Ember
     @public
   */
@@ -13084,12 +13090,12 @@ enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup
     ```
   
     The above example template will render a template named
-    "_nav", which has the same context as the parent template
-    it's rendered into, so if the "_nav" template also referenced
+    "-nav", which has the same context as the parent template
+    it's rendered into, so if the "-nav" template also referenced
     `{{foo}}`, it would print the same thing as the `{{foo}}`
     in the above example.
   
-    If a "_nav" template isn't found, the `partial` helper will
+    If a "-nav" template isn't found, the `partial` helper will
     fall back to a template named "nav".
   
     ### Bound template names
@@ -44450,7 +44456,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.2+aec1fa69";
+  exports.default = "2.8.0-beta.2+af0a4225";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

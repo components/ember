@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.2+aec1fa69
+ * @version   2.8.0-beta.2+af0a4225
  */
 
 var enifed, requireModule, require, Ember;
@@ -1838,7 +1838,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
 
   if (true) {
     QUnit.test('can build and boot a registered engine', function (assert) {
-      assert.expect(7);
+      assert.expect(8);
 
       var ChatEngine = _emberApplicationSystemEngine.default.extend();
       var chatEngineInstance = undefined;
@@ -1847,6 +1847,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
 
       _emberMetalRun_loop.default(function () {
         appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: application });
+        appInstance.setupRegistry();
         chatEngineInstance = appInstance.buildChildEngineInstance('chat');
       });
 
@@ -1857,7 +1858,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
           assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
         });
 
-        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main'].forEach(function (key) {
+        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', '-environment:main'].forEach(function (key) {
           assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
         });
       });
@@ -5244,7 +5245,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var App = null;
@@ -5592,6 +5593,52 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
         App = null;
       }
     }
+  });
+
+  _internalTestHelpersTestsSkipIfGlimmer.test('visit() returns a promise that resolves without rendering when shouldRender is set to false', function (assert) {
+    assert.expect(3);
+
+    _emberMetalRun_loop.default(function () {
+      createApplication();
+
+      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+    });
+
+    assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+    return _emberMetalRun_loop.default(App, 'visit', '/', { shouldRender: false }).then(function (instance) {
+      assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are still no elements in the fixture element after visit');
+    });
+  });
+
+  _internalTestHelpersTestsSkipIfGlimmer.test('visit() returns a promise that resolves without rendering when shouldRender is set to false with Engines', function (assert) {
+    assert.expect(3);
+
+    _emberMetalRun_loop.default(function () {
+      createApplication();
+
+      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      App.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      App.register('route-map:blog', BlogMap);
+
+      App.Router.map(function () {
+        this.mount('blog');
+      });
+    });
+
+    assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+    return _emberMetalRun_loop.default(App, 'visit', '/blog', { shouldRender: false }).then(function (instance) {
+      assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are still no elements in the fixture element after visit');
+    });
   });
 
   _internalTestHelpersTestsSkipIfGlimmer.test('Ember Islands-style setup', function (assert) {
@@ -26092,6 +26139,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
       app.register('component-lookup:main', _emberViewsComponent_lookup.default);
 
       appInstance = app.buildInstance();
+      appInstance.setupRegistry();
     });
   }
 

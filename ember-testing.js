@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.2+aec1fa69
+ * @version   2.8.0-beta.2+af0a4225
  */
 
 var enifed, requireModule, require, Ember;
@@ -219,13 +219,16 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console'
   
     @method deprecate
     @param {String} message A description of the deprecation.
-    @param {Boolean} test A boolean. If falsy, the deprecation
-      will be displayed.
-    @param {Object} options An object that can be used to pass
-      in a `url` to the transition guide on the emberjs.com website, and a unique
-      `id` for this deprecation. The `id` can be used by Ember debugging tools
-      to change the behavior (raise, log or silence) for that specific deprecation.
-      The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @param {Boolean} test A boolean. If falsy, the deprecation will be displayed.
+    @param {Object} options
+    @param {String} options.id A unique id for this deprecation. The id can be
+      used by Ember debugging tools to change the behavior (raise, log or silence)
+      for that specific deprecation. The id should be namespaced by dots, e.g.
+      "view.helper.select".
+    @param {string} options.until The version of Ember when this deprecation
+      warning will be removed.
+    @param {String} [options.url] An optional url to the transition guide on the
+      emberjs.com website.
     @for Ember
     @public
   */
