@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ab057765
+ * @version   2.9.0-null+7f5b5b4f
  */
 
 var enifed, requireModule, require, Ember;
@@ -1098,6 +1098,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
   
     @method click
     @param {String} selector jQuery selector for finding element on the DOM
+    @param {Object} context A DOM Element, Document, or jQuery to use as context
     @return {RSVP.Promise}
     @public
   */
