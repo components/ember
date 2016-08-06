@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+fb1870f0
+ * @version   2.9.0-null+fe48cd5e
  */
 
 var enifed, requireModule, require, Ember;
@@ -50491,7 +50491,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     ```
   
     If the return value of an `attributeBindings` monitored property is a boolean
-    the property's value will be set as a coerced string:
+    the attribute will be present or absent depending on the value:
   
     ```javascript
     MyTextInput = Ember.View.extend({
@@ -50504,7 +50504,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     Will result in a view instance with an HTML representation of:
   
     ```html
-    <input id="ember1" class="ember-view" disabled="false" />
+    <input id="ember1" class="ember-view" />
     ```
   
     `attributeBindings` can refer to computed properties:
@@ -50813,7 +50813,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+fb1870f0";
+  exports.default = "2.9.0-null+fe48cd5e";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
