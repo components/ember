@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   v2.9.0-alpha.2
+ * @version   2.9.0-alpha.3
  */
 
 var enifed, requireModule, require, Ember;
@@ -13584,7 +13584,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
   var IS_PROXY = _emberMetalSymbol.default('IS_PROXY');
 
   function isProxy(value) {
-    return value && value[IS_PROXY];
+    return typeof value === 'object' && value && value[IS_PROXY];
   }
 
   function contentPropertyWillChange(content, contentKey) {
@@ -15014,7 +15014,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
 
     /**
       Sets the value on the named property for each member. This is more
-      efficient than using other methods defined on this helper. If the object
+      ergonomic than using other methods defined on this helper. If the object
       implements Ember.Observable, the value will be changed to `set(),` otherwise
       it will be set directly. `null` objects are skipped.
        @method setEach
@@ -20020,7 +20020,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "v2.9.0-alpha.2";
+  exports.default = "2.9.0-alpha.3";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
