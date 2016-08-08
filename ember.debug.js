@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+e540e5d2
+ * @version   2.9.0-null+8438d2b6
  */
 
 var enifed, requireModule, require, Ember;
@@ -35503,13 +35503,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
   
     @private
   */
-  function prefixRouteNameArg() {
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
+  function prefixRouteNameArg(route, args) {
     var routeName = args[0];
-    var owner = _containerOwner.getOwner(this);
+    var owner = _containerOwner.getOwner(route);
     var prefix = owner.mountPoint;
 
     // only alter the routeName if it's actually referencing a route.
@@ -35537,19 +35533,19 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
   if (true) {
     Route.reopen({
       replaceWith: function () {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        return this._super.apply(this, prefixRouteNameArg(this, args));
+      },
+
+      transitionTo: function () {
         for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
           args[_key3] = arguments[_key3];
         }
 
-        return this._super.apply(this, prefixRouteNameArg.call.apply(prefixRouteNameArg, [this].concat(args)));
-      },
-
-      transitionTo: function () {
-        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-          args[_key4] = arguments[_key4];
-        }
-
-        return this._super.apply(this, prefixRouteNameArg.call.apply(prefixRouteNameArg, [this].concat(args)));
+        return this._super.apply(this, prefixRouteNameArg(this, args));
       },
 
       modelFor: function (_routeName) {
@@ -35564,8 +35560,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
           routeName = _routeName;
         }
 
-        for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
-          args[_key5 - 1] = arguments[_key5];
+        for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+          args[_key4 - 1] = arguments[_key4];
         }
 
         return this._super.apply(this, [routeName].concat(args));
@@ -50816,7 +50812,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+e540e5d2";
+  exports.default = "2.9.0-null+8438d2b6";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
