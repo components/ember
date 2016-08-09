@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+8219e0d2
+ * @version   2.9.0-null+0f6a800f
  */
 
 var enifed, requireModule, require, Ember;
@@ -11693,7 +11693,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
             hash.pairs.push(b.pair('inactiveClass', b.string(inactiveClass)));
           }
 
-          params.push(b.sexpr(b.string('-normalize-class'), sexprParams, hash));
+          params.push(b.sexpr(b.path('-normalize-class'), sexprParams, hash));
         }
 
         if (inactiveClass || inactiveClass === '') {
@@ -12215,7 +12215,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+8219e0d2";
+  exports.default = "2.9.0-null+0f6a800f";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";

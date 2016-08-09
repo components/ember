@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+8219e0d2
+ * @version   2.9.0-null+0f6a800f
  */
 
 var enifed, requireModule, require, Ember;
@@ -9692,41 +9692,17 @@ enifed('ember-glimmer/helpers/-normalize-class', ['exports', 'ember-glimmer/util
     var positional = _ref.positional;
     var named = _ref.named;
 
+    var classNameParts = positional.at(0).value().split('.');
+    var className = classNameParts[classNameParts.length - 1];
     var value = positional.at(1).value();
-    var activeClass = named.at('activeClass').value();
-    var inactiveClass = named.at('inactiveClass').value();
 
-    // When using the colon syntax, evaluate the truthiness or falsiness
-    // of the value to determine which className to return.
-    if (activeClass || inactiveClass) {
-      if (!!value) {
-        return activeClass;
-      } else {
-        return inactiveClass;
-      }
-
-      // If value is a Boolean and true, return the dasherized property
-      // name.
-    } else if (value === true) {
-        var propName = positional.at(0);
-        // Only apply to last segment in the path.
-        if (propName) {
-          var segments = propName.split('.');
-          propName = segments[segments.length - 1];
-        }
-
-        return _emberRuntimeSystemString.dasherize(propName);
-
-        // If the value is not false, undefined, or null, return the current
-        // value of the property.
-      } else if (value !== false && value != null) {
-          return value;
-
-          // Nothing to display. Return null so that the old class is removed
-          // but no new class is added.
-        } else {
-            return null;
-          }
+    if (value === true) {
+      return _emberRuntimeSystemString.dasherize(className);
+    } else if (!value && value !== 0) {
+      return '';
+    } else {
+      return String(value);
+    }
   }
 
   exports.default = {
@@ -50811,7 +50787,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+8219e0d2";
+  exports.default = "2.9.0-null+0f6a800f";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
