@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+caf4ab80
+ * @version   2.9.0-null+729adcae
  */
 
 var enifed, requireModule, require, Ember;
@@ -10023,6 +10023,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
   exports.tagFor = tagFor;
 
   var hasGlimmer = _require2.has('glimmer-reference');
+
   var CONSTANT_TAG = undefined,
       CURRENT_TAG = undefined,
       DirtyableTag = undefined,
@@ -10167,7 +10168,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
             var label = undefined;
 
             if (lastRef) {
-              while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              while (lastRef && lastRef._propertyKey) {
                 parts.unshift(lastRef._propertyKey);
                 lastRef = lastRef._parentReference;
               }
@@ -13569,7 +13570,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/observer', 'ember-metal/property_events', 'ember-runtime/computed/computed_macros', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalObserver, _emberMetalProperty_events, _emberRuntimeComputedComputed_macros, _emberMetalProperties, _emberMetalMixin, _emberMetalSymbol) {
+enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/observer', 'ember-metal/property_events', 'ember-runtime/computed/computed_macros', 'ember-runtime/system/core_object', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/tags', 'ember-metal/symbol', 'require'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalObserver, _emberMetalProperty_events, _emberRuntimeComputedComputed_macros, _emberRuntimeSystemCore_object, _emberMetalProperties, _emberMetalMixin, _emberMetalTags, _emberMetalSymbol, _require2) {
   /**
   @module ember
   @submodule ember-runtime
@@ -13577,9 +13578,17 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
 
   'use strict';
 
-  var _Mixin$create;
+  var _PROXY_MIXIN_PROPS;
 
   exports.isProxy = isProxy;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var hasGlimmer = _require2.has('glimmer-reference');
 
   var IS_PROXY = _emberMetalSymbol.default('IS_PROXY');
 
@@ -13611,23 +13620,23 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
     @namespace Ember
     @private
   */
-  exports.default = _emberMetalMixin.Mixin.create((_Mixin$create = {}, _Mixin$create[IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._contentDidChange = _emberMetalMixin.observer('content', function () {
+  var PROXY_MIXIN_PROPS = (_PROXY_MIXIN_PROPS = {}, _PROXY_MIXIN_PROPS[IS_PROXY] = true, _PROXY_MIXIN_PROPS.content = null, _PROXY_MIXIN_PROPS._contentDidChange = _emberMetalMixin.observer('content', function () {
     _emberMetalDebug.assert('Can\'t set Proxy\'s content to itself', _emberMetalProperty_get.get(this, 'content') !== this);
-  }), _Mixin$create.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _Mixin$create._debugContainerKey = null, _Mixin$create.willWatchProperty = function (key) {
+  }), _PROXY_MIXIN_PROPS.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _PROXY_MIXIN_PROPS._debugContainerKey = null, _PROXY_MIXIN_PROPS.willWatchProperty = function (key) {
     var contentKey = 'content.' + key;
     _emberMetalObserver._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
     _emberMetalObserver.addObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _Mixin$create.didUnwatchProperty = function (key) {
+  }, _PROXY_MIXIN_PROPS.didUnwatchProperty = function (key) {
     var contentKey = 'content.' + key;
     _emberMetalObserver._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
     _emberMetalObserver.removeObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _Mixin$create.unknownProperty = function (key) {
+  }, _PROXY_MIXIN_PROPS.unknownProperty = function (key) {
     var content = _emberMetalProperty_get.get(this, 'content');
     if (content) {
       _emberMetalDebug.deprecate('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
       return _emberMetalProperty_get.get(content, key);
     }
-  }, _Mixin$create.setUnknownProperty = function (key, value) {
+  }, _PROXY_MIXIN_PROPS.setUnknownProperty = function (key, value) {
     var m = _emberMetalMeta.meta(this);
     if (m.proto === this) {
       // if marked as prototype then just defineProperty
@@ -13641,7 +13650,55 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
 
     _emberMetalDebug.deprecate('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
     return _emberMetalProperty_set.set(content, key, value);
-  }, _Mixin$create));
+  }, _PROXY_MIXIN_PROPS);
+
+  if (hasGlimmer) {
+    (function () {
+      var _require = _require2.default('glimmer-reference');
+
+      var CachedTag = _require.CachedTag;
+      var DirtyableTag = _require.DirtyableTag;
+      var UpdatableTag = _require.UpdatableTag;
+
+      var ProxyTag = (function (_CachedTag) {
+        _inherits(ProxyTag, _CachedTag);
+
+        function ProxyTag(proxy, content) {
+          _classCallCheck(this, ProxyTag);
+
+          _CachedTag.call(this);
+          this.proxyWrapperTag = new DirtyableTag();
+          this.proxyContentTag = new UpdatableTag(_emberMetalTags.tagFor(content));
+        }
+
+        ProxyTag.prototype.compute = function compute() {
+          return Math.max(this.proxyWrapperTag.value(), this.proxyContentTag.value());
+        };
+
+        ProxyTag.prototype.dirty = function dirty() {
+          this.proxyWrapperTag.dirty();
+        };
+
+        ProxyTag.prototype.contentDidChange = function contentDidChange(content) {
+          this.proxyContentTag.update(_emberMetalTags.tagFor(content));
+        };
+
+        return ProxyTag;
+      })(CachedTag);
+
+      PROXY_MIXIN_PROPS[_emberRuntimeSystemCore_object.POST_INIT] = function postInit() {
+        this._super();
+        _emberMetalMeta.meta(this)._tag = new ProxyTag(this, _emberMetalProperty_get.get(this, 'content'));
+      };
+
+      PROXY_MIXIN_PROPS._contentDidChange = _emberMetalMixin.observer('content', function () {
+        _emberMetalDebug.assert('Can\'t set Proxy\'s content to itself', _emberMetalProperty_get.get(this, 'content') !== this);
+        _emberMetalMeta.meta(this)._tag.contentDidChange(_emberMetalProperty_get.get(this, 'content'));
+      });
+    })();
+  }
+
+  exports.default = _emberMetalMixin.Mixin.create(PROXY_MIXIN_PROPS);
 });
 
 /**
@@ -18126,19 +18183,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
 
       finishPartial(this, m);
 
-      if (arguments.length === 0) {
-        this.init();
-      } else if (arguments.length === 1) {
-        this.init(arguments[0]);
-      } else {
-        // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
-        // we may want to keep this around till this ages out on mobile
-        var args = new Array(arguments.length);
-        for (var x = 0; x < arguments.length; x++) {
-          args[x] = arguments[x];
-        }
-        this.init.apply(this, args);
-      }
+      this.init.apply(this, arguments);
 
       this[POST_INIT]();
 
@@ -20020,7 +20065,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+caf4ab80";
+  exports.default = "2.9.0-null+729adcae";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';

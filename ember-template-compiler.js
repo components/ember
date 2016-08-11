@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+caf4ab80
+ * @version   2.9.0-null+729adcae
  */
 
 var enifed, requireModule, require, Ember;
@@ -9968,6 +9968,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
   exports.tagFor = tagFor;
 
   var hasGlimmer = _require2.has('glimmer-reference');
+
   var CONSTANT_TAG = undefined,
       CURRENT_TAG = undefined,
       DirtyableTag = undefined,
@@ -10112,7 +10113,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
             var label = undefined;
 
             if (lastRef) {
-              while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              while (lastRef && lastRef._propertyKey) {
                 parts.unshift(lastRef._propertyKey);
                 lastRef = lastRef._parentReference;
               }
@@ -12215,7 +12216,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+caf4ab80";
+  exports.default = "2.9.0-null+729adcae";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";

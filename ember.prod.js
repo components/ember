@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+caf4ab80
+ * @version   2.9.0-null+729adcae
  */
 
 var enifed, requireModule, require, Ember;
@@ -7240,7 +7240,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
 // reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'glimmer-reference', 'glimmer-runtime', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _glimmerReference, _glimmerRuntime, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-glimmer/ember-views/class-names-support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'glimmer-reference', 'glimmer-runtime', 'ember-metal/debug', 'ember-metal/mixin', 'container/owner'], function (exports, _emberViewsViewsCore_view, _emberGlimmerEmberViewsClassNamesSupport, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _glimmerReference, _glimmerRuntime, _emberMetalDebug, _emberMetalMixin, _containerOwner) {
   'use strict';
 
   var _CoreView$extend;
@@ -7251,8 +7251,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   exports.ARGS = ARGS;
   var ROOT_REF = _emberMetalSymbol.default('ROOT_REF');
   exports.ROOT_REF = ROOT_REF;
-  var REFS = _emberMetalSymbol.default('REFS');
-  exports.REFS = REFS;
   var IS_DISPATCHING_ATTRS = _emberMetalSymbol.default('IS_DISPATCHING_ATTRS');
   exports.IS_DISPATCHING_ATTRS = IS_DISPATCHING_ATTRS;
   var HAS_BLOCK = _emberMetalSymbol.default('HAS_BLOCK');
@@ -7265,9 +7263,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
 
     init: function () {
       this._super.apply(this, arguments);
+      this[IS_DISPATCHING_ATTRS] = false;
       this[DIRTY_TAG] = new _glimmerReference.DirtyableTag();
-      this[ROOT_REF] = null;
-      this[REFS] = new _emberMetalEmpty_object.default();
+      this[ROOT_REF] = new _emberGlimmerUtilsReferences.RootReference(this);
 
       // If a `defaultLayout` was specified move it to the `layout` prop.
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
@@ -7290,7 +7288,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
       this[property.name] = property.descriptor.value;
     }
 
-  }, _CoreView$extend[IS_DISPATCHING_ATTRS] = false, _CoreView$extend[_emberMetalProperty_events.PROPERTY_DID_CHANGE] = function (key) {
+  }, _CoreView$extend[_emberMetalProperty_events.PROPERTY_DID_CHANGE] = function (key) {
     if (this[IS_DISPATCHING_ATTRS]) {
       return;
     }
@@ -7312,23 +7310,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
     return _emberViewsCompatAttrsProxy.getAttrFor(attrs, key);
   }, _CoreView$extend.readDOMAttr = function (name) {
     return _glimmerRuntime.readDOMAttr(this.element, name);
-  }, _CoreView$extend[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE] = function () {
-    var ref = this[ROOT_REF];
-
-    if (!ref) {
-      ref = this[ROOT_REF] = new _emberGlimmerUtilsReferences.RootReference(this);
-    }
-
-    return ref;
-  }, _CoreView$extend[_emberGlimmerUtilsReferences.REFERENCE_FOR_KEY] = function (key) {
-    var refs = this[REFS];
-    var ref = refs[key];
-
-    if (ref) {
-      return ref;
-    } else {
-      return refs[key] = new _emberGlimmerUtilsReferences.PropertyReference(this[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE](), key);
-    }
   }, _CoreView$extend));
 
   Component[_emberMetalMixin.NAME_KEY] = 'Ember.Component';
@@ -10661,7 +10642,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'require', 'container/registr
     registry.register('component:link-to', _emberGlimmerComponentsLinkTo.default);
   }
 });
-enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args', 'container/registry', 'ember-metal/assign', 'ember-metal/property_get'], function (exports, _glimmerRuntime, _emberGlimmerUtilsReferences, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs, _containerRegistry, _emberMetalAssign, _emberMetalProperty_get) {
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal/debug', 'ember-glimmer/utils/process-args', 'container/registry', 'ember-metal/assign', 'ember-metal/property_get'], function (exports, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetalDebug, _emberGlimmerUtilsProcessArgs, _containerRegistry, _emberMetalAssign, _emberMetalProperty_get) {
   'use strict';
 
   exports.validatePositionalParameters = validatePositionalParameters;
@@ -10862,7 +10843,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
     CurlyComponentManager.prototype.getSelf = function getSelf(_ref2) {
       var component = _ref2.component;
 
-      return component[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE]();
+      return component[_emberGlimmerComponent.ROOT_REF];
     };
 
     CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref3, element, operations) {
@@ -11676,7 +11657,7 @@ enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer"], f
 
   exports.default = _emberGlimmer.template("{\"statements\":[[\"append\",[\"unknown\",[\"outlet\"]],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"meta\":null}");
 });
-enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-runtime/system/string', 'glimmer-reference', 'ember-glimmer/utils/references', 'ember-glimmer/utils/string'], function (exports, _emberMetalDebug, _emberRuntimeSystemString, _glimmerReference, _emberGlimmerUtilsReferences, _emberGlimmerUtilsString) {
+enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-runtime/system/string', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _emberMetalDebug, _emberRuntimeSystemString, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsString) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -11686,11 +11667,11 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-r
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function referenceForKey(component, key) {
-    return component[_emberGlimmerUtilsReferences.REFERENCE_FOR_KEY](key);
+    return component[_emberGlimmerComponent.ROOT_REF].get(key);
   }
 
   function referenceForParts(component, parts) {
-    return _glimmerReference.referenceFromParts(component[_emberGlimmerUtilsReferences.TO_ROOT_REFERENCE](), parts);
+    return _glimmerReference.referenceFromParts(component[_emberGlimmerComponent.ROOT_REF], parts);
   }
 
   var AttributeBinding = {
@@ -12127,10 +12108,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
       var valueTag = this.valueTag = new _glimmerReference.UpdatableTag(_glimmerReference.CONSTANT_TAG);
 
-      this.wasProxy = false;
-      this.proxyWrapperTag = null;
-      this.proxyContentTag = null;
-
       this.tag = _glimmerReference.combine([ref.tag, valueTag]);
     }
 
@@ -12138,34 +12115,13 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       var ref = this.ref;
       var keyFor = this.keyFor;
       var valueTag = this.valueTag;
-      var wasProxy = this.wasProxy;
 
       var iterable = ref.value();
 
+      valueTag.update(_emberMetalTags.tagFor(iterable));
+
       if (_emberRuntimeMixinsProxy.isProxy(iterable)) {
-        var proxy = iterable;
-        var content = _emberMetalProperty_get.get(proxy, 'content');
-
-        if (wasProxy) {
-          this.proxyWrapperTag.update(_emberMetalTags.tagFor(proxy));
-          this.proxyContentTag.update(_emberMetalTags.tagFor(content));
-        } else {
-          this.wasProxy = true;
-          var proxyWrapperTag = this.proxyWrapperTag = new _glimmerReference.UpdatableTag(_emberMetalTags.tagFor(proxy));
-          var proxyContentTag = this.proxyContentTag = new _glimmerReference.UpdatableTag(_emberMetalTags.tagFor(content));
-
-          valueTag.update(_glimmerReference.combine([proxyWrapperTag, proxyContentTag]));
-        }
-
-        iterable = content;
-      } else {
-        valueTag.update(_emberMetalTags.tagFor(iterable));
-
-        if (wasProxy) {
-          this.wasProxy = true;
-          this.proxyWrapperTag = null;
-          this.proxyContentTag = null;
-        }
+        iterable = _emberMetalProperty_get.get(iterable, 'content');
       }
 
       var typeofIterable = typeof iterable;
@@ -12399,7 +12355,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     return PositionalArgs;
   })();
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/transaction', 'ember-metal/symbol', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalTransaction, _emberMetalSymbol, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/transaction', 'ember-metal/symbol', 'ember-metal/empty_object', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalTransaction, _emberMetalSymbol, _emberMetalEmpty_object, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -12409,12 +12365,8 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   var UPDATE = _emberMetalSymbol.default('UPDATE');
-  exports.UPDATE = UPDATE;
-  var TO_ROOT_REFERENCE = _emberMetalSymbol.default('TO_ROOT_REFERENCE');
-  exports.TO_ROOT_REFERENCE = TO_ROOT_REFERENCE;
-  var REFERENCE_FOR_KEY = _emberMetalSymbol.default('REFERENCE_FOR_KEY');
 
-  exports.REFERENCE_FOR_KEY = REFERENCE_FOR_KEY;
+  exports.UPDATE = UPDATE;
   // @implements PathReference
 
   var PrimitiveReference = (function (_ConstReference) {
@@ -12451,7 +12403,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
     // @abstract value()
 
     EmberPathReference.prototype.get = function get(key) {
-      return new PropertyReference(this, key);
+      return PropertyReference.create(this, key);
     };
 
     return EmberPathReference;
@@ -12496,16 +12448,21 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   var RootReference = (function (_ConstReference2) {
     _inherits(RootReference, _ConstReference2);
 
-    function RootReference() {
+    function RootReference(value) {
       _classCallCheck(this, RootReference);
 
-      _ConstReference2.apply(this, arguments);
+      _ConstReference2.call(this, value);
+      this.children = new _emberMetalEmpty_object.default();
     }
 
     RootReference.prototype.get = function get(propertyKey) {
-      var self = this.value();
-      var ref = self[REFERENCE_FOR_KEY] && self[REFERENCE_FOR_KEY](propertyKey);
-      return ref || new PropertyReference(this, propertyKey);
+      var ref = this.children[propertyKey];
+
+      if (!ref) {
+        ref = this.children[propertyKey] = new RootPropertyReference(this.inner, propertyKey);
+      }
+
+      return ref;
     };
 
     return RootReference;
@@ -12555,12 +12512,78 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   var PropertyReference = (function (_CachedReference) {
     _inherits(PropertyReference, _CachedReference);
 
-    // jshint ignore:line
-
-    function PropertyReference(parentReference, propertyKey) {
+    function PropertyReference() {
       _classCallCheck(this, PropertyReference);
 
-      _CachedReference.call(this);
+      _CachedReference.apply(this, arguments);
+    }
+
+    PropertyReference.create = function create(parentReference, propertyKey) {
+      if (_glimmerReference.isConst(parentReference)) {
+        return new RootPropertyReference(parentReference.value(), propertyKey);
+      } else {
+        return new NestedPropertyReference(parentReference, propertyKey);
+      }
+    };
+
+    PropertyReference.prototype.get = function get(key) {
+      return new NestedPropertyReference(this, key);
+    };
+
+    return PropertyReference;
+  })(CachedReference);
+
+  exports.PropertyReference = PropertyReference;
+
+  var RootPropertyReference = (function (_PropertyReference) {
+    _inherits(RootPropertyReference, _PropertyReference);
+
+    function RootPropertyReference(parentValue, propertyKey) {
+      _classCallCheck(this, RootPropertyReference);
+
+      _PropertyReference.call(this);
+
+      this._parentValue = parentValue;
+      this._propertyKey = propertyKey;
+
+      if (false || false) {
+        this.tag = new TwoWayFlushDetectionTag(_emberMetalTags.tagFor(parentValue), propertyKey, this);
+      } else {
+        this.tag = _emberMetalTags.tagFor(parentValue);
+      }
+
+      if (false) {
+        _emberMetalWatch_key.watchKey(parentValue, propertyKey, _emberMetalMeta.meta(parentValue));
+      }
+    }
+
+    RootPropertyReference.prototype.compute = function compute() {
+      var _parentValue = this._parentValue;
+      var _propertyKey = this._propertyKey;
+
+      if (false || false) {
+        this.tag.didCompute(_parentValue);
+      }
+
+      return _emberMetalProperty_get.get(_parentValue, _propertyKey);
+    };
+
+    RootPropertyReference.prototype[UPDATE] = function (value) {
+      _emberMetalProperty_set.set(this._parentValue, this._propertyKey, value);
+    };
+
+    return RootPropertyReference;
+  })(PropertyReference);
+
+  exports.RootPropertyReference = RootPropertyReference;
+
+  var NestedPropertyReference = (function (_PropertyReference2) {
+    _inherits(NestedPropertyReference, _PropertyReference2);
+
+    function NestedPropertyReference(parentReference, propertyKey) {
+      _classCallCheck(this, NestedPropertyReference);
+
+      _PropertyReference2.call(this);
 
       var parentReferenceTag = parentReference.tag;
       var parentObjectTag = new _glimmerReference.UpdatableTag(_glimmerReference.CONSTANT_TAG);
@@ -12568,10 +12591,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       this._parentReference = parentReference;
       this._parentObjectTag = parentObjectTag;
       this._propertyKey = propertyKey;
-
-      this._wasProxy = false;
-      this._proxyWrapperTag = null;
-      this._proxyContentTag = null;
 
       if (false || false) {
         var tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
@@ -12581,36 +12600,14 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       }
     }
 
-    PropertyReference.prototype.compute = function compute() {
+    NestedPropertyReference.prototype.compute = function compute() {
       var _parentReference = this._parentReference;
       var _parentObjectTag = this._parentObjectTag;
-      var _wasProxy = this._wasProxy;
       var _propertyKey = this._propertyKey;
 
       var parentValue = _parentReference.value();
 
-      if (_emberRuntimeMixinsProxy.isProxy(parentValue)) {
-        var proxyContent = _emberMetalProperty_get.get(parentValue, 'content');
-
-        if (_wasProxy) {
-          this._proxyWrapperTag.update(_emberMetalTags.tagFor(parentValue));
-          this._proxyContentTag.update(_emberMetalTags.tagFor(proxyContent));
-        } else {
-          this._wasProxy = true;
-          var _proxyWrapperTag = this._proxyWrapperTag = new _glimmerReference.UpdatableTag(_emberMetalTags.tagFor(parentValue));
-          var _proxyContentTag = this._proxyContentTag = new _glimmerReference.UpdatableTag(_emberMetalTags.tagFor(proxyContent));
-
-          _parentObjectTag.update(_glimmerReference.combine([_proxyWrapperTag, _proxyContentTag]));
-        }
-      } else {
-        _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
-
-        if (_wasProxy) {
-          this._wasProxy = false;
-          this._proxyWrapperTag = null;
-          this._proxyContentTag = null;
-        }
-      }
+      _parentObjectTag.update(_emberMetalTags.tagFor(parentValue));
 
       if (typeof parentValue === 'object' && parentValue) {
         if (false) {
@@ -12628,19 +12625,15 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       }
     };
 
-    PropertyReference.prototype[UPDATE] = function (value) {
+    NestedPropertyReference.prototype[UPDATE] = function (value) {
       var parent = this._parentReference.value();
       _emberMetalProperty_set.set(parent, this._propertyKey, value);
     };
 
-    PropertyReference.prototype.get = function get(propertyKey) {
-      return new PropertyReference(this, propertyKey);
-    };
+    return NestedPropertyReference;
+  })(PropertyReference);
 
-    return PropertyReference;
-  })(CachedReference);
-
-  exports.PropertyReference = PropertyReference;
+  exports.NestedPropertyReference = NestedPropertyReference;
 
   var UpdatableReference = (function (_EmberPathReference2) {
     _inherits(UpdatableReference, _EmberPathReference2);
@@ -12697,7 +12690,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
       if (_glimmerReference.isConst(reference)) {
         var value = reference.value();
 
-        if (!_emberRuntimeMixinsProxy.isProxy(value)) {
+        if (_emberRuntimeMixinsProxy.isProxy(value)) {
+          return new RootPropertyReference(value, 'isTruthy');
+        } else {
           return new PrimitiveReference(_emberGlimmerUtilsToBool.default(value));
         }
       }
@@ -29517,6 +29512,7 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
   exports.tagFor = tagFor;
 
   var hasGlimmer = _require2.has('glimmer-reference');
+
   var CONSTANT_TAG = undefined,
       CURRENT_TAG = undefined,
       DirtyableTag = undefined,
@@ -29652,7 +29648,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
             var label = undefined;
 
             if (lastRef) {
-              while (lastRef && lastRef._propertyKey && lastRef._parentReference) {
+              while (lastRef && lastRef._propertyKey) {
                 parts.unshift(lastRef._propertyKey);
                 lastRef = lastRef._parentReference;
               }
@@ -38468,7 +38464,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/observer', 'ember-metal/property_events', 'ember-runtime/computed/computed_macros', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalObserver, _emberMetalProperty_events, _emberRuntimeComputedComputed_macros, _emberMetalProperties, _emberMetalMixin, _emberMetalSymbol) {
+enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/observer', 'ember-metal/property_events', 'ember-runtime/computed/computed_macros', 'ember-runtime/system/core_object', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/tags', 'ember-metal/symbol', 'require'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalObserver, _emberMetalProperty_events, _emberRuntimeComputedComputed_macros, _emberRuntimeSystemCore_object, _emberMetalProperties, _emberMetalMixin, _emberMetalTags, _emberMetalSymbol, _require2) {
   /**
   @module ember
   @submodule ember-runtime
@@ -38476,9 +38472,17 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
 
   'use strict';
 
-  var _Mixin$create;
+  var _PROXY_MIXIN_PROPS;
 
   exports.isProxy = isProxy;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var hasGlimmer = _require2.has('glimmer-reference');
 
   var IS_PROXY = _emberMetalSymbol.default('IS_PROXY');
 
@@ -38510,20 +38514,20 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
     @namespace Ember
     @private
   */
-  exports.default = _emberMetalMixin.Mixin.create((_Mixin$create = {}, _Mixin$create[IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._contentDidChange = _emberMetalMixin.observer('content', function () {}), _Mixin$create.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _Mixin$create._debugContainerKey = null, _Mixin$create.willWatchProperty = function (key) {
+  var PROXY_MIXIN_PROPS = (_PROXY_MIXIN_PROPS = {}, _PROXY_MIXIN_PROPS[IS_PROXY] = true, _PROXY_MIXIN_PROPS.content = null, _PROXY_MIXIN_PROPS._contentDidChange = _emberMetalMixin.observer('content', function () {}), _PROXY_MIXIN_PROPS.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _PROXY_MIXIN_PROPS._debugContainerKey = null, _PROXY_MIXIN_PROPS.willWatchProperty = function (key) {
     var contentKey = 'content.' + key;
     _emberMetalObserver._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
     _emberMetalObserver.addObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _Mixin$create.didUnwatchProperty = function (key) {
+  }, _PROXY_MIXIN_PROPS.didUnwatchProperty = function (key) {
     var contentKey = 'content.' + key;
     _emberMetalObserver._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
     _emberMetalObserver.removeObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _Mixin$create.unknownProperty = function (key) {
+  }, _PROXY_MIXIN_PROPS.unknownProperty = function (key) {
     var content = _emberMetalProperty_get.get(this, 'content');
     if (content) {
       return _emberMetalProperty_get.get(content, key);
     }
-  }, _Mixin$create.setUnknownProperty = function (key, value) {
+  }, _PROXY_MIXIN_PROPS.setUnknownProperty = function (key, value) {
     var m = _emberMetalMeta.meta(this);
     if (m.proto === this) {
       // if marked as prototype then just defineProperty
@@ -38535,7 +38539,54 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
     var content = _emberMetalProperty_get.get(this, 'content');
 
     return _emberMetalProperty_set.set(content, key, value);
-  }, _Mixin$create));
+  }, _PROXY_MIXIN_PROPS);
+
+  if (hasGlimmer) {
+    (function () {
+      var _require = _require2.default('glimmer-reference');
+
+      var CachedTag = _require.CachedTag;
+      var DirtyableTag = _require.DirtyableTag;
+      var UpdatableTag = _require.UpdatableTag;
+
+      var ProxyTag = (function (_CachedTag) {
+        _inherits(ProxyTag, _CachedTag);
+
+        function ProxyTag(proxy, content) {
+          _classCallCheck(this, ProxyTag);
+
+          _CachedTag.call(this);
+          this.proxyWrapperTag = new DirtyableTag();
+          this.proxyContentTag = new UpdatableTag(_emberMetalTags.tagFor(content));
+        }
+
+        ProxyTag.prototype.compute = function compute() {
+          return Math.max(this.proxyWrapperTag.value(), this.proxyContentTag.value());
+        };
+
+        ProxyTag.prototype.dirty = function dirty() {
+          this.proxyWrapperTag.dirty();
+        };
+
+        ProxyTag.prototype.contentDidChange = function contentDidChange(content) {
+          this.proxyContentTag.update(_emberMetalTags.tagFor(content));
+        };
+
+        return ProxyTag;
+      })(CachedTag);
+
+      PROXY_MIXIN_PROPS[_emberRuntimeSystemCore_object.POST_INIT] = function postInit() {
+        this._super();
+        _emberMetalMeta.meta(this)._tag = new ProxyTag(this, _emberMetalProperty_get.get(this, 'content'));
+      };
+
+      PROXY_MIXIN_PROPS._contentDidChange = _emberMetalMixin.observer('content', function () {
+        _emberMetalMeta.meta(this)._tag.contentDidChange(_emberMetalProperty_get.get(this, 'content'));
+      });
+    })();
+  }
+
+  exports.default = _emberMetalMixin.Mixin.create(PROXY_MIXIN_PROPS);
 });
 
 /**
@@ -42982,19 +43033,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
 
       finishPartial(this, m);
 
-      if (arguments.length === 0) {
-        this.init();
-      } else if (arguments.length === 1) {
-        this.init(arguments[0]);
-      } else {
-        // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
-        // we may want to keep this around till this ages out on mobile
-        var args = new Array(arguments.length);
-        for (var x = 0; x < arguments.length; x++) {
-          args[x] = arguments[x];
-        }
-        this.init.apply(this, args);
-      }
+      this.init.apply(this, arguments);
 
       this[POST_INIT]();
 
@@ -46380,7 +46419,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     }
 
   }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
-    this._super.apply(this, arguments);
+    this._super();
 
     this.renderer.componentInitAttrs(this, this.attrs || {});
   }, _Mixin$create.__defineNonEnumerable = function (property) {
@@ -47972,7 +48011,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+caf4ab80";
+  exports.default = "2.9.0-null+729adcae";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
