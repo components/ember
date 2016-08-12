@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6558db67
+ * @version   2.9.0-null+caa9d3f8
  */
 
 var enifed, requireModule, require, Ember;
@@ -66331,6 +66331,35 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
   });
 
+  QUnit.test('should reset namespace of loading and error routes for routes with resetNamespace', function () {
+    Router.map(function () {
+      this.route('blork', function () {
+        this.route('blorp');
+        this.route('bleep', { resetNamespace: true });
+      });
+    });
+
+    var router = Router.create({
+      _hasModuleBasedResolver: function () {
+        return true;
+      }
+    });
+
+    router._initRouterJs();
+
+    ok(router.router.recognizer.names['blork.blorp'], 'nested route was created');
+    ok(router.router.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
+    ok(router.router.recognizer.names['blork.blorp_error'], 'nested error route was added');
+
+    ok(router.router.recognizer.names['bleep'], 'reset route was created');
+    ok(router.router.recognizer.names['bleep_loading'], 'reset loading route was added');
+    ok(router.router.recognizer.names['bleep_error'], 'reset error route was added');
+
+    ok(!router.router.recognizer.names['blork.bleep'], 'nested reset route was not created');
+    ok(!router.router.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
+    ok(!router.router.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
+  });
+
   if (true) {
     QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
       Router.map(function () {
@@ -66481,6 +66510,39 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
       ok(router.router.recognizer.names['chat'], 'main route was created');
       ok(!router.router.recognizer.names['chat_loading'], 'loading route was not added');
       ok(!router.router.recognizer.names['chat_error'], 'error route was not added');
+    });
+
+    QUnit.test('should reset namespace of loading and error routes for mounts with resetNamespace', function () {
+      Router.map(function () {
+        this.route('news', function () {
+          this.mount('chat');
+          this.mount('blog', { resetNamespace: true });
+        });
+      });
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true
+      });
+
+      var router = Router.create({
+        _hasModuleBasedResolver: function () {
+          return true;
+        }
+      });
+      _containerOwner.setOwner(router, engineInstance);
+      router._initRouterJs();
+
+      ok(router.router.recognizer.names['news.chat'], 'nested route was created');
+      ok(router.router.recognizer.names['news.chat_loading'], 'nested loading route was added');
+      ok(router.router.recognizer.names['news.chat_error'], 'nested error route was added');
+
+      ok(router.router.recognizer.names['blog'], 'reset route was created');
+      ok(router.router.recognizer.names['blog_loading'], 'reset loading route was added');
+      ok(router.router.recognizer.names['blog_error'], 'reset error route was added');
+
+      ok(!router.router.recognizer.names['news.blog'], 'nested reset route was not created');
+      ok(!router.router.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
+      ok(!router.router.recognizer.names['news.blog_error'], 'nested reset error route was not added');
     });
   }
 });
@@ -95389,7 +95451,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
 
     templates['grandma'] = 'GRANDMA {{outlet}}';
     templates['grandma/error'] = 'ERROR: {{model.msg}}';
-    templates['grandma/mom_error'] = 'MOM ERROR: {{model.msg}}';
+    templates['mom_error'] = 'MOM ERROR: {{model.msg}}';
 
     Router.map(function () {
       this.route('grandma', function () {
@@ -95439,7 +95501,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
 
     Router.map(function () {
       this.route('foo', function () {
-        this.route('foo.bar', { path: '/bar', resetNamespace: true }, function () {});
+        this.route('bar', { path: '/bar' }, function () {});
       });
     });
 
@@ -95455,6 +95517,36 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     bootApplication('/foo/bar');
 
     equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
+
+    _emberMetalRun_loop.default(deferred, 'resolve');
+
+    equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'YAY');
+  });
+
+  QUnit.test('Prioritized substate entry works with reset-namespace nested routes', function () {
+    expect(2);
+
+    templates['bar_loading'] = 'BAR LOADING';
+    templates['bar/index'] = 'YAY';
+
+    Router.map(function () {
+      this.route('foo', function () {
+        this.route('bar', { path: '/bar', resetNamespace: true }, function () {});
+      });
+    });
+
+    App.ApplicationController = _emberRuntimeControllersController.default.extend();
+
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    App.BarRoute = _emberRoutingSystemRoute.default.extend({
+      model: function () {
+        return deferred.promise;
+      }
+    });
+
+    bootApplication('/foo/bar');
+
+    equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
 
     _emberMetalRun_loop.default(deferred, 'resolve');
 
@@ -95693,6 +95785,42 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
       bootApplication('/news/blog');
 
       equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG ERROR', 'news/blog_loading was entered');
+    });
+
+    QUnit.test('Slow Promise from an Engine application route enters the mounts loading state with resetNamespace', function () {
+      expect(1);
+
+      templates['blog_loading'] = 'BLOG LOADING';
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      registry.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      registry.register('route-map:blog', BlogMap);
+
+      Router.map(function () {
+        this.route('news', function () {
+          this.mount('blog', { resetNamespace: true });
+        });
+      });
+
+      var deferred = _emberRuntimeExtRsvp.default.defer();
+      var BlogRoute = _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      });
+
+      var blog = container.lookup('engine:blog');
+      blog.register('route:application', BlogRoute);
+
+      bootApplication('/news/blog');
+
+      equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
+
+      _emberMetalRun_loop.default(deferred, 'resolve');
     });
   }
 });

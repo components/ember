@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6558db67
+ * @version   2.9.0-null+caa9d3f8
  */
 
 var enifed, requireModule, require, Ember;
@@ -32103,7 +32103,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
 
       if (this.enableLoadingSubstates) {
         createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
-        createRoute(this, name + '_error', { path: dummyErrorRoute });
+        createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
       }
 
       if (callback) {
@@ -32259,7 +32259,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
         if (this.enableLoadingSubstates) {
           var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
           createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
-          createRoute(this, name + '_error', { path: dummyErrorRoute });
+          createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
         }
 
         var localFullName = 'application';
@@ -35485,16 +35485,24 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       }
     }
 
-    var targetChildRouteName = originatingChildRouteName.split('.').pop();
-    var namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
-
-    // First, try a named loading state, e.g. 'foo_loading'
-    childName = namespace + targetChildRouteName + '_' + name;
+    // First, try a named loading state of the route, e.g. 'foo_loading'
+    childName = originatingChildRouteName + '_' + name;
     if (routeHasBeenDefined(router, childName)) {
       return childName;
     }
 
-    // Second, try general loading state, e.g. 'loading'
+    // Second, try general loading state of the parent, e.g. 'loading'
+    var originatingChildRouteParts = originatingChildRouteName.split('.').slice(0, -1);
+    var namespace = undefined;
+
+    // If there is a namespace on the route, then we use that, otherwise we use
+    // the parent route as the namespace.
+    if (originatingChildRouteParts.length) {
+      namespace = originatingChildRouteParts.join('.') + '.';
+    } else {
+      namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
+    }
+
     childName = namespace + name;
     if (routeHasBeenDefined(router, childName)) {
       return childName;
@@ -48011,7 +48019,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+6558db67";
+  exports.default = "2.9.0-null+caa9d3f8";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
