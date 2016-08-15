@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.2+0531c184
+ * @version   2.8.0-beta.2+7987f8a2
  */
 
 var enifed, requireModule, require, Ember;
@@ -9113,7 +9113,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
       if (lastParam && lastParam.isQueryParams) {
         queryParams = params.pop();
       } else {
-        queryParams = {};
+        queryParams = { values: {} };
       }
       this.set('queryParams', queryParams);
 
@@ -26850,7 +26850,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
 
       if (this.enableLoadingSubstates) {
         createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
-        createRoute(this, name + '_error', { path: dummyErrorRoute });
+        createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
       }
 
       if (callback) {
@@ -27006,7 +27006,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug', 'ember-metal
         if (this.enableLoadingSubstates) {
           var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
           createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
-          createRoute(this, name + '_error', { path: dummyErrorRoute });
+          createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
         }
 
         var localFullName = 'application';
@@ -27781,7 +27781,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
         This action is called when one or more query params have changed. Bubbles.
          @method queryParamsDidChange
         @param changed {Object} Keys are names of query params that have changed.
-        @param totalPresent {Number}
+        @param totalPresent {Object} Keys are names of query params that are currently set.
         @param removed {Object} Keys are names of query params that have been removed.
         @returns {boolean}
         @private
@@ -29174,13 +29174,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
   
     @private
   */
-  function prefixRouteNameArg() {
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
+  function prefixRouteNameArg(route, args) {
     var routeName = args[0];
-    var owner = _containerOwner.getOwner(this);
+    var owner = _containerOwner.getOwner(route);
     var prefix = owner.mountPoint;
 
     // only alter the routeName if it's actually referencing a route.
@@ -29208,19 +29204,19 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
   if (true) {
     Route.reopen({
       replaceWith: function () {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        return this._super.apply(this, prefixRouteNameArg(this, args));
+      },
+
+      transitionTo: function () {
         for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
           args[_key3] = arguments[_key3];
         }
 
-        return this._super.apply(this, prefixRouteNameArg.call.apply(prefixRouteNameArg, [this].concat(args)));
-      },
-
-      transitionTo: function () {
-        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-          args[_key4] = arguments[_key4];
-        }
-
-        return this._super.apply(this, prefixRouteNameArg.call.apply(prefixRouteNameArg, [this].concat(args)));
+        return this._super.apply(this, prefixRouteNameArg(this, args));
       },
 
       modelFor: function (_routeName) {
@@ -29235,8 +29231,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
           routeName = _routeName;
         }
 
-        for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
-          args[_key5 - 1] = arguments[_key5];
+        for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+          args[_key4 - 1] = arguments[_key4];
         }
 
         return this._super.apply(this, [routeName].concat(args));
@@ -30256,16 +30252,24 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       }
     }
 
-    var targetChildRouteName = originatingChildRouteName.split('.').pop();
-    var namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
-
-    // First, try a named loading state, e.g. 'foo_loading'
-    childName = namespace + targetChildRouteName + '_' + name;
+    // First, try a named loading state of the route, e.g. 'foo_loading'
+    childName = originatingChildRouteName + '_' + name;
     if (routeHasBeenDefined(router, childName)) {
       return childName;
     }
 
-    // Second, try general loading state, e.g. 'loading'
+    // Second, try general loading state of the parent, e.g. 'loading'
+    var originatingChildRouteParts = originatingChildRouteName.split('.').slice(0, -1);
+    var namespace = undefined;
+
+    // If there is a namespace on the route, then we use that, otherwise we use
+    // the parent route as the namespace.
+    if (originatingChildRouteParts.length) {
+      namespace = originatingChildRouteParts.join('.') + '.';
+    } else {
+      namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
+    }
+
     childName = namespace + name;
     if (routeHasBeenDefined(router, childName)) {
       return childName;
@@ -33860,7 +33864,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
         If no `startAt` argument is given, the starting location to
         search is 0. If it's negative, searches from the index of
         `this.length + startAt` by asc.
-        ```javascript
+         ```javascript
         [1, 2, 3].includes(2);     // true
         [1, 2, 3].includes(4);     // false
         [1, 2, 3].includes(3, 2);  // true
@@ -33870,7 +33874,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
         [1, 2, 3].includes(1, -4); // true
         [1, 2, NaN].includes(NaN); // true
         ```
-        @method includes
+         @method includes
         @param {Object} obj The object to search for.
         @param {Number} startAt optional starting location to search, default 0
         @return {Boolean} `true` if object is found in the array.
@@ -34707,7 +34711,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
 
     /**
       Sets the value on the named property for each member. This is more
-      efficient than using other methods defined on this helper. If the object
+      ergonomic than using other methods defined on this helper. If the object
       implements Ember.Observable, the value will be changed to `set(),` otherwise
       it will be set directly. `null` objects are skipped.
        @method setEach
@@ -35462,14 +35466,14 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
     Enumerable.reopen({
       /**
         Returns `true` if the passed object can be found in the enumerable.
-        ```javascript
+         ```javascript
         [1, 2, 3].includes(2);                     // true
         [1, 2, 3].includes(4);                     // false
         [1, 2, undefined].includes(undefined);     // true
         [1, 2, null].includes(null);               // true
         [1, 2, NaN].includes(NaN);                 // true
         ```
-        @method includes
+         @method includes
         @param {Object} obj The object to search for.
         @return {Boolean} `true` if object is found in the enumerable.
         @public
@@ -37819,19 +37823,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
 
       finishPartial(this, m);
 
-      if (arguments.length === 0) {
-        this.init();
-      } else if (arguments.length === 1) {
-        this.init(arguments[0]);
-      } else {
-        // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
-        // we may want to keep this around till this ages out on mobile
-        var args = new Array(arguments.length);
-        for (var x = 0; x < arguments.length; x++) {
-          args[x] = arguments[x];
-        }
-        this.init.apply(this, args);
-      }
+      this.init.apply(this, arguments);
 
       this[POST_INIT]();
 
@@ -40385,6 +40377,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember
   
     @method click
     @param {String} selector jQuery selector for finding element on the DOM
+    @param {Object} context A DOM Element, Document, or jQuery to use as context
     @return {RSVP.Promise}
     @public
   */
@@ -42844,7 +42837,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     }
 
   }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
-    this._super.apply(this, arguments);
+    this._super();
 
     _emberMetalDebug.assert('You must call `this._super(...arguments);` when implementing `init` in a component. Please update ' + this + ' to call `this._super` from `init`.', this[INIT_WAS_CALLED]);
 
@@ -43450,23 +43443,6 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal/debug', 'em
 
     return env.owner.lookup('template:' + underscored) || env.owner.lookup('template:' + name);
   }
-});
-enifed('ember-views/system/platform', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
-  'use strict';
-
-  // IE 6/7 have bugs around setting names on inputs during creation.
-  // From http://msdn.microsoft.com/en-us/library/ie/ms536389(v=vs.85).aspx:
-  // "To include the NAME attribute at run time on objects created with the createElement method, use the eTag."
-  var canSetNameOnInputs = _emberEnvironment.environment.hasDOM && (function () {
-    var div = document.createElement('div');
-    var el = document.createElement('input');
-
-    el.setAttribute('name', 'foo');
-    div.appendChild(el);
-
-    return !!div.innerHTML.match('foo');
-  })();
-  exports.canSetNameOnInputs = canSetNameOnInputs;
 });
 enifed('ember-views/system/utils', ['exports'], function (exports) {
   /**
@@ -44134,7 +44110,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     ```
   
     If the return value of an `attributeBindings` monitored property is a boolean
-    the property's value will be set as a coerced string:
+    the attribute will be present or absent depending on the value:
   
     ```javascript
     MyTextInput = Ember.View.extend({
@@ -44147,7 +44123,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     Will result in a view instance with an HTML representation of:
   
     ```html
-    <input id="ember1" class="ember-view" disabled="false" />
+    <input id="ember1" class="ember-view" />
     ```
   
     `attributeBindings` can refer to computed properties:
@@ -44456,7 +44432,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.2+0531c184";
+  exports.default = "2.8.0-beta.2+7987f8a2";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -47802,10 +47778,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     // `x`, irrespective of the other parts.
     // Because of this similarity, we assign each type of segment a number value written as a
     // string. We can find the specificity of compound routes by concatenating these strings
-    // together, from left to right. After we have looped through all of the segments,
-    // we convert the string to a number.
-    specificity.val = '';
-
+    // together, from left to right.
     for (var i = 0; i < segments.length; i++) {
       var segment = segments[i],
           match;
@@ -47829,9 +47802,11 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
       }
     }
 
-    specificity.val = +specificity.val;
-
     return results;
+  }
+
+  function isEqualCharSpec(specA, specB) {
+    return specA.validChars === specB.validChars && specA.invalidChars === specB.invalidChars;
   }
 
   // A State has a character specification and (`charSpec`) and a list of possible
@@ -47854,7 +47829,6 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   function State(charSpec) {
     this.charSpec = charSpec;
     this.nextStates = [];
-    this.charSpecs = {};
     this.regex = undefined;
     this.handlers = undefined;
     this.specificity = undefined;
@@ -47862,20 +47836,12 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   State.prototype = {
     get: function (charSpec) {
-      if (this.charSpecs[charSpec.validChars]) {
-        return this.charSpecs[charSpec.validChars];
-      }
-
       var nextStates = this.nextStates;
 
       for (var i = 0; i < nextStates.length; i++) {
         var child = nextStates[i];
 
-        var isEqual = child.charSpec.validChars === charSpec.validChars;
-        isEqual = isEqual && child.charSpec.invalidChars === charSpec.invalidChars;
-
-        if (isEqual) {
-          this.charSpecs[charSpec.validChars] = child;
+        if (isEqualCharSpec(child.charSpec, charSpec)) {
           return child;
         }
       }
@@ -47939,7 +47905,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   // Sort the routes by specificity
   function sortSolutions(states) {
     return states.sort(function (a, b) {
-      return b.specificity.val - a.specificity.val;
+      return b.specificity.val < a.specificity.val ? -1 : b.specificity.val === a.specificity.val ? 0 : 1;
     });
   }
 
@@ -48033,7 +47999,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     add: function (routes, options) {
       var currentState = this.rootState,
           regex = "^",
-          specificity = {},
+          specificity = { val: '' },
           handlers = new Array(routes.length),
           allSegments = [],
           name;
@@ -48489,21 +48455,29 @@ enifed('router', ['exports', 'router/router'], function (exports, _routerRouter)
 enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
   'use strict';
 
+  var DEFAULT_HANDLER = Object.freeze({});
+
   function HandlerInfo(_props) {
     var props = _props || {};
-    var name = props.name;
 
-    // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
-    this.handlerPromise = _rsvpPromise.default.resolve(props.handler);
+    // Set a default handler to ensure consistent object shape
+    this._handler = DEFAULT_HANDLER;
 
-    // Wait until the 'handler' property has been updated when chaining to a handler
-    // that is a promise
-    if (_routerUtils.isPromise(props.handler)) {
-      this.handlerPromise = this.handlerPromise.then(_routerUtils.bind(this, this.updateHandler));
-      props.handler = undefined;
-    } else if (props.handler) {
-      // Store the name of the handler on the handler for easy checks later
-      props.handler._handlerName = name;
+    if (props.handler) {
+      var name = props.name;
+
+      // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
+      this.handlerPromise = _rsvpPromise.default.resolve(props.handler);
+
+      // Wait until the 'handler' property has been updated when chaining to a handler
+      // that is a promise
+      if (_routerUtils.isPromise(props.handler)) {
+        this.handlerPromise = this.handlerPromise.then(_routerUtils.bind(this, this.updateHandler));
+        props.handler = undefined;
+      } else if (props.handler) {
+        // Store the name of the handler on the handler for easy checks later
+        props.handler._handlerName = name;
+      }
     }
 
     _routerUtils.merge(this, props);
@@ -48512,7 +48486,30 @@ enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], funct
 
   HandlerInfo.prototype = {
     name: null,
-    handler: null,
+
+    getHandler: function () {},
+
+    fetchHandler: function () {
+      var handler = this.getHandler(this.name);
+
+      // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
+      this.handlerPromise = _rsvpPromise.default.resolve(handler);
+
+      // Wait until the 'handler' property has been updated when chaining to a handler
+      // that is a promise
+      if (_routerUtils.isPromise(handler)) {
+        this.handlerPromise = this.handlerPromise.then(_routerUtils.bind(this, this.updateHandler));
+      } else if (handler) {
+        // Store the name of the handler on the handler for easy checks later
+        handler._handlerName = this.name;
+        return this.handler = handler;
+      }
+
+      return this.handler = undefined;
+    },
+
+    _handlerPromise: undefined,
+
     params: null,
     context: null,
 
@@ -48650,6 +48647,38 @@ enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], funct
     }
   };
 
+  Object.defineProperty(HandlerInfo.prototype, 'handler', {
+    get: function () {
+      // _handler could be set to either a handler object or undefined, so we
+      // compare against a default reference to know when it's been set
+      if (this._handler !== DEFAULT_HANDLER) {
+        return this._handler;
+      }
+
+      return this.fetchHandler();
+    },
+
+    set: function (handler) {
+      return this._handler = handler;
+    }
+  });
+
+  Object.defineProperty(HandlerInfo.prototype, 'handlerPromise', {
+    get: function () {
+      if (this._handlerPromise) {
+        return this._handlerPromise;
+      }
+
+      this.fetchHandler();
+
+      return this._handlerPromise;
+    },
+
+    set: function (handlerPromise) {
+      return this._handlerPromise = handlerPromise;
+    }
+  });
+
   function paramsMatch(a, b) {
     if (!a ^ !b) {
       // Only one is null.
@@ -48741,8 +48770,7 @@ enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'rou
     serialize: function (_model) {
       var model = _model || this.context,
           names = this.names,
-          handler = this.handler,
-          serializer = this.serializer || handler && handler.serialize;
+          serializer = this.serializer || this.handler && this.handler.serialize;
 
       var object = {};
       if (_routerUtils.isParam(model)) {
@@ -48814,6 +48842,13 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
     this.delegate = options.delegate || this.delegate;
     this.triggerEvent = options.triggerEvent || this.triggerEvent;
     this.log = options.log || this.log;
+    this.dslCallBacks = []; // NOTE: set by Ember
+    this.state = undefined;
+    this.activeTransition = undefined;
+    this._changedQueryParams = undefined;
+    this.oldState = undefined;
+    this.currentHandlerInfos = undefined;
+    this.state = undefined;
 
     this.recognizer = new _routeRecognizer.default();
     this.reset();
@@ -48936,7 +48971,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
     // NOTE: this doesn't really belong here, but here
     // it shall remain until our ES6 transpiler can
     // handle cyclical deps.
-    transitionByIntent: function (intent, isIntermediate) {
+    transitionByIntent: function (intent /*, isIntermediate*/) {
       try {
         return getTransitionByIntent.apply(this, arguments);
       } catch (e) {
@@ -49007,11 +49042,11 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
       that are no longer represented by the target route.
        @param {String} name the name of the route
     */
-    transitionTo: function (name) {
+    transitionTo: function () /*name*/{
       return doTransition(this, arguments);
     },
 
-    intermediateTransitionTo: function (name) {
+    intermediateTransitionTo: function () /*name*/{
       return doTransition(this, arguments, true);
     },
 
@@ -49041,7 +49076,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
        This method is intended primarily for use with `replaceState`.
        @param {String} name the name of the route
     */
-    replaceWith: function (name) {
+    replaceWith: function () /*name*/{
       return doTransition(this, arguments).method('replace');
     },
 
@@ -49088,12 +49123,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
     isActiveIntent: function (handlerName, contexts, queryParams, _state) {
       var state = _state || this.state,
           targetHandlerInfos = state.handlerInfos,
-          found = false,
-          names,
-          object,
           handlerInfo,
-          handlerObj,
-          i,
           len;
 
       if (!targetHandlerInfos.length) {
@@ -49151,7 +49181,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
       return this.isActiveIntent(handlerName, partitionedArgs[0], partitionedArgs[1]);
     },
 
-    trigger: function (name) {
+    trigger: function () /*name*/{
       var args = _routerUtils.slice.call(arguments);
       _routerUtils.trigger(this, this.currentHandlerInfos, false, args);
     },
@@ -49349,7 +49379,8 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
       updatedContext: [],
       exited: [],
       entered: [],
-      unchanged: []
+      unchanged: [],
+      reset: undefined
     };
 
     var handlerChanged,
@@ -49388,7 +49419,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
     return handlers;
   }
 
-  function updateURL(transition, state, inputUrl) {
+  function updateURL(transition, state /*, inputUrl*/) {
     var urlMethod = transition.urlMethod;
 
     if (!urlMethod) {
@@ -49432,8 +49463,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
       _routerUtils.log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
 
       var router = transition.router,
-          handlerInfos = newState.handlerInfos,
-          seq = transition.sequence;
+          handlerInfos = newState.handlerInfos;
 
       // Run all the necessary enter/setup/exit hooks
       setupContexts(router, newState, transition);
@@ -49616,8 +49646,8 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/
 
   exports.default = Router;
 });
-enifed('router/transition-intent', ['exports', 'router/utils'], function (exports, _routerUtils) {
-  'use strict';
+enifed("router/transition-intent", ["exports"], function (exports) {
+  "use strict";
 
   function TransitionIntent(props) {
     this.initialize(props);
@@ -49653,7 +49683,6 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
 
       var partitionedArgs = _routerUtils.extractQueryParams([this.name].concat(this.contexts)),
           pureArgs = partitionedArgs[0],
-          queryParams = partitionedArgs[1],
           handlers = recognizer.handlersFor(pureArgs[0]);
 
       var targetRouteName = handlers[handlers.length - 1].handler;
@@ -49679,29 +49708,26 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
         }
       }
 
-      var pivotHandlerFound = !this.pivotHandler;
-
       for (i = handlers.length - 1; i >= 0; --i) {
         var result = handlers[i];
         var name = result.handler;
-        var handler = getHandler(name);
 
         var oldHandlerInfo = oldState.handlerInfos[i];
         var newHandlerInfo = null;
 
         if (result.names.length > 0) {
           if (i >= invalidateIndex) {
-            newHandlerInfo = this.createParamHandlerInfo(name, handler, result.names, objects, oldHandlerInfo);
+            newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
           } else {
             var serializer = getSerializer(name);
-            newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, handler, result.names, objects, oldHandlerInfo, targetRouteName, i, serializer);
+            newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, getHandler, result.names, objects, oldHandlerInfo, targetRouteName, i, serializer);
           }
         } else {
           // This route has no dynamic segment.
           // Therefore treat as a param-based handlerInfo
           // with empty params. This will cause the `model`
           // hook to be called with empty params, which is desirable.
-          newHandlerInfo = this.createParamHandlerInfo(name, handler, result.names, objects, oldHandlerInfo);
+          newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
         }
 
         if (checkingIfActive) {
@@ -49748,20 +49774,18 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
     invalidateChildren: function (handlerInfos, invalidateIndex) {
       for (var i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
         var handlerInfo = handlerInfos[i];
-        handlerInfos[i] = handlerInfos[i].getUnresolved();
+        handlerInfos[i] = handlerInfo.getUnresolved();
       }
     },
 
-    getHandlerInfoForDynamicSegment: function (name, handler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
-
-      var numNames = names.length;
+    getHandlerInfoForDynamicSegment: function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
       var objectToUse;
       if (objects.length > 0) {
 
         // Use the objects provided for this transition.
         objectToUse = objects[objects.length - 1];
         if (_routerUtils.isParam(objectToUse)) {
-          return this.createParamHandlerInfo(name, handler, names, objects, oldHandlerInfo);
+          return this.createParamHandlerInfo(name, getHandler, names, objects, oldHandlerInfo);
         } else {
           objects.pop();
         }
@@ -49786,14 +49810,14 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
 
       return _routerHandlerInfoFactory.default('object', {
         name: name,
-        handler: handler,
+        getHandler: getHandler,
         serializer: serializer,
         context: objectToUse,
         names: names
       });
     },
 
-    createParamHandlerInfo: function (name, handler, names, objects, oldHandlerInfo) {
+    createParamHandlerInfo: function (name, getHandler, names, objects, oldHandlerInfo) {
       var params = {};
 
       // Soak up all the provided string/numbers
@@ -49821,7 +49845,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', 'router/t
 
       return _routerHandlerInfoFactory.default('param', {
         name: name,
-        handler: handler,
+        getHandler: getHandler,
         params: params
       });
     }
@@ -49841,7 +49865,6 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
       var newState = new _routerTransitionState.default();
 
       var results = recognizer.recognize(this.url),
-          queryParams = {},
           i,
           len;
 
@@ -49856,7 +49879,7 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
       // For the case where the handler is loaded asynchronously, the error will be
       // thrown once it is loaded.
       function checkHandlerAccessibility(handler) {
-        if (handler.inaccessibleByURL) {
+        if (handler && handler.inaccessibleByURL) {
           throw new _routerUnrecognizedUrlError.default(url);
         }
 
@@ -49866,19 +49889,18 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
       for (i = 0, len = results.length; i < len; ++i) {
         var result = results[i];
         var name = result.handler;
-        var handler = getHandler(name);
-
-        checkHandlerAccessibility(handler);
-
         var newHandlerInfo = _routerHandlerInfoFactory.default('param', {
           name: name,
-          handler: handler,
+          getHandler: getHandler,
           params: result.params
         });
+        var handler = newHandlerInfo.handler;
 
-        // If the hanlder is being loaded asynchronously, check again if we can
-        // access it after it has resolved
-        if (_routerUtils.isPromise(handler)) {
+        if (handler) {
+          checkHandlerAccessibility(handler);
+        } else {
+          // If the hanlder is being loaded asynchronously, check if we can
+          // access it after it has resolved
           newHandlerInfo.handlerPromise = newHandlerInfo.handlerPromise.then(checkHandlerAccessibility);
         }
 
@@ -49897,20 +49919,16 @@ enifed('router/transition-intent/url-transition-intent', ['exports', 'router/tra
     }
   });
 });
-enifed('router/transition-state', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
+enifed('router/transition-state', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
   'use strict';
 
-  function TransitionState(other) {
+  function TransitionState() {
     this.handlerInfos = [];
     this.queryParams = {};
     this.params = {};
   }
 
   TransitionState.prototype = {
-    handlerInfos: null,
-    queryParams: null,
-    params: null,
-
     promiseLabel: function (label) {
       var targetName = '';
       _routerUtils.forEach(this.handlerInfos, function (handlerInfo) {
@@ -49923,7 +49941,6 @@ enifed('router/transition-state', ['exports', 'router/handler-info', 'router/uti
     },
 
     resolve: function (shouldContinue, payload) {
-      var self = this;
       // First, calculate params for this state. This is useful
       // information to provide to the various route hooks.
       var params = this.params;
@@ -50003,7 +50020,7 @@ enifed('router/transition-state', ['exports', 'router/handler-info', 'router/uti
 
   exports.default = TransitionState;
 });
-enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', 'router/utils'], function (exports, _rsvpPromise, _routerHandlerInfo, _routerUtils) {
+enifed('router/transition', ['exports', 'rsvp/promise', 'router/utils'], function (exports, _rsvpPromise, _routerUtils) {
   'use strict';
 
   /**
@@ -50029,6 +50046,15 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     this.data = this.intent && this.intent.data || {};
     this.resolvedModels = {};
     this.queryParams = {};
+    this.promise = undefined;
+    this.error = undefined;
+    this.params = undefined;
+    this.handlerInfos = undefined;
+    this.targetName = undefined;
+    this.pivotHandler = undefined;
+    this.sequence = undefined;
+    this.isAborted = undefined;
+    this.isActive = undefined;
 
     if (error) {
       this.promise = _rsvpPromise.default.reject(error);
@@ -50084,10 +50110,8 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', '
     targetName: null,
     urlMethod: 'update',
     intent: null,
-    params: null,
     pivotHandler: null,
     resolveIndex: 0,
-    handlerInfos: null,
     resolvedModels: null,
     isActive: true,
     state: null,
