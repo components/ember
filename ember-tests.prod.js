@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+07cc7893
+ * @version   2.9.0-null+70a24648
  */
 
 var enifed, requireModule, require, Ember;
@@ -26972,7 +26972,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils) {
+enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -26996,16 +26996,19 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
     _class.prototype['@htmlbars should render the outlet when set after DOM insertion'] = function htmlbarsShouldRenderTheOutletWhenSetAfterDOMInsertion() {
       var _this = this;
 
+      // fails in glimmer because of an attempt to access `.id` on
+      // the provided template (which is undefined)
       var outletState = {
         render: {
           owner: this.owner,
           into: undefined,
           outlet: 'main',
           name: 'application',
-          controller: {},
+          controller: undefined,
           ViewClass: undefined,
-          template: this.compile('HI{{outlet}}')
+          template: undefined
         },
+
         outlets: Object.create(null)
       };
 
@@ -27015,11 +27018,10 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
 
       _emberRuntimeTestsUtils.runAppend(this.component);
 
-      this.assertText('HI');
+      this.assertText('');
 
-      this.assertStableRerender();
-
-      outletState.outlets.main = {
+      this.registerTemplate('application', 'HI{{outlet}}');
+      outletState = {
         render: {
           owner: this.owner,
           into: undefined,
@@ -27027,7 +27029,29 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
           name: 'application',
           controller: {},
           ViewClass: undefined,
-          template: this.compile('<p>BYE</p>')
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this.component.setOutletState(outletState);
+      });
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('index', '<p>BYE</p>');
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'index',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
       };
@@ -27037,6 +27061,171 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       });
 
       this.assertText('HIBYE');
+    };
+
+    _class.prototype['@test should render the outlet when set before DOM insertion'] = function testShouldRenderTheOutletWhenSetBeforeDOMInsertion() {
+      var _this2 = this;
+
+      this.registerTemplate('application', 'HI{{outlet}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this2.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('index', '<p>BYE</p>');
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'index',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:index')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this2.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIBYE');
+    };
+
+    _class.prototype['@test should support an optional name'] = function testShouldSupportAnOptionalName() {
+      var _this3 = this;
+
+      this.registerTemplate('application', '<h1>HI</h1>{{outlet "special"}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this3.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('special', '<p>BYE</p>');
+      outletState.outlets.special = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'special',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:special')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this3.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIBYE');
+    };
+
+    _class.prototype['@htmlbars should support bound outlet name'] = function htmlbarsShouldSupportBoundOutletName() {
+      var _this4 = this;
+
+      var controller = { outletName: 'foo' };
+      this.registerTemplate('application', '<h1>HI</h1>{{outlet outletName}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: controller,
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this4.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('foo', '<p>FOO</p>');
+      outletState.outlets.foo = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'foo',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:foo')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.registerTemplate('bar', '<p>BAR</p>');
+      outletState.outlets.bar = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'bar',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:bar')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this4.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIFOO');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(controller, 'outletName', 'bar');
+      });
+
+      this.assertText('HIBAR');
     };
 
     return _class;
@@ -31784,201 +31973,6 @@ enifed('ember-htmlbars-template-compiler/tests/utils/helpers', ['exports', 'embe
   exports.packageName = packageName;
   var engineName = 'HTMLBars';
   exports.engineName = engineName;
-});
-enifed('ember-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils) {
-  'use strict';
-
-  var trim = _emberViewsSystemJquery.default.trim;
-
-  var appInstance = undefined,
-      top = undefined;
-
-  QUnit.module('ember-htmlbars: {{outlet}} helper', {
-    setup: function () {
-      appInstance = _emberHtmlbarsTestsUtils.buildAppInstance();
-      var CoreOutlet = appInstance._lookupFactory('view:core-outlet');
-      top = CoreOutlet.create();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(appInstance);
-      _emberRuntimeTestsUtils.runDestroy(top);
-      appInstance = top = null;
-    }
-  });
-
-  QUnit.test('a top-level outlet should always be a view', function () {
-    appInstance.register('view:toplevel', _emberViewsViewsView.default.extend({
-      elementId: 'top-level'
-    }));
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    top.setOutletState(routerState);
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    // Replace whitespace for older IE
-    equal(trim(top.$('#top-level').text()), 'HIBYE');
-  });
-
-  QUnit.test('view should render the outlet when set before dom insertion', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-  });
-
-  QUnit.test('outlet should support an optional name', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet \'mainView\'}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-
-    routerState.outlets.mainView = withTemplate('<p>BYE</p>');
-
-    _emberMetalRun_loop.default(function () {
-      return top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-  });
-
-  QUnit.test('Outlets bind to the current view, not the current concrete view', function () {
-    var routerState = withTemplate('<h1>HI</h1>{{outlet}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-    routerState.outlets.main = withTemplate('<h2>MIDDLE</h2>{{outlet}}');
-    _emberMetalRun_loop.default(function () {
-      return top.setOutletState(routerState);
-    });
-    routerState.outlets.main.outlets.main = withTemplate('<h3>BOTTOM</h3>');
-    _emberMetalRun_loop.default(function () {
-      return top.setOutletState(routerState);
-    });
-
-    var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h2 ~ h3').text();
-    equal(output, 'BOTTOM', 'all templates were rendered');
-  });
-
-  QUnit.test('Outlets bind to the current template\'s view, not inner contexts [DEPRECATED]', function () {
-    var parentTemplate = '<h1>HI</h1>{{#if view.alwaysTrue}}{{outlet}}{{/if}}';
-    var bottomTemplate = '<h3>BOTTOM</h3>';
-
-    var routerState = {
-      render: {
-        ViewClass: _emberViewsViewsView.default.extend({
-          alwaysTrue: true,
-          template: _emberHtmlbarsTestsUtilsHelpers.compile(parentTemplate)
-        })
-      },
-      outlets: {}
-    };
-
-    top.setOutletState(routerState);
-
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    routerState.outlets.main = withTemplate(bottomTemplate);
-
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h3').text();
-    equal(output, 'BOTTOM', 'all templates were rendered');
-  });
-
-  QUnit.test('should not throw deprecations if {{outlet}} is used without a name', function () {
-    expectNoDeprecation();
-    top.setOutletState(withTemplate('{{outlet}}'));
-    _emberRuntimeTestsUtils.runAppend(top);
-  });
-
-  QUnit.test('should not throw deprecations if {{outlet}} is used with a quoted name', function () {
-    expectNoDeprecation();
-    top.setOutletState(withTemplate('{{outlet "foo"}}'));
-    _emberRuntimeTestsUtils.runAppend(top);
-  });
-
-  QUnit.test('{{outlet}} should work with an unquoted name', function () {
-    var routerState = {
-      render: {
-        controller: _emberRuntimeControllersController.default.create({
-          outletName: 'magical'
-        }),
-        template: _emberHtmlbarsTestsUtilsHelpers.compile('{{outlet outletName}}')
-      },
-      outlets: {
-        magical: withTemplate('It\'s magic')
-      }
-    };
-
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text().trim(), 'It\'s magic');
-  });
-
-  QUnit.test('{{outlet}} should rerender when bound name changes', function () {
-    var routerState = {
-      render: {
-        controller: _emberRuntimeControllersController.default.create({
-          outletName: 'magical'
-        }),
-        template: _emberHtmlbarsTestsUtilsHelpers.compile('{{outlet outletName}}')
-      },
-      outlets: {
-        magical: withTemplate('It\'s magic'),
-        second: withTemplate('second')
-      }
-    };
-
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-    equal(top.$().text().trim(), 'It\'s magic');
-    _emberMetalRun_loop.default(function () {
-      return routerState.render.controller.set('outletName', 'second');
-    });
-    equal(top.$().text().trim(), 'second');
-  });
-
-  QUnit.test('views created by {{outlet}} should get destroyed', function () {
-    var inserted = 0;
-    var destroyed = 0;
-    var routerState = {
-      render: {
-        ViewClass: _emberViewsViewsView.default.extend({
-          didInsertElement: function () {
-            inserted++;
-          },
-          willDestroyElement: function () {
-            destroyed++;
-          }
-        })
-      },
-      outlets: {}
-    };
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-    equal(inserted, 1, 'expected to see view inserted');
-    _emberMetalRun_loop.default(function () {
-      return top.setOutletState(withTemplate('hello world'));
-    });
-    equal(destroyed, 1, 'expected to see view destroyed');
-  });
-
-  function withTemplate(string) {
-    return {
-      render: {
-        template: _emberHtmlbarsTestsUtilsHelpers.compile(string)
-      },
-      outlets: {}
-    };
-  }
 });
 enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/env', 'htmlbars-test-helpers', 'ember-metal/assign'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsEnv, _htmlbarsTestHelpers, _emberMetalAssign) {
   'use strict';
@@ -51830,7 +51824,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
     });
   }
 });
-enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -51854,16 +51848,19 @@ enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlba
     _class.prototype['@htmlbars should render the outlet when set after DOM insertion'] = function htmlbarsShouldRenderTheOutletWhenSetAfterDOMInsertion() {
       var _this = this;
 
+      // fails in glimmer because of an attempt to access `.id` on
+      // the provided template (which is undefined)
       var outletState = {
         render: {
           owner: this.owner,
           into: undefined,
           outlet: 'main',
           name: 'application',
-          controller: {},
+          controller: undefined,
           ViewClass: undefined,
-          template: this.compile('HI{{outlet}}')
+          template: undefined
         },
+
         outlets: Object.create(null)
       };
 
@@ -51873,11 +51870,10 @@ enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlba
 
       _emberRuntimeTestsUtils.runAppend(this.component);
 
-      this.assertText('HI');
+      this.assertText('');
 
-      this.assertStableRerender();
-
-      outletState.outlets.main = {
+      this.registerTemplate('application', 'HI{{outlet}}');
+      outletState = {
         render: {
           owner: this.owner,
           into: undefined,
@@ -51885,7 +51881,29 @@ enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlba
           name: 'application',
           controller: {},
           ViewClass: undefined,
-          template: this.compile('<p>BYE</p>')
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this.component.setOutletState(outletState);
+      });
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('index', '<p>BYE</p>');
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'index',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
       };
@@ -51895,6 +51913,171 @@ enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlba
       });
 
       this.assertText('HIBYE');
+    };
+
+    _class.prototype['@test should render the outlet when set before DOM insertion'] = function testShouldRenderTheOutletWhenSetBeforeDOMInsertion() {
+      var _this2 = this;
+
+      this.registerTemplate('application', 'HI{{outlet}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this2.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('index', '<p>BYE</p>');
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'index',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:index')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this2.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIBYE');
+    };
+
+    _class.prototype['@test should support an optional name'] = function testShouldSupportAnOptionalName() {
+      var _this3 = this;
+
+      this.registerTemplate('application', '<h1>HI</h1>{{outlet "special"}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this3.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('special', '<p>BYE</p>');
+      outletState.outlets.special = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'special',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:special')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this3.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIBYE');
+    };
+
+    _class.prototype['@htmlbars should support bound outlet name'] = function htmlbarsShouldSupportBoundOutletName() {
+      var _this4 = this;
+
+      var controller = { outletName: 'foo' };
+      this.registerTemplate('application', '<h1>HI</h1>{{outlet outletName}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: controller,
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this4.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('foo', '<p>FOO</p>');
+      outletState.outlets.foo = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'foo',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:foo')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.registerTemplate('bar', '<p>BAR</p>');
+      outletState.outlets.bar = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'bar',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:bar')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this4.component.setOutletState(outletState);
+      });
+
+      this.assertText('HIFOO');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(controller, 'outletName', 'bar');
+      });
+
+      this.assertText('HIBAR');
     };
 
     return _class;
