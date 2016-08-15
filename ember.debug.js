@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+574b64b3
+ * @version   2.9.0-null+07cc7893
  */
 
 var enifed, requireModule, require, Ember;
@@ -8803,7 +8803,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
       if (lastParam && lastParam.isQueryParams) {
         queryParams = params.pop();
       } else {
-        queryParams = {};
+        queryParams = { values: {} };
       }
       this.set('queryParams', queryParams);
 
@@ -15271,7 +15271,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
       if (lastParam && lastParam.isQueryParams) {
         queryParams = params.pop();
       } else {
-        queryParams = {};
+        queryParams = { values: {} };
       }
       this.set('queryParams', queryParams);
 
@@ -50818,7 +50818,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+574b64b3";
+  exports.default = "2.9.0-null+07cc7893";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

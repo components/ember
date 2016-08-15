@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+574b64b3
+ * @version   2.9.0-null+07cc7893
  */
 
 var enifed, requireModule, require, Ember;
@@ -85103,7 +85103,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry'], function (exports, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry) {
+enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-templates/template_registry', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberTemplatesTemplate_registry, _emberRuntimeExtRsvp) {
   'use strict';
 
   var Router = undefined,
@@ -85912,6 +85912,61 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
       _emberViewsSystemJquery.default('#app-link').click();
       equal(router.get('location.path'), '/parent');
+    });
+
+    QUnit.test('link-to default query params while in active transition regression test', function () {
+      App.Router.map(function () {
+        this.route('foos');
+        this.route('bars');
+      });
+      var foos = _emberRuntimeExtRsvp.default.defer();
+      var bars = _emberRuntimeExtRsvp.default.defer();
+
+      _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('\n      {{link-to \'Foos\' \'foos\' id=\'foos-link\'}}\n      {{link-to \'Baz Foos\' \'foos\' (query-params baz=true) id=\'baz-foos-link\'}}\n      {{link-to \'Quux Bars\' \'bars\' (query-params quux=true) id=\'bars-link\'}}\n    '));
+
+      App.FoosController = _emberRuntimeControllersController.default.extend({
+        queryParams: ['status'],
+        baz: false
+      });
+
+      App.FoosRoute = _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return foos.promise;
+        }
+      });
+
+      App.BarsController = _emberRuntimeControllersController.default.extend({
+        queryParams: ['status'],
+        quux: false
+      });
+
+      App.BarsRoute = _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          return bars.promise;
+        }
+      });
+
+      bootApplication();
+      equal(_emberViewsSystemJquery.default('#foos-link').attr('href'), '/foos');
+      equal(_emberViewsSystemJquery.default('#baz-foos-link').attr('href'), '/foos?baz=true');
+      equal(_emberViewsSystemJquery.default('#bars-link').attr('href'), '/bars?quux=true');
+
+      equal(router.get('location.path'), '');
+
+      shouldNotBeActive('#foos-link');
+      shouldNotBeActive('#baz-foos-link');
+      shouldNotBeActive('#bars-link');
+
+      _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#bars-link'), 'click');
+      shouldNotBeActive('#bars-link');
+
+      _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#foos-link'), 'click');
+      shouldNotBeActive('#foos-link');
+
+      _emberMetalRun_loop.default(foos, 'resolve');
+
+      equal(router.get('location.path'), '/foos');
+      shouldBeActive('#foos-link');
     });
   }
 });
