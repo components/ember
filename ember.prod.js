@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0
+ * @version   2.7.1
  */
 
 var enifed, requireModule, require, Ember;
@@ -9028,7 +9028,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
       if (lastParam && lastParam.isQueryParams) {
         queryParams = params.pop();
       } else {
-        queryParams = {};
+        queryParams = { values: {} };
       }
       this.set('queryParams', queryParams);
 
@@ -12787,12 +12787,12 @@ enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup
     ```
   
     The above example template will render a template named
-    "_nav", which has the same context as the parent template
-    it's rendered into, so if the "_nav" template also referenced
+    "-nav", which has the same context as the parent template
+    it's rendered into, so if the "-nav" template also referenced
     `{{foo}}`, it would print the same thing as the `{{foo}}`
     in the above example.
   
-    If a "_nav" template isn't found, the `partial` helper will
+    If a "-nav" template isn't found, the `partial` helper will
     fall back to a template named "nav".
   
     ### Bound template names
@@ -17356,7 +17356,7 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 
       _emberMetalEvents.addListener(obj, 'willDestroy', this, 'disconnect');
 
-      fireDeprecations(possibleGlobal, this._oneWay, !possibleGlobal && !this._oneWay);
+      fireDeprecations(obj, this._to, this._from, possibleGlobal, this._oneWay, !possibleGlobal && !this._oneWay);
 
       this._readyToSync = true;
       this._fromObj = fromObj;
@@ -17464,10 +17464,12 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 
   };
 
-  function fireDeprecations(deprecateGlobal, deprecateOneWay, deprecateAlias) {
+  function fireDeprecations(obj, toPath, fromPath, deprecateGlobal, deprecateOneWay, deprecateAlias) {
     var deprecateGlobalMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
     var deprecateOneWayMessage = '`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.';
     var deprecateAliasMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
+
+    var objectInfo = 'The `' + toPath + '` property of `' + obj + '` is an `Ember.Binding` connected to `' + fromPath + '`, but ';
   }
 
   function mixinProperties(to, from) {
@@ -27441,7 +27443,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
         This action is called when one or more query params have changed. Bubbles.
          @method queryParamsDidChange
         @param changed {Object} Keys are names of query params that have changed.
-        @param totalPresent {Number}
+        @param totalPresent {Object} Keys are names of query params that are currently set.
         @param removed {Object} Keys are names of query params that have been removed.
         @returns {boolean}
         @private
@@ -34071,7 +34073,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/property_get'
 
     /**
       Sets the value on the named property for each member. This is more
-      efficient than using other methods defined on this helper. If the object
+      ergonomic than using other methods defined on this helper. If the object
       implements Ember.Observable, the value will be changed to `set(),` otherwise
       it will be set directly. `null` objects are skipped.
        @method setEach
@@ -42719,7 +42721,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     ```
   
     If the return value of an `attributeBindings` monitored property is a boolean
-    the property's value will be set as a coerced string:
+    the attribute will be present or absent depending on the value:
   
     ```javascript
     MyTextInput = Ember.View.extend({
@@ -42732,7 +42734,7 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     Will result in a view instance with an HTML representation of:
   
     ```html
-    <input id="ember1" class="ember-view" disabled="false" />
+    <input id="ember1" class="ember-view" />
     ```
   
     `attributeBindings` can refer to computed properties:
@@ -43201,7 +43203,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.0";
+  exports.default = "2.7.1";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -46547,10 +46549,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     // `x`, irrespective of the other parts.
     // Because of this similarity, we assign each type of segment a number value written as a
     // string. We can find the specificity of compound routes by concatenating these strings
-    // together, from left to right. After we have looped through all of the segments,
-    // we convert the string to a number.
-    specificity.val = '';
-
+    // together, from left to right.
     for (var i = 0; i < segments.length; i++) {
       var segment = segments[i],
           match;
@@ -46574,9 +46573,11 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
       }
     }
 
-    specificity.val = +specificity.val;
-
     return results;
+  }
+
+  function isEqualCharSpec(specA, specB) {
+    return specA.validChars === specB.validChars && specA.invalidChars === specB.invalidChars;
   }
 
   // A State has a character specification and (`charSpec`) and a list of possible
@@ -46599,7 +46600,6 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   function State(charSpec) {
     this.charSpec = charSpec;
     this.nextStates = [];
-    this.charSpecs = {};
     this.regex = undefined;
     this.handlers = undefined;
     this.specificity = undefined;
@@ -46607,20 +46607,12 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   State.prototype = {
     get: function (charSpec) {
-      if (this.charSpecs[charSpec.validChars]) {
-        return this.charSpecs[charSpec.validChars];
-      }
-
       var nextStates = this.nextStates;
 
       for (var i = 0; i < nextStates.length; i++) {
         var child = nextStates[i];
 
-        var isEqual = child.charSpec.validChars === charSpec.validChars;
-        isEqual = isEqual && child.charSpec.invalidChars === charSpec.invalidChars;
-
-        if (isEqual) {
-          this.charSpecs[charSpec.validChars] = child;
+        if (isEqualCharSpec(child.charSpec, charSpec)) {
           return child;
         }
       }
@@ -46684,7 +46676,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   // Sort the routes by specificity
   function sortSolutions(states) {
     return states.sort(function (a, b) {
-      return b.specificity.val - a.specificity.val;
+      return b.specificity.val < a.specificity.val ? -1 : b.specificity.val === a.specificity.val ? 0 : 1;
     });
   }
 
@@ -46778,7 +46770,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     add: function (routes, options) {
       var currentState = this.rootState,
           regex = "^",
-          specificity = {},
+          specificity = { val: '' },
           handlers = new Array(routes.length),
           allSegments = [],
           name;
