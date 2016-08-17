@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.1
+ * @version   2.7.1+5c97f228
  */
 
 var enifed, requireModule, require, Ember;
@@ -43203,7 +43203,7 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.7.1";
+  exports.default = "2.7.1+5c97f228";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -46412,11 +46412,8 @@ enifed("morph-range/utils", ["exports"], function (exports) {
     } while (node);
   }
 });
-enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer/normalizer'], function (exports, _routeRecognizerDsl, _routeRecognizerNormalizer) {
+enifed('route-recognizer', ['exports', 'route-recognizer/dsl'], function (exports, _routeRecognizerDsl) {
   'use strict';
-
-  var normalizePath = _routeRecognizerNormalizer.default.normalizePath;
-  var normalizeSegment = _routeRecognizerNormalizer.default.normalizeSegment;
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -46444,19 +46441,17 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   // * `repeat`: true if the character specification can repeat
 
   function StaticSegment(string) {
-    this.string = normalizeSegment(string);
+    this.string = string;
   }
   StaticSegment.prototype = {
-    eachChar: function (currentState) {
+    eachChar: function (callback) {
       var string = this.string,
           ch;
 
-      for (var i = 0; i < string.length; i++) {
+      for (var i = 0, l = string.length; i < l; i++) {
         ch = string.charAt(i);
-        currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: ch });
+        callback({ validChars: ch });
       }
-
-      return currentState;
     },
 
     regex: function () {
@@ -46469,11 +46464,11 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   };
 
   function DynamicSegment(name) {
-    this.name = normalizeSegment(name);
+    this.name = name;
   }
   DynamicSegment.prototype = {
-    eachChar: function (currentState) {
-      return currentState.put({ invalidChars: "/", repeat: true, validChars: undefined });
+    eachChar: function (callback) {
+      callback({ invalidChars: "/", repeat: true });
     },
 
     regex: function () {
@@ -46481,11 +46476,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     },
 
     generate: function (params) {
-      if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        return encodeURIComponent(params[this.name]);
-      } else {
-        return params[this.name];
-      }
+      return params[this.name];
     }
   };
 
@@ -46493,8 +46484,8 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     this.name = name;
   }
   StarSegment.prototype = {
-    eachChar: function (currentState) {
-      return currentState.put({ invalidChars: "", repeat: true, validChars: undefined });
+    eachChar: function (callback) {
+      callback({ invalidChars: "", repeat: true });
     },
 
     regex: function () {
@@ -46508,9 +46499,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   function EpsilonSegment() {}
   EpsilonSegment.prototype = {
-    eachChar: function (currentState) {
-      return currentState;
-    },
+    eachChar: function () {},
     regex: function () {
       return "";
     },
@@ -46519,65 +46508,37 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     }
   };
 
-  // The `names` will be populated with the paramter name for each dynamic/star
-  // segment. `shouldDecodes` will be populated with a boolean for each dyanamic/star
-  // segment, indicating whether it should be decoded during recognition.
-  function parse(route, names, specificity, shouldDecodes) {
+  function parse(route, names, types) {
     // normalize route as not starting with a "/". Recognition will
     // also normalize.
     if (route.charAt(0) === "/") {
       route = route.substr(1);
     }
 
-    var segments = route.split("/");
-    var results = new Array(segments.length);
+    var segments = route.split("/"),
+        results = [];
 
-    // A routes has specificity determined by the order that its different segments
-    // appear in. This system mirrors how the magnitude of numbers written as strings
-    // works.
-    // Consider a number written as: "abc". An example would be "200". Any other number written
-    // "xyz" will be smaller than "abc" so long as `a > x`. For instance, "199" is smaller
-    // then "200", even though "y" and "z" (which are both 9) are larger than "0" (the value
-    // of (`b` and `c`). This is because the leading symbol, "2", is larger than the other
-    // leading symbol, "1".
-    // The rule is that symbols to the left carry more weight than symbols to the right
-    // when a number is written out as a string. In the above strings, the leading digit
-    // represents how many 100's are in the number, and it carries more weight than the middle
-    // number which represents how many 10's are in the number.
-    // This system of number magnitude works well for route specificity, too. A route written as
-    // `a/b/c` will be more specific than `x/y/z` as long as `a` is more specific than
-    // `x`, irrespective of the other parts.
-    // Because of this similarity, we assign each type of segment a number value written as a
-    // string. We can find the specificity of compound routes by concatenating these strings
-    // together, from left to right.
-    for (var i = 0; i < segments.length; i++) {
+    for (var i = 0, l = segments.length; i < l; i++) {
       var segment = segments[i],
           match;
 
       if (match = segment.match(/^:([^\/]+)$/)) {
-        results[i] = new DynamicSegment(match[1]);
+        results.push(new DynamicSegment(match[1]));
         names.push(match[1]);
-        shouldDecodes.push(true);
-        specificity.val += '3';
+        types.dynamics++;
       } else if (match = segment.match(/^\*([^\/]+)$/)) {
-        results[i] = new StarSegment(match[1]);
+        results.push(new StarSegment(match[1]));
         names.push(match[1]);
-        shouldDecodes.push(false);
-        specificity.val += '1';
+        types.stars++;
       } else if (segment === "") {
-        results[i] = new EpsilonSegment();
-        specificity.val += '2';
+        results.push(new EpsilonSegment());
       } else {
-        results[i] = new StaticSegment(segment);
-        specificity.val += '4';
+        results.push(new StaticSegment(segment));
+        types.statics++;
       }
     }
 
     return results;
-  }
-
-  function isEqualCharSpec(specA, specB) {
-    return specA.validChars === specB.validChars && specA.invalidChars === specB.invalidChars;
   }
 
   // A State has a character specification and (`charSpec`) and a list of possible
@@ -46600,19 +46561,19 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   function State(charSpec) {
     this.charSpec = charSpec;
     this.nextStates = [];
-    this.regex = undefined;
-    this.handlers = undefined;
-    this.specificity = undefined;
   }
 
   State.prototype = {
     get: function (charSpec) {
       var nextStates = this.nextStates;
 
-      for (var i = 0; i < nextStates.length; i++) {
+      for (var i = 0, l = nextStates.length; i < l; i++) {
         var child = nextStates[i];
 
-        if (isEqualCharSpec(child.charSpec, charSpec)) {
+        var isEqual = child.charSpec.validChars === charSpec.validChars;
+        isEqual = isEqual && child.charSpec.invalidChars === charSpec.invalidChars;
+
+        if (isEqual) {
           return child;
         }
       }
@@ -46646,14 +46607,16 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
     // Find a list of child states matching the next character
     match: function (ch) {
+      // DEBUG "Processing `" + ch + "`:"
       var nextStates = this.nextStates,
           child,
           charSpec,
           chars;
 
+      // DEBUG "  " + debugState(this)
       var returned = [];
 
-      for (var i = 0; i < nextStates.length; i++) {
+      for (var i = 0, l = nextStates.length; i < l; i++) {
         child = nextStates[i];
 
         charSpec = child.charSpec;
@@ -46671,12 +46634,67 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
       return returned;
     }
+
+    /** IF DEBUG
+    , debug: function() {
+      var charSpec = this.charSpec,
+          debug = "[",
+          chars = charSpec.validChars || charSpec.invalidChars;
+       if (charSpec.invalidChars) { debug += "^"; }
+      debug += chars;
+      debug += "]";
+       if (charSpec.repeat) { debug += "+"; }
+       return debug;
+    }
+    END IF **/
   };
 
-  // Sort the routes by specificity
+  /** IF DEBUG
+  function debug(log) {
+    console.log(log);
+  }
+  
+  function debugState(state) {
+    return state.nextStates.map(function(n) {
+      if (n.nextStates.length === 0) { return "( " + n.debug() + " [accepting] )"; }
+      return "( " + n.debug() + " <then> " + n.nextStates.map(function(s) { return s.debug() }).join(" or ") + " )";
+    }).join(", ")
+  }
+  END IF **/
+
+  // This is a somewhat naive strategy, but should work in a lot of cases
+  // A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
+  //
+  // This strategy generally prefers more static and less dynamic matching.
+  // Specifically, it
+  //
+  //  * prefers fewer stars to more, then
+  //  * prefers using stars for less of the match to more, then
+  //  * prefers fewer dynamic segments to more, then
+  //  * prefers more static segments to more
   function sortSolutions(states) {
     return states.sort(function (a, b) {
-      return b.specificity.val < a.specificity.val ? -1 : b.specificity.val === a.specificity.val ? 0 : 1;
+      if (a.types.stars !== b.types.stars) {
+        return a.types.stars - b.types.stars;
+      }
+
+      if (a.types.stars) {
+        if (a.types.statics !== b.types.statics) {
+          return b.types.statics - a.types.statics;
+        }
+        if (a.types.dynamics !== b.types.dynamics) {
+          return b.types.dynamics - a.types.dynamics;
+        }
+      }
+
+      if (a.types.dynamics !== b.types.dynamics) {
+        return a.types.dynamics - b.types.dynamics;
+      }
+      if (a.types.statics !== b.types.statics) {
+        return b.types.statics - a.types.statics;
+      }
+
+      return 0;
     });
   }
 
@@ -46709,54 +46727,42 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     queryParams: null
   });
 
-  function findHandler(state, originalPath, queryParams) {
+  function findHandler(state, path, queryParams) {
     var handlers = state.handlers,
         regex = state.regex;
-    var captures = originalPath.match(regex),
+    var captures = path.match(regex),
         currentCapture = 1;
     var result = new RecognizeResults(queryParams);
 
-    result.length = handlers.length;
-
-    for (var i = 0; i < handlers.length; i++) {
+    for (var i = 0, l = handlers.length; i < l; i++) {
       var handler = handlers[i],
           names = handler.names,
-          shouldDecodes = handler.shouldDecodes,
           params = {};
-      var name, shouldDecode, capture;
 
-      for (var j = 0; j < names.length; j++) {
-        name = names[j];
-        shouldDecode = shouldDecodes[j];
-        capture = captures[currentCapture++];
-
-        if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-          if (shouldDecode) {
-            params[name] = decodeURIComponent(capture);
-          } else {
-            params[name] = capture;
-          }
-        } else {
-          params[name] = capture;
-        }
+      for (var j = 0, m = names.length; j < m; j++) {
+        params[names[j]] = captures[currentCapture++];
       }
 
-      result[i] = { handler: handler.handler, params: params, isDynamic: !!names.length };
+      result.push({ handler: handler.handler, params: params, isDynamic: !!names.length });
     }
 
     return result;
   }
 
+  function addSegment(currentState, segment) {
+    segment.eachChar(function (ch) {
+      var state;
+
+      currentState = currentState.put(ch);
+    });
+
+    return currentState;
+  }
+
   function decodeQueryParamPart(part) {
     // http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
     part = part.replace(/\+/gm, '%20');
-    var result;
-    try {
-      result = decodeURIComponent(part);
-    } catch (error) {
-      result = '';
-    }
-    return result;
+    return decodeURIComponent(part);
   }
 
   // The main interface
@@ -46770,23 +46776,22 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     add: function (routes, options) {
       var currentState = this.rootState,
           regex = "^",
-          specificity = { val: '' },
-          handlers = new Array(routes.length),
+          types = { statics: 0, dynamics: 0, stars: 0 },
+          handlers = [],
           allSegments = [],
           name;
 
       var isEmpty = true;
 
-      for (var i = 0; i < routes.length; i++) {
+      for (var i = 0, l = routes.length; i < l; i++) {
         var route = routes[i],
-            names = [],
-            shouldDecodes = [];
+            names = [];
 
-        var segments = parse(route.path, names, specificity, shouldDecodes);
+        var segments = parse(route.path, names, types);
 
         allSegments = allSegments.concat(segments);
 
-        for (var j = 0; j < segments.length; j++) {
+        for (var j = 0, m = segments.length; j < m; j++) {
           var segment = segments[j];
 
           if (segment instanceof EpsilonSegment) {
@@ -46796,25 +46801,26 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
           isEmpty = false;
 
           // Add a "/" for the new segment
-          currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: "/" });
+          currentState = currentState.put({ validChars: "/" });
           regex += "/";
 
           // Add a representation of the segment to the NFA and regex
-          currentState = segment.eachChar(currentState);
+          currentState = addSegment(currentState, segment);
           regex += segment.regex();
         }
-        var handler = { handler: route.handler, names: names, shouldDecodes: shouldDecodes };
-        handlers[i] = handler;
+
+        var handler = { handler: route.handler, names: names };
+        handlers.push(handler);
       }
 
       if (isEmpty) {
-        currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: "/" });
+        currentState = currentState.put({ validChars: "/" });
         regex += "/";
       }
 
       currentState.handlers = handlers;
       currentState.regex = new RegExp(regex + "$");
-      currentState.specificity = specificity;
+      currentState.types = types;
 
       if (name = options && options.as) {
         this.names[name] = {
@@ -46825,16 +46831,14 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     },
 
     handlersFor: function (name) {
-      var route = this.names[name];
-
+      var route = this.names[name],
+          result = [];
       if (!route) {
         throw new Error("There is no route named " + name);
       }
 
-      var result = new Array(route.handlers.length);
-
-      for (var i = 0; i < route.handlers.length; i++) {
-        result[i] = route.handlers[i];
+      for (var i = 0, l = route.handlers.length; i < l; i++) {
+        result.push(route.handlers[i]);
       }
 
       return result;
@@ -46853,7 +46857,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
       var segments = route.segments;
 
-      for (var i = 0; i < segments.length; i++) {
+      for (var i = 0, l = segments.length; i < l; i++) {
         var segment = segments[i];
 
         if (segment instanceof EpsilonSegment) {
@@ -46884,7 +46888,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
         }
       }
       keys.sort();
-      for (var i = 0; i < keys.length; i++) {
+      for (var i = 0, len = keys.length; i < len; i++) {
         key = keys[i];
         var value = params[key];
         if (value == null) {
@@ -46892,7 +46896,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
         }
         var pair = encodeURIComponent(key);
         if (isArray(value)) {
-          for (var j = 0; j < value.length; j++) {
+          for (var j = 0, l = value.length; j < l; j++) {
             var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
             pairs.push(arrayPair);
           }
@@ -46947,13 +46951,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
           l,
           queryStart,
           queryParams = {},
-          hashStart,
           isSlashDropped = false;
-
-      hashStart = path.indexOf('#');
-      if (hashStart !== -1) {
-        path = path.substr(0, hashStart);
-      }
 
       queryStart = path.indexOf('?');
       if (queryStart !== -1) {
@@ -46962,34 +46960,31 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
         queryParams = this.parseQueryString(queryString);
       }
 
+      path = decodeURI(path);
+
+      // DEBUG GROUP path
+
       if (path.charAt(0) !== "/") {
         path = "/" + path;
-      }
-      var originalPath = path;
-
-      if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        path = normalizePath(path);
-      } else {
-        path = decodeURI(path);
-        originalPath = decodeURI(originalPath);
       }
 
       pathLen = path.length;
       if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
         path = path.substr(0, pathLen - 1);
-        originalPath = originalPath.substr(0, pathLen - 1);
         isSlashDropped = true;
       }
 
-      for (i = 0; i < path.length; i++) {
+      for (i = 0, l = path.length; i < l; i++) {
         states = recognizeChar(states, path.charAt(i));
         if (!states.length) {
           break;
         }
       }
 
+      // END DEBUG GROUP
+
       var solutions = [];
-      for (i = 0; i < states.length; i++) {
+      for (i = 0, l = states.length; i < l; i++) {
         if (states[i].handlers) {
           solutions.push(states[i]);
         }
@@ -47003,22 +46998,16 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
         // if a trailing slash was dropped and a star segment is the last segment
         // specified, put the trailing slash back
         if (isSlashDropped && state.regex.source.slice(-5) === "(.+)$") {
-          originalPath = originalPath + "/";
+          path = path + "/";
         }
-        return findHandler(state, originalPath, queryParams);
+        return findHandler(state, path, queryParams);
       }
     }
   };
 
   RouteRecognizer.prototype.map = _routeRecognizerDsl.default;
 
-  RouteRecognizer.VERSION = '0.2.0';
-
-  // Set to false to opt-out of encoding and decoding path segments.
-  // See https://github.com/tildeio/route-recognizer/pull/55
-  RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
-
-  RouteRecognizer.Normalizer = _routeRecognizerNormalizer.default;
+  RouteRecognizer.VERSION = '0.1.5';
 
   exports.default = RouteRecognizer;
 });
@@ -47090,7 +47079,7 @@ enifed("route-recognizer/dsl", ["exports"], function (exports) {
 
   function addRoute(routeArray, path, handler) {
     var len = 0;
-    for (var i = 0; i < routeArray.length; i++) {
+    for (var i = 0, l = routeArray.length; i < l; i++) {
       len += routeArray[i].path.length;
     }
 
@@ -47129,94 +47118,6 @@ enifed("route-recognizer/dsl", ["exports"], function (exports) {
       }
     }, this);
   };
-});
-enifed('route-recognizer/normalizer', ['exports'], function (exports) {
-  // Match percent-encoded values (e.g. %3a, %3A, %25)
-  'use strict';
-
-  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
-
-  function toUpper(str) {
-    return str.toUpperCase();
-  }
-
-  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
-  function percentEncodedValuesToUpper(string) {
-    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
-  }
-
-  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
-  // values that are not reserved (like unicode characters).
-  // Safe to call multiple times on the same path.
-  function normalizePath(path) {
-    return path.split('/').map(normalizeSegment).join('/');
-  }
-
-  function percentEncode(char) {
-    return '%' + charToHex(char);
-  }
-
-  function charToHex(char) {
-    return char.charCodeAt(0).toString(16).toUpperCase();
-  }
-
-  // Decodes percent-encoded values in the string except those
-  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
-  // percent-encodings
-  function decodeURIComponentExcept(string, reservedHex) {
-    if (string.indexOf('%') === -1) {
-      // If there is no percent char, there is no decoding that needs to
-      // be done and we exit early
-      return string;
-    }
-    string = percentEncodedValuesToUpper(string);
-
-    var result = '';
-    var buffer = '';
-    var idx = 0;
-    while (idx < string.length) {
-      var pIdx = string.indexOf('%', idx);
-
-      if (pIdx === -1) {
-        // no percent char
-        buffer += string.slice(idx);
-        break;
-      } else {
-        // found percent char
-        buffer += string.slice(idx, pIdx);
-        idx = pIdx + 3;
-
-        var hex = string.slice(pIdx + 1, pIdx + 3);
-        var encoded = '%' + hex;
-
-        if (reservedHex.indexOf(hex) === -1) {
-          // encoded is not in reserved set, add to buffer
-          buffer += encoded;
-        } else {
-          result += decodeURIComponent(buffer);
-          buffer = '';
-          result += encoded;
-        }
-      }
-    }
-    result += decodeURIComponent(buffer);
-    return result;
-  }
-
-  // Leave these characters in encoded state in segments
-  var reservedSegmentChars = ['%', '/'];
-  var reservedHex = reservedSegmentChars.map(charToHex);
-
-  function normalizeSegment(segment) {
-    return decodeURIComponentExcept(segment, reservedHex);
-  }
-
-  var Normalizer = {
-    normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath
-  };
-
-  exports.default = Normalizer;
 });
 enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
   'use strict';
