@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.3
+ * @version   2.8.0-beta.3+cf714821
  */
 
 var enifed, requireModule, require, Ember;
@@ -41819,7 +41819,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.3";
+  exports.default = "2.8.0-beta.3+cf714821";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -45138,7 +45138,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   // The `names` will be populated with the paramter name for each dynamic/star
   // segment. `shouldDecodes` will be populated with a boolean for each dyanamic/star
   // segment, indicating whether it should be decoded during recognition.
-  function parse(route, names, specificity, shouldDecodes) {
+  function parse(route, names, types, shouldDecodes) {
     // normalize route as not starting with a "/". Recognition will
     // also normalize.
     if (route.charAt(0) === "/") {
@@ -45148,24 +45148,6 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     var segments = route.split("/");
     var results = new Array(segments.length);
 
-    // A routes has specificity determined by the order that its different segments
-    // appear in. This system mirrors how the magnitude of numbers written as strings
-    // works.
-    // Consider a number written as: "abc". An example would be "200". Any other number written
-    // "xyz" will be smaller than "abc" so long as `a > x`. For instance, "199" is smaller
-    // then "200", even though "y" and "z" (which are both 9) are larger than "0" (the value
-    // of (`b` and `c`). This is because the leading symbol, "2", is larger than the other
-    // leading symbol, "1".
-    // The rule is that symbols to the left carry more weight than symbols to the right
-    // when a number is written out as a string. In the above strings, the leading digit
-    // represents how many 100's are in the number, and it carries more weight than the middle
-    // number which represents how many 10's are in the number.
-    // This system of number magnitude works well for route specificity, too. A route written as
-    // `a/b/c` will be more specific than `x/y/z` as long as `a` is more specific than
-    // `x`, irrespective of the other parts.
-    // Because of this similarity, we assign each type of segment a number value written as a
-    // string. We can find the specificity of compound routes by concatenating these strings
-    // together, from left to right.
     for (var i = 0; i < segments.length; i++) {
       var segment = segments[i],
           match;
@@ -45174,18 +45156,17 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
         results[i] = new DynamicSegment(match[1]);
         names.push(match[1]);
         shouldDecodes.push(true);
-        specificity.val += '3';
+        types.dynamics++;
       } else if (match = segment.match(/^\*([^\/]+)$/)) {
         results[i] = new StarSegment(match[1]);
         names.push(match[1]);
         shouldDecodes.push(false);
-        specificity.val += '1';
+        types.stars++;
       } else if (segment === "") {
         results[i] = new EpsilonSegment();
-        specificity.val += '2';
       } else {
         results[i] = new StaticSegment(segment);
-        specificity.val += '4';
+        types.statics++;
       }
     }
 
@@ -45289,10 +45270,39 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     }
   };
 
-  // Sort the routes by specificity
+  // This is a somewhat naive strategy, but should work in a lot of cases
+  // A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
+  //
+  // This strategy generally prefers more static and less dynamic matching.
+  // Specifically, it
+  //
+  //  * prefers fewer stars to more, then
+  //  * prefers using stars for less of the match to more, then
+  //  * prefers fewer dynamic segments to more, then
+  //  * prefers more static segments to more
   function sortSolutions(states) {
     return states.sort(function (a, b) {
-      return b.specificity.val < a.specificity.val ? -1 : b.specificity.val === a.specificity.val ? 0 : 1;
+      if (a.types.stars !== b.types.stars) {
+        return a.types.stars - b.types.stars;
+      }
+
+      if (a.types.stars) {
+        if (a.types.statics !== b.types.statics) {
+          return b.types.statics - a.types.statics;
+        }
+        if (a.types.dynamics !== b.types.dynamics) {
+          return b.types.dynamics - a.types.dynamics;
+        }
+      }
+
+      if (a.types.dynamics !== b.types.dynamics) {
+        return a.types.dynamics - b.types.dynamics;
+      }
+      if (a.types.statics !== b.types.statics) {
+        return b.types.statics - a.types.statics;
+      }
+
+      return 0;
     });
   }
 
@@ -45386,7 +45396,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     add: function (routes, options) {
       var currentState = this.rootState,
           regex = "^",
-          specificity = { val: '' },
+          types = { statics: 0, dynamics: 0, stars: 0 },
           handlers = new Array(routes.length),
           allSegments = [],
           name;
@@ -45398,7 +45408,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
             names = [],
             shouldDecodes = [];
 
-        var segments = parse(route.path, names, specificity, shouldDecodes);
+        var segments = parse(route.path, names, types, shouldDecodes);
 
         allSegments = allSegments.concat(segments);
 
@@ -45430,7 +45440,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
       currentState.handlers = handlers;
       currentState.regex = new RegExp(regex + "$");
-      currentState.specificity = specificity;
+      currentState.types = types;
 
       if (name = options && options.as) {
         this.names[name] = {
@@ -45628,7 +45638,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   RouteRecognizer.prototype.map = _routeRecognizerDsl.default;
 
-  RouteRecognizer.VERSION = '0.2.0';
+  RouteRecognizer.VERSION = '0.2.2';
 
   // Set to false to opt-out of encoding and decoding path segments.
   // See https://github.com/tildeio/route-recognizer/pull/55
