@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+e8318e85
+ * @version   2.9.0-null+14a18e71
  */
 
 var enifed, requireModule, require, Ember;
@@ -9414,7 +9414,7 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-metal/symbol'], funct
     }
   };
 });
-enifed('ember-glimmer/helpers/get', ['exports', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberGlimmerUtilsReferences, _glimmerReference) {
+enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal/property_set', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberMetalProperty_set, _emberGlimmerUtilsReferences, _glimmerReference) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -9532,6 +9532,10 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-glimmer/utils/references'
       }
 
       return innerReference ? innerReference.value() : null;
+    };
+
+    GetHelperReference.prototype[_emberGlimmerUtilsReferences.UPDATE] = function (value) {
+      _emberMetalProperty_set.set(this.sourceReference.value(), this.pathReference.value(), value);
     };
 
     return GetHelperReference;
@@ -11649,13 +11653,14 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-r
       var isSimple = parsed[2];
 
       var isPath = prop.indexOf('.') > -1;
-      var value = isPath ? referenceForParts(component, prop.split('.')) : referenceForKey(component, prop);
-      var reference = undefined;
+      var reference = isPath ? referenceForParts(component, prop.split('.')) : referenceForKey(component, prop);
 
       if (attribute === 'style') {
-        reference = new StyleBindingReference(value, referenceForKey(component, 'isVisible'));
+        reference = new StyleBindingReference(reference, referenceForKey(component, 'isVisible'));
+      } else if (attribute === 'id') {
+        reference = new _glimmerReference.ConstReference(this.mapAttributeValue(reference.value()));
       } else {
-        reference = _glimmerReference.map(value, this.mapAttributeValue);
+        reference = _glimmerReference.map(reference, this.mapAttributeValue);
       }
 
       operations.addAttribute(attribute, reference);
@@ -47962,7 +47967,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+e8318e85";
+  exports.default = "2.9.0-null+14a18e71";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

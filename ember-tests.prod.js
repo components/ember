@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+e8318e85
+ * @version   2.9.0-null+14a18e71
  */
 
 var enifed, requireModule, require, Ember;
@@ -8109,9 +8109,7 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'foo': 'bar' } });
     };
 
-    // Bug in both systems. Should not be able to update id post creation.
-
-    _class.prototype['@skip can set id initially via attributeBindings '] = function skipCanSetIdInitiallyViaAttributeBindings() {
+    _class.prototype['@test can set id initially via attributeBindings '] = function testCanSetIdInitiallyViaAttributeBindings() {
       var _this13 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -8132,8 +8130,18 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'id': 'special-sauce' } });
 
+      // Should not be able to update id post creation. The change is correctly ignored in Glimmer, but
+      // HTMLBars does not handle that.
+      if (this.isGlimmer) {
+        this.runTask(function () {
+          return _emberMetalProperty_set.set(_this13.context, 'sauce', 'foo');
+        });
+
+        this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'id': 'special-sauce' } });
+      }
+
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'sauce', 'foo');
+        return _emberMetalProperty_set.set(_this13.context, 'sauce', 'special-sauce');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'id': 'special-sauce' } });
@@ -8506,12 +8514,16 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
       assert.equal(instance.get('woot'), 'yes', 'component found attr after reset');
     };
 
-    // HTMLBars runs `didReceiveAttrs` on `rerender`
-
-    _class.prototype['@htmlbars getAttr() should return the same value as get()'] = function htmlbarsGetAttrShouldReturnTheSameValueAsGet(assert) {
+    _class.prototype['@test getAttr() should return the same value as get()'] = function testGetAttrShouldReturnTheSameValueAsGet(assert) {
       var _this5 = this;
 
-      assert.expect(20);
+      if (this.isGlimmer) {
+        assert.expect(18);
+      } else {
+        // HTMLBars runs `didReceiveAttrs` on `rerender`
+        assert.expect(20);
+      }
+
       var instance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -8563,67 +8575,6 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
       this.runTask(function () {
         _emberMetalProperty_set.set(_this5.context, 'first', 'first');
         _emberMetalProperty_set.set(_this5.context, 'second', 'second');
-      });
-
-      assert.equal(instance.get('first'), 'first', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-    };
-
-    _class.prototype['@glimmer getAttr() should return the same value as get()'] = function glimmerGetAttrShouldReturnTheSameValueAsGet(assert) {
-      var _this6 = this;
-
-      assert.expect(18);
-      var instance = undefined;
-      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          instance = this;
-        },
-
-        didReceiveAttrs: function () {
-          var rootFirst = this.get('first');
-          var rootSecond = this.get('second');
-          var attrFirst = this.getAttr('first');
-          var attrSecond = this.getAttr('second');
-
-          equal(rootFirst, attrFirst, 'root property matches attrs value');
-          equal(rootSecond, attrSecond, 'root property matches attrs value');
-        }
-      });
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
-
-      this.render('{{foo-bar first=first second=second}}', {
-        first: 'first',
-        second: 'second'
-      });
-
-      assert.equal(instance.get('first'), 'first', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      assert.equal(instance.get('first'), 'first', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this6.context, 'first', 'third');
-      });
-
-      assert.equal(instance.get('first'), 'third', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this6.context, 'second', 'fourth');
-      });
-
-      assert.equal(instance.get('first'), 'third', 'matches known value');
-      assert.equal(instance.get('second'), 'fourth', 'matches known value');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this6.context, 'first', 'first');
-        _emberMetalProperty_set.set(_this6.context, 'second', 'second');
       });
 
       assert.equal(instance.get('first'), 'first', 'matches known value');
@@ -9651,7 +9602,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Hodi Sigmundur 33');
     };
 
-    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@test bound outer named parameters get updated in the right scope'] = function testBoundOuterNamedParametersGetUpdatedInTheRightScope() {
       var _this13 = this;
 
       this.registerComponent('-inner-component', {
@@ -9684,13 +9635,13 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this13.context.set('outerAge', 29);
+        return _this13.context.set('model.outerAge', 29);
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        return _this13.context.set('outerName', 'Not outer');
+        return _this13.context.set('model.outerName', 'Not outer');
       });
 
       this.assertText('Inner 29');
@@ -11749,128 +11700,92 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: value set in instance');
     };
 
-    // Note: Hooks are not re-run for idempotent re-renders
-
-    _class.prototype['@glimmer rerendering component with attrs from parent'] = function glimmerRerenderingComponentWithAttrsFromParent(assert) {
+    _class.prototype['@test rerendering component with attrs from parent'] = function testRerenderingComponentWithAttrsFromParent(assert) {
       var _this35 = this;
 
-      var willUpdate = 0;
-      var didReceiveAttrs = 0;
+      var willUpdateCount = 0;
+      var didReceiveAttrsCount = 0;
+
+      function expectHooks(_ref, callback) {
+        var willUpdate = _ref.willUpdate;
+        var didReceiveAttrs = _ref.didReceiveAttrs;
+
+        willUpdateCount = 0;
+        didReceiveAttrsCount = 0;
+
+        callback();
+
+        if (willUpdate) {
+          assert.strictEqual(willUpdateCount, 1, 'The willUpdate hook was fired');
+        } else {
+          assert.strictEqual(willUpdateCount, 0, 'The willUpdate hook was not fired');
+        }
+
+        if (didReceiveAttrs) {
+          assert.strictEqual(didReceiveAttrsCount, 1, 'The didReceiveAttrs hook was fired');
+        } else {
+          assert.strictEqual(didReceiveAttrsCount, 0, 'The didReceiveAttrs hook was not fired');
+        }
+      }
 
       this.registerComponent('non-block', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
           didReceiveAttrs: function () {
-            didReceiveAttrs++;
+            didReceiveAttrsCount++;
           },
 
           willUpdate: function () {
-            willUpdate++;
+            willUpdateCount++;
           }
         }),
         template: 'In layout - someProp: {{someProp}}'
       });
 
-      this.render('{{non-block someProp=someProp}}', {
-        someProp: 'wycats'
-      });
-
-      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
-      this.assertText('In layout - someProp: wycats');
-
-      this.runTask(function () {
-        return _this35.rerender();
+      expectHooks({ willUpdate: false, didReceiveAttrs: true }, function () {
+        _this35.render('{{non-block someProp=someProp}}', {
+          someProp: 'wycats'
+        });
       });
 
       this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 0, 'The willUpdate hook fired once');
 
-      this.runTask(function () {
-        return _this35.context.set('someProp', 'tomdale');
+      // Note: Hooks are not fired in Glimmer for idempotent re-renders
+      expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
+        _this35.runTask(function () {
+          return _this35.rerender();
+        });
+      });
+
+      this.assertText('In layout - someProp: wycats');
+
+      expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
+        _this35.runTask(function () {
+          return _this35.context.set('someProp', 'tomdale');
+        });
       });
 
       this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 1, 'The willUpdate hook fired again');
 
-      this.runTask(function () {
-        return _this35.rerender();
+      // Note: Hooks are not fired in Glimmer for idempotent re-renders
+      expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
+        _this35.runTask(function () {
+          return _this35.rerender();
+        });
       });
 
       this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 1, 'The willUpdate hook fired again');
 
-      this.runTask(function () {
-        return _this35.context.set('someProp', 'wycats');
+      expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
+        _this35.runTask(function () {
+          return _this35.context.set('someProp', 'wycats');
+        });
       });
 
       this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again in the R step');
-      assert.equal(willUpdate, 2, 'The willUpdate hook fired again in the R step');
-    };
-
-    _class.prototype['@htmlbars rerendering component with attrs from parent'] = function htmlbarsRerenderingComponentWithAttrsFromParent(assert) {
-      var _this36 = this;
-
-      var willUpdate = 0;
-      var didReceiveAttrs = 0;
-
-      this.registerComponent('non-block', {
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-          didReceiveAttrs: function () {
-            didReceiveAttrs++;
-          },
-
-          willUpdate: function () {
-            willUpdate++;
-          }
-        }),
-        template: 'In layout - someProp: {{someProp}}'
-      });
-
-      this.render('{{non-block someProp=someProp}}', {
-        someProp: 'wycats'
-      });
-
-      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
-      this.assertText('In layout - someProp: wycats');
-
-      this.runTask(function () {
-        return _this36.rerender();
-      });
-
-      this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 1, 'The willUpdate hook fired once');
-
-      this.runTask(function () {
-        return _this36.context.set('someProp', 'tomdale');
-      });
-
-      this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 2, 'The willUpdate hook fired again');
-
-      this.runTask(function () {
-        return _this36.rerender();
-      });
-
-      this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 4, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 3, 'The willUpdate hook fired again');
-
-      this.runTask(function () {
-        return _this36.context.set('someProp', 'wycats');
-      });
-
-      this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 5, 'The didReceiveAttrs hook fired again in the R step');
-      assert.equal(willUpdate, 4, 'The willUpdate hook fired again in the R step');
     };
 
     _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
-      var _this37 = this;
+      var _this36 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -11883,29 +11798,61 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this37.rerender();
+        return _this36.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this37.context.set('prop', 'something else');
+        return _this36.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this37.context.set('prop', 'something here');
+        return _this36.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this38 = this;
+      var _this37 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{someProp}} - {{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this37.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this37.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this37.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
+      var _this38 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
@@ -11933,40 +11880,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout - someProp: something here - In template');
     };
 
-    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
-      var _this39 = this;
-
-      this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
-      });
-
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
-        prop: 'something here'
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this39.rerender();
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this39.context.set('prop', 'something else');
-      });
-
-      this.assertText('In layout - someProp: something else - In template');
-
-      this.runTask(function () {
-        return _this39.context.set('prop', 'something here');
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-    };
-
     _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
-      var _this40 = this;
+      var _this39 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -11981,7 +11896,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this40.rerender();
+        return _this39.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -11989,7 +11904,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test arbitrary positional parameter conflict with hash parameter is reported'] = function testArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this41 = this;
+      var _this40 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -11999,14 +11914,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       expectAssertion(function () {
-        _this41.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this40.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
-      var _this42 = this;
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12022,38 +11937,38 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this41.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this42.context.get('things').pushObject(5);
+        return _this41.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this42.context.get('things').shiftObject();
+        return _this41.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this42.context.get('things').clear();
+        return _this41.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this42.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+        return _this41.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@test can use hash parameter instead of positional param'] = function testCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this43 = this;
+      var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12070,7 +11985,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this42.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -12079,7 +11994,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test dynamic arbitrary number of positional parameters'] = function testDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this44 = this;
+      var _this43 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12096,33 +12011,33 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this43.rerender();
       });
 
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this44.context.set('user1', 'Bar');
+        return _this43.context.set('user1', 'Bar');
       });
 
       this.assertText('Bar4');
 
       this.runTask(function () {
-        return _this44.context.set('user2', '5');
+        return _this43.context.set('user2', '5');
       });
 
       this.assertText('Bar5');
 
       this.runTask(function () {
-        _this44.context.set('user1', 'Foo');
-        _this44.context.set('user2', 4);
+        _this43.context.set('user1', 'Foo');
+        _this43.context.set('user2', 4);
       });
 
       this.assertText('Foo4');
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this45 = this;
+      var _this44 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -12135,26 +12050,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this44.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this45.context.set('role', 'input');
+        return _this44.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this45.context.set('role', 'main');
+        return _this44.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this46 = this;
+      var _this45 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -12170,26 +12085,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this45.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.context.set('name', 'Ole, ole');
+        return _this45.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.context.set('name', 'Whoop, whoop!');
+        return _this45.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this47 = this;
+      var _this46 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -12200,14 +12115,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In template');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this46.rerender();
       });
 
       this.assertText('In template');
     };
 
     _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
-      var _this48 = this;
+      var _this47 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -12218,14 +12133,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('No Block!');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('No Block!');
     };
 
     _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this49 = this;
+      var _this48 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
@@ -12236,14 +12151,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In template - In Component');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this48.rerender();
       });
 
       this.assertText('In template - In Component');
     };
 
     _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
-      var _this50 = this;
+      var _this49 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14)
@@ -12254,14 +12169,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this49.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@test static named positional parameters'] = function testStaticNamedPositionalParameters() {
-      var _this51 = this;
+      var _this50 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12275,14 +12190,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test dynamic named positional parameters'] = function testDynamicNamedPositionalParameters() {
-      var _this52 = this;
+      var _this51 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12299,33 +12214,33 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this52.rerender();
+        return _this51.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this52.context.set('myName', 'Sergio');
+        return _this51.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this52.context.set('myAge', 2);
+        return _this51.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this52.context.set('myName', 'Quint');
-        _this52.context.set('myAge', 4);
+        _this51.context.set('myName', 'Quint');
+        _this51.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test if a value is passed as a non-positional parameter, it raises an assertion'] = function testIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this53 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12335,7 +12250,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       expectAssertion(function () {
-        _this53.render('{{sample-component notMyName name=myName}}', {
+        _this52.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -12343,7 +12258,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this54 = this;
+      var _this53 = this;
 
       this.registerComponent('my-if', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16)
@@ -12356,19 +12271,19 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this53.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this54.context.set('activated', false);
+        return _this53.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this54.context.set('activated', true);
+        return _this53.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -12596,7 +12511,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this55 = this;
+      var _this54 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -12637,7 +12552,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this54.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -12646,7 +12561,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this56 = this;
+      var _this55 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -12676,29 +12591,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this55.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this56.context.set('showInner', true);
+        return _this55.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this56.context.set('showInner', false);
+        return _this55.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
-    _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this57 = this;
+    _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
+      var _this56 = this;
 
-      expectDeprecation(/modified value twice in a single render/);
+      if (this.isHTMLBars || false) {
+        expectDeprecation(/modified value twice in a single render/);
+      }
+
       var outer = undefined,
           middle = undefined;
 
@@ -12740,15 +12658,25 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
-      this.runTask(function () {
-        return outer.set('value', 2);
-      });
+      if (this.isGlimmer && !false) {
+        expectAssertion(function () {
+          _this56.runTask(function () {
+            return outer.set('value', 2);
+          });
+        }, /modified value twice in a single render/);
+
+        return;
+      } else {
+        this.runTask(function () {
+          return outer.set('value', 2);
+        });
+      }
 
       assert.equal(this.$('#inner-value').text(), '2', 'second render of inner');
       assert.equal(this.$('#middle-value').text(), '2', 'second render of middle');
@@ -12768,225 +12696,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#middle-value').text(), '1', 'reset render of middle');
     };
 
-    _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this58 = this;
+    _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
+      var _this57 = this;
 
-      if (false) {
-        (function () {
-          expectDeprecation(/modified value twice in a single render/);
-          var outer = undefined,
-              middle = undefined;
-
-          _this58.registerComponent('x-outer', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                outer = this;
-              },
-              value: 1
-            }),
-            template: '{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'
-          });
-
-          _this58.registerComponent('x-middle', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                middle = this;
-              },
-              value: null
-            }),
-            template: '<div id="middle-value">{{value}}</div>{{yield}}'
-          });
-
-          _this58.registerComponent('x-inner', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              value: null,
-              pushDataUp: _emberMetalMixin.observer('value', function () {
-                middle.set('value', this.get('value'));
-              })
-            }),
-            template: '<div id="inner-value">{{value}}</div>'
-          });
-
-          _this58.render('{{x-outer}}');
-
-          assert.equal(_this58.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          _this58.runTask(function () {
-            return _this58.rerender();
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          _this58.runTask(function () {
-            return outer.set('value', 2);
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '2', 'second render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '2', 'second render of middle');
-
-          _this58.runTask(function () {
-            return outer.set('value', 3);
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '3', 'third render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '3', 'third render of middle');
-
-          _this58.runTask(function () {
-            return outer.set('value', 1);
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '1', 'reset render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '1', 'reset render of middle');
-        })();
+      if (this.isHTMLBars || false) {
+        expectDeprecation(/modified wrapper.content twice in a single render/);
       }
 
-      assert.ok(true);
-    };
-
-    _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this59 = this;
-
-      if (!false) {
-        (function () {
-          var outer = undefined,
-              middle = undefined;
-
-          _this59.registerComponent('x-outer', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                outer = this;
-              },
-              value: 1
-            }),
-            template: '{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'
-          });
-
-          _this59.registerComponent('x-middle', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                middle = this;
-              },
-              value: null
-            }),
-            template: '<div id="middle-value">{{value}}</div>{{yield}}'
-          });
-
-          _this59.registerComponent('x-inner', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              value: null,
-              pushDataUp: _emberMetalMixin.observer('value', function () {
-                middle.set('value', this.get('value'));
-              })
-            }),
-            template: '<div id="inner-value">{{value}}</div>'
-          });
-
-          _this59.render('{{x-outer}}');
-
-          assert.equal(_this59.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this59.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          _this59.runTask(function () {
-            return _this59.rerender();
-          });
-
-          assert.equal(_this59.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this59.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          expectAssertion(function () {
-            _this59.runTask(function () {
-              return outer.set('value', 2);
-            });
-          }, /modified value twice in a single render/);
-        })();
-      }
-
-      assert.ok(true);
-    };
-
-    _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this60 = this;
-
-      if (false) {
-        (function () {
-          expectDeprecation(/modified wrapper.content twice in a single render/);
-          var outer = undefined,
-              middle = undefined;
-
-          _this60.registerComponent('x-outer', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                outer = this;
-              },
-              value: 1,
-              wrapper: _emberRuntimeSystemObject.default.create({ content: null })
-            }),
-            template: '<div id="outer-value">{{wrapper.content}}</div> {{x-inner value=value wrapper=wrapper}}'
-          });
-
-          _this60.registerComponent('x-inner', {
-            ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                middle = this;
-              },
-              didReceiveAttrs: function () {
-                this.get('wrapper').set('content', this.get('value'));
-              },
-              value: null
-            }),
-            template: '<div id="inner-value">{{wrapper.content}}</div>'
-          });
-
-          _this60.render('{{x-outer}}');
-
-          assert.equal(_this60.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '1', 'initial render of outer');
-
-          _this60.runTask(function () {
-            return _this60.rerender();
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '1', 're-render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '1', 're-render of outer');
-
-          _this60.runTask(function () {
-            return outer.set('value', 2);
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '2', 'second render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '2', 'second render of outer');
-
-          _this60.runTask(function () {
-            return outer.set('value', 3);
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '3', 'third render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '3', 'third render of outer');
-
-          _this60.runTask(function () {
-            return outer.set('value', 1);
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '1', 'reset render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '1', 'reset render of outer');
-        })();
-      }
-
-      assert.ok(true);
-    };
-
-    _class.prototype['@htmlbars component should rerender when a shared dependency is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this61 = this;
-
-      expectDeprecation(/modified wrapper.content twice in a single render/);
       var outer = undefined,
           middle = undefined;
 
@@ -13016,13 +12732,21 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
         template: '<div id="inner-value">{{wrapper.content}}</div>'
       });
 
-      this.render('{{x-outer}}');
+      if (this.isGlimmer && !false) {
+        expectAssertion(function () {
+          _this57.render('{{x-outer}}');
+        }, /modified wrapper.content twice in a single render/);
+
+        return;
+      } else {
+        this.render('{{x-outer}}');
+      }
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
       assert.equal(this.$('#outer-value').text(), '1', 'initial render of outer');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 're-render of inner');
@@ -13050,49 +12774,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assert.equal(this.$('#outer-value').text(), '1', 'reset render of outer');
     };
 
-    _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this62 = this;
-
-      if (!false) {
-        var outer = undefined,
-            middle = undefined;
-
-        this.registerComponent('x-outer', {
-          ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-            init: function () {
-              this._super.apply(this, arguments);
-              outer = this;
-            },
-            value: 1,
-            wrapper: _emberRuntimeSystemObject.default.create({ content: null })
-          }),
-          template: '<div id="outer-value">{{wrapper.content}}</div> {{x-inner value=value wrapper=wrapper}}'
-        });
-
-        this.registerComponent('x-inner', {
-          ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-            init: function () {
-              this._super.apply(this, arguments);
-              middle = this;
-            },
-            didReceiveAttrs: function () {
-              this.get('wrapper').set('content', this.get('value'));
-            },
-            value: null
-          }),
-          template: '<div id="inner-value">{{wrapper.content}}</div>'
-        });
-
-        expectAssertion(function () {
-          _this62.render('{{x-outer}}');
-        }, /modified wrapper.content twice in a single render/);
-      }
-
-      assert.ok(true);
-    };
-
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this63 = this;
+      var _this58 = this;
 
       this.registerComponent('non-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36)
@@ -13109,32 +12792,32 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this58.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this63.context.get('items').pushObject('Sergio');
+        return _this58.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this63.context.get('items').shiftObject();
+        return _this58.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this63.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this58.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this64 = this;
+      var _this59 = this;
 
       var clickyThing = undefined;
 
@@ -13161,7 +12844,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this59.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -13171,7 +12854,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
-      var _this65 = this;
+      var _this60 = this;
 
       var clickyThing = undefined;
       this.registerComponent('some-clicky-thing', {
@@ -13192,7 +12875,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 
       if (this.isGlimmer) {
         this.runTask(function () {
-          return _this65.rerender();
+          return _this60.rerender();
         });
 
         this.assertText('blarkporybaz- Click Me');
@@ -13200,7 +12883,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test a two way binding flows upstream when consumed in the template'] = function testATwoWayBindingFlowsUpstreamWhenConsumedInTheTemplate() {
-      var _this66 = this;
+      var _this61 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13223,7 +12906,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this61.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -13249,14 +12932,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText(' - ');
 
       this.runTask(function () {
-        _this66.component.set('localBar', 'initial value');
+        _this61.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP when consumed in the template'] = function testATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this67 = this;
+      var _this62 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13290,7 +12973,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -13302,14 +12985,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this67.component.set('localBar', 'initial value');
+        _this62.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP without template consumption'] = function testATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this68 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13342,7 +13025,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value');
@@ -13354,14 +13037,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this68.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
     };
 
     _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
-      var _this69 = this;
+      var _this64 = this;
 
       var service = undefined;
       this.registerService('name', _emberRuntimeSystemService.default.extend({
@@ -13384,7 +13067,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertText('Jackson');
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('Jackson');
@@ -13403,7 +13086,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
-      var _this70 = this;
+      var _this65 = this;
 
       var component = undefined;
 
@@ -13427,12 +13110,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assert.strictEqual(component.actions.derp, derp);
 
       expectDeprecation(function () {
-        _this70.assert.strictEqual(component._actions.derp, derp);
+        _this65.assert.strictEqual(component._actions.derp, derp);
       }, 'Usage of `_actions` is deprecated, use `actions` instead.');
     };
 
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
-      var _this71 = this;
+      var _this66 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13441,16 +13124,16 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       expectAssertion(function () {
-        _this71.render('{{foo-bar}}');
+        _this66.render('{{foo-bar}}');
       }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function testShouldToggleVisibilityWithIsVisible(assert) {
-      var _this72 = this;
+      var _this67 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberGlimmerTestsUtilsTestHelpers.styles(expected);
-        var actual = _this72.firstChild.getAttribute('style');
+        var actual = _this67.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -13473,18 +13156,18 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this72.context, 'visible', true);
+        _emberMetalProperty_set.set(_this67.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this72.context, 'visible', false);
+        _emberMetalProperty_set.set(_this67.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function testIsVisibleDoesNotOverwriteComponentStyle(assert) {
-      var _this73 = this;
+      var _this68 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13507,7 +13190,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this73.context, 'visible', true);
+        _emberMetalProperty_set.set(_this68.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -13516,7 +13199,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this73.context, 'visible', false);
+        _emberMetalProperty_set.set(_this68.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -13526,14 +13209,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
-      var _this74 = this;
+      var _this69 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this74.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this74.assert.equal(_this74.firstChild.value, expectedValue, 'value property is correct');
-        _this74.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this69.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this69.assert.equal(_this69.firstChild.value, expectedValue, 'value property is correct');
+        _this69.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -13562,15 +13245,15 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this74.firstChild.value = 'bar';
-        _this74.$('input').trigger('change');
+        _this69.firstChild.value = 'bar';
+        _this69.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this74.firstChild.value = 'foo';
-        _this74.$('input').trigger('change');
+        _this69.firstChild.value = 'foo';
+        _this69.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -13582,8 +13265,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       assertElement('bar');
 
       this.runTask(function () {
-        _this74.firstChild.value = 'foo';
-        _this74.$('input').trigger('change');
+        _this69.firstChild.value = 'foo';
+        _this69.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -20476,7 +20159,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-metal/features', 'ember-metal/instrumentation'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberMetalFeatures, _emberMetalInstrumentation) {
+enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-metal/features', 'ember-metal/instrumentation'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberMetalFeatures, _emberMetalInstrumentation) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
@@ -20507,6 +20190,12 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     }
 
     return actionAttrs;
+  }
+
+  function getActionIds(element) {
+    return getActionAttributes(element).map(function (attribute) {
+      return attribute.slice('data-ember-action-'.length);
+    });
   }
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
@@ -20674,22 +20363,19 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assert.deepEqual(fooArgs, ['a', 'b'], 'foo has been called with an updated value');
     };
 
-    _class2.prototype['@htmlbars it should output a data attribute with a guid'] = function htmlbarsItShouldOutputADataAttributeWithAGuid() {
+    _class2.prototype['@test it should output a marker attribute with a guid'] = function testItShouldOutputAMarkerAttributeWithAGuid() {
       this.render('<button {{action "show"}}>me the money</button>');
 
       var button = this.$('button');
 
-      this.assert.ok(button.attr('data-ember-action').match(/\d+/), 'A data-ember-action attribute with a guid was added');
-    };
+      if (this.isGlimmer) {
+        var attributes = getActionAttributes(button.get(0));
 
-    _class2.prototype['@glimmer it should output a marker data attribute and a data attribute with a guid'] = function glimmerItShouldOutputAMarkerDataAttributeAndADataAttributeWithAGuid() {
-      this.render('<button {{action "show"}}>me the money</button>');
-
-      var button = this.$('button');
-      var attributes = getActionAttributes(button.get(0));
-
-      this.assert.ok(button.attr('data-ember-action').match(''), 'An empty data-ember-action attribute was added');
-      this.assert.ok(attributes[0].match(/data-ember-action-\d+/), 'A data-ember-action-xyz attribute with a guid was added');
+        this.assert.ok(button.attr('data-ember-action').match(''), 'An empty data-ember-action attribute was added');
+        this.assert.ok(attributes[0].match(/data-ember-action-\d+/), 'A data-ember-action-xyz attribute with a guid was added');
+      } else {
+        this.assert.ok(button.attr('data-ember-action').match(/\d+/), 'A data-ember-action attribute with a guid was added');
+      }
     };
 
     _class2.prototype['@test it should allow alternative events to be handled'] = function testItShouldAllowAlternativeEventsToBeHandled() {
@@ -21274,118 +20960,63 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assert.equal(editHandlerWasCalled, true, 'the event handler was called');
     };
 
-    _class2.prototype['@glimmer it should unregister event handlers on teardown, but not on rerender'] = function glimmerItShouldUnregisterEventHandlersOnTeardownButNotOnRerender() {
+    _class2.prototype['@test it should unregister event handlers when an element action is removed'] = function testItShouldUnregisterEventHandlersWhenAnElementActionIsRemoved() {
       var _this17 = this;
 
-      var editHandlerWasCalled = false;
-      var component = undefined;
-
       var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        },
-        active: true,
         actions: {
-          edit: function () {
-            editHandlerWasCalled = true;
-          }
+          edit: function () {}
         }
       });
 
       this.registerComponent('example-component', {
         ComponentClass: ExampleComponent,
-        template: '{{#if active}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'
+        template: '{{#if isActive}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'
       });
 
-      this.render('{{example-component}}');
+      this.render('{{example-component isActive=isActive}}', { isActive: true });
 
-      var previousAttributes = getActionAttributes(component.$('a').get(0));
+      equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
+
+      var actionId = undefined;
+
+      if (this.isGlimmer) {
+        actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
+      } else {
+        actionId = this.$('a[data-ember-action]').attr('data-ember-action');
+      }
+
+      ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'An action is registered');
 
       this.runTask(function () {
         return _this17.rerender();
       });
 
-      var rerenderedAttributes = getActionAttributes(component.$('a').get(0));
+      equal(this.$('a[data-ember-action]').length, 1, 'The element is still present');
+
+      ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action is still registered');
 
       this.runTask(function () {
-        component.set('active', false);
+        return _emberMetalProperty_set.set(_this17.context, 'isActive', false);
       });
+
+      strictEqual(this.$('a[data-ember-action]').length, 0, 'The element is removed');
+
+      ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action is unregistered');
 
       this.runTask(function () {
-        component.set('active', true);
+        return _emberMetalProperty_set.set(_this17.context, 'isActive', true);
       });
 
-      var newAttributes = getActionAttributes(component.$('a').get(0));
+      equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
 
-      this.assert.deepEqual(previousAttributes, rerenderedAttributes, 'the same action id is used across rerenders');
-      this.assert.notDeepEqual(previousAttributes, newAttributes, 'the action id is regenerated when the action is torn down');
-    };
+      if (this.isGlimmer) {
+        actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
+      } else {
+        actionId = this.$('a[data-ember-action]').attr('data-ember-action');
+      }
 
-    _class2.prototype['@htmlbars it should unregister event handlers on rerender'] = function htmlbarsItShouldUnregisterEventHandlersOnRerender() {
-      var component = undefined;
-
-      var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        },
-        active: true,
-        actions: {
-          edit: function () {}
-        }
-      });
-
-      this.registerComponent('example-component', {
-        ComponentClass: ExampleComponent,
-        template: '{{#if active}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'
-      });
-
-      this.render('{{example-component}}');
-
-      var previousActionId = component.$('a[data-ember-action]').attr('data-ember-action');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(component, 'active', false);
-      });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(component, 'active', true);
-      });
-
-      ok(!_emberViewsSystemAction_manager.default.registeredActions[previousActionId], 'On rerender, the event handler was removed');
-
-      var newActionId = component.$('a[data-ember-action]').attr('data-ember-action');
-
-      ok(_emberViewsSystemAction_manager.default.registeredActions[newActionId], 'After rerender completes, a new event handler was added');
-    };
-
-    _class2.prototype['@htmlbars it should unregister event handlers on inside virtual views'] = function htmlbarsItShouldUnregisterEventHandlersOnInsideVirtualViews() {
-      var things = _emberRuntimeSystemNative_array.A([{
-        name: 'Thingy'
-      }]);
-
-      var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        actions: {
-          edit: function () {}
-        },
-        things: things
-      });
-
-      this.registerComponent('example-component', {
-        ComponentClass: ExampleComponent,
-        template: '{{#each things as |thing|}}<a href="#" {{action "edit"}}>click me</a>{{/each}}'
-      });
-
-      this.render('{{example-component}}');
-
-      var actionId = this.$('a[data-ember-action]').attr('data-ember-action');
-
-      this.runTask(function () {
-        _emberRuntimeMixinsMutable_array.removeAt(things, 0);
-      });
-
-      ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'After the virtual view was destroyed, the action was unregistered');
+      ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'A new action is registered');
     };
 
     _class2.prototype['@test it should capture events from child elements and allow them to trigger the action'] = function testItShouldCaptureEventsFromChildElementsAndAllowThemToTriggerTheAction() {
@@ -21891,7 +21522,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
     };
 
-    _class2.prototype['@glimmer allows multiple actions on a single element'] = function glimmerAllowsMultipleActionsOnASingleElement() {
+    _class2.prototype['@test allows multiple actions on a single element'] = function testAllowsMultipleActionsOnASingleElement() {
       var _this29 = this;
 
       var clickActionWasCalled = false;
@@ -21915,10 +21546,6 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 
       this.render('{{example-component}}');
 
-      var actionAttrs = getActionAttributes(this.$('a').get(0));
-
-      this.assert.equal(actionAttrs.length, 2, 'two action attributes were added');
-
       this.runTask(function () {
         _this29.$('a').trigger('click');
       });
@@ -21932,45 +21559,8 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
-    _class2.prototype['@htmlbars allows multiple actions on a single element'] = function htmlbarsAllowsMultipleActionsOnASingleElement() {
-      var _this30 = this;
-
-      var clickActionWasCalled = false;
-      var doubleClickActionWasCalled = false;
-
-      var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        actions: {
-          clicked: function () {
-            clickActionWasCalled = true;
-          },
-          doubleClicked: function () {
-            doubleClickActionWasCalled = true;
-          }
-        }
-      });
-
-      this.registerComponent('example-component', {
-        ComponentClass: ExampleComponent,
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4)
-      });
-
-      this.render('{{example-component}}');
-
-      this.runTask(function () {
-        _this30.$('a').trigger('click');
-      });
-
-      this.assert.ok(clickActionWasCalled, 'the clicked action was called');
-
-      this.runTask(function () {
-        _this30.$('a').trigger('dblclick');
-      });
-
-      this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
-    };
-
     _class2.prototype['@test it should respect preventDefault option if provided'] = function testItShouldRespectPreventDefaultOptionIfProvided() {
-      var _this31 = this;
+      var _this30 = this;
 
       var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         actions: {
@@ -21988,14 +21578,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this31.$('a').trigger(event);
+        _this30.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided bound'] = function testItShouldRespectPreventDefaultOptionIfProvidedBound() {
-      var _this32 = this;
+      var _this31 = this;
 
       var component = undefined;
 
@@ -22020,7 +21610,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this32.$('a').trigger(event);
+        _this31.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
@@ -22029,14 +21619,14 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 
       this.runTask(function () {
         component.set('shouldPreventDefault', true);
-        _this32.$('a').trigger(event);
+        _this31.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
     };
 
     _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
-      var _this33 = this;
+      var _this32 = this;
 
       var outerActionCalled = false;
       var innerClickCalled = false;
@@ -22076,7 +21666,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.render('{{outer-component}}');
 
       this.runTask(function () {
-        _this33.$('button').click();
+        _this32.$('button').click();
       });
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');
@@ -22084,7 +21674,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     };
 
     _class2.prototype['@glimmer element action with (mut undefinedThing) works properly'] = function glimmerElementActionWithMutUndefinedThingWorksProperly() {
-      var _this34 = this;
+      var _this33 = this;
 
       var component = undefined;
 
@@ -22108,7 +21698,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this34.$('button').click();
+        _this33.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -22120,7 +21710,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
       this.assertText('Dun clicked');
 
       this.runTask(function () {
-        _this34.$('button').click();
+        _this33.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -22612,18 +22202,13 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       this.assertText('[] []');
     };
 
-    // Unspecified behavior in HTMLBars.
-
-    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - static key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
       var _this12 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
-
-      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+      this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
         source: {
           banana: 'banana'
-        },
-        key: 'banana'
+        }
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
@@ -22641,17 +22226,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       assert.strictEqual(this.$('#get-input').val(), 'yellow');
 
       this.runTask(function () {
-        _this12.$('#get-input').val('some value');
-
-        // have tried to fire _elementValueDidChange via events but no luck
-        // so looks like the only option is to call _elementValueDidChange manually
-        // which I suspect doesn't seem to work for glimmer once it's implemented
-        //
-        // this.$('#get-input').trigger('input');
-        // this.$('#get-input').trigger('paste');
-        // this.$('#get-input').trigger('change');
-        // this.$('#get-input').triggerHandler('input');
-        _this12.component.childViews[0]._elementValueDidChange();
+        return _this12.$('#get-input').val('some value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some value');
@@ -22664,60 +22239,12 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       assert.strictEqual(this.$('#get-input').val(), 'banana');
     };
 
-    // Unspecified behavior in HTMLBars.
-
-    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
       var _this13 = this;
-
-      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
-          apple: {
-            mcintosh: 'mcintosh'
-          }
-        },
-        key: 'apple.mcintosh'
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
-
-      this.runTask(function () {
-        return _this13.rerender();
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'source.apple.mcintosh', 'red');
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'red');
-
-      this.runTask(function () {
-        _this13.$('#get-input').val('some value');
-        _this13.component.childViews[0]._elementValueDidChange();
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'some value');
-      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.mcintosh'), 'some value');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'source', { apple: { mcintosh: 'mcintosh' } });
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
-    };
-
-    // Unspecified behavior in HTMLBars.
-
-    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - static key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
-      var _this14 = this;
-
-      this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
-
-      this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
-        source: {
+          apple: 'apple',
           banana: 'banana'
         },
         key: 'banana'
@@ -22726,30 +22253,118 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this13.rerender();
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'source.banana', 'yellow');
+        return _emberMetalProperty_set.set(_this13.context, 'source.banana', 'yellow');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'yellow');
 
       this.runTask(function () {
-        _this14.$('#get-input').val('some value');
-        _this14.component.childViews[0]._elementValueDidChange();
+        return _this13.$('#get-input').val('some value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some value');
       assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'some value');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'source', { banana: 'banana' });
+        return _emberMetalProperty_set.set(_this13.context, 'key', 'apple');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'apple');
+
+      this.runTask(function () {
+        return _this13.$('#get-input').val('some other value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some other value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple'), 'some other value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'key', 'banana');
+        _emberMetalProperty_set.set(_this13.context, 'source', { banana: 'banana' });
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
+    };
+
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
+      var _this14 = this;
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: {
+          apple: {
+            gala: 'gala',
+            mcintosh: 'mcintosh'
+          },
+          banana: 'banana'
+        },
+        key: 'apple.mcintosh'
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'source.apple.mcintosh', 'red');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'red');
+
+      this.runTask(function () {
+        return _this14.$('#get-input').val('some value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.mcintosh'), 'some value');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'key', 'apple.gala');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'gala');
+
+      this.runTask(function () {
+        return _this14.$('#get-input').val('some other value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some other value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.gala'), 'some other value');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'key', 'banana');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _this14.$('#get-input').val('yet another value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'yet another value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'yet another value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this14.context, 'key', 'apple.mcintosh');
+        _emberMetalProperty_set.set(_this14.context, 'source', {
+          apple: {
+            gala: 'gala',
+            mcintosh: 'mcintosh'
+          },
+          banana: 'banana'
+        });
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
     };
 
     return _class;
@@ -32845,9 +32460,7 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'foo': 'bar' } });
     };
 
-    // Bug in both systems. Should not be able to update id post creation.
-
-    _class.prototype['@skip can set id initially via attributeBindings '] = function skipCanSetIdInitiallyViaAttributeBindings() {
+    _class.prototype['@test can set id initially via attributeBindings '] = function testCanSetIdInitiallyViaAttributeBindings() {
       var _this13 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -32868,8 +32481,18 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'id': 'special-sauce' } });
 
+      // Should not be able to update id post creation. The change is correctly ignored in Glimmer, but
+      // HTMLBars does not handle that.
+      if (this.isGlimmer) {
+        this.runTask(function () {
+          return _emberMetalProperty_set.set(_this13.context, 'sauce', 'foo');
+        });
+
+        this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'id': 'special-sauce' } });
+      }
+
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'sauce', 'foo');
+        return _emberMetalProperty_set.set(_this13.context, 'sauce', 'special-sauce');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'id': 'special-sauce' } });
@@ -33242,12 +32865,16 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
       assert.equal(instance.get('woot'), 'yes', 'component found attr after reset');
     };
 
-    // HTMLBars runs `didReceiveAttrs` on `rerender`
-
-    _class.prototype['@htmlbars getAttr() should return the same value as get()'] = function htmlbarsGetAttrShouldReturnTheSameValueAsGet(assert) {
+    _class.prototype['@test getAttr() should return the same value as get()'] = function testGetAttrShouldReturnTheSameValueAsGet(assert) {
       var _this5 = this;
 
-      assert.expect(20);
+      if (this.isGlimmer) {
+        assert.expect(18);
+      } else {
+        // HTMLBars runs `didReceiveAttrs` on `rerender`
+        assert.expect(20);
+      }
+
       var instance = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -33299,67 +32926,6 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
       this.runTask(function () {
         _emberMetalProperty_set.set(_this5.context, 'first', 'first');
         _emberMetalProperty_set.set(_this5.context, 'second', 'second');
-      });
-
-      assert.equal(instance.get('first'), 'first', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-    };
-
-    _class.prototype['@glimmer getAttr() should return the same value as get()'] = function glimmerGetAttrShouldReturnTheSameValueAsGet(assert) {
-      var _this6 = this;
-
-      assert.expect(18);
-      var instance = undefined;
-      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          instance = this;
-        },
-
-        didReceiveAttrs: function () {
-          var rootFirst = this.get('first');
-          var rootSecond = this.get('second');
-          var attrFirst = this.getAttr('first');
-          var attrSecond = this.getAttr('second');
-
-          equal(rootFirst, attrFirst, 'root property matches attrs value');
-          equal(rootSecond, attrSecond, 'root property matches attrs value');
-        }
-      });
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
-
-      this.render('{{foo-bar first=first second=second}}', {
-        first: 'first',
-        second: 'second'
-      });
-
-      assert.equal(instance.get('first'), 'first', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      assert.equal(instance.get('first'), 'first', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this6.context, 'first', 'third');
-      });
-
-      assert.equal(instance.get('first'), 'third', 'matches known value');
-      assert.equal(instance.get('second'), 'second', 'matches known value');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this6.context, 'second', 'fourth');
-      });
-
-      assert.equal(instance.get('first'), 'third', 'matches known value');
-      assert.equal(instance.get('second'), 'fourth', 'matches known value');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(_this6.context, 'first', 'first');
-        _emberMetalProperty_set.set(_this6.context, 'second', 'second');
       });
 
       assert.equal(instance.get('first'), 'first', 'matches known value');
@@ -34387,7 +33953,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Hodi Sigmundur 33');
     };
 
-    _class.prototype['@skip bound outer named parameters get updated in the right scope'] = function skipBoundOuterNamedParametersGetUpdatedInTheRightScope() {
+    _class.prototype['@test bound outer named parameters get updated in the right scope'] = function testBoundOuterNamedParametersGetUpdatedInTheRightScope() {
       var _this13 = this;
 
       this.registerComponent('-inner-component', {
@@ -34420,13 +33986,13 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       this.assertText('Inner 28');
 
       this.runTask(function () {
-        return _this13.context.set('outerAge', 29);
+        return _this13.context.set('model.outerAge', 29);
       });
 
       this.assertText('Inner 29');
 
       this.runTask(function () {
-        return _this13.context.set('outerName', 'Not outer');
+        return _this13.context.set('model.outerName', 'Not outer');
       });
 
       this.assertText('Inner 29');
@@ -36485,128 +36051,92 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: value set in instance');
     };
 
-    // Note: Hooks are not re-run for idempotent re-renders
-
-    _class.prototype['@glimmer rerendering component with attrs from parent'] = function glimmerRerenderingComponentWithAttrsFromParent(assert) {
+    _class.prototype['@test rerendering component with attrs from parent'] = function testRerenderingComponentWithAttrsFromParent(assert) {
       var _this35 = this;
 
-      var willUpdate = 0;
-      var didReceiveAttrs = 0;
+      var willUpdateCount = 0;
+      var didReceiveAttrsCount = 0;
+
+      function expectHooks(_ref, callback) {
+        var willUpdate = _ref.willUpdate;
+        var didReceiveAttrs = _ref.didReceiveAttrs;
+
+        willUpdateCount = 0;
+        didReceiveAttrsCount = 0;
+
+        callback();
+
+        if (willUpdate) {
+          assert.strictEqual(willUpdateCount, 1, 'The willUpdate hook was fired');
+        } else {
+          assert.strictEqual(willUpdateCount, 0, 'The willUpdate hook was not fired');
+        }
+
+        if (didReceiveAttrs) {
+          assert.strictEqual(didReceiveAttrsCount, 1, 'The didReceiveAttrs hook was fired');
+        } else {
+          assert.strictEqual(didReceiveAttrsCount, 0, 'The didReceiveAttrs hook was not fired');
+        }
+      }
 
       this.registerComponent('non-block', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
           didReceiveAttrs: function () {
-            didReceiveAttrs++;
+            didReceiveAttrsCount++;
           },
 
           willUpdate: function () {
-            willUpdate++;
+            willUpdateCount++;
           }
         }),
         template: 'In layout - someProp: {{someProp}}'
       });
 
-      this.render('{{non-block someProp=someProp}}', {
-        someProp: 'wycats'
-      });
-
-      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
-      this.assertText('In layout - someProp: wycats');
-
-      this.runTask(function () {
-        return _this35.rerender();
+      expectHooks({ willUpdate: false, didReceiveAttrs: true }, function () {
+        _this35.render('{{non-block someProp=someProp}}', {
+          someProp: 'wycats'
+        });
       });
 
       this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 0, 'The willUpdate hook fired once');
 
-      this.runTask(function () {
-        return _this35.context.set('someProp', 'tomdale');
+      // Note: Hooks are not fired in Glimmer for idempotent re-renders
+      expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
+        _this35.runTask(function () {
+          return _this35.rerender();
+        });
+      });
+
+      this.assertText('In layout - someProp: wycats');
+
+      expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
+        _this35.runTask(function () {
+          return _this35.context.set('someProp', 'tomdale');
+        });
       });
 
       this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 1, 'The willUpdate hook fired again');
 
-      this.runTask(function () {
-        return _this35.rerender();
+      // Note: Hooks are not fired in Glimmer for idempotent re-renders
+      expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
+        _this35.runTask(function () {
+          return _this35.rerender();
+        });
       });
 
       this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 1, 'The willUpdate hook fired again');
 
-      this.runTask(function () {
-        return _this35.context.set('someProp', 'wycats');
+      expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
+        _this35.runTask(function () {
+          return _this35.context.set('someProp', 'wycats');
+        });
       });
 
       this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again in the R step');
-      assert.equal(willUpdate, 2, 'The willUpdate hook fired again in the R step');
-    };
-
-    _class.prototype['@htmlbars rerendering component with attrs from parent'] = function htmlbarsRerenderingComponentWithAttrsFromParent(assert) {
-      var _this36 = this;
-
-      var willUpdate = 0;
-      var didReceiveAttrs = 0;
-
-      this.registerComponent('non-block', {
-        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-          didReceiveAttrs: function () {
-            didReceiveAttrs++;
-          },
-
-          willUpdate: function () {
-            willUpdate++;
-          }
-        }),
-        template: 'In layout - someProp: {{someProp}}'
-      });
-
-      this.render('{{non-block someProp=someProp}}', {
-        someProp: 'wycats'
-      });
-
-      assert.equal(didReceiveAttrs, 1, 'The didReceiveAttrs hook fired');
-      this.assertText('In layout - someProp: wycats');
-
-      this.runTask(function () {
-        return _this36.rerender();
-      });
-
-      this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 1, 'The willUpdate hook fired once');
-
-      this.runTask(function () {
-        return _this36.context.set('someProp', 'tomdale');
-      });
-
-      this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 2, 'The willUpdate hook fired again');
-
-      this.runTask(function () {
-        return _this36.rerender();
-      });
-
-      this.assertText('In layout - someProp: tomdale');
-      assert.equal(didReceiveAttrs, 4, 'The didReceiveAttrs hook fired again');
-      assert.equal(willUpdate, 3, 'The willUpdate hook fired again');
-
-      this.runTask(function () {
-        return _this36.context.set('someProp', 'wycats');
-      });
-
-      this.assertText('In layout - someProp: wycats');
-      assert.equal(didReceiveAttrs, 5, 'The didReceiveAttrs hook fired again in the R step');
-      assert.equal(willUpdate, 4, 'The willUpdate hook fired again in the R step');
     };
 
     _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
-      var _this37 = this;
+      var _this36 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -36619,29 +36149,61 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this37.rerender();
+        return _this36.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this37.context.set('prop', 'something else');
+        return _this36.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this37.context.set('prop', 'something here');
+        return _this36.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this38 = this;
+      var _this37 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{someProp}} - {{yield}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this37.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this37.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this37.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
+      var _this38 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
       });
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
@@ -36669,40 +36231,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout - someProp: something here - In template');
     };
 
-    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
-      var _this39 = this;
-
-      this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
-      });
-
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
-        prop: 'something here'
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this39.rerender();
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this39.context.set('prop', 'something else');
-      });
-
-      this.assertText('In layout - someProp: something else - In template');
-
-      this.runTask(function () {
-        return _this39.context.set('prop', 'something here');
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-    };
-
     _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
-      var _this40 = this;
+      var _this39 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36717,7 +36247,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this40.rerender();
+        return _this39.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -36725,7 +36255,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test arbitrary positional parameter conflict with hash parameter is reported'] = function testArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this41 = this;
+      var _this40 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36735,14 +36265,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       expectAssertion(function () {
-        _this41.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this40.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
-      var _this42 = this;
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36758,38 +36288,38 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this41.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this42.context.get('things').pushObject(5);
+        return _this41.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this42.context.get('things').shiftObject();
+        return _this41.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this42.context.get('things').clear();
+        return _this41.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this42.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+        return _this41.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@test can use hash parameter instead of positional param'] = function testCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this43 = this;
+      var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36806,7 +36336,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this42.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -36815,7 +36345,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test dynamic arbitrary number of positional parameters'] = function testDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this44 = this;
+      var _this43 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36832,33 +36362,33 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this43.rerender();
       });
 
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this44.context.set('user1', 'Bar');
+        return _this43.context.set('user1', 'Bar');
       });
 
       this.assertText('Bar4');
 
       this.runTask(function () {
-        return _this44.context.set('user2', '5');
+        return _this43.context.set('user2', '5');
       });
 
       this.assertText('Bar5');
 
       this.runTask(function () {
-        _this44.context.set('user1', 'Foo');
-        _this44.context.set('user2', 4);
+        _this43.context.set('user1', 'Foo');
+        _this43.context.set('user2', 4);
       });
 
       this.assertText('Foo4');
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this45 = this;
+      var _this44 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -36871,26 +36401,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this44.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this45.context.set('role', 'input');
+        return _this44.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this45.context.set('role', 'main');
+        return _this44.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this46 = this;
+      var _this45 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -36906,26 +36436,26 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this45.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.context.set('name', 'Ole, ole');
+        return _this45.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.context.set('name', 'Whoop, whoop!');
+        return _this45.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this47 = this;
+      var _this46 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -36936,14 +36466,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In template');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this46.rerender();
       });
 
       this.assertText('In template');
     };
 
     _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
-      var _this48 = this;
+      var _this47 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -36954,14 +36484,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('No Block!');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('No Block!');
     };
 
     _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this49 = this;
+      var _this48 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12)
@@ -36972,14 +36502,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In template - In Component');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this48.rerender();
       });
 
       this.assertText('In template - In Component');
     };
 
     _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
-      var _this50 = this;
+      var _this49 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14)
@@ -36990,14 +36520,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this49.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@test static named positional parameters'] = function testStaticNamedPositionalParameters() {
-      var _this51 = this;
+      var _this50 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37011,14 +36541,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test dynamic named positional parameters'] = function testDynamicNamedPositionalParameters() {
-      var _this52 = this;
+      var _this51 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37035,33 +36565,33 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this52.rerender();
+        return _this51.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this52.context.set('myName', 'Sergio');
+        return _this51.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this52.context.set('myAge', 2);
+        return _this51.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this52.context.set('myName', 'Quint');
-        _this52.context.set('myAge', 4);
+        _this51.context.set('myName', 'Quint');
+        _this51.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test if a value is passed as a non-positional parameter, it raises an assertion'] = function testIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this53 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37071,7 +36601,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       expectAssertion(function () {
-        _this53.render('{{sample-component notMyName name=myName}}', {
+        _this52.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -37079,7 +36609,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this54 = this;
+      var _this53 = this;
 
       this.registerComponent('my-if', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16)
@@ -37092,19 +36622,19 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this53.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this54.context.set('activated', false);
+        return _this53.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this54.context.set('activated', true);
+        return _this53.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -37332,7 +36862,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this55 = this;
+      var _this54 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -37373,7 +36903,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this54.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -37382,7 +36912,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this56 = this;
+      var _this55 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -37412,29 +36942,32 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this55.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this56.context.set('showInner', true);
+        return _this55.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this56.context.set('showInner', false);
+        return _this55.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
-    _class.prototype['@htmlbars component should rerender when a property is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this57 = this;
+    _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
+      var _this56 = this;
 
-      expectDeprecation(/modified value twice in a single render/);
+      if (this.isHTMLBars || false) {
+        expectDeprecation(/modified value twice in a single render/);
+      }
+
       var outer = undefined,
           middle = undefined;
 
@@ -37476,15 +37009,25 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
-      this.runTask(function () {
-        return outer.set('value', 2);
-      });
+      if (this.isGlimmer && !false) {
+        expectAssertion(function () {
+          _this56.runTask(function () {
+            return outer.set('value', 2);
+          });
+        }, /modified value twice in a single render/);
+
+        return;
+      } else {
+        this.runTask(function () {
+          return outer.set('value', 2);
+        });
+      }
 
       assert.equal(this.$('#inner-value').text(), '2', 'second render of inner');
       assert.equal(this.$('#middle-value').text(), '2', 'second render of middle');
@@ -37504,225 +37047,13 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#middle-value').text(), '1', 'reset render of middle');
     };
 
-    _class.prototype['@glimmer component should rerender when a property is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this58 = this;
+    _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
+      var _this57 = this;
 
-      if (false) {
-        (function () {
-          expectDeprecation(/modified value twice in a single render/);
-          var outer = undefined,
-              middle = undefined;
-
-          _this58.registerComponent('x-outer', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                outer = this;
-              },
-              value: 1
-            }),
-            template: '{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'
-          });
-
-          _this58.registerComponent('x-middle', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                middle = this;
-              },
-              value: null
-            }),
-            template: '<div id="middle-value">{{value}}</div>{{yield}}'
-          });
-
-          _this58.registerComponent('x-inner', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              value: null,
-              pushDataUp: _emberMetalMixin.observer('value', function () {
-                middle.set('value', this.get('value'));
-              })
-            }),
-            template: '<div id="inner-value">{{value}}</div>'
-          });
-
-          _this58.render('{{x-outer}}');
-
-          assert.equal(_this58.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          _this58.runTask(function () {
-            return _this58.rerender();
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          _this58.runTask(function () {
-            return outer.set('value', 2);
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '2', 'second render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '2', 'second render of middle');
-
-          _this58.runTask(function () {
-            return outer.set('value', 3);
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '3', 'third render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '3', 'third render of middle');
-
-          _this58.runTask(function () {
-            return outer.set('value', 1);
-          });
-
-          assert.equal(_this58.$('#inner-value').text(), '1', 'reset render of inner');
-          assert.equal(_this58.$('#middle-value').text(), '1', 'reset render of middle');
-        })();
+      if (this.isHTMLBars || false) {
+        expectDeprecation(/modified wrapper.content twice in a single render/);
       }
 
-      assert.ok(true);
-    };
-
-    _class.prototype['@glimmer asserts when a property is changed during children\'s rendering'] = function glimmerAssertsWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this59 = this;
-
-      if (!false) {
-        (function () {
-          var outer = undefined,
-              middle = undefined;
-
-          _this59.registerComponent('x-outer', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                outer = this;
-              },
-              value: 1
-            }),
-            template: '{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'
-          });
-
-          _this59.registerComponent('x-middle', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                middle = this;
-              },
-              value: null
-            }),
-            template: '<div id="middle-value">{{value}}</div>{{yield}}'
-          });
-
-          _this59.registerComponent('x-inner', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              value: null,
-              pushDataUp: _emberMetalMixin.observer('value', function () {
-                middle.set('value', this.get('value'));
-              })
-            }),
-            template: '<div id="inner-value">{{value}}</div>'
-          });
-
-          _this59.render('{{x-outer}}');
-
-          assert.equal(_this59.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this59.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          _this59.runTask(function () {
-            return _this59.rerender();
-          });
-
-          assert.equal(_this59.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this59.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
-
-          expectAssertion(function () {
-            _this59.runTask(function () {
-              return outer.set('value', 2);
-            });
-          }, /modified value twice in a single render/);
-        })();
-      }
-
-      assert.ok(true);
-    };
-
-    _class.prototype['@glimmer component should rerender when a shared dependency is changed during children\'s rendering'] = function glimmerComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this60 = this;
-
-      if (false) {
-        (function () {
-          expectDeprecation(/modified wrapper.content twice in a single render/);
-          var outer = undefined,
-              middle = undefined;
-
-          _this60.registerComponent('x-outer', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                outer = this;
-              },
-              value: 1,
-              wrapper: _emberRuntimeSystemObject.default.create({ content: null })
-            }),
-            template: '<div id="outer-value">{{wrapper.content}}</div> {{x-inner value=value wrapper=wrapper}}'
-          });
-
-          _this60.registerComponent('x-inner', {
-            ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                middle = this;
-              },
-              didReceiveAttrs: function () {
-                this.get('wrapper').set('content', this.get('value'));
-              },
-              value: null
-            }),
-            template: '<div id="inner-value">{{wrapper.content}}</div>'
-          });
-
-          _this60.render('{{x-outer}}');
-
-          assert.equal(_this60.$('#inner-value').text(), '1', 'initial render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '1', 'initial render of outer');
-
-          _this60.runTask(function () {
-            return _this60.rerender();
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '1', 're-render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '1', 're-render of outer');
-
-          _this60.runTask(function () {
-            return outer.set('value', 2);
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '2', 'second render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '2', 'second render of outer');
-
-          _this60.runTask(function () {
-            return outer.set('value', 3);
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '3', 'third render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '3', 'third render of outer');
-
-          _this60.runTask(function () {
-            return outer.set('value', 1);
-          });
-
-          assert.equal(_this60.$('#inner-value').text(), '1', 'reset render of inner');
-          assert.equal(_this60.$('#outer-value').text(), '1', 'reset render of outer');
-        })();
-      }
-
-      assert.ok(true);
-    };
-
-    _class.prototype['@htmlbars component should rerender when a shared dependency is changed during children\'s rendering'] = function htmlbarsComponentShouldRerenderWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this61 = this;
-
-      expectDeprecation(/modified wrapper.content twice in a single render/);
       var outer = undefined,
           middle = undefined;
 
@@ -37752,13 +37083,21 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
         template: '<div id="inner-value">{{wrapper.content}}</div>'
       });
 
-      this.render('{{x-outer}}');
+      if (this.isGlimmer && !false) {
+        expectAssertion(function () {
+          _this57.render('{{x-outer}}');
+        }, /modified wrapper.content twice in a single render/);
+
+        return;
+      } else {
+        this.render('{{x-outer}}');
+      }
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
       assert.equal(this.$('#outer-value').text(), '1', 'initial render of outer');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 're-render of inner');
@@ -37786,49 +37125,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assert.equal(this.$('#outer-value').text(), '1', 'reset render of outer');
     };
 
-    _class.prototype['@glimmer asserts when a shared dependency is changed during children\'s rendering'] = function glimmerAssertsWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this62 = this;
-
-      if (!false) {
-        var outer = undefined,
-            middle = undefined;
-
-        this.registerComponent('x-outer', {
-          ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-            init: function () {
-              this._super.apply(this, arguments);
-              outer = this;
-            },
-            value: 1,
-            wrapper: _emberRuntimeSystemObject.default.create({ content: null })
-          }),
-          template: '<div id="outer-value">{{wrapper.content}}</div> {{x-inner value=value wrapper=wrapper}}'
-        });
-
-        this.registerComponent('x-inner', {
-          ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-            init: function () {
-              this._super.apply(this, arguments);
-              middle = this;
-            },
-            didReceiveAttrs: function () {
-              this.get('wrapper').set('content', this.get('value'));
-            },
-            value: null
-          }),
-          template: '<div id="inner-value">{{wrapper.content}}</div>'
-        });
-
-        expectAssertion(function () {
-          _this62.render('{{x-outer}}');
-        }, /modified wrapper.content twice in a single render/);
-      }
-
-      assert.ok(true);
-    };
-
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this63 = this;
+      var _this58 = this;
 
       this.registerComponent('non-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36)
@@ -37845,32 +37143,32 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this58.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this63.context.get('items').pushObject('Sergio');
+        return _this58.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this63.context.get('items').shiftObject();
+        return _this58.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this63.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this58.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this64 = this;
+      var _this59 = this;
 
       var clickyThing = undefined;
 
@@ -37897,7 +37195,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this59.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -37907,7 +37205,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
-      var _this65 = this;
+      var _this60 = this;
 
       var clickyThing = undefined;
       this.registerComponent('some-clicky-thing', {
@@ -37928,7 +37226,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 
       if (this.isGlimmer) {
         this.runTask(function () {
-          return _this65.rerender();
+          return _this60.rerender();
         });
 
         this.assertText('blarkporybaz- Click Me');
@@ -37936,7 +37234,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test a two way binding flows upstream when consumed in the template'] = function testATwoWayBindingFlowsUpstreamWhenConsumedInTheTemplate() {
-      var _this66 = this;
+      var _this61 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -37959,7 +37257,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this66.rerender();
+        return _this61.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -37985,14 +37283,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText(' - ');
 
       this.runTask(function () {
-        _this66.component.set('localBar', 'initial value');
+        _this61.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP when consumed in the template'] = function testATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this67 = this;
+      var _this62 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38026,7 +37324,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this67.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -38038,14 +37336,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this67.component.set('localBar', 'initial value');
+        _this62.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP without template consumption'] = function testATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this68 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38078,7 +37376,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this68.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value');
@@ -38090,14 +37388,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this68.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
     };
 
     _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
-      var _this69 = this;
+      var _this64 = this;
 
       var service = undefined;
       this.registerService('name', _emberRuntimeSystemService.default.extend({
@@ -38120,7 +37418,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertText('Jackson');
 
       this.runTask(function () {
-        return _this69.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('Jackson');
@@ -38139,7 +37437,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
-      var _this70 = this;
+      var _this65 = this;
 
       var component = undefined;
 
@@ -38163,12 +37461,12 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assert.strictEqual(component.actions.derp, derp);
 
       expectDeprecation(function () {
-        _this70.assert.strictEqual(component._actions.derp, derp);
+        _this65.assert.strictEqual(component._actions.derp, derp);
       }, 'Usage of `_actions` is deprecated, use `actions` instead.');
     };
 
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
-      var _this71 = this;
+      var _this66 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38177,16 +37475,16 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       expectAssertion(function () {
-        _this71.render('{{foo-bar}}');
+        _this66.render('{{foo-bar}}');
       }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function testShouldToggleVisibilityWithIsVisible(assert) {
-      var _this72 = this;
+      var _this67 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberHtmlbarsTestsUtilsTestHelpers.styles(expected);
-        var actual = _this72.firstChild.getAttribute('style');
+        var actual = _this67.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -38209,18 +37507,18 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this72.context, 'visible', true);
+        _emberMetalProperty_set.set(_this67.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this72.context, 'visible', false);
+        _emberMetalProperty_set.set(_this67.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function testIsVisibleDoesNotOverwriteComponentStyle(assert) {
-      var _this73 = this;
+      var _this68 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38243,7 +37541,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this73.context, 'visible', true);
+        _emberMetalProperty_set.set(_this68.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -38252,7 +37550,7 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this73.context, 'visible', false);
+        _emberMetalProperty_set.set(_this68.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -38262,14 +37560,14 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
-      var _this74 = this;
+      var _this69 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this74.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this74.assert.equal(_this74.firstChild.value, expectedValue, 'value property is correct');
-        _this74.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this69.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this69.assert.equal(_this69.firstChild.value, expectedValue, 'value property is correct');
+        _this69.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -38298,15 +37596,15 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this74.firstChild.value = 'bar';
-        _this74.$('input').trigger('change');
+        _this69.firstChild.value = 'bar';
+        _this69.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this74.firstChild.value = 'foo';
-        _this74.$('input').trigger('change');
+        _this69.firstChild.value = 'foo';
+        _this69.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -38318,8 +37616,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       assertElement('bar');
 
       this.runTask(function () {
-        _this74.firstChild.value = 'foo';
-        _this74.$('input').trigger('change');
+        _this69.firstChild.value = 'foo';
+        _this69.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -45212,7 +44510,7 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/mutable_array', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-metal/features', 'ember-metal/instrumentation'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsMutable_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberMetalFeatures, _emberMetalInstrumentation) {
+enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-metal/features', 'ember-metal/instrumentation'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberMetalFeatures, _emberMetalInstrumentation) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
@@ -45243,6 +44541,12 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     }
 
     return actionAttrs;
+  }
+
+  function getActionIds(element) {
+    return getActionAttributes(element).map(function (attribute) {
+      return attribute.slice('data-ember-action-'.length);
+    });
   }
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
@@ -45410,22 +44714,19 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assert.deepEqual(fooArgs, ['a', 'b'], 'foo has been called with an updated value');
     };
 
-    _class2.prototype['@htmlbars it should output a data attribute with a guid'] = function htmlbarsItShouldOutputADataAttributeWithAGuid() {
+    _class2.prototype['@test it should output a marker attribute with a guid'] = function testItShouldOutputAMarkerAttributeWithAGuid() {
       this.render('<button {{action "show"}}>me the money</button>');
 
       var button = this.$('button');
 
-      this.assert.ok(button.attr('data-ember-action').match(/\d+/), 'A data-ember-action attribute with a guid was added');
-    };
+      if (this.isGlimmer) {
+        var attributes = getActionAttributes(button.get(0));
 
-    _class2.prototype['@glimmer it should output a marker data attribute and a data attribute with a guid'] = function glimmerItShouldOutputAMarkerDataAttributeAndADataAttributeWithAGuid() {
-      this.render('<button {{action "show"}}>me the money</button>');
-
-      var button = this.$('button');
-      var attributes = getActionAttributes(button.get(0));
-
-      this.assert.ok(button.attr('data-ember-action').match(''), 'An empty data-ember-action attribute was added');
-      this.assert.ok(attributes[0].match(/data-ember-action-\d+/), 'A data-ember-action-xyz attribute with a guid was added');
+        this.assert.ok(button.attr('data-ember-action').match(''), 'An empty data-ember-action attribute was added');
+        this.assert.ok(attributes[0].match(/data-ember-action-\d+/), 'A data-ember-action-xyz attribute with a guid was added');
+      } else {
+        this.assert.ok(button.attr('data-ember-action').match(/\d+/), 'A data-ember-action attribute with a guid was added');
+      }
     };
 
     _class2.prototype['@test it should allow alternative events to be handled'] = function testItShouldAllowAlternativeEventsToBeHandled() {
@@ -46010,118 +45311,63 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assert.equal(editHandlerWasCalled, true, 'the event handler was called');
     };
 
-    _class2.prototype['@glimmer it should unregister event handlers on teardown, but not on rerender'] = function glimmerItShouldUnregisterEventHandlersOnTeardownButNotOnRerender() {
+    _class2.prototype['@test it should unregister event handlers when an element action is removed'] = function testItShouldUnregisterEventHandlersWhenAnElementActionIsRemoved() {
       var _this17 = this;
 
-      var editHandlerWasCalled = false;
-      var component = undefined;
-
       var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        },
-        active: true,
         actions: {
-          edit: function () {
-            editHandlerWasCalled = true;
-          }
+          edit: function () {}
         }
       });
 
       this.registerComponent('example-component', {
         ComponentClass: ExampleComponent,
-        template: '{{#if active}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'
+        template: '{{#if isActive}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'
       });
 
-      this.render('{{example-component}}');
+      this.render('{{example-component isActive=isActive}}', { isActive: true });
 
-      var previousAttributes = getActionAttributes(component.$('a').get(0));
+      equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
+
+      var actionId = undefined;
+
+      if (this.isGlimmer) {
+        actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
+      } else {
+        actionId = this.$('a[data-ember-action]').attr('data-ember-action');
+      }
+
+      ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'An action is registered');
 
       this.runTask(function () {
         return _this17.rerender();
       });
 
-      var rerenderedAttributes = getActionAttributes(component.$('a').get(0));
+      equal(this.$('a[data-ember-action]').length, 1, 'The element is still present');
+
+      ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action is still registered');
 
       this.runTask(function () {
-        component.set('active', false);
+        return _emberMetalProperty_set.set(_this17.context, 'isActive', false);
       });
+
+      strictEqual(this.$('a[data-ember-action]').length, 0, 'The element is removed');
+
+      ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action is unregistered');
 
       this.runTask(function () {
-        component.set('active', true);
+        return _emberMetalProperty_set.set(_this17.context, 'isActive', true);
       });
 
-      var newAttributes = getActionAttributes(component.$('a').get(0));
+      equal(this.$('a[data-ember-action]').length, 1, 'The element is rendered');
 
-      this.assert.deepEqual(previousAttributes, rerenderedAttributes, 'the same action id is used across rerenders');
-      this.assert.notDeepEqual(previousAttributes, newAttributes, 'the action id is regenerated when the action is torn down');
-    };
+      if (this.isGlimmer) {
+        actionId = getActionIds(this.$('a[data-ember-action]').get(0))[0];
+      } else {
+        actionId = this.$('a[data-ember-action]').attr('data-ember-action');
+      }
 
-    _class2.prototype['@htmlbars it should unregister event handlers on rerender'] = function htmlbarsItShouldUnregisterEventHandlersOnRerender() {
-      var component = undefined;
-
-      var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          component = this;
-        },
-        active: true,
-        actions: {
-          edit: function () {}
-        }
-      });
-
-      this.registerComponent('example-component', {
-        ComponentClass: ExampleComponent,
-        template: '{{#if active}}<a href="#" {{action "edit"}}>click me</a>{{/if}}'
-      });
-
-      this.render('{{example-component}}');
-
-      var previousActionId = component.$('a[data-ember-action]').attr('data-ember-action');
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(component, 'active', false);
-      });
-
-      this.runTask(function () {
-        _emberMetalProperty_set.set(component, 'active', true);
-      });
-
-      ok(!_emberViewsSystemAction_manager.default.registeredActions[previousActionId], 'On rerender, the event handler was removed');
-
-      var newActionId = component.$('a[data-ember-action]').attr('data-ember-action');
-
-      ok(_emberViewsSystemAction_manager.default.registeredActions[newActionId], 'After rerender completes, a new event handler was added');
-    };
-
-    _class2.prototype['@htmlbars it should unregister event handlers on inside virtual views'] = function htmlbarsItShouldUnregisterEventHandlersOnInsideVirtualViews() {
-      var things = _emberRuntimeSystemNative_array.A([{
-        name: 'Thingy'
-      }]);
-
-      var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        actions: {
-          edit: function () {}
-        },
-        things: things
-      });
-
-      this.registerComponent('example-component', {
-        ComponentClass: ExampleComponent,
-        template: '{{#each things as |thing|}}<a href="#" {{action "edit"}}>click me</a>{{/each}}'
-      });
-
-      this.render('{{example-component}}');
-
-      var actionId = this.$('a[data-ember-action]').attr('data-ember-action');
-
-      this.runTask(function () {
-        _emberRuntimeMixinsMutable_array.removeAt(things, 0);
-      });
-
-      ok(!_emberViewsSystemAction_manager.default.registeredActions[actionId], 'After the virtual view was destroyed, the action was unregistered');
+      ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'A new action is registered');
     };
 
     _class2.prototype['@test it should capture events from child elements and allow them to trigger the action'] = function testItShouldCaptureEventsFromChildElementsAndAllowThemToTriggerTheAction() {
@@ -46627,7 +45873,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
     };
 
-    _class2.prototype['@glimmer allows multiple actions on a single element'] = function glimmerAllowsMultipleActionsOnASingleElement() {
+    _class2.prototype['@test allows multiple actions on a single element'] = function testAllowsMultipleActionsOnASingleElement() {
       var _this29 = this;
 
       var clickActionWasCalled = false;
@@ -46651,10 +45897,6 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 
       this.render('{{example-component}}');
 
-      var actionAttrs = getActionAttributes(this.$('a').get(0));
-
-      this.assert.equal(actionAttrs.length, 2, 'two action attributes were added');
-
       this.runTask(function () {
         _this29.$('a').trigger('click');
       });
@@ -46668,45 +45910,8 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
     };
 
-    _class2.prototype['@htmlbars allows multiple actions on a single element'] = function htmlbarsAllowsMultipleActionsOnASingleElement() {
-      var _this30 = this;
-
-      var clickActionWasCalled = false;
-      var doubleClickActionWasCalled = false;
-
-      var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        actions: {
-          clicked: function () {
-            clickActionWasCalled = true;
-          },
-          doubleClicked: function () {
-            doubleClickActionWasCalled = true;
-          }
-        }
-      });
-
-      this.registerComponent('example-component', {
-        ComponentClass: ExampleComponent,
-        template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4)
-      });
-
-      this.render('{{example-component}}');
-
-      this.runTask(function () {
-        _this30.$('a').trigger('click');
-      });
-
-      this.assert.ok(clickActionWasCalled, 'the clicked action was called');
-
-      this.runTask(function () {
-        _this30.$('a').trigger('dblclick');
-      });
-
-      this.assert.ok(doubleClickActionWasCalled, 'the doubleClicked action was called');
-    };
-
     _class2.prototype['@test it should respect preventDefault option if provided'] = function testItShouldRespectPreventDefaultOptionIfProvided() {
-      var _this31 = this;
+      var _this30 = this;
 
       var ExampleComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         actions: {
@@ -46724,14 +45929,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this31.$('a').trigger(event);
+        _this30.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
     };
 
     _class2.prototype['@test it should respect preventDefault option if provided bound'] = function testItShouldRespectPreventDefaultOptionIfProvidedBound() {
-      var _this32 = this;
+      var _this31 = this;
 
       var component = undefined;
 
@@ -46756,7 +45961,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       var event = _emberViewsSystemJquery.default.Event('click');
 
       this.runTask(function () {
-        _this32.$('a').trigger(event);
+        _this31.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
@@ -46765,14 +45970,14 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 
       this.runTask(function () {
         component.set('shouldPreventDefault', true);
-        _this32.$('a').trigger(event);
+        _this31.$('a').trigger(event);
       });
 
       this.assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
     };
 
     _class2.prototype['@test it should target the proper component when `action` is in yielded block [GH #12409]'] = function testItShouldTargetTheProperComponentWhenActionIsInYieldedBlockGH12409() {
-      var _this33 = this;
+      var _this32 = this;
 
       var outerActionCalled = false;
       var innerClickCalled = false;
@@ -46812,7 +46017,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.render('{{outer-component}}');
 
       this.runTask(function () {
-        _this33.$('button').click();
+        _this32.$('button').click();
       });
 
       this.assert.ok(outerActionCalled, 'the action fired on the proper target');
@@ -46820,7 +46025,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
     };
 
     _class2.prototype['@glimmer element action with (mut undefinedThing) works properly'] = function glimmerElementActionWithMutUndefinedThingWorksProperly() {
-      var _this34 = this;
+      var _this33 = this;
 
       var component = undefined;
 
@@ -46844,7 +46049,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this34.$('button').click();
+        _this33.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -46856,7 +46061,7 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
       this.assertText('Dun clicked');
 
       this.runTask(function () {
-        _this34.$('button').click();
+        _this33.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -47348,18 +46553,13 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       this.assertText('[] []');
     };
 
-    // Unspecified behavior in HTMLBars.
-
-    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - static key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
       var _this12 = this;
 
-      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
-
-      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+      this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
         source: {
           banana: 'banana'
-        },
-        key: 'banana'
+        }
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
@@ -47377,17 +46577,7 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       assert.strictEqual(this.$('#get-input').val(), 'yellow');
 
       this.runTask(function () {
-        _this12.$('#get-input').val('some value');
-
-        // have tried to fire _elementValueDidChange via events but no luck
-        // so looks like the only option is to call _elementValueDidChange manually
-        // which I suspect doesn't seem to work for glimmer once it's implemented
-        //
-        // this.$('#get-input').trigger('input');
-        // this.$('#get-input').trigger('paste');
-        // this.$('#get-input').trigger('change');
-        // this.$('#get-input').triggerHandler('input');
-        _this12.component.childViews[0]._elementValueDidChange();
+        return _this12.$('#get-input').val('some value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some value');
@@ -47400,60 +46590,12 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       assert.strictEqual(this.$('#get-input').val(), 'banana');
     };
 
-    // Unspecified behavior in HTMLBars.
-
-    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
       var _this13 = this;
-
-      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
-          apple: {
-            mcintosh: 'mcintosh'
-          }
-        },
-        key: 'apple.mcintosh'
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
-
-      this.runTask(function () {
-        return _this13.rerender();
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'source.apple.mcintosh', 'red');
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'red');
-
-      this.runTask(function () {
-        _this13.$('#get-input').val('some value');
-        _this13.component.childViews[0]._elementValueDidChange();
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'some value');
-      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.mcintosh'), 'some value');
-
-      this.runTask(function () {
-        return _emberMetalProperty_set.set(_this13.context, 'source', { apple: { mcintosh: 'mcintosh' } });
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
-    };
-
-    // Unspecified behavior in HTMLBars.
-
-    _class.prototype['@htmlbars get helper value should be updatable using {{input}} and (mut) - static key'] = function htmlbarsGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
-      var _this14 = this;
-
-      this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
-
-      this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
-        source: {
+          apple: 'apple',
           banana: 'banana'
         },
         key: 'banana'
@@ -47462,30 +46604,118 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this13.rerender();
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'source.banana', 'yellow');
+        return _emberMetalProperty_set.set(_this13.context, 'source.banana', 'yellow');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'yellow');
 
       this.runTask(function () {
-        _this14.$('#get-input').val('some value');
-        _this14.component.childViews[0]._elementValueDidChange();
+        return _this13.$('#get-input').val('some value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some value');
       assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'some value');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this14.context, 'source', { banana: 'banana' });
+        return _emberMetalProperty_set.set(_this13.context, 'key', 'apple');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'apple');
+
+      this.runTask(function () {
+        return _this13.$('#get-input').val('some other value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some other value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple'), 'some other value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this13.context, 'key', 'banana');
+        _emberMetalProperty_set.set(_this13.context, 'source', { banana: 'banana' });
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
+    };
+
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
+      var _this14 = this;
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: {
+          apple: {
+            gala: 'gala',
+            mcintosh: 'mcintosh'
+          },
+          banana: 'banana'
+        },
+        key: 'apple.mcintosh'
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
+
+      this.runTask(function () {
+        return _this14.rerender();
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'source.apple.mcintosh', 'red');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'red');
+
+      this.runTask(function () {
+        return _this14.$('#get-input').val('some value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.mcintosh'), 'some value');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'key', 'apple.gala');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'gala');
+
+      this.runTask(function () {
+        return _this14.$('#get-input').val('some other value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some other value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.apple.gala'), 'some other value');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this14.context, 'key', 'banana');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _this14.$('#get-input').val('yet another value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'yet another value');
+      assert.strictEqual(_emberMetalProperty_get.get(this.context, 'source.banana'), 'yet another value');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this14.context, 'key', 'apple.mcintosh');
+        _emberMetalProperty_set.set(_this14.context, 'source', {
+          apple: {
+            gala: 'gala',
+            mcintosh: 'mcintosh'
+          },
+          banana: 'banana'
+        });
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
     };
 
     return _class;
