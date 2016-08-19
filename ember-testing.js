@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+938ad1af
+ * @version   2.9.0-null+4d6b7d09
  */
 
 var enifed, requireModule, require, Ember;
@@ -112,12 +112,85 @@ var mainContext = this;
   }
 })();
 
+var babelHelpers;
+
+function classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
+
+function inherits(subClass, superClass) {
+  if (typeof superClass !== 'function' && superClass !== null) {
+    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
+}
+
+function taggedTemplateLiteralLoose(strings, raw) {
+  strings.raw = raw;
+  return strings;
+}
+
+function defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ('value' in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function interopExportWildcard(obj, defaults) {
+  var newObj = defaults({}, obj);
+  delete newObj['default'];
+  return newObj;
+}
+
+function defaults(obj, defaults) {
+  var keys = Object.getOwnPropertyNames(defaults);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = Object.getOwnPropertyDescriptor(defaults, key);
+    if (value && value.configurable && obj[key] === undefined) {
+      Object.defineProperty(obj, key, value);
+    }
+  }
+  return obj;
+}
+
+babelHelpers = {
+  classCallCheck: classCallCheck,
+  inherits: inherits,
+  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
+  slice: Array.prototype.slice,
+  createClass: createClass,
+  interopExportWildcard: interopExportWildcard,
+  defaults: defaults
+};
+
 enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _emberMetalError, _emberConsole, _emberEnvironment, _emberDebugHandlers) {
   /*global __fail__*/
 
   'use strict';
 
-  var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = deprecate;
 
@@ -258,7 +331,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console'
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
+    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(babelHelpers.slice.call(arguments)));
   }
 });
 enifed("ember-debug/handlers", ["exports"], function (exports) {
@@ -607,7 +680,6 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
 enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal/debug', 'ember-debug/handlers'], function (exports, _emberConsole, _emberMetalDebug, _emberDebugHandlers) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = warn;
 
@@ -667,7 +739,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal/debug', 'em
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
+    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(babelHelpers.slice.call(arguments)));
   }
 });
 enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
@@ -2005,20 +2077,12 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime/ext/rsvp', 'embe
   exports.resolve = resolve;
   exports.getLastPromise = getLastPromise;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var lastPromise = undefined;
 
   var TestPromise = (function (_RSVP$Promise) {
-    _inherits(TestPromise, _RSVP$Promise);
+    babelHelpers.inherits(TestPromise, _RSVP$Promise);
 
     function TestPromise() {
-      _classCallCheck(this, TestPromise);
-
       _RSVP$Promise.apply(this, arguments);
       lastPromise = this;
     }
@@ -2260,6 +2324,69 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-
     return array;
   }
 });
+var babelHelpers;
+
+function inherits(subClass, superClass) {
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
+}
+
+function taggedTemplateLiteralLoose(strings, raw) {
+  strings.raw = raw;
+  return strings;
+}
+
+function defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ('value' in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function interopExportWildcard(obj, defaults) {
+  var newObj = defaults({}, obj);
+  delete newObj['default'];
+  return newObj;
+}
+
+function defaults(obj, defaults) {
+  var keys = Object.getOwnPropertyNames(defaults);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = Object.getOwnPropertyDescriptor(defaults, key);
+    if (value && value.configurable && obj[key] === undefined) {
+      Object.defineProperty(obj, key, value);
+    }
+  }
+  return obj;
+}
+
+babelHelpers = {
+  inherits: inherits,
+  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
+  slice: Array.prototype.slice,
+  createClass: createClass,
+  interopExportWildcard: interopExportWildcard,
+  defaults: defaults
+};
+
 requireModule("ember-testing");
 
 }());

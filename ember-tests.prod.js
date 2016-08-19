@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+938ad1af
+ * @version   2.9.0-null+4d6b7d09
  */
 
 var enifed, requireModule, require, Ember;
@@ -111,6 +111,69 @@ var mainContext = this;
     require = requireModule = Ember.__loader.require;
   }
 })();
+
+var babelHelpers;
+
+function inherits(subClass, superClass) {
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
+}
+
+function taggedTemplateLiteralLoose(strings, raw) {
+  strings.raw = raw;
+  return strings;
+}
+
+function defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ('value' in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function interopExportWildcard(obj, defaults) {
+  var newObj = defaults({}, obj);
+  delete newObj['default'];
+  return newObj;
+}
+
+function defaults(obj, defaults) {
+  var keys = Object.getOwnPropertyNames(defaults);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = Object.getOwnPropertyDescriptor(defaults, key);
+    if (value && value.configurable && obj[key] === undefined) {
+      Object.defineProperty(obj, key, value);
+    }
+  }
+  return obj;
+}
+
+babelHelpers = {
+  inherits: inherits,
+  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
+  slice: Array.prototype.slice,
+  createClass: createClass,
+  interopExportWildcard: interopExportWildcard,
+  defaults: defaults
+};
 
 enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'container/registry', 'container/tests/test-helpers/factory', 'container/owner'], function (exports, _emberEnvironment, _emberMetalProperty_get, _containerRegistry, _containerTestsTestHelpersFactory, _containerOwner) {
   'use strict';
@@ -1687,9 +1750,7 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
 enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container/registry', 'ember-runtime/system/object'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _containerRegistry, _emberRuntimeSystemObject) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   var application = undefined,
       appInstance = undefined;
@@ -1881,10 +1942,8 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
   /*globals EmberDev */
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
 
   var trim = _emberViewsSystemJquery.default.trim;
 
@@ -3725,10 +3784,8 @@ enifed('ember-application/tests/system/engine_parent_test', ['exports', 'ember-a
 enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object', 'container/registry', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
 
   var engine = undefined;
   var originalLookup = _emberEnvironment.context.lookup;
@@ -6339,11 +6396,9 @@ enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/uti
 enifed('ember-dev/test-helper/debug', ['exports', 'ember-dev/test-helper/method-call-tracker'], function (exports, _emberDevTestHelperMethodCallTracker) {
   'use strict';
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var DebugAssert = (function () {
     function DebugAssert(methodName, env) {
-      _classCallCheck(this, DebugAssert);
+      babelHelpers.classCallCheck(this, DebugAssert);
 
       this.methodName = methodName;
       this.env = env;
@@ -6407,17 +6462,11 @@ enifed('ember-dev/test-helper/debug', ['exports', 'ember-dev/test-helper/method-
 enifed('ember-dev/test-helper/deprecation', ['exports', 'ember-dev/test-helper/debug', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperDebug, _emberDevTestHelperUtils) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var DeprecationAssert = (function (_DebugAssert) {
-    _inherits(DeprecationAssert, _DebugAssert);
+    babelHelpers.inherits(DeprecationAssert, _DebugAssert);
 
     function DeprecationAssert(env) {
-      _classCallCheck(this, DeprecationAssert);
+      babelHelpers.classCallCheck(this, DeprecationAssert);
 
       _DebugAssert.call(this, 'deprecate', env);
     }
@@ -6820,17 +6869,11 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
 enifed('ember-dev/test-helper/warning', ['exports', 'ember-dev/test-helper/debug', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperDebug, _emberDevTestHelperUtils) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var WarningAssert = (function (_DebugAssert) {
-    _inherits(WarningAssert, _DebugAssert);
+    babelHelpers.inherits(WarningAssert, _DebugAssert);
 
     function WarningAssert(env) {
-      _classCallCheck(this, WarningAssert);
+      babelHelpers.classCallCheck(this, WarningAssert);
 
       _DebugAssert.call(this, 'warn', env);
     }
@@ -7230,13 +7273,7 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
 
   exports.precompile = precompile;
   exports.compile = compile;
-
-  function _interopExportWildcard(obj, defaults) { var newObj = defaults({}, obj); delete newObj['default']; return newObj; }
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  _defaults(exports, _interopExportWildcard(_emberGlimmerTemplateCompiler, _defaults));
-
+  babelHelpers.defaults(exports, babelHelpers.interopExportWildcard(_emberGlimmerTemplateCompiler, babelHelpers.defaults));
   exports.removePlugin = _emberGlimmerTemplateCompilerSystemCompileOptions.removePlugin;
   var packageName = 'glimmer';
   exports.packageName = packageName;
@@ -7255,25 +7292,17 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
 enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: rendering', (function (_ApplicationTest) {
-    _inherits(_class, _ApplicationTest);
+babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _ApplicationTest.apply(this, arguments);
     }
@@ -7589,17 +7618,11 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
 enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/binding'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalBinding) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Binding integration tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -7665,21 +7688,13 @@ enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', '
 enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalObserver) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Attribute bindings integration', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -8354,17 +8369,11 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
 enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/computed', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalComputed, _emberGlimmerTestsUtilsTestHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: attrs lookup', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -8621,21 +8630,13 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
 enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/computed'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalComputed) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('ClassNameBindings integration', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -9024,10 +9025,10 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('ClassBinding integration', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -9166,37 +9167,29 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
 enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}'], ['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}'], ['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}'], ['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
-      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
-      _templateObject17 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}'], ['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}'], ['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}'], ['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
+      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -10361,10 +10354,10 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   var ClosureComponentMutableParamsTest = (function (_RenderingTest2) {
-    _inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
+babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
 
     function ClosureComponentMutableParamsTest() {
-      _classCallCheck(this, ClosureComponentMutableParamsTest);
+babelHelpers.classCallCheck(this, ClosureComponentMutableParamsTest);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -10380,7 +10373,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 
   var MutableParamTestGenerator = (function () {
     function MutableParamTestGenerator(cases) {
-      _classCallCheck(this, MutableParamTestGenerator);
+babelHelpers.classCallCheck(this, MutableParamTestGenerator);
 
       this.cases = cases;
     }
@@ -10471,59 +10464,51 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
   /* globals EmberDev */
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
-      _templateObject16 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
-      _templateObject17 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
-      _templateObject18 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject19 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
-      _templateObject20 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject21 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
-      _templateObject22 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject23 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
-      _templateObject24 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject25 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
-      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
-      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
-      _templateObject30 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
-      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
-      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
-      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
-      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
-      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject36 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject38 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject39 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject18 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject19 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
+      _templateObject20 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject21 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject22 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject23 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject24 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject25 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject26 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject28 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject30 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject31 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject32 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject33 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject34 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject35 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject36 = babelHelpers.taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -13278,23 +13263,15 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/computed'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalComputed) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: dynamic components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -14106,23 +14083,15 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
 enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['<!---->bar'], ['<!---->bar']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['<!---->bizz'], ['<!---->bizz']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['<!---->bar'], ['<!---->bar']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['<!---->bizz'], ['<!---->bizz']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: fragment components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -14329,31 +14298,21 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
 enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal/run_loop'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetalRun_loop) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   var LifeCycleHooksTest = (function (_RenderingTest) {
-    _inherits(LifeCycleHooksTest, _RenderingTest);
+babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
     function LifeCycleHooksTest() {
-      _classCallCheck(this, LifeCycleHooksTest);
+babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       _RenderingTest.call(this);
       this.hooks = [];
@@ -14790,7 +14749,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       });
     };
 
-    _createClass(LifeCycleHooksTest, [{
+babelHelpers.createClass(LifeCycleHooksTest, [{
       key: 'ComponentClass',
       get: function () {
         throw new Error('Not implemented: `ComponentClass`');
@@ -14804,15 +14763,14 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
         };
       }
     }]);
-
     return LifeCycleHooksTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
-    _inherits(_class, _LifeCycleHooksTest);
+babelHelpers.inherits(_class, _LifeCycleHooksTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _LifeCycleHooksTest.apply(this, arguments);
     }
@@ -14844,21 +14802,20 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       }
     };
 
-    _createClass(_class, [{
+babelHelpers.createClass(_class, [{
       key: 'ComponentClass',
       get: function () {
         return _emberGlimmerTestsUtilsHelpers.Component;
       }
     }]);
-
     return _class;
   })(LifeCycleHooksTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -14956,17 +14913,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalProperty_set, _emberMetalRun_loop, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalFeatures) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Link-to component', (function (_ApplicationTest) {
-    _inherits(_class, _ApplicationTest);
+    babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _ApplicationTest.apply(this, arguments);
     }
@@ -15134,10 +15085,10 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Link-to component with query-params', (function (_ApplicationTest2) {
-    _inherits(_class2, _ApplicationTest2);
+    babelHelpers.inherits(_class2, _ApplicationTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _ApplicationTest2.apply(this, arguments);
 
@@ -15199,12 +15150,6 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
 enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   // copied from ember-htmlbars/tests/integration/local-lookup-test.js
   function buildResolver() {
     var resolver = {
@@ -15238,10 +15183,10 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
   }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: local lookup', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -15419,19 +15364,11 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
 enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-metal/assign', 'ember-runtime/controllers/controller', 'ember-metal/mixin', 'ember-routing/system/route', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberMetalAssign, _emberRuntimeControllersController, _emberMetalMixin, _emberRoutingSystemRoute, _emberRuntimeSystemObject) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
       this.actionCounts = {};
@@ -15673,10 +15610,10 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction to a controller', (function (_ApplicationTest) {
-    _inherits(_class2, _ApplicationTest);
+    babelHelpers.inherits(_class2, _ApplicationTest);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _ApplicationTest.apply(this, arguments);
     }
@@ -15823,10 +15760,10 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction of a closure action', (function (_RenderingTest2) {
-    _inherits(_class3, _RenderingTest2);
+    babelHelpers.inherits(_class3, _RenderingTest2);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -15885,7 +15822,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
           third: third,
           actions: {
             outerSubmit: function () {
-              actualArgs = [].concat(_slice.call(arguments));
+              actualArgs = [].concat(babelHelpers.slice.call(arguments));
             }
           }
         }),
@@ -15905,10 +15842,10 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: send', (function (_RenderingTest3) {
-    _inherits(_class4, _RenderingTest3);
+    babelHelpers.inherits(_class4, _RenderingTest3);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _RenderingTest3.apply(this, arguments);
     }
@@ -16077,12 +16014,6 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
 enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-views/system/utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberViewsSystemUtils) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var hasGetClientRects = undefined,
       hasGetBoundingClientRect = undefined;
   var ClientRectListCtor = undefined,
@@ -16107,10 +16038,10 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
   })();
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('ember-views/system/utils', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -16165,17 +16096,11 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
 enifed('ember-glimmer/tests/integration/components/web-component-fallback-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: web component fallback', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -16220,17 +16145,11 @@ enifed('ember-glimmer/tests/integration/components/web-component-fallback-test',
 enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Component willDestroyElement hook', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -16275,19 +16194,11 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   /* globals EmberDev */
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Static content tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -16344,10 +16255,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   var DynamicContentTest = (function (_RenderingTest2) {
-    _inherits(DynamicContentTest, _RenderingTest2);
+    babelHelpers.inherits(DynamicContentTest, _RenderingTest2);
 
     function DynamicContentTest() {
-      _classCallCheck(this, DynamicContentTest);
+      babelHelpers.classCallCheck(this, DynamicContentTest);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -16806,8 +16717,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   var ContentTestGenerator = (function () {
     function ContentTestGenerator(cases) {
       var tag = arguments.length <= 1 || arguments[1] === undefined ? '@test' : arguments[1];
-
-      _classCallCheck(this, ContentTestGenerator);
+      babelHelpers.classCallCheck(this, ContentTestGenerator);
 
       this.cases = cases;
       this.tag = tag;
@@ -16893,10 +16803,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(DynamicContentTest, SharedContentTestCases, GlimmerContentTestCases);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (content position)', (function (_DynamicContentTest) {
-    _inherits(_class2, _DynamicContentTest);
+    babelHelpers.inherits(_class2, _DynamicContentTest);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _DynamicContentTest.apply(this, arguments);
     }
@@ -16916,10 +16826,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(DynamicContentTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (content concat)', (function (_DynamicContentTest2) {
-    _inherits(_class3, _DynamicContentTest2);
+    babelHelpers.inherits(_class3, _DynamicContentTest2);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _DynamicContentTest2.apply(this, arguments);
     }
@@ -16939,10 +16849,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(DynamicContentTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (inside an element)', (function (_DynamicContentTest3) {
-    _inherits(_class4, _DynamicContentTest3);
+    babelHelpers.inherits(_class4, _DynamicContentTest3);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _DynamicContentTest3.apply(this, arguments);
     }
@@ -16969,10 +16879,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(DynamicContentTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (attribute position)', (function (_DynamicContentTest4) {
-    _inherits(_class5, _DynamicContentTest4);
+    babelHelpers.inherits(_class5, _DynamicContentTest4);
 
     function _class5() {
-      _classCallCheck(this, _class5);
+      babelHelpers.classCallCheck(this, _class5);
 
       _DynamicContentTest4.apply(this, arguments);
     }
@@ -16997,10 +16907,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(DynamicContentTest));
 
   var TrustedContentTest = (function (_DynamicContentTest5) {
-    _inherits(TrustedContentTest, _DynamicContentTest5);
+    babelHelpers.inherits(TrustedContentTest, _DynamicContentTest5);
 
     function TrustedContentTest() {
-      _classCallCheck(this, TrustedContentTest);
+      babelHelpers.classCallCheck(this, TrustedContentTest);
 
       _DynamicContentTest5.apply(this, arguments);
     }
@@ -17032,10 +16942,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(DynamicContentTest);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (trusted)', (function (_TrustedContentTest) {
-    _inherits(_class6, _TrustedContentTest);
+    babelHelpers.inherits(_class6, _TrustedContentTest);
 
     function _class6() {
-      _classCallCheck(this, _class6);
+      babelHelpers.classCallCheck(this, _class6);
 
       _TrustedContentTest.apply(this, arguments);
     }
@@ -17086,10 +16996,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(TrustedContentTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Dynamic content tests (integration)', (function (_RenderingTest3) {
-    _inherits(_class7, _RenderingTest3);
+    babelHelpers.inherits(_class7, _RenderingTest3);
 
     function _class7() {
-      _classCallCheck(this, _class7);
+      babelHelpers.classCallCheck(this, _class7);
 
       _RenderingTest3.apply(this, arguments);
     }
@@ -17617,10 +17527,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       originalWarn = undefined;
 
   var StyleTest = (function (_RenderingTest4) {
-    _inherits(StyleTest, _RenderingTest4);
+    babelHelpers.inherits(StyleTest, _RenderingTest4);
 
     function StyleTest() {
-      _classCallCheck(this, StyleTest);
+      babelHelpers.classCallCheck(this, StyleTest);
 
       _RenderingTest4.apply(this, arguments);
       warnings = [];
@@ -17635,7 +17545,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     StyleTest.prototype.teardown = function teardown() {
       var _RenderingTest4$prototype$teardown;
 
-      (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(_slice.call(arguments)));
+      (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(babelHelpers.slice.call(arguments)));
       _emberMetalDebug.setDebugFunction('warn', originalWarn);
     };
 
@@ -17651,10 +17561,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Inline style tests', (function (_StyleTest) {
-    _inherits(_class8, _StyleTest);
+    babelHelpers.inherits(_class8, _StyleTest);
 
     function _class8() {
-      _classCallCheck(this, _class8);
+      babelHelpers.classCallCheck(this, _class8);
 
       _StyleTest.apply(this, arguments);
     }
@@ -17730,10 +17640,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
   if (!EmberDev.runningProdBuild) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Inline style tests - warnings', (function (_StyleTest2) {
-      _inherits(_class9, _StyleTest2);
+      babelHelpers.inherits(_class9, _StyleTest2);
 
       function _class9() {
-        _classCallCheck(this, _class9);
+        babelHelpers.classCallCheck(this, _class9);
 
         _StyleTest2.apply(this, arguments);
       }
@@ -17805,12 +17715,6 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-metal/run_loop'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalFeatures, _emberMetalInstrumentation, _emberMetalRun_loop) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
 
   function fireNativeWithDataTransfer(node, type, dataTransfer) {
@@ -17821,10 +17725,10 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
   }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -17938,10 +17842,10 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher#setup', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+    babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.call(this);
 
@@ -18016,10 +17920,10 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
-      _inherits(_class3, _RenderingTest3);
+      babelHelpers.inherits(_class3, _RenderingTest3);
 
       function _class3() {
-        _classCallCheck(this, _class3);
+        babelHelpers.classCallCheck(this, _class3);
 
         _RenderingTest3.apply(this, arguments);
       }
@@ -18082,10 +17986,10 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
 
   if (canDataTransfer) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Event Properties', (function (_RenderingTest4) {
-      _inherits(_class4, _RenderingTest4);
+      babelHelpers.inherits(_class4, _RenderingTest4);
 
       function _class4() {
-        _classCallCheck(this, _class4);
+        babelHelpers.classCallCheck(this, _class4);
 
         _RenderingTest4.apply(this, arguments);
       }
@@ -18113,17 +18017,11 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
 enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{-class}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -18194,20 +18092,12 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
 enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
-      _inherits(_class, _RenderingTest);
+      babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
-        _classCallCheck(this, _class);
+        babelHelpers.classCallCheck(this, _class);
 
         _RenderingTest.apply(this, arguments);
       }
@@ -18424,10 +18314,10 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
   }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}}', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+    babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -18628,7 +18518,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         third: third,
         outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
-          actualArgs = [].concat(_slice.call(arguments));
+          actualArgs = [].concat(babelHelpers.slice.call(arguments));
         }
       });
 
@@ -19391,17 +19281,11 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
 enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{concat}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -19533,19 +19417,13 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
 enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var assert = QUnit.assert;
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: custom helpers', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -20168,20 +20046,12 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-metal/features', 'ember-metal/instrumentation'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberMetalFeatures, _emberMetalInstrumentation) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        '], ['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        '], ['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>'], ['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      '], ['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      ']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n        <button>Click Me</button>\n        {{yield}}\n      '], ['\n        <button>Click Me</button>\n        {{yield}}\n      ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        '], ['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        '], ['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>'], ['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      '], ['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n        <button>Click Me</button>\n        {{yield}}\n      '], ['\n        <button>Click Me</button>\n        {{yield}}\n      ']);
 
   function getActionAttributes(element) {
     var attributes = element.attributes;
@@ -20206,10 +20076,10 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: element action instrumentation', (function (_RenderingTest) {
-      _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
-        _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
         _RenderingTest.apply(this, arguments);
       }
@@ -20269,10 +20139,10 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
   }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: element action', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -21734,17 +21604,11 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{get}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -22379,17 +22243,11 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
 enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{hash}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -22610,17 +22468,11 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
 enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_IfUnlessHelperTest) {
-    _inherits(_class, _IfUnlessHelperTest);
+    babelHelpers.inherits(_class, _IfUnlessHelperTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _IfUnlessHelperTest.apply(this, arguments);
     }
@@ -22653,10 +22505,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_IfUnlessHelperTest2) {
-    _inherits(_class2, _IfUnlessHelperTest2);
+    babelHelpers.inherits(_class2, _IfUnlessHelperTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _IfUnlessHelperTest2.apply(this, arguments);
     }
@@ -22673,10 +22525,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_IfUnlessHelperTest3) {
-    _inherits(_class3, _IfUnlessHelperTest3);
+    babelHelpers.inherits(_class3, _IfUnlessHelperTest3);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _IfUnlessHelperTest3.apply(this, arguments);
     }
@@ -22693,10 +22545,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_IfUnlessHelperTest4) {
-    _inherits(_class4, _IfUnlessHelperTest4);
+    babelHelpers.inherits(_class4, _IfUnlessHelperTest4);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _IfUnlessHelperTest4.apply(this, arguments);
     }
@@ -22717,10 +22569,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_IfUnlessHelperTest5) {
-    _inherits(_class5, _IfUnlessHelperTest5);
+    babelHelpers.inherits(_class5, _IfUnlessHelperTest5);
 
     function _class5() {
-      _classCallCheck(this, _class5);
+      babelHelpers.classCallCheck(this, _class5);
 
       _IfUnlessHelperTest5.apply(this, arguments);
     }
@@ -22745,10 +22597,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_IfUnlessHelperTest6) {
-    _inherits(_class6, _IfUnlessHelperTest6);
+    babelHelpers.inherits(_class6, _IfUnlessHelperTest6);
 
     function _class6() {
-      _classCallCheck(this, _class6);
+      babelHelpers.classCallCheck(this, _class6);
 
       _IfUnlessHelperTest6.apply(this, arguments);
     }
@@ -22765,10 +22617,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_IfUnlessHelperTest7) {
-    _inherits(_class7, _IfUnlessHelperTest7);
+    babelHelpers.inherits(_class7, _IfUnlessHelperTest7);
 
     function _class7() {
-      _classCallCheck(this, _class7);
+      babelHelpers.classCallCheck(this, _class7);
 
       _IfUnlessHelperTest7.apply(this, arguments);
     }
@@ -22801,10 +22653,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_IfUnlessHelperTest8) {
-    _inherits(_class8, _IfUnlessHelperTest8);
+    babelHelpers.inherits(_class8, _IfUnlessHelperTest8);
 
     function _class8() {
-      _classCallCheck(this, _class8);
+      babelHelpers.classCallCheck(this, _class8);
 
       _IfUnlessHelperTest8.apply(this, arguments);
     }
@@ -22821,10 +22673,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_IfUnlessHelperTest9) {
-    _inherits(_class9, _IfUnlessHelperTest9);
+    babelHelpers.inherits(_class9, _IfUnlessHelperTest9);
 
     function _class9() {
-      _classCallCheck(this, _class9);
+      babelHelpers.classCallCheck(this, _class9);
 
       _IfUnlessHelperTest9.apply(this, arguments);
     }
@@ -22841,10 +22693,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_IfUnlessHelperTest10) {
-    _inherits(_class10, _IfUnlessHelperTest10);
+    babelHelpers.inherits(_class10, _IfUnlessHelperTest10);
 
     function _class10() {
-      _classCallCheck(this, _class10);
+      babelHelpers.classCallCheck(this, _class10);
 
       _IfUnlessHelperTest10.apply(this, arguments);
     }
@@ -22865,10 +22717,10 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_IfUnlessHelperTest11) {
-    _inherits(_class11, _IfUnlessHelperTest11);
+    babelHelpers.inherits(_class11, _IfUnlessHelperTest11);
 
     function _class11() {
-      _classCallCheck(this, _class11);
+      babelHelpers.classCallCheck(this, _class11);
 
       _IfUnlessHelperTest11.apply(this, arguments);
     }
@@ -22895,17 +22747,11 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
 enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/assign'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalAssign) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var InputRenderingTest = (function (_RenderingTest) {
-    _inherits(InputRenderingTest, _RenderingTest);
+    babelHelpers.inherits(InputRenderingTest, _RenderingTest);
 
     function InputRenderingTest() {
-      _classCallCheck(this, InputRenderingTest);
+      babelHelpers.classCallCheck(this, InputRenderingTest);
 
       _RenderingTest.call(this);
 
@@ -22986,10 +22832,10 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input}}', (function (_InputRenderingTest) {
-    _inherits(_class, _InputRenderingTest);
+    babelHelpers.inherits(_class, _InputRenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _InputRenderingTest.apply(this, arguments);
     }
@@ -23347,10 +23193,10 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
   })(InputRenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
-    _inherits(_class2, _InputRenderingTest2);
+    babelHelpers.inherits(_class2, _InputRenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _InputRenderingTest2.apply(this, arguments);
     }
@@ -23385,10 +23231,10 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
   })(InputRenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
-    _inherits(_class3, _InputRenderingTest3);
+    babelHelpers.inherits(_class3, _InputRenderingTest3);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _InputRenderingTest3.apply(this, arguments);
     }
@@ -23501,10 +23347,10 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
   })(InputRenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
-    _inherits(_class4, _InputRenderingTest4);
+    babelHelpers.inherits(_class4, _InputRenderingTest4);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _InputRenderingTest4.apply(this, arguments);
     }
@@ -23577,19 +23423,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
 enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/core'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalCore) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   // Ember.STRINGS
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{loc}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
       this.oldString = _emberMetalCore.default.STRINGS;
@@ -23698,19 +23538,13 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
 enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-console'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberConsole) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{log}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class(assert) {
       var _this = this;
 
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
 
@@ -23771,17 +23605,11 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
 enifed('ember-glimmer/tests/integration/helpers/mut-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberGlimmerTestsUtilsTestHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{mut}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -24264,10 +24092,10 @@ enifed('ember-glimmer/tests/integration/helpers/mut-test', ['exports', 'ember-gl
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Mutable Bindings used in Computed Properties that are bound as attributeBindings', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+    babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -24410,22 +24238,14 @@ enifed('ember-glimmer/tests/integration/helpers/mut-test', ['exports', 'ember-gl
 enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{partial}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -24577,17 +24397,11 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
 enifed('ember-glimmer/tests/integration/helpers/readonly-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{readonly}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -24749,17 +24563,11 @@ enifed('ember-glimmer/tests/integration/helpers/readonly-test', ['exports', 'emb
 enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-routing/system/router'], function (exports, _emberMetalMixin, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberRoutingSystemRouter) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{render}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -25115,17 +24923,11 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
 enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-metal/assign', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberMetalAssign, _emberGlimmerTestsUtilsTestHelpers, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var TextAreaRenderingTest = (function (_RenderingTest) {
-    _inherits(TextAreaRenderingTest, _RenderingTest);
+    babelHelpers.inherits(TextAreaRenderingTest, _RenderingTest);
 
     function TextAreaRenderingTest() {
-      _classCallCheck(this, TextAreaRenderingTest);
+      babelHelpers.classCallCheck(this, TextAreaRenderingTest);
 
       _RenderingTest.call(this);
 
@@ -25161,7 +24963,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
 
   var BoundTextAreaAttributes = (function () {
     function BoundTextAreaAttributes(cases) {
-      _classCallCheck(this, BoundTextAreaAttributes);
+      babelHelpers.classCallCheck(this, BoundTextAreaAttributes);
 
       this.cases = cases;
     }
@@ -25204,10 +25006,10 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(TextAreaRenderingTest, new BoundTextAreaAttributes([{ attribute: 'placeholder', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'name', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'title', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'maxlength', first: '1', second: '2' }, { attribute: 'rows', first: '1', second: '2' }, { attribute: 'cols', first: '1', second: '2' }, { attribute: 'tabindex', first: '1', second: '2' }]));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{textarea}}', (function (_TextAreaRenderingTest) {
-    _inherits(_class, _TextAreaRenderingTest);
+    babelHelpers.inherits(_class, _TextAreaRenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _TextAreaRenderingTest.apply(this, arguments);
     }
@@ -25314,23 +25116,15 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
 enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalSet_properties, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}'], ['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}'], ['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{unbound}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -26064,17 +25858,11 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
 enifed('ember-glimmer/tests/integration/helpers/yield-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{yield}} helper', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -26370,17 +26158,11 @@ enifed('ember-glimmer/tests/integration/helpers/yield-test', ['exports', 'ember-
 enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Input element tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -26596,17 +26378,11 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
 enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('outlet view', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
 
@@ -26855,25 +26631,17 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
 enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    ']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('SVG element tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -27010,36 +26778,26 @@ enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/te
 enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    ']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
 
   var EachInTest = (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(EachInTest, _TogglingSyntaxConditionalsTest);
+babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 
     function EachInTest() {
-      _classCallCheck(this, EachInTest);
+babelHelpers.classCallCheck(this, EachInTest);
 
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
@@ -27061,20 +26819,20 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
   NonEmptyFunction.foo = 'bar';
 
   var EmptyConstructor = function EmptyConstructor() {
-    _classCallCheck(this, EmptyConstructor);
+babelHelpers.classCallCheck(this, EmptyConstructor);
   };
 
   var NonEmptyConstructor = function NonEmptyConstructor() {
-    _classCallCheck(this, NonEmptyConstructor);
+babelHelpers.classCallCheck(this, NonEmptyConstructor);
   };
 
   NonEmptyConstructor.foo = 'bar';
 
   var BasicEachInTest = (function (_EachInTest) {
-    _inherits(BasicEachInTest, _EachInTest);
+babelHelpers.inherits(BasicEachInTest, _EachInTest);
 
     function BasicEachInTest() {
-      _classCallCheck(this, BasicEachInTest);
+babelHelpers.classCallCheck(this, BasicEachInTest);
 
       _EachInTest.apply(this, arguments);
     }
@@ -27085,10 +26843,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(BasicEachInTest, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([{ foo: 1 }, _emberRuntimeSystemObject.default.create({ 'Not Empty': 1 }), [1], NonEmptyFunction, NonEmptyConstructor]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, [], EmptyFunction, EmptyConstructor, {}, Object.create(null), Object.create({}), Object.create({ 'Not Empty': 1 }), _emberRuntimeSystemObject.default.create()]));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}}', (function (_BasicEachInTest) {
-    _inherits(_class, _BasicEachInTest);
+babelHelpers.inherits(_class, _BasicEachInTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _BasicEachInTest.apply(this, arguments);
     }
@@ -27357,7 +27115,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       this.assertText('[0:1][1:2][2:3][foo:bar]');
     };
 
-    _createClass(_class, [{
+babelHelpers.createClass(_class, [{
       key: 'truthyValue',
       get: function () {
         return { 'Not Empty': 1 };
@@ -27368,15 +27126,14 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
         return {};
       }
     }]);
-
     return _class;
   })(BasicEachInTest));
 
   var EachInEdgeCasesTest = (function (_EachInTest2) {
-    _inherits(EachInEdgeCasesTest, _EachInTest2);
+babelHelpers.inherits(EachInEdgeCasesTest, _EachInTest2);
 
     function EachInEdgeCasesTest() {
-      _classCallCheck(this, EachInEdgeCasesTest);
+babelHelpers.classCallCheck(this, EachInEdgeCasesTest);
 
       _EachInTest2.apply(this, arguments);
     }
@@ -27387,15 +27144,15 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachInEdgeCasesTest, new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([true, 1, 'hello']));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} edge cases', (function (_EachInEdgeCasesTest) {
-    _inherits(_class2, _EachInEdgeCasesTest);
+babelHelpers.inherits(_class2, _EachInEdgeCasesTest);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _EachInEdgeCasesTest.apply(this, arguments);
     }
 
-    _createClass(_class2, [{
+babelHelpers.createClass(_class2, [{
       key: 'truthyValue',
       get: function () {
         return { 'Not Empty': 1 };
@@ -27406,15 +27163,14 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
         return {};
       }
     }]);
-
     return _class2;
   })(EachInEdgeCasesTest));
 
   var EachInProxyTest = (function (_EachInTest3) {
-    _inherits(EachInProxyTest, _EachInTest3);
+babelHelpers.inherits(EachInProxyTest, _EachInTest3);
 
     function EachInProxyTest() {
-      _classCallCheck(this, EachInProxyTest);
+babelHelpers.classCallCheck(this, EachInProxyTest);
 
       _EachInTest3.apply(this, arguments);
     }
@@ -27425,10 +27181,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachInProxyTest, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([_emberRuntimeSystemObject_proxy.default.create({ content: { 'Not empty': 1 } })]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([_emberRuntimeSystemObject_proxy.default.create(), _emberRuntimeSystemObject_proxy.default.create({ content: null }), _emberRuntimeSystemObject_proxy.default.create({ content: {} }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create(null) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({}) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({ 'Not Empty': 1 }) }), _emberRuntimeSystemObject_proxy.default.create({ content: _emberRuntimeSystemObject.default.create() })]));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} with `ObjectProxy`', (function (_EachInProxyTest) {
-    _inherits(_class3, _EachInProxyTest);
+babelHelpers.inherits(_class3, _EachInProxyTest);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _EachInProxyTest.apply(this, arguments);
     }
@@ -27480,7 +27236,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
     };
 
-    _createClass(_class3, [{
+babelHelpers.createClass(_class3, [{
       key: 'truthyValue',
       get: function () {
         return _emberRuntimeSystemObject_proxy.default.create({ content: { 'Not Empty': 1 } });
@@ -27491,29 +27247,18 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
         return _emberRuntimeSystemObject_proxy.default.create({ content: null });
       }
     }]);
-
     return _class3;
   })(EachInProxyTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-metal/property_events', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberMetalProperty_events, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']);
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
-      _classCallCheck(this, ArrayLike);
+babelHelpers.classCallCheck(this, ArrayLike);
 
       this._array = content;
     }
@@ -27593,26 +27338,25 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       _emberMetalProperty_events.propertyDidChange(this, 'length');
     };
 
-    _createClass(ArrayLike, [{
+babelHelpers.createClass(ArrayLike, [{
       key: 'length',
       get: function () {
         return this._array.length;
       }
     }]);
-
     return ArrayLike;
   })();
 
   var TogglingEachTest = (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
+babelHelpers.inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
 
     function TogglingEachTest() {
-      _classCallCheck(this, TogglingEachTest);
+babelHelpers.classCallCheck(this, TogglingEachTest);
 
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
-    _createClass(TogglingEachTest, [{
+babelHelpers.createClass(TogglingEachTest, [{
       key: 'truthyValue',
       get: function () {
         return ['non-empty'];
@@ -27623,15 +27367,14 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
         return [];
       }
     }]);
-
     return TogglingEachTest;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest);
 
   var BasicEachTest = (function (_TogglingEachTest) {
-    _inherits(BasicEachTest, _TogglingEachTest);
+babelHelpers.inherits(BasicEachTest, _TogglingEachTest);
 
     function BasicEachTest() {
-      _classCallCheck(this, BasicEachTest);
+babelHelpers.classCallCheck(this, BasicEachTest);
 
       _TogglingEachTest.apply(this, arguments);
     }
@@ -27642,10 +27385,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(BasicEachTest, new _emberGlimmerTestsUtilsSharedConditionalTests.TruthyGenerator([['hello'], _emberRuntimeSystemNative_array.A(['hello']), new ArrayLike(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: _emberRuntimeSystemNative_array.A(['hello']) })]), new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, []]), _emberGlimmerTestsUtilsSharedConditionalTests.ArrayTestCases);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each}}', (function (_BasicEachTest) {
-    _inherits(_class, _BasicEachTest);
+babelHelpers.inherits(_class, _BasicEachTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _BasicEachTest.apply(this, arguments);
     }
@@ -27662,10 +27405,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(BasicEachTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each as}}', (function (_BasicEachTest2) {
-    _inherits(_class2, _BasicEachTest2);
+babelHelpers.inherits(_class2, _BasicEachTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _BasicEachTest2.apply(this, arguments);
     }
@@ -27682,10 +27425,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(BasicEachTest));
 
   var EachEdgeCasesTest = (function (_TogglingEachTest2) {
-    _inherits(EachEdgeCasesTest, _TogglingEachTest2);
+babelHelpers.inherits(EachEdgeCasesTest, _TogglingEachTest2);
 
     function EachEdgeCasesTest() {
-      _classCallCheck(this, EachEdgeCasesTest);
+babelHelpers.classCallCheck(this, EachEdgeCasesTest);
 
       _TogglingEachTest2.apply(this, arguments);
     }
@@ -27696,10 +27439,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(EachEdgeCasesTest, new _emberGlimmerTestsUtilsSharedConditionalTests.FalsyGenerator([true, 'hello', 1, Object, function () {}, {}, { foo: 'bar' }, Object.create(null), Object.create({}), Object.create({ foo: 'bar' })]));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each}}', (function (_EachEdgeCasesTest) {
-    _inherits(_class3, _EachEdgeCasesTest);
+babelHelpers.inherits(_class3, _EachEdgeCasesTest);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _EachEdgeCasesTest.apply(this, arguments);
     }
@@ -27716,10 +27459,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(EachEdgeCasesTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each as}}', (function (_EachEdgeCasesTest2) {
-    _inherits(_class4, _EachEdgeCasesTest2);
+babelHelpers.inherits(_class4, _EachEdgeCasesTest2);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+babelHelpers.classCallCheck(this, _class4);
 
       _EachEdgeCasesTest2.apply(this, arguments);
     }
@@ -27736,10 +27479,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(EachEdgeCasesTest));
 
   var AbstractEachTest = (function (_RenderingTest) {
-    _inherits(AbstractEachTest, _RenderingTest);
+babelHelpers.inherits(AbstractEachTest, _RenderingTest);
 
     function AbstractEachTest() {
-      _classCallCheck(this, AbstractEachTest);
+babelHelpers.classCallCheck(this, AbstractEachTest);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -27823,10 +27566,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   var SingleEachTest = (function (_AbstractEachTest) {
-    _inherits(SingleEachTest, _AbstractEachTest);
+babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
 
     function SingleEachTest() {
-      _classCallCheck(this, SingleEachTest);
+babelHelpers.classCallCheck(this, SingleEachTest);
 
       _AbstractEachTest.apply(this, arguments);
     }
@@ -28393,10 +28136,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(AbstractEachTest);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with arrays', (function (_SingleEachTest) {
-    _inherits(_class5, _SingleEachTest);
+babelHelpers.inherits(_class5, _SingleEachTest);
 
     function _class5() {
-      _classCallCheck(this, _class5);
+babelHelpers.classCallCheck(this, _class5);
 
       _SingleEachTest.apply(this, arguments);
     }
@@ -28409,10 +28152,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(SingleEachTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array-like objects', (function (_SingleEachTest2) {
-    _inherits(_class6, _SingleEachTest2);
+babelHelpers.inherits(_class6, _SingleEachTest2);
 
     function _class6() {
-      _classCallCheck(this, _class6);
+babelHelpers.classCallCheck(this, _class6);
 
       _SingleEachTest2.apply(this, arguments);
     }
@@ -28425,10 +28168,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(SingleEachTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, modifying itself', (function (_SingleEachTest3) {
-    _inherits(_class7, _SingleEachTest3);
+babelHelpers.inherits(_class7, _SingleEachTest3);
 
     function _class7() {
-      _classCallCheck(this, _class7);
+babelHelpers.classCallCheck(this, _class7);
 
       _SingleEachTest3.apply(this, arguments);
     }
@@ -28441,10 +28184,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(SingleEachTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, replacing its content', (function (_SingleEachTest4) {
-    _inherits(_class8, _SingleEachTest4);
+babelHelpers.inherits(_class8, _SingleEachTest4);
 
     function _class8() {
-      _classCallCheck(this, _class8);
+babelHelpers.classCallCheck(this, _class8);
 
       _SingleEachTest4.apply(this, arguments);
     }
@@ -28468,10 +28211,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   // TODO: Refactor the following tests so we can run them against different kind of arrays
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#each as}} helpers', (function (_RenderingTest2) {
-    _inherits(_class9, _RenderingTest2);
+babelHelpers.inherits(_class9, _RenderingTest2);
 
     function _class9() {
-      _classCallCheck(this, _class9);
+babelHelpers.classCallCheck(this, _class9);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -28610,10 +28353,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} undefined path', (function (_RenderingTest3) {
-    _inherits(_class10, _RenderingTest3);
+babelHelpers.inherits(_class10, _RenderingTest3);
 
     function _class10() {
-      _classCallCheck(this, _class10);
+babelHelpers.classCallCheck(this, _class10);
 
       _RenderingTest3.apply(this, arguments);
     }
@@ -28650,22 +28393,14 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-metal/property_set', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberMetalProperty_set, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} with inverse', (function (_IfUnlessWithSyntaxTest) {
-    _inherits(_class, _IfUnlessWithSyntaxTest);
+babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
@@ -28682,10 +28417,10 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}} with inverse', (function (_IfUnlessWithSyntaxTest2) {
-    _inherits(_class2, _IfUnlessWithSyntaxTest2);
+babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
@@ -28702,10 +28437,10 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} and {{#unless}} without inverse', (function (_IfUnlessWithSyntaxTest3) {
-    _inherits(_class3, _IfUnlessWithSyntaxTest3);
+babelHelpers.inherits(_class3, _IfUnlessWithSyntaxTest3);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _IfUnlessWithSyntaxTest3.apply(this, arguments);
     }
@@ -28722,10 +28457,10 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_RenderingTest) {
-    _inherits(_class4, _RenderingTest);
+babelHelpers.inherits(_class4, _RenderingTest);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+babelHelpers.classCallCheck(this, _class4);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -28801,22 +28536,14 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
 enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-runtime/system/object_proxy', 'ember-runtime/mixins/mutable_array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests, _emberGlimmerTestsUtilsAbstractTestCase, _emberRuntimeSystemObject_proxy, _emberRuntimeMixinsMutable_array) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}'], ['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    '], ['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}'], ['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    '], ['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_IfUnlessWithSyntaxTest) {
-    _inherits(_class, _IfUnlessWithSyntaxTest);
+babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
@@ -28833,10 +28560,10 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_IfUnlessWithSyntaxTest2) {
-    _inherits(_class2, _IfUnlessWithSyntaxTest2);
+babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
@@ -29100,10 +28827,10 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
-    _inherits(_class3, _RenderingTest);
+babelHelpers.inherits(_class3, _RenderingTest);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -29288,15 +29015,9 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
 enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/empty_object', 'glimmer-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalEmpty_object, _glimmerRuntime) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var Counter = (function () {
     function Counter() {
-      _classCallCheck(this, Counter);
+      babelHelpers.classCallCheck(this, Counter);
 
       this.reset();
     }
@@ -29322,7 +29043,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 
   var BasicCompiler = (function () {
     function BasicCompiler(template) {
-      _classCallCheck(this, BasicCompiler);
+      babelHelpers.classCallCheck(this, BasicCompiler);
 
       this.template = template;
     }
@@ -29338,10 +29059,10 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
   })();
 
   var TypeOneCompiler = (function (_BasicCompiler) {
-    _inherits(TypeOneCompiler, _BasicCompiler);
+    babelHelpers.inherits(TypeOneCompiler, _BasicCompiler);
 
     function TypeOneCompiler() {
-      _classCallCheck(this, TypeOneCompiler);
+      babelHelpers.classCallCheck(this, TypeOneCompiler);
 
       _BasicCompiler.apply(this, arguments);
     }
@@ -29350,10 +29071,10 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
   })(BasicCompiler);
 
   var TypeTwoCompiler = (function (_BasicCompiler2) {
-    _inherits(TypeTwoCompiler, _BasicCompiler2);
+    babelHelpers.inherits(TypeTwoCompiler, _BasicCompiler2);
 
     function TypeTwoCompiler() {
-      _classCallCheck(this, TypeTwoCompiler);
+      babelHelpers.classCallCheck(this, TypeTwoCompiler);
 
       _BasicCompiler2.apply(this, arguments);
     }
@@ -29365,10 +29086,10 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
   TypeTwoCompiler.id = 'type-two';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Layout cache test', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
       COUNTER.reset();
@@ -29454,17 +29175,11 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmer, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('Template factory test', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -29532,17 +29247,9 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glim
 enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
   exports.applyMixins = applyMixins;
   exports.moduleFor = moduleFor;
   exports.strip = strip;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   var packageTag = '@' + _emberGlimmerTestsUtilsPackageName.default + ' ';
 
@@ -29644,7 +29351,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
   var TestCase = (function () {
     function TestCase() {
-      _classCallCheck(this, TestCase);
+      babelHelpers.classCallCheck(this, TestCase);
 
       this.element = null;
       this.snapshot = null;
@@ -29769,7 +29476,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.assertInvariants();
     };
 
-    _createClass(TestCase, [{
+    babelHelpers.createClass(TestCase, [{
       key: 'isHTMLBars',
       get: function () {
         return _emberGlimmerTestsUtilsPackageName.default === 'htmlbars';
@@ -29801,7 +29508,6 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         return count;
       }
     }]);
-
     return TestCase;
   })();
 
@@ -29820,10 +29526,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
   }
 
   var AbstractApplicationTest = (function (_TestCase) {
-    _inherits(AbstractApplicationTest, _TestCase);
+    babelHelpers.inherits(AbstractApplicationTest, _TestCase);
 
     function AbstractApplicationTest() {
-      _classCallCheck(this, AbstractApplicationTest);
+      babelHelpers.classCallCheck(this, AbstractApplicationTest);
 
       _TestCase.call(this);
 
@@ -29895,7 +29601,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.application.register('controller:' + name, controller);
     };
 
-    _createClass(AbstractApplicationTest, [{
+    babelHelpers.createClass(AbstractApplicationTest, [{
       key: 'applicationOptions',
       get: function () {
         return {
@@ -29904,17 +29610,16 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         };
       }
     }]);
-
     return AbstractApplicationTest;
   })(TestCase);
 
   exports.AbstractApplicationTest = AbstractApplicationTest;
 
   var AbstractRenderingTest = (function (_TestCase2) {
-    _inherits(AbstractRenderingTest, _TestCase2);
+    babelHelpers.inherits(AbstractRenderingTest, _TestCase2);
 
     function AbstractRenderingTest() {
-      _classCallCheck(this, AbstractRenderingTest);
+      babelHelpers.classCallCheck(this, AbstractRenderingTest);
 
       _TestCase2.call(this);
       var owner = this.owner = _emberGlimmerTestsUtilsHelpers.buildOwner(this.getOwnerOptions());
@@ -30044,13 +29749,12 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       this.assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
-    _createClass(AbstractRenderingTest, [{
+    babelHelpers.createClass(AbstractRenderingTest, [{
       key: 'context',
       get: function () {
         return this.component;
       }
     }]);
-
     return AbstractRenderingTest;
   })(TestCase);
 
@@ -30134,19 +29838,11 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   var _ObjectTestCases, _ArrayTestCases;
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var AbstractConditionalsTest = (function (_RenderingTest) {
-    _inherits(AbstractConditionalsTest, _RenderingTest);
+    babelHelpers.inherits(AbstractConditionalsTest, _RenderingTest);
 
     function AbstractConditionalsTest() {
-      _classCallCheck(this, AbstractConditionalsTest);
+      babelHelpers.classCallCheck(this, AbstractConditionalsTest);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -30176,7 +29872,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       throw new Error('Not implemented: `renderValues`');
     };
 
-    _createClass(AbstractConditionalsTest, [{
+    babelHelpers.createClass(AbstractConditionalsTest, [{
       key: 'truthyValue',
       get: function () {
         return true;
@@ -30187,13 +29883,12 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
         return false;
       }
     }]);
-
     return AbstractConditionalsTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   var AbstractGenerator = (function () {
     function AbstractGenerator(cases) {
-      _classCallCheck(this, AbstractGenerator);
+      babelHelpers.classCallCheck(this, AbstractGenerator);
 
       this.cases = cases;
     }
@@ -30218,10 +29913,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   })();
 
   var TruthyGenerator = (function (_AbstractGenerator) {
-    _inherits(TruthyGenerator, _AbstractGenerator);
+    babelHelpers.inherits(TruthyGenerator, _AbstractGenerator);
 
     function TruthyGenerator() {
-      _classCallCheck(this, TruthyGenerator);
+      babelHelpers.classCallCheck(this, TruthyGenerator);
 
       _AbstractGenerator.apply(this, arguments);
     }
@@ -30262,10 +29957,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.TruthyGenerator = TruthyGenerator;
 
   var FalsyGenerator = (function (_AbstractGenerator2) {
-    _inherits(FalsyGenerator, _AbstractGenerator2);
+    babelHelpers.inherits(FalsyGenerator, _AbstractGenerator2);
 
     function FalsyGenerator() {
-      _classCallCheck(this, FalsyGenerator);
+      babelHelpers.classCallCheck(this, FalsyGenerator);
 
       _AbstractGenerator2.apply(this, arguments);
     }
@@ -30306,10 +30001,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.FalsyGenerator = FalsyGenerator;
 
   var StableTruthyGenerator = (function (_TruthyGenerator) {
-    _inherits(StableTruthyGenerator, _TruthyGenerator);
+    babelHelpers.inherits(StableTruthyGenerator, _TruthyGenerator);
 
     function StableTruthyGenerator() {
-      _classCallCheck(this, StableTruthyGenerator);
+      babelHelpers.classCallCheck(this, StableTruthyGenerator);
 
       _TruthyGenerator.apply(this, arguments);
     }
@@ -30350,10 +30045,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.StableTruthyGenerator = StableTruthyGenerator;
 
   var StableFalsyGenerator = (function (_FalsyGenerator) {
-    _inherits(StableFalsyGenerator, _FalsyGenerator);
+    babelHelpers.inherits(StableFalsyGenerator, _FalsyGenerator);
 
     function StableFalsyGenerator() {
-      _classCallCheck(this, StableFalsyGenerator);
+      babelHelpers.classCallCheck(this, StableFalsyGenerator);
 
       _FalsyGenerator.apply(this, arguments);
     }
@@ -30394,10 +30089,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.StableFalsyGenerator = StableFalsyGenerator;
 
   var ObjectProxyGenerator = (function (_AbstractGenerator3) {
-    _inherits(ObjectProxyGenerator, _AbstractGenerator3);
+    babelHelpers.inherits(ObjectProxyGenerator, _AbstractGenerator3);
 
     function ObjectProxyGenerator() {
-      _classCallCheck(this, ObjectProxyGenerator);
+      babelHelpers.classCallCheck(this, ObjectProxyGenerator);
 
       _AbstractGenerator3.apply(this, arguments);
     }
@@ -30471,10 +30166,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   })(AbstractGenerator);
 
   var BasicConditionalsTest = (function (_AbstractConditionalsTest) {
-    _inherits(BasicConditionalsTest, _AbstractConditionalsTest);
+    babelHelpers.inherits(BasicConditionalsTest, _AbstractConditionalsTest);
 
     function BasicConditionalsTest() {
-      _classCallCheck(this, BasicConditionalsTest);
+      babelHelpers.classCallCheck(this, BasicConditionalsTest);
 
       _AbstractConditionalsTest.apply(this, arguments);
     }
@@ -30672,10 +30367,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   // {{#unless}}, {{#with}}, {{#each}}, {{#each-in}}, (if) and (unless)
 
   var TogglingConditionalsTest = (function (_BasicConditionalsTest) {
-    _inherits(TogglingConditionalsTest, _BasicConditionalsTest);
+    babelHelpers.inherits(TogglingConditionalsTest, _BasicConditionalsTest);
 
     function TogglingConditionalsTest() {
-      _classCallCheck(this, TogglingConditionalsTest);
+      babelHelpers.classCallCheck(this, TogglingConditionalsTest);
 
       _BasicConditionalsTest.apply(this, arguments);
     }
@@ -30687,10 +30382,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.TogglingConditionalsTest = TogglingConditionalsTest;
 
   var TogglingHelperConditionalsTest = (function (_TogglingConditionalsTest) {
-    _inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
+    babelHelpers.inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
 
     function TogglingHelperConditionalsTest() {
-      _classCallCheck(this, TogglingHelperConditionalsTest);
+      babelHelpers.classCallCheck(this, TogglingHelperConditionalsTest);
 
       _TogglingConditionalsTest.apply(this, arguments);
     }
@@ -30868,10 +30563,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.TogglingHelperConditionalsTest = TogglingHelperConditionalsTest;
 
   var IfUnlessHelperTest = (function (_TogglingHelperConditionalsTest) {
-    _inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
+    babelHelpers.inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
 
     function IfUnlessHelperTest() {
-      _classCallCheck(this, IfUnlessHelperTest);
+      babelHelpers.classCallCheck(this, IfUnlessHelperTest);
 
       _TogglingHelperConditionalsTest.apply(this, arguments);
     }
@@ -30887,10 +30582,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   // i.e. {{#if}}, {{#unless}}, {{#with}}, {{#each}} and {{#each-in}}
 
   var TogglingSyntaxConditionalsTest = (function (_TogglingConditionalsTest2) {
-    _inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
+    babelHelpers.inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
 
     function TogglingSyntaxConditionalsTest() {
-      _classCallCheck(this, TogglingSyntaxConditionalsTest);
+      babelHelpers.classCallCheck(this, TogglingSyntaxConditionalsTest);
 
       _TogglingConditionalsTest2.apply(this, arguments);
     }
@@ -31229,10 +30924,10 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
   exports.TogglingSyntaxConditionalsTest = TogglingSyntaxConditionalsTest;
 
   var IfUnlessWithSyntaxTest = (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
+    babelHelpers.inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
 
     function IfUnlessWithSyntaxTest() {
-      _classCallCheck(this, IfUnlessWithSyntaxTest);
+      babelHelpers.classCallCheck(this, IfUnlessWithSyntaxTest);
 
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
@@ -31247,17 +30942,11 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils/string', 'ember-metal/features', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerUtilsString, _emberMetalFeatures, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString', (function (_TestCase) {
-    _inherits(_class, _TestCase);
+    babelHelpers.inherits(_class, _TestCase);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _TestCase.apply(this, arguments);
     }
@@ -31287,10 +30976,10 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
 
   if (true) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
-      _inherits(_class2, _TestCase2);
+      babelHelpers.inherits(_class2, _TestCase2);
 
       function _class2() {
-        _classCallCheck(this, _class2);
+        babelHelpers.classCallCheck(this, _class2);
 
         _TestCase2.apply(this, arguments);
       }
@@ -31316,27 +31005,19 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
 enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/assign', 'ember-application/system/engine', 'ember-views/component_lookup'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalAssign, _emberApplicationSystemEngine, _emberViewsComponent_lookup) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   exports.TestCase = _emberGlimmerTestsUtilsAbstractTestCase.TestCase;
   exports.moduleFor = _emberGlimmerTestsUtilsAbstractTestCase.moduleFor;
 
   var ApplicationTest = (function (_AbstractApplicationTest) {
-    _inherits(ApplicationTest, _AbstractApplicationTest);
+    babelHelpers.inherits(ApplicationTest, _AbstractApplicationTest);
 
     function ApplicationTest() {
-      _classCallCheck(this, ApplicationTest);
+      babelHelpers.classCallCheck(this, ApplicationTest);
 
       _AbstractApplicationTest.apply(this, arguments);
     }
 
-    _createClass(ApplicationTest, [{
+    babelHelpers.createClass(ApplicationTest, [{
       key: 'applicationOptions',
       get: function () {
         var _assign;
@@ -31344,17 +31025,16 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
         return _emberMetalAssign.default(_AbstractApplicationTest.prototype.applicationOptions, (_assign = {}, _assign[_emberApplicationSystemEngine.GLIMMER] = true, _assign));
       }
     }]);
-
     return ApplicationTest;
   })(_emberGlimmerTestsUtilsAbstractTestCase.AbstractApplicationTest);
 
   exports.ApplicationTest = ApplicationTest;
 
   var RenderingTest = (function (_AbstractRenderingTest) {
-    _inherits(RenderingTest, _AbstractRenderingTest);
+    babelHelpers.inherits(RenderingTest, _AbstractRenderingTest);
 
     function RenderingTest() {
-      _classCallCheck(this, RenderingTest);
+      babelHelpers.classCallCheck(this, RenderingTest);
 
       _AbstractRenderingTest.call(this);
       var owner = this.owner;
@@ -31636,13 +31316,7 @@ enifed('ember-htmlbars-template-compiler/tests/utils/helpers', ['exports', 'embe
 
   exports.compile = compile;
   exports.precompile = precompile;
-
-  function _interopExportWildcard(obj, defaults) { var newObj = defaults({}, obj); delete newObj['default']; return newObj; }
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  _defaults(exports, _interopExportWildcard(_emberHtmlbarsTemplateCompiler, _defaults));
-
+  babelHelpers.defaults(exports, babelHelpers.interopExportWildcard(_emberHtmlbarsTemplateCompiler, babelHelpers.defaults));
   exports.removePlugin = _emberHtmlbarsTemplateCompilerSystemCompileOptions.removePlugin;
 
   function compile(string, options) {
@@ -31675,25 +31349,17 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-htmlbars/tests/u
 enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Application test: rendering', (function (_ApplicationTest) {
-    _inherits(_class, _ApplicationTest);
+babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _ApplicationTest.apply(this, arguments);
     }
@@ -32009,17 +31675,11 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/binding'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalBinding) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Binding integration tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -32085,21 +31745,13 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
 enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalObserver) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    '], ['\n      {{foo-bar hasFoo=true foo=foo hasBar=false bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=true foo=foo hasBar=true bar=bar}}\n      {{foo-bar hasFoo=false foo=foo hasBar=false bar=bar}}\n    ']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Attribute bindings integration', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -32774,17 +32426,11 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
 enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/computed', 'ember-htmlbars/tests/utils/test-helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalComputed, _emberHtmlbarsTestsUtilsTestHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: attrs lookup', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -33041,21 +32687,13 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
 enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/computed'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalComputed) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    '], ['\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=true isEnabled=isEnabled bindIsHappy=true isHappy=isHappy}}\n      {{foo-bar foo=foo bindIsEnabled=false isEnabled=isEnabled bindIsHappy=false isHappy=isHappy}}\n    ']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassNameBindings integration', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -33444,10 +33082,10 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('ClassBinding integration', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -33586,37 +33224,29 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
 enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}'], ['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}'], ['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}'], ['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
-      _templateObject16 = _taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
-      _templateObject17 = _taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}'], ['\n      {{component (component "-looked-up" "Hodari" greeting="Hodi")\n                  greeting="Hola"}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}'], ['\n      {{#with (hash comp=(component "-looked-up" greeting=model.greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}'], ['\n      {{#with (component "-looked-up" greeting="Hola" name="Dolores" age=33) as |first|}}\n        {{#with (component first greeting="Hej" name="Sigmundur") as |second|}}\n          {{component second greeting=model.greeting}}\n        {{/with}}\n      {{/with}}']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>'], ['\n      {{component (component "change-button" model.val2)}}\n      <span class="value">{{model.val2}}</span>']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />'], ['\n        message: {{message}}{{inner-component message=message}}\n        <button onclick={{action "change"}} />']),
+      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component "my-comp" isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
+      _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: closure components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -34781,10 +34411,10 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   var ClosureComponentMutableParamsTest = (function (_RenderingTest2) {
-    _inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
+babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
 
     function ClosureComponentMutableParamsTest() {
-      _classCallCheck(this, ClosureComponentMutableParamsTest);
+babelHelpers.classCallCheck(this, ClosureComponentMutableParamsTest);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -34800,7 +34430,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 
   var MutableParamTestGenerator = (function () {
     function MutableParamTestGenerator(cases) {
-      _classCallCheck(this, MutableParamTestGenerator);
+babelHelpers.classCallCheck(this, MutableParamTestGenerator);
 
       this.cases = cases;
     }
@@ -34891,59 +34521,51 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
   /* globals EmberDev */
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
-      _templateObject15 = _taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
-      _templateObject16 = _taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
-      _templateObject17 = _taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
-      _templateObject18 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject19 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
-      _templateObject20 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject21 = _taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
-      _templateObject22 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject23 = _taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
-      _templateObject24 = _taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject25 = _taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
-      _templateObject26 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject27 = _taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
-      _templateObject28 = _taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject29 = _taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
-      _templateObject30 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
-      _templateObject31 = _taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
-      _templateObject32 = _taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
-      _templateObject33 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
-      _templateObject34 = _taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
-      _templateObject35 = _taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject36 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject38 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject39 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject18 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject19 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
+      _templateObject20 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject21 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject22 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject23 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject24 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject25 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject26 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject28 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject30 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject31 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject32 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject33 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject34 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject35 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject36 = babelHelpers.taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -37698,23 +37320,15 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/computed'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalComputed) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: dynamic components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -38526,23 +38140,15 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
 enifed('ember-htmlbars/tests/integration/components/fragment-components-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['<!---->bar'], ['<!---->bar']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['<!---->bizz'], ['<!---->bizz']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['<div>Hey</div>bar'], ['<div>Hey</div>bar']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['<!---->bar'], ['<!---->bar']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['<!---->bizz'], ['<!---->bizz']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: fragment components', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -38749,31 +38355,21 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/run_loop'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalRun_loop) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   var LifeCycleHooksTest = (function (_RenderingTest) {
-    _inherits(LifeCycleHooksTest, _RenderingTest);
+babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
     function LifeCycleHooksTest() {
-      _classCallCheck(this, LifeCycleHooksTest);
+babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       _RenderingTest.call(this);
       this.hooks = [];
@@ -39210,7 +38806,7 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       });
     };
 
-    _createClass(LifeCycleHooksTest, [{
+babelHelpers.createClass(LifeCycleHooksTest, [{
       key: 'ComponentClass',
       get: function () {
         throw new Error('Not implemented: `ComponentClass`');
@@ -39224,15 +38820,14 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
         };
       }
     }]);
-
     return LifeCycleHooksTest;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
-    _inherits(_class, _LifeCycleHooksTest);
+babelHelpers.inherits(_class, _LifeCycleHooksTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _LifeCycleHooksTest.apply(this, arguments);
     }
@@ -39264,21 +38859,20 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       }
     };
 
-    _createClass(_class, [{
+babelHelpers.createClass(_class, [{
       key: 'ComponentClass',
       get: function () {
         return _emberHtmlbarsTestsUtilsHelpers.Component;
       }
     }]);
-
     return _class;
   })(LifeCycleHooksTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -39376,17 +38970,11 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalProperty_set, _emberMetalRun_loop, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalFeatures) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Link-to component', (function (_ApplicationTest) {
-    _inherits(_class, _ApplicationTest);
+    babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _ApplicationTest.apply(this, arguments);
     }
@@ -39554,10 +39142,10 @@ enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', '
   })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Link-to component with query-params', (function (_ApplicationTest2) {
-    _inherits(_class2, _ApplicationTest2);
+    babelHelpers.inherits(_class2, _ApplicationTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _ApplicationTest2.apply(this, arguments);
 
@@ -39619,12 +39207,6 @@ enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', '
 enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   // copied from ember-htmlbars/tests/integration/local-lookup-test.js
   function buildResolver() {
     var resolver = {
@@ -39658,10 +39240,10 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
   }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: local lookup', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -39839,19 +39421,11 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
 enifed('ember-htmlbars/tests/integration/components/target-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/assign', 'ember-runtime/controllers/controller', 'ember-metal/mixin', 'ember-routing/system/route', 'ember-runtime/system/object'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberMetalAssign, _emberRuntimeControllersController, _emberMetalMixin, _emberRoutingSystemRoute, _emberRuntimeSystemObject) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: sendAction', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
       this.actionCounts = {};
@@ -40093,10 +39667,10 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: sendAction to a controller', (function (_ApplicationTest) {
-    _inherits(_class2, _ApplicationTest);
+    babelHelpers.inherits(_class2, _ApplicationTest);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _ApplicationTest.apply(this, arguments);
     }
@@ -40243,10 +39817,10 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
   })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: sendAction of a closure action', (function (_RenderingTest2) {
-    _inherits(_class3, _RenderingTest2);
+    babelHelpers.inherits(_class3, _RenderingTest2);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -40305,7 +39879,7 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
           third: third,
           actions: {
             outerSubmit: function () {
-              actualArgs = [].concat(_slice.call(arguments));
+              actualArgs = [].concat(babelHelpers.slice.call(arguments));
             }
           }
         }),
@@ -40325,10 +39899,10 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: send', (function (_RenderingTest3) {
-    _inherits(_class4, _RenderingTest3);
+    babelHelpers.inherits(_class4, _RenderingTest3);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _RenderingTest3.apply(this, arguments);
     }
@@ -40497,12 +40071,6 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
 enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-views/system/utils'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberViewsSystemUtils) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var hasGetClientRects = undefined,
       hasGetBoundingClientRect = undefined;
   var ClientRectListCtor = undefined,
@@ -40527,10 +40095,10 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
   })();
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('ember-views/system/utils', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -40585,17 +40153,11 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
 enifed('ember-htmlbars/tests/integration/components/web-component-fallback-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: web component fallback', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -40640,17 +40202,11 @@ enifed('ember-htmlbars/tests/integration/components/web-component-fallback-test'
 enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Component willDestroyElement hook', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -40695,19 +40251,11 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   /* globals EmberDev */
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Static content tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -40764,10 +40312,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   var DynamicContentTest = (function (_RenderingTest2) {
-    _inherits(DynamicContentTest, _RenderingTest2);
+    babelHelpers.inherits(DynamicContentTest, _RenderingTest2);
 
     function DynamicContentTest() {
-      _classCallCheck(this, DynamicContentTest);
+      babelHelpers.classCallCheck(this, DynamicContentTest);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -41226,8 +40774,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   var ContentTestGenerator = (function () {
     function ContentTestGenerator(cases) {
       var tag = arguments.length <= 1 || arguments[1] === undefined ? '@test' : arguments[1];
-
-      _classCallCheck(this, ContentTestGenerator);
+      babelHelpers.classCallCheck(this, ContentTestGenerator);
 
       this.cases = cases;
       this.tag = tag;
@@ -41313,10 +40860,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(DynamicContentTest, SharedContentTestCases, GlimmerContentTestCases);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (content position)', (function (_DynamicContentTest) {
-    _inherits(_class2, _DynamicContentTest);
+    babelHelpers.inherits(_class2, _DynamicContentTest);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _DynamicContentTest.apply(this, arguments);
     }
@@ -41336,10 +40883,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(DynamicContentTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (content concat)', (function (_DynamicContentTest2) {
-    _inherits(_class3, _DynamicContentTest2);
+    babelHelpers.inherits(_class3, _DynamicContentTest2);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _DynamicContentTest2.apply(this, arguments);
     }
@@ -41359,10 +40906,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(DynamicContentTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (inside an element)', (function (_DynamicContentTest3) {
-    _inherits(_class4, _DynamicContentTest3);
+    babelHelpers.inherits(_class4, _DynamicContentTest3);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _DynamicContentTest3.apply(this, arguments);
     }
@@ -41389,10 +40936,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(DynamicContentTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (attribute position)', (function (_DynamicContentTest4) {
-    _inherits(_class5, _DynamicContentTest4);
+    babelHelpers.inherits(_class5, _DynamicContentTest4);
 
     function _class5() {
-      _classCallCheck(this, _class5);
+      babelHelpers.classCallCheck(this, _class5);
 
       _DynamicContentTest4.apply(this, arguments);
     }
@@ -41417,10 +40964,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(DynamicContentTest));
 
   var TrustedContentTest = (function (_DynamicContentTest5) {
-    _inherits(TrustedContentTest, _DynamicContentTest5);
+    babelHelpers.inherits(TrustedContentTest, _DynamicContentTest5);
 
     function TrustedContentTest() {
-      _classCallCheck(this, TrustedContentTest);
+      babelHelpers.classCallCheck(this, TrustedContentTest);
 
       _DynamicContentTest5.apply(this, arguments);
     }
@@ -41452,10 +40999,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(DynamicContentTest);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (trusted)', (function (_TrustedContentTest) {
-    _inherits(_class6, _TrustedContentTest);
+    babelHelpers.inherits(_class6, _TrustedContentTest);
 
     function _class6() {
-      _classCallCheck(this, _class6);
+      babelHelpers.classCallCheck(this, _class6);
 
       _TrustedContentTest.apply(this, arguments);
     }
@@ -41506,10 +41053,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(TrustedContentTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests (integration)', (function (_RenderingTest3) {
-    _inherits(_class7, _RenderingTest3);
+    babelHelpers.inherits(_class7, _RenderingTest3);
 
     function _class7() {
-      _classCallCheck(this, _class7);
+      babelHelpers.classCallCheck(this, _class7);
 
       _RenderingTest3.apply(this, arguments);
     }
@@ -42037,10 +41584,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       originalWarn = undefined;
 
   var StyleTest = (function (_RenderingTest4) {
-    _inherits(StyleTest, _RenderingTest4);
+    babelHelpers.inherits(StyleTest, _RenderingTest4);
 
     function StyleTest() {
-      _classCallCheck(this, StyleTest);
+      babelHelpers.classCallCheck(this, StyleTest);
 
       _RenderingTest4.apply(this, arguments);
       warnings = [];
@@ -42055,7 +41602,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     StyleTest.prototype.teardown = function teardown() {
       var _RenderingTest4$prototype$teardown;
 
-      (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(_slice.call(arguments)));
+      (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(babelHelpers.slice.call(arguments)));
       _emberMetalDebug.setDebugFunction('warn', originalWarn);
     };
 
@@ -42071,10 +41618,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Inline style tests', (function (_StyleTest) {
-    _inherits(_class8, _StyleTest);
+    babelHelpers.inherits(_class8, _StyleTest);
 
     function _class8() {
-      _classCallCheck(this, _class8);
+      babelHelpers.classCallCheck(this, _class8);
 
       _StyleTest.apply(this, arguments);
     }
@@ -42150,10 +41697,10 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 
   if (!EmberDev.runningProdBuild) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('Inline style tests - warnings', (function (_StyleTest2) {
-      _inherits(_class9, _StyleTest2);
+      babelHelpers.inherits(_class9, _StyleTest2);
 
       function _class9() {
-        _classCallCheck(this, _class9);
+        babelHelpers.classCallCheck(this, _class9);
 
         _StyleTest2.apply(this, arguments);
       }
@@ -42225,12 +41772,6 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
 enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-metal/run_loop'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalFeatures, _emberMetalInstrumentation, _emberMetalRun_loop) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
 
   function fireNativeWithDataTransfer(node, type, dataTransfer) {
@@ -42241,10 +41782,10 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
   }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -42358,10 +41899,10 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher#setup', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+    babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.call(this);
 
@@ -42436,10 +41977,10 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
-      _inherits(_class3, _RenderingTest3);
+      babelHelpers.inherits(_class3, _RenderingTest3);
 
       function _class3() {
-        _classCallCheck(this, _class3);
+        babelHelpers.classCallCheck(this, _class3);
 
         _RenderingTest3.apply(this, arguments);
       }
@@ -42502,10 +42043,10 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
 
   if (canDataTransfer) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('EventDispatcher - Event Properties', (function (_RenderingTest4) {
-      _inherits(_class4, _RenderingTest4);
+      babelHelpers.inherits(_class4, _RenderingTest4);
 
       function _class4() {
-        _classCallCheck(this, _class4);
+        babelHelpers.classCallCheck(this, _class4);
 
         _RenderingTest4.apply(this, arguments);
       }
@@ -42533,17 +42074,11 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
 enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{-class}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -42614,20 +42149,12 @@ enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'embe
 enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/features', 'ember-metal/instrumentation', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberMetalComputed, _emberMetalFeatures, _emberMetalInstrumentation, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
-      _inherits(_class, _RenderingTest);
+      babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
-        _classCallCheck(this, _class);
+        babelHelpers.classCallCheck(this, _class);
 
         _RenderingTest.apply(this, arguments);
       }
@@ -42844,10 +42371,10 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
   }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}}', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+    babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -43048,7 +42575,7 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
       var OuterComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         third: third,
         outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
-          actualArgs = [].concat(_slice.call(arguments));
+          actualArgs = [].concat(babelHelpers.slice.call(arguments));
         }
       });
 
@@ -43811,17 +43338,11 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
 enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{concat}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -43953,19 +43474,13 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
 enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var assert = QUnit.assert;
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: custom helpers', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -44588,20 +44103,12 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
 enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/system/action_manager', 'ember-views/system/jquery', 'ember-metal/features', 'ember-metal/instrumentation'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberViewsSystemAction_manager, _emberViewsSystemJquery, _emberMetalFeatures, _emberMetalInstrumentation) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        '], ['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        '], ['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>'], ['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      '], ['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      ']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n        <button>Click Me</button>\n        {{yield}}\n      '], ['\n        <button>Click Me</button>\n        {{yield}}\n      ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        '], ['\n          {{#target-component as |parent|}}\n            {{other-component anotherTarget=parent}}\n          {{/target-component}}\n        ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        '], ['\n        {{#target-component as |aTarget|}}\n          <a id="edit" href="#" {{action "edit" this target=aTarget}}>click me</a>\n        {{/target-component}}\n        ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>'], ['\n        <a href="#"\n          {{action "clicked" on="click"}}\n          {{action "doubleClicked" on="doubleClick"}}\n        >click me</a>']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      '], ['\n        {{#middle-component}}\n          {{inner-component action="hey"}}\n        {{/middle-component}}\n      ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n        <button>Click Me</button>\n        {{yield}}\n      '], ['\n        <button>Click Me</button>\n        {{yield}}\n      ']);
 
   function getActionAttributes(element) {
     var attributes = element.attributes;
@@ -44626,10 +44133,10 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 
   if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: element action instrumentation', (function (_RenderingTest) {
-      _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
-        _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
         _RenderingTest.apply(this, arguments);
       }
@@ -44689,10 +44196,10 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
   }
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: element action', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -46154,17 +45661,11 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{get}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -46799,17 +46300,11 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
 enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{hash}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -47030,17 +46525,11 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
 enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}}', (function (_IfUnlessHelperTest) {
-    _inherits(_class, _IfUnlessHelperTest);
+    babelHelpers.inherits(_class, _IfUnlessHelperTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _IfUnlessHelperTest.apply(this, arguments);
     }
@@ -47073,10 +46562,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning truthy values)', (function (_IfUnlessHelperTest2) {
-    _inherits(_class2, _IfUnlessHelperTest2);
+    babelHelpers.inherits(_class2, _IfUnlessHelperTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _IfUnlessHelperTest2.apply(this, arguments);
     }
@@ -47093,10 +46582,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: nested {{if}} helpers (returning falsy values)', (function (_IfUnlessHelperTest3) {
-    _inherits(_class3, _IfUnlessHelperTest3);
+    babelHelpers.inherits(_class3, _IfUnlessHelperTest3);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _IfUnlessHelperTest3.apply(this, arguments);
     }
@@ -47113,10 +46602,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{if}} used with another helper', (function (_IfUnlessHelperTest4) {
-    _inherits(_class4, _IfUnlessHelperTest4);
+    babelHelpers.inherits(_class4, _IfUnlessHelperTest4);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _IfUnlessHelperTest4.apply(this, arguments);
     }
@@ -47137,10 +46626,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{if}} used in attribute position', (function (_IfUnlessHelperTest5) {
-    _inherits(_class5, _IfUnlessHelperTest5);
+    babelHelpers.inherits(_class5, _IfUnlessHelperTest5);
 
     function _class5() {
-      _classCallCheck(this, _class5);
+      babelHelpers.classCallCheck(this, _class5);
 
       _IfUnlessHelperTest5.apply(this, arguments);
     }
@@ -47165,10 +46654,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{if}} and {{unless}} without the inverse argument', (function (_IfUnlessHelperTest6) {
-    _inherits(_class6, _IfUnlessHelperTest6);
+    babelHelpers.inherits(_class6, _IfUnlessHelperTest6);
 
     function _class6() {
-      _classCallCheck(this, _class6);
+      babelHelpers.classCallCheck(this, _class6);
 
       _IfUnlessHelperTest6.apply(this, arguments);
     }
@@ -47185,10 +46674,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: inline {{unless}}', (function (_IfUnlessHelperTest7) {
-    _inherits(_class7, _IfUnlessHelperTest7);
+    babelHelpers.inherits(_class7, _IfUnlessHelperTest7);
 
     function _class7() {
-      _classCallCheck(this, _class7);
+      babelHelpers.classCallCheck(this, _class7);
 
       _IfUnlessHelperTest7.apply(this, arguments);
     }
@@ -47221,10 +46710,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning truthy values)', (function (_IfUnlessHelperTest8) {
-    _inherits(_class8, _IfUnlessHelperTest8);
+    babelHelpers.inherits(_class8, _IfUnlessHelperTest8);
 
     function _class8() {
-      _classCallCheck(this, _class8);
+      babelHelpers.classCallCheck(this, _class8);
 
       _IfUnlessHelperTest8.apply(this, arguments);
     }
@@ -47241,10 +46730,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: nested {{unless}} helpers (returning falsy values)', (function (_IfUnlessHelperTest9) {
-    _inherits(_class9, _IfUnlessHelperTest9);
+    babelHelpers.inherits(_class9, _IfUnlessHelperTest9);
 
     function _class9() {
-      _classCallCheck(this, _class9);
+      babelHelpers.classCallCheck(this, _class9);
 
       _IfUnlessHelperTest9.apply(this, arguments);
     }
@@ -47261,10 +46750,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used with another helper', (function (_IfUnlessHelperTest10) {
-    _inherits(_class10, _IfUnlessHelperTest10);
+    babelHelpers.inherits(_class10, _IfUnlessHelperTest10);
 
     function _class10() {
-      _classCallCheck(this, _class10);
+      babelHelpers.classCallCheck(this, _class10);
 
       _IfUnlessHelperTest10.apply(this, arguments);
     }
@@ -47285,10 +46774,10 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Helpers test: {{unless}} used in attribute position', (function (_IfUnlessHelperTest11) {
-    _inherits(_class11, _IfUnlessHelperTest11);
+    babelHelpers.inherits(_class11, _IfUnlessHelperTest11);
 
     function _class11() {
-      _classCallCheck(this, _class11);
+      babelHelpers.classCallCheck(this, _class11);
 
       _IfUnlessHelperTest11.apply(this, arguments);
     }
@@ -47315,17 +46804,11 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
 enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/assign'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalAssign) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var InputRenderingTest = (function (_RenderingTest) {
-    _inherits(InputRenderingTest, _RenderingTest);
+    babelHelpers.inherits(InputRenderingTest, _RenderingTest);
 
     function InputRenderingTest() {
-      _classCallCheck(this, InputRenderingTest);
+      babelHelpers.classCallCheck(this, InputRenderingTest);
 
       _RenderingTest.call(this);
 
@@ -47406,10 +46889,10 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input}}', (function (_InputRenderingTest) {
-    _inherits(_class, _InputRenderingTest);
+    babelHelpers.inherits(_class, _InputRenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _InputRenderingTest.apply(this, arguments);
     }
@@ -47767,10 +47250,10 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
   })(InputRenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input}} with dynamic type', (function (_InputRenderingTest2) {
-    _inherits(_class2, _InputRenderingTest2);
+    babelHelpers.inherits(_class2, _InputRenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _InputRenderingTest2.apply(this, arguments);
     }
@@ -47805,10 +47288,10 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
   })(InputRenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'checkbox\'}}', (function (_InputRenderingTest3) {
-    _inherits(_class3, _InputRenderingTest3);
+    babelHelpers.inherits(_class3, _InputRenderingTest3);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+      babelHelpers.classCallCheck(this, _class3);
 
       _InputRenderingTest3.apply(this, arguments);
     }
@@ -47921,10 +47404,10 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
   })(InputRenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{input type=\'text\'}}', (function (_InputRenderingTest4) {
-    _inherits(_class4, _InputRenderingTest4);
+    babelHelpers.inherits(_class4, _InputRenderingTest4);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+      babelHelpers.classCallCheck(this, _class4);
 
       _InputRenderingTest4.apply(this, arguments);
     }
@@ -47997,19 +47480,13 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
 enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/core'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalCore) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   // Ember.STRINGS
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{loc}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
       this.oldString = _emberMetalCore.default.STRINGS;
@@ -48118,19 +47595,13 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
 enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-console'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberConsole) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{log}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class(assert) {
       var _this = this;
 
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.call(this);
 
@@ -48191,17 +47662,11 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
 enifed('ember-htmlbars/tests/integration/helpers/mut-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils/test-helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtilsTestHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{mut}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -48684,10 +48149,10 @@ enifed('ember-htmlbars/tests/integration/helpers/mut-test', ['exports', 'ember-h
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Mutable Bindings used in Computed Properties that are bound as attributeBindings', (function (_RenderingTest2) {
-    _inherits(_class2, _RenderingTest2);
+    babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+      babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -48830,22 +48295,14 @@ enifed('ember-htmlbars/tests/integration/helpers/mut-test', ['exports', 'ember-h
 enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{partial}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -48997,17 +48454,11 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
 enifed('ember-htmlbars/tests/integration/helpers/readonly-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{readonly}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -49169,17 +48620,11 @@ enifed('ember-htmlbars/tests/integration/helpers/readonly-test', ['exports', 'em
 enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-routing/system/router'], function (exports, _emberMetalMixin, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberRoutingSystemRouter) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{render}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -49535,17 +48980,11 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
 enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-htmlbars/tests/utils/test-helpers', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberHtmlbarsTestsUtilsTestHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var TextAreaRenderingTest = (function (_RenderingTest) {
-    _inherits(TextAreaRenderingTest, _RenderingTest);
+    babelHelpers.inherits(TextAreaRenderingTest, _RenderingTest);
 
     function TextAreaRenderingTest() {
-      _classCallCheck(this, TextAreaRenderingTest);
+      babelHelpers.classCallCheck(this, TextAreaRenderingTest);
 
       _RenderingTest.call(this);
 
@@ -49581,7 +49020,7 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
 
   var BoundTextAreaAttributes = (function () {
     function BoundTextAreaAttributes(cases) {
-      _classCallCheck(this, BoundTextAreaAttributes);
+      babelHelpers.classCallCheck(this, BoundTextAreaAttributes);
 
       this.cases = cases;
     }
@@ -49624,10 +49063,10 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(TextAreaRenderingTest, new BoundTextAreaAttributes([{ attribute: 'placeholder', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'name', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'title', first: 'Stuff here', second: 'Other stuff' }, { attribute: 'maxlength', first: '1', second: '2' }, { attribute: 'rows', first: '1', second: '2' }, { attribute: 'cols', first: '1', second: '2' }, { attribute: 'tabindex', first: '1', second: '2' }]));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{textarea}}', (function (_TextAreaRenderingTest) {
-    _inherits(_class, _TextAreaRenderingTest);
+    babelHelpers.inherits(_class, _TextAreaRenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _TextAreaRenderingTest.apply(this, arguments);
     }
@@ -49734,23 +49173,15 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
 enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/set_properties', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalSet_properties, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}'], ['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    '], ['\n      <ul>\n        <li>\n          <a href="unsafe:javascript:bob-is-cool">Bob</a>\n        </li>\n        <li>\n          <a href="unsafe:vbscript:james-is-cool">James</a>\n        </li>\n        <li>\n          <a href="unsafe:javascript:richard-is-cool">Richard</a>\n        </li>\n      </ul>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}'], ['\n      {{unbound (surround model.prefix model.value "bar")}} {{surround model.prefix model.value "bar"}} {{unbound (surround "bar" model.value model.suffix)}} {{surround "bar" model.value model.suffix}}']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}'], ['\n      {{#if (unbound model.foo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/if}}\n      {{#unless (unbound model.notfoo)}}\n        {{#if model.bar}}true{{/if}}\n        {{#unless model.bar}}false{{/unless}}\n      {{/unless}}']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{unbound}}', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -50484,17 +49915,11 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
 enifed('ember-htmlbars/tests/integration/helpers/yield-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsHelpers) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{yield}} helper', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -50790,17 +50215,11 @@ enifed('ember-htmlbars/tests/integration/helpers/yield-test', ['exports', 'ember
 enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Input element tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -51132,17 +50551,11 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
 enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('outlet view', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+    babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
 
@@ -51391,25 +50804,17 @@ enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlba
 enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    ']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="', '"></svg>\n      </div>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 ', '"></svg>\n      </div>\n    ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg viewBox="0 0 200 200"></svg>\n      </div>\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="blue tall"></svg>\n      </div>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    '], ['\n      <div>\n        <svg class="yellow tall"></svg>\n      </div>\n    ']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('SVG element tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -51546,36 +50951,26 @@ enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/
 enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
-      _templateObject3 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject4 = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject5 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    ']),
-      _templateObject6 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
-      _templateObject10 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject11 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
-      _templateObject12 = _taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
-      _templateObject13 = _taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
-      _templateObject14 = _taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
 
   var EachInTest = (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(EachInTest, _TogglingSyntaxConditionalsTest);
+babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 
     function EachInTest() {
-      _classCallCheck(this, EachInTest);
+babelHelpers.classCallCheck(this, EachInTest);
 
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
@@ -51597,20 +50992,20 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
   NonEmptyFunction.foo = 'bar';
 
   var EmptyConstructor = function EmptyConstructor() {
-    _classCallCheck(this, EmptyConstructor);
+babelHelpers.classCallCheck(this, EmptyConstructor);
   };
 
   var NonEmptyConstructor = function NonEmptyConstructor() {
-    _classCallCheck(this, NonEmptyConstructor);
+babelHelpers.classCallCheck(this, NonEmptyConstructor);
   };
 
   NonEmptyConstructor.foo = 'bar';
 
   var BasicEachInTest = (function (_EachInTest) {
-    _inherits(BasicEachInTest, _EachInTest);
+babelHelpers.inherits(BasicEachInTest, _EachInTest);
 
     function BasicEachInTest() {
-      _classCallCheck(this, BasicEachInTest);
+babelHelpers.classCallCheck(this, BasicEachInTest);
 
       _EachInTest.apply(this, arguments);
     }
@@ -51621,10 +51016,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(BasicEachInTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([{ foo: 1 }, _emberRuntimeSystemObject.default.create({ 'Not Empty': 1 }), [1], NonEmptyFunction, NonEmptyConstructor]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, [], EmptyFunction, EmptyConstructor, {}, Object.create(null), Object.create({}), Object.create({ 'Not Empty': 1 }), _emberRuntimeSystemObject.default.create()]));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each-in}}', (function (_BasicEachInTest) {
-    _inherits(_class, _BasicEachInTest);
+babelHelpers.inherits(_class, _BasicEachInTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _BasicEachInTest.apply(this, arguments);
     }
@@ -51893,7 +51288,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       this.assertText('[0:1][1:2][2:3][foo:bar]');
     };
 
-    _createClass(_class, [{
+babelHelpers.createClass(_class, [{
       key: 'truthyValue',
       get: function () {
         return { 'Not Empty': 1 };
@@ -51904,15 +51299,14 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
         return {};
       }
     }]);
-
     return _class;
   })(BasicEachInTest));
 
   var EachInEdgeCasesTest = (function (_EachInTest2) {
-    _inherits(EachInEdgeCasesTest, _EachInTest2);
+babelHelpers.inherits(EachInEdgeCasesTest, _EachInTest2);
 
     function EachInEdgeCasesTest() {
-      _classCallCheck(this, EachInEdgeCasesTest);
+babelHelpers.classCallCheck(this, EachInEdgeCasesTest);
 
       _EachInTest2.apply(this, arguments);
     }
@@ -51923,15 +51317,15 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachInEdgeCasesTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([true, 1, 'hello']));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} edge cases', (function (_EachInEdgeCasesTest) {
-    _inherits(_class2, _EachInEdgeCasesTest);
+babelHelpers.inherits(_class2, _EachInEdgeCasesTest);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _EachInEdgeCasesTest.apply(this, arguments);
     }
 
-    _createClass(_class2, [{
+babelHelpers.createClass(_class2, [{
       key: 'truthyValue',
       get: function () {
         return { 'Not Empty': 1 };
@@ -51942,15 +51336,14 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
         return {};
       }
     }]);
-
     return _class2;
   })(EachInEdgeCasesTest));
 
   var EachInProxyTest = (function (_EachInTest3) {
-    _inherits(EachInProxyTest, _EachInTest3);
+babelHelpers.inherits(EachInProxyTest, _EachInTest3);
 
     function EachInProxyTest() {
-      _classCallCheck(this, EachInProxyTest);
+babelHelpers.classCallCheck(this, EachInProxyTest);
 
       _EachInTest3.apply(this, arguments);
     }
@@ -51961,10 +51354,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachInProxyTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([_emberRuntimeSystemObject_proxy.default.create({ content: { 'Not empty': 1 } })]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([_emberRuntimeSystemObject_proxy.default.create(), _emberRuntimeSystemObject_proxy.default.create({ content: null }), _emberRuntimeSystemObject_proxy.default.create({ content: {} }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create(null) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({}) }), _emberRuntimeSystemObject_proxy.default.create({ content: Object.create({ 'Not Empty': 1 }) }), _emberRuntimeSystemObject_proxy.default.create({ content: _emberRuntimeSystemObject.default.create() })]));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: {{#each-in}} with `ObjectProxy`', (function (_EachInProxyTest) {
-    _inherits(_class3, _EachInProxyTest);
+babelHelpers.inherits(_class3, _EachInProxyTest);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _EachInProxyTest.apply(this, arguments);
     }
@@ -52016,7 +51409,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
       this.assertHTML(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2));
     };
 
-    _createClass(_class3, [{
+babelHelpers.createClass(_class3, [{
       key: 'truthyValue',
       get: function () {
         return _emberRuntimeSystemObject_proxy.default.create({ content: { 'Not Empty': 1 } });
@@ -52027,29 +51420,18 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
         return _emberRuntimeSystemObject_proxy.default.create({ content: null });
       }
     }]);
-
     return _class3;
   })(EachInProxyTest));
 });
 enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-metal/property_events', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberMetalProperty_events, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']);
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
-      _classCallCheck(this, ArrayLike);
+babelHelpers.classCallCheck(this, ArrayLike);
 
       this._array = content;
     }
@@ -52129,26 +51511,25 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       _emberMetalProperty_events.propertyDidChange(this, 'length');
     };
 
-    _createClass(ArrayLike, [{
+babelHelpers.createClass(ArrayLike, [{
       key: 'length',
       get: function () {
         return this._array.length;
       }
     }]);
-
     return ArrayLike;
   })();
 
   var TogglingEachTest = (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
+babelHelpers.inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
 
     function TogglingEachTest() {
-      _classCallCheck(this, TogglingEachTest);
+babelHelpers.classCallCheck(this, TogglingEachTest);
 
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
-    _createClass(TogglingEachTest, [{
+babelHelpers.createClass(TogglingEachTest, [{
       key: 'truthyValue',
       get: function () {
         return ['non-empty'];
@@ -52159,15 +51540,14 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
         return [];
       }
     }]);
-
     return TogglingEachTest;
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.TogglingSyntaxConditionalsTest);
 
   var BasicEachTest = (function (_TogglingEachTest) {
-    _inherits(BasicEachTest, _TogglingEachTest);
+babelHelpers.inherits(BasicEachTest, _TogglingEachTest);
 
     function BasicEachTest() {
-      _classCallCheck(this, BasicEachTest);
+babelHelpers.classCallCheck(this, BasicEachTest);
 
       _TogglingEachTest.apply(this, arguments);
     }
@@ -52178,10 +51558,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(BasicEachTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.TruthyGenerator([['hello'], _emberRuntimeSystemNative_array.A(['hello']), new ArrayLike(['hello']), _emberRuntimeSystemArray_proxy.default.create({ content: ['hello'] }), _emberRuntimeSystemArray_proxy.default.create({ content: _emberRuntimeSystemNative_array.A(['hello']) })]), new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([null, undefined, false, '', 0, []]), _emberHtmlbarsTestsUtilsSharedConditionalTests.ArrayTestCases);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each}}', (function (_BasicEachTest) {
-    _inherits(_class, _BasicEachTest);
+babelHelpers.inherits(_class, _BasicEachTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _BasicEachTest.apply(this, arguments);
     }
@@ -52198,10 +51578,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(BasicEachTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: toggling {{#each as}}', (function (_BasicEachTest2) {
-    _inherits(_class2, _BasicEachTest2);
+babelHelpers.inherits(_class2, _BasicEachTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _BasicEachTest2.apply(this, arguments);
     }
@@ -52218,10 +51598,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(BasicEachTest));
 
   var EachEdgeCasesTest = (function (_TogglingEachTest2) {
-    _inherits(EachEdgeCasesTest, _TogglingEachTest2);
+babelHelpers.inherits(EachEdgeCasesTest, _TogglingEachTest2);
 
     function EachEdgeCasesTest() {
-      _classCallCheck(this, EachEdgeCasesTest);
+babelHelpers.classCallCheck(this, EachEdgeCasesTest);
 
       _TogglingEachTest2.apply(this, arguments);
     }
@@ -52232,10 +51612,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   _emberHtmlbarsTestsUtilsAbstractTestCase.applyMixins(EachEdgeCasesTest, new _emberHtmlbarsTestsUtilsSharedConditionalTests.FalsyGenerator([true, 'hello', 1, Object, function () {}, {}, { foo: 'bar' }, Object.create(null), Object.create({}), Object.create({ foo: 'bar' })]));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each}}', (function (_EachEdgeCasesTest) {
-    _inherits(_class3, _EachEdgeCasesTest);
+babelHelpers.inherits(_class3, _EachEdgeCasesTest);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _EachEdgeCasesTest.apply(this, arguments);
     }
@@ -52252,10 +51632,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(EachEdgeCasesTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('@glimmer Syntax test: toggling {{#each as}}', (function (_EachEdgeCasesTest2) {
-    _inherits(_class4, _EachEdgeCasesTest2);
+babelHelpers.inherits(_class4, _EachEdgeCasesTest2);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+babelHelpers.classCallCheck(this, _class4);
 
       _EachEdgeCasesTest2.apply(this, arguments);
     }
@@ -52272,10 +51652,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(EachEdgeCasesTest));
 
   var AbstractEachTest = (function (_RenderingTest) {
-    _inherits(AbstractEachTest, _RenderingTest);
+babelHelpers.inherits(AbstractEachTest, _RenderingTest);
 
     function AbstractEachTest() {
-      _classCallCheck(this, AbstractEachTest);
+babelHelpers.classCallCheck(this, AbstractEachTest);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -52359,10 +51739,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
   var SingleEachTest = (function (_AbstractEachTest) {
-    _inherits(SingleEachTest, _AbstractEachTest);
+babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
 
     function SingleEachTest() {
-      _classCallCheck(this, SingleEachTest);
+babelHelpers.classCallCheck(this, SingleEachTest);
 
       _AbstractEachTest.apply(this, arguments);
     }
@@ -52929,10 +52309,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(AbstractEachTest);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with arrays', (function (_SingleEachTest) {
-    _inherits(_class5, _SingleEachTest);
+babelHelpers.inherits(_class5, _SingleEachTest);
 
     function _class5() {
-      _classCallCheck(this, _class5);
+babelHelpers.classCallCheck(this, _class5);
 
       _SingleEachTest.apply(this, arguments);
     }
@@ -52945,10 +52325,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(SingleEachTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array-like objects', (function (_SingleEachTest2) {
-    _inherits(_class6, _SingleEachTest2);
+babelHelpers.inherits(_class6, _SingleEachTest2);
 
     function _class6() {
-      _classCallCheck(this, _class6);
+babelHelpers.classCallCheck(this, _class6);
 
       _SingleEachTest2.apply(this, arguments);
     }
@@ -52961,10 +52341,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(SingleEachTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, modifying itself', (function (_SingleEachTest3) {
-    _inherits(_class7, _SingleEachTest3);
+babelHelpers.inherits(_class7, _SingleEachTest3);
 
     function _class7() {
-      _classCallCheck(this, _class7);
+babelHelpers.classCallCheck(this, _class7);
 
       _SingleEachTest3.apply(this, arguments);
     }
@@ -52977,10 +52357,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(SingleEachTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with array proxies, replacing its content', (function (_SingleEachTest4) {
-    _inherits(_class8, _SingleEachTest4);
+babelHelpers.inherits(_class8, _SingleEachTest4);
 
     function _class8() {
-      _classCallCheck(this, _class8);
+babelHelpers.classCallCheck(this, _class8);
 
       _SingleEachTest4.apply(this, arguments);
     }
@@ -53004,10 +52384,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   // TODO: Refactor the following tests so we can run them against different kind of arrays
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#each as}} helpers', (function (_RenderingTest2) {
-    _inherits(_class9, _RenderingTest2);
+babelHelpers.inherits(_class9, _RenderingTest2);
 
     function _class9() {
-      _classCallCheck(this, _class9);
+babelHelpers.classCallCheck(this, _class9);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -53146,10 +52526,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} undefined path', (function (_RenderingTest3) {
-    _inherits(_class10, _RenderingTest3);
+babelHelpers.inherits(_class10, _RenderingTest3);
 
     function _class10() {
-      _classCallCheck(this, _class10);
+babelHelpers.classCallCheck(this, _class10);
 
       _RenderingTest3.apply(this, arguments);
     }
@@ -53186,22 +52566,14 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
 enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-metal/property_set', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberMetalProperty_set, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if cond}}\n        {{#each numbers as |number|}}\n          {{foo-bar number=number}}\n        {{/each}}\n      {{else}}\n        Nothing Here!\n      {{/if}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}'], ['\n      {{#if foo.bar.baz}}\n        Here!\n      {{else}}\n        Nothing Here!\n      {{/if}}']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} with inverse', (function (_IfUnlessWithSyntaxTest) {
-    _inherits(_class, _IfUnlessWithSyntaxTest);
+babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
@@ -53218,10 +52590,10 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}} with inverse', (function (_IfUnlessWithSyntaxTest2) {
-    _inherits(_class2, _IfUnlessWithSyntaxTest2);
+babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
@@ -53238,10 +52610,10 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}} and {{#unless}} without inverse', (function (_IfUnlessWithSyntaxTest3) {
-    _inherits(_class3, _IfUnlessWithSyntaxTest3);
+babelHelpers.inherits(_class3, _IfUnlessWithSyntaxTest3);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _IfUnlessWithSyntaxTest3.apply(this, arguments);
     }
@@ -53258,10 +52630,10 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_RenderingTest) {
-    _inherits(_class4, _RenderingTest);
+babelHelpers.inherits(_class4, _RenderingTest);
 
     function _class4() {
-      _classCallCheck(this, _class4);
+babelHelpers.classCallCheck(this, _class4);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -53337,22 +52709,14 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
 enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/shared-conditional-tests', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-runtime/system/object_proxy', 'ember-runtime/mixins/mutable_array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemNative_array, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsSharedConditionalTests, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberRuntimeSystemObject_proxy, _emberRuntimeMixinsMutable_array) {
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}'], ['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}']),
-      _templateObject2 = _taggedTemplateLiteralLoose(['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    '], ['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    ']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}'], ['\n      {{#with foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/with}}']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    '], ['\n      {{name}}\n      {{#with committer1.name as |name|}}\n        [{{name}}\n        {{#with committer2.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n      {{#with committer2.name as |name|}}\n        [{{name}}\n        {{#with committer1.name as |name|}}\n          [{{name}}]\n        {{/with}}\n        {{name}}]\n      {{/with}}\n      {{name}}\n    ']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with}}', (function (_IfUnlessWithSyntaxTest) {
-    _inherits(_class, _IfUnlessWithSyntaxTest);
+babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
-      _classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
@@ -53369,10 +52733,10 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#with as}}', (function (_IfUnlessWithSyntaxTest2) {
-    _inherits(_class2, _IfUnlessWithSyntaxTest2);
+babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
-      _classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
@@ -53636,10 +53000,10 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
   })(_emberHtmlbarsTestsUtilsSharedConditionalTests.IfUnlessWithSyntaxTest));
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: Multiple {{#with as}} helpers', (function (_RenderingTest) {
-    _inherits(_class3, _RenderingTest);
+babelHelpers.inherits(_class3, _RenderingTest);
 
     function _class3() {
-      _classCallCheck(this, _class3);
+babelHelpers.classCallCheck(this, _class3);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -54483,17 +53847,9 @@ enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'em
 enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/system/jquery', 'ember-metal/assign', 'ember-application/system/application', 'ember-routing/system/router', 'ember-metal/features', 'ember-views/system/event_dispatcher', 'require'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsSystemJquery, _emberMetalAssign, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberMetalFeatures, _emberViewsSystemEvent_dispatcher, _require) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
   exports.applyMixins = applyMixins;
   exports.moduleFor = moduleFor;
   exports.strip = strip;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   var packageTag = '@' + _emberHtmlbarsTestsUtilsPackageName.default + ' ';
 
@@ -54595,7 +53951,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
   var TestCase = (function () {
     function TestCase() {
-      _classCallCheck(this, TestCase);
+      babelHelpers.classCallCheck(this, TestCase);
 
       this.element = null;
       this.snapshot = null;
@@ -54720,7 +54076,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.assertInvariants();
     };
 
-    _createClass(TestCase, [{
+    babelHelpers.createClass(TestCase, [{
       key: 'isHTMLBars',
       get: function () {
         return _emberHtmlbarsTestsUtilsPackageName.default === 'htmlbars';
@@ -54752,7 +54108,6 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         return count;
       }
     }]);
-
     return TestCase;
   })();
 
@@ -54771,10 +54126,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
   }
 
   var AbstractApplicationTest = (function (_TestCase) {
-    _inherits(AbstractApplicationTest, _TestCase);
+    babelHelpers.inherits(AbstractApplicationTest, _TestCase);
 
     function AbstractApplicationTest() {
-      _classCallCheck(this, AbstractApplicationTest);
+      babelHelpers.classCallCheck(this, AbstractApplicationTest);
 
       _TestCase.call(this);
 
@@ -54846,7 +54201,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.application.register('controller:' + name, controller);
     };
 
-    _createClass(AbstractApplicationTest, [{
+    babelHelpers.createClass(AbstractApplicationTest, [{
       key: 'applicationOptions',
       get: function () {
         return {
@@ -54855,17 +54210,16 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
         };
       }
     }]);
-
     return AbstractApplicationTest;
   })(TestCase);
 
   exports.AbstractApplicationTest = AbstractApplicationTest;
 
   var AbstractRenderingTest = (function (_TestCase2) {
-    _inherits(AbstractRenderingTest, _TestCase2);
+    babelHelpers.inherits(AbstractRenderingTest, _TestCase2);
 
     function AbstractRenderingTest() {
-      _classCallCheck(this, AbstractRenderingTest);
+      babelHelpers.classCallCheck(this, AbstractRenderingTest);
 
       _TestCase2.call(this);
       var owner = this.owner = _emberHtmlbarsTestsUtilsHelpers.buildOwner(this.getOwnerOptions());
@@ -54995,13 +54349,12 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       this.assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
-    _createClass(AbstractRenderingTest, [{
+    babelHelpers.createClass(AbstractRenderingTest, [{
       key: 'context',
       get: function () {
         return this.component;
       }
     }]);
-
     return AbstractRenderingTest;
   })(TestCase);
 
@@ -55026,10 +54379,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports) {
   "use strict";
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
   var Environment = function Environment() {
-    _classCallCheck(this, Environment);
+    babelHelpers.classCallCheck(this, Environment);
   };
 
   exports.default = Environment;
@@ -55083,19 +54434,11 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
   var _ObjectTestCases, _ArrayTestCases;
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var AbstractConditionalsTest = (function (_RenderingTest) {
-    _inherits(AbstractConditionalsTest, _RenderingTest);
+    babelHelpers.inherits(AbstractConditionalsTest, _RenderingTest);
 
     function AbstractConditionalsTest() {
-      _classCallCheck(this, AbstractConditionalsTest);
+      babelHelpers.classCallCheck(this, AbstractConditionalsTest);
 
       _RenderingTest.apply(this, arguments);
     }
@@ -55125,7 +54468,7 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
       throw new Error('Not implemented: `renderValues`');
     };
 
-    _createClass(AbstractConditionalsTest, [{
+    babelHelpers.createClass(AbstractConditionalsTest, [{
       key: 'truthyValue',
       get: function () {
         return true;
@@ -55136,13 +54479,12 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
         return false;
       }
     }]);
-
     return AbstractConditionalsTest;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest);
 
   var AbstractGenerator = (function () {
     function AbstractGenerator(cases) {
-      _classCallCheck(this, AbstractGenerator);
+      babelHelpers.classCallCheck(this, AbstractGenerator);
 
       this.cases = cases;
     }
@@ -55167,10 +54509,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   })();
 
   var TruthyGenerator = (function (_AbstractGenerator) {
-    _inherits(TruthyGenerator, _AbstractGenerator);
+    babelHelpers.inherits(TruthyGenerator, _AbstractGenerator);
 
     function TruthyGenerator() {
-      _classCallCheck(this, TruthyGenerator);
+      babelHelpers.classCallCheck(this, TruthyGenerator);
 
       _AbstractGenerator.apply(this, arguments);
     }
@@ -55211,10 +54553,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.TruthyGenerator = TruthyGenerator;
 
   var FalsyGenerator = (function (_AbstractGenerator2) {
-    _inherits(FalsyGenerator, _AbstractGenerator2);
+    babelHelpers.inherits(FalsyGenerator, _AbstractGenerator2);
 
     function FalsyGenerator() {
-      _classCallCheck(this, FalsyGenerator);
+      babelHelpers.classCallCheck(this, FalsyGenerator);
 
       _AbstractGenerator2.apply(this, arguments);
     }
@@ -55255,10 +54597,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.FalsyGenerator = FalsyGenerator;
 
   var StableTruthyGenerator = (function (_TruthyGenerator) {
-    _inherits(StableTruthyGenerator, _TruthyGenerator);
+    babelHelpers.inherits(StableTruthyGenerator, _TruthyGenerator);
 
     function StableTruthyGenerator() {
-      _classCallCheck(this, StableTruthyGenerator);
+      babelHelpers.classCallCheck(this, StableTruthyGenerator);
 
       _TruthyGenerator.apply(this, arguments);
     }
@@ -55299,10 +54641,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.StableTruthyGenerator = StableTruthyGenerator;
 
   var StableFalsyGenerator = (function (_FalsyGenerator) {
-    _inherits(StableFalsyGenerator, _FalsyGenerator);
+    babelHelpers.inherits(StableFalsyGenerator, _FalsyGenerator);
 
     function StableFalsyGenerator() {
-      _classCallCheck(this, StableFalsyGenerator);
+      babelHelpers.classCallCheck(this, StableFalsyGenerator);
 
       _FalsyGenerator.apply(this, arguments);
     }
@@ -55343,10 +54685,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.StableFalsyGenerator = StableFalsyGenerator;
 
   var ObjectProxyGenerator = (function (_AbstractGenerator3) {
-    _inherits(ObjectProxyGenerator, _AbstractGenerator3);
+    babelHelpers.inherits(ObjectProxyGenerator, _AbstractGenerator3);
 
     function ObjectProxyGenerator() {
-      _classCallCheck(this, ObjectProxyGenerator);
+      babelHelpers.classCallCheck(this, ObjectProxyGenerator);
 
       _AbstractGenerator3.apply(this, arguments);
     }
@@ -55420,10 +54762,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   })(AbstractGenerator);
 
   var BasicConditionalsTest = (function (_AbstractConditionalsTest) {
-    _inherits(BasicConditionalsTest, _AbstractConditionalsTest);
+    babelHelpers.inherits(BasicConditionalsTest, _AbstractConditionalsTest);
 
     function BasicConditionalsTest() {
-      _classCallCheck(this, BasicConditionalsTest);
+      babelHelpers.classCallCheck(this, BasicConditionalsTest);
 
       _AbstractConditionalsTest.apply(this, arguments);
     }
@@ -55621,10 +54963,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   // {{#unless}}, {{#with}}, {{#each}}, {{#each-in}}, (if) and (unless)
 
   var TogglingConditionalsTest = (function (_BasicConditionalsTest) {
-    _inherits(TogglingConditionalsTest, _BasicConditionalsTest);
+    babelHelpers.inherits(TogglingConditionalsTest, _BasicConditionalsTest);
 
     function TogglingConditionalsTest() {
-      _classCallCheck(this, TogglingConditionalsTest);
+      babelHelpers.classCallCheck(this, TogglingConditionalsTest);
 
       _BasicConditionalsTest.apply(this, arguments);
     }
@@ -55636,10 +54978,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.TogglingConditionalsTest = TogglingConditionalsTest;
 
   var TogglingHelperConditionalsTest = (function (_TogglingConditionalsTest) {
-    _inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
+    babelHelpers.inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
 
     function TogglingHelperConditionalsTest() {
-      _classCallCheck(this, TogglingHelperConditionalsTest);
+      babelHelpers.classCallCheck(this, TogglingHelperConditionalsTest);
 
       _TogglingConditionalsTest.apply(this, arguments);
     }
@@ -55817,10 +55159,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.TogglingHelperConditionalsTest = TogglingHelperConditionalsTest;
 
   var IfUnlessHelperTest = (function (_TogglingHelperConditionalsTest) {
-    _inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
+    babelHelpers.inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
 
     function IfUnlessHelperTest() {
-      _classCallCheck(this, IfUnlessHelperTest);
+      babelHelpers.classCallCheck(this, IfUnlessHelperTest);
 
       _TogglingHelperConditionalsTest.apply(this, arguments);
     }
@@ -55836,10 +55178,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   // i.e. {{#if}}, {{#unless}}, {{#with}}, {{#each}} and {{#each-in}}
 
   var TogglingSyntaxConditionalsTest = (function (_TogglingConditionalsTest2) {
-    _inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
+    babelHelpers.inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
 
     function TogglingSyntaxConditionalsTest() {
-      _classCallCheck(this, TogglingSyntaxConditionalsTest);
+      babelHelpers.classCallCheck(this, TogglingSyntaxConditionalsTest);
 
       _TogglingConditionalsTest2.apply(this, arguments);
     }
@@ -56178,10 +55520,10 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
   exports.TogglingSyntaxConditionalsTest = TogglingSyntaxConditionalsTest;
 
   var IfUnlessWithSyntaxTest = (function (_TogglingSyntaxConditionalsTest) {
-    _inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
+    babelHelpers.inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
 
     function IfUnlessWithSyntaxTest() {
-      _classCallCheck(this, IfUnlessWithSyntaxTest);
+      babelHelpers.classCallCheck(this, IfUnlessWithSyntaxTest);
 
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
@@ -56196,17 +55538,11 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/utils/string', 'ember-metal/features', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case'], function (exports, _emberHtmlbarsUtilsString, _emberMetalFeatures, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString', (function (_TestCase) {
-    _inherits(_class, _TestCase);
+    babelHelpers.inherits(_class, _TestCase);
 
     function _class() {
-      _classCallCheck(this, _class);
+      babelHelpers.classCallCheck(this, _class);
 
       _TestCase.apply(this, arguments);
     }
@@ -56236,10 +55572,10 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/uti
 
   if (true) {
     _emberHtmlbarsTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
-      _inherits(_class2, _TestCase2);
+      babelHelpers.inherits(_class2, _TestCase2);
 
       function _class2() {
-        _classCallCheck(this, _class2);
+        babelHelpers.classCallCheck(this, _class2);
 
         _TestCase2.apply(this, arguments);
       }
@@ -56265,20 +55601,14 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/uti
 enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-views/component_lookup'], function (exports, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberViewsComponent_lookup) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   exports.TestCase = _emberHtmlbarsTestsUtilsAbstractTestCase.TestCase;
   exports.moduleFor = _emberHtmlbarsTestsUtilsAbstractTestCase.moduleFor;
 
   var ApplicationTest = (function (_AbstractApplicationTest) {
-    _inherits(ApplicationTest, _AbstractApplicationTest);
+    babelHelpers.inherits(ApplicationTest, _AbstractApplicationTest);
 
     function ApplicationTest() {
-      _classCallCheck(this, ApplicationTest);
+      babelHelpers.classCallCheck(this, ApplicationTest);
 
       _AbstractApplicationTest.apply(this, arguments);
     }
@@ -56289,10 +55619,10 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
   exports.ApplicationTest = ApplicationTest;
 
   var RenderingTest = (function (_AbstractRenderingTest) {
-    _inherits(RenderingTest, _AbstractRenderingTest);
+    babelHelpers.inherits(RenderingTest, _AbstractRenderingTest);
 
     function RenderingTest() {
-      _classCallCheck(this, RenderingTest);
+      babelHelpers.classCallCheck(this, RenderingTest);
 
       _AbstractRenderingTest.call(this);
 
@@ -81612,19 +80942,15 @@ enifed('ember-testing/tests/simple_setup', ['exports', 'ember-metal/run_loop', '
 enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/features', 'ember-testing/test/waiters'], function (exports, _emberMetalFeatures, _emberTestingTestWaiters) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var Waiters = (function () {
     function Waiters() {
-      _classCallCheck(this, Waiters);
+      babelHelpers.classCallCheck(this, Waiters);
 
       this._waiters = [];
     }
 
     Waiters.prototype.add = function add() {
-      this._waiters.push([].concat(_slice.call(arguments)));
+      this._waiters.push([].concat(babelHelpers.slice.call(arguments)));
     };
 
     Waiters.prototype.register = function register() {
@@ -95500,6 +94826,80 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     assert.ok(called, 'instrumentation called on transition to non-view backed route');
   });
 });
+var babelHelpers;
+
+function classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
+
+function inherits(subClass, superClass) {
+  if (typeof superClass !== 'function' && superClass !== null) {
+    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
+}
+
+function taggedTemplateLiteralLoose(strings, raw) {
+  strings.raw = raw;
+  return strings;
+}
+
+function defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ('value' in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function interopExportWildcard(obj, defaults) {
+  var newObj = defaults({}, obj);
+  delete newObj['default'];
+  return newObj;
+}
+
+function defaults(obj, defaults) {
+  var keys = Object.getOwnPropertyNames(defaults);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = Object.getOwnPropertyDescriptor(defaults, key);
+    if (value && value.configurable && obj[key] === undefined) {
+      Object.defineProperty(obj, key, value);
+    }
+  }
+  return obj;
+}
+
+babelHelpers = {
+  classCallCheck: classCallCheck,
+  inherits: inherits,
+  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
+  slice: Array.prototype.slice,
+  createClass: createClass,
+  interopExportWildcard: interopExportWildcard,
+  defaults: defaults
+};
+
 enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer/index", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizerIndex, _htmlbarsUtilArrayUtils) {
   "use strict";
 

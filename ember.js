@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+938ad1af
+ * @version   2.9.0-null+4d6b7d09
  */
 
 var enifed, requireModule, require, Ember;
@@ -111,6 +111,80 @@ var mainContext = this;
     require = requireModule = Ember.__loader.require;
   }
 })();
+
+var babelHelpers;
+
+function classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
+
+function inherits(subClass, superClass) {
+  if (typeof superClass !== 'function' && superClass !== null) {
+    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
+}
+
+function taggedTemplateLiteralLoose(strings, raw) {
+  strings.raw = raw;
+  return strings;
+}
+
+function defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ('value' in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function interopExportWildcard(obj, defaults) {
+  var newObj = defaults({}, obj);
+  delete newObj['default'];
+  return newObj;
+}
+
+function defaults(obj, defaults) {
+  var keys = Object.getOwnPropertyNames(defaults);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = Object.getOwnPropertyDescriptor(defaults, key);
+    if (value && value.configurable && obj[key] === undefined) {
+      Object.defineProperty(obj, key, value);
+    }
+  }
+  return obj;
+}
+
+babelHelpers = {
+  classCallCheck: classCallCheck,
+  inherits: inherits,
+  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
+  slice: Array.prototype.slice,
+  createClass: createClass,
+  interopExportWildcard: interopExportWildcard,
+  defaults: defaults
+};
 
 enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
   'use strict';
@@ -4265,9 +4339,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   var librariesRegistered = false;
 
@@ -5229,9 +5301,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   /**
     The `EngineInstance` encapsulates all of the stateful aspects of a
@@ -5454,9 +5524,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
   */
   'use strict';
 
-  var _templateObject = _taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   var GLIMMER = _emberMetalSymbol.default('GLIMMER');
 
@@ -6534,7 +6602,6 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console'
 
   'use strict';
 
-  var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = deprecate;
 
@@ -6675,7 +6742,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console'
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
+    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(babelHelpers.slice.call(arguments)));
   }
 });
 enifed("ember-debug/handlers", ["exports"], function (exports) {
@@ -7024,7 +7091,6 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
 enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal/debug', 'ember-debug/handlers'], function (exports, _emberConsole, _emberMetalDebug, _emberDebugHandlers) {
   'use strict';
 
-  var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = warn;
 
@@ -7084,7 +7150,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal/debug', 'em
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
+    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(babelHelpers.slice.call(arguments)));
   }
 });
 enifed('ember-environment/global', ['exports'], function (exports) {
@@ -9080,12 +9146,6 @@ enifed('ember-glimmer/ember-views/class-names-support', ['exports', 'ember-metal
 enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_partial', 'glimmer-runtime', 'ember-metal/cache', 'ember-metal/debug', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-views/utils/lookup-component', 'ember-views/system/utils', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'container/owner', 'ember-glimmer/modifiers/action'], function (exports, _emberViewsSystemLookup_partial, _glimmerRuntime, _emberMetalCache, _emberMetalDebug, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerSyntaxRender, _emberGlimmerSyntaxOutlet, _emberViewsUtilsLookupComponent, _emberViewsSystemUtils, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _containerOwner, _emberGlimmerModifiersAction) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var builtInComponents = {
     textarea: '-text-area'
   };
@@ -9169,7 +9229,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
   }
 
   var Environment = (function (_GlimmerEnvironment) {
-    _inherits(Environment, _GlimmerEnvironment);
+    babelHelpers.inherits(Environment, _GlimmerEnvironment);
 
     Environment.create = function create(options) {
       return new Environment(options);
@@ -9180,8 +9240,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-views/system/lookup_parti
 
       var dom = _ref3.dom;
       var owner = _ref3[_containerOwner.OWNER];
-
-      _classCallCheck(this, Environment);
 
       _GlimmerEnvironment.call(this, dom);
       this.owner = owner;
@@ -9697,19 +9755,12 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-glimmer/utils/referenc
   'use strict';
 
   exports.createClosureAction = createClosureAction;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var INVOKE = _emberMetalSymbol.default('INVOKE');
 
   exports.INVOKE = INVOKE;
 
   var ClosureActionReference = (function (_CachedReference) {
-    _inherits(ClosureActionReference, _CachedReference);
+    babelHelpers.inherits(ClosureActionReference, _CachedReference);
 
     ClosureActionReference.create = function create(args) {
       // TODO: Const reference optimization.
@@ -9717,8 +9768,6 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-glimmer/utils/referenc
     };
 
     function ClosureActionReference(args) {
-      _classCallCheck(this, ClosureActionReference);
-
       _CachedReference.call(this);
 
       this.args = args;
@@ -9851,12 +9900,6 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-glimmer/utils/refer
 
   exports.isClosureComponent = isClosureComponent;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var CLOSURE_COMPONENT = 'ba564e81-ceda-4475-84a7-1c44f1c42c0e';
 
   function isClosureComponent(object) {
@@ -9864,11 +9907,9 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-glimmer/utils/refer
   }
 
   var ClosureComponentDefinition = (function (_CurlyComponentDefinition) {
-    _inherits(ClosureComponentDefinition, _CurlyComponentDefinition);
+    babelHelpers.inherits(ClosureComponentDefinition, _CurlyComponentDefinition);
 
     function ClosureComponentDefinition(name, ComponentClass, template, args) {
-      _classCallCheck(this, ClosureComponentDefinition);
-
       _CurlyComponentDefinition.apply(this, arguments);
       this[CLOSURE_COMPONENT] = true;
     }
@@ -9877,15 +9918,13 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-glimmer/utils/refer
   })(_emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition);
 
   var ClosureComponentReference = (function (_CachedReference) {
-    _inherits(ClosureComponentReference, _CachedReference);
+    babelHelpers.inherits(ClosureComponentReference, _CachedReference);
 
     ClosureComponentReference.create = function create(args, parentMeta, env) {
       return new ClosureComponentReference(args, parentMeta, env);
     };
 
     function ClosureComponentReference(args, parentMeta, env) {
-      _classCallCheck(this, ClosureComponentReference);
-
       _CachedReference.call(this);
       this.defRef = args.positional.at(0);
       this.env = env;
@@ -10105,12 +10144,6 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-metal/symbol'], funct
 enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal/property_set', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberMetalProperty_set, _emberGlimmerUtilsReferences, _glimmerReference) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   /**
   @module ember
   @submodule ember-templates
@@ -10169,7 +10202,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal/property_set', 'emb
   };
 
   var GetHelperReference = (function (_CachedReference) {
-    _inherits(GetHelperReference, _CachedReference);
+    babelHelpers.inherits(GetHelperReference, _CachedReference);
 
     GetHelperReference.create = function create(sourceReference, pathReference) {
       if (_glimmerReference.isConst(pathReference)) {
@@ -10181,8 +10214,6 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal/property_set', 'emb
     };
 
     function GetHelperReference(sourceReference, pathReference) {
-      _classCallCheck(this, GetHelperReference);
-
       _CachedReference.call(this);
       this.sourceReference = sourceReference;
       this.pathReference = pathReference;
@@ -10279,14 +10310,8 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal/debug', 'embe
 
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var ConditionalHelperReference = (function (_CachedReference) {
-    _inherits(ConditionalHelperReference, _CachedReference);
+    babelHelpers.inherits(ConditionalHelperReference, _CachedReference);
 
     ConditionalHelperReference.create = function create(_condRef, _truthyRef, _falsyRef) {
       var condRef = _emberGlimmerUtilsReferences.ConditionalReference.create(_condRef);
@@ -10301,8 +10326,6 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal/debug', 'embe
     };
 
     function ConditionalHelperReference(cond, truthy, falsy) {
-      _classCallCheck(this, ConditionalHelperReference);
-
       _CachedReference.call(this);
 
       this.branchTag = new _glimmerReference.UpdatableTag(_glimmerReference.CONSTANT_TAG);
@@ -10716,8 +10739,6 @@ enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal/debug', 'embe
 enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-views/system/utils', 'ember-views/system/action_manager', 'ember-metal/instrumentation', 'ember-glimmer/helpers/action'], function (exports, _emberMetalDebug, _emberMetalRun_loop, _emberMetalUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager, _emberMetalInstrumentation, _emberGlimmerHelpersAction) {
   'use strict';
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var MODIFIERS = ['alt', 'shift', 'meta', 'ctrl'];
   var POINTER_EVENT_TYPE_REGEX = /^click|mouse|touch/;
 
@@ -10783,8 +10804,6 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
 
   var ActionState = (function () {
     function ActionState(actionId, actionName, actionArgs, namedArgs, implicitTarget) {
-      _classCallCheck(this, ActionState);
-
       this.actionId = actionId;
       this.actionName = actionName;
       this.actionArgs = actionArgs;
@@ -10889,9 +10908,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
   exports.ActionState = ActionState;
 
   var ActionModifierManager = (function () {
-    function ActionModifierManager() {
-      _classCallCheck(this, ActionModifierManager);
-    }
+    function ActionModifierManager() {}
 
     ActionModifierManager.prototype.install = function install(element, args, dom, dynamicScope) {
       var named = args.named;
@@ -10959,8 +10976,6 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
 enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal/run_loop', 'ember-metal/tags', 'glimmer-reference', 'ember-views/compat/fallback-view-registry', 'ember-metal/debug', 'ember-metal/transaction', 'ember-metal/features'], function (exports, _emberGlimmerUtilsReferences, _emberMetalRun_loop, _emberMetalTags, _glimmerReference, _emberViewsCompatFallbackViewRegistry, _emberMetalDebug, _emberMetalTransaction, _emberMetalFeatures) {
   'use strict';
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var runInTransaction = undefined;
 
   if (true || false) {
@@ -10982,8 +10997,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var rootOutletState = _ref.rootOutletState;
       var isTopLevel = _ref.isTopLevel;
       var targetObject = _ref.targetObject;
-
-      _classCallCheck(this, DynamicScope);
 
       this.view = view;
       this.controller = controller;
@@ -11055,8 +11068,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
       var _ref2$destinedForDOM = _ref2.destinedForDOM;
       var destinedForDOM = _ref2$destinedForDOM === undefined ? false : _ref2$destinedForDOM;
-
-      _classCallCheck(this, Renderer);
 
       this._dom = dom;
       this._env = env;
@@ -11262,9 +11273,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'require', 'container/registr
   exports.setupApplicationRegistry = setupApplicationRegistry;
   exports.setupEngineRegistry = setupEngineRegistry;
 
-  var _templateObject = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
 
   function setupApplicationRegistry(registry) {
     registry.injection('service:-glimmer-environment', 'dom', 'service:-dom-helper');
@@ -11315,15 +11324,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
   exports.validatePositionalParameters = validatePositionalParameters;
 
-  var _templateObject = _taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['template:components/-default'], ['template:components/-default']);
 
   var DEFAULT_LAYOUT = _containerRegistry.privatize(_templateObject);
 
@@ -11384,14 +11385,12 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
   }
 
   var CurlyComponentSyntax = (function (_StatementSyntax) {
-    _inherits(CurlyComponentSyntax, _StatementSyntax);
+babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
 
     function CurlyComponentSyntax(_ref) {
       var args = _ref.args;
       var definition = _ref.definition;
       var templates = _ref.templates;
-
-      _classCallCheck(this, CurlyComponentSyntax);
 
       _StatementSyntax.call(this);
       this.args = args;
@@ -11410,8 +11409,6 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
   exports.CurlyComponentSyntax = CurlyComponentSyntax;
 
   var ComponentStateBucket = function ComponentStateBucket(component, args) {
-    _classCallCheck(this, ComponentStateBucket);
-
     this.component = component;
     this.classRef = null;
     this.args = args;
@@ -11419,9 +11416,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
   };
 
   var CurlyComponentManager = (function () {
-    function CurlyComponentManager() {
-      _classCallCheck(this, CurlyComponentManager);
-    }
+    function CurlyComponentManager() {}
 
     CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       validatePositionalParameters(args.named, args.positional.values, definition.ComponentClass.positionalParams);
@@ -11681,11 +11676,9 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
   }
 
   var CurlyComponentDefinition = (function (_ComponentDefinition) {
-    _inherits(CurlyComponentDefinition, _ComponentDefinition);
+babelHelpers.inherits(CurlyComponentDefinition, _ComponentDefinition);
 
     function CurlyComponentDefinition(name, ComponentClass, template, args) {
-      _classCallCheck(this, CurlyComponentDefinition);
-
       _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberGlimmerComponent.default);
       this.template = template;
       this.args = args;
@@ -11698,8 +11691,6 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
   var CurlyComponentLayoutCompiler = (function () {
     function CurlyComponentLayoutCompiler(template) {
-      _classCallCheck(this, CurlyComponentLayoutCompiler);
-
       this.template = template;
     }
 
@@ -11719,12 +11710,6 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-glimmer/helpers/component', 'ember-metal/debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberGlimmerHelpersComponent, _emberMetalDebug) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   function dynamicComponentFor(vm) {
     var env = vm.env;
     var args = vm.getArgs();
@@ -11735,7 +11720,7 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
   }
 
   var DynamicComponentSyntax = (function (_StatementSyntax) {
-    _inherits(DynamicComponentSyntax, _StatementSyntax);
+    babelHelpers.inherits(DynamicComponentSyntax, _StatementSyntax);
 
     // for {{component componentName}}
 
@@ -11771,8 +11756,6 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
       var templates = _ref3.templates;
       var parentMeta = _ref3.parentMeta;
 
-      _classCallCheck(this, DynamicComponentSyntax);
-
       _StatementSyntax.call(this);
       this.definition = dynamicComponentFor.bind(this);
       this.definitionArgs = definitionArgs;
@@ -11797,8 +11780,6 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
       var env = _ref4.env;
       var parentMeta = _ref4.parentMeta;
       var args = _ref4.args;
-
-      _classCallCheck(this, DynamicComponentReference);
 
       this.tag = nameRef.tag;
       this.nameRef = nameRef;
@@ -11837,12 +11818,6 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
 enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-metal/utils', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _emberMetalUtils, _emberGlimmerUtilsReferences) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   function outletComponentFor(vm) {
     var _vm$dynamicScope = vm.dynamicScope();
 
@@ -11859,12 +11834,10 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   }
 
   var OutletSyntax = (function (_StatementSyntax) {
-    _inherits(OutletSyntax, _StatementSyntax);
+    babelHelpers.inherits(OutletSyntax, _StatementSyntax);
 
     function OutletSyntax(_ref) {
       var args = _ref.args;
-
-      _classCallCheck(this, OutletSyntax);
 
       _StatementSyntax.call(this);
       this.definitionArgs = args;
@@ -11885,8 +11858,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
 
   var TopLevelOutletComponentReference = (function () {
     function TopLevelOutletComponentReference(reference) {
-      _classCallCheck(this, TopLevelOutletComponentReference);
-
       this.outletReference = reference;
       this.lastState = reference.value();
       this.definition = new TopLevelOutletComponentDefinition(this.lastState.render.template);
@@ -11909,8 +11880,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
 
   var OutletComponentReference = (function () {
     function OutletComponentReference(outletName, reference) {
-      _classCallCheck(this, OutletComponentReference);
-
       this.outletName = outletName;
       this.reference = reference;
       this.definition = null;
@@ -11958,9 +11927,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   }
 
   var AbstractOutletComponentManager = (function () {
-    function AbstractOutletComponentManager() {
-      _classCallCheck(this, AbstractOutletComponentManager);
-    }
+    function AbstractOutletComponentManager() {}
 
     AbstractOutletComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       return args;
@@ -11994,11 +11961,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   })();
 
   var TopLevelOutletComponentManager = (function (_AbstractOutletComponentManager) {
-    _inherits(TopLevelOutletComponentManager, _AbstractOutletComponentManager);
+    babelHelpers.inherits(TopLevelOutletComponentManager, _AbstractOutletComponentManager);
 
     function TopLevelOutletComponentManager() {
-      _classCallCheck(this, TopLevelOutletComponentManager);
-
       _AbstractOutletComponentManager.apply(this, arguments);
     }
 
@@ -12017,11 +11982,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
 
   var OutletComponentManager = (function (_AbstractOutletComponentManager2) {
-    _inherits(OutletComponentManager, _AbstractOutletComponentManager2);
+    babelHelpers.inherits(OutletComponentManager, _AbstractOutletComponentManager2);
 
     function OutletComponentManager() {
-      _classCallCheck(this, OutletComponentManager);
-
       _AbstractOutletComponentManager2.apply(this, arguments);
     }
 
@@ -12042,11 +12005,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   var MANAGER = new OutletComponentManager();
 
   var AbstractOutletComponentDefinition = (function (_ComponentDefinition) {
-    _inherits(AbstractOutletComponentDefinition, _ComponentDefinition);
+    babelHelpers.inherits(AbstractOutletComponentDefinition, _ComponentDefinition);
 
     function AbstractOutletComponentDefinition(manager, outletName, template) {
-      _classCallCheck(this, AbstractOutletComponentDefinition);
-
       _ComponentDefinition.call(this, 'outlet', manager, null);
       this.outletName = outletName;
       this.template = template;
@@ -12057,11 +12018,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   })(_glimmerRuntime.ComponentDefinition);
 
   var TopLevelOutletComponentDefinition = (function (_AbstractOutletComponentDefinition) {
-    _inherits(TopLevelOutletComponentDefinition, _AbstractOutletComponentDefinition);
+    babelHelpers.inherits(TopLevelOutletComponentDefinition, _AbstractOutletComponentDefinition);
 
     function TopLevelOutletComponentDefinition(template) {
-      _classCallCheck(this, TopLevelOutletComponentDefinition);
-
       _AbstractOutletComponentDefinition.call(this, TOP_LEVEL_MANAGER, null, template);
     }
 
@@ -12070,8 +12029,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
 
   var TopLevelOutletLayoutCompiler = (function () {
     function TopLevelOutletLayoutCompiler(template) {
-      _classCallCheck(this, TopLevelOutletLayoutCompiler);
-
       this.template = template;
     }
 
@@ -12088,11 +12045,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   TopLevelOutletLayoutCompiler.id = 'top-level-outlet';
 
   var OutletComponentDefinition = (function (_AbstractOutletComponentDefinition2) {
-    _inherits(OutletComponentDefinition, _AbstractOutletComponentDefinition2);
+    babelHelpers.inherits(OutletComponentDefinition, _AbstractOutletComponentDefinition2);
 
     function OutletComponentDefinition(outletName, template) {
-      _classCallCheck(this, OutletComponentDefinition);
-
       _AbstractOutletComponentDefinition2.call(this, MANAGER, outletName, template);
     }
 
@@ -12101,8 +12056,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
 
   var OutletLayoutCompiler = (function () {
     function OutletLayoutCompiler(template) {
-      _classCallCheck(this, OutletLayoutCompiler);
-
       this.template = template;
     }
 
@@ -12119,12 +12072,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
 });
 enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug', 'ember-glimmer/utils/references', 'ember-routing/system/generate_controller', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug, _emberGlimmerUtilsReferences, _emberRoutingSystemGenerate_controller, _emberGlimmerSyntaxOutlet) {
   'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function makeComponentDefinition(vm) {
     var env = vm.env;
@@ -12162,12 +12109,10 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
   }
 
   var RenderSyntax = (function (_StatementSyntax) {
-    _inherits(RenderSyntax, _StatementSyntax);
+    babelHelpers.inherits(RenderSyntax, _StatementSyntax);
 
     function RenderSyntax(_ref) {
       var args = _ref.args;
-
-      _classCallCheck(this, RenderSyntax);
 
       _StatementSyntax.call(this);
       this.definitionArgs = args;
@@ -12187,9 +12132,7 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
   exports.RenderSyntax = RenderSyntax;
 
   var AbstractRenderManager = (function () {
-    function AbstractRenderManager() {
-      _classCallCheck(this, AbstractRenderManager);
-    }
+    function AbstractRenderManager() {}
 
     AbstractRenderManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       return args;
@@ -12227,11 +12170,9 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
   })();
 
   var SingletonRenderManager = (function (_AbstractRenderManager) {
-    _inherits(SingletonRenderManager, _AbstractRenderManager);
+    babelHelpers.inherits(SingletonRenderManager, _AbstractRenderManager);
 
     function SingletonRenderManager() {
-      _classCallCheck(this, SingletonRenderManager);
-
       _AbstractRenderManager.apply(this, arguments);
     }
 
@@ -12254,11 +12195,9 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
   var SINGLETON_RENDER_MANAGER = new SingletonRenderManager();
 
   var NonSingletonRenderManager = (function (_AbstractRenderManager2) {
-    _inherits(NonSingletonRenderManager, _AbstractRenderManager2);
+    babelHelpers.inherits(NonSingletonRenderManager, _AbstractRenderManager2);
 
     function NonSingletonRenderManager() {
-      _classCallCheck(this, NonSingletonRenderManager);
-
       _AbstractRenderManager2.apply(this, arguments);
     }
 
@@ -12290,11 +12229,9 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
   var NON_SINGLETON_RENDER_MANAGER = new NonSingletonRenderManager();
 
   var RenderDefinition = (function (_ComponentDefinition) {
-    _inherits(RenderDefinition, _ComponentDefinition);
+    babelHelpers.inherits(RenderDefinition, _ComponentDefinition);
 
     function RenderDefinition(name, template, env, manager) {
-      _classCallCheck(this, RenderDefinition);
-
       _ComponentDefinition.call(this, 'render', manager, null);
 
       this.name = name;
@@ -12310,12 +12247,8 @@ enifed('ember-glimmer/template', ['exports', 'glimmer-runtime'], function (expor
 
   exports.default = template;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var Wrapper = (function () {
     function Wrapper(id, env, spec) {
-      _classCallCheck(this, Wrapper);
-
       this.id = id;
       this.env = env;
       this.spec = spec;
@@ -12387,12 +12320,6 @@ enifed("ember-glimmer/templates/top-level-view", ["exports", "ember-glimmer"], f
 });
 enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-runtime/system/string', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _emberMetalDebug, _emberRuntimeSystemString, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsString) {
   'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   function referenceForKey(component, key) {
     return component[_emberGlimmerComponent.ROOT_REF].get(key);
@@ -12469,11 +12396,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-r
   var SAFE_DISPLAY_NONE = _emberGlimmerUtilsString.htmlSafe(DISPLAY_NONE);
 
   var StyleBindingReference = (function (_CachedReference) {
-    _inherits(StyleBindingReference, _CachedReference);
+    babelHelpers.inherits(StyleBindingReference, _CachedReference);
 
     function StyleBindingReference(inner, isVisible) {
-      _classCallCheck(this, StyleBindingReference);
-
       _CachedReference.call(this);
 
       this.tag = inner.tag;
@@ -12535,11 +12460,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-r
   exports.ClassNameBinding = ClassNameBinding;
 
   var SimpleClassNameBindingReference = (function (_CachedReference2) {
-    _inherits(SimpleClassNameBindingReference, _CachedReference2);
+    babelHelpers.inherits(SimpleClassNameBindingReference, _CachedReference2);
 
     function SimpleClassNameBindingReference(inner, path) {
-      _classCallCheck(this, SimpleClassNameBindingReference);
-
       _CachedReference2.call(this);
 
       this.tag = inner.tag;
@@ -12567,11 +12490,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/debug', 'ember-r
   })(_glimmerReference.CachedReference);
 
   var ColonClassNameBindingReference = (function (_CachedReference3) {
-    _inherits(ColonClassNameBindingReference, _CachedReference3);
+    babelHelpers.inherits(ColonClassNameBindingReference, _CachedReference3);
 
     function ColonClassNameBindingReference(inner, truthy, falsy) {
-      _classCallCheck(this, ColonClassNameBindingReference);
-
       _CachedReference3.call(this);
 
       this.tag = inner.tag;
@@ -12595,12 +12516,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
   'use strict';
 
   exports.default = iterableFor;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
 
@@ -12671,8 +12586,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
   var ArrayIterator = (function () {
     function ArrayIterator(array, keyFor) {
-      _classCallCheck(this, ArrayIterator);
-
       this.array = array;
       this.length = array.length;
       this.keyFor = keyFor;
@@ -12709,8 +12622,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
   var EmberArrayIterator = (function () {
     function EmberArrayIterator(array, keyFor) {
-      _classCallCheck(this, EmberArrayIterator);
-
       this.array = array;
       this.length = _emberMetalProperty_get.get(array, 'length');
       this.keyFor = keyFor;
@@ -12747,8 +12658,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
   var ObjectKeysIterator = (function () {
     function ObjectKeysIterator(keys, values, keyFor) {
-      _classCallCheck(this, ObjectKeysIterator);
-
       this.keys = keys;
       this.values = values;
       this.keyFor = keyFor;
@@ -12784,9 +12693,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
   })();
 
   var EmptyIterator = (function () {
-    function EmptyIterator() {
-      _classCallCheck(this, EmptyIterator);
-    }
+    function EmptyIterator() {}
 
     EmptyIterator.prototype.isEmpty = function isEmpty() {
       return true;
@@ -12803,8 +12710,6 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
 
   var AbstractIterable = (function () {
     function AbstractIterable(ref, keyFor) {
-      _classCallCheck(this, AbstractIterable);
-
       this.ref = ref;
       this.keyFor = keyFor;
     }
@@ -12833,11 +12738,9 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
   })();
 
   var EachInIterable = (function (_AbstractIterable) {
-    _inherits(EachInIterable, _AbstractIterable);
+    babelHelpers.inherits(EachInIterable, _AbstractIterable);
 
     function EachInIterable(ref, keyFor) {
-      _classCallCheck(this, EachInIterable);
-
       _AbstractIterable.call(this, ref, keyFor);
 
       var valueTag = this.valueTag = new _glimmerReference.UpdatableTag(_glimmerReference.CONSTANT_TAG);
@@ -12861,11 +12764,11 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
       var typeofIterable = typeof iterable;
 
       if (iterable && (typeofIterable === 'object' || typeofIterable === 'function')) {
-        var _keys = Object.keys(iterable);
-        var values = _keys.map(function (key) {
+        var keys = Object.keys(iterable);
+        var values = keys.map(function (key) {
           return iterable[key];
         });
-        return _keys.length > 0 ? new ObjectKeysIterator(_keys, values, keyFor) : EMPTY_ITERATOR;
+        return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
       } else {
         return EMPTY_ITERATOR;
       }
@@ -12875,11 +12778,9 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-metal/property_get', '
   })(AbstractIterable);
 
   var ArrayIterable = (function (_AbstractIterable2) {
-    _inherits(ArrayIterable, _AbstractIterable2);
+    babelHelpers.inherits(ArrayIterable, _AbstractIterable2);
 
     function ArrayIterable(ref, keyFor) {
-      _classCallCheck(this, ArrayIterable);
-
       _AbstractIterable2.call(this, ref, keyFor);
 
       var valueTag = this.valueTag = new _glimmerReference.UpdatableTag(_glimmerReference.CONSTANT_TAG);
@@ -12929,8 +12830,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
   exports.default = processArgs;
   exports.isCell = isCell;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   function processArgs(args, positionalParamsDefinition) {
     if (!positionalParamsDefinition || positionalParamsDefinition.length === 0 || args.positional.length === 0) {
       return SimpleArgs.create(args);
@@ -12963,8 +12862,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     };
 
     function SimpleArgs(namedArgs) {
-      _classCallCheck(this, SimpleArgs);
-
       this.tag = namedArgs.tag;
       this.namedArgs = namedArgs;
     }
@@ -13008,8 +12905,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
 
   var MutableCell = (function () {
     function MutableCell(ref, value) {
-      _classCallCheck(this, MutableCell);
-
       this[_emberViewsCompatAttrsProxy.MUTABLE_CELL] = true;
       this[REF] = ref;
       this.value = value;
@@ -13028,8 +12923,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     };
 
     function RestArgs(args, restArgName) {
-      _classCallCheck(this, RestArgs);
-
       this.tag = args.tag;
       this.simpleArgs = SimpleArgs.create(args);
       this.positionalArgs = args.positional;
@@ -13062,8 +12955,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
     };
 
     function PositionalArgs(args, positionalParamNames) {
-      _classCallCheck(this, PositionalArgs);
-
       this.tag = args.tag;
       this.simpleArgs = SimpleArgs.create(args);
       this.positionalArgs = args.positional;
@@ -13092,23 +12983,15 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
 enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags', 'ember-metal/transaction', 'ember-metal/symbol', 'ember-metal/empty_object', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/features', 'ember-runtime/mixins/-proxy'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags, _emberMetalTransaction, _emberMetalSymbol, _emberMetalEmpty_object, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberMetalMeta, _emberMetalWatch_key, _emberMetalFeatures, _emberRuntimeMixinsProxy) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var UPDATE = _emberMetalSymbol.default('UPDATE');
 
   exports.UPDATE = UPDATE;
   // @implements PathReference
 
   var PrimitiveReference = (function (_ConstReference) {
-    _inherits(PrimitiveReference, _ConstReference);
+    babelHelpers.inherits(PrimitiveReference, _ConstReference);
 
     function PrimitiveReference() {
-      _classCallCheck(this, PrimitiveReference);
-
       _ConstReference.apply(this, arguments);
     }
 
@@ -13127,9 +13010,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   // @implements PathReference
 
   var EmberPathReference = (function () {
-    function EmberPathReference() {
-      _classCallCheck(this, EmberPathReference);
-    }
+    function EmberPathReference() {}
 
     // @abstract
 
@@ -13144,11 +13025,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   })();
 
   var CachedReference = (function (_EmberPathReference) {
-    _inherits(CachedReference, _EmberPathReference);
+    babelHelpers.inherits(CachedReference, _EmberPathReference);
 
     function CachedReference() {
-      _classCallCheck(this, CachedReference);
-
       _EmberPathReference.call(this);
       this._lastRevision = null;
       this._lastValue = null;
@@ -13176,11 +13055,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.CachedReference = CachedReference;
 
   var RootReference = (function (_ConstReference2) {
-    _inherits(RootReference, _ConstReference2);
+    babelHelpers.inherits(RootReference, _ConstReference2);
 
     function RootReference(value) {
-      _classCallCheck(this, RootReference);
-
       _ConstReference2.call(this, value);
       this.children = new _emberMetalEmpty_object.default();
     }
@@ -13205,8 +13082,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   if (true || false) {
     TwoWayFlushDetectionTag = (function () {
       function _class(tag, key, ref) {
-        _classCallCheck(this, _class);
-
         this.tag = tag;
         this.parent = null;
         this.key = key;
@@ -13240,11 +13115,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   }
 
   var PropertyReference = (function (_CachedReference) {
-    _inherits(PropertyReference, _CachedReference);
+    babelHelpers.inherits(PropertyReference, _CachedReference);
 
     function PropertyReference() {
-      _classCallCheck(this, PropertyReference);
-
       _CachedReference.apply(this, arguments);
     }
 
@@ -13266,11 +13139,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.PropertyReference = PropertyReference;
 
   var RootPropertyReference = (function (_PropertyReference) {
-    _inherits(RootPropertyReference, _PropertyReference);
+    babelHelpers.inherits(RootPropertyReference, _PropertyReference);
 
     function RootPropertyReference(parentValue, propertyKey) {
-      _classCallCheck(this, RootPropertyReference);
-
       _PropertyReference.call(this);
 
       this._parentValue = parentValue;
@@ -13308,11 +13179,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.RootPropertyReference = RootPropertyReference;
 
   var NestedPropertyReference = (function (_PropertyReference2) {
-    _inherits(NestedPropertyReference, _PropertyReference2);
+    babelHelpers.inherits(NestedPropertyReference, _PropertyReference2);
 
     function NestedPropertyReference(parentReference, propertyKey) {
-      _classCallCheck(this, NestedPropertyReference);
-
       _PropertyReference2.call(this);
 
       var parentReferenceTag = parentReference.tag;
@@ -13366,11 +13235,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.NestedPropertyReference = NestedPropertyReference;
 
   var UpdatableReference = (function (_EmberPathReference2) {
-    _inherits(UpdatableReference, _EmberPathReference2);
+    babelHelpers.inherits(UpdatableReference, _EmberPathReference2);
 
     function UpdatableReference(value) {
-      _classCallCheck(this, UpdatableReference);
-
       _EmberPathReference2.call(this);
 
       this.tag = new _glimmerReference.DirtyableTag();
@@ -13396,11 +13263,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.UpdatableReference = UpdatableReference;
 
   var UpdatablePrimitiveReference = (function (_UpdatableReference) {
-    _inherits(UpdatablePrimitiveReference, _UpdatableReference);
+    babelHelpers.inherits(UpdatablePrimitiveReference, _UpdatableReference);
 
     function UpdatablePrimitiveReference() {
-      _classCallCheck(this, UpdatablePrimitiveReference);
-
       _UpdatableReference.apply(this, arguments);
     }
 
@@ -13414,7 +13279,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.UpdatablePrimitiveReference = UpdatablePrimitiveReference;
 
   var ConditionalReference = (function (_GlimmerConditionalReference) {
-    _inherits(ConditionalReference, _GlimmerConditionalReference);
+    babelHelpers.inherits(ConditionalReference, _GlimmerConditionalReference);
 
     ConditionalReference.create = function create(reference) {
       if (_glimmerReference.isConst(reference)) {
@@ -13431,8 +13296,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
     };
 
     function ConditionalReference(reference) {
-      _classCallCheck(this, ConditionalReference);
-
       _GlimmerConditionalReference.call(this, reference);
 
       this.objectTag = new _glimmerReference.UpdatableTag(_glimmerReference.CONSTANT_TAG);
@@ -13455,7 +13318,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.ConditionalReference = ConditionalReference;
 
   var SimpleHelperReference = (function (_CachedReference2) {
-    _inherits(SimpleHelperReference, _CachedReference2);
+    babelHelpers.inherits(SimpleHelperReference, _CachedReference2);
 
     SimpleHelperReference.create = function create(helper, args) {
       if (_glimmerReference.isConst(args)) {
@@ -13479,8 +13342,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
     };
 
     function SimpleHelperReference(helper, args) {
-      _classCallCheck(this, SimpleHelperReference);
-
       _CachedReference2.call(this);
 
       this.tag = args.tag;
@@ -13503,7 +13364,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.SimpleHelperReference = SimpleHelperReference;
 
   var ClassBasedHelperReference = (function (_CachedReference3) {
-    _inherits(ClassBasedHelperReference, _CachedReference3);
+    babelHelpers.inherits(ClassBasedHelperReference, _CachedReference3);
 
     ClassBasedHelperReference.create = function create(helperClass, vm, args) {
       var instance = helperClass.create();
@@ -13512,8 +13373,6 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
     };
 
     function ClassBasedHelperReference(instance, args) {
-      _classCallCheck(this, ClassBasedHelperReference);
-
       _CachedReference3.call(this);
 
       this.tag = _glimmerReference.combine([instance[_emberGlimmerHelper.RECOMPUTE_TAG], args.tag]);
@@ -13536,11 +13395,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.ClassBasedHelperReference = ClassBasedHelperReference;
 
   var InternalHelperReference = (function (_CachedReference4) {
-    _inherits(InternalHelperReference, _CachedReference4);
+    babelHelpers.inherits(InternalHelperReference, _CachedReference4);
 
     function InternalHelperReference(helper, args) {
-      _classCallCheck(this, InternalHelperReference);
-
       _CachedReference4.call(this);
 
       this.tag = args.tag;
@@ -13563,11 +13420,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal/property_get',
   exports.InternalHelperReference = InternalHelperReference;
 
   var UnboundReference = (function (_ConstReference3) {
-    _inherits(UnboundReference, _ConstReference3);
+    babelHelpers.inherits(UnboundReference, _ConstReference3);
 
     function UnboundReference() {
-      _classCallCheck(this, UnboundReference);
-
       _ConstReference3.apply(this, arguments);
     }
 
@@ -13605,12 +13460,8 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-metal/features', 'ember-
   exports.htmlSafe = htmlSafe;
   exports.isHTMLSafe = isHTMLSafe;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var SafeString = (function () {
     function SafeString(string) {
-      _classCallCheck(this, SafeString);
-
       this.string = string;
     }
 
@@ -13750,14 +13601,6 @@ enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime/utils', 'ember-
 enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-reference', 'ember-metal/empty_object', 'ember-environment'], function (exports, _emberMetalAssign, _glimmerReference, _emberMetalEmpty_object, _emberEnvironment) {
   'use strict';
 
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   /**
   @module ember
   @submodule ember-templates
@@ -13765,8 +13608,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
 
   var OutletStateReference = (function () {
     function OutletStateReference(outletView) {
-      _classCallCheck(this, OutletStateReference);
-
       this.outletView = outletView;
       this.tag = outletView._tag;
     }
@@ -13791,22 +13632,19 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
       this.outletView.setOutletState(state);
     };
 
-    _createClass(OutletStateReference, [{
+    babelHelpers.createClass(OutletStateReference, [{
       key: 'isTopLevel',
       get: function () {
         return true;
       }
     }]);
-
     return OutletStateReference;
   })();
 
   var OrphanedOutletStateReference = (function (_OutletStateReference) {
-    _inherits(OrphanedOutletStateReference, _OutletStateReference);
+    babelHelpers.inherits(OrphanedOutletStateReference, _OutletStateReference);
 
     function OrphanedOutletStateReference(root, name) {
-      _classCallCheck(this, OrphanedOutletStateReference);
-
       _OutletStateReference.call(this, root.outletView);
       this.root = root;
       this.name = name;
@@ -13838,8 +13676,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
 
   var ChildOutletStateReference = (function () {
     function ChildOutletStateReference(parent, key) {
-      _classCallCheck(this, ChildOutletStateReference);
-
       this.parent = parent;
       this.key = key;
       this.tag = parent.tag;
@@ -13853,24 +13689,21 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
       return this.parent.value().outlets[this.key];
     };
 
-    _createClass(ChildOutletStateReference, [{
+    babelHelpers.createClass(ChildOutletStateReference, [{
       key: 'isTopLevel',
       get: function () {
         return false;
       }
     }]);
-
     return ChildOutletStateReference;
   })();
 
   var OutletView = (function () {
     OutletView.extend = function extend(injections) {
       return (function (_OutletView) {
-        _inherits(_class, _OutletView);
+        babelHelpers.inherits(_class, _OutletView);
 
         function _class() {
-          _classCallCheck(this, _class);
-
           _OutletView.apply(this, arguments);
         }
 
@@ -13899,8 +13732,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-metal/assign', 'glimmer-
     };
 
     function OutletView(_environment, renderer, template) {
-      _classCallCheck(this, OutletView);
-
       this._environment = _environment;
       this.renderer = renderer;
       this.template = template;
@@ -23034,12 +22865,8 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/features', 'ember
   exports.htmlSafe = htmlSafe;
   exports.isHTMLSafe = isHTMLSafe;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var SafeString = (function () {
     function SafeString(string) {
-      _classCallCheck(this, SafeString);
-
       this.string = string;
     }
 
@@ -23844,12 +23671,8 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
   'use strict';
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
   var Cache = (function () {
     function Cache(limit, func, key, store) {
-      _classCallCheck(this, Cache);
-
       this.size = 0;
       this.misses = 0;
       this.hits = 0;
@@ -23910,8 +23733,6 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
 
   var DefaultStore = (function () {
     function DefaultStore() {
-      _classCallCheck(this, DefaultStore);
-
       this.data = new _emberMetalEmpty_object.default();
     }
 
@@ -39528,12 +39349,6 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
 
   exports.isProxy = isProxy;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var hasGlimmer = _require2.has('glimmer-reference');
 
   var IS_PROXY = _emberMetalSymbol.default('IS_PROXY');
@@ -39607,11 +39422,9 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
       var UpdatableTag = _require.UpdatableTag;
 
       var ProxyTag = (function (_CachedTag) {
-        _inherits(ProxyTag, _CachedTag);
+        babelHelpers.inherits(ProxyTag, _CachedTag);
 
         function ProxyTag(proxy, content) {
-          _classCallCheck(this, ProxyTag);
-
           _CachedTag.call(this);
           this.proxyWrapperTag = new DirtyableTag();
           this.proxyContentTag = new UpdatableTag(_emberMetalTags.tagFor(content));
@@ -47590,20 +47403,12 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime/ext/rsvp', 'embe
   exports.resolve = resolve;
   exports.getLastPromise = getLastPromise;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
   var lastPromise = undefined;
 
   var TestPromise = (function (_RSVP$Promise) {
-    _inherits(TestPromise, _RSVP$Promise);
+    babelHelpers.inherits(TestPromise, _RSVP$Promise);
 
     function TestPromise() {
-      _classCallCheck(this, TestPromise);
-
       _RSVP$Promise.apply(this, arguments);
       lastPromise = this;
     }
@@ -50768,8 +50573,71 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+938ad1af";
+  exports.default = "2.9.0-null+4d6b7d09";
 });
+var babelHelpers;
+
+function inherits(subClass, superClass) {
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
+}
+
+function taggedTemplateLiteralLoose(strings, raw) {
+  strings.raw = raw;
+  return strings;
+}
+
+function defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ('value' in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function interopExportWildcard(obj, defaults) {
+  var newObj = defaults({}, obj);
+  delete newObj['default'];
+  return newObj;
+}
+
+function defaults(obj, defaults) {
+  var keys = Object.getOwnPropertyNames(defaults);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = Object.getOwnPropertyDescriptor(defaults, key);
+    if (value && value.configurable && obj[key] === undefined) {
+      Object.defineProperty(obj, key, value);
+    }
+  }
+  return obj;
+}
+
+babelHelpers = {
+  inherits: inherits,
+  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
+  slice: Array.prototype.slice,
+  createClass: createClass,
+  interopExportWildcard: interopExportWildcard,
+  defaults: defaults
+};
+
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
 
@@ -53072,7 +52940,6 @@ enifed('htmlbars-util/safe-string', ['exports', 'htmlbars-util/handlebars/safe-s
 enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/render"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeRender) {
   "use strict";
 
-  var _slice = Array.prototype.slice;
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
@@ -53274,7 +53141,7 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
   }
 
   function buildStatement() {
-    var statement = [].concat(_slice.call(arguments));
+    var statement = [].concat(babelHelpers.slice.call(arguments));
 
     // ensure array length is 7 by padding with 0
     for (var i = arguments.length; i < 7; i++) {
@@ -69213,8 +69080,6 @@ enifed('rsvp/node', ['exports', 'rsvp/promise', 'rsvp/-internal', 'rsvp/utils'],
 
   exports.default = denodeify;
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
   function Result() {
     this.value = undefined;
   }
@@ -69445,7 +69310,7 @@ enifed('rsvp/node', ['exports', 'rsvp/promise', 'rsvp/-internal', 'rsvp/utils'],
       }
     };
 
-    _defaults(fn, nodeFunc);
+    babelHelpers.defaults(fn, nodeFunc);
 
     return fn;
   }
