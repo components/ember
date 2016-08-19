@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+66c8a9e5
+ * @version   2.9.0-null+89905695
  */
 
 var enifed, requireModule, require, Ember;
@@ -14317,6 +14317,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       _RenderingTest.call(this);
       this.hooks = [];
       this.components = {};
+      this.componentRegistry = [];
       this.teardownAssertions = [];
     }
 
@@ -14344,6 +14345,14 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       throw new Error('Not implemented: `attrFor`');
     };
 
+    LifeCycleHooksTest.prototype.assertRegisteredViews = function assertRegisteredViews(label) {
+      var viewRegistry = this.owner.lookup('-view-registry:main');
+      var actual = Object.keys(viewRegistry).sort();
+      var expected = this.componentRegistry.slice().sort();
+
+      this.assert.deepEqual(actual, expected, 'registered views - ' + label);
+    };
+
     LifeCycleHooksTest.prototype.registerComponent = function registerComponent(name, _ref) {
       var _this = this;
 
@@ -14352,6 +14361,14 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       var pushComponent = function (instance) {
         _this.components[name] = instance;
+        _this.componentRegistry.push(instance.elementId);
+      };
+
+      var removeComponent = function (instance) {
+        var index = _this.componentRegistry.indexOf(instance);
+        _this.componentRegistry.splice(index, 1);
+
+        delete _this.components[name];
       };
 
       var pushHook = function (hookName, args) {
@@ -14454,6 +14471,11 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           pushHook('willClearRender');
           assertParentView('willClearRender', this);
           assertElement('willClearRender', this);
+        },
+
+        willDestroy: function () {
+          removeComponent(this);
+          this._super.apply(this, arguments);
         }
       });
 
@@ -14491,6 +14513,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+      this.assertRegisteredViews('intial render');
 
       var topAttrs = { twitter: '@tomdale' };
       var middleAttrs = { name: 'Tom Dale' };
@@ -14620,6 +14643,8 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.teardownAssertions.push(function () {
         _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+
+        _this3.assertRegisteredViews('after destroy');
       });
     };
 
@@ -14642,6 +14667,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
 
       this.assertText('Top: Middle: Bottom: @tomdale');
+      this.assertRegisteredViews('intial render');
 
       var topAttrs = { twitter: '@tomdale' };
       var middleAttrs = { twitterTop: '@tomdale' };
@@ -14708,6 +14734,8 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.teardownAssertions.push(function () {
         _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+
+        _this4.assertRegisteredViews('after destroy');
       });
     };
 
@@ -14725,6 +14753,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       });
 
       this.assertText('Item: 1Item: 2Item: 3Item: 4Item: 5');
+      this.assertRegisteredViews('intial render');
 
       var initialHooks = function (count) {
         return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
@@ -14746,6 +14775,8 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.teardownAssertions.push(function () {
         _this5.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
+
+        _this5.assertRegisteredViews('after destroy');
       });
     };
 
@@ -38374,6 +38405,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       _RenderingTest.call(this);
       this.hooks = [];
       this.components = {};
+      this.componentRegistry = [];
       this.teardownAssertions = [];
     }
 
@@ -38401,6 +38433,14 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       throw new Error('Not implemented: `attrFor`');
     };
 
+    LifeCycleHooksTest.prototype.assertRegisteredViews = function assertRegisteredViews(label) {
+      var viewRegistry = this.owner.lookup('-view-registry:main');
+      var actual = Object.keys(viewRegistry).sort();
+      var expected = this.componentRegistry.slice().sort();
+
+      this.assert.deepEqual(actual, expected, 'registered views - ' + label);
+    };
+
     LifeCycleHooksTest.prototype.registerComponent = function registerComponent(name, _ref) {
       var _this = this;
 
@@ -38409,6 +38449,14 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       var pushComponent = function (instance) {
         _this.components[name] = instance;
+        _this.componentRegistry.push(instance.elementId);
+      };
+
+      var removeComponent = function (instance) {
+        var index = _this.componentRegistry.indexOf(instance);
+        _this.componentRegistry.splice(index, 1);
+
+        delete _this.components[name];
       };
 
       var pushHook = function (hookName, args) {
@@ -38511,6 +38559,11 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           pushHook('willClearRender');
           assertParentView('willClearRender', this);
           assertElement('willClearRender', this);
+        },
+
+        willDestroy: function () {
+          removeComponent(this);
+          this._super.apply(this, arguments);
         }
       });
 
@@ -38548,6 +38601,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+      this.assertRegisteredViews('intial render');
 
       var topAttrs = { twitter: '@tomdale' };
       var middleAttrs = { name: 'Tom Dale' };
@@ -38677,6 +38731,8 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.teardownAssertions.push(function () {
         _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+
+        _this3.assertRegisteredViews('after destroy');
       });
     };
 
@@ -38699,6 +38755,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
 
       this.assertText('Top: Middle: Bottom: @tomdale');
+      this.assertRegisteredViews('intial render');
 
       var topAttrs = { twitter: '@tomdale' };
       var middleAttrs = { twitterTop: '@tomdale' };
@@ -38765,6 +38822,8 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.teardownAssertions.push(function () {
         _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+
+        _this4.assertRegisteredViews('after destroy');
       });
     };
 
@@ -38782,6 +38841,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       });
 
       this.assertText('Item: 1Item: 2Item: 3Item: 4Item: 5');
+      this.assertRegisteredViews('intial render');
 
       var initialHooks = function (count) {
         return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
@@ -38803,6 +38863,8 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.teardownAssertions.push(function () {
         _this5.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
+
+        _this5.assertRegisteredViews('after destroy');
       });
     };
 

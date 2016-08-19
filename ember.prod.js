@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+66c8a9e5
+ * @version   2.9.0-null+89905695
  */
 
 var enifed, requireModule, require, Ember;
@@ -10441,7 +10441,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     };
 
     Renderer.prototype.unregister = function unregister(view) {
-      delete this._viewRegistry[this.elementId];
+      delete this._viewRegistry[view.elementId];
     };
 
     Renderer.prototype.remove = function remove(view) {
@@ -19808,7 +19808,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
 
   Renderer.prototype.unregister = function Renderer_unregister(view) {
-    delete this._viewRegistry[this.elementId];
+    delete this._viewRegistry[view.elementId];
   };
 
   var InertRenderer = {
@@ -47914,7 +47914,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+66c8a9e5";
+  exports.default = "2.9.0-null+89905695";
 });
 var babelHelpers;
 
