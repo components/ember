@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+205e5acf
+ * @version   2.9.0-null+f56d1372
  */
 
 var enifed, requireModule, require, Ember;
