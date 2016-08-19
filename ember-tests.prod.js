@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c49ff666
+ * @version   2.9.0-null+e150088e
  */
 
 var enifed, requireModule, require, Ember;
@@ -14489,6 +14489,12 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
           pushHook('willDestroyElement');
           assertParentView('willDestroyElement', this);
           assertElement('willDestroyElement', this);
+        },
+
+        willClearRender: function () {
+          pushHook('willClearRender');
+          assertParentView('willClearRender', this);
+          assertElement('willClearRender', this);
         }
       });
 
@@ -14654,7 +14660,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
       });
     };
 
@@ -14742,7 +14748,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       }
 
       this.teardownAssertions.push(function () {
-        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
       });
     };
 
@@ -14777,10 +14783,10 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 
       this.assertText('Nothing to see here');
 
-      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
+      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement']);
+        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
       });
     };
 
@@ -38903,6 +38909,12 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
           pushHook('willDestroyElement');
           assertParentView('willDestroyElement', this);
           assertElement('willDestroyElement', this);
+        },
+
+        willClearRender: function () {
+          pushHook('willClearRender');
+          assertParentView('willClearRender', this);
+          assertElement('willClearRender', this);
         }
       });
 
@@ -39068,7 +39080,7 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
       });
     };
 
@@ -39156,7 +39168,7 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       }
 
       this.teardownAssertions.push(function () {
-        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
       });
     };
 
@@ -39191,10 +39203,10 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 
       this.assertText('Nothing to see here');
 
-      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
+      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement']);
+        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
       });
     };
 
