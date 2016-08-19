@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+4d6b7d09
+ * @version   2.9.0-null+205e5acf
  */
 
 var enifed, requireModule, require, Ember;
@@ -65981,6 +65981,63 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/loca
     });
 
     router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
+  });
+
+  QUnit.test('Router#triggerEvent allows actions to bubble when returning true', function (assert) {
+    assert.expect(2);
+
+    var handlerInfos = [{
+      name: 'application',
+      handler: {
+        actions: {
+          loading: function () {
+            assert.ok(false, 'loading not handled by application route');
+          }
+        }
+      }
+    }, {
+      name: 'about',
+      handler: {
+        actions: {
+          loading: function () {
+            assert.ok(true, 'loading handled by about route');
+            return false;
+          }
+        }
+      }
+    }, {
+      name: 'about.me',
+      handler: {
+        actions: {
+          loading: function () {
+            assert.ok(true, 'loading handled by about.me route');
+            return true;
+          }
+        }
+      }
+    }];
+
+    _emberRoutingSystemRouter.triggerEvent(handlerInfos, false, ['loading']);
+  });
+
+  QUnit.test('Router#triggerEvent ignores handlers that have not loaded yet', function (assert) {
+    assert.expect(1);
+
+    var handlerInfos = [{
+      name: 'about',
+      handler: {
+        actions: {
+          loading: function () {
+            assert.ok(true, 'loading handled by about route');
+          }
+        }
+      }
+    }, {
+      name: 'about.me',
+      handler: undefined
+    }];
+
+    _emberRoutingSystemRouter.triggerEvent(handlerInfos, false, ['loading']);
   });
 });
 enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], function (exports, _emberRoutingUtils) {
