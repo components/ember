@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+e150088e
+ * @version   2.9.0-null+938ad1af
  */
 
 var enifed, requireModule, require, Ember;
@@ -57415,10 +57415,16 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-environme
     ok(true, 'does not raise');
   });
 });
-enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/tags'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalTags) {
   'use strict';
 
-  QUnit.module('set');
+  QUnit.module('set', {
+    teardown: function () {
+      _emberMetalTags.setHasViews(function () {
+        return false;
+      });
+    }
+  });
 
   QUnit.test('should set arbitrary properties on an object', function () {
     var obj = {
@@ -57501,6 +57507,17 @@ enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property
     expectAssertion(function () {
       return _emberMetalProperty_set.set(obj, 'favoriteFood', 'hot dogs');
     }, 'calling set on destroyed object: [object Object].favoriteFood = hot dogs');
+  });
+
+  QUnit.test('does not trigger auto-run assertion for objects that have not been tagged', function (assert) {
+    _emberMetalTags.setHasViews(function () {
+      return true;
+    });
+    var obj = {};
+
+    _emberMetalProperty_set.set(obj, 'foo', 'bar');
+
+    assert.equal(obj.foo, 'bar');
   });
 });
 enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalAlias, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalWatching, _emberMetalObserver) {
