@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+f56d1372
+ * @version   2.9.0-null+66c8a9e5
  */
 
 var enifed, requireModule, require, Ember;
@@ -50474,7 +50474,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
   }
 
   if (true) {
-    _internalTestHelpersTestsSkipIfGlimmer.testModule('mount keyword', {
+    QUnit.module('mount keyword', {
       setup: function () {
         commonSetup();
       },
@@ -81278,7 +81278,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     compile = _require.default('ember-htmlbars-template-compiler').compile;
   }
 
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('EmberView - append() and appendTo()', {
+  QUnit.module('EmberView - append() and appendTo()', {
     setup: function () {
       commonSetup();
       View = _emberViewsViewsView.default.extend({});
@@ -81379,7 +81379,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/p
     equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('EmberView - append() and appendTo() in a view hierarchy', {
+  QUnit.module('EmberView - append() and appendTo() in a view hierarchy', {
     setup: function () {
       var _Component$extend;
 
@@ -81432,7 +81432,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember
       view = undefined,
       compile = undefined;
 
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('EmberView - renderToElement()', {
+  QUnit.module('EmberView - renderToElement()', {
     setup: function () {
       compile = compile || _require.default('ember-htmlbars-template-compiler').compile;
       View = _emberViewsViewsView.default.extend({
@@ -94843,7 +94843,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     return _emberMetalRun_loop.default(router, 'handleURL', path);
   }
 
-  _internalTestHelpersTestsSkipIfGlimmer.testModule('View Instrumentation', {
+  QUnit.module('View Instrumentation', {
     setup: function () {
       _emberMetalRun_loop.default(function () {
         App = _emberApplicationSystemApplication.default.create({
@@ -95088,26 +95088,19 @@ enifed('internal-test-helpers/tests/skip-if-glimmer', ['exports', 'ember-metal/f
   'use strict';
 
   exports.test = test;
-  exports.testModule = testModule;
   exports.asyncTest = asyncTest;
 
   function test(name, fn) {
     if (_emberMetalFeatures.default('ember-glimmer')) {
       QUnit.skip('[SKIPPED IN GLIMMER] ' + name, fn);
     } else {
-      QUnit.test('[SKIPPED IN GLIMMER] ' + name, fn);
-    }
-  }
-
-  function testModule(name, setup) {
-    if (!_emberMetalFeatures.default('ember-glimmer')) {
-      QUnit.module(name, setup);
+      QUnit.test(name, fn);
     }
   }
 
   function asyncTest(name, fn) {
     if (_emberMetalFeatures.default('ember-glimmer')) {
-      QUnit.skip('[GLIMMER] ' + name, fn);
+      QUnit.skip('[SKIPPED IN GLIMMER] ' + name, fn);
     } else {
       QUnit.asyncTest(name, fn);
     }
