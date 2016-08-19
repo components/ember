@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+7a963b00
+ * @version   2.9.0-null+c49ff666
  */
 
 var enifed, requireModule, require, Ember;
@@ -28385,6 +28385,69 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('No Thing bar');
     };
 
+    SingleEachTest.prototype['@test content that are not initially present updates correctly GH#13983'] = function testContentThatAreNotInitiallyPresentUpdatesCorrectlyGH13983() {
+      var _this18 = this;
+
+      // The root cause of this bug is that Glimmer did not call `didInitializeChildren`
+      // on the inserted `TryOpcode`, causing that `TryOpcode` to have an uninitialized
+      // tag. Currently the only way to observe this the "JUMP-IF-NOT-MODIFIED", i.e. by
+      // wrapping it in an component.
+
+      this.registerComponent('x-wrapper', { template: '{{yield}}' });
+
+      this.makeList([]);
+
+      this.render('{{#x-wrapper}}{{#each list as |obj|}}[{{obj.text}}]{{/each}}{{/x-wrapper}}');
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this18.pushObject({ text: 'foo' });
+      });
+
+      this.assertText('[foo]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.objectAt(0), 'text', 'FOO');
+      });
+
+      this.assertText('[FOO]');
+
+      this.runTask(function () {
+        return _this18.pushObject({ text: 'bar' });
+      });
+
+      this.assertText('[FOO][bar]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.objectAt(1), 'text', 'BAR');
+      });
+
+      this.assertText('[FOO][BAR]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.objectAt(1), 'text', 'baz');
+      });
+
+      this.assertText('[FOO][baz]');
+
+      this.runTask(function () {
+        return _this18.replace(1, 1, [{ text: 'BAZ' }]);
+      });
+
+      this.assertText('[FOO][BAZ]');
+
+      this.replaceList([]);
+
+      this.assertText('');
+    };
+
     return SingleEachTest;
   })(AbstractEachTest);
 
@@ -28451,10 +28514,10 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
     };
 
     _class8.prototype.replaceList = function replaceList(list) {
-      var _this18 = this;
+      var _this19 = this;
 
       this.runTask(function () {
-        return _this18.list.set('content', _emberRuntimeSystemNative_array.A(list));
+        return _this19.list.set('content', _emberRuntimeSystemNative_array.A(list));
       });
     };
 
@@ -28473,7 +28536,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
     }
 
     _class9.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
-      var _this19 = this;
+      var _this20 = this;
 
       this.render('Admin: {{#each admins key="name" as |person|}}[{{person.name}}]{{/each}} User: {{#each users key="name" as |person|}}[{{person.name}}]{{/each}}', {
         admins: _emberRuntimeSystemNative_array.A([{ name: 'Tom Dale' }]),
@@ -28483,28 +28546,28 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this19.context, 'admins').pushObject({ name: 'Godfrey Chan' });
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this19.context, 'users').objectAt(0), 'name', 'Stefan Penner');
+        _emberMetalProperty_get.get(_this20.context, 'admins').pushObject({ name: 'Godfrey Chan' });
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this20.context, 'users').objectAt(0), 'name', 'Stefan Penner');
       });
 
       this.assertText('Admin: [Tom Dale][Godfrey Chan] User: [Stefan Penner]');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'admins', [{ name: 'Tom Dale' }]);
-        _emberMetalProperty_set.set(_this19.context, 'users', [{ name: 'Yehuda Katz' }]);
+        _emberMetalProperty_set.set(_this20.context, 'admins', [{ name: 'Tom Dale' }]);
+        _emberMetalProperty_set.set(_this20.context, 'users', [{ name: 'Yehuda Katz' }]);
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
     };
 
     _class9.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
-      var _this20 = this;
+      var _this21 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
         content: _emberRuntimeSystemNative_array.A(['X', 'Y']),
@@ -28516,22 +28579,22 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this20.context, 'content').pushObject('Z');
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this20.context, 'options').objectAt(0), 'value', 0);
+        _emberMetalProperty_get.get(_this21.context, 'content').pushObject('Z');
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this21.context, 'options').objectAt(0), 'value', 0);
       });
 
       this.assertText('X-0:One2:TwoY-0:One2:TwoZ-0:One2:Two');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this20.context, 'content', ['X', 'Y']);
-        _emberMetalProperty_set.set(_this20.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
+        _emberMetalProperty_set.set(_this21.context, 'content', ['X', 'Y']);
+        _emberMetalProperty_set.set(_this21.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
       });
 
       this.assertText('X-1:One2:TwoY-1:One2:Two');
     };
 
     _class9.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this21 = this;
+      var _this22 = this;
 
       this.render('{{ring}}-{{#each first as |ring|}}{{ring}}-{{#each fifth as |ring|}}{{ring}}-{{#each ninth as |ring|}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}', {
         ring: 'Greed',
@@ -28543,37 +28606,37 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'ring', 'O');
-        _emberMetalProperty_get.get(_this21.context, 'fifth').insertAt(0, 'D');
+        _emberMetalProperty_set.set(_this22.context, 'ring', 'O');
+        _emberMetalProperty_get.get(_this22.context, 'fifth').insertAt(0, 'D');
       });
 
       this.assertText('O-Limbo-D-Treachery-D-Wrath-Treachery-Wrath-Limbo-O');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this21.context, 'first').pushObject('I');
-        _emberMetalProperty_get.get(_this21.context, 'ninth').replace(0, 1, 'K');
+        _emberMetalProperty_get.get(_this22.context, 'first').pushObject('I');
+        _emberMetalProperty_get.get(_this22.context, 'ninth').replace(0, 1, 'K');
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'ring', 'Greed');
-        _emberMetalProperty_set.set(_this21.context, 'first', ['Limbo']);
-        _emberMetalProperty_set.set(_this21.context, 'fifth', ['Wrath']);
-        _emberMetalProperty_set.set(_this21.context, 'ninth', ['Treachery']);
+        _emberMetalProperty_set.set(_this22.context, 'ring', 'Greed');
+        _emberMetalProperty_set.set(_this22.context, 'first', ['Limbo']);
+        _emberMetalProperty_set.set(_this22.context, 'fifth', ['Wrath']);
+        _emberMetalProperty_set.set(_this22.context, 'ninth', ['Treachery']);
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
     };
 
     _class9.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
-      var _this22 = this;
+      var _this23 = this;
 
       this.render('{{#each name key="@index" as |foo|}}{{#each foo as |bar|}}{{bar}}{{/each}}{{/each}}', {
         name: _emberRuntimeSystemNative_array.A([_emberRuntimeSystemNative_array.A(['caterpillar'])])
@@ -28582,13 +28645,13 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        var name = _emberMetalProperty_get.get(_this22.context, 'name');
+        var name = _emberMetalProperty_get.get(_this23.context, 'name');
         name.objectAt(0).replace(0, 1, 'lady');
         name.pushObject(['bird']);
       });
@@ -28596,7 +28659,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
       this.assertText('ladybird');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this22.context, 'name', [['caterpillar']]);
+        return _emberMetalProperty_set.set(_this23.context, 'name', [['caterpillar']]);
       });
 
       this.assertText('caterpillar');
@@ -28615,26 +28678,26 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
     }
 
     _class10.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this23 = this;
+      var _this24 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'foo', { bar: { baz: ['Here!'] } });
+        return _emberMetalProperty_set.set(_this24.context, 'foo', { bar: { baz: ['Here!'] } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'foo', {});
+        return _emberMetalProperty_set.set(_this24.context, 'foo', {});
       });
 
       this.assertText('');
@@ -52852,6 +52915,69 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('No Thing bar');
     };
 
+    SingleEachTest.prototype['@test content that are not initially present updates correctly GH#13983'] = function testContentThatAreNotInitiallyPresentUpdatesCorrectlyGH13983() {
+      var _this18 = this;
+
+      // The root cause of this bug is that Glimmer did not call `didInitializeChildren`
+      // on the inserted `TryOpcode`, causing that `TryOpcode` to have an uninitialized
+      // tag. Currently the only way to observe this the "JUMP-IF-NOT-MODIFIED", i.e. by
+      // wrapping it in an component.
+
+      this.registerComponent('x-wrapper', { template: '{{yield}}' });
+
+      this.makeList([]);
+
+      this.render('{{#x-wrapper}}{{#each list as |obj|}}[{{obj.text}}]{{/each}}{{/x-wrapper}}');
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this18.rerender();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this18.pushObject({ text: 'foo' });
+      });
+
+      this.assertText('[foo]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.objectAt(0), 'text', 'FOO');
+      });
+
+      this.assertText('[FOO]');
+
+      this.runTask(function () {
+        return _this18.pushObject({ text: 'bar' });
+      });
+
+      this.assertText('[FOO][bar]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.objectAt(1), 'text', 'BAR');
+      });
+
+      this.assertText('[FOO][BAR]');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this18.objectAt(1), 'text', 'baz');
+      });
+
+      this.assertText('[FOO][baz]');
+
+      this.runTask(function () {
+        return _this18.replace(1, 1, [{ text: 'BAZ' }]);
+      });
+
+      this.assertText('[FOO][BAZ]');
+
+      this.replaceList([]);
+
+      this.assertText('');
+    };
+
     return SingleEachTest;
   })(AbstractEachTest);
 
@@ -52918,10 +53044,10 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
     };
 
     _class8.prototype.replaceList = function replaceList(list) {
-      var _this18 = this;
+      var _this19 = this;
 
       this.runTask(function () {
-        return _this18.list.set('content', _emberRuntimeSystemNative_array.A(list));
+        return _this19.list.set('content', _emberRuntimeSystemNative_array.A(list));
       });
     };
 
@@ -52940,7 +53066,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
     }
 
     _class9.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
-      var _this19 = this;
+      var _this20 = this;
 
       this.render('Admin: {{#each admins key="name" as |person|}}[{{person.name}}]{{/each}} User: {{#each users key="name" as |person|}}[{{person.name}}]{{/each}}', {
         admins: _emberRuntimeSystemNative_array.A([{ name: 'Tom Dale' }]),
@@ -52950,28 +53076,28 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this19.context, 'admins').pushObject({ name: 'Godfrey Chan' });
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this19.context, 'users').objectAt(0), 'name', 'Stefan Penner');
+        _emberMetalProperty_get.get(_this20.context, 'admins').pushObject({ name: 'Godfrey Chan' });
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this20.context, 'users').objectAt(0), 'name', 'Stefan Penner');
       });
 
       this.assertText('Admin: [Tom Dale][Godfrey Chan] User: [Stefan Penner]');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this19.context, 'admins', [{ name: 'Tom Dale' }]);
-        _emberMetalProperty_set.set(_this19.context, 'users', [{ name: 'Yehuda Katz' }]);
+        _emberMetalProperty_set.set(_this20.context, 'admins', [{ name: 'Tom Dale' }]);
+        _emberMetalProperty_set.set(_this20.context, 'users', [{ name: 'Yehuda Katz' }]);
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
     };
 
     _class9.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
-      var _this20 = this;
+      var _this21 = this;
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject), {
         content: _emberRuntimeSystemNative_array.A(['X', 'Y']),
@@ -52983,22 +53109,22 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this20.context, 'content').pushObject('Z');
-        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this20.context, 'options').objectAt(0), 'value', 0);
+        _emberMetalProperty_get.get(_this21.context, 'content').pushObject('Z');
+        _emberMetalProperty_set.set(_emberMetalProperty_get.get(_this21.context, 'options').objectAt(0), 'value', 0);
       });
 
       this.assertText('X-0:One2:TwoY-0:One2:TwoZ-0:One2:Two');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this20.context, 'content', ['X', 'Y']);
-        _emberMetalProperty_set.set(_this20.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
+        _emberMetalProperty_set.set(_this21.context, 'content', ['X', 'Y']);
+        _emberMetalProperty_set.set(_this21.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
       });
 
       this.assertText('X-1:One2:TwoY-1:One2:Two');
     };
 
     _class9.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this21 = this;
+      var _this22 = this;
 
       this.render('{{ring}}-{{#each first as |ring|}}{{ring}}-{{#each fifth as |ring|}}{{ring}}-{{#each ninth as |ring|}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}', {
         ring: 'Greed',
@@ -53010,37 +53136,37 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'ring', 'O');
-        _emberMetalProperty_get.get(_this21.context, 'fifth').insertAt(0, 'D');
+        _emberMetalProperty_set.set(_this22.context, 'ring', 'O');
+        _emberMetalProperty_get.get(_this22.context, 'fifth').insertAt(0, 'D');
       });
 
       this.assertText('O-Limbo-D-Treachery-D-Wrath-Treachery-Wrath-Limbo-O');
 
       this.runTask(function () {
-        _emberMetalProperty_get.get(_this21.context, 'first').pushObject('I');
-        _emberMetalProperty_get.get(_this21.context, 'ninth').replace(0, 1, 'K');
+        _emberMetalProperty_get.get(_this22.context, 'first').pushObject('I');
+        _emberMetalProperty_get.get(_this22.context, 'ninth').replace(0, 1, 'K');
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this21.context, 'ring', 'Greed');
-        _emberMetalProperty_set.set(_this21.context, 'first', ['Limbo']);
-        _emberMetalProperty_set.set(_this21.context, 'fifth', ['Wrath']);
-        _emberMetalProperty_set.set(_this21.context, 'ninth', ['Treachery']);
+        _emberMetalProperty_set.set(_this22.context, 'ring', 'Greed');
+        _emberMetalProperty_set.set(_this22.context, 'first', ['Limbo']);
+        _emberMetalProperty_set.set(_this22.context, 'fifth', ['Wrath']);
+        _emberMetalProperty_set.set(_this22.context, 'ninth', ['Treachery']);
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
     };
 
     _class9.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
-      var _this22 = this;
+      var _this23 = this;
 
       this.render('{{#each name key="@index" as |foo|}}{{#each foo as |bar|}}{{bar}}{{/each}}{{/each}}', {
         name: _emberRuntimeSystemNative_array.A([_emberRuntimeSystemNative_array.A(['caterpillar'])])
@@ -53049,13 +53175,13 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        var name = _emberMetalProperty_get.get(_this22.context, 'name');
+        var name = _emberMetalProperty_get.get(_this23.context, 'name');
         name.objectAt(0).replace(0, 1, 'lady');
         name.pushObject(['bird']);
       });
@@ -53063,7 +53189,7 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
       this.assertText('ladybird');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this22.context, 'name', [['caterpillar']]);
+        return _emberMetalProperty_set.set(_this23.context, 'name', [['caterpillar']]);
       });
 
       this.assertText('caterpillar');
@@ -53082,26 +53208,26 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
     }
 
     _class10.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this23 = this;
+      var _this24 = this;
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'foo', { bar: { baz: ['Here!'] } });
+        return _emberMetalProperty_set.set(_this24.context, 'foo', { bar: { baz: ['Here!'] } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'foo', {});
+        return _emberMetalProperty_set.set(_this24.context, 'foo', {});
       });
 
       this.assertText('');
