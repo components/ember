@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+89905695
+ * @version   2.9.0-null+3f4ba8d4
  */
 
 var enifed, requireModule, require, Ember;
@@ -3454,8 +3454,6 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
 
   var Cache = (function () {
     function Cache(limit, func, key, store) {
-      babelHelpers.classCallCheck(this, Cache);
-
       this.size = 0;
       this.misses = 0;
       this.hits = 0;
@@ -3516,8 +3514,6 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
 
   var DefaultStore = (function () {
     function DefaultStore() {
-      babelHelpers.classCallCheck(this, DefaultStore);
-
       this.data = new _emberMetalEmpty_object.default();
     }
 
@@ -13722,8 +13718,6 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/debug', 'ember-me
         babelHelpers.inherits(ProxyTag, _CachedTag);
 
         function ProxyTag(proxy, content) {
-          babelHelpers.classCallCheck(this, ProxyTag);
-
           _CachedTag.call(this);
           this.proxyWrapperTag = new DirtyableTag();
           this.proxyContentTag = new UpdatableTag(_emberMetalTags.tagFor(content));
@@ -20123,82 +20117,8 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+89905695";
+  exports.default = "2.9.0-null+3f4ba8d4";
 });
-var babelHelpers;
-
-function classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError('Cannot call a class as a function');
-  }
-}
-
-function inherits(subClass, superClass) {
-  if (typeof superClass !== 'function' && superClass !== null) {
-    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
-}
-
-function taggedTemplateLiteralLoose(strings, raw) {
-  strings.raw = raw;
-  return strings;
-}
-
-function defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ('value' in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function interopExportWildcard(obj, defaults) {
-  var newObj = defaults({}, obj);
-  delete newObj['default'];
-  return newObj;
-}
-
-function defaults(obj, defaults) {
-  var keys = Object.getOwnPropertyNames(defaults);
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    var value = Object.getOwnPropertyDescriptor(defaults, key);
-    if (value && value.configurable && obj[key] === undefined) {
-      Object.defineProperty(obj, key, value);
-    }
-  }
-  return obj;
-}
-
-babelHelpers = {
-  classCallCheck: classCallCheck,
-  inherits: inherits,
-  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
-  slice: Array.prototype.slice,
-  createClass: createClass,
-  interopExportWildcard: interopExportWildcard,
-  defaults: defaults
-};
-
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
 

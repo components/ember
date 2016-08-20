@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+89905695
+ * @version   2.9.0-null+3f4ba8d4
  */
 
 var enifed, requireModule, require, Ember;
@@ -2083,6 +2083,8 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime/ext/rsvp', 'embe
     babelHelpers.inherits(TestPromise, _RSVP$Promise);
 
     function TestPromise() {
+      babelHelpers.classCallCheck(this, TestPromise);
+
       _RSVP$Promise.apply(this, arguments);
       lastPromise = this;
     }
@@ -2324,69 +2326,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-
     return array;
   }
 });
-var babelHelpers;
-
-function inherits(subClass, superClass) {
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
-}
-
-function taggedTemplateLiteralLoose(strings, raw) {
-  strings.raw = raw;
-  return strings;
-}
-
-function defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ('value' in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function interopExportWildcard(obj, defaults) {
-  var newObj = defaults({}, obj);
-  delete newObj['default'];
-  return newObj;
-}
-
-function defaults(obj, defaults) {
-  var keys = Object.getOwnPropertyNames(defaults);
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    var value = Object.getOwnPropertyDescriptor(defaults, key);
-    if (value && value.configurable && obj[key] === undefined) {
-      Object.defineProperty(obj, key, value);
-    }
-  }
-  return obj;
-}
-
-babelHelpers = {
-  inherits: inherits,
-  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
-  slice: Array.prototype.slice,
-  createClass: createClass,
-  interopExportWildcard: interopExportWildcard,
-  defaults: defaults
-};
-
 requireModule("ember-testing");
 
 }());

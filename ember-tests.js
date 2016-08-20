@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+89905695
+ * @version   2.9.0-null+3f4ba8d4
  */
 
 var enifed, requireModule, require, Ember;
@@ -2064,9 +2064,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     strictEqual(application.resolveRegistration('application:main'), application, 'application:main is registered');
     deepEqual(application.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
     deepEqual(application.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'renderer', 'dom', 'service:-dom-helper');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'controller:basic');
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-dom-helper', 'document', 'service:-document');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, '-view-registry:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'view', '_viewRegistry', '-view-registry:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', '_topLevelViewTemplate', 'template:-outlet');
@@ -2107,12 +2105,14 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
 
     if (_emberMetalFeatures.default('ember-glimmer')) {
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-glimmer-environment');
-      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-glimmer-environment', 'dom', 'service:-dom-helper');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-dom-changes');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-dom-tree-construction');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'renderer', 'env', 'service:-glimmer-environment');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'view:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-dom');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-inert');
-      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'service:-dom-helper');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _containerRegistry.privatize(_templateObject2));
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'template:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'view:-outlet', 'template', 'template:-outlet');
@@ -2120,6 +2120,9 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
       deepEqual(application.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
     } else {
       deepEqual(application.registeredOptionsForType('template'), { instantiate: false }, 'optionsForType \'template\'');
+
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'renderer', 'dom', 'service:-dom-helper');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'service:-dom-helper', 'document', 'service:-document');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'view:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-dom');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-inert');
@@ -3831,9 +3834,7 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
     strictEqual(engine.resolveRegistration('application:main'), engine, 'application:main is registered');
     deepEqual(engine.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
     deepEqual(engine.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'renderer', 'dom', 'service:-dom-helper');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'controller:basic');
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-helper', 'document', 'service:-document');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'view', '_viewRegistry', '-view-registry:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', '_topLevelViewTemplate', 'template:-outlet');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'view:-outlet', 'namespace', 'application:main');
@@ -3863,6 +3864,8 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'component-lookup:main');
 
     if (_emberMetalFeatures.default('ember-glimmer')) {
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-changes', 'document', 'service:-document');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, _containerRegistry.privatize(_templateObject2));
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'template:-outlet');
@@ -3871,6 +3874,10 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
       deepEqual(engine.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
     } else {
       deepEqual(engine.registeredOptionsForType('template'), { instantiate: false }, 'optionsForType \'template\'');
+
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'renderer', 'dom', 'service:-dom-helper');
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-helper', 'document', 'service:-document');
+
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'template:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:toplevel');
@@ -6474,6 +6481,8 @@ enifed('ember-dev/test-helper/debug', ['exports', 'ember-dev/test-helper/method-
 
   var DebugAssert = (function () {
     function DebugAssert(methodName, env) {
+      babelHelpers.classCallCheck(this, DebugAssert);
+
       this.methodName = methodName;
       this.env = env;
     }
@@ -6540,6 +6549,8 @@ enifed('ember-dev/test-helper/deprecation', ['exports', 'ember-dev/test-helper/d
     babelHelpers.inherits(DeprecationAssert, _DebugAssert);
 
     function DeprecationAssert(env) {
+      babelHelpers.classCallCheck(this, DeprecationAssert);
+
       _DebugAssert.call(this, 'deprecate', env);
     }
 
@@ -6945,6 +6956,8 @@ enifed('ember-dev/test-helper/warning', ['exports', 'ember-dev/test-helper/debug
     babelHelpers.inherits(WarningAssert, _DebugAssert);
 
     function WarningAssert(env) {
+      babelHelpers.classCallCheck(this, WarningAssert);
+
       _DebugAssert.call(this, 'warn', env);
     }
 
@@ -7372,6 +7385,8 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports',
 babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _ApplicationTest.apply(this, arguments);
     }
 
@@ -7690,6 +7705,8 @@ enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', '
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -7760,6 +7777,8 @@ enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['e
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -8437,6 +8456,8 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -8698,6 +8719,8 @@ enifed('ember-glimmer/tests/integration/components/class-bindings-test', ['expor
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -9088,6 +9111,8 @@ babelHelpers.inherits(_class, _RenderingTest);
 babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -9247,6 +9272,8 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -10413,6 +10440,8 @@ babelHelpers.inherits(_class, _RenderingTest);
 babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
 
     function ClosureComponentMutableParamsTest() {
+babelHelpers.classCallCheck(this, ClosureComponentMutableParamsTest);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -10427,6 +10456,8 @@ babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
 
   var MutableParamTestGenerator = (function () {
     function MutableParamTestGenerator(cases) {
+babelHelpers.classCallCheck(this, MutableParamTestGenerator);
+
       this.cases = cases;
     }
 
@@ -10560,6 +10591,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -13321,6 +13354,8 @@ enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['e
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -14139,6 +14174,8 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test', ['
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -14358,6 +14395,8 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
 babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
     function LifeCycleHooksTest() {
+babelHelpers.classCallCheck(this, LifeCycleHooksTest);
+
       _RenderingTest.call(this);
       this.hooks = [];
       this.components = {};
@@ -14845,6 +14884,8 @@ babelHelpers.createClass(LifeCycleHooksTest, [{
 babelHelpers.inherits(_class, _LifeCycleHooksTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _LifeCycleHooksTest.apply(this, arguments);
     }
 
@@ -14888,6 +14929,8 @@ babelHelpers.createClass(_class, [{
 babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -14988,6 +15031,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
     babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _ApplicationTest.apply(this, arguments);
     }
 
@@ -15157,6 +15202,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
     babelHelpers.inherits(_class2, _ApplicationTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _ApplicationTest2.apply(this, arguments);
 
       if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
@@ -15253,6 +15300,8 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -15433,6 +15482,8 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
       this.actionCounts = {};
       this.sendCount = 0;
@@ -15676,6 +15727,8 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
     babelHelpers.inherits(_class2, _ApplicationTest);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _ApplicationTest.apply(this, arguments);
     }
 
@@ -15824,6 +15877,8 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
     babelHelpers.inherits(_class3, _RenderingTest2);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -15904,6 +15959,8 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
     babelHelpers.inherits(_class4, _RenderingTest3);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _RenderingTest3.apply(this, arguments);
     }
 
@@ -16098,6 +16155,8 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -16155,6 +16214,8 @@ enifed('ember-glimmer/tests/integration/components/web-component-fallback-test',
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -16202,6 +16263,8 @@ enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-tes
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -16249,6 +16312,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -16307,6 +16372,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(DynamicContentTest, _RenderingTest2);
 
     function DynamicContentTest() {
+      babelHelpers.classCallCheck(this, DynamicContentTest);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -16764,6 +16831,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
   var ContentTestGenerator = (function () {
     function ContentTestGenerator(cases) {
       var tag = arguments.length <= 1 || arguments[1] === undefined ? '@test' : arguments[1];
+      babelHelpers.classCallCheck(this, ContentTestGenerator);
 
       this.cases = cases;
       this.tag = tag;
@@ -16852,6 +16920,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class2, _DynamicContentTest);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _DynamicContentTest.apply(this, arguments);
     }
 
@@ -16873,6 +16943,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class3, _DynamicContentTest2);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _DynamicContentTest2.apply(this, arguments);
     }
 
@@ -16894,6 +16966,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class4, _DynamicContentTest3);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _DynamicContentTest3.apply(this, arguments);
     }
 
@@ -16922,6 +16996,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class5, _DynamicContentTest4);
 
     function _class5() {
+      babelHelpers.classCallCheck(this, _class5);
+
       _DynamicContentTest4.apply(this, arguments);
     }
 
@@ -16948,6 +17024,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(TrustedContentTest, _DynamicContentTest5);
 
     function TrustedContentTest() {
+      babelHelpers.classCallCheck(this, TrustedContentTest);
+
       _DynamicContentTest5.apply(this, arguments);
     }
 
@@ -16981,6 +17059,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class6, _TrustedContentTest);
 
     function _class6() {
+      babelHelpers.classCallCheck(this, _class6);
+
       _TrustedContentTest.apply(this, arguments);
     }
 
@@ -17033,6 +17113,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class7, _RenderingTest3);
 
     function _class7() {
+      babelHelpers.classCallCheck(this, _class7);
+
       _RenderingTest3.apply(this, arguments);
     }
 
@@ -17562,6 +17644,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(StyleTest, _RenderingTest4);
 
     function StyleTest() {
+      babelHelpers.classCallCheck(this, StyleTest);
+
       _RenderingTest4.apply(this, arguments);
       warnings = [];
       originalWarn = _emberMetalDebug.getDebugFunction('warn');
@@ -17594,6 +17678,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     babelHelpers.inherits(_class8, _StyleTest);
 
     function _class8() {
+      babelHelpers.classCallCheck(this, _class8);
+
       _StyleTest.apply(this, arguments);
     }
 
@@ -17671,6 +17757,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       babelHelpers.inherits(_class9, _StyleTest2);
 
       function _class9() {
+        babelHelpers.classCallCheck(this, _class9);
+
         _StyleTest2.apply(this, arguments);
       }
 
@@ -17754,6 +17842,8 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -17869,6 +17959,8 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
     babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.call(this);
 
       var dispatcher = this.owner.lookup('event_dispatcher:main');
@@ -17945,6 +18037,8 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
       babelHelpers.inherits(_class3, _RenderingTest3);
 
       function _class3() {
+        babelHelpers.classCallCheck(this, _class3);
+
         _RenderingTest3.apply(this, arguments);
       }
 
@@ -18009,6 +18103,8 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
       babelHelpers.inherits(_class4, _RenderingTest4);
 
       function _class4() {
+        babelHelpers.classCallCheck(this, _class4);
+
         _RenderingTest4.apply(this, arguments);
       }
 
@@ -18039,6 +18135,8 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -18113,6 +18211,8 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
+        babelHelpers.classCallCheck(this, _class);
+
         _RenderingTest.apply(this, arguments);
       }
 
@@ -18331,6 +18431,8 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
     babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -19297,6 +19399,8 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -19433,6 +19537,8 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -20087,6 +20193,8 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
 babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
+babelHelpers.classCallCheck(this, _class);
+
         _RenderingTest.apply(this, arguments);
       }
 
@@ -20148,6 +20256,8 @@ babelHelpers.inherits(_class, _RenderingTest);
 babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -21612,6 +21722,8 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['exports', 'ember-gl
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -22249,6 +22361,8 @@ enifed('ember-glimmer/tests/integration/helpers/hash-test', ['exports', 'ember-g
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -22472,6 +22586,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class, _IfUnlessHelperTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _IfUnlessHelperTest.apply(this, arguments);
     }
 
@@ -22506,6 +22622,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class2, _IfUnlessHelperTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _IfUnlessHelperTest2.apply(this, arguments);
     }
 
@@ -22524,6 +22642,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class3, _IfUnlessHelperTest3);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _IfUnlessHelperTest3.apply(this, arguments);
     }
 
@@ -22542,6 +22662,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class4, _IfUnlessHelperTest4);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _IfUnlessHelperTest4.apply(this, arguments);
     }
 
@@ -22564,6 +22686,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class5, _IfUnlessHelperTest5);
 
     function _class5() {
+      babelHelpers.classCallCheck(this, _class5);
+
       _IfUnlessHelperTest5.apply(this, arguments);
     }
 
@@ -22590,6 +22714,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class6, _IfUnlessHelperTest6);
 
     function _class6() {
+      babelHelpers.classCallCheck(this, _class6);
+
       _IfUnlessHelperTest6.apply(this, arguments);
     }
 
@@ -22608,6 +22734,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class7, _IfUnlessHelperTest7);
 
     function _class7() {
+      babelHelpers.classCallCheck(this, _class7);
+
       _IfUnlessHelperTest7.apply(this, arguments);
     }
 
@@ -22642,6 +22770,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class8, _IfUnlessHelperTest8);
 
     function _class8() {
+      babelHelpers.classCallCheck(this, _class8);
+
       _IfUnlessHelperTest8.apply(this, arguments);
     }
 
@@ -22660,6 +22790,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class9, _IfUnlessHelperTest9);
 
     function _class9() {
+      babelHelpers.classCallCheck(this, _class9);
+
       _IfUnlessHelperTest9.apply(this, arguments);
     }
 
@@ -22678,6 +22810,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class10, _IfUnlessHelperTest10);
 
     function _class10() {
+      babelHelpers.classCallCheck(this, _class10);
+
       _IfUnlessHelperTest10.apply(this, arguments);
     }
 
@@ -22700,6 +22834,8 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     babelHelpers.inherits(_class11, _IfUnlessHelperTest11);
 
     function _class11() {
+      babelHelpers.classCallCheck(this, _class11);
+
       _IfUnlessHelperTest11.apply(this, arguments);
     }
 
@@ -22729,6 +22865,8 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     babelHelpers.inherits(InputRenderingTest, _RenderingTest);
 
     function InputRenderingTest() {
+      babelHelpers.classCallCheck(this, InputRenderingTest);
+
       _RenderingTest.call(this);
 
       this.registerComponent('-text-field', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextField });
@@ -22811,6 +22949,8 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     babelHelpers.inherits(_class, _InputRenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _InputRenderingTest.apply(this, arguments);
     }
 
@@ -23170,6 +23310,8 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     babelHelpers.inherits(_class2, _InputRenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _InputRenderingTest2.apply(this, arguments);
     }
 
@@ -23206,6 +23348,8 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     babelHelpers.inherits(_class3, _InputRenderingTest3);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _InputRenderingTest3.apply(this, arguments);
     }
 
@@ -23320,6 +23464,8 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     babelHelpers.inherits(_class4, _InputRenderingTest4);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _InputRenderingTest4.apply(this, arguments);
     }
 
@@ -23397,6 +23543,8 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['exports', 'ember-gl
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
       this.oldString = _emberMetalCore.default.STRINGS;
       _emberMetalCore.default.STRINGS = {
@@ -23510,6 +23658,8 @@ enifed('ember-glimmer/tests/integration/helpers/log-test', ['exports', 'ember-gl
     function _class(assert) {
       var _this = this;
 
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
 
       this.originalLog = _emberConsole.default.log;
@@ -23573,6 +23723,8 @@ enifed('ember-glimmer/tests/integration/helpers/mut-test', ['exports', 'ember-gl
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -24057,6 +24209,8 @@ enifed('ember-glimmer/tests/integration/helpers/mut-test', ['exports', 'ember-gl
     babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -24205,6 +24359,8 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['exports', 'embe
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -24359,6 +24515,8 @@ enifed('ember-glimmer/tests/integration/helpers/readonly-test', ['exports', 'emb
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -24523,6 +24681,8 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -24881,6 +25041,8 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
     babelHelpers.inherits(TextAreaRenderingTest, _RenderingTest);
 
     function TextAreaRenderingTest() {
+      babelHelpers.classCallCheck(this, TextAreaRenderingTest);
+
       _RenderingTest.call(this);
 
       this.registerComponent('-text-area', { ComponentClass: _emberGlimmerTestsUtilsHelpers.TextArea });
@@ -24915,6 +25077,8 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
 
   var BoundTextAreaAttributes = (function () {
     function BoundTextAreaAttributes(cases) {
+      babelHelpers.classCallCheck(this, BoundTextAreaAttributes);
+
       this.cases = cases;
     }
 
@@ -24959,6 +25123,8 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
     babelHelpers.inherits(_class, _TextAreaRenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _TextAreaRenderingTest.apply(this, arguments);
     }
 
@@ -25072,6 +25238,8 @@ enifed('ember-glimmer/tests/integration/helpers/unbound-test', ['exports', 'embe
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -25808,6 +25976,8 @@ enifed('ember-glimmer/tests/integration/helpers/yield-test', ['exports', 'ember-
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -26106,6 +26276,8 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -26324,6 +26496,8 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
 
       var CoreOutlet = this.owner._lookupFactory('view:-outlet');
@@ -26581,6 +26755,8 @@ enifed('ember-glimmer/tests/integration/svg-test', ['exports', 'ember-glimmer/te
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -26735,6 +26911,8 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
 babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 
     function EachInTest() {
+babelHelpers.classCallCheck(this, EachInTest);
+
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
@@ -26754,9 +26932,13 @@ babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
   function NonEmptyFunction() {}
   NonEmptyFunction.foo = 'bar';
 
-  var EmptyConstructor = function EmptyConstructor() {};
+  var EmptyConstructor = function EmptyConstructor() {
+babelHelpers.classCallCheck(this, EmptyConstructor);
+  };
 
-  var NonEmptyConstructor = function NonEmptyConstructor() {};
+  var NonEmptyConstructor = function NonEmptyConstructor() {
+babelHelpers.classCallCheck(this, NonEmptyConstructor);
+  };
 
   NonEmptyConstructor.foo = 'bar';
 
@@ -26764,6 +26946,8 @@ babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 babelHelpers.inherits(BasicEachInTest, _EachInTest);
 
     function BasicEachInTest() {
+babelHelpers.classCallCheck(this, BasicEachInTest);
+
       _EachInTest.apply(this, arguments);
     }
 
@@ -26776,6 +26960,8 @@ babelHelpers.inherits(BasicEachInTest, _EachInTest);
 babelHelpers.inherits(_class, _BasicEachInTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _BasicEachInTest.apply(this, arguments);
     }
 
@@ -27061,6 +27247,8 @@ babelHelpers.createClass(_class, [{
 babelHelpers.inherits(EachInEdgeCasesTest, _EachInTest2);
 
     function EachInEdgeCasesTest() {
+babelHelpers.classCallCheck(this, EachInEdgeCasesTest);
+
       _EachInTest2.apply(this, arguments);
     }
 
@@ -27073,6 +27261,8 @@ babelHelpers.inherits(EachInEdgeCasesTest, _EachInTest2);
 babelHelpers.inherits(_class2, _EachInEdgeCasesTest);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _EachInEdgeCasesTest.apply(this, arguments);
     }
 
@@ -27094,6 +27284,8 @@ babelHelpers.createClass(_class2, [{
 babelHelpers.inherits(EachInProxyTest, _EachInTest3);
 
     function EachInProxyTest() {
+babelHelpers.classCallCheck(this, EachInProxyTest);
+
       _EachInTest3.apply(this, arguments);
     }
 
@@ -27106,6 +27298,8 @@ babelHelpers.inherits(EachInProxyTest, _EachInTest3);
 babelHelpers.inherits(_class3, _EachInProxyTest);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _EachInProxyTest.apply(this, arguments);
     }
 
@@ -27178,6 +27372,8 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
+babelHelpers.classCallCheck(this, ArrayLike);
+
       this._array = content;
     }
 
@@ -27269,6 +27465,8 @@ babelHelpers.createClass(ArrayLike, [{
 babelHelpers.inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
 
     function TogglingEachTest() {
+babelHelpers.classCallCheck(this, TogglingEachTest);
+
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
@@ -27290,6 +27488,8 @@ babelHelpers.createClass(TogglingEachTest, [{
 babelHelpers.inherits(BasicEachTest, _TogglingEachTest);
 
     function BasicEachTest() {
+babelHelpers.classCallCheck(this, BasicEachTest);
+
       _TogglingEachTest.apply(this, arguments);
     }
 
@@ -27302,6 +27502,8 @@ babelHelpers.inherits(BasicEachTest, _TogglingEachTest);
 babelHelpers.inherits(_class, _BasicEachTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _BasicEachTest.apply(this, arguments);
     }
 
@@ -27320,6 +27522,8 @@ babelHelpers.inherits(_class, _BasicEachTest);
 babelHelpers.inherits(_class2, _BasicEachTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _BasicEachTest2.apply(this, arguments);
     }
 
@@ -27338,6 +27542,8 @@ babelHelpers.inherits(_class2, _BasicEachTest2);
 babelHelpers.inherits(EachEdgeCasesTest, _TogglingEachTest2);
 
     function EachEdgeCasesTest() {
+babelHelpers.classCallCheck(this, EachEdgeCasesTest);
+
       _TogglingEachTest2.apply(this, arguments);
     }
 
@@ -27350,6 +27556,8 @@ babelHelpers.inherits(EachEdgeCasesTest, _TogglingEachTest2);
 babelHelpers.inherits(_class3, _EachEdgeCasesTest);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _EachEdgeCasesTest.apply(this, arguments);
     }
 
@@ -27368,6 +27576,8 @@ babelHelpers.inherits(_class3, _EachEdgeCasesTest);
 babelHelpers.inherits(_class4, _EachEdgeCasesTest2);
 
     function _class4() {
+babelHelpers.classCallCheck(this, _class4);
+
       _EachEdgeCasesTest2.apply(this, arguments);
     }
 
@@ -27386,6 +27596,8 @@ babelHelpers.inherits(_class4, _EachEdgeCasesTest2);
 babelHelpers.inherits(AbstractEachTest, _RenderingTest);
 
     function AbstractEachTest() {
+babelHelpers.classCallCheck(this, AbstractEachTest);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -27471,6 +27683,8 @@ babelHelpers.inherits(AbstractEachTest, _RenderingTest);
 babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
 
     function SingleEachTest() {
+babelHelpers.classCallCheck(this, SingleEachTest);
+
       _AbstractEachTest.apply(this, arguments);
     }
 
@@ -28039,6 +28253,8 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
 babelHelpers.inherits(_class5, _SingleEachTest);
 
     function _class5() {
+babelHelpers.classCallCheck(this, _class5);
+
       _SingleEachTest.apply(this, arguments);
     }
 
@@ -28053,6 +28269,8 @@ babelHelpers.inherits(_class5, _SingleEachTest);
 babelHelpers.inherits(_class6, _SingleEachTest2);
 
     function _class6() {
+babelHelpers.classCallCheck(this, _class6);
+
       _SingleEachTest2.apply(this, arguments);
     }
 
@@ -28067,6 +28285,8 @@ babelHelpers.inherits(_class6, _SingleEachTest2);
 babelHelpers.inherits(_class7, _SingleEachTest3);
 
     function _class7() {
+babelHelpers.classCallCheck(this, _class7);
+
       _SingleEachTest3.apply(this, arguments);
     }
 
@@ -28081,6 +28301,8 @@ babelHelpers.inherits(_class7, _SingleEachTest3);
 babelHelpers.inherits(_class8, _SingleEachTest4);
 
     function _class8() {
+babelHelpers.classCallCheck(this, _class8);
+
       _SingleEachTest4.apply(this, arguments);
     }
 
@@ -28106,6 +28328,8 @@ babelHelpers.inherits(_class8, _SingleEachTest4);
 babelHelpers.inherits(_class9, _RenderingTest2);
 
     function _class9() {
+babelHelpers.classCallCheck(this, _class9);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -28246,6 +28470,8 @@ babelHelpers.inherits(_class9, _RenderingTest2);
 babelHelpers.inherits(_class10, _RenderingTest3);
 
     function _class10() {
+babelHelpers.classCallCheck(this, _class10);
+
       _RenderingTest3.apply(this, arguments);
     }
 
@@ -28288,6 +28514,8 @@ enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'emb
 babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
@@ -28306,6 +28534,8 @@ babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
@@ -28324,6 +28554,8 @@ babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 babelHelpers.inherits(_class3, _IfUnlessWithSyntaxTest3);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _IfUnlessWithSyntaxTest3.apply(this, arguments);
     }
 
@@ -28342,6 +28574,8 @@ babelHelpers.inherits(_class3, _IfUnlessWithSyntaxTest3);
 babelHelpers.inherits(_class4, _RenderingTest);
 
     function _class4() {
+babelHelpers.classCallCheck(this, _class4);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -28423,6 +28657,8 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-me
 babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
@@ -28441,6 +28677,8 @@ babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
@@ -28706,6 +28944,8 @@ babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 babelHelpers.inherits(_class3, _RenderingTest);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -28891,6 +29131,8 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 
   var Counter = (function () {
     function Counter() {
+      babelHelpers.classCallCheck(this, Counter);
+
       this.reset();
     }
 
@@ -28915,6 +29157,8 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 
   var BasicCompiler = (function () {
     function BasicCompiler(template) {
+      babelHelpers.classCallCheck(this, BasicCompiler);
+
       this.template = template;
     }
 
@@ -28932,6 +29176,8 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
     babelHelpers.inherits(TypeOneCompiler, _BasicCompiler);
 
     function TypeOneCompiler() {
+      babelHelpers.classCallCheck(this, TypeOneCompiler);
+
       _BasicCompiler.apply(this, arguments);
     }
 
@@ -28942,6 +29188,8 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
     babelHelpers.inherits(TypeTwoCompiler, _BasicCompiler2);
 
     function TypeTwoCompiler() {
+      babelHelpers.classCallCheck(this, TypeTwoCompiler);
+
       _BasicCompiler2.apply(this, arguments);
     }
 
@@ -28955,6 +29203,8 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
       COUNTER.reset();
     }
@@ -29043,6 +29293,8 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glim
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -29213,6 +29465,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
   var TestCase = (function () {
     function TestCase() {
+      babelHelpers.classCallCheck(this, TestCase);
+
       this.element = null;
       this.snapshot = null;
       this.assert = QUnit.config.current.assert;
@@ -29389,6 +29643,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     babelHelpers.inherits(AbstractApplicationTest, _TestCase);
 
     function AbstractApplicationTest() {
+      babelHelpers.classCallCheck(this, AbstractApplicationTest);
+
       _TestCase.call(this);
 
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
@@ -29477,6 +29733,8 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
     babelHelpers.inherits(AbstractRenderingTest, _TestCase2);
 
     function AbstractRenderingTest() {
+      babelHelpers.classCallCheck(this, AbstractRenderingTest);
+
       _TestCase2.call(this);
       var owner = this.owner = _emberGlimmerTestsUtilsHelpers.buildOwner(this.getOwnerOptions());
 
@@ -29651,7 +29909,7 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
   exports.TextArea = _emberGlimmerComponentsText_area.default;
   exports.TextField = _emberGlimmerComponentsText_field.default;
   exports.LinkTo = _emberGlimmerComponentsLinkTo.default;
-  exports.DOMHelper = _glimmerRuntime.DOMHelper;
+  exports.DOMChanges = _glimmerRuntime.DOMChanges;
   exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
   exports.makeBoundHelper = _emberGlimmerMakeBoundHelper.default;
@@ -29698,6 +29956,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(AbstractConditionalsTest, _RenderingTest);
 
     function AbstractConditionalsTest() {
+      babelHelpers.classCallCheck(this, AbstractConditionalsTest);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -29742,6 +30002,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   var AbstractGenerator = (function () {
     function AbstractGenerator(cases) {
+      babelHelpers.classCallCheck(this, AbstractGenerator);
+
       this.cases = cases;
     }
 
@@ -29768,6 +30030,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(TruthyGenerator, _AbstractGenerator);
 
     function TruthyGenerator() {
+      babelHelpers.classCallCheck(this, TruthyGenerator);
+
       _AbstractGenerator.apply(this, arguments);
     }
 
@@ -29810,6 +30074,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(FalsyGenerator, _AbstractGenerator2);
 
     function FalsyGenerator() {
+      babelHelpers.classCallCheck(this, FalsyGenerator);
+
       _AbstractGenerator2.apply(this, arguments);
     }
 
@@ -29852,6 +30118,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(StableTruthyGenerator, _TruthyGenerator);
 
     function StableTruthyGenerator() {
+      babelHelpers.classCallCheck(this, StableTruthyGenerator);
+
       _TruthyGenerator.apply(this, arguments);
     }
 
@@ -29894,6 +30162,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(StableFalsyGenerator, _FalsyGenerator);
 
     function StableFalsyGenerator() {
+      babelHelpers.classCallCheck(this, StableFalsyGenerator);
+
       _FalsyGenerator.apply(this, arguments);
     }
 
@@ -29936,6 +30206,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(ObjectProxyGenerator, _AbstractGenerator3);
 
     function ObjectProxyGenerator() {
+      babelHelpers.classCallCheck(this, ObjectProxyGenerator);
+
       _AbstractGenerator3.apply(this, arguments);
     }
 
@@ -30011,6 +30283,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(BasicConditionalsTest, _AbstractConditionalsTest);
 
     function BasicConditionalsTest() {
+      babelHelpers.classCallCheck(this, BasicConditionalsTest);
+
       _AbstractConditionalsTest.apply(this, arguments);
     }
 
@@ -30210,6 +30484,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(TogglingConditionalsTest, _BasicConditionalsTest);
 
     function TogglingConditionalsTest() {
+      babelHelpers.classCallCheck(this, TogglingConditionalsTest);
+
       _BasicConditionalsTest.apply(this, arguments);
     }
 
@@ -30223,6 +30499,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
 
     function TogglingHelperConditionalsTest() {
+      babelHelpers.classCallCheck(this, TogglingHelperConditionalsTest);
+
       _TogglingConditionalsTest.apply(this, arguments);
     }
 
@@ -30402,6 +30680,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
 
     function IfUnlessHelperTest() {
+      babelHelpers.classCallCheck(this, IfUnlessHelperTest);
+
       _TogglingHelperConditionalsTest.apply(this, arguments);
     }
 
@@ -30419,6 +30699,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
 
     function TogglingSyntaxConditionalsTest() {
+      babelHelpers.classCallCheck(this, TogglingSyntaxConditionalsTest);
+
       _TogglingConditionalsTest2.apply(this, arguments);
     }
 
@@ -30759,6 +31041,8 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     babelHelpers.inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
 
     function IfUnlessWithSyntaxTest() {
+      babelHelpers.classCallCheck(this, IfUnlessWithSyntaxTest);
+
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
@@ -30776,6 +31060,8 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
     babelHelpers.inherits(_class, _TestCase);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _TestCase.apply(this, arguments);
     }
 
@@ -30807,6 +31093,8 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
       babelHelpers.inherits(_class2, _TestCase2);
 
       function _class2() {
+        babelHelpers.classCallCheck(this, _class2);
+
         _TestCase2.apply(this, arguments);
       }
 
@@ -30838,6 +31126,8 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
     babelHelpers.inherits(ApplicationTest, _AbstractApplicationTest);
 
     function ApplicationTest() {
+      babelHelpers.classCallCheck(this, ApplicationTest);
+
       _AbstractApplicationTest.apply(this, arguments);
     }
 
@@ -30858,6 +31148,8 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
     babelHelpers.inherits(RenderingTest, _AbstractRenderingTest);
 
     function RenderingTest() {
+      babelHelpers.classCallCheck(this, RenderingTest);
+
       _AbstractRenderingTest.call(this);
       var owner = this.owner;
 
@@ -31181,6 +31473,8 @@ enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports'
 babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _ApplicationTest.apply(this, arguments);
     }
 
@@ -31499,6 +31793,8 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -31569,6 +31865,8 @@ enifed('ember-htmlbars/tests/integration/components/attribute-bindings-test', ['
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -32246,6 +32544,8 @@ enifed('ember-htmlbars/tests/integration/components/attrs-lookup-test', ['export
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -32507,6 +32807,8 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -32897,6 +33199,8 @@ babelHelpers.inherits(_class, _RenderingTest);
 babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -33056,6 +33360,8 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -34222,6 +34528,8 @@ babelHelpers.inherits(_class, _RenderingTest);
 babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
 
     function ClosureComponentMutableParamsTest() {
+babelHelpers.classCallCheck(this, ClosureComponentMutableParamsTest);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -34236,6 +34544,8 @@ babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
 
   var MutableParamTestGenerator = (function () {
     function MutableParamTestGenerator(cases) {
+babelHelpers.classCallCheck(this, MutableParamTestGenerator);
+
       this.cases = cases;
     }
 
@@ -34369,6 +34679,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -37130,6 +37442,8 @@ enifed('ember-htmlbars/tests/integration/components/dynamic-components-test', ['
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -37948,6 +38262,8 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -38167,6 +38483,8 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
     function LifeCycleHooksTest() {
+babelHelpers.classCallCheck(this, LifeCycleHooksTest);
+
       _RenderingTest.call(this);
       this.hooks = [];
       this.components = {};
@@ -38654,6 +38972,8 @@ babelHelpers.createClass(LifeCycleHooksTest, [{
 babelHelpers.inherits(_class, _LifeCycleHooksTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _LifeCycleHooksTest.apply(this, arguments);
     }
 
@@ -38697,6 +39017,8 @@ babelHelpers.createClass(_class, [{
 babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -38797,6 +39119,8 @@ enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', '
     babelHelpers.inherits(_class, _ApplicationTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _ApplicationTest.apply(this, arguments);
     }
 
@@ -38966,6 +39290,8 @@ enifed('ember-htmlbars/tests/integration/components/link-to-test', ['exports', '
     babelHelpers.inherits(_class2, _ApplicationTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _ApplicationTest2.apply(this, arguments);
 
       if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
@@ -39062,6 +39388,8 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -39242,6 +39570,8 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
       this.actionCounts = {};
       this.sendCount = 0;
@@ -39485,6 +39815,8 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
     babelHelpers.inherits(_class2, _ApplicationTest);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _ApplicationTest.apply(this, arguments);
     }
 
@@ -39633,6 +39965,8 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
     babelHelpers.inherits(_class3, _RenderingTest2);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -39713,6 +40047,8 @@ enifed('ember-htmlbars/tests/integration/components/target-action-test', ['expor
     babelHelpers.inherits(_class4, _RenderingTest3);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _RenderingTest3.apply(this, arguments);
     }
 
@@ -39907,6 +40243,8 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -39964,6 +40302,8 @@ enifed('ember-htmlbars/tests/integration/components/web-component-fallback-test'
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -40011,6 +40351,8 @@ enifed('ember-htmlbars/tests/integration/components/will-destroy-element-hook-te
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -40058,6 +40400,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -40116,6 +40460,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(DynamicContentTest, _RenderingTest2);
 
     function DynamicContentTest() {
+      babelHelpers.classCallCheck(this, DynamicContentTest);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -40573,6 +40919,7 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
   var ContentTestGenerator = (function () {
     function ContentTestGenerator(cases) {
       var tag = arguments.length <= 1 || arguments[1] === undefined ? '@test' : arguments[1];
+      babelHelpers.classCallCheck(this, ContentTestGenerator);
 
       this.cases = cases;
       this.tag = tag;
@@ -40661,6 +41008,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class2, _DynamicContentTest);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _DynamicContentTest.apply(this, arguments);
     }
 
@@ -40682,6 +41031,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class3, _DynamicContentTest2);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _DynamicContentTest2.apply(this, arguments);
     }
 
@@ -40703,6 +41054,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class4, _DynamicContentTest3);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _DynamicContentTest3.apply(this, arguments);
     }
 
@@ -40731,6 +41084,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class5, _DynamicContentTest4);
 
     function _class5() {
+      babelHelpers.classCallCheck(this, _class5);
+
       _DynamicContentTest4.apply(this, arguments);
     }
 
@@ -40757,6 +41112,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(TrustedContentTest, _DynamicContentTest5);
 
     function TrustedContentTest() {
+      babelHelpers.classCallCheck(this, TrustedContentTest);
+
       _DynamicContentTest5.apply(this, arguments);
     }
 
@@ -40790,6 +41147,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class6, _TrustedContentTest);
 
     function _class6() {
+      babelHelpers.classCallCheck(this, _class6);
+
       _TrustedContentTest.apply(this, arguments);
     }
 
@@ -40842,6 +41201,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class7, _RenderingTest3);
 
     function _class7() {
+      babelHelpers.classCallCheck(this, _class7);
+
       _RenderingTest3.apply(this, arguments);
     }
 
@@ -41371,6 +41732,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(StyleTest, _RenderingTest4);
 
     function StyleTest() {
+      babelHelpers.classCallCheck(this, StyleTest);
+
       _RenderingTest4.apply(this, arguments);
       warnings = [];
       originalWarn = _emberMetalDebug.getDebugFunction('warn');
@@ -41403,6 +41766,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
     babelHelpers.inherits(_class8, _StyleTest);
 
     function _class8() {
+      babelHelpers.classCallCheck(this, _class8);
+
       _StyleTest.apply(this, arguments);
     }
 
@@ -41480,6 +41845,8 @@ enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlb
       babelHelpers.inherits(_class9, _StyleTest2);
 
       function _class9() {
+        babelHelpers.classCallCheck(this, _class9);
+
         _StyleTest2.apply(this, arguments);
       }
 
@@ -41563,6 +41930,8 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -41678,6 +42047,8 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
     babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.call(this);
 
       var dispatcher = this.owner.lookup('event_dispatcher:main');
@@ -41754,6 +42125,8 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
       babelHelpers.inherits(_class3, _RenderingTest3);
 
       function _class3() {
+        babelHelpers.classCallCheck(this, _class3);
+
         _RenderingTest3.apply(this, arguments);
       }
 
@@ -41818,6 +42191,8 @@ enifed('ember-htmlbars/tests/integration/event-dispatcher-test', ['exports', 'em
       babelHelpers.inherits(_class4, _RenderingTest4);
 
       function _class4() {
+        babelHelpers.classCallCheck(this, _class4);
+
         _RenderingTest4.apply(this, arguments);
       }
 
@@ -41848,6 +42223,8 @@ enifed('ember-htmlbars/tests/integration/helpers/-class-test', ['exports', 'embe
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -41922,6 +42299,8 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
       babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
+        babelHelpers.classCallCheck(this, _class);
+
         _RenderingTest.apply(this, arguments);
       }
 
@@ -42140,6 +42519,8 @@ enifed('ember-htmlbars/tests/integration/helpers/closure-action-test', ['exports
     babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -43106,6 +43487,8 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -43242,6 +43625,8 @@ enifed('ember-htmlbars/tests/integration/helpers/custom-helper-test', ['exports'
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -43896,6 +44281,8 @@ enifed('ember-htmlbars/tests/integration/helpers/element-action-test', ['exports
 babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
+babelHelpers.classCallCheck(this, _class);
+
         _RenderingTest.apply(this, arguments);
       }
 
@@ -43957,6 +44344,8 @@ babelHelpers.inherits(_class, _RenderingTest);
 babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -45421,6 +45810,8 @@ enifed('ember-htmlbars/tests/integration/helpers/get-test', ['exports', 'ember-h
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -46058,6 +46449,8 @@ enifed('ember-htmlbars/tests/integration/helpers/hash-test', ['exports', 'ember-
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -46281,6 +46674,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class, _IfUnlessHelperTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _IfUnlessHelperTest.apply(this, arguments);
     }
 
@@ -46315,6 +46710,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class2, _IfUnlessHelperTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _IfUnlessHelperTest2.apply(this, arguments);
     }
 
@@ -46333,6 +46730,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class3, _IfUnlessHelperTest3);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _IfUnlessHelperTest3.apply(this, arguments);
     }
 
@@ -46351,6 +46750,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class4, _IfUnlessHelperTest4);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _IfUnlessHelperTest4.apply(this, arguments);
     }
 
@@ -46373,6 +46774,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class5, _IfUnlessHelperTest5);
 
     function _class5() {
+      babelHelpers.classCallCheck(this, _class5);
+
       _IfUnlessHelperTest5.apply(this, arguments);
     }
 
@@ -46399,6 +46802,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class6, _IfUnlessHelperTest6);
 
     function _class6() {
+      babelHelpers.classCallCheck(this, _class6);
+
       _IfUnlessHelperTest6.apply(this, arguments);
     }
 
@@ -46417,6 +46822,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class7, _IfUnlessHelperTest7);
 
     function _class7() {
+      babelHelpers.classCallCheck(this, _class7);
+
       _IfUnlessHelperTest7.apply(this, arguments);
     }
 
@@ -46451,6 +46858,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class8, _IfUnlessHelperTest8);
 
     function _class8() {
+      babelHelpers.classCallCheck(this, _class8);
+
       _IfUnlessHelperTest8.apply(this, arguments);
     }
 
@@ -46469,6 +46878,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class9, _IfUnlessHelperTest9);
 
     function _class9() {
+      babelHelpers.classCallCheck(this, _class9);
+
       _IfUnlessHelperTest9.apply(this, arguments);
     }
 
@@ -46487,6 +46898,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class10, _IfUnlessHelperTest10);
 
     function _class10() {
+      babelHelpers.classCallCheck(this, _class10);
+
       _IfUnlessHelperTest10.apply(this, arguments);
     }
 
@@ -46509,6 +46922,8 @@ enifed('ember-htmlbars/tests/integration/helpers/if-unless-test', ['exports', 'e
     babelHelpers.inherits(_class11, _IfUnlessHelperTest11);
 
     function _class11() {
+      babelHelpers.classCallCheck(this, _class11);
+
       _IfUnlessHelperTest11.apply(this, arguments);
     }
 
@@ -46538,6 +46953,8 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     babelHelpers.inherits(InputRenderingTest, _RenderingTest);
 
     function InputRenderingTest() {
+      babelHelpers.classCallCheck(this, InputRenderingTest);
+
       _RenderingTest.call(this);
 
       this.registerComponent('-text-field', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextField });
@@ -46620,6 +47037,8 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     babelHelpers.inherits(_class, _InputRenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _InputRenderingTest.apply(this, arguments);
     }
 
@@ -46979,6 +47398,8 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     babelHelpers.inherits(_class2, _InputRenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _InputRenderingTest2.apply(this, arguments);
     }
 
@@ -47015,6 +47436,8 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     babelHelpers.inherits(_class3, _InputRenderingTest3);
 
     function _class3() {
+      babelHelpers.classCallCheck(this, _class3);
+
       _InputRenderingTest3.apply(this, arguments);
     }
 
@@ -47129,6 +47552,8 @@ enifed('ember-htmlbars/tests/integration/helpers/input-test', ['exports', 'ember
     babelHelpers.inherits(_class4, _InputRenderingTest4);
 
     function _class4() {
+      babelHelpers.classCallCheck(this, _class4);
+
       _InputRenderingTest4.apply(this, arguments);
     }
 
@@ -47206,6 +47631,8 @@ enifed('ember-htmlbars/tests/integration/helpers/loc-test', ['exports', 'ember-h
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
       this.oldString = _emberMetalCore.default.STRINGS;
       _emberMetalCore.default.STRINGS = {
@@ -47319,6 +47746,8 @@ enifed('ember-htmlbars/tests/integration/helpers/log-test', ['exports', 'ember-h
     function _class(assert) {
       var _this = this;
 
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.call(this);
 
       this.originalLog = _emberConsole.default.log;
@@ -47382,6 +47811,8 @@ enifed('ember-htmlbars/tests/integration/helpers/mut-test', ['exports', 'ember-h
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -47866,6 +48297,8 @@ enifed('ember-htmlbars/tests/integration/helpers/mut-test', ['exports', 'ember-h
     babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -48014,6 +48447,8 @@ enifed('ember-htmlbars/tests/integration/helpers/partial-test', ['exports', 'emb
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -48168,6 +48603,8 @@ enifed('ember-htmlbars/tests/integration/helpers/readonly-test', ['exports', 'em
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -48332,6 +48769,8 @@ enifed('ember-htmlbars/tests/integration/helpers/render-test', ['exports', 'embe
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -48690,6 +49129,8 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
     babelHelpers.inherits(TextAreaRenderingTest, _RenderingTest);
 
     function TextAreaRenderingTest() {
+      babelHelpers.classCallCheck(this, TextAreaRenderingTest);
+
       _RenderingTest.call(this);
 
       this.registerComponent('-text-area', { ComponentClass: _emberHtmlbarsTestsUtilsHelpers.TextArea });
@@ -48724,6 +49165,8 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
 
   var BoundTextAreaAttributes = (function () {
     function BoundTextAreaAttributes(cases) {
+      babelHelpers.classCallCheck(this, BoundTextAreaAttributes);
+
       this.cases = cases;
     }
 
@@ -48768,6 +49211,8 @@ enifed('ember-htmlbars/tests/integration/helpers/text-area-test', ['exports', 'e
     babelHelpers.inherits(_class, _TextAreaRenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _TextAreaRenderingTest.apply(this, arguments);
     }
 
@@ -48881,6 +49326,8 @@ enifed('ember-htmlbars/tests/integration/helpers/unbound-test', ['exports', 'emb
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -49617,6 +50064,8 @@ enifed('ember-htmlbars/tests/integration/helpers/yield-test', ['exports', 'ember
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -49915,6 +50364,8 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -50249,6 +50700,8 @@ enifed('ember-htmlbars/tests/integration/outlet-test', ['exports', 'ember-htmlba
     babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
 
       var CoreOutlet = this.owner._lookupFactory('view:-outlet');
@@ -50506,6 +50959,8 @@ enifed('ember-htmlbars/tests/integration/svg-test', ['exports', 'ember-htmlbars/
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -50660,6 +51115,8 @@ enifed('ember-htmlbars/tests/integration/syntax/each-in-test', ['exports', 'embe
 babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 
     function EachInTest() {
+babelHelpers.classCallCheck(this, EachInTest);
+
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
@@ -50679,9 +51136,13 @@ babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
   function NonEmptyFunction() {}
   NonEmptyFunction.foo = 'bar';
 
-  var EmptyConstructor = function EmptyConstructor() {};
+  var EmptyConstructor = function EmptyConstructor() {
+babelHelpers.classCallCheck(this, EmptyConstructor);
+  };
 
-  var NonEmptyConstructor = function NonEmptyConstructor() {};
+  var NonEmptyConstructor = function NonEmptyConstructor() {
+babelHelpers.classCallCheck(this, NonEmptyConstructor);
+  };
 
   NonEmptyConstructor.foo = 'bar';
 
@@ -50689,6 +51150,8 @@ babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
 babelHelpers.inherits(BasicEachInTest, _EachInTest);
 
     function BasicEachInTest() {
+babelHelpers.classCallCheck(this, BasicEachInTest);
+
       _EachInTest.apply(this, arguments);
     }
 
@@ -50701,6 +51164,8 @@ babelHelpers.inherits(BasicEachInTest, _EachInTest);
 babelHelpers.inherits(_class, _BasicEachInTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _BasicEachInTest.apply(this, arguments);
     }
 
@@ -50986,6 +51451,8 @@ babelHelpers.createClass(_class, [{
 babelHelpers.inherits(EachInEdgeCasesTest, _EachInTest2);
 
     function EachInEdgeCasesTest() {
+babelHelpers.classCallCheck(this, EachInEdgeCasesTest);
+
       _EachInTest2.apply(this, arguments);
     }
 
@@ -50998,6 +51465,8 @@ babelHelpers.inherits(EachInEdgeCasesTest, _EachInTest2);
 babelHelpers.inherits(_class2, _EachInEdgeCasesTest);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _EachInEdgeCasesTest.apply(this, arguments);
     }
 
@@ -51019,6 +51488,8 @@ babelHelpers.createClass(_class2, [{
 babelHelpers.inherits(EachInProxyTest, _EachInTest3);
 
     function EachInProxyTest() {
+babelHelpers.classCallCheck(this, EachInProxyTest);
+
       _EachInTest3.apply(this, arguments);
     }
 
@@ -51031,6 +51502,8 @@ babelHelpers.inherits(EachInProxyTest, _EachInTest3);
 babelHelpers.inherits(_class3, _EachInProxyTest);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _EachInProxyTest.apply(this, arguments);
     }
 
@@ -51103,6 +51576,8 @@ enifed('ember-htmlbars/tests/integration/syntax/each-test', ['exports', 'ember-m
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
+babelHelpers.classCallCheck(this, ArrayLike);
+
       this._array = content;
     }
 
@@ -51194,6 +51669,8 @@ babelHelpers.createClass(ArrayLike, [{
 babelHelpers.inherits(TogglingEachTest, _TogglingSyntaxConditionalsTest);
 
     function TogglingEachTest() {
+babelHelpers.classCallCheck(this, TogglingEachTest);
+
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
@@ -51215,6 +51692,8 @@ babelHelpers.createClass(TogglingEachTest, [{
 babelHelpers.inherits(BasicEachTest, _TogglingEachTest);
 
     function BasicEachTest() {
+babelHelpers.classCallCheck(this, BasicEachTest);
+
       _TogglingEachTest.apply(this, arguments);
     }
 
@@ -51227,6 +51706,8 @@ babelHelpers.inherits(BasicEachTest, _TogglingEachTest);
 babelHelpers.inherits(_class, _BasicEachTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _BasicEachTest.apply(this, arguments);
     }
 
@@ -51245,6 +51726,8 @@ babelHelpers.inherits(_class, _BasicEachTest);
 babelHelpers.inherits(_class2, _BasicEachTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _BasicEachTest2.apply(this, arguments);
     }
 
@@ -51263,6 +51746,8 @@ babelHelpers.inherits(_class2, _BasicEachTest2);
 babelHelpers.inherits(EachEdgeCasesTest, _TogglingEachTest2);
 
     function EachEdgeCasesTest() {
+babelHelpers.classCallCheck(this, EachEdgeCasesTest);
+
       _TogglingEachTest2.apply(this, arguments);
     }
 
@@ -51275,6 +51760,8 @@ babelHelpers.inherits(EachEdgeCasesTest, _TogglingEachTest2);
 babelHelpers.inherits(_class3, _EachEdgeCasesTest);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _EachEdgeCasesTest.apply(this, arguments);
     }
 
@@ -51293,6 +51780,8 @@ babelHelpers.inherits(_class3, _EachEdgeCasesTest);
 babelHelpers.inherits(_class4, _EachEdgeCasesTest2);
 
     function _class4() {
+babelHelpers.classCallCheck(this, _class4);
+
       _EachEdgeCasesTest2.apply(this, arguments);
     }
 
@@ -51311,6 +51800,8 @@ babelHelpers.inherits(_class4, _EachEdgeCasesTest2);
 babelHelpers.inherits(AbstractEachTest, _RenderingTest);
 
     function AbstractEachTest() {
+babelHelpers.classCallCheck(this, AbstractEachTest);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -51396,6 +51887,8 @@ babelHelpers.inherits(AbstractEachTest, _RenderingTest);
 babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
 
     function SingleEachTest() {
+babelHelpers.classCallCheck(this, SingleEachTest);
+
       _AbstractEachTest.apply(this, arguments);
     }
 
@@ -51964,6 +52457,8 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
 babelHelpers.inherits(_class5, _SingleEachTest);
 
     function _class5() {
+babelHelpers.classCallCheck(this, _class5);
+
       _SingleEachTest.apply(this, arguments);
     }
 
@@ -51978,6 +52473,8 @@ babelHelpers.inherits(_class5, _SingleEachTest);
 babelHelpers.inherits(_class6, _SingleEachTest2);
 
     function _class6() {
+babelHelpers.classCallCheck(this, _class6);
+
       _SingleEachTest2.apply(this, arguments);
     }
 
@@ -51992,6 +52489,8 @@ babelHelpers.inherits(_class6, _SingleEachTest2);
 babelHelpers.inherits(_class7, _SingleEachTest3);
 
     function _class7() {
+babelHelpers.classCallCheck(this, _class7);
+
       _SingleEachTest3.apply(this, arguments);
     }
 
@@ -52006,6 +52505,8 @@ babelHelpers.inherits(_class7, _SingleEachTest3);
 babelHelpers.inherits(_class8, _SingleEachTest4);
 
     function _class8() {
+babelHelpers.classCallCheck(this, _class8);
+
       _SingleEachTest4.apply(this, arguments);
     }
 
@@ -52031,6 +52532,8 @@ babelHelpers.inherits(_class8, _SingleEachTest4);
 babelHelpers.inherits(_class9, _RenderingTest2);
 
     function _class9() {
+babelHelpers.classCallCheck(this, _class9);
+
       _RenderingTest2.apply(this, arguments);
     }
 
@@ -52171,6 +52674,8 @@ babelHelpers.inherits(_class9, _RenderingTest2);
 babelHelpers.inherits(_class10, _RenderingTest3);
 
     function _class10() {
+babelHelpers.classCallCheck(this, _class10);
+
       _RenderingTest3.apply(this, arguments);
     }
 
@@ -52213,6 +52718,8 @@ enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'em
 babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
@@ -52231,6 +52738,8 @@ babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
@@ -52249,6 +52758,8 @@ babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 babelHelpers.inherits(_class3, _IfUnlessWithSyntaxTest3);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _IfUnlessWithSyntaxTest3.apply(this, arguments);
     }
 
@@ -52267,6 +52778,8 @@ babelHelpers.inherits(_class3, _IfUnlessWithSyntaxTest3);
 babelHelpers.inherits(_class4, _RenderingTest);
 
     function _class4() {
+babelHelpers.classCallCheck(this, _class4);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -52348,6 +52861,8 @@ enifed('ember-htmlbars/tests/integration/syntax/with-test', ['exports', 'ember-m
 babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 
     function _class() {
+babelHelpers.classCallCheck(this, _class);
+
       _IfUnlessWithSyntaxTest.apply(this, arguments);
     }
 
@@ -52366,6 +52881,8 @@ babelHelpers.inherits(_class, _IfUnlessWithSyntaxTest);
 babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 
     function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
       _IfUnlessWithSyntaxTest2.apply(this, arguments);
     }
 
@@ -52631,6 +53148,8 @@ babelHelpers.inherits(_class2, _IfUnlessWithSyntaxTest2);
 babelHelpers.inherits(_class3, _RenderingTest);
 
     function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -53577,6 +54096,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
   var TestCase = (function () {
     function TestCase() {
+      babelHelpers.classCallCheck(this, TestCase);
+
       this.element = null;
       this.snapshot = null;
       this.assert = QUnit.config.current.assert;
@@ -53753,6 +54274,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     babelHelpers.inherits(AbstractApplicationTest, _TestCase);
 
     function AbstractApplicationTest() {
+      babelHelpers.classCallCheck(this, AbstractApplicationTest);
+
       _TestCase.call(this);
 
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
@@ -53841,6 +54364,8 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
     babelHelpers.inherits(AbstractRenderingTest, _TestCase2);
 
     function AbstractRenderingTest() {
+      babelHelpers.classCallCheck(this, AbstractRenderingTest);
+
       _TestCase2.call(this);
       var owner = this.owner = _emberHtmlbarsTestsUtilsHelpers.buildOwner(this.getOwnerOptions());
 
@@ -53999,7 +54524,9 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports) {
   "use strict";
 
-  var Environment = function Environment() {};
+  var Environment = function Environment() {
+    babelHelpers.classCallCheck(this, Environment);
+  };
 
   exports.default = Environment;
 });
@@ -54032,6 +54559,7 @@ enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/setup-r
     owner.register('service:-htmlbars-environment', new _emberHtmlbarsTestsUtilsEnvironment.default(), { instantiate: false });
     owner.inject('service:-htmlbars-environment', 'dom', 'service:-dom-helper');
 
+    owner.register('service:-document', document, { instantiate: false });
     owner.register('-view-registry:main', { create: function () {
         return {};
       } });
@@ -54056,6 +54584,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(AbstractConditionalsTest, _RenderingTest);
 
     function AbstractConditionalsTest() {
+      babelHelpers.classCallCheck(this, AbstractConditionalsTest);
+
       _RenderingTest.apply(this, arguments);
     }
 
@@ -54100,6 +54630,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
 
   var AbstractGenerator = (function () {
     function AbstractGenerator(cases) {
+      babelHelpers.classCallCheck(this, AbstractGenerator);
+
       this.cases = cases;
     }
 
@@ -54126,6 +54658,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(TruthyGenerator, _AbstractGenerator);
 
     function TruthyGenerator() {
+      babelHelpers.classCallCheck(this, TruthyGenerator);
+
       _AbstractGenerator.apply(this, arguments);
     }
 
@@ -54168,6 +54702,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(FalsyGenerator, _AbstractGenerator2);
 
     function FalsyGenerator() {
+      babelHelpers.classCallCheck(this, FalsyGenerator);
+
       _AbstractGenerator2.apply(this, arguments);
     }
 
@@ -54210,6 +54746,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(StableTruthyGenerator, _TruthyGenerator);
 
     function StableTruthyGenerator() {
+      babelHelpers.classCallCheck(this, StableTruthyGenerator);
+
       _TruthyGenerator.apply(this, arguments);
     }
 
@@ -54252,6 +54790,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(StableFalsyGenerator, _FalsyGenerator);
 
     function StableFalsyGenerator() {
+      babelHelpers.classCallCheck(this, StableFalsyGenerator);
+
       _FalsyGenerator.apply(this, arguments);
     }
 
@@ -54294,6 +54834,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(ObjectProxyGenerator, _AbstractGenerator3);
 
     function ObjectProxyGenerator() {
+      babelHelpers.classCallCheck(this, ObjectProxyGenerator);
+
       _AbstractGenerator3.apply(this, arguments);
     }
 
@@ -54369,6 +54911,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(BasicConditionalsTest, _AbstractConditionalsTest);
 
     function BasicConditionalsTest() {
+      babelHelpers.classCallCheck(this, BasicConditionalsTest);
+
       _AbstractConditionalsTest.apply(this, arguments);
     }
 
@@ -54568,6 +55112,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(TogglingConditionalsTest, _BasicConditionalsTest);
 
     function TogglingConditionalsTest() {
+      babelHelpers.classCallCheck(this, TogglingConditionalsTest);
+
       _BasicConditionalsTest.apply(this, arguments);
     }
 
@@ -54581,6 +55127,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(TogglingHelperConditionalsTest, _TogglingConditionalsTest);
 
     function TogglingHelperConditionalsTest() {
+      babelHelpers.classCallCheck(this, TogglingHelperConditionalsTest);
+
       _TogglingConditionalsTest.apply(this, arguments);
     }
 
@@ -54760,6 +55308,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(IfUnlessHelperTest, _TogglingHelperConditionalsTest);
 
     function IfUnlessHelperTest() {
+      babelHelpers.classCallCheck(this, IfUnlessHelperTest);
+
       _TogglingHelperConditionalsTest.apply(this, arguments);
     }
 
@@ -54777,6 +55327,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(TogglingSyntaxConditionalsTest, _TogglingConditionalsTest2);
 
     function TogglingSyntaxConditionalsTest() {
+      babelHelpers.classCallCheck(this, TogglingSyntaxConditionalsTest);
+
       _TogglingConditionalsTest2.apply(this, arguments);
     }
 
@@ -55117,6 +55669,8 @@ enifed('ember-htmlbars/tests/utils/shared-conditional-tests', ['exports', 'ember
     babelHelpers.inherits(IfUnlessWithSyntaxTest, _TogglingSyntaxConditionalsTest);
 
     function IfUnlessWithSyntaxTest() {
+      babelHelpers.classCallCheck(this, IfUnlessWithSyntaxTest);
+
       _TogglingSyntaxConditionalsTest.apply(this, arguments);
     }
 
@@ -55134,6 +55688,8 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/uti
     babelHelpers.inherits(_class, _TestCase);
 
     function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
       _TestCase.apply(this, arguments);
     }
 
@@ -55165,6 +55721,8 @@ enifed('ember-htmlbars/tests/utils/string-test', ['exports', 'ember-htmlbars/uti
       babelHelpers.inherits(_class2, _TestCase2);
 
       function _class2() {
+        babelHelpers.classCallCheck(this, _class2);
+
         _TestCase2.apply(this, arguments);
       }
 
@@ -55196,6 +55754,8 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
     babelHelpers.inherits(ApplicationTest, _AbstractApplicationTest);
 
     function ApplicationTest() {
+      babelHelpers.classCallCheck(this, ApplicationTest);
+
       _AbstractApplicationTest.apply(this, arguments);
     }
 
@@ -55208,6 +55768,8 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
     babelHelpers.inherits(RenderingTest, _AbstractRenderingTest);
 
     function RenderingTest() {
+      babelHelpers.classCallCheck(this, RenderingTest);
+
       _AbstractRenderingTest.call(this);
 
       var owner = this.owner;
@@ -80585,6 +81147,8 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
 
   var Waiters = (function () {
     function Waiters() {
+      babelHelpers.classCallCheck(this, Waiters);
+
       this._waiters = [];
     }
 
@@ -94465,69 +95029,6 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     assert.ok(called, 'instrumentation called on transition to non-view backed route');
   });
 });
-var babelHelpers;
-
-function inherits(subClass, superClass) {
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
-}
-
-function taggedTemplateLiteralLoose(strings, raw) {
-  strings.raw = raw;
-  return strings;
-}
-
-function defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ('value' in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function interopExportWildcard(obj, defaults) {
-  var newObj = defaults({}, obj);
-  delete newObj['default'];
-  return newObj;
-}
-
-function defaults(obj, defaults) {
-  var keys = Object.getOwnPropertyNames(defaults);
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    var value = Object.getOwnPropertyDescriptor(defaults, key);
-    if (value && value.configurable && obj[key] === undefined) {
-      Object.defineProperty(obj, key, value);
-    }
-  }
-  return obj;
-}
-
-babelHelpers = {
-  inherits: inherits,
-  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
-  slice: Array.prototype.slice,
-  createClass: createClass,
-  interopExportWildcard: interopExportWildcard,
-  defaults: defaults
-};
-
 enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer/index", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizerIndex, _htmlbarsUtilArrayUtils) {
   "use strict";
 
