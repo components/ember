@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+3f4ba8d4
+ * @version   2.9.0-null+3ba7ae2b
  */
 
 var enifed, requireModule, require, Ember;
@@ -13276,15 +13276,62 @@ babelHelpers.classCallCheck(this, _class);
       });
     };
 
-    _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
+    _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function testAddsIsVisibleBindingWhenStyleBindingIsMissingAndOtherBindingsExist(assert) {
       var _this69 = this;
+
+      var assertStyle = function (expected) {
+        var matcher = _emberGlimmerTestsUtilsTestHelpers.styles(expected);
+        var actual = _this69.firstChild.getAttribute('style');
+
+        assert.pushResult({
+          result: matcher.match(actual),
+          message: matcher.message(),
+          actual: actual,
+          expected: expected
+        });
+      };
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['foo'],
+          foo: 'bar'
+        }),
+        template: '<p>foo</p>'
+      });
+
+      this.render('{{foo-bar id="foo-bar" foo=foo isVisible=visible}}', {
+        visible: false,
+        foo: 'baz'
+      });
+
+      assertStyle('display: none;');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this69.context, 'visible', true);
+      });
+
+      assertStyle('');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this69.context, 'visible', false);
+        _emberMetalProperty_set.set(_this69.context, 'foo', 'woo');
+      });
+
+      assertStyle('display: none;');
+      assert.equal(this.firstChild.getAttribute('foo'), 'woo');
+    };
+
+    _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
+      var _this70 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this69.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this69.assert.equal(_this69.firstChild.value, expectedValue, 'value property is correct');
-        _this69.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this70.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this70.assert.equal(_this70.firstChild.value, expectedValue, 'value property is correct');
+        _this70.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -13313,15 +13360,15 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this69.firstChild.value = 'bar';
-        _this69.$('input').trigger('change');
+        _this70.firstChild.value = 'bar';
+        _this70.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this69.firstChild.value = 'foo';
-        _this69.$('input').trigger('change');
+        _this70.firstChild.value = 'foo';
+        _this70.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -13333,8 +13380,8 @@ babelHelpers.classCallCheck(this, _class);
       assertElement('bar');
 
       this.runTask(function () {
-        _this69.firstChild.value = 'foo';
-        _this69.$('input').trigger('change');
+        _this70.firstChild.value = 'foo';
+        _this70.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -37364,15 +37411,62 @@ babelHelpers.classCallCheck(this, _class);
       });
     };
 
-    _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
+    _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function testAddsIsVisibleBindingWhenStyleBindingIsMissingAndOtherBindingsExist(assert) {
       var _this69 = this;
+
+      var assertStyle = function (expected) {
+        var matcher = _emberHtmlbarsTestsUtilsTestHelpers.styles(expected);
+        var actual = _this69.firstChild.getAttribute('style');
+
+        assert.pushResult({
+          result: matcher.match(actual),
+          message: matcher.message(),
+          actual: actual,
+          expected: expected
+        });
+      };
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['foo'],
+          foo: 'bar'
+        }),
+        template: '<p>foo</p>'
+      });
+
+      this.render('{{foo-bar id="foo-bar" foo=foo isVisible=visible}}', {
+        visible: false,
+        foo: 'baz'
+      });
+
+      assertStyle('display: none;');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this69.context, 'visible', true);
+      });
+
+      assertStyle('');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this69.context, 'visible', false);
+        _emberMetalProperty_set.set(_this69.context, 'foo', 'woo');
+      });
+
+      assertStyle('display: none;');
+      assert.equal(this.firstChild.getAttribute('foo'), 'woo');
+    };
+
+    _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
+      var _this70 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this69.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this69.assert.equal(_this69.firstChild.value, expectedValue, 'value property is correct');
-        _this69.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this70.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this70.assert.equal(_this70.firstChild.value, expectedValue, 'value property is correct');
+        _this70.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -37401,15 +37495,15 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this69.firstChild.value = 'bar';
-        _this69.$('input').trigger('change');
+        _this70.firstChild.value = 'bar';
+        _this70.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this69.firstChild.value = 'foo';
-        _this69.$('input').trigger('change');
+        _this70.firstChild.value = 'foo';
+        _this70.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -37421,8 +37515,8 @@ babelHelpers.classCallCheck(this, _class);
       assertElement('bar');
 
       this.runTask(function () {
-        _this69.firstChild.value = 'foo';
-        _this69.$('input').trigger('change');
+        _this70.firstChild.value = 'foo';
+        _this70.$('input').trigger('change');
       });
 
       assertElement('foo');
