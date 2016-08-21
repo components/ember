@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+23ecbcc6
+ * @version   2.9.0-null+71ea36e9
  */
 
 var enifed, requireModule, require, Ember;
@@ -7820,7 +7820,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
        @property activeClass
       @type String
       @default active
-      @private
+      @public
     **/
     activeClass: 'active',
 
@@ -13860,7 +13860,7 @@ enifed('ember-htmlbars/components/link-to', ['exports', 'ember-console', 'ember-
        @property activeClass
       @type String
       @default active
-      @private
+      @public
     **/
     activeClass: 'active',
 
@@ -47796,7 +47796,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+23ecbcc6";
+  exports.default = "2.9.0-null+71ea36e9";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
