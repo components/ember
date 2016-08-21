@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+3ba7ae2b
+ * @version   2.9.0-null+b216f384
  */
 
 var enifed, requireModule, require, Ember;
@@ -33822,7 +33822,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
        The string values provided for the template name, and controller
       will eventually pass through to the resolver for lookup. See
       Ember.Resolver for how these are mapped to JavaScript objects in your
-      application.
+      application. The template to render into needs to be related to  either the
+      current route or one of its ancestors.
        Not all options need to be passed to `render`. Default values will be used
       based on the name of the route specified in the router or the Route's
       `controllerName` and `templateName` properties.
@@ -47795,7 +47796,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+3ba7ae2b";
+  exports.default = "2.9.0-null+b216f384";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
