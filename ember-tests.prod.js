@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ac66e539
+ * @version   2.9.0-null+3ce93361
  */
 
 var enifed, requireModule, require, Ember;
@@ -14260,8 +14260,45 @@ babelHelpers.inherits(_class, _RenderingTest);
       }, /You cannot use `elementId` on a tag-less component/);
     };
 
-    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `elementId` is specified via template'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaTemplate() {
       var _this6 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: ''
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      expectAssertion(function () {
+        _this6.render('{{#foo-bar elementId=\'turntUp\'}}{{/foo-bar}}');
+      }, /You cannot use `elementId` on a tag-less component/);
+    };
+
+    _class.prototype['@test does not throw an error if `tagName` is an empty string and `id` is specified via JS'] = function testDoesNotThrowAnErrorIfTagNameIsAnEmptyStringAndIdIsSpecifiedViaJS() {
+      var template = '{{id}}';
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: '',
+        id: 'baz'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      this.render('{{#foo-bar}}{{/foo-bar}}');
+      this.assertText('baz');
+    };
+
+    _class.prototype['@test does not throw an error if `tagName` is an empty string and `id` is specified via template'] = function testDoesNotThrowAnErrorIfTagNameIsAnEmptyStringAndIdIsSpecifiedViaTemplate() {
+      var template = '{{id}}';
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: ''
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      this.render('{{#foo-bar id=\'baz\'}}{{/foo-bar}}');
+      this.assertText('baz');
+    };
+
+    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+      var _this7 = this;
 
       var template = 'hit dem folks';
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14275,12 +14312,12 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
 
       expectAssertion(function () {
-        _this6.render('{{#foo-bar}}{{/foo-bar}}');
+        _this7.render('{{#foo-bar}}{{/foo-bar}}');
       }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
     };
 
     _class.prototype['@test renders a contained view with omitted start tag and tagless parent view context'] = function testRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerComponent('root-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14309,7 +14346,7 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'section' });
@@ -38116,8 +38153,45 @@ babelHelpers.inherits(_class, _RenderingTest);
       }, /You cannot use `elementId` on a tag-less component/);
     };
 
-    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+    _class.prototype['@test throws an error if `tagName` is an empty string and `elementId` is specified via template'] = function testThrowsAnErrorIfTagNameIsAnEmptyStringAndElementIdIsSpecifiedViaTemplate() {
       var _this6 = this;
+
+      var template = 'hit dem folks';
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: ''
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      expectAssertion(function () {
+        _this6.render('{{#foo-bar elementId=\'turntUp\'}}{{/foo-bar}}');
+      }, /You cannot use `elementId` on a tag-less component/);
+    };
+
+    _class.prototype['@test does not throw an error if `tagName` is an empty string and `id` is specified via JS'] = function testDoesNotThrowAnErrorIfTagNameIsAnEmptyStringAndIdIsSpecifiedViaJS() {
+      var template = '{{id}}';
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: '',
+        id: 'baz'
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      this.render('{{#foo-bar}}{{/foo-bar}}');
+      this.assertText('baz');
+    };
+
+    _class.prototype['@test does not throw an error if `tagName` is an empty string and `id` is specified via template'] = function testDoesNotThrowAnErrorIfTagNameIsAnEmptyStringAndIdIsSpecifiedViaTemplate() {
+      var template = '{{id}}';
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: ''
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      this.render('{{#foo-bar id=\'baz\'}}{{/foo-bar}}');
+      this.assertText('baz');
+    };
+
+    _class.prototype['@test throws an error if when $() is accessed on component where `tagName` is an empty string'] = function testThrowsAnErrorIfWhen$IsAccessedOnComponentWhereTagNameIsAnEmptyString() {
+      var _this7 = this;
 
       var template = 'hit dem folks';
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38131,12 +38205,12 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
 
       expectAssertion(function () {
-        _this6.render('{{#foo-bar}}{{/foo-bar}}');
+        _this7.render('{{#foo-bar}}{{/foo-bar}}');
       }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
     };
 
     _class.prototype['@test renders a contained view with omitted start tag and tagless parent view context'] = function testRendersAContainedViewWithOmittedStartTagAndTaglessParentViewContext() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerComponent('root-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38165,7 +38239,7 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertElement(this.firstChild, { tagName: 'section' });

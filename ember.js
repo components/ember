@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ac66e539
+ * @version   2.9.0-null+3ce93361
  */
 
 var enifed, requireModule, require, Ember;
@@ -11560,7 +11560,7 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
         var elementId = component.elementId;
         var tagName = component.tagName;
 
-        return tagName !== '' || !elementId && elementId !== '';
+        return tagName !== '' || props.id === elementId || !elementId && elementId !== '';
       })());
 
       _emberMetalDebug.assert('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), (function () {
@@ -22137,7 +22137,7 @@ enifed('ember-htmlbars/system/build-component-template', ['exports', 'ember-meta
         var _component2 = component;
         var elementId = _component2.elementId;
 
-        return tagName !== '' || !elementId && elementId !== '';
+        return tagName !== '' || attrs.id === elementId || !elementId && elementId !== '';
       })());
 
       _emberMetalDebug.assert('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), (function () {
@@ -50784,7 +50784,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+ac66e539";
+  exports.default = "2.9.0-null+3ce93361";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
