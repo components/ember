@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.3+cf714821
+ * @version   2.8.0-beta.3+30c1ce5d
  */
 
 var enifed, requireModule, require, Ember;
@@ -13693,7 +13693,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
 
   Renderer.prototype.revalidateTopLevelView = function Renderer_revalidateTopLevelView(view) {
     // This guard prevents revalidation on an already-destroyed view.
-    if (view._renderNode.lastResult) {
+    if (view._renderNode && view._renderNode.lastResult) {
       view._renderNode.lastResult.revalidate(view._env);
       this.dispatchLifecycleHooks(view._env);
       this.clearRenderedViews(view._env);
@@ -13878,6 +13878,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
       if (_lastResult) {
         _htmlbarsRuntime.internal.clearMorph(renderNode, _lastResult.env, shouldDestroy !== false);
       }
+
       if (!shouldDestroy) {
         view._transitionTo('preRender');
       }
@@ -16308,7 +16309,14 @@ enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-htmlbars/streams/uti
         node.shouldReceiveAttrs = true;
       }
 
-      node.ownerNode.emberView.scheduleRevalidate(node, _emberHtmlbarsStreamsUtils.labelFor(stream));
+      // When the toplevelView (aka ownerView) is being torn
+      // down (generally in tests), `ownerNode.emberView` will be
+      // set to `null` (to prevent further work while tearing down)
+      // so we need to guard against that case here
+      var ownerView = node.ownerNode.emberView;
+      if (ownerView) {
+        ownerView.scheduleRevalidate(node, _emberHtmlbarsStreamsUtils.labelFor(stream));
+      }
     }));
   }
 });
@@ -41819,7 +41827,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.3+cf714821";
+  exports.default = "2.8.0-beta.3+30c1ce5d";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -45033,6 +45041,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   var normalizePath = _routeRecognizerNormalizer.default.normalizePath;
   var normalizeSegment = _routeRecognizerNormalizer.default.normalizeSegment;
+  var encodePathSegment = _routeRecognizerNormalizer.default.encodePathSegment;
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -45098,7 +45107,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
     generate: function (params) {
       if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        return encodeURIComponent(params[this.name]);
+        return encodePathSegment(params[this.name]);
       } else {
         return params[this.name];
       }
@@ -45837,9 +45846,50 @@ enifed('route-recognizer/normalizer', ['exports'], function (exports) {
     return decodeURIComponentExcept(segment, reservedHex);
   }
 
+  function encodeURIComponentExcept(string, reservedChars) {
+    var pieces = [];
+    var separators = [];
+    var currentPiece = '';
+    var idx;
+
+    for (idx = 0; idx < string.length; idx++) {
+      var char = string[idx];
+      if (reservedChars.indexOf(char) === -1) {
+        currentPiece += char;
+      } else {
+        pieces.push(currentPiece);
+        separators.push(char);
+        currentPiece = '';
+      }
+    }
+    if (currentPiece.length) {
+      pieces.push(currentPiece);
+      separators.push('');
+    }
+
+    pieces = pieces.map(encodeURIComponent);
+    var encoded = '';
+    for (idx = 0; idx < pieces.length; idx++) {
+      encoded += pieces[idx] + separators[idx];
+    }
+
+    return encoded;
+  }
+
+  // Do not encode these characters when generating dynamic path segments
+  // See https://tools.ietf.org/html/rfc3986#section-3.3
+  var reservedSegmentChars = ["!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "=", // sub-delims
+  ":", "@" // others explicitly allowed by RFC 3986
+  ];
+  function encodePathSegment(segment) {
+    segment = '' + segment; // coerce to string
+    return encodeURIComponentExcept(segment, reservedSegmentChars);
+  }
+
   var Normalizer = {
     normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath
+    normalizePath: normalizePath,
+    encodePathSegment: encodePathSegment
   };
 
   exports.default = Normalizer;
