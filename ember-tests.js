@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ec80bbfa
+ * @version   2.9.0-null+fa7d1522
  */
 
 var enifed, requireModule, require, Ember;
@@ -10585,7 +10585,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _templateObject36 = babelHelpers.taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
       _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
       _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject40 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
@@ -13385,6 +13386,70 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       assertElement('foo');
+    };
+
+    _class.prototype['@test child triggers revalidate during parent destruction (GH#13846)'] = function testChildTriggersRevalidateDuringParentDestructionGH13846() {
+      var select = undefined;
+
+      this.registerComponent('x-select', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          tagName: 'select',
+
+          init: function () {
+            this._super();
+            this.options = _emberRuntimeSystemNative_array.A([]);
+            this.value = null;
+
+            select = this;
+          },
+
+          updateValue: function () {
+            var newValue = this.get('options.lastObject.value');
+
+            this.set('value', newValue);
+          },
+
+          registerOption: function (option) {
+            this.get('options').addObject(option);
+          },
+
+          unregisterOption: function (option) {
+            this.get('options').removeObject(option);
+
+            this.updateValue();
+          }
+        }),
+
+        template: '{{yield this}}'
+      });
+
+      this.registerComponent('x-option', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          tagName: 'option',
+          attributeBindings: ['selected'],
+
+          didInsertElement: function () {
+            this._super.apply(this, arguments);
+
+            this.get('select').registerOption(this);
+          },
+
+          selected: _emberMetalComputed.computed('select.value', function () {
+            return this.get('value') === this.get('select.value');
+          }),
+
+          willDestroyElement: function () {
+            this._super.apply(this, arguments);
+            this.get('select').unregisterOption(this);
+          }
+        })
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40));
+
+      this.teardown();
+
+      this.assert.ok(true, 'no errors during teardown');
     };
 
     return _class;
@@ -34798,7 +34863,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _templateObject36 = babelHelpers.taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
       _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
       _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject40 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']);
 
   _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
@@ -37598,6 +37664,70 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       assertElement('foo');
+    };
+
+    _class.prototype['@test child triggers revalidate during parent destruction (GH#13846)'] = function testChildTriggersRevalidateDuringParentDestructionGH13846() {
+      var select = undefined;
+
+      this.registerComponent('x-select', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: 'select',
+
+          init: function () {
+            this._super();
+            this.options = _emberRuntimeSystemNative_array.A([]);
+            this.value = null;
+
+            select = this;
+          },
+
+          updateValue: function () {
+            var newValue = this.get('options.lastObject.value');
+
+            this.set('value', newValue);
+          },
+
+          registerOption: function (option) {
+            this.get('options').addObject(option);
+          },
+
+          unregisterOption: function (option) {
+            this.get('options').removeObject(option);
+
+            this.updateValue();
+          }
+        }),
+
+        template: '{{yield this}}'
+      });
+
+      this.registerComponent('x-option', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: 'option',
+          attributeBindings: ['selected'],
+
+          didInsertElement: function () {
+            this._super.apply(this, arguments);
+
+            this.get('select').registerOption(this);
+          },
+
+          selected: _emberMetalComputed.computed('select.value', function () {
+            return this.get('value') === this.get('select.value');
+          }),
+
+          willDestroyElement: function () {
+            this._super.apply(this, arguments);
+            this.get('select').unregisterOption(this);
+          }
+        })
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject40));
+
+      this.teardown();
+
+      this.assert.ok(true, 'no errors during teardown');
     };
 
     return _class;
