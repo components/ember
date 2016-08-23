@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+664172b7
+ * @version   2.9.0-null+ec80bbfa
  */
 
 var enifed, requireModule, require, Ember;
@@ -23949,7 +23949,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
   }
 
   function isObject(obj) {
-    return obj && typeof obj === 'object';
+    return typeof obj === 'object' && obj;
   }
 
   function isVolatile(obj) {
@@ -50832,7 +50832,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+664172b7";
+  exports.default = "2.9.0-null+ec80bbfa";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
