@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+5f5b9ae5
+ * @version   2.9.0-null+664172b7
  */
 
 var enifed, requireModule, require, Ember;
@@ -10285,14 +10285,12 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
   var DynamicScope = (function () {
     function DynamicScope(_ref) {
       var view = _ref.view;
-      var controller = _ref.controller;
       var outletState = _ref.outletState;
       var rootOutletState = _ref.rootOutletState;
       var isTopLevel = _ref.isTopLevel;
       var targetObject = _ref.targetObject;
 
       this.view = view;
-      this.controller = controller;
       this.outletState = outletState;
       this.rootOutletState = rootOutletState;
       this.isTopLevel = isTopLevel;
@@ -10374,12 +10372,11 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
     Renderer.prototype.appendOutletView = function appendOutletView(view, target) {
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
-      var controller = view.outletState.render.controller;
+      var targetObject = view.outletState.render.controller;
       var ref = view.toReference();
       var dynamicScope = new DynamicScope({
         view: view,
-        controller: controller,
-        targetObject: controller,
+        targetObject: targetObject,
         outletState: ref,
         rootOutletState: ref,
         isTopLevel: true
@@ -10391,7 +10388,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var self = new _emberGlimmerUtilsReferences.RootReference(view);
       var dynamicScope = new DynamicScope({
         view: view,
-        controller: undefined,
         // this is generally only used for the test harness, and is not a "supported"
         // mechanism for setting up a template/test environment. We are defaulting the
         // targetObject to the view instance based on the assumption that it is a component
@@ -11238,7 +11234,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
     OutletComponentManager.prototype.create = function create(definition, args, dynamicScope) {
       var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get(definition.outletName);
       var outletState = outletStateReference.value();
-      dynamicScope.targetObject = dynamicScope.controller = outletState.render.controller;
+      dynamicScope.targetObject = outletState.render.controller;
       return outletState;
     };
 
@@ -47843,7 +47839,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+5f5b9ae5";
+  exports.default = "2.9.0-null+664172b7";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
