@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+f7d64dc3
+ * @version   2.9.0-null+5f5b9ae5
  */
 
 var enifed, requireModule, require, Ember;
@@ -16116,7 +16116,48 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars getViewClientRects'] = function htmlbarsGetViewClientRects(assert) {
+    _class.prototype['@test getViewBounds on a regular component'] = function testGetViewBoundsOnARegularComponent(assert) {
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<p>Hi, mom!</p>'
+      });
+
+      this.render('{{hi-mom}}');
+
+      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+
+      assert.equal(bounds.firstNode(), component.element, 'a regular component should have a single node that is its element');
+      assert.equal(bounds.lastNode(), component.element, 'a regular component should have a single node that is its element');
+    };
+
+    _class.prototype['@test getViewBounds on a tagless component'] = function testGetViewBoundsOnATaglessComponent(assert) {
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          tagName: '',
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<span id="start-node">Hi,</span> <em id="before-end-node">mom</em>!'
+      });
+
+      this.render('{{hi-mom}}');
+
+      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+
+      assert.equal(bounds.firstNode(), this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
+      assert.equal(bounds.lastNode(), this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
+    };
+
+    _class.prototype['@test getViewClientRects'] = function testGetViewClientRects(assert) {
       if (!hasGetClientRects || !ClientRectListCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
@@ -16138,7 +16179,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
       assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
     };
 
-    _class.prototype['@htmlbars getViewBoudningClientRect'] = function htmlbarsGetViewBoudningClientRect(assert) {
+    _class.prototype['@test getViewBoudningClientRect'] = function testGetViewBoudningClientRect(assert) {
       if (!hasGetBoundingClientRect || !ClientRectCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
@@ -40009,7 +40050,48 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@htmlbars getViewClientRects'] = function htmlbarsGetViewClientRects(assert) {
+    _class.prototype['@test getViewBounds on a regular component'] = function testGetViewBoundsOnARegularComponent(assert) {
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<p>Hi, mom!</p>'
+      });
+
+      this.render('{{hi-mom}}');
+
+      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+
+      assert.equal(bounds.firstNode(), component.element, 'a regular component should have a single node that is its element');
+      assert.equal(bounds.lastNode(), component.element, 'a regular component should have a single node that is its element');
+    };
+
+    _class.prototype['@test getViewBounds on a tagless component'] = function testGetViewBoundsOnATaglessComponent(assert) {
+      var component = undefined;
+      this.registerComponent('hi-mom', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: '',
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }),
+        template: '<span id="start-node">Hi,</span> <em id="before-end-node">mom</em>!'
+      });
+
+      this.render('{{hi-mom}}');
+
+      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+
+      assert.equal(bounds.firstNode(), this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
+      assert.equal(bounds.lastNode(), this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
+    };
+
+    _class.prototype['@test getViewClientRects'] = function testGetViewClientRects(assert) {
       if (!hasGetClientRects || !ClientRectListCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
@@ -40031,7 +40113,7 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
       assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
     };
 
-    _class.prototype['@htmlbars getViewBoudningClientRect'] = function htmlbarsGetViewBoudningClientRect(assert) {
+    _class.prototype['@test getViewBoudningClientRect'] = function testGetViewBoudningClientRect(assert) {
       if (!hasGetBoundingClientRect || !ClientRectCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
