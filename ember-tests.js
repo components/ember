@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+fa7d1522
+ * @version   2.9.0-null+02996860
  */
 
 var enifed, requireModule, require, Ember;
@@ -21699,7 +21699,7 @@ babelHelpers.classCallCheck(this, _class2);
 
       expectAssertion(function () {
         _this28.render('{{example-component}}');
-      }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
+      }, 'You specified a quoteless path, `ohNoeNotValid`, to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action "ohNoeNotValid"}}).');
     };
 
     _class2.prototype['@test allows multiple actions on a single element'] = function testAllowsMultipleActionsOnASingleElement() {
@@ -45977,7 +45977,7 @@ babelHelpers.classCallCheck(this, _class2);
 
       expectAssertion(function () {
         _this28.render('{{example-component}}');
-      }, 'You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).');
+      }, 'You specified a quoteless path, `ohNoeNotValid`, to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action "ohNoeNotValid"}}).');
     };
 
     _class2.prototype['@test allows multiple actions on a single element'] = function testAllowsMultipleActionsOnASingleElement() {

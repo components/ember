@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+fa7d1522
+ * @version   2.9.0-null+02996860
  */
 
 var enifed, requireModule, require, Ember;
@@ -10220,6 +10220,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal/debug', 'ember
         if (actionNameRef[_emberGlimmerHelpersAction.INVOKE]) {
           actionName = actionNameRef;
         } else {
+          var actionLabel = actionNameRef._propertyKey;
           actionName = actionNameRef.value();
         }
       }
@@ -17140,6 +17141,7 @@ enifed('ember-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug'
       var read = env.hooks.getValue;
 
       var actionName = read(params[0]);
+      var actionLabel = _emberHtmlbarsStreamsUtils.labelFor(params[0]);
 
       var actionArgs = [];
       for (var i = 1; i < params.length; i++) {
@@ -47847,7 +47849,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+fa7d1522";
+  exports.default = "2.9.0-null+02996860";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -61683,6 +61685,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
   var normalizePath = _routeRecognizerNormalizer.default.normalizePath;
   var normalizeSegment = _routeRecognizerNormalizer.default.normalizeSegment;
+  var encodePathSegment = _routeRecognizerNormalizer.default.encodePathSegment;
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -61748,7 +61751,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
     generate: function (params) {
       if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        return encodeURIComponent(params[this.name]);
+        return encodePathSegment(params[this.name]);
       } else {
         return params[this.name];
       }
@@ -62487,9 +62490,50 @@ enifed('route-recognizer/normalizer', ['exports'], function (exports) {
     return decodeURIComponentExcept(segment, reservedHex);
   }
 
+  function encodeURIComponentExcept(string, reservedChars) {
+    var pieces = [];
+    var separators = [];
+    var currentPiece = '';
+    var idx;
+
+    for (idx = 0; idx < string.length; idx++) {
+      var char = string[idx];
+      if (reservedChars.indexOf(char) === -1) {
+        currentPiece += char;
+      } else {
+        pieces.push(currentPiece);
+        separators.push(char);
+        currentPiece = '';
+      }
+    }
+    if (currentPiece.length) {
+      pieces.push(currentPiece);
+      separators.push('');
+    }
+
+    pieces = pieces.map(encodeURIComponent);
+    var encoded = '';
+    for (idx = 0; idx < pieces.length; idx++) {
+      encoded += pieces[idx] + separators[idx];
+    }
+
+    return encoded;
+  }
+
+  // Do not encode these characters when generating dynamic path segments
+  // See https://tools.ietf.org/html/rfc3986#section-3.3
+  var reservedSegmentChars = ["!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "=", // sub-delims
+  ":", "@" // others explicitly allowed by RFC 3986
+  ];
+  function encodePathSegment(segment) {
+    segment = '' + segment; // coerce to string
+    return encodeURIComponentExcept(segment, reservedSegmentChars);
+  }
+
   var Normalizer = {
     normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath
+    normalizePath: normalizePath,
+    encodePathSegment: encodePathSegment
   };
 
   exports.default = Normalizer;
