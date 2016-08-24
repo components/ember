@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+02996860
+ * @version   2.9.0-null+c94d277b
  */
 
 var enifed, requireModule, require, Ember;
@@ -68513,7 +68513,13 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
 enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalTesting, _emberMetalError_handler, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
   'use strict';
 
-  QUnit.module('Ember.RSVP');
+  var ORIGINAL_ONERROR = _emberMetalError_handler.getOnerror();
+
+  QUnit.module('Ember.RSVP', {
+    teardown: function () {
+      _emberMetalError_handler.setOnerror(ORIGINAL_ONERROR);
+    }
+  });
 
   QUnit.test('Ensure that errors thrown from within a promise are sent to the console', function () {
     var error = new Error('Error thrown in a promise for testing purposes.');
@@ -71921,6 +71927,10 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['exports', 'ember-metal
   QUnit.module('Ember.PromiseProxy - ObjectProxy', {
     setup: function () {
       ObjectPromiseProxy = _emberRuntimeSystemObject_proxy.default.extend(_emberRuntimeMixinsPromise_proxy.default);
+    },
+
+    teardown: function () {
+      _rsvp.on('error', _emberRuntimeExtRsvp.onerrorDefault);
     }
   });
 
@@ -76333,7 +76343,14 @@ enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime
 enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemLazy_load) {
   'use strict';
 
-  QUnit.module('Lazy Loading');
+  QUnit.module('Lazy Loading', {
+    teardown: function () {
+      var keys = Object.keys(_emberRuntimeSystemLazy_load._loaded);
+      for (var i = 0; i < keys.length; i++) {
+        delete _emberRuntimeSystemLazy_load._loaded[keys[i]];
+      }
+    }
+  });
 
   QUnit.test('if a load hook is registered, it is executed when runLoadHooks are exected', function () {
     var count = 0;
@@ -79050,6 +79067,9 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     setup: function () {
       _emberViewsSystemJquery.default('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
       _emberViewsSystemJquery.default('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
+
+      originalAdapter = _emberTestingTest.default.adapter;
+
       _emberMetalRun_loop.default(function () {
         indexHitCount = 0;
 
@@ -79119,8 +79139,6 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
       visit = window.visit;
       andThen = window.andThen;
       currentURL = window.currentURL;
-
-      originalAdapter = _emberTestingTest.default.adapter;
     },
 
     teardown: function () {
@@ -80726,10 +80744,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     },
 
     teardown: function () {
-      App.removeTestHelpers();
-      _emberViewsSystemJquery.default('#ember-testing-container, #ember-testing').remove();
-      _emberMetalRun_loop.default(App, App.destroy);
-      App = null;
+      cleanup();
 
       _emberTestingTest.default._helpers.visit = originalVisitHelper;
       _emberTestingTest.default._helpers.find = originalFindHelper;
