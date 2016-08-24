@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c94d277b
+ * @version   2.9.0-null+ffde3384
  */
 
 var enifed, requireModule, require, Ember;
@@ -81512,6 +81512,34 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     equal(_emberRoutingSystemController_for.default(appInstance, 'application').get('selectedMenuItem'), null);
   });
 
+  QUnit.test('Destroying a route after the router does create an undestroyed `toplevelView`', function () {
+    App.Router.map(function () {
+      this.route('home', { path: '/' });
+    });
+
+    _emberTemplatesTemplate_registry.setTemplates({
+      index: _emberTemplateCompilerTestsUtilsHelpers.compile('Index!'),
+      application: _emberTemplateCompilerTestsUtilsHelpers.compile('Application! {{outlet}}')
+    });
+
+    App.IndexRoute = _emberRoutingSystemRoute.default.extend();
+    _emberMetalRun_loop.default(App, 'advanceReadiness');
+
+    handleURL('/');
+
+    var router = appInstance.lookup('router:main');
+    var route = appInstance.lookup('route:index');
+
+    _emberMetalRun_loop.default(router, 'destroy');
+    equal(router._toplevelView, null, 'the toplevelView was cleared');
+
+    _emberMetalRun_loop.default(route, 'destroy');
+    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+
+    _emberMetalRun_loop.default(App, 'destroy');
+    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+  });
+
   QUnit.test('initializers can augment an applications customEvents hash', function (assert) {
     assert.expect(1);
 
@@ -88701,6 +88729,50 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       throws(function () {
         return router.transitionTo('blog.post');
       }, /Defining a custom serialize method on an Engine route is not supported/);
+    });
+
+    QUnit.test('App.destroy does not leave undestroyed views after clearing engines', function () {
+      expect(4);
+
+      var engineInstance = undefined;
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend();
+      registry.register('engine:blog', BlogEngine);
+      var EngineIndexRoute = _emberRoutingSystemRoute.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          engineInstance = _containerOwner.getOwner(this);
+        }
+      });
+
+      // Register engine route map
+      var BlogMap = function () {
+        this.route('post');
+      };
+      registry.register('route-map:blog', BlogMap);
+
+      Router.map(function () {
+        this.mount('blog');
+      });
+
+      bootApplication();
+
+      var engine = container.lookup('engine:blog');
+      engine.register('route:index', EngineIndexRoute);
+      engine.register('template:index', _emberTemplateCompilerTestsUtilsHelpers.compile('Engine Post!'));
+
+      handleURL('/blog');
+
+      var route = engineInstance.lookup('route:index');
+
+      _emberMetalRun_loop.default(router, 'destroy');
+      equal(router._toplevelView, null, 'the toplevelView was cleared');
+
+      _emberMetalRun_loop.default(route, 'destroy');
+      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+
+      _emberMetalRun_loop.default(App, 'destroy');
+      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
     });
   }
 });
