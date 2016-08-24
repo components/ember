@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ffde3384
+ * @version   2.9.0-null+daf2a916
  */
 
 var enifed, requireModule, require, Ember;
@@ -10655,7 +10655,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
 
       if (seen.indexOf(attribute) === -1) {
         seen.push(attribute);
-        _emberGlimmerUtilsBindings.AttributeBinding.apply(element, component, parsed, operations);
+        _emberGlimmerUtilsBindings.AttributeBinding.install(element, component, parsed, operations);
       }
 
       i--;
@@ -10666,7 +10666,7 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'e
     }
 
     if (seen.indexOf('style') === -1) {
-      _emberGlimmerUtilsBindings.IsVisibleBinding.apply(element, component, operations);
+      _emberGlimmerUtilsBindings.IsVisibleBinding.install(element, component, operations);
     }
   }
 
@@ -10822,7 +10822,7 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
         applyAttributeBindings(element, attributeBindings, component, operations);
       } else {
         operations.addStaticAttribute(element, 'id', component.elementId);
-        _emberGlimmerUtilsBindings.IsVisibleBinding.apply(element, component, operations);
+        _emberGlimmerUtilsBindings.IsVisibleBinding.install(element, component, operations);
       }
 
       if (classRef) {
@@ -10837,7 +10837,7 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
 
       if (classNameBindings && classNameBindings.length) {
         classNameBindings.forEach(function (binding) {
-          _emberGlimmerUtilsBindings.ClassNameBinding.apply(element, component, binding, operations);
+          _emberGlimmerUtilsBindings.ClassNameBinding.install(element, component, binding, operations);
         });
       }
 
@@ -11580,7 +11580,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/property_get', '
       }
     },
 
-    apply: function (element, component, parsed, operations) {
+    install: function (element, component, parsed, operations) {
       var prop = parsed[0];
       var attribute = parsed[1];
       var isSimple = parsed[2];
@@ -11659,7 +11659,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/property_get', '
   })(_glimmerReference.CachedReference);
 
   var IsVisibleBinding = {
-    apply: function (element, component, operations) {
+    install: function (element, component, operations) {
       operations.addDynamicAttribute(element, 'style', _glimmerReference.map(referenceForKey(component, 'isVisible'), this.mapStyleValue));
     },
 
@@ -11670,7 +11670,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-metal/property_get', '
 
   exports.IsVisibleBinding = IsVisibleBinding;
   var ClassNameBinding = {
-    apply: function (element, component, microsyntax, operations) {
+    install: function (element, component, microsyntax, operations) {
       var _microsyntax$split = microsyntax.split(':');
 
       var prop = _microsyntax$split[0];
@@ -47860,7 +47860,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+ffde3384";
+  exports.default = "2.9.0-null+daf2a916";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
